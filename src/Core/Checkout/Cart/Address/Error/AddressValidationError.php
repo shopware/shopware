@@ -3,18 +3,30 @@
 namespace Shopware\Core\Checkout\Cart\Address\Error;
 
 use Shopware\Core\Checkout\Cart\Error\Error;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 #[Package('checkout')]
-class AddressValidationError extends Error
+class AddressValidationError extends Error implements AddressErrorInterface
 {
     private const KEY = 'address-invalid';
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:parameter-type-change - $addressId will be required and non-nullable
+     */
     public function __construct(
         protected readonly bool $isBillingAddress,
-        protected readonly ConstraintViolationList $violations
+        protected readonly ConstraintViolationList $violations,
+        protected readonly ?string $addressId = null,
     ) {
+        if (!$addressId) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                'Not passing an $addressId is deprecated and will not be allowed in v6.8.0.0. Please provide a valid address ID.'
+            );
+        }
+
         $this->message = \sprintf(
             'Please check your %s address for missing or invalid values.',
             $isBillingAddress ? 'billing' : 'shipping'
@@ -56,5 +68,10 @@ class AddressValidationError extends Error
     public function getViolations(): ConstraintViolationList
     {
         return $this->violations;
+    }
+
+    public function getAddressId(): ?string
+    {
+        return $this->addressId;
     }
 }

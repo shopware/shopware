@@ -2,6 +2,37 @@
 <div class="sw-import-export-exporter">
     {% block sw_import_export_exporter_header %}{% endblock %}
 
+    <template v-if="showProductVariantsInfo">
+        {% block sw_import_export_exporter_product_variants_warning %}
+        <mt-banner
+            variant="attention"
+            class="sw-import-export-exporter__variants-warning"
+        >
+            {% block sw_import_export_exporter_product_variants_warning_text %}
+            <span>{{ $tc('sw-import-export.exporter.variantsWarning') }}</span>
+
+            <div class="sw-import-export-exporter__variants-warning-links">
+                <mt-link
+                    as="button"
+                    class="sw-import-export-exporter__link"
+                    @click="setExportModalProfile('product_configurator_setting')"
+                >
+                    {{ $tc('sw-import-export.exporter.directExportVariantsLabel') }}
+                </mt-link>
+
+                <mt-link
+                    as="button"
+                    class="sw-import-export-exporter__link"
+                    @click="setExportModalProfile('property_group_option')"
+                >
+                    {{ $tc('sw-import-export.exporter.directExportPropertiesLabel') }}
+                </mt-link>
+            </div>
+            {% endblock %}
+        </mt-banner>
+        {% endblock %}
+    </template>
+
     {% block sw_import_export_exporter_profile_select %}
     <sw-entity-single-select
         class="sw-import-export-exporter__profile-select"
@@ -19,44 +50,11 @@
 
     <template v-if="selectedProfile && selectedProfile.sourceEntity === 'product'">
         {% block sw_import_export_exporter_profile_select_product_variants_switch %}
-
         <mt-switch
             v-model="config.parameters.includeVariants"
             class="sw-import-export-exporter__variants-switch-field"
             :label="$tc('sw-import-export.exporter.exportVariants')"
         />
-        {% endblock %}
-    </template>
-
-    <template v-if="showProductVariantsInfo">
-        {% block sw_import_export_exporter_product_variants_warning %}
-        <mt-banner
-            variant="attention"
-            class="sw-import-export-exporter__variants-warning"
-        >
-            {% block sw_import_export_exporter_product_variants_warning_text %}
-            <p>
-                <span v-html="$tc('sw-import-export.exporter.variantsWarning')"></span>
-            </p>
-            <p>
-                <a
-                    href="#"
-                    class="sw-import-export-exporter__link"
-                    @click.prevent="setExportModalProfile('product_configurator_setting')"
-                >
-                    {{ $tc('sw-import-export.exporter.directExportVariantsLabel') }}
-                </a>
-                <br>
-                <a
-                    href="#"
-                    class="sw-import-export-exporter__link"
-                    @click.prevent="setExportModalProfile('property_group_option')"
-                >
-                    {{ $tc('sw-import-export.exporter.directExportPropertiesLabel') }}
-                </a>
-            </p>
-            {% endblock %}
-        </mt-banner>
         {% endblock %}
     </template>
 
@@ -94,6 +92,5 @@
         @process-start="onStartProcess"
     />
     {% endblock %}
-
 </div>
 {% endblock %}

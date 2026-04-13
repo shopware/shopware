@@ -20,6 +20,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePriceDefinition;
 use Shopware\Core\Checkout\CheckoutPermissions;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Price\AbstractProductPriceCalculator;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
@@ -27,6 +28,7 @@ use Shopware\Core\Content\Product\State;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -89,7 +91,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             // find products in original cart which requires data from gateway
             $ids = $this->getNotCompleted($data, $items, $hash);
 
-            if (!empty($ids)) {
+            if ($ids !== []) {
                 // fetch missing data over gateway
                 $products = $this->productGateway->get($ids, $context);
 
@@ -117,7 +119,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             }
 
             // run price calculator in batch
-            $this->recalculate(array_column($lineItems, 'item'), $data, $context, $behavior);
+            $this->recalculate($items, $data, $context, $behavior);
 
             foreach ($lineItems as $match) {
                 // enrich all products in original cart
@@ -154,7 +156,15 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 $definition->setQuantity($item->getQuantity());
 
                 $item->setPrice($this->calculator->calculate($definition, $context));
-                $item->setShippingCostAware(!$item->hasState(State::IS_DOWNLOAD));
+                $isDownloadLineItem = $item->isProductType(ProductDefinition::TYPE_DIGITAL);
+
+                if (!Feature::isActive('v6.8.0.0')) {
+                    Feature::callSilentIfInactive('v6.8.0.0', static function () use ($item, &$isDownloadLineItem): void {
+                        $isDownloadLineItem = $isDownloadLineItem || $item->hasState(State::IS_DOWNLOAD);
+                    });
+                }
+
+                $item->setShippingCostAware(!$isDownloadLineItem);
             }
 
             $this->featureBuilder->add($items, $data, $context);
@@ -325,9 +335,18 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
         $weight = $product->getWeight();
 
-        $lineItem->setStates($product->getStates());
+        $lineItem->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, $product->getType());
 
-        if ($lineItem->hasState(State::IS_PHYSICAL)) {
+        $isPhysicalLineItem = $lineItem->isProductType(ProductDefinition::TYPE_PHYSICAL);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            Feature::callSilentIfInactive('v6.8.0.0', static function () use ($lineItem, $product, &$isPhysicalLineItem): void {
+                $lineItem->setStates($product->getStates());
+                $isPhysicalLineItem = $isPhysicalLineItem || $lineItem->hasState(State::IS_PHYSICAL);
+            });
+        }
+
+        if ($isPhysicalLineItem) {
             $lineItem->setDeliveryInformation(
                 new DeliveryInformation(
                     $product->getStock(),
@@ -429,6 +448,10 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             );
         }
 
+        if ($price->getRegulationPrice() !== null) {
+            $definition->setRegulationPrice($price->getRegulationPrice()->getPrice());
+        }
+
         return $definition;
     }
 
@@ -483,7 +506,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             $changes[$id] = $lineItem->getDataTimestamp()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
         }
 
-        if (empty($changes)) {
+        if ($changes === []) {
             return $ids;
         }
 
@@ -580,7 +603,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         }
 
         // Check if the price has to be updated
-        if (empty($affected)) {
+        if ($affected === []) {
             return;
         }
 

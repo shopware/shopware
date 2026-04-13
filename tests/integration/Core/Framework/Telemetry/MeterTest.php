@@ -53,7 +53,7 @@ class MeterTest extends TestCase
     {
         Feature::skipTestIfInActive('TELEMETRY_METRICS', $this);
 
-        $definitions = array_filter($this->definitions, fn (array $definition) => ($definition['enabled'] ?? true) === true);
+        $definitions = array_filter($this->definitions, static fn (array $definition) => ($definition['enabled'] ?? true) === true);
 
         $this->traceableTransport->reset();
         foreach ($definitions as $name => $definition) {

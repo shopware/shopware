@@ -21,6 +21,27 @@ Validates that all dependencies use exact versions (no `^` or `~` prefixes).
 npx esno check-pinned-dependencies.ts
 ```
 
+### `run-npm-audit.ts`
+Shared audit logic used by per-project `scripts/runNpmAudit.ts` wrappers. Exports `runNpmAudit(options)` which runs `npm audit`, filters advisories matching the given GHSA/CVE identifiers, and suggests using `overrides` or adding to the ignore list when vulnerabilities are found.
+
+Each project with known false-positives or unfixable advisories has a thin `scripts/runNpmAudit.ts` wrapper:
+```typescript
+import { runNpmAudit } from '../../../../../../.github/bin/js/run-npm-audit.ts';
+
+runNpmAudit({
+    ignoredGHSAs: [
+        'https://github.com/advisories/GHSA-2g4f-4pwh-qvx6', // ajv ReDoS, moderate severity, devDep only
+    ],
+    ignoredCVEs: [
+        'CVE-2025-58754', // axios DoS, false positive
+    ],
+});
+```
+
+GHSAs are specified as full `https://github.com/advisories/GHSA-xxxx-xxxx-xxxx` URLs so developers can click through directly. The GHSA identifier is extracted from the URL automatically.
+
+When vulnerabilities are detected, the output includes GHSA and CVE identifiers for each advisory, and the suggestions section provides copy-pasteable GHSA URL entries for the ignore list.
+
 ## Adding New Package.json
 
 When adding a new package.json file to the repository:
@@ -30,19 +51,20 @@ When adding a new package.json file to the repository:
    {
        path: './path/to/your/package.json',
        name: 'Your Package Name',
-       hasCustomAuditScript: true  // only if needed
+       hasCustomAuditScript: true  // only if using scripts/runNpmAudit.ts
    }
    ```
 
-2. Set `hasCustomAuditScript: true` only if the package uses a custom audit script instead of `npm audit`
+2. If the package has known advisories to ignore, create `scripts/runNpmAudit.ts` in that package's directory
+   that imports `runNpmAudit` from `.github/bin/js/run-npm-audit.ts` and passes the GHSA/CVE identifiers.
 
 ## CI Checks
 
 The workflow automatically:
 
-- ✅ **Package Completeness**: Ensures all package.json files are tracked
-- ✅ **Dependency Pinning**: Validates all dependencies use exact versions
-- ✅ **Security Audits**: Runs npm audit on all packages in parallel
-- ✅ **Dynamic Scaling**: New packages are automatically included in all checks
+- **Package Completeness**: Ensures all package.json files are tracked
+- **Dependency Pinning**: Validates all dependencies use exact versions
+- **Security Audits**: Runs npm audit on all packages in parallel
+- **Dynamic Scaling**: New packages are automatically included in all checks
 
 No manual workflow updates needed - just update the package list!

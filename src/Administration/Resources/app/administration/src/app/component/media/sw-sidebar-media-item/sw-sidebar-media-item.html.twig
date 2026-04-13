@@ -26,7 +26,6 @@
 
         {% block sw_sidebar_media_item_media_item_list %}
         {% block sw_sidebar_media_item_media_item_list_folder_item %}
-        <!-- eslint-disable vue/no-use-v-if-with-v-for -->
         <sw-media-folder-item
             v-for="folder in subFolders"
             v-if="!term.length"

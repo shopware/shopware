@@ -108,7 +108,23 @@ describe('form-validation', () => {
         expect(emailField.classList).toContain(formValidation.config.invalidClass);
         expect(emailFeedback.innerHTML).toBe('<div class="invalid-feedback">Invalid email address.</div>');
 
-        // Valid email field
+        // Valid IDN email field
+        emailField.value = 'valid@ëxämplé.com';
+
+        invalidFields = formValidation.validateForm(form);
+        expect(invalidFields.length).toBe(2);
+        expect(emailField.classList).not.toContain(formValidation.config.invalidClass);
+        expect(emailFeedback.innerHTML).toBe('');
+
+        // Valid ASCII email field with special characters
+        emailField.value = 'test!#$%&\'*+-/=?^_`{|}~@test.com';
+
+        invalidFields = formValidation.validateForm(form);
+        expect(invalidFields.length).toBe(2);
+        expect(emailField.classList).not.toContain(formValidation.config.invalidClass);
+        expect(emailFeedback.innerHTML).toBe('');
+
+        // Valid ASCII email field
         emailField.value = 'test@test.com';
 
         invalidFields = formValidation.validateForm(form);
@@ -250,6 +266,50 @@ describe('form-validation', () => {
         const form = document.getElementById('testForm');
 
         expect(formValidation.isFormElement(form)).toBe(true);
+    });
+
+    test('should set field as not required', () => {
+        document.body.innerHTML = `
+            <form id="testForm">
+                <div class="form-group">
+                    <label for="name">Username</label>
+                    <input type="text" name="name" id="name" data-validation="required,email" aria-describedby="name-feedback">
+                    <div id="name-feedback" class="form-field-feedback"></div>
+                </div>
+            </form>
+        `;
+
+        const field = document.getElementById('name');
+
+        // Mocking `checkVisibility` method, because Jest does not support it.
+        field.checkVisibility = jest.fn().mockReturnValue(true);
+
+        formValidation.setFieldNotRequired(field);
+
+        expect(field.getAttribute('data-validation')).toBe('email');
+        expect(field.hasAttribute('aria-required')).toBe(false);
+    });
+
+    test('should not remove validation rules when setFieldNotRequired is called on non-required field', () => {
+        document.body.innerHTML = `
+            <form id="testForm">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" name="email" id="email" data-validation="email,minLength" aria-describedby="email-feedback">
+                    <div id="email-feedback" class="form-field-feedback"></div>
+                </div>
+            </form>
+        `;
+
+        const field = document.getElementById('email');
+
+        // Mocking `checkVisibility` method, because Jest does not support it.
+        field.checkVisibility = jest.fn().mockReturnValue(true);
+
+        formValidation.setFieldNotRequired(field);
+
+        expect(field.getAttribute('data-validation')).toBe('email,minLength');
+        expect(field.hasAttribute('aria-required')).toBe(false);
     });
 
     test('should use custom validator', () => {
@@ -501,7 +561,7 @@ describe('form-validation', () => {
             expect(result).toBe(false);
             expect(mockDispatchEvent).toHaveBeenCalledWith(
                 expect.objectContaining({
-                    type: 'showCookieBar'
+                    type: 'showCookieBar',
                 })
             );
 
@@ -520,7 +580,7 @@ describe('form-validation', () => {
             expect(result).toBe(false);
             expect(mockDispatchEvent).toHaveBeenCalledWith(
                 expect.objectContaining({
-                    type: 'showCookieBar'
+                    type: 'showCookieBar',
                 })
             );
 

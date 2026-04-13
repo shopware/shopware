@@ -1,7 +1,7 @@
 /**
  * @sw-package fundamentals@after-sales
  */
-import unionBy from 'lodash/unionBy';
+import unionBy from 'lodash-es/unionBy';
 
 import template from './sw-import-export-new-profile-wizard-mapping-page.html.twig';
 import './sw-import-export-new-profile-wizard-mapping-page.scss';

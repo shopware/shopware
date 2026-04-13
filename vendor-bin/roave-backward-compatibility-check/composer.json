@@ -16,7 +16,7 @@
         }
     },
     "require": {
-        "roave/backward-compatibility-check": "^8.0",
+        "roave/backward-compatibility-check": "^8.14",
         "cweagans/composer-patches": "^1.7"
     },
     "extra": {
@@ -28,5 +28,16 @@
                 "Add exclude files": "patches/add-exclude-files.patch"
             }
         }
+    },
+    "replace": {
+        "symfony/polyfill-ctype": "*",
+        "symfony/polyfill-mbstring": "*",
+        "symfony/polyfill-intl-grapheme": "*",
+        "symfony/polyfill-intl-normalizer": "*",
+        "symfony/polyfill-php73": "*",
+        "symfony/polyfill-php74": "*",
+        "symfony/polyfill-php80": "*",
+        "symfony/polyfill-php81": "*",
+        "symfony/polyfill-php82": "*"
     }
 }

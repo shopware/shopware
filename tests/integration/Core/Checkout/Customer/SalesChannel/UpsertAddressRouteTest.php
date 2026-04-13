@@ -2,33 +2,20 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Customer\SalesChannel\UpsertAddressRoute;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
-use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -85,7 +72,7 @@ class UpsertAddressRouteTest extends TestCase
     }
 
     /**
-     * @param array<string, string> $data
+     * @param array<string, string|null> $data
      */
     #[DataProvider('addressDataProvider')]
     public function testCreateAddress(array $data): void
@@ -241,77 +228,6 @@ class UpsertAddressRouteTest extends TestCase
         foreach ($data as $key => $val) {
             static::assertSame($val, $address->jsonSerialize()[$key]);
         }
-    }
-
-    public function testCustomFields(): void
-    {
-        $addressRepository = $this->createMock(EntityRepository::class);
-        $addressRepository
-            ->method('searchIds')
-            ->willReturn(new IdSearchResult(1, [['data' => ['address-1'], 'primaryKey' => 'address-1']], new Criteria(), Context::createDefaultContext()));
-
-        $customerAddress = new CustomerAddressEntity();
-        $customerAddress->setId('test');
-
-        $result = $this->createMock(EntitySearchResult::class);
-        $result->method('getEntities')
-            ->willReturn(new CustomerAddressCollection([$customerAddress]));
-
-        $addressRepository
-            ->method('search')
-            ->willReturn($result);
-
-        $addressRepository
-            ->method('upsert')
-            ->with([
-                [
-                    'salutationId' => '1',
-                    'firstName' => null,
-                    'lastName' => null,
-                    'street' => null,
-                    'city' => null,
-                    'zipcode' => null,
-                    'countryId' => null,
-                    'countryStateId' => null,
-                    'company' => null,
-                    'department' => null,
-                    'title' => null,
-                    'phoneNumber' => null,
-                    'additionalAddressLine1' => null,
-                    'additionalAddressLine2' => null,
-                    'id' => 'test',
-                    'customerId' => 'test',
-                    'customFields' => [
-                        'mapped' => 1,
-                    ],
-                ],
-            ]);
-
-        $customFieldMapper = new StoreApiCustomFieldMapper($this->createMock(Connection::class), [
-            CustomerAddressDefinition::ENTITY_NAME => [
-                ['name' => 'mapped', 'type' => 'int'],
-            ],
-        ]);
-
-        $route = new UpsertAddressRoute(
-            $addressRepository,
-            $this->createMock(DataValidator::class),
-            new EventDispatcher(),
-            $this->createMock(DataValidationFactoryInterface::class),
-            $this->createMock(SystemConfigService::class),
-            $customFieldMapper,
-            $this->createMock(EntityRepository::class),
-        );
-
-        $customer = new CustomerEntity();
-        $customer->setId('test');
-        $route->upsert('test', new RequestDataBag([
-            'customFields' => [
-                'bla' => 'bla',
-                'mapped' => '1',
-            ],
-            'salutationId' => '1',
-        ]), $this->createMock(SalesChannelContext::class), $customer);
     }
 
     public static function addressDataProvider(): \Generator

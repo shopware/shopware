@@ -257,7 +257,7 @@ class OrderStateChangeEventListenerTest extends TestCase
             ->addFilter(new EqualsFilter('active', true))
             ->addFilter(new EqualsFilter('handlerIdentifier', PrePayment::class));
 
-        $id = $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
+        $id = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
         static::assertIsString($id);
 
         return $id;

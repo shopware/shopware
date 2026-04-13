@@ -22,7 +22,8 @@ class SystemConfigChangedHook implements Hookable
     public function __construct(
         private readonly array $values,
         private readonly array $appMapping,
-        public readonly ?string $salesChannelId = null
+        public readonly ?string $salesChannelId = null,
+        public readonly bool $silent = false,
     ) {
     }
 

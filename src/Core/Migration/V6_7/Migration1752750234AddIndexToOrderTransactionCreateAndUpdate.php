@@ -5,6 +5,7 @@ namespace Shopware\Core\Migration\V6_7;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -19,7 +20,7 @@ class Migration1752750234AddIndexToOrderTransactionCreateAndUpdate extends Migra
 
     public function update(Connection $connection): void
     {
-        if (!$this->indexExists($connection, 'order_transaction', 'idx.order_transaction_created_updated')) {
+        if (!TableHelper::indexExists($connection, 'order_transaction', 'idx.order_transaction_created_updated')) {
             $connection->executeStatement('CREATE INDEX `idx.order_transaction_created_updated` ON `order_transaction` (`created_at`, `updated_at`)');
         }
     }

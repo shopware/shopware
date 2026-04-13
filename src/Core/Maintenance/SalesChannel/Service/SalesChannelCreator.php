@@ -178,7 +178,6 @@ class SalesChannelCreator
      */
     private function getAllIdsOf(string $entity, Context $context): array
     {
-        /** @var list<string> $ids */
         $ids = $this->definitionRegistry->getRepository($entity)->searchIds(new Criteria(), $context)->getIds();
 
         return array_map(

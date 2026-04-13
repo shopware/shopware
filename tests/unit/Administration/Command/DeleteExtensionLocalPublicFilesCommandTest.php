@@ -44,7 +44,7 @@ class DeleteExtensionLocalPublicFilesCommandTest extends TestCase
 
         $tester->execute([]);
         $tester->assertCommandIsSuccessful();
-        static::assertSame('', $tester->getDisplay());
+        static::assertSame('', $tester->getDisplay(true));
     }
 
     public function testBundleWithJSAndCss(): void
@@ -67,7 +67,7 @@ class DeleteExtensionLocalPublicFilesCommandTest extends TestCase
 
         $tester->execute([]);
         $tester->assertCommandIsSuccessful();
-        static::assertStringContainsString('Removed public assets for bundle', $tester->getDisplay());
+        static::assertStringContainsString('Removed public assets for bundle', $tester->getDisplay(true));
 
         static::assertFileExists($extensionDir . '/Resources/.administration-css');
         static::assertFileExists($extensionDir . '/Resources/.administration-js');

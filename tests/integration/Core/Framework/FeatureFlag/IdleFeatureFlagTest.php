@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\FeatureFlag;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Tests\Unit\Core\Framework\FeatureTest;
 use Symfony\Component\Finder\Finder;
 
 /**
@@ -31,7 +32,7 @@ class IdleFeatureFlagTest extends TestCase
         'FEATURE_NEXT_123',
         'FEATURE_NEXT_1234',
         'FEATURE_NEXT_1235',
-        'FEATURE_NEXT_0000', /** @see \Shopware\Tests\Unit\Core\Framework\FeatureTest */
+        'FEATURE_NEXT_0000', /** @see FeatureTest */
     ];
 
     private static string $featureAllValue;
@@ -77,7 +78,7 @@ class IdleFeatureFlagTest extends TestCase
             preg_match_all($regex, $contents, $keys);
             $availableFlag = array_unique($keys[0]);
 
-            if (!empty($availableFlag)) {
+            if ($availableFlag !== []) {
                 foreach ($availableFlag as $flag) {
                     if (\in_array($flag, self::EXCLUDE_BY_FLAG, true)) {
                         continue;

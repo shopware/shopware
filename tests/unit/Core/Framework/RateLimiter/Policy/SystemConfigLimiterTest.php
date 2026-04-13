@@ -116,7 +116,7 @@ class SystemConfigLimiterTest extends TestCase
             ->expects($this->exactly(\array_key_exists('limit', $this->config['limits'][0]) ? 0 : 1))
             ->method('get')
             ->willReturnCallback(
-                fn (string $domain) => $domainLimits[$domain] ?? null
+                static fn (string $domain) => $domainLimits[$domain] ?? null
             );
 
         $cacheStorage = $this->createMock(CacheStorage::class);

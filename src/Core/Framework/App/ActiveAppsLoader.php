@@ -60,7 +60,7 @@ class ActiveAppsLoader implements ResetInterface
                 WHERE `active` = 1
             ');
 
-            return array_map(fn (array $app) => [
+            return array_map(static fn (array $app) => [
                 'name' => $app['name'],
                 'path' => $app['path'],
                 'author' => $app['author'],
@@ -70,7 +70,7 @@ class ActiveAppsLoader implements ResetInterface
             if (!EnvironmentHelper::getVariable('TESTS_RUNNING')) {
                 $message = 'Falling back to load local apps.';
 
-                if (EnvironmentHelper::getVariable('CI')) {
+                if (EnvironmentHelper::isCiMode()) {
                     $message = 'Apps could not be loaded (Most likely DB services are not available in CI environments by design). ' . $message;
                 } else {
                     $message = 'Warning: Failed to load apps. ' . $message;

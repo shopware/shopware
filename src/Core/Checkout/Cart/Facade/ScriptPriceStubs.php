@@ -19,6 +19,8 @@ use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @internal PriceFacade is public api, this class is only a service layer for better testing and re-usability for internal logic
+ *
+ * @phpstan-type PriceArray array<string, array{gross:float, net:float, linked?:bool, currencyId?:string}>
  */
 #[Package('checkout')]
 class ScriptPriceStubs implements ResetInterface
@@ -60,7 +62,7 @@ class ScriptPriceStubs implements ResetInterface
      *      { gross: 90, net: 40, currencyId: {currency-id} },
      * }; => default is validate when persisting as storage
      *
-     * @param array<string, array{gross:float, net:float, linked?:bool}> $price
+     * @param PriceArray $price
      */
     public function build(array $price): PriceCollection
     {
@@ -83,9 +85,9 @@ class ScriptPriceStubs implements ResetInterface
     }
 
     /**
-     * @param array<string, array{gross:float, net:float, linked?:bool}> $price
+     * @param PriceArray $price
      *
-     * @return array<string, array{gross:float, net:float, linked?:bool}>
+     * @return PriceArray
      */
     private function validatePrice(array $price): array
     {
@@ -113,9 +115,9 @@ class ScriptPriceStubs implements ResetInterface
     }
 
     /**
-     * @param array<string, array{gross:float, net:float, linked?:bool, currencyId?:string}> $prices
+     * @param PriceArray $prices
      *
-     * @return array<string, array{gross:float, net:float, linked?:bool, currencyId?:string}>
+     * @return PriceArray
      */
     private function resolveIsoCodes(array $prices): array
     {

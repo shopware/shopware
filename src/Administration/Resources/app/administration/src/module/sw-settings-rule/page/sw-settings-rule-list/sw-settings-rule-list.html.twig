@@ -74,7 +74,7 @@
                 ref="swRuleGrid"
                 identifier="sw-settings-rule-list"
                 class="sw-rule-list-grid"
-                :items="rules"
+                :data-source="rules"
                 :columns="getRuleColumns()"
                 :repository="ruleRepository"
                 :is-loading="isLoading"

@@ -61,7 +61,7 @@ class EntityPipeTest extends TestCase
         $translation = $first->getName();
         static::assertIsString($translation);
 
-        static::assertSame($product->getId(), $result['id']);
+        static::assertSame($id, $result['id']);
         static::assertSame($translation, $result['translations']['DEFAULT']['name']);
         static::assertSame((string) $product->getStock(), $result['stock']);
         static::assertSame($product->getProductNumber(), $result['productNumber']);

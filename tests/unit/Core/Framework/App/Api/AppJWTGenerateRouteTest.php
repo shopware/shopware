@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Api\AppJWTGenerateRoute;
 use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
 use Shopware\Core\Test\Generator;
@@ -50,6 +51,12 @@ class AppJWTGenerateRouteTest extends TestCase
 
     public function testGenerate(): void
     {
+        $shopId = ShopId::v2('shop-id');
+        $shopIdProvider = $this->createMock(ShopIdProvider::class);
+        $shopIdProvider
+            ->method('getShopId')
+            ->willReturn($shopId);
+
         $inAppPurchase = StaticInAppPurchaseFactory::createWithFeatures(['extension-1' => ['purchase-1', 'purchase-2'], 'extension-2' => ['purchase-3']]);
 
         $privileges = [
@@ -68,7 +75,7 @@ class AppJWTGenerateRouteTest extends TestCase
 
         $appJWTGenerateRoute = new AppJWTGenerateRoute(
             $connection,
-            $this->createMock(ShopIdProvider::class),
+            $shopIdProvider,
             $inAppPurchase,
         );
 

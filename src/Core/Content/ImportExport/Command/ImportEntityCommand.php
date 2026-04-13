@@ -242,7 +242,7 @@ class ImportEntityCommand extends Command
         $importExport = $this->importExportFactory->create($log->getId());
         $results = $importExport->getLogEntity()->getResult();
 
-        if (empty($results)) {
+        if ($results === []) {
             return;
         }
 

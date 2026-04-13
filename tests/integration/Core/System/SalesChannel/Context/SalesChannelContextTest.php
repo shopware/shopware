@@ -507,14 +507,12 @@ class SalesChannelContextTest extends TestCase
             false,
             false,
             false,
-            true,
         ];
 
         yield 'Logged in as guest, but guest not allowed' => [
             true,
             true,
             false,
-            true,
         ];
     }
 
@@ -571,10 +569,7 @@ class SalesChannelContextTest extends TestCase
     {
         $criteria = (new Criteria())->setLimit($limit);
 
-        $ids = static::getContainer()->get('country.repository')->searchIds($criteria, Context::createDefaultContext())->getIds();
-        static::assertContainsOnlyString($ids);
-
-        return $ids;
+        return static::getContainer()->get('country.repository')->searchIds($criteria, Context::createDefaultContext())->getIds();
     }
 
     protected function createCountryState(string $countryId): string

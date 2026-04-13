@@ -53,7 +53,7 @@ class SeoUrlGenerator
     }
 
     /**
-     * @param array<string|array<string, string>> $ids
+     * @param list<string|array<string, string>> $ids
      *
      * @return iterable<SeoUrlEntity>
      */
@@ -91,13 +91,15 @@ class SeoUrlGenerator
         SeoUrlRouteConfig $config,
         SalesChannelEntity $salesChannel,
         EntitySearchResult $searchResult,
-        string $templateName
+        string $templateName,
     ): iterable {
         $request = $this->requestStack->getMainRequest();
 
         $basePath = $request ? $request->getBasePath() : '';
 
-        foreach ($searchResult->getEntities() as $entity) {
+        $entities = $searchResult->getEntities();
+
+        foreach ($entities as $entity) {
             $seoUrl = new SeoUrlEntity();
             $seoUrl->setForeignKey($entity->getUniqueIdentifier());
 
@@ -105,16 +107,14 @@ class SeoUrlGenerator
             $seoUrl->setIsModified(false);
             $seoUrl->setIsDeleted(false);
 
-            $copy = clone $seoUrl;
-
             $mapping = $seoUrlRoute->getMapping($entity, $salesChannel);
 
-            $copy->setError($mapping->getError());
+            $seoUrl->setError($mapping->getError());
 
             $pathInfo = $this->router->generate($config->getRouteName(), $mapping->getInfoPathContext());
             $pathInfo = $this->removePrefix($pathInfo, $basePath);
 
-            $copy->setPathInfo($pathInfo);
+            $seoUrl->setPathInfo($pathInfo);
 
             $seoPathInfo = $this->getSeoPathInfo($mapping, $config, $templateName);
 
@@ -122,10 +122,10 @@ class SeoUrlGenerator
                 continue;
             }
 
-            $copy->setSeoPathInfo($seoPathInfo);
-            $copy->setSalesChannelId($salesChannel->getId());
+            $seoUrl->setSeoPathInfo($seoPathInfo);
+            $seoUrl->setSalesChannelId($salesChannel->getId());
 
-            yield $copy;
+            yield $seoUrl;
         }
     }
 

@@ -30,7 +30,7 @@ class FileInfoHelper
 
         if (\in_array($guessedMimeType, self::COMMON_MIME_TYPES, true)) {
             $extMimeType = $mimeTypesDetector->getMimeTypes($originalExtension);
-            if (\count($extMimeType) > 0) {
+            if ($extMimeType !== []) {
                 return $extMimeType[0];
             }
         }

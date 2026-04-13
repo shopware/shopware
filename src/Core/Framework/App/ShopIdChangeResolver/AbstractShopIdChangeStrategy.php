@@ -2,10 +2,9 @@
 
 namespace Shopware\Core\Framework\App\ShopIdChangeResolver;
 
-use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
+use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
@@ -25,12 +24,18 @@ abstract class AbstractShopIdChangeStrategy
     public function __construct(
         private readonly SourceResolver $sourceResolver,
         private readonly EntityRepository $appRepository,
-        private readonly AppRegistrationService $registrationService
+        private readonly AppSecretRotationService $appSecretRotationService
     ) {
     }
 
     abstract public function getName(): string;
 
+    /**
+     * @return string the description of the strategy used to explain what the strategy does in CLI and API
+     *
+     * Note: in the administration we have separate snippets for this to localize the description, keep the descriptions in sync
+     * `sw-app.component.sw-app-shop-id-change-modal.strategies.${strategy-name}.description`
+     */
     abstract public function getDescription(): string;
 
     abstract public function resolve(Context $context): void;
@@ -59,19 +64,6 @@ abstract class AbstractShopIdChangeStrategy
 
     protected function reRegisterApp(Manifest $manifest, AppEntity $app, Context $context): void
     {
-        $secret = AccessKeyHelper::generateSecretAccessKey();
-
-        $this->appRepository->update([
-            [
-                'id' => $app->getId(),
-                'integration' => [
-                    'id' => $app->getIntegrationId(),
-                    'accessKey' => AccessKeyHelper::generateAccessKey('integration'),
-                    'secretAccessKey' => $secret,
-                ],
-            ],
-        ], $context);
-
-        $this->registrationService->registerApp($manifest, $app->getId(), $secret, $context);
+        $this->appSecretRotationService->rotateNow($app->getId(), $context, AppSecretRotationService::TRIGGER_SHOP_MOVE);
     }
 }

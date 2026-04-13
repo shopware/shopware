@@ -53,7 +53,7 @@ class LanguageValidator implements EventSubscriberInterface
     {
         $commands = $event->getCommands();
         $affectedIds = $this->getAffectedIds($commands);
-        if (\count($affectedIds) === 0) {
+        if ($affectedIds === []) {
             return;
         }
 

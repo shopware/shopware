@@ -4,8 +4,6 @@ namespace Shopware\Core\Test\Stub\Redis;
 
 class RedisStub extends \Redis
 {
-    use RedisCompatibility;
-
     /**
      * @var array<string, mixed>
      */
@@ -15,7 +13,24 @@ class RedisStub extends \Redis
     {
     }
 
-    private function doGet(string $key): mixed
+    public function connect(
+        string $host,
+        int $port = 6379,
+        float $timeout = 0,
+        ?string $persistent_id = null,
+        int $retry_interval = 0,
+        float $read_timeout = 0,
+        ?array $context = null
+    ): bool {
+        return true;
+    }
+
+    public function isConnected(): bool
+    {
+        return true;
+    }
+
+    public function get(string $key): mixed
     {
         if (\array_key_exists($key, $this->data)) {
             $value = $this->data[$key];
@@ -32,9 +47,11 @@ class RedisStub extends \Redis
         return false;
     }
 
-    private function doSet(string $key, mixed $value, mixed $options = null): true
+    public function set(string $key, mixed $value, mixed $options = null): \Redis|string|bool
     {
         $expire = 0;
+        $mustExist = false;
+        $mustNotExist = false;
 
         if (\is_array($options)) {
             if (isset($options['ex'])) {
@@ -44,8 +61,32 @@ class RedisStub extends \Redis
             if (isset($options['EX'])) {
                 $expire = time() + $options['EX'];
             }
+
+            foreach ($options as $option) {
+                if (!\is_string($option)) {
+                    continue;
+                }
+
+                $option = strtolower($option);
+
+                if ($option === 'xx') {
+                    $mustExist = true;
+                }
+
+                if ($option === 'nx') {
+                    $mustNotExist = true;
+                }
+            }
         } elseif (\is_int($options)) {
             $expire = time() + $options;
+        }
+
+        if ($mustExist && !\array_key_exists($key, $this->data)) {
+            return false;
+        }
+
+        if ($mustNotExist && \array_key_exists($key, $this->data)) {
+            return false;
         }
 
         $this->data[$key] = ['value' => $value, 'expire' => $expire];
@@ -53,11 +94,15 @@ class RedisStub extends \Redis
         return true;
     }
 
-    private function doDel(string $key, string ...$other_keys): int
+    public function del(array|string $key, string ...$other_keys): \Redis|int|false
     {
         $deletions = 0;
 
-        $other_keys[] = $key;
+        if (\is_string($key)) {
+            $other_keys[] = $key;
+        } else {
+            $other_keys = array_merge($key, $other_keys);
+        }
 
         foreach ($other_keys as $otherKey) {
             if (\array_key_exists($otherKey, $this->data)) {
@@ -69,7 +114,7 @@ class RedisStub extends \Redis
         return $deletions;
     }
 
-    private function doExists(mixed $key, mixed ...$other_keys): int|bool
+    public function exists(mixed $key, mixed ...$other_keys): \Redis|int|bool
     {
         if ($other_keys === []) {
             return \array_key_exists($key, $this->data);
@@ -88,7 +133,7 @@ class RedisStub extends \Redis
         return $found;
     }
 
-    private function doSAdd(string $key, mixed $value, mixed ...$other_values): int
+    public function sAdd(string $key, mixed $value, mixed ...$other_values): \Redis|int|false
     {
         $current = $this->get($key);
 
@@ -110,10 +155,7 @@ class RedisStub extends \Redis
         return 1;
     }
 
-    /**
-     * @return list<string>
-     */
-    private function doSMembers(string $key): array
+    public function sMembers(string $key): \Redis|array|false
     {
         /** @var list<string>|false|string $value */
         $value = $this->get($key);
@@ -129,7 +171,7 @@ class RedisStub extends \Redis
         return $value;
     }
 
-    private function doTtl(string $key): int|false
+    public function ttl(string $key): \Redis|int|false
     {
         if (\array_key_exists($key, $this->data)) {
             $value = $this->data[$key];
@@ -143,5 +185,10 @@ class RedisStub extends \Redis
         }
 
         return false;
+    }
+
+    public function multi(int $value = \Redis::MULTI): \Redis|bool
+    {
+        return new RedisMultiWrapper($this);
     }
 }

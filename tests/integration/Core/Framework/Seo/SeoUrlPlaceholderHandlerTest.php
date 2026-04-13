@@ -36,7 +36,7 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
         /** @var Router|MockObject $router */
         $router = $this->createMock(Router::class);
         $router->method('generate')
-            ->willReturnCallback(fn ($name, $params) => match ($name) {
+            ->willReturnCallback(static fn ($name, $params) => match ($name) {
                 'frontend.detail.page' => '/detail/' . ($params['productId'] ?? ''),
                 'frontend.navigation.page' => '/navigation/' . ($params['navigationId'] ?? ''),
                 default => '',

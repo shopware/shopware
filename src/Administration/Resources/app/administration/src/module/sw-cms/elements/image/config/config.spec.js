@@ -106,7 +106,7 @@ describe('src/module/sw-cms/elements/image/config', () => {
     });
 
     it('should keep minHeight value when changing display mode', async () => {
-        const wrapper = await createWrapper('settings');
+        const wrapper = await createWrapper();
 
         await selectMtSelectOptionByText(
             wrapper,

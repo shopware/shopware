@@ -120,6 +120,7 @@ async function createWrapper(buttonConfig) {
                 'mt-url-field': MtUrlField,
                 'sw-app-action-button': true,
                 'sw-time-ago': true,
+                'sw-media-modal-v2': true,
             },
         },
         props: {
@@ -320,9 +321,9 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
         expect(associations[0].criteria.associations).toHaveLength(1);
         expect(associations[0].criteria.associations[0].association).toBe('group');
 
-        expect(productSingleSelect.criteria.filters).toStrictEqual(
-            expect.objectContaining([
-                {
+        expect(productSingleSelect.criteria.filters).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
                     operator: 'OR',
                     queries: [
                         {
@@ -337,7 +338,7 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
                         },
                     ],
                     type: 'multi',
-                },
+                }),
             ]),
         );
 

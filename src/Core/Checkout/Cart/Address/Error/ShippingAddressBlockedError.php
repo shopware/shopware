@@ -6,12 +6,14 @@ use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('checkout')]
-class ShippingAddressBlockedError extends Error
+class ShippingAddressBlockedError extends Error implements AddressErrorInterface
 {
     private const KEY = 'shipping-address-blocked';
 
-    public function __construct(protected readonly string $name)
-    {
+    public function __construct(
+        protected readonly string $name,
+        protected readonly ?string $addressId = null,
+    ) {
         $this->message = \sprintf(
             'Shippings to shipping address %s are not possible.',
             $name
@@ -53,5 +55,10 @@ class ShippingAddressBlockedError extends Error
     public function getParameters(): array
     {
         return ['name' => $this->name];
+    }
+
+    public function getAddressId(): ?string
+    {
+        return $this->addressId;
     }
 }

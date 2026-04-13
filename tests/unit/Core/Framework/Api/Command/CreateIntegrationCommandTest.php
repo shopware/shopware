@@ -37,7 +37,7 @@ class CreateIntegrationCommandTest extends TestCase
         $admin = null;
         $integrationRepository->expects($this->once())
             ->method('create')
-            ->with(static::callback(function ($input) use (&$accessKey, &$secretAccessKey, &$admin) {
+            ->with(static::callback(static function ($input) use (&$accessKey, &$secretAccessKey, &$admin) {
                 $accessKey = $input[0]['accessKey'];
                 $secretAccessKey = $input[0]['secretAccessKey'];
                 $admin = $input[0]['admin'];
@@ -80,7 +80,7 @@ class CreateIntegrationCommandTest extends TestCase
         $admin = null;
         $integrationRepository->expects($this->once())
             ->method('create')
-            ->with(static::callback(function ($input) use (&$accessKey, &$secretAccessKey, &$admin) {
+            ->with(static::callback(static function ($input) use (&$accessKey, &$secretAccessKey, &$admin) {
                 $accessKey = $input[0]['accessKey'];
                 $secretAccessKey = $input[0]['secretAccessKey'];
                 $admin = $input[0]['admin'];

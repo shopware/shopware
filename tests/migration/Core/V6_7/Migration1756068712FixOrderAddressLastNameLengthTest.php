@@ -3,9 +3,11 @@
 namespace Shopware\Tests\Migration\Core\V6_7;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1756068712FixOrderAddressLastNameLength;
 
 /**
@@ -37,19 +39,22 @@ class Migration1756068712FixOrderAddressLastNameLengthTest extends TestCase
             MODIFY COLUMN `last_name` VARCHAR(60) COLLATE utf8mb4_unicode_ci NOT NULL
         ');
 
-        $columns = $this->connection->fetchAllAssociativeIndexed('SHOW COLUMNS FROM `order_address`');
-        static::assertStringContainsString('varchar(60)', $columns['last_name']['Type']);
+        $lastNameColumn = TableHelper::getColumnOfTable($this->connection, 'order_address', 'last_name');
+        static::assertSame(Types::STRING, $lastNameColumn->type);
+        static::assertSame(60, $lastNameColumn->length);
 
         $migration->update($this->connection);
 
-        $columns = $this->connection->fetchAllAssociativeIndexed('SHOW COLUMNS FROM `order_address`');
-        static::assertStringContainsString('varchar(255)', $columns['last_name']['Type']);
-        static::assertSame('NO', $columns['last_name']['Null']);
+        $lastNameColumn = TableHelper::getColumnOfTable($this->connection, 'order_address', 'last_name');
+        static::assertSame(Types::STRING, $lastNameColumn->type);
+        static::assertSame(255, $lastNameColumn->length);
+        static::assertTrue($lastNameColumn->isNotNull);
 
         $migration->update($this->connection);
 
-        $columns = $this->connection->fetchAllAssociativeIndexed('SHOW COLUMNS FROM `order_address`');
-        static::assertStringContainsString('varchar(255)', $columns['last_name']['Type']);
-        static::assertSame('NO', $columns['last_name']['Null']);
+        $lastNameColumn = TableHelper::getColumnOfTable($this->connection, 'order_address', 'last_name');
+        static::assertSame(Types::STRING, $lastNameColumn->type);
+        static::assertSame(255, $lastNameColumn->length);
+        static::assertTrue($lastNameColumn->isNotNull);
     }
 }

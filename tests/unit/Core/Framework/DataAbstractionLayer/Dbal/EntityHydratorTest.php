@@ -416,7 +416,7 @@ class EntityHydratorTest extends TestCase
     }
 
     /**
-     * @param list<non-falsy-string> $additionalLanguages
+     * @param list<non-empty-string> $additionalLanguages
      */
     private function createContext(bool $inheritance = true, array $additionalLanguages = []): Context
     {

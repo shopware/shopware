@@ -65,7 +65,7 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
             '/simple',
             false
         );
-        $properties = json_decode($schema['Simple']->toJson(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR)['properties'];
+        $properties = json_decode($schema['Simple']->toJson(), true, flags: \JSON_THROW_ON_ERROR)['properties'];
         static::assertArrayHasKey('id', $properties);
         static::assertArrayHasKey('type', $properties['id']);
         static::assertSame('string', $properties['id']['type']);
@@ -101,7 +101,7 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
             '/simple',
             false
         );
-        $properties = json_decode($schema['Simple']->toJson(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR)['properties'];
+        $properties = json_decode($schema['Simple']->toJson(), true, flags: \JSON_THROW_ON_ERROR)['properties'];
 
         static::assertArrayHasKey('requiredField', $properties);
         static::assertArrayHasKey('readOnlyField', $properties);
@@ -118,10 +118,35 @@ class OpenApiDefinitionSchemaBuilderTest extends TestCase
             '/simple-extended',
             false
         );
-        $properties = json_decode($schema['SimpleExtended']->toJson(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR)['properties'];
+        $properties = json_decode($schema['SimpleExtended']->toJson(), true, flags: \JSON_THROW_ON_ERROR)['properties'];
 
         static::assertArrayHasKey('extensions', $properties);
         static::assertArrayHasKey('properties', $properties['extensions']);
         static::assertArrayHasKey('extendedJsonField', $properties['extensions']['properties']);
+    }
+
+    public function testAssociationDescriptions(): void
+    {
+        $schema = $this->schemaBuilder->getSchemaByDefinition(
+            $this->definitionRegistry->get(ComplexDefinition::class),
+            '/complex',
+            false
+        );
+
+        $properties = json_decode($schema['Complex']->toJson(), true, flags: \JSON_THROW_ON_ERROR)['properties'];
+
+        // Test ManyToOne association description
+        static::assertArrayHasKey('simpleTo', $properties);
+        static::assertArrayHasKey('description', $properties['simpleTo']);
+        static::assertSame('A reference to a simple entity', $properties['simpleTo']['description']);
+
+        // Test OneToMany association description
+        static::assertArrayHasKey('simpleManys', $properties);
+        static::assertArrayHasKey('description', $properties['simpleManys']);
+        static::assertSame('Multiple simple entities', $properties['simpleManys']['description']);
+
+        // Test with empty description
+        static::assertArrayHasKey('simpleToWithEmptyDescription', $properties);
+        static::assertArrayNotHasKey('description', $properties['simpleToWithEmptyDescription']);
     }
 }

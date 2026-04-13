@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
@@ -38,6 +39,7 @@ use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 /**
  * @internal
  */
+#[Package('checkout')]
 class AddressControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -237,7 +239,7 @@ class AddressControllerTest extends TestCase
         static::getContainer()->get('request_stack')->push($request);
 
         /** @var RedirectResponse $response */
-        $response = $controller->saveAddress($dataBag, $context, $customer);
+        $response = $controller->saveAddress($dataBag, $context, $customer, new Request());
 
         $criteria = new Criteria([$id1]);
         $criteria->addAssociation('addresses');
@@ -569,7 +571,7 @@ class AddressControllerTest extends TestCase
         $this->addEventListener(
             static::getContainer()->get('event_dispatcher'),
             StorefrontRenderEvent::class,
-            function (StorefrontRenderEvent $event): void {
+            static function (StorefrontRenderEvent $event): void {
                 $data = $event->getParameters();
 
                 static::assertArrayHasKey('formViolations', $data);

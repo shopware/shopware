@@ -22,14 +22,14 @@
 
 <p align="center"><strong>Modern open source e-Commerce</strong>
 
-Shopware 6 is an open headless commerce platform powered by [Symfony 7](https://symfony.com) and [Vue.js 3](https://vuejs.org) that is used by thousands of shops and supported by a huge, [worldwide community](https://chat.shopware.com/) of developers, agencies and merchants.
+Shopware 6 is an open headless commerce platform powered by [Symfony 7](https://symfony.com) and [Vue.js 3](https://vuejs.org) that is used by thousands of shops and supported by a huge, [worldwide community](https://chat.shopware.com/) of developers, agencies, and merchants.
 
 If you like Shopware 6, give us a&nbsp;⭐️ &nbsp;on GitHub!
 
 * 🙋‍♂️ &nbsp;[Be part of shopware!](https://www.shopware.com/en/jobs/) ‍&nbsp;We are hiring!  🙋
 * 🌎 &nbsp;Discover our [website](https://www.shopware.com/en/)
 * 🧩 &nbsp;Browse more than [3,100 extensions](https://store.shopware.com/en/) in our community store
-* 📖 &nbsp;Learn how to [develop extensions](https://developer.shopware.com) and everything else about the tech behind Shopware
+* 📖 &nbsp;Learn how to [develop extensions](https://developer.shopware.com) and everything else about the tech behind Shopware via our developer docs.
 * 🉐 &nbsp;[Translate](https://translate.shopware.com) Shopware or help by contributing to existing languages
 * 🛠 &nbsp;[Report bugs](https://github.com/shopware/shopware/issues) in our issue tracker
 * 💡 &nbsp;Give us [feedback](https://feedback.shopware.com/) or vote existing ideas
@@ -42,7 +42,6 @@ If you like Shopware 6, give us a&nbsp;⭐️ &nbsp;on GitHub!
 - [Project overview](#project-overview)
   - [Platform and Framework](#platform-and-framework)
 - [Installation](#installation)
-  - [Extending Shopware](#extending-shopware)
   - [Production setup](#production-setup)
   - [Code Contribution](#code-contribution)
     - [Contribution setup](#contribution-setup)
@@ -51,17 +50,18 @@ If you like Shopware 6, give us a&nbsp;⭐️ &nbsp;on GitHub!
 - [License](#license)
 - [Bugs \& Feedback](#bugs--feedback)
 - [Reporting security issues](#reporting-security-issues)
+- [Extending Shopware](#extending-shopware)
 
 ## Project overview
 
-To discover the features of Shopware and what sets us apart from other e-commerce systems, take the [feature tour](https://www.shopware.com/en/products/product-tour/) on the Shopware home page.
+To discover the features of Shopware and what sets us apart from other ecommerce systems, take the [feature tour](https://www.shopware.com/en/products/product-tour/) on the Shopware home page.
 
 From a developer's perspective, here are some highlights that make Shopware easy and fun to work with:
 
 ### Platform and Framework
 
-Shopware itself is based mainly on [Symfony](https://symfony.com/what-is-symfony) and [Vue.js](https://vuejs.org/).
-It is a fully functional e-commerce platform, but it is also an **e-commerce framework**.
+Shopware is primarily based on [Symfony](https://symfony.com/what-is-symfony) and [Vue.js](https://vuejs.org/).
+It is a fully functional ecommerce platform, but it also serves as an **ecommerce framework**.
 
 Shopware is:
 
@@ -76,6 +76,61 @@ Shopware is:
 
 ## Installation
 
+### Production setup
+
+The easiest way to run a Shopware shop is by booking a commercial plan in the [Shopware cloud](https://www.shopware.com/en/shopware-cloud/), a fully managed setup, ready to use.
+
+The recommended way for on-premise shops is to install Shopware [through the flex template](https://developer.shopware.com/docs/guides/installation/template).
+To unlock the full potential Shopware has to offer, [commercial plans](https://www.shopware.com/en/pricing/) are also available for on-premise.   
+These plans enrich your shop with unique functionality, giving you an additional advantage over your competition.
+
+There is a list of [hosting partners](https://www.shopware.com/en/partner/hosting/), who offer a pre-installed shop, making your start a lot faster.
+
+We also provide a [web-based installer](https://www.shopware.com/en/download/), [installation instructions](https://developer.shopware.com/docs/guides/installation/) on docs, and the [course](https://hub.shopware.com/learn/course/shopware-setup) walks you through the necessary steps.
+
+### Code Contribution
+
+If you have decided to contribute code to Shopware and become a member of the Shopware community,
+We appreciate your hard work and want to handle it with much respect.
+To ensure the quality of our code and our products, we have created a guideline that we all should endorse.
+It helps us collaborate with you.
+Following these guidelines will help us integrate your changes into our daily workflow effectively.
+
+Read more in [our contribution guideline](https://docs.shopware.com/en/shopware-platform-dev-en/contribution/contribution-guideline) on how to contribute code.
+
+#### Contribution setup
+
+For Contributing setup see [CONTRIBUTING.md](CONTRIBUTING.md). If you want to run Shopware locally for extension/theme/project development, check out the [development environment setup](https://developer.shopware.com/docs/guides/installation/setups/docker.html).
+
+## The Shopware CLA
+
+When submitting your code to Shopware, you are required to sign our CLA (Contributor License Agreement) automatically.
+This CLA ensures that Shopware will stay an open and living product.
+In short, you give the explicit right to use your code in Shopware to shopware AG.
+
+## Authors & Contributors
+
+Shopware is built with the help of our community.
+
+You can find an overview of everyone who contributed to the platform repository in the [official GitHub overview](https://github.com/shopware/shopware/graphs/contributors).
+Additionally, numerous people contribute to the ecosystem through activities unrelated to the codebase.
+Thank you all for being part of this!
+
+## License
+
+Shopware 6 is completely free and released under the [MIT License](LICENSE).
+
+## Bugs & Feedback
+
+No software is perfect, and Shopware is no exception.
+Should you spot a bug, please report it in our [issue tracker](https://github.com/shopware/shopware/issues).
+
+If you want to suggest features or how certain parts of Shopware 6 work, we'd be happy to [hear from you](https://feedback.shopware.com/).
+
+## Reporting security issues
+
+Please review our [security policy](SECURITY.md).
+
 ### Extending Shopware
 
 There are already a lot of extensions available in the [Shopware store](https://store.shopware.com/).
@@ -85,58 +140,3 @@ After setting up [Shopware locally for development](https://developer.shopware.c
 The preferred way of extending Shopware is through the [App System](https://developer.shopware.com/docs/guides/plugins/apps/app-base-guide).
 If the feature you want to implement needs direct access to the Shopware process and the database, you can also use the [plugin system](https://developer.shopware.com/docs/guides/plugins/plugins/plugin-base-guide).    
 You can find an [overview and differentiation in the documentation](https://developer.shopware.com/docs/concepts/extensions).
-
-### Production setup
-
-The easiest way to run a Shopware shop is booking a commercial plan in the [Shopware cloud](https://www.shopware.com/en/shopware-cloud/), a fully managed setup, ready to use.
-
-The recommended way for on-premise shops is installing Shopware [through the flex template](https://developer.shopware.com/docs/guides/installation/template).
-To unlock the full potential Shopware has to offer, [commercial plans](https://www.shopware.com/en/pricing/) are also available for on-premise.   
-These plans enrich your shop with unique functionality, giving you an additional advantage over your competition.
-
-There is a list of [hosting partners](https://www.shopware.com/en/partner/hosting/), who offer a pre-installed shop, making your start a lot faster.
-
-We also provide a [web-based installer](https://www.shopware.com/en/download/), the [documentation](https://docs.shopware.com/en/shopware-6-en/first-steps/installing-shopware-6?category=shopware-6-en/getting-started) walks you through the necessary steps.
-
-### Code Contribution
-
-If you have decided to contribute code to Shopware and become a member of the Shopware community,
-we appreciate your hard work and want to handle it with the most possible respect.
-To ensure the quality of our code and our products we have created a guideline we all should endorse to.
-It helps you and us to collaborate.
-Following these guidelines will help us to integrate your changes in our daily workflow.
-
-Read more in [our contribution guideline](https://docs.shopware.com/en/shopware-platform-dev-en/contribution/contribution-guideline) or in our short [HowTo contribute code](https://docs.shopware.com/en/shopware-platform-dev-en/contribution/contributing-code).
-
-#### Contribution setup
-
-For Contributing setup see [CONTRIBUTING.md](CONTRIBUTING.md), if you want to run Shopware locally for extension / theme / project development checkout the [development environment setup](https://developer.shopware.com/docs/guides/installation/setups/docker.html).
-
-## The Shopware CLA
-
-When submitting your code to Shopware you automatically need to sign our CLA (Contributor License Agreement).
-This CLA ensures that Shopware will stay an open and living product.
-In short, you give the explicit right to use your code in Shopware to shopware AG.
-
-## Authors & Contributors
-
-Shopware is built with the help of our community.
-
-You can find an overview of everyone who contributed to the platform repository in the [official GitHub overview](https://github.com/shopware/shopware/graphs/contributors).
-Additionally, there are numerous people contributing to the ecosystem through activities not related to the codebase.
-Thank you all for being part of this!
-
-## License
-
-Shopware 6 is completely free and released under the [MIT License](LICENSE).
-
-## Bugs & Feedback
-
-No software is perfect, Shopware is no exception.
-Should you spot a bug, please report it in our [issue tracker](https://github.com/shopware/shopware/issues).
-
-If you want to suggest features or how certain parts of Shopware 6 work, we'd be happy to [hear from you](https://feedback.shopware.com/).
-
-## Reporting security issues
-
-Please have a look at our [security policy](SECURITY.md).

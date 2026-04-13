@@ -175,6 +175,28 @@
                 },
                 "style": "deepObject",
                 "explode": true
+            },
+            "CompressedCriteria": {
+                "name": "_criteria",
+                "in": "query",
+                "description": "Compressed and encoded criteria object. Format: base64url(gzip(json_encode(criteria))). This parameter allows passing complex criteria as a single encoded string instead of multiple query parameters. The criteria object should be JSON-encoded, then gzipped, and finally base64url-encoded. The criteria object structure is defined in the Criteria schema (see #/components/schemas/Criteria).",
+                "required": false,
+                "schema": {
+                    "type": "string",
+                    "format": "base64url",
+                    "example": "H4sIAAAAAAAAA6tWykpNzFGyqlbKz8lPTSxRslJKSi0pzSsFAGcQr7sHAAAA"
+                }
+            },
+            "CompressedNoneFieldsCriteria": {
+                "name": "_criteria",
+                "in": "query",
+                "description": "Compressed and encoded criteria object. Format: base64url(gzip(json_encode(criteria))). This parameter allows passing complex criteria as a single encoded string instead of multiple query parameters. The criteria object should be JSON-encoded, then gzipped, and finally base64url-encoded. The criteria object structure is defined in the NoneFieldsCriteria schema (see #/components/schemas/NoneFieldsCriteria).",
+                "required": false,
+                "schema": {
+                    "type": "string",
+                    "format": "base64url",
+                    "example": "H4sIAAAAAAAAA6tWykpNzFGyqlbKz8lPTSxRslJKSi0pzSsFAGcQr7sHAAAA"
+                }
             }
         },
         "x-parameter-groups": {
@@ -223,6 +245,9 @@
                 },
                 {
                     "$ref": "#/components/parameters/criteriaExcludes"
+                },
+                {
+                    "$ref": "#/components/parameters/CompressedCriteria"
                 }
             ],
             "noneFieldsCriteria": [
@@ -267,6 +292,9 @@
                 },
                 {
                     "$ref": "#/components/parameters/criteriaExcludes"
+                },
+                {
+                    "$ref": "#/components/parameters/CompressedNoneFieldsCriteria"
                 }
             ],
             "productListingCriteria": [
@@ -387,59 +415,6 @@
                     "name": "properties",
                     "in": "query",
                     "description": "Filters products by their properties. List of property identifiers separated by a `|`.",
-                    "schema": {
-                        "type": "string"
-                    }
-                },
-                {
-                    "name": "manufacturer-filter",
-                    "in": "query",
-                    "description": "Enables/disabled filtering by manufacturer. If set to false, the `manufacturer` filter will be ignored. Also the `aggregations[manufacturer]` key will be removed from the response.",
-                    "schema": {
-                        "type": "boolean",
-                        "default": true
-                    }
-                },
-                {
-                    "name": "price-filter",
-                    "in": "query",
-                    "description": "Enables/disabled filtering by price. If set to false, the `min-price` and `max-price` filter will be ignored. Also the `aggregations[price]` key will be removed from the response.",
-                    "schema": {
-                        "type": "boolean",
-                        "default": true
-                    }
-                },
-                {
-                    "name": "rating-filter",
-                    "in": "query",
-                    "description": "Enables/disabled filtering by rating. If set to false, the `rating` filter will be ignored. Also the `aggregations[rating]` key will be removed from the response.",
-                    "schema": {
-                        "type": "boolean",
-                        "default": true
-                    }
-                },
-                {
-                    "name": "shipping-free-filter",
-                    "in": "query",
-                    "description": "Enables/disabled filtering by shipping-free products. If set to false, the `shipping-free` filter will be ignored. Also the `aggregations[shipping-free]` key will be removed from the response.",
-                    "schema": {
-                        "type": "boolean",
-                        "default": true
-                    }
-                },
-                {
-                    "name": "property-filter",
-                    "in": "query",
-                    "description": "Enables/disabled filtering by properties products. If set to false, the `properties` filter will be ignored. Also the `aggregations[properties]` key will be removed from the response.",
-                    "schema": {
-                        "type": "boolean",
-                        "default": true
-                    }
-                },
-                {
-                    "name": "property-whitelist",
-                    "in": "query",
-                    "description": "A whitelist of property identifiers which can be used for filtering. List of property identifiers separated by a `|`. The `property-filter` must be `true`, otherwise the whitelist has no effect.",
                     "schema": {
                         "type": "string"
                     }

@@ -74,7 +74,6 @@ class ProductReviewSubscriber implements EventSubscriberInterface
             return;
         }
 
-        /** @var list<string> $ids */
         $ids = $reviewEvent->getIds();
 
         $this->productReviewCountService->updateReviewCount($ids);

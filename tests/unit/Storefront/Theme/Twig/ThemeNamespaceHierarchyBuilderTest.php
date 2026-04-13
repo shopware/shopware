@@ -73,14 +73,14 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
      * @param array<string, bool> $expectedThemes
      */
     #[DataProvider('onRenderingDocumentProvider')]
-    public function testOnRenderingDocument(array $parameters, array $expectedThemes, ?string $usingTheme): void
+    public function testOnRenderingDocument(array $parameters, array $expectedThemes, ?string $usingTheme, ?string $usingParentTheme = null): void
     {
         $request = Request::createFromGlobals();
         $event = new DocumentTemplateRendererParameterEvent($parameters);
 
         $expectedDB = [
             'themeName' => $usingTheme,
-            'parentThemeName' => null,
+            'parentThemeName' => $usingParentTheme,
             'themeId' => Uuid::randomHex(),
         ];
         $connectionMock = $this->createMock(Connection::class);
@@ -179,7 +179,9 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
             [
                 'context' => $context,
             ],
-            [],
+            [
+                'Storefront' => true,
+            ],
             null,
         ];
 
@@ -197,6 +199,18 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
                 'SwagTheme' => true,
                 'Storefront' => true,
             ],
+            'SwagTheme',
+        ];
+
+        yield 'missing direct theme name uses parent theme' => [
+            [
+                'context' => $context,
+            ],
+            [
+                'SwagTheme' => true,
+                'Storefront' => true,
+            ],
+            null,
             'SwagTheme',
         ];
     }

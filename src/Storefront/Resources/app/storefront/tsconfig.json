@@ -2,6 +2,9 @@
   "compilerOptions": {
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
@@ -12,6 +15,8 @@
     "node_modules"
   ],
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "scripts/**/*",
+    ".storybook/**/*"
   ]
 }

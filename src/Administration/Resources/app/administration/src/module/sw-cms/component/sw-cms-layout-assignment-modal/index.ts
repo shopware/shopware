@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/prefer-promise-reject-errors */
 import EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
-import { difference } from 'lodash';
+import difference from 'lodash-es/difference';
 import template from './sw-cms-layout-assignment-modal.html.twig';
 import './sw-cms-layout-assignment-modal.scss';
 
@@ -70,39 +70,43 @@ export default Shopware.Component.wrapComponentConfig({
         shopPages() {
             return [
                 {
-                    label: this.$tc('sw-cms.components.cmsLayoutAssignmentModal.shopPages.tosPage'),
+                    label: this.$t('sw-cms.components.cmsLayoutAssignmentModal.shopPages.tosPage'),
                     value: 'core.basicInformation.tosPage',
                 },
                 {
-                    label: this.$tc('sw-cms.components.cmsLayoutAssignmentModal.shopPages.revocationPage'),
+                    label: this.$t('sw-cms.components.cmsLayoutAssignmentModal.shopPages.revocationPage'),
                     value: 'core.basicInformation.revocationPage',
                 },
                 {
-                    label: this.$tc('sw-cms.components.cmsLayoutAssignmentModal.shopPages.shippingPaymentInfoPage'),
+                    label: this.$t('sw-cms.components.cmsLayoutAssignmentModal.shopPages.shippingPaymentInfoPage'),
                     value: 'core.basicInformation.shippingPaymentInfoPage',
                 },
                 {
-                    label: this.$tc('sw-cms.components.cmsLayoutAssignmentModal.shopPages.privacyPage'),
+                    label: this.$t('sw-cms.components.cmsLayoutAssignmentModal.shopPages.privacyPage'),
                     value: 'core.basicInformation.privacyPage',
                 },
                 {
-                    label: this.$tc('sw-cms.components.cmsLayoutAssignmentModal.shopPages.imprintPage'),
+                    label: this.$t('sw-cms.components.cmsLayoutAssignmentModal.shopPages.imprintPage'),
                     value: 'core.basicInformation.imprintPage',
                 },
                 {
-                    label: this.$tc('sw-cms.components.cmsLayoutAssignmentModal.shopPages.404Page'),
+                    label: this.$t('sw-cms.components.cmsLayoutAssignmentModal.shopPages.404Page'),
                     value: 'core.basicInformation.404Page',
                 },
                 {
-                    label: this.$tc('sw-cms.components.cmsLayoutAssignmentModal.shopPages.maintenancePage'),
+                    label: this.$t('sw-cms.components.cmsLayoutAssignmentModal.shopPages.maintenancePage'),
                     value: 'core.basicInformation.maintenancePage',
                 },
                 {
-                    label: this.$tc('sw-cms.components.cmsLayoutAssignmentModal.shopPages.contactPage'),
+                    label: this.$t('sw-cms.components.cmsLayoutAssignmentModal.shopPages.contactPage'),
                     value: 'core.basicInformation.contactPage',
                 },
                 {
-                    label: this.$tc('sw-cms.components.cmsLayoutAssignmentModal.shopPages.newsletterPage'),
+                    label: this.$t('sw-cms.components.cmsLayoutAssignmentModal.shopPages.revocationRequestPage'),
+                    value: 'core.basicInformation.revocationRequestPage',
+                },
+                {
+                    label: this.$t('sw-cms.components.cmsLayoutAssignmentModal.shopPages.newsletterPage'),
                     value: 'core.basicInformation.newsletterPage',
                 },
             ];
@@ -112,14 +116,14 @@ export default Shopware.Component.wrapComponentConfig({
             return [
                 {
                     property: 'name',
-                    label: this.$tc('sw-cms.components.cmsLayoutAssignmentModal.products.columnNameLabel'),
+                    label: this.$t('sw-cms.components.cmsLayoutAssignmentModal.products.columnNameLabel'),
                     dataIndex: 'name',
                     routerLink: 'sw.product.detail',
                     sortable: false,
                 },
                 {
                     property: 'manufacturer.name',
-                    label: this.$tc('sw-cms.components.cmsLayoutAssignmentModal.products.columnManufacturerLabel'),
+                    label: this.$t('sw-cms.components.cmsLayoutAssignmentModal.products.columnManufacturerLabel'),
                     routerLink: 'sw.manufacturer.detail',
                     sortable: false,
                 },
@@ -212,12 +216,11 @@ export default Shopware.Component.wrapComponentConfig({
 
             return this.systemConfigApiService.batchSave(shopPages).catch(() => {
                 this.createNotificationError({
-                    message: this.$tc('sw-cms.components.cmsLayoutAssignmentModal.shopPagesSaveError'),
+                    message: this.$t('sw-cms.components.cmsLayoutAssignmentModal.shopPagesSaveError'),
                 });
             });
         },
 
-        // eslint-disable-next-line consistent-return
         loadSystemConfig() {
             if (this.page.type !== 'page' || !this.acl.can('system.system_config')) {
                 return false;
@@ -252,7 +255,7 @@ export default Shopware.Component.wrapComponentConfig({
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-cms.components.cmsLayoutAssignmentModal.shopPagesLoadError'),
+                        message: this.$t('sw-cms.components.cmsLayoutAssignmentModal.shopPagesLoadError'),
                     });
                 })
                 .finally(() => {

@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\ProductStream;
 
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingCollection;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\ProductExport\ProductExportCollection;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterCollection;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation\ProductStreamTranslationCollection;
@@ -31,6 +32,8 @@ class ProductStreamEntity extends Entity
 
     protected bool $invalid;
 
+    protected bool $internal = false;
+
     protected ?ProductStreamTranslationCollection $translations = null;
 
     protected ?ProductExportCollection $productExports = null;
@@ -38,6 +41,8 @@ class ProductStreamEntity extends Entity
     protected ?ProductCrossSellingCollection $productCrossSellings = null;
 
     protected ?CategoryCollection $categories = null;
+
+    protected ?ProductCollection $products = null;
 
     public function getName(): ?string
     {
@@ -95,6 +100,16 @@ class ProductStreamEntity extends Entity
         $this->invalid = $invalid;
     }
 
+    public function isInternal(): bool
+    {
+        return $this->internal;
+    }
+
+    public function setInternal(bool $internal): void
+    {
+        $this->internal = $internal;
+    }
+
     public function getTranslations(): ?ProductStreamTranslationCollection
     {
         return $this->translations;
@@ -133,5 +148,15 @@ class ProductStreamEntity extends Entity
     public function setCategories(CategoryCollection $categories): void
     {
         $this->categories = $categories;
+    }
+
+    public function getProducts(): ?ProductCollection
+    {
+        return $this->products;
+    }
+
+    public function setProducts(ProductCollection $products): void
+    {
+        $this->products = $products;
     }
 }

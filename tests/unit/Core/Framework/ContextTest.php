@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Struct\Serializer\StructNormalizer;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Assert\Serialization;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Mapping\ClassDiscriminatorFromClassMetadata;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
@@ -46,7 +47,7 @@ class ContextTest extends TestCase
 
         static::assertSame(Context::SYSTEM_SCOPE, $context->getScope());
 
-        $context->scope('foo', function (Context $context): void {
+        $context->scope('foo', static function (Context $context): void {
             static::assertSame('foo', $context->getScope());
         });
 
@@ -113,9 +114,7 @@ class ContextTest extends TestCase
 
         $context->addExtension('foo', new ArrayEntity());
 
-        $deserialized = unserialize(serialize($context));
-
-        static::assertInstanceOf(Context::class, $deserialized);
+        $deserialized = Serialization::assertRoundTrip($context);
 
         static::assertEmpty($deserialized->getVars()['extensions']);
         static::assertEqualsCanonicalizing($context->getSource(), $deserialized->getSource());

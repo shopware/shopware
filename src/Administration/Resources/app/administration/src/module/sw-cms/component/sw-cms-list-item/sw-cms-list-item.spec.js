@@ -80,7 +80,7 @@ describe('module/sw-cms/component/sw-cms-list-item', () => {
                 locked: true,
             },
             {
-                'background-image': 'url(administration/administration/static/img/cms/default_preview_product_list.jpg)',
+                'background-image': 'url(administration/administration/static/img/cms/default_preview_product_list.webp)',
             },
         ],
         [

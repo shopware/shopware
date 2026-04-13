@@ -27,7 +27,8 @@ const mockNewsletterRecipient = [
 
 function mockApiCall(type) {
     switch (type) {
-        case 'language' || 'languageFilters':
+        case 'language':
+        case 'languageFilters':
             return [
                 {
                     localeId: '575d2f35a8144b79beefe70e158eb03e',
@@ -76,6 +77,21 @@ function mockApiCall(type) {
                     id: '7b872c384b254613b5a4bd5c8b965bab',
                 },
             ];
+        case 'tag':
+            return [
+                {
+                    id: '019a7d9f8ea171aaab00637a71b07bb7',
+                    name: 'Tag 1',
+                },
+                {
+                    id: '019a7d9f8ea171aaab00637a71b07cc8',
+                    name: 'Tag 2',
+                },
+                {
+                    id: '019a7d9f8ea171aaab00637a71b07dd9',
+                    name: 'Tag 3',
+                },
+            ];
         default:
             throw new Error(`no data for ${type} available`);
     }
@@ -118,6 +134,7 @@ async function createWrapper(options = {}, customStubs = {}) {
                 'sw-entity-listing': {
                     props: [
                         'items',
+                        'dataSource',
                         'allowView',
                         'allowEdit',
                         'allowDelete',
@@ -130,7 +147,7 @@ async function createWrapper(options = {}, customStubs = {}) {
                     },
                     template: `
                     <div>
-                    <template v-for="item in items">
+                    <template v-for="item in (dataSource || items)">
 
                         <template slot="column-firstName" slot-scope="{ item, compact, isInlineEdit }">
 
@@ -173,7 +190,6 @@ async function createWrapper(options = {}, customStubs = {}) {
                 'sw-label': true,
                 'router-link': true,
                 'sw-sidebar-item': true,
-                'sw-newsletter-recipient-filter-switch': true,
                 'sw-sidebar-collapse': true,
                 'sw-entity-multi-select': true,
                 'sw-sidebar': true,

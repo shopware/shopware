@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Api\Controller;
 
 use Doctrine\DBAL\ConnectionException;
 use Shopware\Core\Framework\Api\ApiException;
-use Shopware\Core\Framework\Api\Exception\InvalidSyncOperationException;
 use Shopware\Core\Framework\Api\Sync\SyncBehavior;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Api\Sync\SyncResult;
@@ -40,17 +39,18 @@ class SyncController extends AbstractController
 
     /**
      * @throws ConnectionException
-     * @throws InvalidSyncOperationException
      */
     #[Route(path: '/api/_action/sync', name: 'api.action.sync', methods: ['POST'])]
     public function sync(Request $request, Context $context): JsonResponse
     {
-        /** @var list<non-falsy-string> $indexingSkips */
-        $indexingSkips = array_filter(explode(',', (string) $request->headers->get(PlatformRequest::HEADER_INDEXING_SKIP, '')));
+        $indexingSkips = array_values(array_filter(explode(',', (string) $request->headers->get(PlatformRequest::HEADER_INDEXING_SKIP, ''))));
+
+        $indexingOnlies = array_values(array_filter(explode(',', (string) $request->headers->get(PlatformRequest::HEADER_INDEXING_ONLY, ''))));
 
         $behavior = new SyncBehavior(
             $request->headers->get(PlatformRequest::HEADER_INDEXING_BEHAVIOR),
-            $indexingSkips
+            $indexingSkips,
+            $indexingOnlies
         );
 
         try {

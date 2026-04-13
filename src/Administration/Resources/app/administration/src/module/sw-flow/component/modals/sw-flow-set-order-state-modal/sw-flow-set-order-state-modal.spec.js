@@ -127,4 +127,17 @@ describe('module/sw-flow/component/sw-flow-set-order-state-modal', () => {
             },
         ]);
     });
+
+    it('should display warning when force transition is not selected', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-flow-set-order-state-modal__warning-banner').exists()).toBe(true);
+
+        await wrapper.find('.sw-flow-set-order-state-modal__force-transition input').setChecked(true);
+        await flushPromises();
+
+        expect(wrapper.vm.config.force_transition).toBe(true);
+        expect(wrapper.find('.sw-flow-set-order-state-modal__warning-banner').exists()).toBe(false);
+    });
 });

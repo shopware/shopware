@@ -398,7 +398,7 @@ export default {
             });
 
             if (foundVariantIndex >= 0) {
-                delete variant.price[foundVariantIndex];
+                variant.price.splice(foundVariantIndex, 1);
             }
 
             if (variant.price.length <= 0) {
@@ -750,9 +750,7 @@ export default {
             await this.$nextTick();
 
             let includesDigital = '0';
-            const digital = Object.values(this.$refs.variantGrid.selection).filter((product) =>
-                product.states.includes('is-download'),
-            );
+            const digital = Object.values(this.$refs.variantGrid.selection).filter((product) => product.type === 'digital');
             if (digital.length > 0) {
                 includesDigital = digital.filter((product) => product.isCloseout).length !== digital.length ? '1' : '2';
             }
@@ -767,7 +765,7 @@ export default {
         },
 
         variantIsDigital(variant) {
-            return variant.states && variant.states.includes('is-download');
+            return variant.type && variant.type === 'digital';
         },
     },
 };

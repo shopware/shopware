@@ -1,4 +1,4 @@
-import IMAGE_DEFAULT_CONFIG from './config.constant';
+import { IMAGE_DEFAULT_CONFIG } from './config.constant';
 
 /**
  * @private

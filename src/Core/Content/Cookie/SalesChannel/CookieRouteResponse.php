@@ -10,7 +10,7 @@ use Shopware\Core\System\SalesChannel\StoreApiResponse;
 /**
  * @codeCoverageIgnore
  *
- * @extends StoreApiResponse<ArrayStruct<array{elements: CookieGroupCollection, hash: string}>>
+ * @extends StoreApiResponse<ArrayStruct<array{elements: CookieGroupCollection, hash: string, languageId: string}>>
  */
 #[Package('framework')]
 class CookieRouteResponse extends StoreApiResponse
@@ -18,10 +18,12 @@ class CookieRouteResponse extends StoreApiResponse
     public function __construct(
         CookieGroupCollection $cookieGroups,
         string $hash,
+        string $languageId = '',
     ) {
         parent::__construct(new ArrayStruct([
             'elements' => $cookieGroups,
             'hash' => $hash,
+            'languageId' => $languageId,
         ], 'cookie_groups_hash'));
     }
 
@@ -33,5 +35,10 @@ class CookieRouteResponse extends StoreApiResponse
     public function getHash(): string
     {
         return $this->object->get('hash');
+    }
+
+    public function getLanguageId(): string
+    {
+        return $this->object->get('languageId');
     }
 }

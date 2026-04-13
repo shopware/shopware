@@ -2,12 +2,13 @@
  * @sw-package framework
  */
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations, @typescript-eslint/no-explicit-any
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default () => {
     // @ts-expect-error
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call
-    const context = import.meta.glob('./**/!(*.spec).{j,t}s');
+    const context = import.meta.glob('./**/!(*.spec).{j,t}s', {
+        eager: true,
+        import: 'default',
+    });
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     return Object.values(context);
 };

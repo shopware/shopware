@@ -20,7 +20,7 @@ test.describe('Wishlist Guest Functionalities', () => {
         };
 
         const updateResponse = await TestDataService.AdminApiClient.post('_action/system-config/batch', {
-            data: updatedConfig
+            data: updatedConfig,
         });
         if (!updateResponse.ok()) {
             throw new Error(`Failed to update system config: ${updateResponse.status()} ${updateResponse.statusText()}`);
@@ -32,7 +32,7 @@ test.describe('Wishlist Guest Functionalities', () => {
     test.afterEach(async ({ TestDataService }) => {
         if (Object.keys(originalConfig).length > 0) {
             await TestDataService.AdminApiClient.post('_action/system-config/batch', {
-                data: { null: originalConfig }
+                data: { null: originalConfig },
             });
 
             await TestDataService.clearCaches();
@@ -41,6 +41,7 @@ test.describe('Wishlist Guest Functionalities', () => {
 
 test('Guest customer is able to add and remove products to the wishlist', { tag: ['@Wishlist', '@Storefront'] }, async ({
     ShopCustomer,
+    StorefrontHeader,
     StorefrontHome,
     AddProductToWishlist,
     StorefrontWishlist,
@@ -53,7 +54,7 @@ test('Guest customer is able to add and remove products to the wishlist', { tag:
 
     await test.step('Navigate to home and accept cookies', async () => {
         await ShopCustomer.goesTo(StorefrontHome.url());
-        await StorefrontHome.consentAcceptAllCookiesButton.click();
+        await ShopCustomer.presses(StorefrontHome.consentAcceptAllCookiesButton);
 
         // Wait for banner to disappear
         await ShopCustomer.expects(StorefrontHome.consentCookieBannerContainer).not.toBeVisible();
@@ -76,7 +77,7 @@ test('Guest customer is able to add and remove products to the wishlist', { tag:
     await test.step('Add product1 to the wishlist and verify wishlist count updates to 1', async () => {
         await ShopCustomer.attemptsTo(AddProductToWishlist(product1));
         await ShopCustomer.expects(product1Locators.wishlistAddedIcon).toBeVisible();
-        await ShopCustomer.expects(StorefrontHome.wishlistBasket).toHaveText('1');
+        await ShopCustomer.expects(StorefrontHeader.wishlistBasket).toHaveText('1');
     });
 
     await test.step('Add product1 to the cart from wishlist and verify cart total is same with product price', async () => {
@@ -90,7 +91,7 @@ test('Guest customer is able to add and remove products to the wishlist', { tag:
 
     await test.step('Login as customer and verify product1 is still in wishlist', async () => {
         await ShopCustomer.attemptsTo(Login());
-        await ShopCustomer.expects(StorefrontHome.wishlistBasket).toHaveText('1', { timeout: 15_000 });
+        await ShopCustomer.expects(StorefrontHeader.wishlistBasket).toHaveText('1', { timeout: 15_000 });
         await ShopCustomer.goesTo(StorefrontHome.url());
         await ShopCustomer.expects(product1Locators.wishlistAddedIcon).toBeVisible({ timeout: 15_000 });
     });
@@ -102,8 +103,8 @@ test('Guest customer is able to add and remove products to the wishlist', { tag:
     });
 
     await test.step('Navigate to the wishlist and verify that the products are visible', async () => {
-        await StorefrontHome.wishlistIcon.click();
-        await ShopCustomer.expects(StorefrontHome.wishlistBasket).toHaveText('2', { timeout: 15_000 });
+        await ShopCustomer.presses(StorefrontHeader.wishlistIcon);
+        await ShopCustomer.expects(StorefrontHeader.wishlistBasket).toHaveText('2', { timeout: 15_000 });
         await ShopCustomer.expects(StorefrontWishlist.wishListHeader.first()).toBeVisible();
         await ShopCustomer.expects(product1Locators.productName).toBeVisible();
         await ShopCustomer.expects(product2Locators.productName).toBeVisible();

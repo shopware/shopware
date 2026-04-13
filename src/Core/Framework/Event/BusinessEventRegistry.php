@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationAccepted;
 use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationDeclined;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
+use Shopware\Core\Checkout\Customer\Event\CustomerPasswordChangedEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Checkout\Customer\Event\DoubleOptInGuestOrderEvent;
 use Shopware\Core\Checkout\Customer\Event\GuestCustomerRegisterEvent;
@@ -24,14 +25,15 @@ use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterUnsubscribeEvent;
 use Shopware\Core\Content\Product\SalesChannel\Review\Event\ReviewFormEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
+use Shopware\Core\Content\RevocationRequest\Event\RevocationRequestEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
 
-#[Package('fundamentals@after-sales')]
+#[Package('framework')]
 class BusinessEventRegistry
 {
     /**
-     * @var list<class-string>
+     * @var list<class-string<FlowEventAware>>
      */
     private array $classes = [
         CustomerBeforeLoginEvent::class,
@@ -57,21 +59,22 @@ class BusinessEventRegistry
         NewsletterRegisterEvent::class,
         NewsletterUnsubscribeEvent::class,
         ProductExportLoggingEvent::class,
+        CustomerPasswordChangedEvent::class,
+        RevocationRequestEvent::class,
     ];
 
     /**
-     * @param list<class-string> $classes
+     * @param list<class-string<FlowEventAware>> $classes
      */
     public function addClasses(array $classes): void
     {
-        /** @var list<class-string> */
-        $classes = array_unique(array_merge($this->classes, $classes));
+        $classes = array_values(array_unique(array_merge($this->classes, $classes)));
 
         $this->classes = $classes;
     }
 
     /**
-     * @return list<class-string>
+     * @return list<class-string<FlowEventAware>>
      */
     public function getClasses(): array
     {

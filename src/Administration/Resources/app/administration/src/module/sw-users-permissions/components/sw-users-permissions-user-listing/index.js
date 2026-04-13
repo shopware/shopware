@@ -64,6 +64,10 @@ export default {
             },
         },
 
+        userDetailRouterLink() {
+            return this.isSso ? 'sw.users.permissions.user.sso.detail' : 'sw.users.permissions.user.detail';
+        },
+
         userCriteria() {
             const criteria = new Criteria(this.page, this.limit);
 
@@ -215,7 +219,7 @@ export default {
                 try {
                     this.isConfirmingPassword = true;
                     verifiedToken = await this.loginService.verifyUserToken(this.confirmPassword);
-                } catch (e) {
+                } catch (_e) {
                     this.createNotificationError({
                         title: this.$tc(
                             'sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorTitle',

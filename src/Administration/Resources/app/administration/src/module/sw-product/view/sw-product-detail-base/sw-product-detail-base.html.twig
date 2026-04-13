@@ -25,7 +25,7 @@
         {% endblock %}
 
         <mt-card
-            v-if="productStates.includes('is-download')"
+            v-if="isDownloadCardVisible"
             class="sw-product-detail-base__downloads"
             :subtitle="$tc('sw-product.detailBase.cardSubtitleDownloads')"
             :is-loading="loading.product || loading.customFieldSets || loading.downloads"
@@ -83,7 +83,7 @@
         </mt-card>
         {% endblock %}
 
-        <template v-if="productStates.includes('is-download')">
+        <template v-if="isDownloadCardVisible">
             {% block sw_product_detail_deliverability_downloadable_info_card %}
             <mt-card
                 v-show="showProductCard('deliverability')"

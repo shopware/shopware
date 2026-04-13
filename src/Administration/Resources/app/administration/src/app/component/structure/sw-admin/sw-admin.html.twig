@@ -20,18 +20,21 @@
         />
     </div>
 
+    <template v-if="isLoggedIn">
+        <sw-duplicated-media-v2 />
+        <sw-settings-cache-modal />
+        <sw-in-app-purchase-checkout />
+        <sw-app-wrong-app-url-modal />
+        <sw-media-modal-renderer />
+        <sw-upload-status />
+    </template>
+
     <sw-notifications ref="notifications" />
-    <sw-duplicated-media-v2 v-if="isLoggedIn" />
     <router-view />
-    <sw-settings-cache-modal v-if="isLoggedIn" />
     <sw-license-violation />
     <sw-hidden-iframes />
     <sw-modals-renderer />
-    <sw-in-app-purchase-checkout v-if="isLoggedIn" />
-    <sw-app-wrong-app-url-modal v-if="isLoggedIn" />
-
-    <sw-media-modal-renderer />
-
+    <mt-snackbar :snackbars="snackbar.snackbars" />
     <mt-toast
         :toasts="toasts"
         @remove-toast="onRemoveToast"

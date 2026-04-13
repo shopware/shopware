@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Api;
 
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
@@ -47,7 +48,7 @@ class ShopIdController extends AbstractController
     #[Route(path: 'api/app-system/shop-id/change', name: 'api.app_system.shop_id.change', methods: ['POST'])]
     public function changeShopId(Request $request, Context $context): Response
     {
-        $strategy = $request->get('strategy');
+        $strategy = RequestParamHelper::get($request, 'strategy');
 
         if (!$strategy) {
             throw AppException::missingRequestParameter('strategy');
@@ -84,7 +85,7 @@ class ShopIdController extends AbstractController
         $apps = $this->appRepository
             ->search($criteria, $context)
             ->getEntities()
-            ->map(function (AppEntity $app) {
+            ->map(static function (AppEntity $app) {
                 return $app->getTranslation('label');
             });
 

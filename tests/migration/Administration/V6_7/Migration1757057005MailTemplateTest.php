@@ -24,6 +24,12 @@ class Migration1757057005MailTemplateTest extends MailTemplateMigrationTestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testCreationTimestamp(): void
+    {
+        $migration = new Migration1757057005MailTemplate();
+        static::assertSame(1757057005, $migration->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         // prepare the test
@@ -44,7 +50,7 @@ class Migration1757057005MailTemplateTest extends MailTemplateMigrationTestCase
         $this->updateMail($mailTranslations, $this->connection);
         $currentTranslations = $this->getMailTemplateTranslations($mailTranslations->getType());
 
-        static::assertMailTemplateTranslations($expectedTranslations, $currentTranslations->translations);
+        $this->assertMailTemplateTranslations($expectedTranslations, $currentTranslations->translations);
 
         // Start with the test
         $migration = new Migration1757057005MailTemplate();
@@ -60,6 +66,6 @@ class Migration1757057005MailTemplateTest extends MailTemplateMigrationTestCase
 
         $currentTranslations = $this->getMailTemplateTranslations($mailTranslations->getType());
 
-        static::assertMailTemplateTranslations($expectedTranslations, $currentTranslations->translations);
+        $this->assertMailTemplateTranslations($expectedTranslations, $currentTranslations->translations);
     }
 }

@@ -83,6 +83,8 @@ class OrderRouteTest extends TestCase
 
     private string $deepLinkCode;
 
+    private int $mailSentEventCounter = 0;
+
     /**
      * @var EntityRepository<CustomerCollection>
      */
@@ -339,17 +341,11 @@ class OrderRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/order',
+                '/store-api/order?checkPromotion=true',
                 [],
                 [],
                 ['CONTENT_TYPE' => 'application/json'],
-                json_encode(
-                    array_merge(
-                        $this->requestCriteriaBuilder->toArray($criteria),
-                        ['checkPromotion' => true]
-                    ),
-                    \JSON_THROW_ON_ERROR
-                ) ?: ''
+                json_encode($this->requestCriteriaBuilder->toArray($criteria), \JSON_THROW_ON_ERROR) ?: ''
             );
 
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
@@ -405,7 +401,7 @@ class OrderRouteTest extends TestCase
 
         $dispatcher = static::getContainer()->get('event_dispatcher');
         $eventDidRun = false;
-        $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun): void {
+        $listenerClosure = static function (MailSentEvent $event) use (&$eventDidRun): void {
             $eventDidRun = true;
             static::assertStringContainsString('The payment for your order with Storefront is cancelled', $event->getContents()['text/html']);
             static::assertStringContainsString('Message: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
@@ -414,7 +410,7 @@ class OrderRouteTest extends TestCase
         $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $defaultPaymentMethodId = $this->defaultPaymentMethodId;
-        $newPaymentMethod = $this->getValidPaymentMethods()->filter(fn (PaymentMethodEntity $paymentMethod) => $paymentMethod->getId() !== $defaultPaymentMethodId)->first();
+        $newPaymentMethod = $this->getValidPaymentMethods()->filter(static fn (PaymentMethodEntity $paymentMethod) => $paymentMethod->getId() !== $defaultPaymentMethodId)->first();
         $newPaymentMethodId = $newPaymentMethod?->getId() ?? '';
 
         $this->browser
@@ -443,14 +439,9 @@ class OrderRouteTest extends TestCase
     public function testSetSamePaymentMethodToOrder(): void
     {
         $dispatcher = static::getContainer()->get('event_dispatcher');
-        $eventDidRun = false;
-        $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun): void {
-            $eventDidRun = true;
-            static::assertStringContainsString('The payment for your order with Storefront is cancelled', $event->getContents()['text/html']);
-            static::assertStringContainsString('Message: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
-        };
+        $this->mailSentEventCounter = 0;
 
-        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
+        $this->addEventListener($dispatcher, MailSentEvent::class, $this->handleMailSentEvent(...));
 
         $this->browser
             ->request(
@@ -470,9 +461,9 @@ class OrderRouteTest extends TestCase
         static::assertArrayHasKey('success', $response, print_r($response, true));
         static::assertTrue($response['success'], print_r($response, true));
 
-        $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
+        $dispatcher->removeListener(MailSentEvent::class, $this->handleMailSentEvent(...));
 
-        static::assertFalse($eventDidRun, 'The mail.sent did not run');
+        static::assertSame(1, $this->mailSentEventCounter, 'The ‘mail.sent’ event was executed too often');
     }
 
     public function testSetPaymentOrderWrongPayment(): void
@@ -720,5 +711,12 @@ class OrderRouteTest extends TestCase
                 'sent' => $sent,
             ],
         ], Context::createDefaultContext());
+    }
+
+    private function handleMailSentEvent(MailSentEvent $event): void
+    {
+        ++$this->mailSentEventCounter;
+        static::assertStringContainsString('The payment for your order with Storefront is cancelled', $event->getContents()['text/html']);
+        static::assertStringContainsString('Message: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
     }
 }

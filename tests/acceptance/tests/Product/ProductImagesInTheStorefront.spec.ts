@@ -15,8 +15,8 @@ test('Shop customer should be able to see the product image in the Storefront.',
     AddProductToCart,
     ProceedFromProductToCheckout,
     ConfirmTermsAndConditions,
-    SelectInvoicePaymentOption,
-    SelectStandardShippingOption,
+    SelectPaymentMethod,
+    SelectShippingMethod,
     SubmitOrder,
     OpenSearchResultPage,
     OpenSearchSuggestPage,
@@ -49,8 +49,8 @@ test('Shop customer should be able to see the product image in the Storefront.',
     await test.step('Logged-In shop customer should be able to see the cover image on the checkout confirm page.', async () => {
         await ShopCustomer.attemptsTo(ProceedFromProductToCheckout());
         await ShopCustomer.attemptsTo(ConfirmTermsAndConditions());
-        await ShopCustomer.attemptsTo(SelectInvoicePaymentOption());
-        await ShopCustomer.attemptsTo(SelectStandardShippingOption());
+        await ShopCustomer.attemptsTo(SelectPaymentMethod('Invoice'));
+        await ShopCustomer.attemptsTo(SelectShippingMethod('Standard'));
         await ShopCustomer.expects(StorefrontCheckoutConfirm.cartLineItemImages.getByAltText(media.alt)).toBeVisible();
     });
 
@@ -65,7 +65,7 @@ test('Shop customer should be able to see the product image in the Storefront.',
     await test.step('Logged-In shop customer should be able to see the cover image within the account order page.', async () => {
         await ShopCustomer.goesTo(StorefrontAccountOrder.url());
         // TODO: Migrate to StorefrontAccountOrder.orderExpandButton.click(); when https://github.com/shopware/acceptance-test-suite/pull/126 is released.
-        await StorefrontAccountOrder.page.locator('.order-hide-btn').first().click();
+        await ShopCustomer.presses(StorefrontAccountOrder.page.locator('.order-hide-btn').first());
         await ShopCustomer.expects(StorefrontAccountOrder.cartLineItemImages.getByAltText(media.alt)).toBeVisible();
     });
 

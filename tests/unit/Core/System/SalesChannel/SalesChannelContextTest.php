@@ -4,11 +4,13 @@ namespace Shopware\Tests\Unit\Core\System\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\AbstractCartPersister;
+use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Shopware\Core\Test\Generator;
 
 /**
@@ -18,6 +20,12 @@ use Shopware\Core\Test\Generator;
 #[CoversClass(SalesChannelContext::class)]
 class SalesChannelContextTest extends TestCase
 {
+    protected function tearDown(): void
+    {
+        // reset field visibility, see `testGetTokenIsNotAccessibleFromTwigRenderingContext()` test
+        FieldVisibility::$isInTwigRenderingContext = false;
+    }
+
     public function testGetRuleIdsByAreas(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
@@ -74,32 +82,35 @@ class SalesChannelContextTest extends TestCase
     public function testWithPermissions(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
-        static::assertEmpty($salesChannelContext->getPermissions());
+        $permissionsBefore = $salesChannelContext->getPermissions();
+        static::assertSame([], $permissionsBefore);
 
         $called = false;
         $salesChannelContext->withPermissions(
-            [AbstractCartPersister::PERSIST_CART_ERROR_PERMISSION => true],
-            function (SalesChannelContext $context) use (&$called): void {
+            [CheckoutPermissions::PERSIST_CART_ERRORS => true],
+            static function (SalesChannelContext $context) use (&$called): void {
                 $called = true;
 
-                static::assertTrue($context->hasPermission(AbstractCartPersister::PERSIST_CART_ERROR_PERMISSION));
+                static::assertTrue($context->hasPermission(CheckoutPermissions::PERSIST_CART_ERRORS));
             },
         );
 
         static::assertTrue($called);
-        static::assertEmpty($salesChannelContext->getPermissions());
+        $permissionsAfter = $salesChannelContext->getPermissions();
+        static::assertSame([], $permissionsAfter);
     }
 
     public function testWithPermissionsWithLockedPermissions(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
         $salesChannelContext->lockPermissions();
-        static::assertEmpty($salesChannelContext->getPermissions());
+        $permissionsBefore = $salesChannelContext->getPermissions();
+        static::assertSame([], $permissionsBefore);
 
         $called = false;
         $salesChannelContext->withPermissions(
-            [AbstractCartPersister::PERSIST_CART_ERROR_PERMISSION => true],
-            function (SalesChannelContext $context) use (&$called): void {
+            [CheckoutPermissions::PERSIST_CART_ERRORS => true],
+            static function (SalesChannelContext $context) use (&$called): void {
                 $called = true;
 
                 static::assertEmpty($context->getPermissions());
@@ -107,7 +118,8 @@ class SalesChannelContextTest extends TestCase
         );
 
         static::assertTrue($called);
-        static::assertEmpty($salesChannelContext->getPermissions());
+        $permissionsAfter = $salesChannelContext->getPermissions();
+        static::assertSame([], $permissionsAfter);
     }
 
     public function testSalesChannelContextStateFunctionPassesResetsAndKeepsState(): void
@@ -133,5 +145,18 @@ class SalesChannelContextTest extends TestCase
         static::assertTrue($salesChannelContext->getContext()->hasState($manualState));
         static::assertFalse($salesChannelContext->hasState($closureState));
         static::assertFalse($salesChannelContext->getContext()->hasState($closureState));
+    }
+
+    public function testGetTokenIsNotAccessibleFromTwigRenderingContext(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        // outside of twig rendering context, token is accessible
+        $salesChannelContext->getToken();
+
+        // fake twig rendering context, see `\Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::getAttribute()`
+        FieldVisibility::$isInTwigRenderingContext = true;
+
+        $this->expectExceptionObject(SalesChannelException::contextTokenNotAccessible());
+        $salesChannelContext->getToken();
     }
 }

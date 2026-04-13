@@ -51,7 +51,7 @@ class ContactFormRouteTest extends TestCase
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $eventDidRun = false;
-        $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun): void {
+        $listenerClosure = static function (MailSentEvent $event) use (&$eventDidRun): void {
             $eventDidRun = true;
             static::assertStringContainsString('Contact email address: test@shopware.com', $event->getContents()['text/html']);
             static::assertStringContainsString('essage: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
@@ -98,7 +98,7 @@ class ContactFormRouteTest extends TestCase
 
         $eventDidRun = false;
         $recipients = [];
-        $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, &$recipients): void {
+        $listenerClosure = static function (MailSentEvent $event) use (&$eventDidRun, &$recipients): void {
             $eventDidRun = true;
             $recipients = $event->getRecipients();
             static::assertStringContainsString('Contact email address: test@shopware.com', $event->getContents()['text/html']);
@@ -153,7 +153,7 @@ class ContactFormRouteTest extends TestCase
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $eventDidRun = false;
-        $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun): void {
+        $listenerClosure = static function (MailSentEvent $event) use (&$eventDidRun): void {
             $eventDidRun = true;
             static::assertStringContainsString('Contact email address: test@shopware.com', $event->getContents()['text/html']);
             static::assertStringContainsString('essage: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
@@ -216,7 +216,7 @@ class ContactFormRouteTest extends TestCase
         yield 'subscribe with URL protocol HTTPS' => [
             'Y https://shopware.test',
             'Tran',
-            function (array $response): void {
+            static function (array $response): void {
                 static::assertArrayHasKey('errors', $response);
                 static::assertCount(1, $response['errors']);
 
@@ -229,7 +229,7 @@ class ContactFormRouteTest extends TestCase
         yield 'subscribe with URL protocol HTTP' => [
             'Y http://shopware.test',
             'Tran',
-            function (array $response): void {
+            static function (array $response): void {
                 static::assertArrayHasKey('errors', $response);
                 static::assertCount(1, $response['errors']);
 
@@ -242,7 +242,7 @@ class ContactFormRouteTest extends TestCase
         yield 'subscribe with URL localhost' => [
             'Y http://localhost:8080',
             'Tran',
-            function (array $response): void {
+            static function (array $response): void {
                 static::assertArrayHasKey('errors', $response);
                 static::assertCount(1, $response['errors']);
 

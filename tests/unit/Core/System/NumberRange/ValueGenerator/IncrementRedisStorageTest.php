@@ -215,7 +215,7 @@ class IncrementRedisStorageTest extends TestCase
     {
         $idSearchResult = new IdSearchResult(
             2,
-            [['data' => '10', 'primaryKey' => 'abc'], ['data' => '5', 'primaryKey' => 'def']],
+            ['abc' => ['data' => [], 'primaryKey' => 'abc'], 'def' => ['data' => [], 'primaryKey' => 'def']],
             new Criteria(),
             Context::createDefaultContext()
         );

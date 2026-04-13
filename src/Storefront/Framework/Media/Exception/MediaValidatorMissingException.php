@@ -5,7 +5,11 @@ namespace Shopware\Storefront\Framework\Media\Exception;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
+use Shopware\Storefront\Framework\StorefrontFrameworkException;
 
+/**
+ * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed, use {@see StorefrontFrameworkException::mediaValidatorMissing} instead
+ */
 #[Package('discovery')]
 class MediaValidatorMissingException extends ShopwareHttpException
 {

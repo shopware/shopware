@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Dbal;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -30,7 +29,6 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[CoversClass(EntityForeignKeyResolver::class)]
 class EntityForeignKeyResolverTest extends TestCase
 {
     use DataAbstractionLayerFieldTestBehaviour;
@@ -91,6 +89,7 @@ class EntityForeignKeyResolverTest extends TestCase
         $deletedProduct = $deletedEvent->getPrimaryKeys('product');
         $deletedCategories = $deletedEvent->getDeletedPrimaryKeys('category');
         $deletedCategoriesRo = $deletedEvent->getPrimaryKeys('product_category_tree');
+        static::assertContainsOnlyArray($deletedCategoriesRo);
 
         static::assertSame($productId, $deletedProduct[0]);
         static::assertEmpty($deletedCategories, print_r($deletedCategories, true));

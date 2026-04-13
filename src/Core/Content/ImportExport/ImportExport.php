@@ -29,7 +29,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AutoIncrementField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -130,7 +132,7 @@ class ImportExport
                 $record[$key] = $value;
             }
 
-            if (empty($record)) {
+            if ($record === []) {
                 continue;
             }
 
@@ -186,7 +188,7 @@ class ImportExport
 
         $this->eventDispatcher->removeListener(WriteCommandExceptionEvent::class, $this->onWriteException(...));
 
-        if (!empty($failedRecords)) {
+        if ($failedRecords !== []) {
             $invalidRecordsProgress = $this->exportInvalid($context, $failedRecords);
             $progress->setInvalidRecordsLogId($invalidRecordsProgress->getLogId());
         }
@@ -229,11 +231,22 @@ class ImportExport
         $enrichEvent = new EnrichExportCriteriaEvent($criteria, $this->logEntity);
         $this->eventDispatcher->dispatch($enrichEvent);
 
+        $fields = $this->repository->getDefinition()->getFields();
+
         if ($criteria->getSorting() === []) {
-            // default sorting
-            $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::ASCENDING));
+            $autoIncrementFields = $fields->filterInstance(AutoIncrementField::class);
+
+            if ($autoIncrementFields->count() > 0) {
+                /** @var AutoIncrementField $autoIncrementField */
+                foreach ($autoIncrementFields as $autoIncrementField) {
+                    $criteria->addSorting(new FieldSorting($autoIncrementField->getPropertyName(), FieldSorting::ASCENDING));
+                }
+            }
         }
-        $criteria->addSorting(new FieldSorting('id'));
+
+        foreach ($fields->filterByFlag(PrimaryKey::class) as $field) {
+            $criteria->addSorting(new FieldSorting($field->getPropertyName(), FieldSorting::ASCENDING));
+        }
 
         $criteria->setOffset($offset);
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
@@ -267,7 +280,7 @@ class ImportExport
             $criteria->setOffset((int) $criteria->getOffset() + (int) $criteria->getLimit());
         } while ($fullExport && $progress->getOffset() < $progress->getTotal());
 
-        if (!empty($failedRecords)) {
+        if ($failedRecords !== []) {
             $progress->setInvalidRecordsLogId($this->exportInvalid($context, $failedRecords)->getLogId());
             $this->importExportService->saveProgress($progress);
         }
@@ -477,8 +490,19 @@ class ImportExport
                     continue;
                 }
 
-                $value = (string) $value;
-                $mappedRecord[$key] = $value;
+                if (!\is_scalar($value)) {
+                    if (!$allowErrors) {
+                        $exportExceptions[$key] = ImportExportException::fieldCannotBeExported(\gettype($value));
+
+                        continue;
+                    }
+
+                    $mappedRecord[$key] = '#ERROR#';
+
+                    continue;
+                }
+
+                $mappedRecord[$key] = (string) $value;
             }
 
             if ($exportExceptions) {
@@ -490,7 +514,7 @@ class ImportExport
                 if ($exceptions) {
                     $originalRecord['_error'] = json_encode(
                         \array_map(
-                            fn ($exception) => \mb_convert_encoding($exception->getMessage(), 'UTF-8', 'UTF-8'),
+                            static fn ($exception) => \mb_convert_encoding($exception->getMessage(), 'UTF-8', 'UTF-8'),
                             $exceptions
                         )
                     );
@@ -606,7 +630,7 @@ class ImportExport
     private function ensurePrimaryKeys(array $data): array
     {
         foreach ($this->repository->getDefinition()->getPrimaryKeys() as $primaryKey) {
-            if (!($primaryKey instanceof IdField)) {
+            if (!$primaryKey instanceof IdField) {
                 continue;
             }
 
@@ -665,7 +689,7 @@ class ImportExport
 
         $allowedMappings = array_filter(
             $config->getMapping()->getElements(),
-            function ($mapping) use ($definition, $source) {
+            static function ($mapping) use ($definition, $source) {
                 $fields = EntityDefinitionQueryHelper::getFieldsOfAccessor(
                     $definition,
                     $mapping->getKey()

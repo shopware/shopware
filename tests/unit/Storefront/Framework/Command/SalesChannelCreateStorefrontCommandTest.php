@@ -39,7 +39,6 @@ class SalesChannelCreateStorefrontCommandTest extends TestCase
 
         $foundSnippetSetId = $snippetSetId;
         if (!$foundSnippetSetId) {
-            /** @var IdSearchResult $idSearchResult */
             foreach ($idsSearchResult as $idSearchResult) {
                 $foundSnippetSetId = $idSearchResult->firstId() ?: $foundSnippetSetId;
             }
@@ -181,7 +180,7 @@ class SalesChannelCreateStorefrontCommandTest extends TestCase
             'snippetSetId' => null,
             'isoCode' => 'de-DE',
             'idsSearchResult' => [
-                new IdSearchResult(1, [['primaryKey' => 'snippetSetId', 'data' => []]], new Criteria(), Context::createDefaultContext()),
+                new IdSearchResult(1, ['snippetSetId' => ['primaryKey' => 'snippetSetId', 'data' => []]], new Criteria(), Context::createDefaultContext()),
             ],
             'exception' => null,
         ];
@@ -191,7 +190,7 @@ class SalesChannelCreateStorefrontCommandTest extends TestCase
             'isoCode' => 'nl-NL',
             'idsSearchResult' => [
                 new IdSearchResult(0, [], new Criteria(), Context::createDefaultContext()),
-                new IdSearchResult(1, [['primaryKey' => 'snippetSetId', 'data' => []]], new Criteria(), Context::createDefaultContext()),
+                new IdSearchResult(1, ['snippetSetId' => ['primaryKey' => 'snippetSetId', 'data' => []]], new Criteria(), Context::createDefaultContext()),
             ],
             'exception' => null,
         ];

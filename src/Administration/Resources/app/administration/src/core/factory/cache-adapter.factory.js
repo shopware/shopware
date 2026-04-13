@@ -21,6 +21,8 @@ const allowUrlList = [
     '/search/customer',
     '/_info/me',
     '/_info/config-me',
+    '_action/product/types',
+    '/_action/product/types',
 ];
 
 /**

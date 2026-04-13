@@ -10,9 +10,11 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * @internal
+ *
+ * @final
  */
 #[Package('framework')]
-final class LoginResponseService
+class LoginResponseService
 {
     private const ADMIN_ROUTE_NAME = 'administration.index';
 

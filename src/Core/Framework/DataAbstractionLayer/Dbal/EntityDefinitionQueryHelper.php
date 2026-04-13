@@ -22,7 +22,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaPartInterface;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -38,43 +40,62 @@ class EntityDefinitionQueryHelper
 
     public static function escape(string $string): string
     {
-        if (mb_strpos($string, '`') !== false) {
+        if (str_contains($string, '`')) {
             throw DataAbstractionLayerException::invalidIdentifier($string);
         }
 
         return '`' . $string . '`';
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed. Use {@see TableHelper::columnExists} instead
+     *
+     * @param non-empty-string $table
+     */
     public static function columnExists(Connection $connection, string $table, string $column): bool
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'Use TableHelper::columnExists instead')
+        );
+
         $exists = $connection->fetchOne(
             'SHOW COLUMNS FROM ' . self::escape($table) . ' WHERE `Field` LIKE :column',
             ['column' => $column]
         );
 
-        return !empty($exists);
+        return $exists !== false;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed as it is unused
+     */
     public static function columnIsNullable(Connection $connection, string $table, string $column): bool
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         $exists = $connection->fetchOne(
             'SHOW COLUMNS FROM ' . self::escape($table) . ' WHERE `Field` LIKE :column AND `Null` = "YES"',
             ['column' => $column]
         );
 
-        return !empty($exists);
+        return $exists !== false;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed. Use {@see TableHelper::tableExists} instead
+     */
     public static function tableExists(Connection $connection, string $table): bool
     {
-        return !empty(
-            $connection->fetchOne(
-                'SHOW TABLES LIKE :table',
-                [
-                    'table' => $table,
-                ]
-            )
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'Use TableHelper::tableExists instead')
         );
+
+        return $connection->fetchOne('SHOW TABLES LIKE :table', ['table' => $table]) !== false;
     }
 
     /**
@@ -308,7 +329,7 @@ class EntityDefinitionQueryHelper
             $path[] = $field->getPropertyName();
         }
 
-        if (empty($path)) {
+        if ($path === []) {
             return null;
         }
 
@@ -344,7 +365,7 @@ class EntityDefinitionQueryHelper
         } elseif ($definition->isVersionAware()) {
             $versionIdField = array_filter(
                 $definition->getPrimaryKeys()->getElements(),
-                fn ($f) => $f instanceof VersionField || $f instanceof ReferenceVersionField
+                static fn ($f) => $f instanceof VersionField || $f instanceof ReferenceVersionField
             );
 
             if (!$versionIdField) {
@@ -451,11 +472,11 @@ class EntityDefinitionQueryHelper
         }
 
         $fields = $translationDefinition->getFields()->filter(
-            fn (Field $field) => $field instanceof StorageAware
+            static fn (Field $field) => $field instanceof StorageAware
                 && $definition->getFields()->get($field->getPropertyName()) instanceof TranslatedField,
         );
-        if (!empty($partial)) {
-            $fields = $fields->filter(fn (Field $field) => isset($partial[$field->getPropertyName()]));
+        if ($partial !== []) {
+            $fields = $fields->filter(static fn (Field $field) => isset($partial[$field->getPropertyName()]));
         }
 
         $translationChain = self::buildTranslationChain(
@@ -560,19 +581,22 @@ class EntityDefinitionQueryHelper
         return $chain;
     }
 
+    /**
+     * @param Criteria<string|array<string, string>> $criteria
+     */
     public function addIdCondition(Criteria $criteria, EntityDefinition $definition, QueryBuilder $query): void
     {
         $primaryKeys = $criteria->getIds();
         $primaryKeys = array_values($primaryKeys);
 
-        if (empty($primaryKeys)) {
+        if ($primaryKeys === []) {
             return;
         }
 
         if (!\is_array($primaryKeys[0]) || \count($primaryKeys[0]) === 1) {
             $primaryKeyField = $definition->getPrimaryKeys()->first();
             if ($primaryKeyField instanceof IdField || $primaryKeyField instanceof FkField) {
-                $primaryKeys = array_map(function ($id) {
+                $primaryKeys = array_map(static function ($id) {
                     if (\is_array($id)) {
                         $shiftedId = array_shift($id);
                         \assert(\is_string($shiftedId));

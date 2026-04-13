@@ -39,7 +39,7 @@ class CaptchaRouteListenerTest extends TestCase
     {
         $event = new ControllerEvent(
             $this->createMock(HttpKernelInterface::class),
-            function (): void {},
+            static function (): void {},
             new Request(attributes: [PlatformRequest::ATTRIBUTE_CAPTCHA => true]),
             HttpKernelInterface::MAIN_REQUEST
         );
@@ -62,7 +62,7 @@ class CaptchaRouteListenerTest extends TestCase
     {
         $event = new ControllerEvent(
             $this->createMock(HttpKernelInterface::class),
-            function (): void {},
+            static function (): void {},
             new Request(attributes: [PlatformRequest::ATTRIBUTE_CAPTCHA => true]),
             HttpKernelInterface::MAIN_REQUEST
         );
@@ -98,13 +98,13 @@ class CaptchaRouteListenerTest extends TestCase
     public function testCaptchaSupportedButInvalidWithShouldBreakTrueAndXmlRequestWithNoViolations(): void
     {
         $request = new Request(
-            attributes: ['_captcha' => true],
+            attributes: [PlatformRequest::ATTRIBUTE_CAPTCHA => true],
             server: ['HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest']
         );
 
         $event = new ControllerEvent(
             $this->createMock(HttpKernelInterface::class),
-            function (): void {},
+            static function (): void {},
             $request,
             HttpKernelInterface::MAIN_REQUEST
         );
@@ -164,13 +164,13 @@ class CaptchaRouteListenerTest extends TestCase
     public function testCaptchaSupportedButInvalidWithShouldBreakTrueAndXmlRequestWithExistingViolations(): void
     {
         $request = new Request(
-            attributes: ['_captcha' => true],
+            attributes: [PlatformRequest::ATTRIBUTE_CAPTCHA => true],
             server: ['HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest']
         );
 
         $event = new ControllerEvent(
             $this->createMock(HttpKernelInterface::class),
-            function (): void {},
+            static function (): void {},
             $request,
             HttpKernelInterface::MAIN_REQUEST
         );
@@ -222,12 +222,12 @@ class CaptchaRouteListenerTest extends TestCase
     {
         $request = new Request(
             query: ['_route' => 'frontend.home.page'],
-            attributes: ['_captcha' => true, '_route' => 'frontend.home.page']
+            attributes: [PlatformRequest::ATTRIBUTE_CAPTCHA => true, '_route' => 'frontend.home.page']
         );
 
         $event = new ControllerEvent(
             $this->createMock(HttpKernelInterface::class),
-            function (): void {},
+            static function (): void {},
             $request,
             HttpKernelInterface::MAIN_REQUEST
         );
@@ -276,7 +276,7 @@ class CaptchaRouteListenerTest extends TestCase
         $request = new Request();
         $event = new ControllerEvent(
             $this->createMock(HttpKernelInterface::class),
-            function (): void {},
+            static function (): void {},
             $request,
             HttpKernelInterface::MAIN_REQUEST
         );

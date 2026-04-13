@@ -18,16 +18,16 @@ class ApiAware extends Flag
     /**
      * @var array<string, string>
      */
-    private array $whitelist = [];
+    private array $allowList = [];
 
     public function __construct(string ...$protectedSources)
     {
         foreach ($protectedSources as $source) {
-            $this->whitelist[$source] = self::BASE_URLS[$source];
+            $this->allowList[$source] = self::BASE_URLS[$source];
         }
 
-        if (empty($protectedSources)) {
-            $this->whitelist = self::BASE_URLS;
+        if ($protectedSources === []) {
+            $this->allowList = self::BASE_URLS;
         }
     }
 
@@ -35,8 +35,8 @@ class ApiAware extends Flag
     {
         $baseUrl = rtrim($baseUrl, '/') . '/';
 
-        foreach ($this->whitelist as $url) {
-            if (mb_strpos($baseUrl, $url) !== false) {
+        foreach ($this->allowList as $url) {
+            if (str_contains($baseUrl, $url)) {
                 return true;
             }
         }
@@ -50,7 +50,7 @@ class ApiAware extends Flag
             return true;
         }
 
-        if (isset($this->whitelist[$source])) {
+        if (isset($this->allowList[$source])) {
             return true;
         }
 
@@ -61,7 +61,7 @@ class ApiAware extends Flag
         }
 
         foreach ($parentSources as $parentSource) {
-            if (isset($this->whitelist[$parentSource])) {
+            if (isset($this->allowList[$parentSource])) {
                 return true;
             }
         }
@@ -72,7 +72,7 @@ class ApiAware extends Flag
     public function parse(): \Generator
     {
         yield 'read_protected' => [
-            array_keys($this->whitelist),
+            array_keys($this->allowList),
         ];
     }
 }

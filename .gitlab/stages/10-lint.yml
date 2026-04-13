@@ -172,9 +172,9 @@ PHP lint:
     before_script:
         - !reference [ .scripts, init, composer_full ]
     script:
-        - composer run ecs
+        - composer run cs
         - composer run lint:changelog
-        - composer run lint:snippets
+        - ./bin/console translation:validate
         - ./bin/console sync:composer:version --dry-run
         # Proper BC check for one major cycle
         - composer run bc-check

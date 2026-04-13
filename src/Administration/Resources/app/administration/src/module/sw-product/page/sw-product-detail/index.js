@@ -56,11 +56,19 @@ export default {
             required: false,
             default: null,
         },
-        /* Product "types" provided by the split button for creating a new product through a router parameter */
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, please use `creationType` instead
+         */
         creationStates: {
             type: Array,
             required: false,
             default: null,
+        },
+        /* Product "type" provided by the split button for creating a new product through a router parameter */
+        creationType: {
+            type: String,
+            required: false,
+            default: 'physical',
         },
     },
 
@@ -95,6 +103,9 @@ export default {
             return Shopware.Store.get('swProductDetail').localMode;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         advancedModeSetting() {
             return Shopware.Store.get('swProductDetail').advancedModeSetting;
         },
@@ -127,8 +138,15 @@ export default {
             return Shopware.Store.get('swProductDetail').advanceModeEnabled;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, please use `productType` instead
+         */
         productStates() {
             return Shopware.Store.get('swProductDetail').productStates;
+        },
+
+        productType() {
+            return Shopware.Store.get('swProductDetail').productType;
         },
 
         ...mapPageErrors(errorConfiguration),
@@ -200,10 +218,16 @@ export default {
             return Shopware.Store.get('session').currentUser;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         userModeSettingsRepository() {
             return this.repositoryFactory.create('user_config');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         userModeSettingsCriteria() {
             const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('key', 'mode.setting.advancedModeSettings'));
@@ -236,6 +260,7 @@ export default {
 
             criteria
                 .addAssociation('cover.media')
+                .addAssociation('openGraphMedia')
                 .addAssociation('categories')
                 .addAssociation('visibilities.salesChannel')
                 .addAssociation('options')
@@ -248,6 +273,7 @@ export default {
                 .addAssociation('customFieldSets')
                 .addAssociation('featureSet')
                 .addAssociation('cmsPage')
+                .addAssociation('translations')
                 .addAssociation('downloads.media');
 
             criteria.getAssociation('manufacturer').addAssociation('media');
@@ -300,6 +326,9 @@ export default {
             };
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         getModeSettingGeneralTab() {
             return [
                 {
@@ -341,6 +370,9 @@ export default {
             ];
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         getModeSettingSpecificationsTab() {
             return [
                 {
@@ -376,6 +408,9 @@ export default {
             ];
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         showAdvanceModeSetting() {
             if (this.isChild) {
                 return false;
@@ -483,6 +518,11 @@ export default {
 
             // when create
             if (!this.productId) {
+                // Immediately reset store to prevent
+                // stale data from a previous variant/child product from rendering
+                // before initState() creates a new product entity
+                Shopware.Store.get('swProductDetail').$reset();
+
                 // set language to system language
                 if (!Shopware.Store.get('context').isSystemDefaultLanguage) {
                     Shopware.Store.get('context').resetLanguageToDefault();
@@ -515,12 +555,24 @@ export default {
             });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         initAdvancedModeSettings() {
             Shopware.Store.get('swProductDetail').advancedModeSetting = this.getAdvancedModeDefaultSetting();
 
-            this.getAdvancedModeSetting();
+            // Only load settings when editing existing product
+            if (this.productId) {
+                this.getAdvancedModeSetting();
+            } else {
+                // Reset modeSettings to default when creating a new product
+                Shopware.Store.get('swProductDetail').modeSettings = this.changeModeSettings();
+            }
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         createUserModeSetting() {
             const newModeSettings = this.userModeSettingsRepository.create();
             newModeSettings.key = 'mode.setting.advancedModeSettings';
@@ -528,6 +580,9 @@ export default {
             return newModeSettings;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         getAdvancedModeDefaultSetting() {
             const defaultSettings = this.createUserModeSetting();
             defaultSettings.value = {
@@ -543,6 +598,9 @@ export default {
             return defaultSettings;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         getAdvancedModeSetting() {
             return this.userModeSettingsRepository.search(this.userModeSettingsCriteria).then(async (items) => {
                 if (!items.total) {
@@ -566,6 +624,9 @@ export default {
             });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         saveAdvancedMode() {
             Shopware.Store.get('swProductDetail').setLoading([
                 'advancedMode',
@@ -588,11 +649,17 @@ export default {
                 });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         onChangeSetting() {
             Shopware.Store.get('swProductDetail').advancedModeSetting = this.advancedModeSetting;
             this.saveAdvancedMode();
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         changeModeSettings() {
             const enabledModeItems = this.advancedModeSetting.value.settings.filter((item) => item.enabled);
             if (!enabledModeItems.length) {
@@ -602,6 +669,9 @@ export default {
             return enabledModeItems.map((item) => item.key);
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         onChangeSettingItem() {
             Shopware.Store.get('swProductDetail').modeSettings = this.changeModeSettings();
             this.saveAdvancedMode();
@@ -636,7 +706,11 @@ export default {
             ]);
 
             // set product "type"
-            Shopware.Store.get('swProductDetail').creationStates = this.creationStates;
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                Shopware.Store.get('swProductDetail').creationStates = this.creationStates;
+            }
+
+            Shopware.Store.get('swProductDetail').creationType = this.creationType;
 
             // create empty product
             Shopware.Store.get('swProductDetail').product = this.productRepository.create();
@@ -649,7 +723,7 @@ export default {
             this.product.additionalText = '';
             this.product.variantListingConfig = {};
 
-            if (this.creationStates) {
+            if (this.creationType) {
                 this.adjustProductAccordingToType();
             }
 
@@ -716,9 +790,11 @@ export default {
         },
 
         adjustProductAccordingToType() {
-            if (this.creationStates.includes('is-download')) {
+            if (this.creationType === 'digital') {
                 this.product.maxPurchase = 1;
             }
+
+            this.product.type = this.creationType;
         },
 
         loadProduct() {
@@ -730,7 +806,7 @@ export default {
             return this.productRepository
                 .get(this.productId || this.product.id, this.productApiContext, this.productCriteria)
                 .then(async (product) => {
-                    if (!product.purchasePrices?.length > 0 && !product.parentId) {
+                    if (!product.parentId && (!product.purchasePrices || product.purchasePrices.length === 0)) {
                         if (!this.defaultCurrency?.id) {
                             await this.loadCurrencies();
                         }
@@ -754,7 +830,8 @@ export default {
                     Shopware.Store.get('swProductDetail').product = product;
 
                     if (this.product.parentId) {
-                        this.loadParentProduct();
+                        await this.loadParentProduct();
+                        this.syncVariantPriceInheritance();
                     } else {
                         Shopware.Store.get('swProductDetail').parentProduct = {};
                     }
@@ -764,6 +841,22 @@ export default {
                         false,
                     ]);
                 });
+        },
+
+        syncVariantPriceInheritance() {
+            const priceInherited = this.product.price === null;
+            const purchasePricesInherited = this.product.purchasePrices === null;
+
+            // Price is inherited — purchasePrices must also inherit
+            if (priceInherited) {
+                this.product.purchasePrices = null;
+                return;
+            }
+
+            // Price is overridden but purchasePrices still inherited — copy from parent
+            if (purchasePricesInherited) {
+                this.product.purchasePrices = cloneDeep(this.parentProduct.purchasePrices);
+            }
         },
 
         getDefaultPurchasePrices() {
@@ -786,6 +879,14 @@ export default {
             return this.productRepository
                 .get(this.product.parentId, Shopware.Context.api, this.productCriteria)
                 .then(async (parent) => {
+                    if (!parent.purchasePrices || parent.purchasePrices.length === 0) {
+                        if (!this.defaultCurrency?.id) {
+                            await this.loadCurrencies();
+                        }
+
+                        parent.purchasePrices = this.getDefaultPurchasePrices();
+                    }
+
                     if (parent.propertyIds?.length > 0) {
                         const propertyCriteria = new Criteria(1, null);
                         propertyCriteria.addSorting(Criteria.sort('name', 'ASC', true));
@@ -994,7 +1095,7 @@ export default {
         },
 
         customValidate(errors, product) {
-            if (this.productStates.includes('is-download')) {
+            if (this.productType === 'digital') {
                 // custom download product validation
                 if (product.downloads === undefined || product.downloads.length < 1) {
                     errors.push(EntityValidationService.createRequiredError('/0/downloads'));
@@ -1145,7 +1246,32 @@ export default {
                             seoUrl.isModified = true;
                         }
 
-                        this.updateSeoPromises.push(this.seoUrlService.updateCanonicalUrl(seoUrl, seoUrl.languageId));
+                        this.updateSeoPromises.push(
+                            this.seoUrlService.updateCanonicalUrl(seoUrl, seoUrl.languageId).catch((error) => {
+                                if (error.response?.data?.errors) {
+                                    error.response.data.errors.forEach((apiError) => {
+                                        const messageKey = `global.error-codes.${apiError.detail}`;
+                                        const params = apiError.meta?.parameters || {};
+                                        const translated = this.$t(messageKey, params);
+
+                                        const message =
+                                            translated !== messageKey
+                                                ? translated
+                                                : apiError.detail ||
+                                                  apiError.title ||
+                                                  this.$t('global.notification.unspecifiedSaveErrorMessage');
+
+                                        this.createNotificationError({ message });
+                                    });
+                                } else {
+                                    const message =
+                                        error.message || this.$t('global.notification.unspecifiedSaveErrorMessage');
+                                    this.createNotificationError({ message });
+                                }
+
+                                return Promise.reject(error);
+                            }),
+                        );
                     });
                 }
             }

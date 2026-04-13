@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\Api\StoreApiResponseListener;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -45,7 +46,7 @@ class StoreApiSeoResolver implements EventSubscriberInterface
     }
 
     /**
-     * This subscriber has to trigger before the {@see \Shopware\Core\System\SalesChannel\Api\StoreApiResponseListener},
+     * This subscriber has to trigger before the {@see StoreApiResponseListener},
      * because it requires access to the `StoreApiResponse`'s struct object, which is not available after encoding it.
      */
     public static function getSubscribedEvents(): array
@@ -140,7 +141,7 @@ class StoreApiSeoResolver implements EventSubscriberInterface
 
             $ids = $data->getIds($definition);
             $routes = $this->seoUrlRouteRegistry->findByDefinition($definition);
-            if (\count($routes) === 0) {
+            if ($routes === []) {
                 continue;
             }
 

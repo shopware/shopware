@@ -28,7 +28,9 @@ class CustomerRecoveryStorerTest extends TestCase
 {
     private CustomerRecoveryStorer $storer;
 
-    /** @var MockObject&EntityRepository<CustomerRecoveryCollection> */
+    /**
+     * @var MockObject&EntityRepository<CustomerRecoveryCollection>
+     */
     private MockObject&EntityRepository $repository;
 
     private MockObject&EventDispatcherInterface $dispatcher;

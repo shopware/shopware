@@ -22,7 +22,9 @@ class IncrementRedisStorage extends AbstractIncrementStorage
      * @param EntityRepository<NumberRangeCollection> $numberRangeRepository
      */
     public function __construct(
-        /** @phpstan-ignore shopware.propertyNativeType (Cannot type natively, as Symfony might change the implementation in the future) */
+        /**
+         * @phpstan-ignore shopware.propertyNativeType (Cannot type natively, as Symfony might change the implementation in the future)
+         */
         private $redis,
         private readonly LockFactory $lockFactory,
         private readonly EntityRepository $numberRangeRepository
@@ -97,7 +99,6 @@ class IncrementRedisStorage extends AbstractIncrementStorage
         $numberRangeIds = $this->getNumberRangeIds();
         $states = [];
 
-        /** @var string $id */
         foreach ($numberRangeIds as $id) {
             $state = $this->redis->get($this->getKey($id));
 
@@ -134,9 +135,6 @@ class IncrementRedisStorage extends AbstractIncrementStorage
      */
     private function getNumberRangeIds(): array
     {
-        /** @var list<string> $ids */
-        $ids = $this->numberRangeRepository->searchIds(new Criteria(), Context::createDefaultContext())->getIds();
-
-        return $ids;
+        return $this->numberRangeRepository->searchIds(new Criteria(), Context::createDefaultContext())->getIds();
     }
 }

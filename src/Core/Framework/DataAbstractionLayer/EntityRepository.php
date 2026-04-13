@@ -77,6 +77,13 @@ class EntityRepository
         return Profiler::trace($criteria->getTitle(), fn () => $this->_aggregate($criteria, $context), 'repository');
     }
 
+    /**
+     * @template IDStructure of string|array<string, string> = string
+     *
+     * @param Criteria<IDStructure> $criteria
+     *
+     * @return IdSearchResult<IDStructure>
+     */
     public function searchIds(Criteria $criteria, Context $context): IdSearchResult
     {
         if (!$criteria->getTitle()) {
@@ -240,7 +247,7 @@ class EntityRepository
 
         $ids = $this->searchIds($criteria, $context);
 
-        if (empty($ids->getIds())) {
+        if ($ids->getIds() === []) {
             /** @var TEntityCollection $collection */
             $collection = $this->definition->getCollectionClass();
 
@@ -262,7 +269,7 @@ class EntityRepository
                 $data = $search[$element->getUniqueIdentifier()];
                 unset($data['id']);
 
-                if (empty($data)) {
+                if ($data === []) {
                     continue;
                 }
 

@@ -52,6 +52,7 @@ class ProductConfiguratorLoader
         );
 
         $current = $this->buildCurrentOptions($product, $groups);
+        $emptyGroupIds = [];
 
         foreach ($groups as $group) {
             $options = $group->getOptions();
@@ -70,6 +71,14 @@ class ProductConfiguratorLoader
 
                 $option->setCombinable($combinable);
             }
+
+            if ($options->count() === 0) {
+                $emptyGroupIds[] = $group->getId();
+            }
+        }
+
+        foreach ($emptyGroupIds as $groupId) {
+            $groups->remove($groupId);
         }
 
         return $groups;
@@ -227,7 +236,8 @@ class ProductConfiguratorLoader
      */
     private function buildCurrentOptions(SalesChannelProductEntity $product, PropertyGroupCollection $groups): array
     {
-        if (empty($product->getOptionIds())) {
+        $optionIds = $product->getOptionIds();
+        if ($optionIds === null || $optionIds === []) {
             return [];
         }
 
@@ -235,7 +245,7 @@ class ProductConfiguratorLoader
 
         $current = [];
 
-        foreach ($product->getOptionIds() as $optionId) {
+        foreach ($optionIds as $optionId) {
             $groupId = $keyMap[$optionId] ?? null;
             if ($groupId === null) {
                 continue;

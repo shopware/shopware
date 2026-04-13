@@ -84,6 +84,10 @@ $content-max-width: 960px;
         }
 
         &--bg-checklist {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+
             @media screen and (min-width: 375px) {
                 background-image: var(--_sw-dashboard-background-image);
                 background-repeat: no-repeat;
@@ -114,13 +118,16 @@ $content-max-width: 960px;
 
     &__card-list {
         list-style: none;
-        margin-bottom: var(--scale-size-32);
         font-size: var(--font-size-xs);
         line-height: var(--font-line-height-xs);
     }
 
     &__card-list-item {
         margin-bottom: var(--scale-size-12);
+
+        &:last-child {
+            margin-bottom: 0;
+        }
     }
 
     &.sw-page {

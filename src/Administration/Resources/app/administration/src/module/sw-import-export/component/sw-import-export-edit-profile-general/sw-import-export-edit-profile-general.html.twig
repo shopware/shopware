@@ -26,7 +26,7 @@
         {% endblock %}
 
         {% block sw_import_export_edit_profile_general_container_object_type %}
-        <span
+        <div
             v-tooltip="{
                 message: $tc('sw-import-export.profile.objectTypeFieldTooltipText'),
                 disabled: mappingLength <= 0,
@@ -80,7 +80,7 @@
                 </template>
             </sw-single-select>
             {% endblock %}
-        </span>
+        </div>
         {% endblock %}
 
         {% block sw_import_export_edit_profile_general_container_type %}

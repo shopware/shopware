@@ -83,25 +83,25 @@ class PromotionDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of promotion.'),
             new TranslatedField('name'),
-            (new BoolField('active', 'active'))->addFlags(new Required()),
-            new DateTimeField('valid_from', 'validFrom'),
-            new DateTimeField('valid_until', 'validUntil'),
-            new IntField('max_redemptions_global', 'maxRedemptionsGlobal'),
-            new IntField('max_redemptions_per_customer', 'maxRedemptionsPerCustomer'),
-            (new IntField('priority', 'priority'))->addFlags(new Required()),
-            (new BoolField('exclusive', 'exclusive'))->addFlags(new Required()),
-            new StringField('code', 'code'),
-            (new BoolField('use_codes', 'useCodes'))->addFlags(new Required()),
-            (new BoolField('use_individual_codes', 'useIndividualCodes'))->addFlags(new Required()),
-            new StringField('individual_code_pattern', 'individualCodePattern'),
-            (new BoolField('use_setgroups', 'useSetGroups'))->addFlags(new Required()),
-            new BoolField('customer_restriction', 'customerRestriction'),
-            (new BoolField('prevent_combination', 'preventCombination'))->addFlags(new Required()),
+            (new BoolField('active', 'active'))->addFlags(new Required())->setDescription('When boolean value is `true`, the promotions are available for selection in the storefront for purchase.'),
+            (new DateTimeField('valid_from', 'validFrom'))->setDescription('Date and time from when the promotion code gets valid.'),
+            (new DateTimeField('valid_until', 'validUntil'))->setDescription('Date and time until when the promotion code is valid.'),
+            (new IntField('max_redemptions_global', 'maxRedemptionsGlobal'))->setDescription('The frequency at which the voucher can be redeemed worldwide.'),
+            (new IntField('max_redemptions_per_customer', 'maxRedemptionsPerCustomer'))->setDescription('The frequency at which the voucher can be redeemed worldwide per customer.'),
+            (new IntField('priority', 'priority'))->addFlags(new Required())->setDescription('A numerical value to prioritize one of the promotions from the list.'),
+            (new BoolField('exclusive', 'exclusive'))->addFlags(new Required())->setDescription('Parameter to exclude the promotion codes on certain products'),
+            (new StringField('code', 'code'))->setDescription('Promotion code.'),
+            (new BoolField('use_codes', 'useCodes'))->addFlags(new Required())->setDescription('A boolean value that indicates whether the promotion uses code or not.'),
+            (new BoolField('use_individual_codes', 'useIndividualCodes'))->addFlags(new Required())->setDescription('Indicates either an individual code or generic code for all users.'),
+            (new StringField('individual_code_pattern', 'individualCodePattern'))->setDescription('Promotion code pattern.'),
+            (new BoolField('use_setgroups', 'useSetGroups'))->addFlags(new Required())->setDescription('Combine promotions. Promotions that are to be used only on certain products and rest not considered.'),
+            (new BoolField('customer_restriction', 'customerRestriction'))->setDescription('Indicates who cannot a use the code.'),
+            (new BoolField('prevent_combination', 'preventCombination'))->addFlags(new Required())->setDescription('Indicates which combination of codes are allowed.'),
 
-            (new IntField('order_count', 'orderCount'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
-            (new JsonField('orders_per_customer_count', 'ordersPerCustomerCount'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new IntField('order_count', 'orderCount'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE))->setDescription('The number of times the promotion was used.'),
+            (new JsonField('orders_per_customer_count', 'ordersPerCustomerCount'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE))->setDescription('The number of times the customer has used the code.'),
 
             (new OneToManyAssociationField('setgroups', PromotionSetGroupDefinition::class, 'promotion_id'))->addFlags(new CascadeDelete()),
 
@@ -117,7 +117,7 @@ class PromotionDefinition extends EntityDefinition
             (new OneToManyAssociationField('orderLineItems', OrderLineItemDefinition::class, 'promotion_id'))->addFlags(new SetNullOnDelete()),
 
             (new TranslationsAssociationField(PromotionTranslationDefinition::class, 'promotion_id'))->addFlags(new Required()),
-            new ListField('exclusion_ids', 'exclusionIds', IdField::class),
+            (new ListField('exclusion_ids', 'exclusionIds', IdField::class))->setDescription('Unique identity of exclusion.'),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
         ]);
     }

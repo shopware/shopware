@@ -2,53 +2,49 @@
  * @sw-package framework
  */
 import { send } from '@shopware-ag/meteor-admin-sdk/es/channel';
-import MissingPrivilegesError from '@shopware-ag/meteor-admin-sdk/es/_internals/privileges/missing-privileges-error';
 import api from './extension-api';
 
 describe('src/core/extension-api.ts', () => {
+    const actionNames = {
+        reject: 'extension-api-spec-reject',
+        resolveSync: 'extension-api-spec-resolve-sync',
+        resolveAsync: 'extension-api-spec-resolve-async',
+        noPrivileges: 'extension-api-spec-no-privileges',
+    };
+
     it('should reject handle with missing privileges', async () => {
-        // Setup acl roles
         global.activeAclRoles = [];
 
-        // Handle 'jest' message and provide spy for assertion
         const spy = jest.fn();
         spy.mockImplementation(() => {
             throw new Error('I should never run');
         });
-        const destroyHandle = api.handle('jest', spy);
+        const destroyHandle = api.handle(actionNames.reject, spy);
 
-        // Send handled message with privileges
         await expect(
-            send('jest', {
+            send(actionNames.reject, {
                 message: 'foo',
-                privileges: [
-                    'read:user',
-                ],
+                privileges: ['read:user'],
             }),
-        ).rejects.toThrow(new MissingPrivilegesError('jest', ['read:user']));
+        ).rejects.toThrow(/Your app is missing the privileges.*read:user/);
         expect(spy).not.toHaveBeenCalled();
 
         destroyHandle();
     });
 
     it('should resolve handle with existing privileges synchronously', async () => {
-        // Setup acl roles
         global.activeAclRoles = ['read:user'];
 
-        // Handle 'jest' message and provide spy for assertion
         const spy = jest.fn();
         spy.mockImplementation(() => {
             return 'UUID';
         });
-        const destroyHandle = api.handle('jest', spy);
+        const destroyHandle = api.handle(actionNames.resolveSync, spy);
 
-        // Send handled message with privileges
         await expect(
-            send('jest', {
+            send(actionNames.resolveSync, {
                 message: 'foo',
-                privileges: [
-                    'read:user',
-                ],
+                privileges: ['read:user'],
             }),
         ).resolves.toBe('UUID');
         expect(spy).toHaveBeenCalledTimes(1);
@@ -57,22 +53,17 @@ describe('src/core/extension-api.ts', () => {
     });
 
     it('should resolve handle with existing privileges asynchronously', async () => {
-        // Setup acl roles
         global.activeAclRoles = ['read:user'];
 
-        // Handle 'jest' message and provide spy for assertion
         const spy = jest.fn();
         spy.mockImplementation(() => {
             return Promise.resolve('UUID');
         });
-        const destroyHandle = api.handle('jest', spy);
+        const destroyHandle = api.handle(actionNames.resolveAsync, spy);
 
-        // Send handled message with privileges
-        const result = send('jest', {
+        const result = send(actionNames.resolveAsync, {
             message: 'foo',
-            privileges: [
-                'read:user',
-            ],
+            privileges: ['read:user'],
         });
         await flushPromises();
 
@@ -84,21 +75,18 @@ describe('src/core/extension-api.ts', () => {
     });
 
     it('should call original method directly without privileges', async () => {
-        // Setup acl roles
         global.activeAclRoles = ['read:user'];
         const canMock = jest.fn();
         Shopware.Service('acl').can = canMock;
 
-        // Handle 'jest' message and provide spy for assertion
         const spy = jest.fn();
         spy.mockImplementation(() => {
             return 'UUID';
         });
-        const destroyHandle = api.handle('jest', spy);
+        const destroyHandle = api.handle(actionNames.noPrivileges, spy);
 
-        // Send handled message with privileges
         await expect(
-            send('jest', {
+            send(actionNames.noPrivileges, {
                 message: 'foo',
             }),
         ).resolves.toBe('UUID');

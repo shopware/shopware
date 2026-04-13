@@ -4,8 +4,9 @@
  * @module core/factory/http
  */
 import Axios from 'axios';
-import getRefreshTokenHelper from 'src/core/helper/refresh-token.helper';
+import AxiosV1 from 'axios-v1';
 import cacheAdapterFactory from 'src/core/factory/cache-adapter.factory';
+import { createAxiosV0Adapter, createAxiosV1Adapter } from 'src/core/factory/http-client-adapter';
 
 /**
  * Initializes the HTTP client with the provided context. The context provides the API end point and will be used as
@@ -36,19 +37,31 @@ export const { CancelToken, isCancel, Cancel } = Axios;
  * @returns {AxiosInstance}
  */
 function createClient() {
-    const client = Axios.create({
+    const isV68 = Shopware?.Feature?.isActive('V6_8_0_0');
+    const baseConfig = {
         baseURL: Shopware.Context.api.apiPath,
         // Add request/response size limits to mitigate DoS vulnerability
         maxContentLength: 50 * 1024 * 1024, // 50MB limit
         maxBodyLength: 50 * 1024 * 1024, // 50MB limit
         timeout: 30000, // 30 second timeout
-    });
+    };
 
-    refreshTokenInterceptor(client);
-    globalErrorHandlingInterceptor(client);
-    storeSessionExpiredInterceptor(client);
-    client.CancelToken = CancelToken;
-    tracingInterceptor(client);
+    // Create both axios v0 and v1 instances
+    const axiosV0 = Axios.create(baseConfig);
+    const axiosV1 = AxiosV1.create(baseConfig);
+
+    // Apply all interceptors to both clients
+    refreshTokenInterceptor(axiosV0);
+    refreshTokenInterceptor(axiosV1);
+
+    globalErrorHandlingInterceptor(axiosV0);
+    globalErrorHandlingInterceptor(axiosV1);
+
+    storeSessionExpiredInterceptor(axiosV0);
+    storeSessionExpiredInterceptor(axiosV1);
+
+    tracingInterceptor(axiosV0);
+    tracingInterceptor(axiosV1);
 
     /**
      * Don´t use cache in unit tests because it is possible
@@ -56,16 +69,80 @@ function createClient() {
      * (e.g. error, success) in a short amount of time.
      * So in test cases we are using the originalAdapter directly
      * and skipping the caching mechanism.
+     *
+     * Note: Axios v1 uses a different adapter architecture (array of adapter names)
+     * that requires resolving to a function before wrapping with the cache adapter.
+     * The requestCacheAdapterInterceptorV1 function handles this resolution.
      */
     if (process?.env?.NODE_ENV !== 'test') {
-        requestCacheAdapterInterceptor(client);
+        requestCacheAdapterInterceptor(axiosV0);
+        requestCacheAdapterInterceptorV1(axiosV1);
     }
 
-    return client;
+    // Create adapters for both versions
+    const adapterV0 = createAxiosV0Adapter(axiosV0);
+    const adapterV1 = createAxiosV1Adapter(axiosV1);
+
+    /**
+     * Dispatcher function that routes requests to the appropriate axios version
+     * based on the useAxiosV1 flag in the request config
+     *
+     * @param {Object} config - Axios request config
+     * @returns {Promise} - Promise that resolves with the response
+     */
+    const dispatcher = (config) => {
+        // Determine which axios version to use:
+        // 1. If useAxiosV1 is explicitly set (true/false), use that
+        // 2. Otherwise, check V6_8_0_0 feature flag (defaults to v1 when active)
+        // 3. Fall back to v0 for backward compatibility
+        const shouldUseV1 = config?.useAxiosV1 ?? isV68 ?? false;
+        const targetAdapter = shouldUseV1 ? adapterV1 : adapterV0;
+
+        return targetAdapter.runRequest(config);
+    };
+
+    // Add standard axios methods to the dispatcher
+    dispatcher.request = (config) => dispatcher(config);
+    dispatcher.get = (url, config = {}) => dispatcher({ ...config, method: 'get', url });
+    dispatcher.delete = (url, config = {}) => dispatcher({ ...config, method: 'delete', url });
+    dispatcher.head = (url, config = {}) => dispatcher({ ...config, method: 'head', url });
+    dispatcher.options = (url, config = {}) => dispatcher({ ...config, method: 'options', url });
+    dispatcher.post = (url, data, config = {}) => dispatcher({ ...config, method: 'post', url, data });
+    dispatcher.put = (url, data, config = {}) => dispatcher({ ...config, method: 'put', url, data });
+    dispatcher.patch = (url, data, config = {}) => dispatcher({ ...config, method: 'patch', url, data });
+    dispatcher.getUri = (config = {}) => {
+        const shouldUseV1 = config?.useAxiosV1 ?? isV68 ?? false;
+        return shouldUseV1 ? axiosV1.getUri(config) : axiosV0.getUri(config);
+    };
+
+    // Add isCancel method that checks both adapters
+    dispatcher.isCancel = (value) => {
+        return adapterV0.isCancel(value) || adapterV1.isCancel(value);
+    };
+
+    // Keep CancelToken for backward compatibility with axios v0
+    dispatcher.CancelToken = CancelToken;
+
+    // Add interceptors property to maintain compatibility
+    dispatcher.interceptors = isV68 ? axiosV1.interceptors : axiosV0.interceptors;
+    dispatcher.interceptorsV0 = axiosV0.interceptors;
+    dispatcher.interceptorsV1 = axiosV1.interceptors;
+
+    // Add defaults property to maintain compatibility
+    dispatcher.defaults = isV68 ? axiosV1.defaults : axiosV0.defaults;
+    dispatcher.defaultsV0 = axiosV0.defaults;
+    dispatcher.defaultsV1 = axiosV1.defaults;
+
+    // Expose underlying axios instances for testing/mocking purposes
+    dispatcher.axiosV0 = axiosV0;
+    dispatcher.axiosV1 = axiosV1;
+
+    return dispatcher;
 }
 
 /**
  * Sets up an interceptor to handle automatic cache of same requests in short time amount
+ * for Axios v0.x
  *
  * @param {AxiosInstance} client
  * @returns {AxiosInstance}
@@ -76,6 +153,32 @@ function requestCacheAdapterInterceptor(client) {
         const originalAdapter = config.adapter;
 
         config.adapter = cacheAdapterFactory(originalAdapter, requestCaches);
+
+        return config;
+    });
+}
+
+/**
+ * Sets up an interceptor to handle automatic cache of same requests in short time amount
+ * for Axios v1.x
+ *
+ * In Axios v1, the adapter is an array of adapter names (e.g., ['xhr', 'http', 'fetch'])
+ * that need to be resolved to an actual adapter function before wrapping.
+ *
+ * @param {AxiosInstance} client - The Axios v1 instance
+ * @returns {AxiosInstance}
+ */
+function requestCacheAdapterInterceptorV1(client) {
+    const requestCaches = {};
+    client.interceptors.request.use((config) => {
+        const originalAdapter = config.adapter;
+
+        // In Axios v1, config.adapter is an array of adapter names
+        // We need to resolve it to an actual adapter function
+        const resolvedAdapter = AxiosV1.getAdapter(originalAdapter);
+
+        // Now wrap the resolved adapter with the cache adapter
+        config.adapter = cacheAdapterFactory(resolvedAdapter, requestCaches);
 
         return config;
     });
@@ -234,9 +337,11 @@ function handleErrorStates({ status, errors, error = null, data }) {
             Shopware.Store.get('notification').createNotification({
                 variant: 'error',
                 title: Shopware.Snippet.tc('global.default.error'),
-                message: `${Shopware.Snippet.tc('global.notification.messageDeleteFailed', 3, {
-                    entityName: Shopware.Snippet.tc(`global.entities.${entityName}`),
-                })}${blockingEntities}`,
+                message: `${Shopware.Snippet.tc(
+                    'global.notification.messageDeleteFailed',
+                    { entityName: Shopware.Snippet.tc(`global.entities.${entityName}`) },
+                    0,
+                )}${blockingEntities}`,
             });
         }
     }
@@ -272,7 +377,7 @@ function handleErrorStates({ status, errors, error = null, data }) {
  * @returns {AxiosInstance}
  */
 function refreshTokenInterceptor(client) {
-    const tokenHandler = getRefreshTokenHelper();
+    const skipList = ['/oauth/token'];
 
     client.interceptors.response.use(
         (response) => {
@@ -284,25 +389,38 @@ function refreshTokenInterceptor(client) {
             const originalRequest = config;
             const resource = originalRequest.url?.replace(originalRequest.baseURL, '');
 
-            // eslint-disable-next-line inclusive-language/use-inclusive-words
-            if (tokenHandler.whitelist.includes(resource)) {
+            if (skipList.includes(resource)) {
+                // For /oauth/token endpoint, reject immediately to avoid infinite loops
+                // This endpoint returns 400 when token is revoked (invalid_grant error)
                 return Promise.reject(error);
             }
 
             if (status === 401) {
-                if (!tokenHandler.isRefreshing) {
-                    tokenHandler.fireRefreshTokenRequest().catch(() => {
-                        return Promise.reject(error);
-                    });
+                const errorCode = error.response?.data?.errors?.[0]?.code;
+
+                // Do not retry on SSO_LOGIN__TOKEN_NOT_FOUND 401 error that is not related to an expired admin token
+                if (errorCode === 'SSO_LOGIN__TOKEN_NOT_FOUND') {
+                    return Promise.reject(error);
                 }
 
+                // Prevent infinite retry loops - only allow one token refresh retry per request
+                if (originalRequest._tokenRefreshRetry) {
+                    return Promise.reject(error);
+                }
+
+                const loginService = Shopware.Service('loginService');
+
+                // Intentionally ignore refresh token errors here; they are handled via subscribeToTokenRefresh.
+                loginService.refreshToken().catch(() => undefined);
+
                 return new Promise((resolve, reject) => {
-                    tokenHandler.subscribe(
+                    loginService.subscribeToTokenRefresh(
                         (newToken) => {
                             // replace the expired token and retry
                             originalRequest.headers.Authorization = `Bearer ${newToken}`;
                             originalRequest.url = originalRequest.url.replace(originalRequest.baseURL, '');
-                            resolve(Axios(originalRequest));
+                            originalRequest._tokenRefreshRetry = true;
+                            resolve(client.request(originalRequest));
                         },
                         (err) => {
                             if (!Shopware.Application.getApplicationRoot()) {

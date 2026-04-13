@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -34,7 +35,7 @@ class Migration1697112043AddPaymentAndShippingTechnicalName extends MigrationSte
             type: 'VARCHAR(255)'
         );
 
-        if (!$this->indexExists($connection, PaymentMethodDefinition::ENTITY_NAME, 'uniq.technical_name')) {
+        if (!TableHelper::indexExists($connection, PaymentMethodDefinition::ENTITY_NAME, 'uniq.technical_name')) {
             $connection->executeStatement('ALTER TABLE `payment_method` ADD CONSTRAINT `uniq.technical_name` UNIQUE (`technical_name`)');
         }
 
@@ -45,7 +46,7 @@ class Migration1697112043AddPaymentAndShippingTechnicalName extends MigrationSte
             type: 'VARCHAR(255)'
         );
 
-        if (!$this->indexExists($connection, ShippingMethodDefinition::ENTITY_NAME, 'uniq.technical_name')) {
+        if (!TableHelper::indexExists($connection, ShippingMethodDefinition::ENTITY_NAME, 'uniq.technical_name')) {
             $connection->executeStatement('ALTER TABLE `shipping_method` ADD CONSTRAINT `uniq.technical_name` UNIQUE (`technical_name`)');
         }
 

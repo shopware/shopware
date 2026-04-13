@@ -20,6 +20,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKe
 use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordEntity;
 use Shopware\Core\Content\Product\Exception\DuplicateProductNumberException;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
@@ -393,6 +394,40 @@ class ProductRepositoryTest extends TestCase
         static::assertNotContains('default', $keywords);
         static::assertNotContains('name', $keywords);
         static::assertContains('updated', $keywords);
+    }
+
+    #[DataProvider('dataProviderProductWrite')]
+    public function testWriteProductType(?string $type, string $expectedType): void
+    {
+        $id = Uuid::randomHex();
+
+        $data = [
+            'id' => $id,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 10,
+            'name' => 'Default name',
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
+            'type' => $type,
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+        ];
+
+        if ($type === 'unset') {
+            unset($data['type']);
+        }
+
+        $this->repository->create([$data], $this->context);
+
+        $criteria = new Criteria([$id]);
+        $product = $this->repository->search($criteria, $this->context)->getEntities()->get($id);
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertSame($expectedType, $product->getType());
+    }
+
+    public static function dataProviderProductWrite(): \Generator
+    {
+        yield 'no type provided' => ['unset', ProductDefinition::TYPE_PHYSICAL];
+        yield 'default product type provided' => [ProductDefinition::TYPE_PHYSICAL, ProductDefinition::TYPE_PHYSICAL];
+        yield 'digital product type provided' => [ProductDefinition::TYPE_DIGITAL, ProductDefinition::TYPE_DIGITAL];
     }
 
     public function testWriteCategories(): void
@@ -1424,7 +1459,7 @@ class ProductRepositoryTest extends TestCase
         $productMedia = $product->getMedia();
         static::assertNotNull($productMedia);
 
-        $ids = $productMedia->map(fn (ProductMediaEntity $a) => $a->getId());
+        $ids = $productMedia->map(static fn (ProductMediaEntity $a) => $a->getId());
 
         $order = [$a, $b, $c];
         static::assertSame($order, array_values($ids));
@@ -1439,7 +1474,7 @@ class ProductRepositoryTest extends TestCase
         $productMedia = $product->getMedia();
         static::assertNotNull($productMedia);
 
-        $ids = $productMedia->map(fn (ProductMediaEntity $a) => $a->getId());
+        $ids = $productMedia->map(static fn (ProductMediaEntity $a) => $a->getId());
 
         $order = [$d, $c, $b];
         static::assertSame($order, array_values($ids));

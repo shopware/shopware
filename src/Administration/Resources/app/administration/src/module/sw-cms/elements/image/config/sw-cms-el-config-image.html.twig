@@ -104,39 +104,44 @@
         {% endblock %}
     </template>
 
-    {% block sw_cms_element_image_config_vertical_align %}
-    <sw-cms-inherit-wrapper
-        field="verticalAlign"
-        :element="element"
-        :label="$t('sw-cms.elements.general.config.label.verticalAlign')"
+    <sw-container
+        columns="1fr 1fr"
+        gap="0px 30px"
     >
-        <template #default="{ isInherited }">
-            <mt-select
-                v-model:model-value="element.config.verticalAlign.value"
-                :placeholder="$t('sw-cms.elements.general.config.label.verticalAlign')"
-                :disabled="isInherited || ['cover'].includes(element.config.displayMode.value)"
-                :options="verticalAlignOptions"
-            />
-        </template>
-    </sw-cms-inherit-wrapper>
-    {% endblock %}
+        {% block sw_cms_element_image_config_vertical_align %}
+        <sw-cms-inherit-wrapper
+            field="verticalAlign"
+            :element="element"
+            :label="$t('sw-cms.elements.general.config.label.verticalAlign')"
+        >
+            <template #default="{ isInherited }">
+                <mt-select
+                    v-model:model-value="element.config.verticalAlign.value"
+                    :placeholder="$t('sw-cms.elements.general.config.label.verticalAlign')"
+                    :disabled="isInherited || ['cover'].includes(element.config.displayMode.value)"
+                    :options="verticalAlignOptions"
+                />
+            </template>
+        </sw-cms-inherit-wrapper>
+        {% endblock %}
 
-    {% block sw_cms_element_image_config_horizontal_align %}
-    <sw-cms-inherit-wrapper
-        field="horizontalAlign"
-        :element="element"
-        :label="$t('sw-cms.elements.general.config.label.horizontalAlign')"
-    >
-        <template #default="{ isInherited }">
-            <mt-select
-                v-model:model-value="element.config.horizontalAlign.value"
-                :placeholder="$tc('sw-cms.elements.general.config.label.horizontalAlign')"
-                :disabled="isInherited || element.config.displayMode.value === 'cover'"
-                :options="horizontalAlignOptions"
-            />
-        </template>
-    </sw-cms-inherit-wrapper>
-    {% endblock %}
+        {% block sw_cms_element_image_config_horizontal_align %}
+        <sw-cms-inherit-wrapper
+            field="horizontalAlign"
+            :element="element"
+            :label="$t('sw-cms.elements.general.config.label.horizontalAlign')"
+        >
+            <template #default="{ isInherited }">
+                <mt-select
+                    v-model:model-value="element.config.horizontalAlign.value"
+                    :placeholder="$tc('sw-cms.elements.general.config.label.horizontalAlign')"
+                    :disabled="isInherited || element.config.displayMode.value === 'cover'"
+                    :options="horizontalAlignOptions"
+                />
+            </template>
+        </sw-cms-inherit-wrapper>
+        {% endblock %}
+    </sw-container>
 
     <sw-container
         columns="1fr 1fr"
@@ -195,7 +200,7 @@
                 <mt-text-field
                     v-model="element.config.ariaLabel.value"
                     class="sw-cms-el-config-image__link-aria-label"
-                    :help-text="$tc('sw-cms.elements.image.config.label.ariaLabelHelpText')"
+                    :help-text="$t('sw-cms.elements.image.config.helpText.ariaLabel')"
                     :disabled="isInherited"
                 />
             </template>

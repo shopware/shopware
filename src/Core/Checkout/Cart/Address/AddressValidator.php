@@ -10,12 +10,14 @@ use Shopware\Core\Checkout\Cart\Address\Error\ShippingAddressSalutationMissingEr
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartValidatorInterface;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\Service\ResetInterface;
@@ -41,23 +43,33 @@ class AddressValidator implements CartValidatorInterface, ResetInterface
     {
         $country = $context->getShippingLocation()->getCountry();
         $customer = $context->getCustomer();
-        $validateShipping = $cart->getLineItems()->count() === 0
-            || $cart->getLineItems()->hasLineItemWithState(State::IS_PHYSICAL);
+
+        $isPhysicalLineItem = $cart->getLineItems()->hasLineItemWithProductType(ProductDefinition::TYPE_PHYSICAL);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $isPhysicalLineItem = $cart->getLineItems()->hasLineItemWithProductType(ProductDefinition::TYPE_PHYSICAL);
+
+            Feature::callSilentIfInactive('v6.8.0.0', static function () use ($cart, &$isPhysicalLineItem): void {
+                $isPhysicalLineItem = $isPhysicalLineItem || $cart->getLineItems()->hasLineItemWithState(State::IS_PHYSICAL);
+            });
+        }
+
+        $validateShipping = $cart->getLineItems()->count() === 0 || $isPhysicalLineItem;
 
         if (!$country->getActive() && $validateShipping) {
-            $errors->add(new ShippingAddressBlockedError((string) $country->getTranslation('name')));
+            $errors->add(new ShippingAddressBlockedError((string) $country->getTranslation('name'), $context->getShippingLocation()->getAddress()?->getId()));
 
             return;
         }
 
         if (!$country->getShippingAvailable() && $validateShipping) {
-            $errors->add(new ShippingAddressBlockedError((string) $country->getTranslation('name')));
+            $errors->add(new ShippingAddressBlockedError((string) $country->getTranslation('name'), $context->getShippingLocation()->getAddress()?->getId()));
 
             return;
         }
 
         if (!$this->isSalesChannelCountry($country->getId(), $context) && $validateShipping) {
-            $errors->add(new ShippingAddressBlockedError((string) $country->getTranslation('name')));
+            $errors->add(new ShippingAddressBlockedError((string) $country->getTranslation('name'), $context->getShippingLocation()->getAddress()?->getId()));
 
             return;
         }

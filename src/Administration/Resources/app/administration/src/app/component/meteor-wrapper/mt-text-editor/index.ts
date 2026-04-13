@@ -1,6 +1,5 @@
-import { MtTextEditor as MtTextEditorOriginal } from '@shopware-ag/meteor-component-library';
-// eslint-disable-next-line max-len
-import type { CustomButton } from '@shopware-ag/meteor-component-library/dist/esm/components/form/mt-text-editor/_internal/mt-text-editor-toolbar';
+import MtTextEditorOriginal from '@shopware-ag/meteor-component-library/dist/esm/MtTextEditor';
+import type { CustomButton } from '@shopware-ag/meteor-component-library/dist/esm/MtTextEditorToolbar';
 import template from './mt-text-editor.html.twig';
 import './mt-text-editor.scss';
 
@@ -83,6 +82,16 @@ export default Shopware.Component.wrapComponentConfig({
 
         onUpdateModelValue(value: string) {
             this.$emit('update:modelValue', value);
+        },
+
+        validate(): Promise<boolean> {
+            const original = this.$refs.mtTextEditorOriginal as { validate?: () => Promise<boolean> } | undefined;
+
+            if (!original?.validate) {
+                return Promise.resolve(true);
+            }
+
+            return original.validate();
         },
     },
 });

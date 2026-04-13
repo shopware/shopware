@@ -81,7 +81,7 @@ class StorableFlowTest extends TestCase
         static::assertSame(['id' => '123345'], $this->storableFlow->data());
         static::assertSame('123345', $this->storableFlow->getData('id'));
 
-        $callback = fn () => 'Data';
+        $callback = static fn () => 'Data';
 
         $this->storableFlow->setData('data', $callback);
         static::assertSame('Data', $this->storableFlow->getData('data'));
@@ -89,7 +89,7 @@ class StorableFlowTest extends TestCase
 
     public function testLazy(): void
     {
-        $callback = fn () => 'Order Data';
+        $callback = static fn () => 'Order Data';
 
         $this->storableFlow->lazy('order', $callback);
 

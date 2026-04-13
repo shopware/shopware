@@ -152,13 +152,6 @@ export default {
                     allowResize: true,
                     primary: false,
                 },
-                {
-                    property: 'username',
-                    dataIndex: 'user.username',
-                    label: 'sw-import-export.activity.columns.user',
-                    allowResize: true,
-                    primary: false,
-                },
             ];
         },
 

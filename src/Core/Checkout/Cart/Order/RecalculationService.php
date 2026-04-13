@@ -303,7 +303,7 @@ class RecalculationService
         $originalIds = $order->getLineItems()?->getKeys() ?? [];
         $toDeleteIds = \array_values(\array_diff($originalIds, $newIds));
 
-        if (\count($toDeleteIds) > 0) {
+        if ($toDeleteIds !== []) {
             $context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => $this->orderLineItemRepository->delete(
                 \array_map(static fn (string $id) => ['id' => $id], $toDeleteIds),
                 $context
@@ -336,7 +336,7 @@ class RecalculationService
         )->getKeys() ?? [];
         $toDeleteIds = \array_values(\array_diff($originalIds, $newIds));
 
-        if (\count($toDeleteIds) > 0) {
+        if ($toDeleteIds !== []) {
             $context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => $this->orderDeliveryRepository->delete(
                 \array_map(static fn (string $id) => ['id' => $id], $toDeleteIds),
                 $context
@@ -447,7 +447,7 @@ class RecalculationService
 
             // validate cart against the context rules
             $validatedCart = $this->cartRuleLoader->loadByCart($live, $cart, $behavior)->getCart();
-            $validatedCart->addErrors(...$cart->getErrors()->filter(fn (Error $error) => !$error->isPersistent()));
+            $validatedCart->addErrors(...$cart->getErrors()->filter(static fn (Error $error) => !$error->isPersistent()));
 
             return $validatedCart;
         });

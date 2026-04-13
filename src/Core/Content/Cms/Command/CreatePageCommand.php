@@ -24,19 +24,19 @@ use Symfony\Component\Console\Output\OutputInterface;
 class CreatePageCommand extends Command
 {
     /**
-     * @var non-empty-list<string>
+     * @var non-empty-list<string>|null
      */
-    private array $products;
+    private ?array $products = null;
 
     /**
-     * @var non-empty-list<string>
+     * @var non-empty-list<string>|null
      */
-    private array $categories;
+    private ?array $categories = null;
 
     /**
-     * @var non-empty-list<string>
+     * @var non-empty-list<string>|null
      */
-    private array $media;
+    private ?array $media = null;
 
     /**
      * @param EntityRepository<CmsPageCollection> $cmsPageRepository
@@ -133,11 +133,10 @@ class CreatePageCommand extends Command
 
     private function getRandomProductId(Context $context): string
     {
-        if (empty($this->products)) {
+        if ($this->products === null) {
             $criteria = new Criteria();
             $criteria->setLimit(100);
 
-            /** @var list<string> $productIds */
             $productIds = $this->productRepository->searchIds($criteria, $context)->getIds();
             if ($productIds === []) {
                 throw CmsException::pageCreationFailure('No products found');
@@ -150,11 +149,10 @@ class CreatePageCommand extends Command
 
     private function getRandomCategoryId(Context $context): string
     {
-        if (empty($this->categories)) {
+        if ($this->categories === null) {
             $criteria = new Criteria();
             $criteria->setLimit(100);
 
-            /** @var list<string> $categoryIds */
             $categoryIds = $this->categoryRepository->searchIds($criteria, $context)->getIds();
             if ($categoryIds === []) {
                 throw CmsException::pageCreationFailure('No categories found');
@@ -167,11 +165,10 @@ class CreatePageCommand extends Command
 
     private function getRandomMediaId(Context $context): string
     {
-        if (empty($this->media)) {
+        if ($this->media === null) {
             $criteria = new Criteria();
             $criteria->setLimit(100);
 
-            /** @var list<string> $mediaIds */
             $mediaIds = $this->mediaRepository->searchIds($criteria, $context)->getIds();
             if ($mediaIds === []) {
                 throw CmsException::pageCreationFailure('No medias found');

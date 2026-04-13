@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -41,7 +41,7 @@ class UserRecoveryService
         private readonly EntityRepository $userRepo,
         private readonly RouterInterface $router,
         private readonly EventDispatcherInterface $dispatcher,
-        private readonly SalesChannelContextService $salesChannelContextService,
+        private readonly SalesChannelContextServiceInterface $salesChannelContextService,
         private readonly EntityRepository $salesChannelRepository,
     ) {
     }

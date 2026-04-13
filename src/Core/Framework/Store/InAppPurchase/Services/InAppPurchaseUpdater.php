@@ -62,7 +62,7 @@ class InAppPurchaseUpdater
                 $body = $response->getBody()->getContents();
 
                 if ($this->validateData($body)) {
-                    $this->systemConfigService->set(InAppPurchaseProvider::CONFIG_STORE_IAP_KEY, $body);
+                    $this->systemConfigService->set(InAppPurchaseProvider::CONFIG_STORE_IAP_KEY, $body, null, false);
                 } else {
                     $this->logger->error('Error fetching in-app purchases from store', ['error' => 'Invalid response format']);
                 }

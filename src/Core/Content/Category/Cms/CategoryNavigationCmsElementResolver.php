@@ -10,6 +10,7 @@ use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\DataResolver\Element\AbstractCmsElementResolver;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('discovery')]
@@ -45,7 +46,8 @@ class CategoryNavigationCmsElementResolver extends AbstractCmsElementResolver
         $salesChannel = $salesChannelContext->getSalesChannel();
 
         $rootNavigationId = $salesChannel->getNavigationCategoryId();
-        $navigationId = $resolverContext->getRequest()->get('navigationId', $rootNavigationId);
+        $request = $resolverContext->getRequest();
+        $navigationId = (string) ($request->attributes->get('navigationId') ?? RequestParamHelper::get($request, 'navigationId', $rootNavigationId));
 
         $tree = $this->navigationLoader->load(
             $navigationId,

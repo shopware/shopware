@@ -85,7 +85,7 @@ class ElasticsearchEntitySearchHydrator extends AbstractElasticsearchSearchHydra
     private function getTotalValue(Criteria $criteria, array $result): int
     {
         if ($criteria->getTotalCountMode() !== Criteria::TOTAL_COUNT_MODE_EXACT) {
-            return empty($result['hits']['hits']) ? 0 : \count($result['hits']['hits']);
+            return \count($result['hits']['hits'] ?? []);
         }
 
         if (!$criteria->getGroupFields()) {
@@ -93,17 +93,17 @@ class ElasticsearchEntitySearchHydrator extends AbstractElasticsearchSearchHydra
         }
 
         if (!$criteria->getPostFilters()) {
-            return empty($result['aggregations']['total-count']['value']) ? 0 : (int) $result['aggregations']['total-count']['value'];
+            return (int) ($result['aggregations']['total-count']['value'] ?? 0);
         }
 
-        return empty($result['aggregations']['total-filtered-count']['total-count']['value']) ? 0 : (int) $result['aggregations']['total-filtered-count']['total-count']['value'];
+        return (int) ($result['aggregations']['total-filtered-count']['total-count']['value'] ?? 0);
     }
 
     /**
      * @param array<string|array<string>> $ids
-     * @param array<int|string, array<string, mixed>> $data
+     * @param array<string, array{primaryKey: string|array<string, string>, data: array<string, mixed>}> $data
      *
-     * @return array<string, array<mixed>>
+     * @return array<string, array{primaryKey: string|array<string, string>, data: array<string, mixed>}>
      */
     private function sortByIdArray(array $ids, array $data): array
     {

@@ -31,6 +31,7 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\Service\AppConfigReader"/>
             <argument type="service" id="app.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="logger"/>
         </service>
 
         <service id="Shopware\Core\System\SystemConfig\Util\ConfigReader"/>

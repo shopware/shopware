@@ -32,7 +32,7 @@ class ChangeLanguageCommandHandlerTest extends TestCase
 
         $languageResult = new IdSearchResult(
             1,
-            [['primaryKey' => 'languageId', 'data' => []]],
+            ['languageId' => ['primaryKey' => 'languageId', 'data' => []]],
             $expectedCriteria,
             $context->getContext()
         );

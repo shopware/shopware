@@ -147,14 +147,13 @@ a[target="_blank"]:not(.sw-external-link, .sw-internal-link, .mt-button, .mt-lin
 
 .mt-empty-state {
     padding: 48px;
+}
 
-    &--center {
-        height: 100%;
-        width: 100%;
-        position: relative;
-        justify-content: center;
-        max-width: 60rem;
-        margin: 0 auto var(--scale-size-40);
-        overflow: hidden;
-    }
+/**
+ * Reset some global styling from
+ * the Meteor Component Library
+ */
+span svg {
+    display: initial;
+    vertical-align: initial;
 }

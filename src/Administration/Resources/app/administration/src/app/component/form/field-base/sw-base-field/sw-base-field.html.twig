@@ -14,6 +14,8 @@
             :disabled="disableInheritanceToggle"
             class="sw-field__inheritance-icon"
             :is-inherited="isInherited"
+            @inheritance-remove="$emit('inheritance-remove')"
+            @inheritance-restore="$emit('inheritance-restore')"
         />
 
         <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->

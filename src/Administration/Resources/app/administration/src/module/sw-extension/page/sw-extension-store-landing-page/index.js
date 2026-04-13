@@ -37,6 +37,11 @@ export default {
     },
 
     methods: {
+        /** Thin wrapper so tests can spy on navigation without mocking window.location (non-configurable in JSDOM v26). */
+        _reloadPage() {
+            window.location.reload();
+        },
+
         activateStore() {
             this.isLoading = true;
             this.activationStatus = null;
@@ -45,7 +50,7 @@ export default {
                 .downloadAndActivateExtension(this.extensionName)
                 .then(() => {
                     this.activationStatus = 'success';
-                    window.location.reload();
+                    this._reloadPage();
                 })
                 .catch((error) => {
                     this.activationStatus = 'error';

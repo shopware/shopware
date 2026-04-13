@@ -8,7 +8,24 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @phpstan-type TransformedAddressArray array{id: non-falsy-string, company?: non-falsy-string, department?: non-falsy-string, salutationId?: non-falsy-string, title?: non-falsy-string, firstName?: non-falsy-string, lastName?: non-falsy-string, street?: non-falsy-string, zipcode?: non-falsy-string, city?: non-falsy-string, phoneNumber?: non-falsy-string, additionalAddressLine1?: non-falsy-string, additionalAddressLine2?: non-falsy-string, countryId?: non-falsy-string, countryStateId?: non-falsy-string, customFields?: array<string, mixed>}
+ * @phpstan-type TransformedAddressArray array{
+ *     id: non-empty-string,
+ *     company?: non-empty-string,
+ *     department?: non-empty-string,
+ *     salutationId?: non-empty-string,
+ *     title?: non-empty-string,
+ *     firstName?: non-empty-string,
+ *     lastName?: non-empty-string,
+ *     street?: non-empty-string,
+ *     zipcode?: non-empty-string,
+ *     city?: non-empty-string,
+ *     phoneNumber?: non-empty-string,
+ *     additionalAddressLine1?: non-empty-string,
+ *     additionalAddressLine2?: non-empty-string,
+ *     countryId?: non-empty-string,
+ *     countryStateId?: non-empty-string,
+ *     customFields?: array<string, mixed>
+ * }
  */
 #[Package('checkout')]
 class AddressTransformer
@@ -26,7 +43,7 @@ class AddressTransformer
             $output[$address->getId()] = self::transform($address);
         }
 
-        if (!$useIdAsKey) {
+        if ($useIdAsKey === false) {
             return array_values($output);
         }
 
@@ -38,8 +55,7 @@ class AddressTransformer
      */
     public static function transform(CustomerAddressEntity $address): array
     {
-        return array_filter([
-            'id' => Uuid::randomHex(),
+        $addressArray = array_filter([
             'company' => $address->getCompany(),
             'department' => $address->getDepartment(),
             'salutationId' => $address->getSalutationId(),
@@ -54,7 +70,17 @@ class AddressTransformer
             'additionalAddressLine2' => $address->getAdditionalAddressLine2(),
             'countryId' => $address->getCountryId(),
             'countryStateId' => $address->getCountryStateId(),
-            'customFields' => $address->getCustomFields(),
-        ]);
+        ], static function (?string $value): bool {
+            return $value !== null && $value !== '';
+        });
+
+        $addressArray['id'] = Uuid::randomHex();
+
+        $customFields = $address->getCustomFields();
+        if ($customFields !== null && $customFields !== []) {
+            $addressArray['customFields'] = $customFields;
+        }
+
+        return $addressArray;
     }
 }

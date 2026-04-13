@@ -4,12 +4,16 @@ namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -36,6 +40,8 @@ class ChangeEmailRouteTest extends TestCase
      */
     private EntityRepository $customerRepository;
 
+    private string $customerId;
+
     protected function setUp(): void
     {
         $this->ids = new IdsCollection();
@@ -47,7 +53,7 @@ class ChangeEmailRouteTest extends TestCase
         $this->customerRepository = static::getContainer()->get('customer.repository');
 
         $email = Uuid::randomHex() . '@example.com';
-        $this->createCustomer('shopware', $email);
+        $this->customerId = $this->createCustomer('shopware', $email);
 
         $this->browser
             ->request(
@@ -131,6 +137,50 @@ class ChangeEmailRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('test@fooware.de', $response['email']);
+    }
+
+    public function testChangeAndDeleteOldRecoveryEntities(): void
+    {
+        $recoveryData = [
+            'customerId' => $this->customerId,
+            'hash' => Random::getAlphanumericString(32),
+        ];
+
+        /** @var EntityRepository<CustomerRecoveryCollection> $customerRecoveryRepository */
+        $customerRecoveryRepository = $this->getContainer()->get('customer_recovery.repository');
+        $customerRecoveryRepository->create([$recoveryData], Context::createDefaultContext());
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/change-email',
+                [
+                    'password' => 'shopware',
+                    'email' => 'test@fooware.de',
+                    'emailConfirmation' => 'test@fooware.de',
+                ]
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertArrayNotHasKey('errors', $response);
+        static::assertTrue($response['success']);
+
+        $this->browser
+            ->request(
+                'GET',
+                '/store-api/account/customer',
+                [
+                ]
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        $criteria = (new Criteria())->addFilter(new EqualsFilter('customerId', $this->customerId));
+        $ids = $customerRecoveryRepository->search($criteria, Context::createDefaultContext());
+
+        static::assertSame('test@fooware.de', $response['email']);
+        static::assertCount(0, $ids);
     }
 
     public function testChangeSuccessWithSameEmailOnDiffSalesChannel(): void

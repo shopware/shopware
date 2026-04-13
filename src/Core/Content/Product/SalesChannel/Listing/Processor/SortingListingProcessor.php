@@ -6,6 +6,7 @@ use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingCollection;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -40,8 +41,8 @@ class SortingListingProcessor extends AbstractListingProcessor
 
     public function prepare(Request $request, Criteria $criteria, SalesChannelContext $context): void
     {
-        if (!$request->get('order')) {
-            $key = $request->get('search') ? 'core.listing.defaultSearchResultSorting' : 'core.listing.defaultSorting';
+        if (!RequestParamHelper::get($request, 'order')) {
+            $key = RequestParamHelper::get($request, 'search') ? 'core.listing.defaultSearchResultSorting' : 'core.listing.defaultSorting';
             $request->request->set('order', $this->getDefaultSortingKey($key, $context));
         }
 
@@ -54,7 +55,7 @@ class SortingListingProcessor extends AbstractListingProcessor
         if ($currentSorting !== null) {
             $fallbackSorting = null;
             if ($this->hasQueriesOrTerm($criteria)) {
-                $fallbackSorting = new FieldSorting('_score', FieldSorting::DESCENDING);
+                $fallbackSorting = new FieldSorting(Criteria::SCORE_FIELD, FieldSorting::DESCENDING);
             }
 
             $criteria->addSorting(
@@ -80,12 +81,12 @@ class SortingListingProcessor extends AbstractListingProcessor
 
     private function hasQueriesOrTerm(Criteria $criteria): bool
     {
-        return !empty($criteria->getQueries()) || $criteria->getTerm();
+        return $criteria->getQueries() !== [] || $criteria->getTerm();
     }
 
     private function getCurrentSorting(ProductSortingCollection $sortings, Request $request, string $salesChannelId): ?ProductSortingEntity
     {
-        $key = $request->get('order');
+        $key = RequestParamHelper::get($request, 'order');
 
         if (!\is_string($key)) {
             throw ProductException::sortingNotFoundException('');
@@ -104,14 +105,14 @@ class SortingListingProcessor extends AbstractListingProcessor
         $criteria = new Criteria();
         $criteria->setTitle('product-listing::load-sortings');
         /** @var string[] $availableSortings */
-        $availableSortings = $request->get('availableSortings');
+        $availableSortings = RequestParamHelper::get($request, 'availableSortings');
         $availableSortingsById = [];
 
         if ($availableSortings) {
             arsort($availableSortings, \SORT_DESC | \SORT_NUMERIC);
             $availableSortingsFilter = array_keys($availableSortings);
 
-            $availableSortingsById = array_filter($availableSortingsFilter, fn ($filter) => Uuid::isValid($filter));
+            $availableSortingsById = array_filter($availableSortingsFilter, static fn ($filter) => Uuid::isValid($filter));
 
             $filter = new EqualsAnyFilter('id', $availableSortingsById);
 

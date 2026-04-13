@@ -1,0 +1,83 @@
+<sw-base-field
+    :label="label"
+    :description="description"
+    :disabled="disabled"
+    :class="classes"
+>
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_vector_field_label %}
+    <template #label>
+        <slot name="label">
+            {{ label }}
+        </slot>
+        <mt-icon
+            v-if="linkable"
+            v-tooltip="{
+                message: $tc(linked ? 'sw-vector-field.unlock-uniform-scale' : 'sw-vector-field.lock-uniform-scale'),
+                disabled: disabled
+            }"
+            class="sw-vector-field__lock-icon"
+            :class="{
+                'is--linked': linked,
+                'is--unlinked': !linked,
+                'is--disabled': disabled
+            }"
+            :name="linked ? 'regular-lock' : 'regular-lock-open'"
+            size="16px"
+            @click="onLinkToggle"
+        />
+    </template>
+    {% endblock %}
+
+    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+    {% block sw_vector_field_input %}
+    <template #sw-field-input>
+        <div class="sw-vector-field__input">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_vector_field_input_inner %}
+            <mt-number-field
+                v-model="currentValue.x"
+                class="sw-vector-field__input__x"
+                :disabled="disabled"
+                :step="step"
+                size="small"
+                @input-change="value => onInput(value, 'x')"
+                @update:model-value="value => onChange(value, 'x')"
+            >
+                <template #prefix>
+                    X
+                </template>
+            </mt-number-field>
+
+            <mt-number-field
+                v-model="currentValue.y"
+                class="sw-vector-field__input__y"
+                :disabled="disabled"
+                :step="step"
+                size="small"
+                @input-change="value => onInput(value, 'y')"
+                @update:model-value="value => onChange(value, 'y')"
+            >
+                <template #prefix>
+                    Y
+                </template>
+            </mt-number-field>
+
+            <mt-number-field
+                v-model="currentValue.z"
+                class="sw-vector-field__input__z"
+                :disabled="disabled"
+                :step="step"
+                size="small"
+                @input-change="value => onInput(value, 'z')"
+                @update:model-value="value => onChange(value, 'z')"
+            >
+                <template #prefix>
+                    Z
+                </template>
+            </mt-number-field>
+                {% endblock %}
+        </div>
+    </template>
+    {% endblock %}
+</sw-base-field>

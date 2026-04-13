@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Framework\Media;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Storefront\Framework\Media\Exception\MediaValidatorMissingException;
+use Shopware\Storefront\Framework\StorefrontFrameworkException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 #[Package('discovery')]
@@ -12,7 +12,7 @@ class StorefrontMediaValidatorRegistry
     /**
      * @internal
      *
-     * @param StorefrontMediaValidatorInterface[] $validators
+     * @param iterable<StorefrontMediaValidatorInterface> $validators
      */
     public function __construct(private readonly iterable $validators)
     {
@@ -27,8 +27,8 @@ class StorefrontMediaValidatorRegistry
             }
         }
 
-        if (empty($filtered)) {
-            throw new MediaValidatorMissingException($type);
+        if ($filtered === []) {
+            throw StorefrontFrameworkException::mediaValidatorMissing($type);
         }
 
         foreach ($filtered as $validator) {

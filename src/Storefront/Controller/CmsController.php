@@ -51,7 +51,16 @@ class CmsController extends StorefrontController
      * Rendering a CMS layout as a widget, meaning that the layout is rendered standalone without the surrounding page template.
      * Use this if you want to load content via JS and embed into an existing page or modal.
      */
-    #[Route(path: '/widgets/cms/{id}', name: 'frontend.cms.page', defaults: ['id' => null, 'XmlHttpRequest' => true, '_httpCache' => true], methods: ['GET', 'POST'])]
+    #[Route(
+        path: '/widgets/cms/{id}',
+        name: 'frontend.cms.page',
+        defaults: [
+            'id' => null,
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
+        ],
+        methods: [Request::METHOD_GET, Request::METHOD_POST]
+    )]
     public function page(?string $id, Request $request, SalesChannelContext $salesChannelContext): Response
     {
         if (!$id) {
@@ -72,13 +81,24 @@ class CmsController extends StorefrontController
      * Rendering a CMS layout as a full page, example including stylesheets, scripts, header, footer, etc.
      * Use this for internal page links pointing to a layout.
      */
-    #[Route(path: '/page/cms/{id}', name: 'frontend.cms.page.full', defaults: ['XmlHttpRequest' => true, '_httpCache' => true], methods: ['GET', 'POST'])]
+    #[Route(
+        path: '/page/cms/{id}',
+        name: 'frontend.cms.page.full',
+        defaults: [
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
+        ],
+        methods: [Request::METHOD_GET, Request::METHOD_POST]
+    )]
     public function pageFull(string $id, Request $request, SalesChannelContext $salesChannelContext): Response
     {
         $page = $this->cmsRoute->load($id, $request, $salesChannelContext)->getCmsPage();
         $this->hook(new CmsPageLoadedHook($page, $salesChannelContext));
 
-        return $this->renderStorefront('@Storefront/storefront/page/content/index.html.twig', ['page' => ['cmsPage' => $page]]);
+        $response = $this->renderStorefront('@Storefront/storefront/page/content/index.html.twig', ['page' => ['cmsPage' => $page]]);
+        $response->headers->set('x-robots-tag', 'noindex');
+
+        return $response;
     }
 
     /**
@@ -87,8 +107,12 @@ class CmsController extends StorefrontController
     #[Route(
         path: '/widgets/cms/navigation/{navigationId}',
         name: 'frontend.cms.navigation.page',
-        defaults: ['navigationId' => null, 'XmlHttpRequest' => true, '_httpCache' => true],
-        methods: ['GET', 'POST']
+        defaults: [
+            'navigationId' => null,
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
+        ],
+        methods: [Request::METHOD_GET, Request::METHOD_POST]
     )]
     public function category(?string $navigationId, Request $request, SalesChannelContext $salesChannelContext): Response
     {
@@ -117,8 +141,11 @@ class CmsController extends StorefrontController
     #[Route(
         path: '/widgets/cms/navigation/{navigationId}/filter',
         name: 'frontend.cms.navigation.filter',
-        defaults: ['XmlHttpRequest' => true, '_httpCache' => true],
-        methods: ['GET', 'POST']
+        defaults: [
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
+        ],
+        methods: [Request::METHOD_GET, Request::METHOD_POST]
     )]
     public function filter(string $navigationId, Request $request, SalesChannelContext $context): Response
     {
@@ -151,8 +178,12 @@ class CmsController extends StorefrontController
     #[Route(
         path: '/widgets/cms/buybox/{productId}/switch',
         name: 'frontend.cms.buybox.switch',
-        defaults: ['productId' => null, 'XmlHttpRequest' => true, '_httpCache' => true],
-        methods: ['GET']
+        defaults: [
+            'productId' => null,
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
+        ],
+        methods: [Request::METHOD_GET]
     )]
     public function switchBuyBoxVariant(string $productId, Request $request, SalesChannelContext $context): Response
     {

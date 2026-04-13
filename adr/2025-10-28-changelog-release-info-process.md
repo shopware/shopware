@@ -53,6 +53,7 @@ _(Tip: You can use short headings like “What changed” or “How to adjust”
 10. CI will later validate that either `RELEASE_INFO` or `UPGRADE` was updated when relevant (or explicitly skipped with justification).
 
 ---
+For details about how to write entries for these files, please refer to the release [documentation guide](../delivery-process/documenting-a-release.md).
 
 ## Consequences
 

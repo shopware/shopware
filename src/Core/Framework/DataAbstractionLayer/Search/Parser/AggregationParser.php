@@ -193,7 +193,7 @@ class AggregationParser
     {
         $name = \array_key_exists('name', $aggregation) ? (string) $aggregation['name'] : null;
 
-        if (empty($name) || is_numeric($name)) {
+        if ($name === null || $name === '' || is_numeric($name)) {
             $exceptions->add(DataAbstractionLayerException::invalidAggregationQuery('The aggregation name should be a non-empty string.'), '/aggregations/' . $index);
 
             return null;
@@ -207,7 +207,7 @@ class AggregationParser
 
         $type = $aggregation['type'] ?? null;
 
-        if (!\is_string($type) || empty($type) || is_numeric($type)) {
+        if (!\is_string($type) || $type === '' || is_numeric($type)) {
             $exceptions->add(DataAbstractionLayerException::invalidAggregationQuery('The aggregations of "%s" should be a non-empty string.'), '/aggregations/' . $index);
 
             return null;

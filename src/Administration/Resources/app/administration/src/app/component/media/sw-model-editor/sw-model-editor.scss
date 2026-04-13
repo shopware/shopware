@@ -1,0 +1,106 @@
+@import "~scss/variables";
+
+$sw-model-editor-canvas-ui__button-size: 42px;
+$sw-model-editor-canvas-ui__orientation-size: $sw-model-editor-canvas-ui__button-size;
+$sw-model-editor-box-shadow: 0 2px 6px 0 #00000036;
+$sw-button-transition: all 0.15s ease-out;
+
+.sw-model-editor {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 100%;
+}
+
+.sw-model-editor-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 0;
+    min-width: 0;
+    height: 100%;
+}
+
+.sw-model-editor-sidebar {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex: 0 0 400px;
+    border-left: 1px solid var(--color-border-primary-default);
+
+    .sw-model-editor-sidebar-content-item {
+        border-bottom: 1px solid #d1d9e0;
+
+        .sw-model-editor-sidebar-content-item-header {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            padding: 16px 25px 0;
+            color: var(--color-text-primary-default);
+            margin: 0 0 var(--scale-size-20);
+            font-size: 16px;
+            font-weight: 400;
+        }
+
+        .sw-model-editor-sidebar-content-item-body {
+            padding: 0 25px 25px;
+        }
+    }
+}
+
+.sw-model-editor-canvas-wrapper {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.sw-model-editor-canvas-ui__edit-options {
+    position: absolute;
+    display: flex;
+    gap: 12px;
+    justify-content: end;
+    bottom: 16px;
+    right: 16px;
+}
+
+.sw-model-editor-canvas-ui__button-container {
+    border-radius: $sw-model-editor-canvas-ui__button-size;
+    overflow: hidden;
+    pointer-events: auto;
+    background: $color-white;
+    display: flex;
+    box-shadow: $sw-model-editor-box-shadow;
+
+    .sw-model-editor-canvas-ui__button {
+        width: $sw-model-editor-canvas-ui__button-size;
+        height: $sw-model-editor-canvas-ui__button-size;
+        background: $color-white;
+        color: $color-darkgray-200;
+        transition: $sw-button-transition;
+        border: none;
+        outline: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &:disabled {
+            color: $color-gray-300;
+
+            &:hover {
+                background: $color-white;
+            }
+        }
+
+        &:hover {
+            background: $color-gray-100;
+        }
+    }
+
+    &.is--active {
+        .sw-model-editor-canvas-ui__button {
+            color: $color-shopware-brand-500;
+            background: $color-shopware-brand-50;
+        }
+    }
+}

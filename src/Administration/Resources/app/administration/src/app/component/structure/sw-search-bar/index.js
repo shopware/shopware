@@ -65,7 +65,6 @@ export default {
         typeSearchAlwaysInContainer: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: Context.app.adminEsEnable ?? false,
         },
         /**
@@ -220,6 +219,10 @@ export default {
 
             // Do not modify the search term when the user is currently typing
             if (this.isActive) {
+                return;
+            }
+
+            if (newValue.query.term === undefined) {
                 return;
             }
 
@@ -453,11 +456,13 @@ export default {
         },
 
         setSearchType(type) {
+            const searchTerm = this.searchTerm.startsWith('#') ? '' : this.searchTerm;
+
             this.currentSearchType = type;
             this.showTypeSelectContainer = false;
             this.showModuleFiltersContainer = false;
             this.showResultsSearchTrends = false;
-            this.searchTerm = '';
+            this.searchTerm = searchTerm;
         },
 
         toggleOffCanvas() {
@@ -510,7 +515,6 @@ export default {
 
             const entities = this.getModuleEntities(searchTerm);
 
-            // eslint-disable-next-line no-unused-expressions
             entities?.length &&
                 this.results.unshift({
                     entity: 'module',
@@ -1022,7 +1026,7 @@ export default {
                     total: validInitialModules.length,
                     entities: validInitialModules,
                 };
-            } catch (error) {
+            } catch (_error) {
                 return {
                     entity: 'frequently_used',
                     total: 0,

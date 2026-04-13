@@ -240,8 +240,8 @@ class SalesChannelContextServiceTest extends TestCase
 
     public static function skipCartCalculationIfAlreadyDoneAndESISubrequestProvider(): \Generator
     {
-        yield 'esi request with cart => false' => [new Request(attributes: ['_sw_esi' => true]), true, false];
-        yield 'esi request without cart => true' => [new Request(attributes: ['_sw_esi' => true]), false, true];
+        yield 'esi request with cart => false' => [new Request(attributes: ['_esi' => true]), true, false];
+        yield 'esi request without cart => true' => [new Request(attributes: ['_esi' => true]), false, true];
         yield 'no esi request but cart => true' => [new Request(), true, true];
         yield 'no esi request and no cart => true' => [new Request(), false, true];
     }
@@ -331,7 +331,7 @@ class SalesChannelContextServiceTest extends TestCase
         $this->setupSessionAndRequest([
             'sw-rule-ids' => $ruleIds,
         ], [
-            '_sw_esi' => true,
+            '_esi' => true,
         ]);
 
         $this->service->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $token, Defaults::LANGUAGE_SYSTEM));

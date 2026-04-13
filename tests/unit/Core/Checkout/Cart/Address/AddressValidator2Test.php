@@ -79,7 +79,9 @@ class AddressValidator2Test extends TestCase
     private function getSearchResultStub(?bool $assigned = true, ?string $id = null): IdSearchResult
     {
         if ($assigned) {
-            return new IdSearchResult(1, [['primaryKey' => $id ?? Uuid::randomHex(), 'data' => []]], new Criteria(), Context::createDefaultContext());
+            $id = $id ?? Uuid::randomHex();
+
+            return new IdSearchResult(1, [$id => ['primaryKey' => $id, 'data' => []]], new Criteria(), Context::createDefaultContext());
         }
 
         return new IdSearchResult(0, [], new Criteria(), Context::createDefaultContext());

@@ -3,17 +3,18 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Validation\Constraint;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentificationValidator;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Validation\HappyPathValidator;
+use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryEntity;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -23,7 +24,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 /**
  * @internal
  */
-#[CoversClass(CustomerVatIdentificationValidator::class)]
 #[Package('checkout')]
 class CustomerVatIdentificationValidatorTest extends TestCase
 {
@@ -65,11 +65,11 @@ class CustomerVatIdentificationValidatorTest extends TestCase
     #[DataProvider('dataProviderValidatesVatIdsCorrectly')]
     public function testValidatesVatIdsCorrectly(string $iso, array $vatIds): void
     {
-        $constraint = new CustomerVatIdentification([
-            'message' => 'Invalid VAT ID',
-            'countryId' => $this->countries[$iso],
-            'shouldCheck' => true,
-        ]);
+        $constraint = new CustomerVatIdentification(
+            countryId: $this->countries[$iso],
+            shouldCheck: true,
+            message: 'Invalid VAT ID'
+        );
 
         $this->validator->validate($vatIds, $constraint);
 
@@ -82,11 +82,11 @@ class CustomerVatIdentificationValidatorTest extends TestCase
     #[DataProvider('dataProviderValidatesVatIdsInCorrectly')]
     public function testValidateVatIdsInCorrectly(string $iso, int $count, array $vatIds): void
     {
-        $constraint = new CustomerVatIdentification([
-            'message' => 'Invalid VAT ID',
-            'countryId' => $this->countries[$iso],
-            'shouldCheck' => true,
-        ]);
+        $constraint = new CustomerVatIdentification(
+            countryId: $this->countries[$iso],
+            shouldCheck: true,
+            message: 'Invalid VAT ID'
+        );
 
         $this->validator->validate($vatIds, $constraint);
 
@@ -105,11 +105,11 @@ class CustomerVatIdentificationValidatorTest extends TestCase
 
     public function testDoesNotValidateWhenVatIdsIsNull(): void
     {
-        $constraint = new CustomerVatIdentification([
-            'message' => 'Invalid VAT ID',
-            'countryId' => $this->countries['DE'],
-            'shouldCheck' => true,
-        ]);
+        $constraint = new CustomerVatIdentification(
+            countryId: $this->countries['DE'],
+            shouldCheck: true,
+            message: 'Invalid VAT ID',
+        );
 
         $this->validator->validate(null, $constraint);
 
@@ -118,11 +118,11 @@ class CustomerVatIdentificationValidatorTest extends TestCase
 
     public function testDoesNotValidateWhenShouldCheckIsFalse(): void
     {
-        $constraint = new CustomerVatIdentification([
-            'message' => 'Invalid VAT ID',
-            'countryId' => $this->countries['DE'],
-            'shouldCheck' => false,
-        ]);
+        $constraint = new CustomerVatIdentification(
+            countryId: $this->countries['DE'],
+            shouldCheck: false,
+            message: 'Invalid VAT ID',
+        );
 
         $this->validator->validate(['DE123456789'], $constraint);
 
@@ -353,9 +353,10 @@ class CustomerVatIdentificationValidatorTest extends TestCase
 
         $criteria->addFilter(new EqualsAnyFilter('iso', self::COUNTRY_ISO));
 
+        /** @var EntityRepository<CountryCollection> $repo */
         $repo = static::getContainer()->get('country.repository');
 
-        $countries = $repo->search($criteria, $context)->fmap(function (CountryEntity $country) {
+        $countries = $repo->search($criteria, $context)->fmap(static function (CountryEntity $country) {
             return $country->getIso();
         });
 

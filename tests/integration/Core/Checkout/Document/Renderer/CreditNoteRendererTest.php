@@ -146,54 +146,51 @@ class CreditNoteRendererTest extends TestCase
 
         $this->addCreditItemsToOrderAfterInvoice($orderId, [-100]);
 
-        $operation = new DocumentGenerateOperation(
+        $config = [
+            'documentComment' => '<script></script>This is a credit note.',
+            'itemsPerPage' => 10,
+            'displayHeader' => true,
+            'displayFooter' => true,
+            'displayPrices' => true,
+            'displayPageCount' => true,
+            'displayLineItems' => true,
+            'displayCompanyAddress' => true,
+            'displayReturnAddress' => true,
+            'companyName' => 'Example Company',
+            'documentDate' => '2023-11-24T12:00:00+00:00',
+        ];
+
+        $operationHtml = new DocumentGenerateOperation(
             $orderId,
             HtmlRenderer::FILE_EXTENSION,
-            [
-                'documentComment' => '<script></script>This is a credit note.',
-                'itemsPerPage' => 10,
-                'displayHeader' => true,
-                'displayFooter' => true,
-                'displayPrices' => true,
-                'displayPageCount' => true,
-                'displayLineItems' => true,
-                'displayCompanyAddress' => true,
-                'displayReturnAddress' => true,
-                'companyName' => 'Example Company',
-                'documentDate' => '2023-11-24T12:00:00+00:00',
-            ],
+            $config,
             $invoiceId
         );
 
-        $processedTemplate = $this->creditNoteRenderer->render(
-            [$orderId => $operation],
+        $processedHtmlTemplate = $this->creditNoteRenderer->render(
+            [$orderId => $operationHtml],
             $this->context,
             new DocumentRendererConfig()
         );
 
-        $rendered = $processedTemplate->getSuccess()[$orderId];
-        static::assertInstanceOf(RenderedDocument::class, $rendered);
+        $renderedHtml = $processedHtmlTemplate->getSuccess()[$orderId];
+        static::assertInstanceOf(RenderedDocument::class, $renderedHtml);
 
-        $content = $rendered->getContent();
+        $contentHtml = $renderedHtml->getContent();
+        static::assertIsString($contentHtml);
 
-        // replace the date in the meta tag to avoid snapshot differences
-        $processedHtml = preg_replace(
-            '/(<meta name="date" content=")(.*?)(")/i',
-            '$1[date]$3',
-            $content
-        );
-        static::assertIsString($processedHtml);
-
-        $this->assertHtmlSnapshot(
-            'credit_note_renderer_default',
-            $processedHtml
-        );
+        $this->assertSnapshot('credit_note_renderer_default', [
+            [
+                'type' => self::TYPE_HTML,
+                'actual' => $contentHtml,
+            ],
+        ]);
     }
 
     /**
      * @param array<int, int> $possibleTaxes
      * @param array<int, int> $creditPrices
-     * @param array<string, int> $additionalConfig
+     * @param array<string, int|string|array<string, string>> $additionalConfig
      */
     #[DataProvider('creditNoteRendererDataProvider')]
     public function testRender(
@@ -235,7 +232,7 @@ class CreditNoteRendererTest extends TestCase
             'fileTypes' => [HtmlRenderer::FILE_EXTENSION, PdfRenderer::FILE_EXTENSION],
         ];
 
-        if (!empty($additionalConfig)) {
+        if ($additionalConfig !== []) {
             $config = array_merge($config, $additionalConfig);
         }
 
@@ -249,7 +246,7 @@ class CreditNoteRendererTest extends TestCase
         $caughtEvent = null;
 
         static::getContainer()->get('event_dispatcher')
-            ->addListener(CreditNoteOrdersEvent::class, function (CreditNoteOrdersEvent $event) use (&$caughtEvent): void {
+            ->addListener(CreditNoteOrdersEvent::class, static function (CreditNoteOrdersEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
             });
 
@@ -312,7 +309,7 @@ class CreditNoteRendererTest extends TestCase
         yield 'render credit_note successfully' => [
             [7, 19, 22],
             [-100, -200, -300],
-            function (RenderedDocument $rendered): void {
+            static function (RenderedDocument $rendered): void {
                 foreach ([-100, -200, -300] as $price) {
                     static::assertStringContainsString('credit' . $price, $rendered->getContent());
                 }
@@ -329,14 +326,13 @@ class CreditNoteRendererTest extends TestCase
                     $rendered->getContent()
                 );
             },
-            null,
         ];
 
         yield 'render credit_note without credit items' => [
             [7, 19, 22],
             [],
             null,
-            function (string $orderId, array $errors): void {
+            static function (string $orderId, array $errors): void {
                 static::assertNotEmpty($errors);
                 static::assertArrayHasKey($orderId, $errors);
                 static::assertInstanceOf(\Throwable::class, $errors[$orderId]);
@@ -350,7 +346,7 @@ class CreditNoteRendererTest extends TestCase
         yield 'render credit_note with document number' => [
             [7, 19, 22],
             [-100, -200, -300],
-            function (RenderedDocument $rendered): void {
+            static function (RenderedDocument $rendered): void {
                 static::assertSame('CREDIT_NOTE_9999', $rendered->getNumber());
                 static::assertSame('credit_note_CREDIT_NOTE_9999', $rendered->getName());
             },
@@ -363,7 +359,7 @@ class CreditNoteRendererTest extends TestCase
         yield 'render credit_note with invoice number' => [
             [7, 19, 22],
             [-100, -200, -300],
-            function (RenderedDocument $rendered): void {
+            static function (RenderedDocument $rendered): void {
                 static::assertSame('1000', $rendered->getNumber());
                 static::assertSame('credit_note_1000', $rendered->getName());
                 $config = $rendered->getConfig();
@@ -381,7 +377,7 @@ class CreditNoteRendererTest extends TestCase
         yield 'render credit_note without invoice number' => [
             [7, 19, 22],
             [-100, -200, -300],
-            function (RenderedDocument $rendered): void {
+            static function (RenderedDocument $rendered): void {
                 static::assertSame('1000', $rendered->getNumber());
                 static::assertSame('credit_note_1000', $rendered->getName());
                 $config = $rendered->getConfig();
@@ -393,7 +389,7 @@ class CreditNoteRendererTest extends TestCase
         yield 'render with single page' => [
             [7, 19],
             [-100, -200],
-            function (RenderedDocument $rendered): void {
+            static function (RenderedDocument $rendered): void {
                 $rendered = $rendered->getContent();
 
                 static::assertStringContainsString('Credit note 1000 for Invoice no. 1001', $rendered);
@@ -547,7 +543,7 @@ class CreditNoteRendererTest extends TestCase
         $caughtEvent = null;
 
         static::getContainer()->get('event_dispatcher')
-            ->addListener(CreditNoteOrdersEvent::class, function (CreditNoteOrdersEvent $event) use (&$caughtEvent): void {
+            ->addListener(CreditNoteOrdersEvent::class, static function (CreditNoteOrdersEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
             });
 
@@ -571,7 +567,7 @@ class CreditNoteRendererTest extends TestCase
             false,
             [7],
             [-100],
-            function (OrderEntity $order): void {
+            static function (OrderEntity $order): void {
                 static::assertNotNull($lineItems = $order->getLineItems());
                 $taxAmount = $lineItems->getPrices()->sum()->getCalculatedTaxes()->getAmount();
 
@@ -584,7 +580,7 @@ class CreditNoteRendererTest extends TestCase
             true,
             [7],
             [-100],
-            function (OrderEntity $order): void {
+            static function (OrderEntity $order): void {
                 static::assertSame($order->getPrice()->getTotalPrice(), \abs(7.0) + \abs(-100.0));
                 static::assertSame($order->getAmountNet(), \abs(-100.0));
             },
@@ -961,13 +957,14 @@ class CreditNoteRendererTest extends TestCase
         // add credit line items to order
         for ($i = 0, $iMax = \count($creditPrices); $i < $iMax; ++$i) {
             $creditLineItemId = Uuid::randomHex();
+
             $creditLineItem = new LineItem(
                 $creditLineItemId,
                 LineItem::CREDIT_LINE_ITEM_TYPE,
                 null,
                 1
-            )
-            ;
+            );
+
             $creditLineItem->setLabel('credit' . $creditPrices[$i]);
             $creditLineItem->setPriceDefinition(new AbsolutePriceDefinition($creditPrices[$i]));
 

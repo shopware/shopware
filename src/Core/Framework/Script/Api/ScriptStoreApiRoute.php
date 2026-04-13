@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Script\Api;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
@@ -61,8 +63,8 @@ class ScriptStoreApiRoute
         $this->executor->execute($responseHook);
 
         $fields = new ResponseFields(
-            $request->get('includes', []),
-            $request->get('excludes', []),
+            RequestParamHelper::get($request, 'includes', []),
+            RequestParamHelper::get($request, 'excludes', []),
         );
 
         $symfonyResponse = $this->scriptResponseEncoder->encodeToSymfonyResponse(
@@ -102,14 +104,16 @@ class ScriptStoreApiRoute
             return null;
         }
 
-        $invalidationStates = explode(',', (string) $response->headers->get(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER));
-        if ($context->hasState(...$invalidationStates)) {
-            $this->logger->info('cache-miss: ' . $request->getPathInfo());
+        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
+            $invalidationStates = explode(',', (string) $response->headers->get(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER));
+            if ($context->hasState(...$invalidationStates)) {
+                $this->logger->info('cache-miss: ' . $request->getPathInfo());
 
-            return null;
+                return null;
+            }
+
+            $response->headers->remove(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER);
         }
-
-        $response->headers->remove(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER);
 
         $this->logger->info('cache-hit: ' . $request->getPathInfo());
 
@@ -120,13 +124,17 @@ class ScriptStoreApiRoute
     {
         $item = $this->cache->getItem($cacheKey);
 
-        // add the header only for the response in cache and remove the header before the response is sent
-        $symfonyResponse->headers->set(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER, implode(',', $cacheConfig->getInvalidationStates()));
+        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
+            // add the header only for the response in cache and remove the header before the response is sent
+            $symfonyResponse->headers->set(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER, implode(',', $cacheConfig->getInvalidationStates()));
+        }
         $item = CacheCompressor::compress($item, $symfonyResponse);
-        $symfonyResponse->headers->remove(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER);
+        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('PERFORMANCE_TWEAKS') && !Feature::isActive('CACHE_REWORK')) {
+            $symfonyResponse->headers->remove(HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER);
+        }
 
         $item->tag($cacheConfig->getCacheTags());
-        $item->expiresAfter($cacheConfig->getMaxAge());
+        $item->expiresAfter($cacheConfig->getSharedMaxAge());
 
         $this->cache->save($item);
     }

@@ -1,16 +1,12 @@
 /**
  * @sw-package framework
  */
-
 import { mount } from '@vue/test-utils';
 import { handleFactory, send } from '@shopware-ag/meteor-admin-sdk/es/channel';
 import SerializerFactory from '@shopware-ag/meteor-admin-sdk/es/_internals/serializer';
 import Entity from 'src/core/data/entity.data';
 import { getPublishedDataSets, publishData, deepCloneWithEntity } from 'src/core/service/extension-api-data.service';
 import EntityCollection from 'src/core/data/entity-collection.data';
-import lodash from 'lodash';
-
-lodash.debounce = jest.fn((fn) => fn);
 
 const serializeEntity = SerializerFactory({
     handleFactory: handleFactory,

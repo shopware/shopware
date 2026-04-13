@@ -44,9 +44,8 @@ final class UpdateProductStreamMappingTaskHandler extends ScheduledTaskHandler
             new EqualsFilter('filters.type', 'since'),
         ]));
 
-        /** @var list<string> $streamIds */
         $streamIds = $this->productStreamRepository->searchIds($criteria, $context)->getIds();
-        $data = array_map(fn (string $id) => ['id' => $id], $streamIds);
+        $data = array_map(static fn (string $id) => ['id' => $id], $streamIds);
 
         $this->productStreamRepository->update($data, $context);
     }

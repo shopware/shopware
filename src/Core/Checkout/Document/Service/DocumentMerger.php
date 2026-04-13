@@ -49,7 +49,7 @@ final class DocumentMerger
      */
     public function merge(array $documentIds, Context $context): ?RenderedDocument
     {
-        if (empty($documentIds)) {
+        if ($documentIds === []) {
             return null;
         }
 

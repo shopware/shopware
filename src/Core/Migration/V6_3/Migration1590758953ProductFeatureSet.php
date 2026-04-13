@@ -9,12 +9,11 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\InheritanceUpdaterTrait;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1590758953ProductFeatureSet extends MigrationStep
@@ -49,10 +48,6 @@ class Migration1590758953ProductFeatureSet extends MigrationStep
         $this->assignDefaultFeatureSet($connection, $defaultFeatureSetId);
     }
 
-    public function updateDestructive(Connection $connection): void
-    {
-    }
-
     private function createTables(Connection $connection): void
     {
         $sql = <<<'SQL'
@@ -85,16 +80,7 @@ SQL;
 
     private function updateTables(Connection $connection): void
     {
-        $featureSetColumn = $connection->fetchOne(
-            'SHOW COLUMNS FROM `product` WHERE `Field` LIKE :column;',
-            ['column' => 'product_feature_set_id']
-        );
-        $featureSetInheritanceColumn = $connection->fetchOne(
-            'SHOW COLUMNS FROM `product` WHERE `Field` LIKE :column;',
-            ['column' => 'featureSet']
-        );
-
-        if ($featureSetColumn === false) {
+        if (!TableHelper::columnExists($connection, 'product', 'product_feature_set_id')) {
             $sql = <<<'SQL'
 ALTER TABLE `product`
     ADD COLUMN `product_feature_set_id` BINARY(16) NULL AFTER `unit_id`;
@@ -106,7 +92,7 @@ SQL;
             $connection->executeStatement($sql);
         }
 
-        if ($featureSetInheritanceColumn === false) {
+        if (!TableHelper::columnExists($connection, 'product', 'featureSet')) {
             $this->updateInheritance($connection, 'product', 'featureSet');
         }
     }

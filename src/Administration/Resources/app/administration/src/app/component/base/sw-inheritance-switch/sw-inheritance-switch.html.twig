@@ -6,6 +6,7 @@
         'sw-inheritance-switch--is-inherited': isInherited,
         'sw-inheritance-switch--is-not-inherited': !isInherited,
     }"
+    :aria-label="isInherited ? $t('global.sw-field.ariaUnlinkInheritance') : $t('global.sw-field.ariaLinkInheritance')"
 >
     {% block sw_inheritance_switch_inherit_icon %}
     <mt-icon

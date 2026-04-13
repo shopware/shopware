@@ -8,7 +8,7 @@ import useUpdateClock from './updateClock';
  * @status ready
  * @example-type dynamic
  * @component-example
- * <sw-time-ago date=""2021-08-25T11:08:48.940+00:00""></sw-time-ago>
+ * <sw-time-ago date="2021-08-25T11:08:48.940+00:00"></sw-time-ago>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
@@ -107,6 +107,12 @@ export default Shopware.Component.wrapComponentConfig({
             this.now = Date.now();
             this.formattedRelativeTime = this.formatRelativeTime();
         });
+    },
+
+    watch: {
+        date() {
+            this.formattedRelativeTime = this.formatRelativeTime();
+        },
     },
 
     methods: {

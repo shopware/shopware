@@ -1,17 +1,22 @@
 {% block layout_navbar %}
     <div class="container">
+        {# @deprecated tag:v6.8.0 - pathIdList will be removed. Use window.activeNavigationPathIdList instead. #}
         {% set navbarOptions = {
             pathIdList: shopware.navigation.pathIdList
         } %}
 
         {% block layout_navbar_nav_element %}
+            {# @deprecated tag:v6.8.0 - SiteNavigationElement microdata removed. Not supported as a rich result. #}
             <nav class="navbar navbar-expand-lg main-navigation-menu"
                  id="main-navigation-menu"
+                 {% if not feature('JSON_LD_DATA') %}
                  itemscope="itemscope"
                  itemtype="https://schema.org/SiteNavigationElement"
+                 {% endif %}
                  data-navbar="true"
                  data-navbar-options="{{ navbarOptions|json_encode }}"
-                 aria-label="{{ 'header.navigationAriaLabel'|trans|striptags }}">
+                 aria-label="{{ 'header.navigationAriaLabel'|trans|striptags }}"
+            >
                 <div class="collapse navbar-collapse" id="main_nav">
                     <ul class="navbar-nav main-navigation-menu-list flex-wrap">
                         {% set homeLabel = context.salesChannel.translated.homeName|default('general.homeLink'|trans) %}
@@ -19,11 +24,14 @@
                         {% block layout_navbar_menu_home %}
                             {% if context.salesChannel.translated.homeEnabled %}
                                 <li class="nav-item nav-item-{{ context.salesChannel.navigationCategoryId }}">
+                                    {# @deprecated tag:v6.8.0 - SiteNavigationElement url/name microdata removed. Not supported as a rich result. #}
                                     <a class="nav-link main-navigation-link home-link root nav-item-{{ context.salesChannel.navigationCategoryId }}-link"
                                        href="{{ path('frontend.home.page') }}"
+                                       {% if not feature('JSON_LD_DATA') %}
                                        itemprop="url"
+                                       {% endif %}
                                        title="{{ homeLabel|striptags }}">
-                                        <span itemprop="name" class="main-navigation-link-text">{{ homeLabel|sw_sanitize }}</span>
+                                        <span {% if not feature('JSON_LD_DATA') %}itemprop="name"{% endif %} class="main-navigation-link-text">{{ homeLabel|sw_sanitize }}</span>
                                     </a>
                                 </li>
                             {% endif %}
@@ -39,17 +47,20 @@
 
                                 {% block layout_navbar_menu_item %}
                                     {% if not itemSkipped %}
-                                        <li class="nav-item nav-item-{{ id }} {% if hasChildren %}dropdown position-static{% endif %}">
+                                        <li class="nav-item nav-item-{{ id|raw }} dropdown position-static">
                                             {% block layout_navbar_menu_item_link %}
-                                                <a class="nav-link nav-item-{{ id }}-link root main-navigation-link p-2{% if hasChildren %} dropdown-toggle{% endif %}"
+                                                {# @deprecated tag:v6.8.0 - SiteNavigationElement url/name microdata removed. Not supported as a rich result. #}
+                                                <a class="nav-link nav-item-{{ id|raw }}-link root main-navigation-link p-2 {% if hasChildren %}dropdown-toggle{% else %}no-dropdown{% endif %}"
                                                    href="{{ category.seoUrl ?: '#' }}"
                                                    {% if hasChildren %}data-bs-toggle="dropdown"{% endif %}
                                                    {% if category.type != 'folder' and category.shouldOpenInNewTab %}target="_blank"{% endif %}
+                                                   {% if not feature('JSON_LD_DATA') %}
                                                    itemprop="url"
+                                                   {% endif %}
                                                    title="{{ name }}"
                                                 >
                                                     {% block layout_navbar_menu_item_link_content %}
-                                                        <span itemprop="name" class="main-navigation-link-text">{{ name }}</span>
+                                                        <span {% if not feature('JSON_LD_DATA') %}itemprop="name"{% endif %} class="main-navigation-link-text">{{ name }}</span>
                                                     {% endblock %}
                                                 </a>
                                             {% endblock %}

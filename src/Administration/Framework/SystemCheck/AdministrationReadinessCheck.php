@@ -66,7 +66,7 @@ class AdministrationReadinessCheck extends BaseCheck
         if (
             $indexResponse->getStatusCode() < Response::HTTP_BAD_REQUEST
             && $indexPageJsBundlesFound >= 1
-            && \count($missingJsBundles) === 0
+            && $missingJsBundles === []
         ) {
             $status = Status::OK;
         }

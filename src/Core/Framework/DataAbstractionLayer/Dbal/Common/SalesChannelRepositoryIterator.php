@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -45,15 +46,22 @@ class SalesChannelRepositoryIterator
     }
 
     /**
+     * @deprecated tag:v6.8.0 - Will be removed with the next major, as it is unused
+     *
      * @return list<string>|list<array<string, string>>|null
      */
     public function fetchIds(): ?array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         $this->criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
         $ids = $this->repository->searchIds($this->criteria, $this->context);
         $this->criteria->setOffset((int) $this->criteria->getOffset() + (int) $this->criteria->getLimit());
 
-        if (!empty($ids->getIds())) {
+        if ($ids->getIds() !== []) {
             return $ids->getIds();
         }
 
@@ -71,7 +79,7 @@ class SalesChannelRepositoryIterator
         // increase offset for next iteration
         $this->criteria->setOffset((int) $this->criteria->getOffset() + (int) $this->criteria->getLimit());
 
-        if (empty($result->getIds())) {
+        if ($result->getIds() === []) {
             return null;
         }
 

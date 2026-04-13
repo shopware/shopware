@@ -11,6 +11,8 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Checkout\Customer\ImitateCustomerTokenGenerator;
+use Shopware\Core\Checkout\Customer\Struct\ImitateCustomerToken;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Exception\InvalidSalesChannelIdException;
@@ -20,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Util\Random;
@@ -89,7 +92,11 @@ class SalesChannelProxyController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_proxy/store-api/{salesChannelId}/{_path}', name: 'api.proxy.store-api', requirements: ['_path' => '.*'])]
+    #[Route(
+        path: '/api/_proxy/store-api/{salesChannelId}/{_path}',
+        name: 'api.proxy.store-api',
+        requirements: ['_path' => '.*']
+    )]
     public function proxy(string $_path, string $salesChannelId, Request $request, Context $context): Response
     {
         $salesChannel = $this->fetchSalesChannel($salesChannelId, $context);
@@ -99,7 +106,10 @@ class SalesChannelProxyController extends AbstractController
         return $this->wrapInSalesChannelApiRoute($salesChannelApiRequest, fn (): Response => $this->kernel->handle($salesChannelApiRequest, HttpKernelInterface::SUB_REQUEST));
     }
 
-    #[Route(path: '/api/_proxy-order/{salesChannelId}', name: 'api.proxy-order.create')]
+    #[Route(
+        path: '/api/_proxy-order/{salesChannelId}',
+        name: 'api.proxy-order.create'
+    )]
     public function proxyCreateOrder(string $salesChannelId, Request $request, Context $context, RequestDataBag $data): Response
     {
         $this->fetchSalesChannel($salesChannelId, $context);
@@ -116,8 +126,8 @@ class SalesChannelProxyController extends AbstractController
     #[Route(
         path: '/api/_proxy/switch-customer',
         name: 'api.proxy.switch-customer',
-        defaults: ['_acl' => ['api_proxy_switch-customer']],
-        methods: ['PATCH']
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['api_proxy_switch-customer']],
+        methods: [Request::METHOD_PATCH]
     )]
     public function assignCustomer(Request $request, Context $context): Response
     {
@@ -137,7 +147,7 @@ class SalesChannelProxyController extends AbstractController
 
         $this->persistPermissions($request, $salesChannelContext);
 
-        $this->updateCustomerToContext($request->get(self::CUSTOMER_ID), $salesChannelContext);
+        $this->updateCustomerToContext(RequestParamHelper::get($request, self::CUSTOMER_ID), $salesChannelContext);
 
         $content = json_encode([
             PlatformRequest::HEADER_CONTEXT_TOKEN => $salesChannelContext->getToken(),
@@ -152,8 +162,8 @@ class SalesChannelProxyController extends AbstractController
     #[Route(
         path: '/api/_proxy/generate-imitate-customer-token',
         name: 'api.proxy.generate-imitate-customer-token',
-        defaults: ['_acl' => ['api_proxy_imitate-customer']],
-        methods: ['POST']
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['api_proxy_imitate-customer']],
+        methods: [Request::METHOD_POST]
     )]
     public function generateImitateCustomerToken(RequestDataBag $data, Context $context): JsonResponse
     {
@@ -172,14 +182,27 @@ class SalesChannelProxyController extends AbstractController
         $salesChannelId = $data->getString(self::SALES_CHANNEL_ID);
         $customerId = $data->getString(self::CUSTOMER_ID);
 
-        $token = $this->imitateCustomerTokenGenerator->generate($salesChannelId, $customerId, $userId);
+        if (Feature::isActive('v6.8.0.0')) {
+            $token = new ImitateCustomerToken();
+            $token->salesChannelId = $salesChannelId;
+            $token->customerId = $customerId;
+            $token->iss = $userId;
+
+            $token = $this->imitateCustomerTokenGenerator->encode($token);
+        } else {
+            $token = Feature::silent('v6.8.0.0', fn () => $this->imitateCustomerTokenGenerator->generate($salesChannelId, $customerId, $userId));
+        }
 
         return new JsonResponse([
             'token' => $token,
         ]);
     }
 
-    #[Route(path: '/api/_proxy/modify-shipping-costs', name: 'api.proxy.modify-shipping-costs', methods: ['PATCH'])]
+    #[Route(
+        path: '/api/_proxy/modify-shipping-costs',
+        name: 'api.proxy.modify-shipping-costs',
+        methods: [Request::METHOD_PATCH]
+    )]
     public function modifyShippingCosts(Request $request, Context $context): JsonResponse
     {
         if (!$request->request->has(self::SALES_CHANNEL_ID)) {
@@ -199,7 +222,11 @@ class SalesChannelProxyController extends AbstractController
         return new JsonResponse(['data' => $cart]);
     }
 
-    #[Route(path: '/api/_proxy/disable-automatic-promotions', name: 'api.proxy.disable-automatic-promotions', methods: ['PATCH'])]
+    #[Route(
+        path: '/api/_proxy/disable-automatic-promotions',
+        name: 'api.proxy.disable-automatic-promotions',
+        methods: [Request::METHOD_PATCH]
+    )]
     public function disableAutomaticPromotions(Request $request): JsonResponse
     {
         if (!$request->request->has(self::SALES_CHANNEL_ID)) {
@@ -215,7 +242,11 @@ class SalesChannelProxyController extends AbstractController
         return new JsonResponse();
     }
 
-    #[Route(path: '/api/_proxy/enable-automatic-promotions', name: 'api.proxy.enable-automatic-promotions', methods: ['PATCH'])]
+    #[Route(
+        path: '/api/_proxy/enable-automatic-promotions',
+        name: 'api.proxy.enable-automatic-promotions',
+        methods: [Request::METHOD_PATCH]
+    )]
     public function enableAutomaticPromotions(Request $request): JsonResponse
     {
         if (!$request->request->has(self::SALES_CHANNEL_ID)) {
@@ -246,8 +277,13 @@ class SalesChannelProxyController extends AbstractController
         }
     }
 
-    private function setUpSalesChannelApiRequest(string $path, string $salesChannelId, Request $request, SalesChannelEntity $salesChannel, Context $context): Request
-    {
+    private function setUpSalesChannelApiRequest(
+        string $path,
+        string $salesChannelId,
+        Request $request,
+        SalesChannelEntity $salesChannel,
+        Context $context
+    ): Request {
         $contextToken = $this->getContextToken($request);
 
         $server = array_merge($request->server->all(), ['REQUEST_URI' => '/store-api/' . $path]);
@@ -344,8 +380,11 @@ class SalesChannelProxyController extends AbstractController
         }
     }
 
-    private function fetchSalesChannelContext(string $salesChannelId, Request $request, Context $originalContext): SalesChannelContext
-    {
+    private function fetchSalesChannelContext(
+        string $salesChannelId,
+        Request $request,
+        Context $originalContext
+    ): SalesChannelContext {
         $contextToken = $this->getContextToken($request);
 
         return $this->contextService->get(
@@ -413,7 +452,8 @@ class SalesChannelProxyController extends AbstractController
         $salesChannelId = $salesChannelContext->getSalesChannelId();
 
         $payload = $this->contextPersister->load($contextToken, $salesChannelId);
-        $requestPermissions = $request->get(SalesChannelContextService::PERMISSIONS);
+        /** @var array<mixed>|null $requestPermissions */
+        $requestPermissions = $request->request->all()[SalesChannelContextService::PERMISSIONS] ?? null;
 
         if (\in_array(SalesChannelContextService::PERMISSIONS, $payload, true) && !$requestPermissions) {
             return;
@@ -428,14 +468,15 @@ class SalesChannelProxyController extends AbstractController
 
     private function parseCalculatedPriceByRequest(Request $request): CalculatedPrice
     {
-        $this->validateShippingCostsParameters($request);
-
-        $shippingCosts = $request->get('shippingCosts');
+        $shippingCosts = $this->validateShippingCostsParameters($request);
 
         return new CalculatedPrice($shippingCosts['unitPrice'], $shippingCosts['totalPrice'], new CalculatedTaxCollection(), new TaxRuleCollection());
     }
 
-    private function validateShippingCostsParameters(Request $request): void
+    /**
+     * @return array{unitPrice: float, totalPrice: float}
+     */
+    private function validateShippingCostsParameters(Request $request): array
     {
         if (!$request->request->has('shippingCosts')) {
             throw ApiException::shippingCostsParameterIsMissing();
@@ -445,5 +486,10 @@ class SalesChannelProxyController extends AbstractController
         $validation->add('unitPrice', new NotBlank(), new Type('numeric'), new GreaterThanOrEqual(value: 0));
         $validation->add('totalPrice', new NotBlank(), new Type('numeric'), new GreaterThanOrEqual(value: 0));
         $this->validator->validate($request->request->all('shippingCosts'), $validation);
+
+        /** @var array{unitPrice: float, totalPrice: float} $shippingCosts otherwise validator would have thrown */
+        $shippingCosts = $request->request->all('shippingCosts');
+
+        return $shippingCosts;
     }
 }

@@ -8,9 +8,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('fundamentals@discovery')]
 class LanguageException extends HttpException
 {

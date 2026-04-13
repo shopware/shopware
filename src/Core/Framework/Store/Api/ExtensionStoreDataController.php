@@ -16,13 +16,14 @@ use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\User\UserCollection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * @internal
  */
-#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID], '_acl' => ['system.plugin_maintain']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID], PlatformRequest::ATTRIBUTE_ACL => ['system.plugin_maintain']])]
 #[Package('checkout')]
 class ExtensionStoreDataController extends AbstractController
 {
@@ -37,7 +38,11 @@ class ExtensionStoreDataController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/extension/installed', name: 'api.extension.installed', methods: ['GET'])]
+    #[Route(
+        path: '/api/_action/extension/installed',
+        name: 'api.extension.installed',
+        methods: [Request::METHOD_GET]
+    )]
     public function getInstalledExtensions(Context $context): Response
     {
         $context = $this->switchContext($context);
@@ -49,12 +54,10 @@ class ExtensionStoreDataController extends AbstractController
 
     private function switchContext(Context $context): Context
     {
-        if (!$context->getSource() instanceof AdminApiSource) {
+        $source = $context->getSource();
+        if (!$source instanceof AdminApiSource) {
             return $context;
         }
-
-        /** @var AdminApiSource $source */
-        $source = $context->getSource();
 
         if ($source->getUserId() === null) {
             return $context;

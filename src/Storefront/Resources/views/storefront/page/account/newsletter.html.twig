@@ -1,9 +1,14 @@
+{# ludtwig-ignore-file twig-variable-definition-naming #}
 {% block page_account_overview_newsletter_content_inner %}
     {% block page_account_overview_newsletter_content_success %}
         {% if newsletterAccountPagelet.messages|length > 0 %}
             <div class="newsletter-alerts">
                 {% for message in newsletterAccountPagelet.messages %}
-                    {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with { type: message.type, content: message.text } %}
+                    {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                        type: message.type,
+                        content: message.text,
+                        announceOnLoad: true
+                    } %}
                 {% endfor %}
             </div>
         {% endif %}

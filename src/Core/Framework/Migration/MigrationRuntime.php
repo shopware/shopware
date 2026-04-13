@@ -19,6 +19,9 @@ class MigrationRuntime
     ) {
     }
 
+    /**
+     * @return \Generator<class-string<MigrationStep>>
+     */
     public function migrate(MigrationSource $source, ?int $until = null, ?int $limit = null): \Generator
     {
         $migrations = $this->getExecutableMigrations($source, $until, $limit);
@@ -49,6 +52,9 @@ class MigrationRuntime
         }
     }
 
+    /**
+     * @return \Generator<class-string<MigrationStep>>
+     */
     public function migrateDestructive(MigrationSource $source, ?int $until = null, ?int $limit = null): \Generator
     {
         $migrations = $this->getExecutableDestructiveMigrations($source, $until, $limit);

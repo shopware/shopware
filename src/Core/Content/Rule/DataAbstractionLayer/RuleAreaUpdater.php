@@ -4,8 +4,10 @@ namespace Shopware\Core\Content\Rule\DataAbstractionLayer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\CachedRuleLoader;
 use Shopware\Core\Content\Rule\RuleDefinition;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\DataAbstractionLayer\CompiledFieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
@@ -17,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
@@ -42,7 +45,8 @@ class RuleAreaUpdater implements EventSubscriberInterface
         private readonly RuleDefinition $definition,
         private readonly RuleConditionRegistry $conditionRegistry,
         private readonly CacheInvalidator $cacheInvalidator,
-        private readonly DefinitionInstanceRegistry $definitionRegistry
+        private readonly DefinitionInstanceRegistry $definitionRegistry,
+        private readonly ClockInterface $clock
     ) {
     }
 
@@ -103,7 +107,7 @@ class RuleAreaUpdater implements EventSubscriberInterface
             $ruleIds = $this->hydrateRuleIds($this->getForeignKeyFields($definition), $nestedEvent, $ruleIds);
         }
 
-        if (empty($ruleIds)) {
+        if ($ruleIds === []) {
             return;
         }
 
@@ -121,9 +125,10 @@ class RuleAreaUpdater implements EventSubscriberInterface
 
         $areas = $this->getAreas($ids, $associationFields);
 
+        $now = $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
         $update = new RetryableQuery(
             $this->connection,
-            $this->connection->prepare('UPDATE `rule` SET `areas` = :areas WHERE `id` = :id')
+            $this->connection->prepare('UPDATE `rule` SET `areas` = :areas, `updated_at` = :updatedAt WHERE `id` = :id')
         );
 
         foreach ($areas as $id => $associations) {
@@ -152,6 +157,7 @@ class RuleAreaUpdater implements EventSubscriberInterface
             $update->execute([
                 'areas' => json_encode(array_values($areas), \JSON_THROW_ON_ERROR),
                 'id' => Uuid::fromHexToBytes($id),
+                'updatedAt' => $now,
             ]);
         }
     }
@@ -299,18 +305,29 @@ class RuleAreaUpdater implements EventSubscriberInterface
      */
     private function getAssociationEntities(): array
     {
-        return $this->getAssociationFields()->filter(fn (AssociationField $associationField): bool => $associationField instanceof OneToManyAssociationField)->map(fn (AssociationField $field): string => $field->getReferenceDefinition()->getEntityName());
+        return $this->getAssociationFields()
+            ->fmap(static function (Field $associationField): ?string {
+                return $associationField instanceof OneToManyAssociationField || $associationField instanceof ManyToManyAssociationField ? $associationField->getReferenceDefinition()->getEntityName() : null;
+            });
     }
 
     private function getAssociationDefinitionByEntity(CompiledFieldCollection $collection, string $entityName): ?EntityDefinition
     {
-        $field = $collection->filter(function (AssociationField $associationField) use ($entityName): bool {
+        $field = $collection->firstWhere(static function (Field $associationField) use ($entityName): bool {
+            if ($associationField instanceof ManyToManyAssociationField) {
+                return $associationField->getMappingDefinition()->getEntityName() === $entityName;
+            }
+
             if (!$associationField instanceof OneToManyAssociationField) {
                 return false;
             }
 
             return $associationField->getReferenceDefinition()->getEntityName() === $entityName;
-        })->first();
+        });
+
+        if ($field instanceof ManyToManyAssociationField) {
+            return $field->getMappingDefinition();
+        }
 
         return $field instanceof AssociationField ? $field->getReferenceDefinition() : null;
     }

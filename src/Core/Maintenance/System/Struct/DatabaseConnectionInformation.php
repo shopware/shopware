@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Maintenance\System\Struct;
 
+use Pdo\Mysql;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
@@ -114,19 +115,19 @@ class DatabaseConnectionInformation extends Struct
         }
 
         if ($this->sslCaPath) {
-            $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_CA] = $this->sslCaPath;
+            $parameters['driverOptions'][Mysql::ATTR_SSL_CA] = $this->sslCaPath;
         }
 
         if ($this->sslCertPath) {
-            $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_CERT] = $this->sslCertPath;
+            $parameters['driverOptions'][Mysql::ATTR_SSL_CERT] = $this->sslCertPath;
         }
 
         if ($this->sslCertKeyPath) {
-            $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_KEY] = $this->sslCertKeyPath;
+            $parameters['driverOptions'][Mysql::ATTR_SSL_KEY] = $this->sslCertKeyPath;
         }
 
         if ($this->sslDontVerifyServerCert) {
-            $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
+            $parameters['driverOptions'][Mysql::ATTR_SSL_VERIFY_SERVER_CERT] = false;
         }
 
         return $parameters;

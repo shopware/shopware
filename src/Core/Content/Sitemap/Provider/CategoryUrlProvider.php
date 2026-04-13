@@ -55,7 +55,7 @@ class CategoryUrlProvider extends AbstractUrlProvider
     {
         $categories = $this->getCategories($context, $limit, $offset);
 
-        if (empty($categories)) {
+        if ($categories === []) {
             return new UrlResult([], null);
         }
 
@@ -77,7 +77,7 @@ class CategoryUrlProvider extends AbstractUrlProvider
 
         $availableCategories = \array_filter(
             $categories,
-            fn (array $category) => $categoryIdsFetchedEvent->hasId($category['id'])
+            static fn (array $category) => $categoryIdsFetchedEvent->hasId($category['id'])
         );
 
         /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */
@@ -151,7 +151,7 @@ class CategoryUrlProvider extends AbstractUrlProvider
         $query->andWhere('`category`.type != :folderType');
 
         $excludedCategoryIds = $this->getExcludedCategoryIds($context);
-        if (!empty($excludedCategoryIds)) {
+        if ($excludedCategoryIds !== []) {
             $query->andWhere('`category`.id NOT IN (:categoryIds)');
             $query->setParameter('categoryIds', Uuid::fromHexToBytesList($excludedCategoryIds), ArrayParameterType::BINARY);
         }
@@ -178,7 +178,7 @@ class CategoryUrlProvider extends AbstractUrlProvider
         $salesChannelId = $salesChannelContext->getSalesChannelId();
 
         $excludedUrls = $this->configHandler->get(ConfigHandler::EXCLUDED_URLS_KEY);
-        if (empty($excludedUrls)) {
+        if ($excludedUrls === []) {
             return [];
         }
 

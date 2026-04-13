@@ -8,15 +8,21 @@ test(
         const customer = await TestDataService.createCustomer();
         const order = await TestDataService.createOrder([{ product: product, quantity: 5 }], customer);
 
+        const untouchedOrder = await TestDataService.createOrder([{ product: product, quantity: 1 }], customer);
+
         await TestDataService.setSystemConfig({ 'core.cart.enableOrderRefunds': true });
 
         await ShopCustomer.attemptsTo(Login(customer));
         await ShopCustomer.goesTo(StorefrontAccountOrder.url());
+
+        const untouchedOrderItemLocators = await StorefrontAccountOrder.getOrderByOrderNumber(untouchedOrder.orderNumber);
+        await ShopCustomer.expects(untouchedOrderItemLocators.orderStatus).toContainText('Open');
+
         const orderItemLocators = await StorefrontAccountOrder.getOrderByOrderNumber(order.orderNumber);
         await ShopCustomer.expects(orderItemLocators.orderStatus).toContainText('Open');
-        await orderItemLocators.orderActionsButton.click();
-        await orderItemLocators.orderCancelButton.click();
-        await StorefrontAccountOrder.dialogOrderCancelButton.click();
+        await ShopCustomer.presses(orderItemLocators.orderActionsButton);
+        await ShopCustomer.presses(orderItemLocators.orderCancelButton);
+        await ShopCustomer.presses(StorefrontAccountOrder.dialogOrderCancelButton);
         await ShopCustomer.goesTo(StorefrontAccountOrder.url());
         await ShopCustomer.expects(orderItemLocators.orderShippingStatus).toContainText('Open');
         await ShopCustomer.expects(orderItemLocators.orderPaymentStatus).toContainText('Open');
@@ -24,6 +30,8 @@ test(
         await ShopCustomer.expects(orderItemLocators.orderShippingMethod).toContainText('Standard');
         await ShopCustomer.expects(orderItemLocators.orderStatus).toContainText('Cancelled');
         await ShopCustomer.expects(orderItemLocators.orderStatus).not.toContainText('Open');
+        // ensure other order is unaffected
+        await ShopCustomer.expects(untouchedOrderItemLocators.orderStatus).toContainText('Open');
     }
 );
 
@@ -41,10 +49,10 @@ test(
         await ShopCustomer.goesTo(StorefrontAccountOrder.url());
         const orderItemLocators = await StorefrontAccountOrder.getOrderByOrderNumber(order.orderNumber);
         await ShopCustomer.expects(orderItemLocators.orderStatus).toContainText('Open');
-        await orderItemLocators.orderActionsButton.click();
-        await orderItemLocators.orderChangePaymentMethodButton.click();
-        await StorefrontCheckoutOrderEdit.orderCancelButton.click();
-        await StorefrontCheckoutOrderEdit.dialogOrderCancelButton.click();
+        await ShopCustomer.presses(orderItemLocators.orderActionsButton);
+        await ShopCustomer.presses(orderItemLocators.orderChangePaymentMethodButton);
+        await ShopCustomer.presses(StorefrontCheckoutOrderEdit.orderCancelButton);
+        await ShopCustomer.presses(StorefrontCheckoutOrderEdit.dialogOrderCancelButton);
         await ShopCustomer.goesTo(StorefrontAccountOrder.url());
         await ShopCustomer.expects(orderItemLocators.orderShippingStatus).toContainText('Open');
         await ShopCustomer.expects(orderItemLocators.orderPaymentStatus).toContainText('Open');
@@ -69,8 +77,8 @@ test(
         await ShopCustomer.goesTo(StorefrontAccountOrder.url());
         const orderItemLocators = await StorefrontAccountOrder.getOrderByOrderNumber(order.orderNumber);
         await ShopCustomer.expects(orderItemLocators.orderStatus).toContainText('Open');
-        await orderItemLocators.orderActionsButton.click();
-        await orderItemLocators.orderChangePaymentMethodButton.click();
+        await ShopCustomer.presses(orderItemLocators.orderActionsButton);
+        await ShopCustomer.presses(orderItemLocators.orderChangePaymentMethodButton);
         await ShopCustomer.expects(StorefrontCheckoutOrderEdit.orderCancelButton).not.toBeVisible();
     }
 );
@@ -89,7 +97,7 @@ test(
         await ShopCustomer.goesTo(StorefrontAccountOrder.url());
         const orderItemLocators = await StorefrontAccountOrder.getOrderByOrderNumber(order.orderNumber);
         await ShopCustomer.expects(orderItemLocators.orderStatus).toContainText('Open');
-        await orderItemLocators.orderActionsButton.click();
+        await ShopCustomer.presses(orderItemLocators.orderActionsButton);
         await ShopCustomer.expects(orderItemLocators.orderCancelButton).not.toBeVisible();
     }
 );

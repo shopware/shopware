@@ -98,7 +98,7 @@ class MockingSimpleObjectsNotAllowedRule implements Rule
         }
 
         $parentClassNames = $node->getClassReflection()->getParentClassesNames();
-        if (empty($parentClassNames)) {
+        if ($parentClassNames === []) {
             return false;
         }
 

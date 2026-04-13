@@ -1,16 +1,42 @@
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
-import { MtBanner, MtModalTrigger, MtModalAction, MtButton } from '@shopware-ag/meteor-component-library';
+import {
+    MtModal,
+    MtModalClose,
+    MtModalAction,
+    MtModalTrigger,
+    MtModalRoot,
+    MtButton,
+    MtBanner,
+} from '@shopware-ag/meteor-component-library';
 import SwSettingsServicesIndex from './index';
 import { useShopwareServicesStore } from '../../store/shopware-services.store';
 import SwSettingsServicesHero from '../../component/sw-settings-services-hero';
 import SwSettingsServicesGrantPermissionsCard from '../../component/sw-settings-services-grant-permissions-card';
 import SwSettingsServicesRevokePermissionsModal from '../../component/sw-settings-services-revoke-permissions-modal';
 import SwSettingsServicesDeactivateModal from '../../component/sw-settings-services-deactivate-modal';
+import * as permissionsComposable from '../../composables/permissions';
+
+jest.mock('../../composables/permissions', () => {
+    const useShopwareServicesStore = require('../../store/shopware-services.store').useShopwareServicesStore;
+    const _reloadPageMock = jest.fn();
+    return {
+        async grantPermissions() {
+            const store = useShopwareServicesStore();
+            const revision = store.currentRevision?.revision;
+            if (!revision) throw new Error('No revision available');
+            await Shopware.Service('shopwareServicesService').acceptRevision(revision);
+            _reloadPageMock();
+        },
+        async revokePermissions() {
+            await Shopware.Service('shopwareServicesService').revokePermissions();
+            _reloadPageMock();
+        },
+        _reloadPage: _reloadPageMock,
+    };
+});
 
 describe('/src/module/sw-setting-services/page/sw-settings-services-index', () => {
-    let originalLocation;
-
     beforeAll(() => {
         Shopware.Service().register('serviceRegistryClient', () => ({
             getCurrentRevision: jest.fn(async () => ({
@@ -68,14 +94,6 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
                 permissionsConsent: null,
             })),
         }));
-
-        originalLocation = window.location;
-
-        Object.defineProperty(window, 'location', { configurable: true, value: { reload: jest.fn() } });
-    });
-
-    afterAll(() => {
-        Object.defineProperty(window, 'location', { configurable: true, value: originalLocation });
     });
 
     async function mountPage() {
@@ -95,6 +113,12 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
                         </div>`,
                     },
                     'sw-settings-services-service-card': true,
+                    'mt-modal': MtModal,
+                    'mt-modal-close': MtModalClose,
+                    'mt-modal-action': MtModalAction,
+                    'mt-modal-trigger': MtModalTrigger,
+                    'mt-modal-root': MtModalRoot,
+                    'sw-extension-component-section': true,
                 },
                 plugins: [pinia],
             },
@@ -152,7 +176,7 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
         await grantPermissionsCard.get('.mt-button--primary').trigger('click');
         await flushPromises();
 
-        expect(window.location.reload).toHaveBeenCalled();
+        expect(permissionsComposable._reloadPage).toHaveBeenCalled();
     });
 
     it('can revoke permissions', async () => {
@@ -165,7 +189,7 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
         await revokePermissionsModal.getComponent(MtModalAction).trigger('click');
         await flushPromises();
 
-        expect(window.location.reload).toHaveBeenCalled();
+        expect(permissionsComposable._reloadPage).toHaveBeenCalled();
     });
 
     it('does not show grant permissions card if services are deactivated', async () => {

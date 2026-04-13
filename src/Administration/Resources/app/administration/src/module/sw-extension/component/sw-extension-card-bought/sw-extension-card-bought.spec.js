@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import { mount } from '@vue/test-utils';
 import { setActivePinia, createPinia } from 'pinia';
 
@@ -252,7 +251,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
 
         expect(wrapper.find('.sw-extension-card-base__info-name').text()).toBe('Sample Extension Label');
         expect(wrapper.find('.sw-extension-icon img').attributes().src).toBe(
-            'administration/administration/static/img/theme/default_theme_preview.jpg',
+            'administration/administration/static/img/theme/default_theme_preview.webp',
         );
         expect(wrapper.find('.sw-extension-card-base__meta-info').text().replace(/\s/g, '')).toBe(
             'sw-extension-store.component.sw-extension-card-base.installedLabel01/02/2021,02:30',
@@ -453,7 +452,6 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
 
     it('should display error on install and download attempt when app subscription is expired', async () => {
         httpClient.post.mockImplementation(() => {
-            // eslint-disable-next-line prefer-promise-reject-errors
             return Promise.reject({
                 response: {
                     data: {

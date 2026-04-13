@@ -1,4 +1,4 @@
-import { MtCard } from '@shopware-ag/meteor-component-library';
+import MtCard from '@shopware-ag/meteor-component-library/dist/esm/MtCard';
 import template from './mt-card.html.twig';
 
 /**
@@ -13,7 +13,6 @@ export default Shopware.Component.wrapComponentConfig({
     template,
 
     components: {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         'mt-card-original': MtCard,
     },
 

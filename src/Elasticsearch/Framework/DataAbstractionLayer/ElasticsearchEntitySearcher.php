@@ -15,10 +15,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\Event\ElasticsearchEntitySearcherSearchedEvent;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\Event\ElasticsearchEntitySearcherSearchEvent;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
+use Shopware\Elasticsearch\Framework\Exception\EmptyQueryException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('framework')]
@@ -42,7 +42,8 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
         private readonly AbstractElasticsearchSearchHydrator $hydrator,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly string $timeout,
-        private readonly string $searchType
+        private readonly string $searchType,
+        private readonly ?int $precisionThreshold = null
     ) {
     }
 
@@ -97,7 +98,7 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
 
             return $result;
         } catch (\Throwable $e) {
-            if ($e instanceof ElasticsearchException && $e->getErrorCode() === ElasticsearchException::EMPTY_QUERY) {
+            if ($e instanceof EmptyQueryException) {
                 return new IdSearchResult(0, [], $criteria, $context);
             }
 
@@ -168,7 +169,7 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
         $grouping = array_shift($groupings);
 
         $accessor = $this->criteriaParser->buildAccessor($definition, $grouping->getField(), $context);
-        if (empty($groupings)) {
+        if ($groupings === []) {
             return ['field' => $accessor];
         }
 
@@ -192,6 +193,9 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
 
             $aggregation = new CardinalityAggregation('total-count');
             $aggregation->setField($accessor);
+            if ($this->precisionThreshold !== null) {
+                $aggregation->addParameter('precision_threshold', $this->precisionThreshold);
+            }
 
             return $this->addPostFilterAggregation($criteria, $definition, $context, $aggregation);
         }
@@ -222,6 +226,9 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
 
         $aggregation = new CardinalityAggregation('total-count');
         $aggregation->setScript($script);
+        if ($this->precisionThreshold !== null) {
+            $aggregation->addParameter('precision_threshold', $this->precisionThreshold);
+        }
 
         return $this->addPostFilterAggregation($criteria, $definition, $context, $aggregation);
     }

@@ -20,6 +20,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Choice;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited;
@@ -41,6 +43,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TreeLevelField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\CustomEntityDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
@@ -107,32 +110,35 @@ class CategoryDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+        $fields = new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required())->setDescription('Unique identity of category.'),
             (new VersionField())->addFlags(new ApiAware()),
 
             (new ParentFkField(self::class))->addFlags(new ApiAware()),
             (new ReferenceVersionField(self::class, 'parent_version_id'))->addFlags(new ApiAware(), new Required()),
 
-            (new FkField('after_category_id', 'afterCategoryId', self::class))->addFlags(new ApiAware()),
+            (new FkField('after_category_id', 'afterCategoryId', self::class))->addFlags(new ApiAware())->setDescription('Unique identity of the category under which the new category is to be created.'),
             (new ReferenceVersionField(self::class, 'after_category_version_id'))->addFlags(new ApiAware(), new Required()),
 
-            (new FkField('media_id', 'mediaId', MediaDefinition::class))->addFlags(new ApiAware()),
+            (new FkField('media_id', 'mediaId', MediaDefinition::class))->addFlags(new ApiAware())->setDescription('Unique identity of media added to identify category.'),
 
-            (new BoolField('display_nested_products', 'displayNestedProducts'))->addFlags(new ApiAware(), new Required()),
+            (new BoolField('display_nested_products', 'displayNestedProducts'))->addFlags(new ApiAware(), new Required())->setDescription('Shows nested categories on a product category page.'),
             new AutoIncrementField(),
 
             (new TranslatedField('breadcrumb'))->addFlags(new ApiAware(), new WriteProtected()),
-            (new TreeLevelField('level', 'level'))->addFlags(new ApiAware()),
-            (new TreePathField('path', 'path'))->addFlags(new ApiAware()),
+            (new TreeLevelField('level', 'level'))->addFlags(new ApiAware())->setDescription('An integer value that denotes the level of nesting of a particular category located in an hierarchical category tree.'),
+            (new TreePathField('path', 'path'))->addFlags(new ApiAware())->setDescription('A relative URL to the category.'),
             (new ChildCountField())->addFlags(new ApiAware()),
 
-            (new StringField('type', 'type'))->addFlags(new ApiAware(), new Required()),
-            (new StringField('product_assignment_type', 'productAssignmentType'))->addFlags(new ApiAware(), new Required()),
-            (new BoolField('visible', 'visible'))->addFlags(new ApiAware()),
-            (new BoolField('active', 'active'))->addFlags(new ApiAware()),
+            (new StringField('type', 'type'))->addFlags(new ApiAware(), new Required(), new Choice([
+                self::TYPE_PAGE,
+                self::TYPE_LINK,
+                self::TYPE_FOLDER,
+            ]))->setDescription('Type of categories like `page`, `folder`, `link`.'),
+            (new StringField('product_assignment_type', 'productAssignmentType'))->addFlags(new ApiAware(), new Required())->setDescription('Type of product assignment: Dynamic product group as or `product_stream` or Manual assignment as `product`.'),
+            (new BoolField('visible', 'visible'))->addFlags(new ApiAware())->setDescription('Displays categories on category page when true.'),
+            (new BoolField('active', 'active'))->addFlags(new ApiAware())->setDescription('When boolean value is `true`, the category is listed for selection.'),
 
-            (new BoolField('cms_page_id_switched', 'cmsPageIdSwitched'))->addFlags(new Runtime(), new ApiAware()),
             (new IntField('visible_child_count', 'visibleChildCount'))->addFlags(new Runtime(), new ApiAware()),
 
             (new TranslatedField('name'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
@@ -147,30 +153,38 @@ class CategoryDefinition extends EntityDefinition
             (new TranslatedField('metaDescription'))->addFlags(new ApiAware()),
             (new TranslatedField('keywords'))->addFlags(new ApiAware()),
 
-            (new ParentAssociationField(self::class, 'id'))->addFlags(new ApiAware()),
-            (new ChildrenAssociationField(self::class))->addFlags(new ApiAware()),
+            (new ParentAssociationField(self::class, 'id'))->addFlags(new ApiAware())->setDescription('Unique identity of category.'),
+            (new ChildrenAssociationField(self::class))->addFlags(new ApiAware())->setDescription('Child categories within this category for hierarchical navigation'),
 
-            (new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware()),
+            (new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware())->setDescription('Category image or banner'),
             (new TranslationsAssociationField(CategoryTranslationDefinition::class, 'category_id'))->addFlags(new ApiAware(), new Required()),
             (new ManyToManyAssociationField('products', ProductDefinition::class, ProductCategoryDefinition::class, 'category_id', 'product_id'))->addFlags(new CascadeDelete(), new ReverseInherited('categories')),
             (new ManyToManyAssociationField('nestedProducts', ProductDefinition::class, ProductCategoryTreeDefinition::class, 'category_id', 'product_id'))->addFlags(new CascadeDelete(), new WriteProtected()),
-            (new ManyToManyAssociationField('tags', TagDefinition::class, CategoryTagDefinition::class, 'category_id', 'tag_id'))->addFlags(new ApiAware()),
+            (new ManyToManyAssociationField('tags', TagDefinition::class, CategoryTagDefinition::class, 'category_id', 'tag_id'))->addFlags(new ApiAware())->setDescription('Tags for organizing and filtering categories'),
 
-            (new FkField('cms_page_id', 'cmsPageId', CmsPageDefinition::class))->addFlags(new ApiAware()),
+            (new FkField('cms_page_id', 'cmsPageId', CmsPageDefinition::class))->addFlags(new ApiAware())->setDescription('Unique identity of CMS page.'),
             (new ReferenceVersionField(CmsPageDefinition::class))->addFlags(new Required(), new ApiAware()),
-            (new ManyToOneAssociationField('cmsPage', 'cms_page_id', CmsPageDefinition::class, 'id', false))->addFlags(new ApiAware()),
-            new FkField('product_stream_id', 'productStreamId', ProductStreamDefinition::class),
+            (new ManyToOneAssociationField('cmsPage', 'cms_page_id', CmsPageDefinition::class, 'id', false))->addFlags(new ApiAware())->setDescription('CMS page layout for the category'),
+            (new FkField('product_stream_id', 'productStreamId', ProductStreamDefinition::class))->setDescription('Unique identity of product stream.'),
             new ManyToOneAssociationField('productStream', 'product_stream_id', ProductStreamDefinition::class, 'id', false),
 
             // custom entity specific fields
             (new FkField('custom_entity_type_id', 'customEntityTypeId', CustomEntityDefinition::class, 'id'))->addFlags(new ApiAware()),
 
-            // Reverse Associations not available in store-api
+            // Reverse Associations not available in store-api->setDescription('Unique identity of custom entity type.')
             new OneToManyAssociationField('navigationSalesChannels', SalesChannelDefinition::class, 'navigation_category_id'),
             new OneToManyAssociationField('footerSalesChannels', SalesChannelDefinition::class, 'footer_category_id'),
             new OneToManyAssociationField('serviceSalesChannels', SalesChannelDefinition::class, 'service_category_id'),
             (new OneToManyAssociationField('mainCategories', MainCategoryDefinition::class, 'category_id'))->addFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('seoUrls', SeoUrlDefinition::class, 'foreign_key'))->addFlags(new ApiAware()),
+            (new OneToManyAssociationField('seoUrls', SeoUrlDefinition::class, 'foreign_key'))->addFlags(new ApiAware())->setDescription('SEO-friendly URLs for the category across different sales channels'),
         ]);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $fields->add(
+                (new BoolField('cms_page_id_switched', 'cmsPageIdSwitched'))->addFlags(new Runtime(), new ApiAware(), new Deprecated('v6.7.9.0', 'v6.8.0.0')),
+            );
+        }
+
+        return $fields;
     }
 }

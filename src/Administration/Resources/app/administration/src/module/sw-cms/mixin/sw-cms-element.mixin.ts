@@ -47,6 +47,7 @@ export default Mixin.register(
                 return this.cmsService.getCmsElementRegistry();
             },
         },
+
         methods: {
             initElementConfig() {
                 this.initBaseConfig();
@@ -83,11 +84,11 @@ export default Mixin.register(
             },
 
             applyContentOverride() {
-                if (!this.contentEntity || !this.contentEntity.slotConfig || !this.element.id) {
+                if (!this.contentEntity || !this.inheritedSlotConfig || !this.element.id) {
                     return;
                 }
 
-                const overrideConfig = this.contentEntity.slotConfig[this.element.id];
+                const overrideConfig = this.inheritedSlotConfig[this.element.id];
 
                 if (!overrideConfig) {
                     return;
@@ -98,7 +99,7 @@ export default Mixin.register(
                         key,
                         value,
                     ]) => {
-                        set(this.element, `config.${key}`, value);
+                        set(this.element, `config.${key}`, cloneDeep(value));
                     },
                 );
             },

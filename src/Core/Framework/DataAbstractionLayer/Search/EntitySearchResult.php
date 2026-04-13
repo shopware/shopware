@@ -46,11 +46,17 @@ class EntitySearchResult extends EntityCollection
         parent::__construct($entities);
     }
 
+    /**
+     * @return static<TEntityCollection>
+     */
     public function filter(\Closure $closure): static
     {
         return $this->createNew($this->entities->filter($closure));
     }
 
+    /**
+     * @return static<TEntityCollection>
+     */
     public function slice(int $offset, ?int $length = null): static
     {
         return $this->createNew($this->entities->slice($offset, $length));
@@ -156,10 +162,12 @@ class EntitySearchResult extends EntityCollection
 
     /**
      * @param iterable<TElement> $elements
+     *
+     * @return static<TEntityCollection>
      */
     protected function createNew(iterable $elements = []): static
     {
-        if (!($elements instanceof EntityCollection)) {
+        if (!$elements instanceof EntityCollection) {
             $elements = new EntityCollection($elements);
         }
 

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Script\Api;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
@@ -9,7 +10,15 @@ class ResponseCacheConfiguration
 {
     private bool $enabled = true;
 
-    private ?int $maxAge = null;
+    /**
+     * Defines the max_age directive for client-side caching.
+     */
+    private ?int $clientMaxAge = null;
+
+    /**
+     * Defines the s_maxage directive for shared caches (e.g. CDNs). Also influences caching on the framework level.
+     */
+    private ?int $sharedMaxAge = null;
 
     /**
      * @var list<string>
@@ -32,13 +41,39 @@ class ResponseCacheConfiguration
     }
 
     /**
-     * `maxAge()` allows you to define how long the result should be cached.
+     * `maxAge()` allows you to define how long the result should be cached (by reverse proxies or in the framework cache pools).
      *
-     * @param int $maxAge The maximum number of seconds this response should be cached.
+     * @deprecated tag:v6.8.0 - will be removed, use sharedMaxAge to have same effect or clientMaxAge to set client-side caching.
      */
     public function maxAge(int $maxAge): self
     {
-        $this->maxAge = $maxAge;
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'Use sharedMaxAge() and clientMaxAge() instead.')
+        );
+
+        return $this->sharedMaxAge($maxAge);
+    }
+
+    /**
+     * `clientMaxAge()` allows you to define the max_age directive for client-side caching.
+     *
+     * @param int $maxAge The maximum number of seconds this response should be cached on the client side.
+     */
+    public function clientMaxAge(int $maxAge): self
+    {
+        $this->clientMaxAge = $maxAge;
+
+        return $this;
+    }
+
+    /**
+     * `sharedMaxAge()` allows you to define the s_maxage directive for shared caches (e.g. CDNs). Also influences
+     *  caching on the framework level (in cache pools).
+     */
+    public function sharedMaxAge(int $maxAge): self
+    {
+        $this->sharedMaxAge = $maxAge;
 
         return $this;
     }
@@ -78,9 +113,17 @@ class ResponseCacheConfiguration
     /**
      * @internal
      */
-    public function getMaxAge(): ?int
+    public function getClientMaxAge(): ?int
     {
-        return $this->maxAge;
+        return $this->clientMaxAge;
+    }
+
+    /**
+     * @internal
+     */
+    public function getSharedMaxAge(): ?int
+    {
+        return $this->sharedMaxAge;
     }
 
     /**

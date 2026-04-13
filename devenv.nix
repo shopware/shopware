@@ -8,7 +8,7 @@ let
 in {
   packages = [
     pkgs.gnupatch
-    pkgs.nodePackages_latest.yalc
+    pkgs.yalc
     pkgs.gnused
     pkgs.symfony-cli
     pkgs.deno
@@ -47,7 +47,6 @@ in {
       ''}
       display_errors = On
       error_reporting = E_ALL
-      assert.active = 0
       opcache.memory_consumption = 256M
       opcache.interned_strings_buffer = 20
       zend.assertions = 0

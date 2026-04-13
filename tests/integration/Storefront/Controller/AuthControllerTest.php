@@ -26,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\Log\Monolog\DoctrineSQLHandler;
 use Shopware\Core\Framework\Log\Monolog\ExcludeFlowEventHandler;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -56,12 +57,13 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
+use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 class AuthControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -106,47 +108,57 @@ class AuthControllerTest extends TestCase
         static::assertFalse($oldContextExists);
     }
 
-    public function testLogoutWhenSalesChannelIdChangedIfCustomerScopeIsOn(): void
+    public function testPerChannelTokensWhenCustomerBindingEnabled(): void
     {
         $systemConfig = static::getContainer()->get(SystemConfigService::class);
         $systemConfig->set('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel', true);
 
+        // Login on the default sales channel
         $browser = $this->login();
-
         $session = $this->getSession();
-        $contextToken = $session->get('sw-context-token');
 
-        $browser->getResponse();
+        // Get the sales channel ID that was used for login
+        $loginSalesChannelId = $session->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
 
-        $session->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, TestDefaults::SALES_CHANNEL);
+        // Get the token for the login channel - should be stored in channel-specific key
+        $loginChannelTokenKey = PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $loginSalesChannelId;
+        $loginChannelToken = $session->get($loginChannelTokenKey);
 
-        $browser->request('GET', '/account');
+        static::assertNotNull($loginChannelToken, 'Login channel should have a channel-specific token');
 
-        $redirectResponse = $browser->getResponse();
+        // Verify the default token key is synced with the login channel
+        static::assertSame($loginChannelToken, $session->get('sw-context-token'), 'Default token should be synced with channel token');
 
-        static::assertInstanceOf(RedirectResponse::class, $redirectResponse);
-        static::assertStringStartsWith('/account/login', $redirectResponse->getTargetUrl());
-        static::assertNotSame($contextToken, $this->getSession()->get('sw-context-token'));
+        // Make another request on the same channel
+        $browser->request('GET', '/');
+
+        // Verify the channel-specific token is still preserved
+        static::assertSame($loginChannelToken, $session->get($loginChannelTokenKey), 'Channel token should be preserved across requests');
+
+        // Verify default token is still synced
+        static::assertSame($loginChannelToken, $session->get('sw-context-token'), 'Default token should remain synced');
     }
 
-    public function testDoNotLogoutWhenSalesChannelIdChangedIfCustomerScopeIsOff(): void
+    public function testGlobalTokenWhenCustomerBindingDisabled(): void
     {
         $systemConfig = static::getContainer()->get(SystemConfigService::class);
         $systemConfig->set('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel', false);
 
         $browser = $this->login();
-
         $session = $this->getSession();
 
         $contextToken = $session->get('sw-context-token');
+        $salesChannelId = $session->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
 
-        $browser->getResponse();
+        // Make another request on the same channel
+        $browser->request('GET', '/');
 
-        $session->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, TestDefaults::SALES_CHANNEL);
+        // Token should remain the same (global token, not per-channel)
+        static::assertSame($contextToken, $session->get('sw-context-token'), 'Global token should be preserved');
 
-        $browser->request('GET', '/account');
-
-        static::assertSame($contextToken, $this->getSession()->get('sw-context-token'));
+        // No channel-specific tokens should exist when binding is disabled
+        $channelSpecificKey = PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelId;
+        static::assertFalse($session->has($channelSpecificKey), 'Channel-specific tokens should not exist when binding is disabled');
     }
 
     public function testSessionIsInvalidatedOnLogoutAndInvalidateSettingFalse(): void
@@ -424,7 +436,7 @@ class AuthControllerTest extends TestCase
         static::getContainer()->get('event_dispatcher')->removeSubscriber($testSubscriber);
 
         $flashBag = $this->getSession()->getBag('flashes');
-        static::assertInstanceOf(FlashBag::class, $flashBag);
+        static::assertInstanceOf(FlashBagInterface::class, $flashBag);
 
         static::assertSame(302, $response->getStatusCode());
         static::assertCount(1, $flashBag->get(StorefrontController::SUCCESS));
@@ -518,7 +530,7 @@ class AuthControllerTest extends TestCase
         $response = $controller->resetPasswordForm($request, $this->salesChannelContext);
 
         $flashBag = $this->getSession()->getBag('flashes');
-        static::assertInstanceOf(FlashBag::class, $flashBag);
+        static::assertInstanceOf(FlashBagInterface::class, $flashBag);
 
         static::assertSame(302, $response->getStatusCode());
         static::assertCount(1, $flashBag->get('danger'));
@@ -541,7 +553,7 @@ class AuthControllerTest extends TestCase
         $response = $controller->resetPasswordForm($request, $this->salesChannelContext);
 
         $flashBag = $this->getSession()->getBag('flashes');
-        static::assertInstanceOf(FlashBag::class, $flashBag);
+        static::assertInstanceOf(FlashBagInterface::class, $flashBag);
 
         static::assertSame(302, $response->getStatusCode());
         static::assertCount(1, $flashBag->get('danger'));
@@ -559,7 +571,7 @@ class AuthControllerTest extends TestCase
         $response = $controller->resetPasswordForm($request, $this->salesChannelContext);
 
         $flashBag = $this->getSession()->getBag('flashes');
-        static::assertInstanceOf(FlashBag::class, $flashBag);
+        static::assertInstanceOf(FlashBagInterface::class, $flashBag);
 
         static::assertSame(302, $response->getStatusCode());
         static::assertCount(1, $flashBag->get('danger'));
@@ -576,7 +588,7 @@ class AuthControllerTest extends TestCase
         ]);
 
         $flashBag = $this->getSession()->getBag('flashes');
-        static::assertInstanceOf(FlashBag::class, $flashBag);
+        static::assertInstanceOf(FlashBagInterface::class, $flashBag);
 
         static::assertContains(
             'The passwords you have entered do not match.',
@@ -599,6 +611,17 @@ class AuthControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
         static::assertSame('/account/login', $response->headers->get('location'));
+    }
+
+    public function testLoginWithUnwantedQueryParameter(): void
+    {
+        $responseContent = $this->request(
+            'GET',
+            '/account/login?loginError=1&waitTime=<a%20href%3D"https%3A%2F%2Fde.wikipedia.org%2Fwiki%2FPhishing">Here<%2Fa>',
+            []
+        )->getContent();
+        static::assertIsString($responseContent);
+        static::assertStringNotContainsString('https://de.wikipedia.org/wiki/Phishing', $responseContent);
     }
 
     private function createProductOnDatabase(string $productId, string $productNumber, Context $context): void

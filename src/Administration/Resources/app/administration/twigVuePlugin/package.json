@@ -13,11 +13,9 @@
     "test": "echo \"Error: no test specified\""
   },
   "dependencies": {},
-  "devDependencies": {
-    "eslint": "8.57.1"
-  },
+  "devDependencies": {},
   "engines": {
-    "node": "^20.x || ^22.x || ^24.x"
+    "node": "^20.x || ^22.x || ^24.x || ^25.x"
   },
   "license": "ISC"
 }

@@ -4,6 +4,7 @@ namespace Shopware\Core\System\Tag\Service;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\CompiledFieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\CriteriaQueryBuilder;
@@ -33,9 +34,9 @@ class FilterTagIdsService
     public function filterIds(Request $request, Criteria $criteria, Context $context): FilteredTagIdsStruct
     {
         $query = $this->getIdsQuery($criteria, $context);
-        $duplicateFilter = $request->get('duplicateFilter', false);
-        $emptyFilter = $request->get('emptyFilter', false);
-        $assignmentFilter = $request->get('assignmentFilter', false);
+        $duplicateFilter = RequestParamHelper::get($request, 'duplicateFilter', false);
+        $emptyFilter = RequestParamHelper::get($request, 'emptyFilter', false);
+        $assignmentFilter = RequestParamHelper::get($request, 'assignmentFilter', false);
 
         if ($emptyFilter) {
             $this->addEmptyFilter($query);
@@ -85,7 +86,7 @@ class FilterTagIdsService
     private function addEmptyFilter(QueryBuilder $query): void
     {
         /** @var CompiledFieldCollection<ManyToManyAssociationField> $manyToManyFields */
-        $manyToManyFields = $this->tagDefinition->getFields()->filter(fn (Field $field) => $field instanceof ManyToManyAssociationField);
+        $manyToManyFields = $this->tagDefinition->getFields()->filter(static fn (Field $field) => $field instanceof ManyToManyAssociationField);
 
         foreach ($manyToManyFields as $manyToManyField) {
             $mappingTable = EntityDefinitionQueryHelper::escape($manyToManyField->getMappingDefinition()->getEntityName());
@@ -121,7 +122,7 @@ class FilterTagIdsService
     private function addAssignmentFilter(QueryBuilder $query, array $assignments): void
     {
         /** @var CompiledFieldCollection<ManyToManyAssociationField> $manyToManyFields */
-        $manyToManyFields = $this->tagDefinition->getFields()->filter(fn (Field $field) => $field instanceof ManyToManyAssociationField && \in_array($field->getPropertyName(), $assignments, true));
+        $manyToManyFields = $this->tagDefinition->getFields()->filter(static fn (Field $field) => $field instanceof ManyToManyAssociationField && \in_array($field->getPropertyName(), $assignments, true));
 
         if (\count($manyToManyFields) === 0) {
             return;

@@ -123,7 +123,7 @@ class FilesystemTest extends TestCase
         $this->io->touch($this->root . '/folder/file3.xml');
 
         $actual = array_map(
-            fn (\SplFileInfo $file) => $file->getPathname(),
+            static fn (\SplFileInfo $file) => $file->getPathname(),
             $fs->findFiles('*.php', 'folder')
         );
 

@@ -552,9 +552,18 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         group: 'customer',
     });
 
-    ruleConditionService.addCondition('cartLineItemProductStates', {
+    if (!Shopware.Feature.isActive('v6.8.0.0')) {
+        ruleConditionService.addCondition('cartLineItemProductStates', {
+            component: 'sw-condition-generic-line-item',
+            label: 'global.sw-condition.condition.lineItemProductStates',
+            scopes: ['lineItem'],
+            group: 'item',
+        });
+    }
+
+    ruleConditionService.addCondition('cartLineItemProductType', {
         component: 'sw-condition-generic-line-item',
-        label: 'global.sw-condition.condition.lineItemProductStates',
+        label: 'global.sw-condition.condition.lineItemProductType',
         scopes: ['lineItem'],
         group: 'item',
     });

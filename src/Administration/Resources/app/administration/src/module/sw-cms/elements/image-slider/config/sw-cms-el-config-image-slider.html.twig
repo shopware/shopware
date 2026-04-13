@@ -58,6 +58,14 @@
                 </sw-cms-inherit-wrapper>
                 {% endblock %}
 
+                {% block sw_cms_element_image_slider_config_media_upload_listener %}
+                <sw-upload-listener
+                    :upload-tag="uploadTag"
+                    auto-upload
+                    @media-upload-finish="onImageUpload"
+                />
+                {% endblock %}
+
                 {% block sw_cms_element_image_slider_config_media_modal %}
                 <sw-media-modal-v2
                     v-if="mediaModalIsOpen"
@@ -117,7 +125,7 @@
                                 <mt-text-field
                                     v-model="element.config.minHeight.value"
                                     :placeholder="$t('sw-cms.elements.image.config.label.minHeight')"
-                                    :help-text="$t('sw-cms.elements.image.config.label.minHeightHelpText')"
+                                    :help-text="$t('sw-cms.elements.image.config.helpText.minHeight')"
                                     :disabled="isInherited || element.config.displayMode.value !== 'cover'"
                                     @update:model-value="onChangeMinHeight"
                                 />
@@ -125,27 +133,28 @@
                         </sw-cms-inherit-wrapper>
                         {% endblock %}
                         {% endblock %}
-
-                        {% block sw_cms_element_image_slider_config_settings_vertical_align %}
-                        {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_cms_element_image_slider_config_settings_vertical_align` instead. #}
-                        {% block sw_cms_element_image_gallery_config_settings_vertical_align %}
-                        <sw-cms-inherit-wrapper
-                            field="verticalAlign"
-                            :element="element"
-                            :label="$t('sw-cms.elements.general.config.label.verticalAlign')"
-                        >
-                            <template #default="{ isInherited }">
-                                <mt-select
-                                    v-model="element.config.verticalAlign.value"
-                                    :placeholder="$t('sw-cms.elements.general.config.label.verticalAlign')"
-                                    :disabled="isInherited || element.config.displayMode.value === 'cover'"
-                                    :options="verticalAlignValueOptions"
-                                />
-                            </template>
-                        </sw-cms-inherit-wrapper>
-                        {% endblock %}
-                        {% endblock %}
                     </div>
+                    {% endblock %}
+                    {% endblock %}
+
+                    {% block sw_cms_element_image_slider_config_settings_vertical_align %}
+                    {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_cms_element_image_slider_config_settings_vertical_align` instead. #}
+                    {% block sw_cms_element_image_gallery_config_settings_vertical_align %}
+                    <sw-cms-inherit-wrapper
+                        v-if="element.config.displayMode.value !== 'cover'"
+                        field="verticalAlign"
+                        :element="element"
+                        :label="$t('sw-cms.elements.general.config.label.verticalAlign')"
+                    >
+                        <template #default="{ isInherited }">
+                            <mt-select
+                                v-model="element.config.verticalAlign.value"
+                                :disabled="isInherited"
+                                :placeholder="$t('sw-cms.elements.general.config.label.verticalAlign')"
+                                :options="verticalAlignValueOptions"
+                            />
+                        </template>
+                    </sw-cms-inherit-wrapper>
                     {% endblock %}
                     {% endblock %}
 
@@ -236,6 +245,7 @@
                                             class="sw-cms-el-config-image-slider__setting-auto-slide"
                                             :label="$t('sw-cms.elements.general.config.label.autoSlide')"
                                             :disabled="isInherited"
+                                            bordered
                                             @update:model-value="onChangeAutoSlide"
                                         />
                                     </template>
@@ -277,8 +287,9 @@
                                 class="sw-cms-el-config-image-slider__settings-is-decorative"
                                 :model-value="element.config.isDecorative.value"
                                 :label="$t('sw-cms.elements.image.config.label.isDecorative')"
-                                :help-text="$t('sw-cms.elements.image.config.label.isDecorativeHelpText')"
+                                :help-text="$t('sw-cms.elements.image.config.helpText.isDecorative')"
                                 :disabled="isInherited"
+                                bordered
                                 @update:model-value="onChangeIsDecorative"
                             />
                         </template>
@@ -294,8 +305,9 @@
                                 class="sw-cms-el-config-image-slider__settings-use-fetch-priority-on-first-item"
                                 :model-value="element.config.useFetchPriorityOnFirstItem.value"
                                 :label="$t('sw-cms.elements.image.config.label.useFetchPriorityOnFirstItem')"
-                                :help-text="$t('sw-cms.elements.image.config.label.useFetchPriorityOnFirstItemHelpText')"
+                                :help-text="$t('sw-cms.elements.image.config.helpText.useFetchPriorityOnFirstItem')"
                                 :disabled="isInherited"
+                                bordered
                                 @update:model-value="onChangeUseFetchPriorityOnFirstItem"
                             />
                         </template>
@@ -336,8 +348,8 @@
                                 v-model="sliderItem.ariaLabel"
                                 class="sw-cms-el-config-image-slider__settings-link-aria-label"
                                 :name="sliderItem.ariaLabel"
-                                :help-text="$t('sw-cms.elements.image.config.label.ariaLabelHelpText')"
                                 :label="$t('sw-cms.elements.image.config.label.ariaLabel')"
+                                :help-text="$t('sw-cms.elements.image.config.helpText.ariaLabel')"
                             />
                             {% endblock %}
 

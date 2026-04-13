@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
@@ -183,6 +184,51 @@ class ChangeCustomerProfileRouteTest extends TestCase
         static::assertSame($changeData['lastName'], $customer->getLastName());
     }
 
+    /**
+     * @param list<string> $vatIds
+     */
+    #[TestWith([[]])]
+    #[TestWith([['']])]
+    public function testChangeProfileDataClearVatIds(array $vatIds): void
+    {
+        $changeData = [
+            'salutationId' => $this->getValidSalutationId(),
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'company' => 'Test Company',
+            'vatIds' => [
+                'DE123456789',
+            ],
+        ];
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/change-profile',
+                $changeData
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertTrue($response['success']);
+
+        $customer = $this->getCustomer();
+        static::assertSame(['DE123456789'], $customer->getVatIds());
+
+        $changeData['vatIds'] = $vatIds;
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/change-profile',
+                $changeData
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertTrue($response['success']);
+
+        $customer = $this->getCustomer();
+        static::assertNull($customer->getVatIds());
+    }
+
     public function testChangeProfileWithExistingNotSpecifiedSalutation(): void
     {
         $salutations = static::getContainer()->get(Connection::class)->fetchAllKeyValue('SELECT salutation_key, id FROM salutation');
@@ -345,18 +391,18 @@ class ChangeCustomerProfileRouteTest extends TestCase
     }
 
     /**
+     * @param list<string|true|null>|null $vatIds
      * @param array<string, bool> $constraint
-     * @param array<string|null>|null $vatIds
      * @param array<string>|null $expectedVatIds
      */
     #[DataProvider('dataProviderVatIds')]
     public function testChangeVatIdsOfCommercialAccount(?array $vatIds, array $constraint, bool $shouldBeValid, ?array $expectedVatIds): void
     {
-        if (isset($constraint['required']) && $constraint['required']) {
+        if (($constraint['required'] ?? false) === true) {
             $this->setVatIdOfTheCountryToBeRequired();
         }
 
-        if (isset($constraint['validateFormat']) && $constraint['validateFormat']) {
+        if (($constraint['validateFormat'] ?? false) === true) {
             $this->setVatIdOfTheCountryToValidateFormat();
         }
 
@@ -670,10 +716,7 @@ class ChangeCustomerProfileRouteTest extends TestCase
         $criteria = (new Criteria())
             ->addSorting(new FieldSorting('salutationKey'));
 
-        $ids = $repository->searchIds($criteria, Context::createDefaultContext())->getIds();
-        static::assertContainsOnlyString($ids);
-
-        return $ids;
+        return $repository->searchIds($criteria, Context::createDefaultContext())->getIds();
     }
 
     private function createData(): void

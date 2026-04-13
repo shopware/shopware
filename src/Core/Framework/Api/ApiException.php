@@ -12,8 +12,10 @@ use Shopware\Core\Framework\Api\Exception\LiveVersionDeleteException;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Api\Exception\NoEntityClonedException;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingReverseAssociation;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
@@ -30,16 +32,12 @@ class ApiException extends HttpException
 {
     public const API_INVALID_SYNC_CRITERIA_EXCEPTION = 'API_INVALID_SYNC_CRITERIA_EXCEPTION';
     public const API_RESOLVER_NOT_FOUND_EXCEPTION = 'API_RESOLVER_NOT_FOUND_EXCEPTION';
-
     public const API_UNSUPPORTED_ASSOCIATION_FIELD = 'FRAMEWORK__API_UNSUPPORTED_ASSOCIATION_FIELD_EXCEPTION';
     public const API_INVALID_SYNC_OPERATION_EXCEPTION = 'FRAMEWORK__INVALID_SYNC_OPERATION';
     public const API_INVALID_SCHEMA_DEFINITION_EXCEPTION = 'FRAMEWORK__INVALID_SCHEMA_DEFINITION';
     public const API_SCHEMA_DEFINITION_NOT_READABLE = 'FRAMEWORK__SCHEMA_DEFINITION_NOT_READABLE';
-
     public const API_NOT_EXISTING_RELATION_EXCEPTION = 'FRAMEWORK__NOT_EXISTING_RELATION_EXCEPTION';
-
     public const API_UNSUPPORTED_OPERATION_EXCEPTION = 'FRAMEWORK__UNSUPPORTED_OPERATION_EXCEPTION';
-
     public const API_UNSUPPORTED_STORE_API_SCHEMA_ENDPOINT = 'FRAMEWORK__UNSUPPORTED_STORE_API_SCHEMA_ENDPOINT';
     public const API_INVALID_VERSION_ID = 'FRAMEWORK__INVALID_VERSION_ID';
     public const API_TYPE_PARAMETER_INVALID = 'FRAMEWORK__API_TYPE_PARAMETER_INVALID';
@@ -48,10 +46,8 @@ class ApiException extends HttpException
     public const API_CUSTOMER_ID_PARAMETER_IS_MISSING = 'FRAMEWORK__API_CUSTOMER_ID_PARAMETER_IS_MISSING';
     public const API_SHIPPING_COSTS_PARAMETER_IS_MISSING = 'FRAMEWORK__API_SHIPPING_COSTS_PARAMETER_IS_MISSING';
     public const API_UNABLE_GENERATE_BUNDLE = 'FRAMEWORK__API_UNABLE_GENERATE_BUNDLE';
-
     public const API_INVALID_ACCESS_KEY_EXCEPTION = 'FRAMEWORK__API_INVALID_ACCESS_KEY';
     public const API_INVALID_ACCESS_KEY_IDENTIFIER_EXCEPTION = 'FRAMEWORK__API_INVALID_ACCESS_KEY_IDENTIFIER';
-
     public const API_INVALID_SYNC_RESOLVERS = 'FRAMEWORK__API_INVALID_SYNC_RESOLVERS';
     public const API_SALES_CHANNEL_MAINTENANCE_MODE = 'FRAMEWORK__API_SALES_CHANNEL_MAINTENANCE_MODE';
     public const API_SYNC_RESOLVER_FIELD_NOT_FOUND = 'FRAMEWORK__API_SYNC_RESOLVER_FIELD_NOT_FOUND';
@@ -60,15 +56,15 @@ class ApiException extends HttpException
     public const API_INVALID_CONTEXT_SOURCE = 'FRAMEWORK__INVALID_CONTEXT_SOURCE';
     public const API_EXPECTED_USER = 'FRAMEWORK__API_EXPECTED_USER';
     public const API_INVALID_SCOPE_ACCESS_TOKEN = 'FRAMEWORK__INVALID_SCOPE_ACCESS_TOKEN';
-
     public const API_ROUTES_ARE_LOADED_ALREADY = 'FRAMEWORK__API_ROUTES_ARE_LOADED_ALREADY';
-
     public const API_NOTIFICATION_THROTTLED = 'FRAMEWORK__NOTIFICATION_THROTTLED';
-
     public const API_DIRECTORY_NOT_CREATED = 'FRAMEWORK__API_DIRECTORY_NOT_CREATED';
+    public const API_MISSING_REQUEST_PARAMETER_CODE = 'FRAMEWORK__API_REQUEST_PARAMETER_MISSING';
+    public const API_INVALID_IDS_PARAMETER = 'FRAMEWORK__API_INVALID_IDS_PARAMETER';
+    public const INVALID_SCHEMA_FOR_DEFINITION = 'FRAMEWORK__API_INVALID_SCHEMA_FOR_DEFINITION';
 
     /**
-     * @param array<array{pointer: string, entity: string}> $exceptions
+     * @param list<array{pointer: string, entity: string}> $exceptions
      */
     public static function canNotResolveForeignKeysException(array $exceptions): self
     {
@@ -131,7 +127,7 @@ class ApiException extends HttpException
     }
 
     /**
-     * @param string[] $permissions
+     * @param list<string> $permissions
      */
     public static function missingPrivileges(array $permissions): ShopwareHttpException
     {
@@ -157,7 +153,7 @@ class ApiException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::API_INVALID_ASSOCIATION_FIELD,
-            'Field "%s" is not a valid association field.',
+            'Field "{{ path }}" is not a valid association field.',
             ['path' => $path]
         );
     }
@@ -201,15 +197,23 @@ class ApiException extends HttpException
     }
 
     /**
-     * @param string[] $fails
+     * @param list<string> $fails
      */
     public static function expectationFailed(array $fails): ShopwareHttpException
     {
         return new ExpectationFailedException($fails);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed with the next major as it is unused
+     */
     public static function invalidSyncOperation(string $message): ShopwareHttpException
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'),
+        );
+
         return new InvalidSyncOperationException($message);
     }
 
@@ -248,6 +252,26 @@ class ApiException extends HttpException
             self::API_UNSUPPORTED_OPERATION_EXCEPTION,
             'Unsupported {{ operation }} operation.',
             ['operation' => $operation]
+        );
+    }
+
+    public static function noPrimaryKeyDefined(string $entityName): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::API_INVALID_SCHEMA_DEFINITION_EXCEPTION,
+            'No primary key defined for {{ entityName }}',
+            ['entityName' => $entityName]
+        );
+    }
+
+    public static function mappingFieldNotFound(string $storageField): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::API_INVALID_SCHEMA_DEFINITION_EXCEPTION,
+            'Can not find mapping entity field for storage field {{ storageField }}',
+            ['storageField' => $storageField]
         );
     }
 
@@ -341,6 +365,16 @@ class ApiException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::API_INVALID_SCHEMA_DEFINITION_EXCEPTION,
             \sprintf('Failed to parse JSON file "%s": %s', $filename, $exception->getMessage()),
+        );
+    }
+
+    public static function invalidSchemaForDefinition(EntityDefinition $definition, string $message): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_SCHEMA_FOR_DEFINITION,
+            'Invalid schema for entity "{{ entityName }}". ' . $message,
+            ['entityName' => $definition->getEntityName()]
         );
     }
 
@@ -441,6 +475,25 @@ class ApiException extends HttpException
             self::API_DIRECTORY_NOT_CREATED,
             'Directory "{{ directory }}" was not created.',
             ['directory' => $directory]
+        );
+    }
+
+    public static function missingRequestParameter(string $name): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::API_MISSING_REQUEST_PARAMETER_CODE,
+            'Parameter "{{ parameterName }}" is missing.',
+            ['parameterName' => $name]
+        );
+    }
+
+    public static function invalidIdsParameter(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::API_INVALID_IDS_PARAMETER,
+            'Parameter `ids` is no array or empty',
         );
     }
 }

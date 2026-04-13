@@ -95,6 +95,74 @@
                         "ApiKey": []
                     }
                 ]
+            },
+            "get": {
+                "tags": [
+                    "Content",
+                    "Endpoints supporting Criteria "
+                ],
+                "summary": "Fetch a landing page with the resolved CMS page",
+                "description": "Loads a landing page by its identifier and resolves the CMS page.\n\n**Important notice**\n\nThe criteria passed with this route also affects the listing, if there is one within the cms page.",
+                "operationId": "readLandingPageGet",
+                "parameters": [
+                    {
+                        "name": "landingPageId",
+                        "in": "path",
+                        "description": "Identifier of the landing page.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "description": "Instructs Shopware to return the response in the given language.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    {
+                        "name": "sw-include-search-info",
+                        "in": "header",
+                        "description": "Controls whether API search information is included in the response. Default is 1 (enabled), will be 0 (disabled) in the next major version.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "0",
+                                "1"
+                            ],
+                            "default": "1"
+                        }
+                    },
+                    {
+                        "x-parameter-group": "productListingCriteria"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The loaded landing page with cms page",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LandingPage"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404"
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
             }
         }
     }

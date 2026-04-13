@@ -1,37 +1,33 @@
-@import "~scss/variables";
-
 .sw-flow-sequence-selector {
-    padding: 24px;
-    border: 2px dashed $color-gray-300;
-    border-radius: 8px;
-    color: $color-darkgray-200;
-    width: 322px;
-    margin-right: 32px;
+    width: 20.5rem;
+    padding: var(--scale-size-24);
+    border: 2px dashed var(--color-border-primary-default);
+    border-radius: var(--border-radius-card);
+    margin-right: var(--scale-size-32);
 
     &__title {
         h4 {
-            margin-bottom: 12px;
+            font-size: var(--font-size-s);
+            line-height: var(--font-line-height-s);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary-default);
+            margin-bottom: var(--scale-size-12);
         }
     }
 
     &__help-text {
-        font-size: $font-size-xs;
-        line-height: 22px;
-        margin-bottom: 16px;
+        p {
+            font-size: var(--font-size-xs);
+            line-height: var(--font-line-height-xs);
+            font-weight: var(--font-weight-regular);
+            color: var(--color-text-primary-default);
+            margin-bottom: var(--scale-size-16);
+        }
     }
 
     &__actions {
         display: flex;
         flex-direction: column;
-        gap: 12px;
-    }
-
-    &__actions .mt-button {
-        color: $color-darkgray-200;
-        padding: 2px 12px;
-    }
-
-    &__actions .mt-button .sw-button__content {
-        justify-content: start;
+        gap: var(--scale-size-12);
     }
 }

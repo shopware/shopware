@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedByField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Computed;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Immutable;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -23,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedByField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\WasModifiedByUserField;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
@@ -217,7 +219,7 @@ class WriteCommandExtractor
         // without child association
         $data = $this->map($mainFields, $stack, $existence, $parameters);
 
-        $this->updateCommandQueue($definition, $parameters, $existence, $pkData, $data);
+        $this->updateCommandQueue($definition, $parameters, $existence, $pkData, $data, $mainFields);
 
         $translation = $definition->getField('translations');
         if ($translation instanceof TranslationsAssociationField) {
@@ -227,7 +229,7 @@ class WriteCommandExtractor
         // call map with child associations only
         $children = array_filter($fields, static fn (Field $field) => $field instanceof ChildrenAssociationField);
 
-        if (\count($children) > 0) {
+        if ($children !== []) {
             $this->map($children, $stack, $existence, $parameters);
         }
 
@@ -298,6 +300,8 @@ class WriteCommandExtractor
      */
     private function map(array $fields, DataStack $stack, EntityExistence $existence, WriteParameterBag $parameters): array
     {
+        $isCreate = !$existence->exists() || $existence->childChangedToParent();
+
         foreach ($fields as $field) {
             $kvPair = $this->getKeyValuePair($field, $stack, $existence);
             if ($kvPair === null) {
@@ -332,7 +336,7 @@ class WriteCommandExtractor
         $create = !$existence->exists() || $existence->childChangedToParent();
 
         if (
-            (!$field instanceof UpdatedAtField && !$field instanceof CreatedByField && !$field instanceof UpdatedByField)
+            (!$field instanceof UpdatedAtField && !$field instanceof CreatedByField && !$field instanceof UpdatedByField && !$field instanceof WasModifiedByUserField)
             && (!$create || !$field->is(Required::class))
         ) {
             return true;
@@ -404,18 +408,27 @@ class WriteCommandExtractor
     /**
      * @param array<string, string> $pkData
      * @param array<string, mixed> $data
+     * @param array<Field> $fields
      */
     private function updateCommandQueue(
         EntityDefinition $definition,
         WriteParameterBag $parameterBag,
         EntityExistence $existence,
         array $pkData,
-        array $data
+        array $data,
+        array $fields
     ): void {
         $queue = $parameterBag->getCommandQueue();
 
         if ($existence->exists()) {
             $command = new UpdateCommand($definition, $data, $pkData, $existence, $parameterBag->getPath());
+
+            $immutableFieldsChanges = $this->getImmutableFieldsChanges($fields, $data);
+
+            if ($immutableFieldsChanges !== []) {
+                $command->requestChangeSet();
+                $command->setImmutableFieldsChanges($immutableFieldsChanges);
+            }
         } else {
             $command = new InsertCommand($definition, array_merge($pkData, $data), $pkData, $existence, $parameterBag->getPath());
         }
@@ -560,5 +573,30 @@ class WriteCommandExtractor
         $parameters->getContext()->getExceptions()->add(
             new WriteConstraintViolationException($violationList, $parameters->getPath() . '/' . $data->getKey())
         );
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     * @param array<Field> $fields
+     *
+     * @return array<string>
+     */
+    private function getImmutableFieldsChanges(array $fields, array $data): array
+    {
+        $changes = [];
+
+        foreach ($fields as $field) {
+            if (!$field instanceof StorageAware || !$field->is(Immutable::class)) {
+                continue;
+            }
+
+            if (!isset($data[$field->getStorageName()])) {
+                continue;
+            }
+
+            $changes[] = $field->getStorageName();
+        }
+
+        return $changes;
     }
 }

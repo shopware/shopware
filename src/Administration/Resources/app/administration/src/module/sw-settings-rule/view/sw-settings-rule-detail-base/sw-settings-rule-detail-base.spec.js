@@ -298,6 +298,47 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
             expect(banner.exists()).toBe(true);
             expect(banner.attributes('variant')).toBe('attention');
         });
+
+        it('should show product type warning when cartLineItemProductStates condition exists', async () => {
+            Shopware.Context.app.productStreamIndexingEnabled = true;
+
+            const props = {
+                ...defaultProps,
+                conditions: [
+                    {
+                        type: 'cartLineItemProductStates',
+                    },
+                ],
+            };
+
+            const wrapper = await createWrapper(props);
+            await flushPromises();
+
+            const banner = wrapper.find('.sw-settings-rule-detail-base__product-type-warning mt-banner-stub');
+            expect(banner.exists()).toBe(true);
+            expect(banner.attributes('variant')).toBe('attention');
+        });
+
+        it('should not show product type warning when cartLineItemProductStates condition does not exist', async () => {
+            const props = {
+                ...defaultProps,
+                conditions: [
+                    {
+                        type: 'cartAmount',
+                        children: [
+                            {
+                                type: 'lineItemOfType',
+                            },
+                        ],
+                    },
+                ],
+            };
+
+            const wrapper = await createWrapper(props);
+            await flushPromises();
+
+            expect(wrapper.find('.sw-settings-rule-detail-base__product-type-warning mt-banner-stub').exists()).toBe(false);
+        });
     });
 
     describe('sw-settings-rule-detail-base-custom-field-sets', () => {

@@ -131,8 +131,7 @@ class CmsControllerTest extends TestCase
         $this->categoryRouteMock->method('load')->willReturn($categoryRouteResponse);
 
         $navigationId = (new IdsCollection())->get('category');
-        $this->expectException(CmsException::class);
-        $this->expectExceptionMessage(\sprintf('Page with ID "navigationId: %s" was not found.', $navigationId));
+        $this->expectExceptionObject(CmsException::pageNotFound('navigationId: ' . $navigationId));
 
         $this->controller->category($navigationId, new Request(), $this->createMock(SalesChannelContext::class));
     }

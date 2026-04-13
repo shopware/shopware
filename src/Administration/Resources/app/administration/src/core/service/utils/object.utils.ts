@@ -1,11 +1,11 @@
-import objectMerge from 'lodash/merge';
-import objectMergeWith from 'lodash/mergeWith';
-import objectCopy from 'lodash/cloneDeep';
-import objectGet from 'lodash/get';
-import objectSet from 'lodash/set';
-import objectPick from 'lodash/pick';
-import objectUnset from 'lodash/unset';
-import objectHas from 'lodash/has';
+import objectMerge from 'lodash-es/merge';
+import objectMergeWith from 'lodash-es/mergeWith';
+import objectCopy from 'lodash-es/cloneDeep';
+import objectGet from 'lodash-es/get';
+import objectSet from 'lodash-es/set';
+import objectPick from 'lodash-es/pick';
+import objectUnset from 'lodash-es/unset';
+import objectHas from 'lodash-es/has';
 import type from 'src/core/service/utils/types.utils';
 
 /**
@@ -122,13 +122,11 @@ export function getObjectDiff(a: any, b: any): any {
         // @ts-expect-error
         if (type.isArray(b[key])) {
             // @ts-expect-error
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-argument
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             const changes = getArrayChanges(a[key], b[key]);
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             if (Object.keys(changes).length > 0) {
                 // @ts-expect-error
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 return { ...acc, [key]: b[key] };
             }
 
@@ -173,7 +171,6 @@ export function getArrayChanges(a: any[], b: any[]): any[] {
     }
 
     if (!type.isArray(a) || !type.isArray(b)) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return b;
     }
 

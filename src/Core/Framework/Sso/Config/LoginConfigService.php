@@ -16,9 +16,11 @@ use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
+ *
+ * @final
  */
 #[Package('framework')]
-final readonly class LoginConfigService
+readonly class LoginConfigService
 {
     /**
      * @param array{
@@ -42,7 +44,7 @@ final readonly class LoginConfigService
 
     public function getConfig(): ?LoginConfig
     {
-        if (\count($this->rawConfig) === 0) {
+        if ($this->rawConfig === []) {
             return null;
         }
 
@@ -72,7 +74,7 @@ final readonly class LoginConfigService
         );
     }
 
-    public function createRedirectUrl(string $random): string
+    public function createRedirectUrl(string $random, bool $addLoginPrompt = false): string
     {
         $loginConfig = $this->getConfig();
         if (!$loginConfig instanceof LoginConfig) {
@@ -81,14 +83,23 @@ final readonly class LoginConfigService
 
         $state = $this->router->generate('api.oauth.sso.code', ['rdm' => $random], UrlGeneratorInterface::ABSOLUTE_URL);
 
+        $params = [
+            'client_id' => $loginConfig->clientId,
+            'redirect_uri' => $loginConfig->redirectUri,
+            'response_type' => 'code',
+            'scope' => $loginConfig->scope,
+            'state' => $state,
+        ];
+
+        if ($addLoginPrompt) {
+            $params['prompt'] = 'login';
+        }
+
         return \sprintf(
-            '%s%s?client_id=%s&redirect_uri=%s&response_type=code&scope=%s&state=%s',
+            '%s%s?%s',
             $loginConfig->baseUrl,
             $loginConfig->authorizePath,
-            $loginConfig->clientId,
-            \urlencode($loginConfig->redirectUri ?? ''),
-            \urlencode($loginConfig->scope),
-            \urlencode($state)
+            \http_build_query($params, '', '&', \PHP_QUERY_RFC3986),
         );
     }
 
@@ -135,13 +146,13 @@ final readonly class LoginConfigService
                     new NotNull(null, $isNullMessage),
                     new NotBlank(null, $notBlankMessage),
                     new Type('string', $invalidStringMessage),
-                    new Url(message: $invalidUrlMessage, requireTld: true),
+                    new Url(message: $invalidUrlMessage, requireTld: false),
                 ],
                 'base_url' => [
                     new NotNull(null, $isNullMessage),
                     new NotBlank(null, $notBlankMessage),
                     new Type('string', $invalidStringMessage),
-                    new Url(message: $invalidUrlMessage, requireTld: true),
+                    new Url(message: $invalidUrlMessage, requireTld: false),
                     new Regex('/\w+(?!\/)$/', 'should not end with "/"'),
                 ],
                 'authorize_path' => [
@@ -171,7 +182,7 @@ final readonly class LoginConfigService
                     new NotNull(null, $isNullMessage),
                     new NotBlank(null, $notBlankMessage),
                     new Type('string', $invalidStringMessage),
-                    new Url(message: $invalidUrlMessage, requireTld: true),
+                    new Url(message: $invalidUrlMessage, requireTld: false),
                 ],
             ],
             allowExtraFields: true,

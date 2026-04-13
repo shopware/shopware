@@ -51,11 +51,11 @@ class ThemeMergedConfigBuilder
         $this->themes = $this->themeRepository->search($criteria, $context)->getEntities();
 
         $theme = $this->themes->get($themeId);
-        if (!($theme instanceof ThemeEntity)) {
+        if (!$theme instanceof ThemeEntity) {
             throw ThemeException::couldNotFindThemeById($themeId);
         }
 
-        $baseTheme = $this->themes->filter(fn (ThemeEntity $themeEntry) => $themeEntry->getTechnicalName() === StorefrontPluginRegistry::BASE_THEME_NAME)->first();
+        $baseTheme = $this->themes->filter(static fn (ThemeEntity $themeEntry) => $themeEntry->getTechnicalName() === StorefrontPluginRegistry::BASE_THEME_NAME)->first();
         if ($baseTheme === null) {
             throw ThemeException::couldNotFindThemeByName(StorefrontPluginRegistry::BASE_THEME_NAME);
         }
@@ -99,11 +99,11 @@ class ThemeMergedConfigBuilder
         $configFields = json_decode((string) json_encode($configFields, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
         if ($isLegacy && $translate) {
-            if (!empty($labels)) {
+            if ($labels !== []) {
                 $configFields = $this->translateLabels($configFields, $labels);
             }
 
-            if (!empty($helpTexts)) {
+            if ($helpTexts !== []) {
                 $configFields = $this->translateHelpTexts($configFields, $helpTexts);
             }
         }
@@ -111,7 +111,7 @@ class ThemeMergedConfigBuilder
         // Check if the theme is a database copy of a physical theme.
         // If so, use the technical name of the parent theme.
         if ($theme->getTechnicalName() === null && $theme->getParentThemeId() !== null) {
-            $parentTheme = $this->themes->filter(fn (ThemeEntity $themeEntry) => $themeEntry->getId() === $theme->getParentThemeId())->first();
+            $parentTheme = $this->themes->filter(static fn (ThemeEntity $themeEntry) => $themeEntry->getId() === $theme->getParentThemeId())->first();
 
             if ($parentTheme instanceof ThemeEntity) {
                 $themeConfig['themeTechnicalName'] = $parentTheme->getTechnicalName();
@@ -256,7 +256,7 @@ class ThemeMergedConfigBuilder
     private function getParentThemes(ThemeCollection $themes, ThemeEntity $mainTheme, array $parentThemes = []): array
     {
         foreach ($this->getConfigInheritance($mainTheme) as $parentThemeName) {
-            $parentTheme = $themes->filter(fn (ThemeEntity $themeEntry) => $themeEntry->getTechnicalName() === str_replace('@', '', (string) $parentThemeName))->first();
+            $parentTheme = $themes->filter(static fn (ThemeEntity $themeEntry) => $themeEntry->getTechnicalName() === str_replace('@', '', (string) $parentThemeName))->first();
 
             if ($parentTheme instanceof ThemeEntity && !\array_key_exists($parentTheme->getId(), $parentThemes)) {
                 $parentThemes[$parentTheme->getId()] = $parentTheme;
@@ -268,7 +268,7 @@ class ThemeMergedConfigBuilder
         }
 
         if ($mainTheme->getParentThemeId()) {
-            $parentTheme = $themes->filter(fn (ThemeEntity $themeEntry) => $themeEntry->getId() === $mainTheme->getParentThemeId())->first();
+            $parentTheme = $themes->filter(static fn (ThemeEntity $themeEntry) => $themeEntry->getId() === $mainTheme->getParentThemeId())->first();
 
             if ($parentTheme instanceof ThemeEntity && !\array_key_exists($parentTheme->getId(), $parentThemes)) {
                 $parentThemes[$parentTheme->getId()] = $parentTheme;
@@ -288,12 +288,9 @@ class ThemeMergedConfigBuilder
     {
         $baseConfig = $mainTheme->getBaseConfig();
 
-        if (\is_array($baseConfig)
-            && \array_key_exists('configInheritance', $baseConfig)
-            && \is_array($baseConfig['configInheritance'])
-            && !empty($baseConfig['configInheritance'])
-        ) {
-            return $baseConfig['configInheritance'];
+        $inheritanceConfig = $baseConfig['configInheritance'] ?? [];
+        if ($inheritanceConfig !== []) {
+            return $inheritanceConfig;
         }
 
         // For database copies (child themes), inherit config from parent theme.
@@ -307,7 +304,7 @@ class ThemeMergedConfigBuilder
 
             if ($parentTheme instanceof ThemeEntity) {
                 $parentConfigInheritance = $this->getConfigInheritance($parentTheme);
-                if (!empty($parentConfigInheritance)) {
+                if ($parentConfigInheritance !== []) {
                     return $parentConfigInheritance;
                 }
             }

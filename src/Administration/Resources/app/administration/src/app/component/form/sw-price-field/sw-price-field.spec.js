@@ -247,6 +247,34 @@ describe('components/form/sw-price-field', () => {
         expect(convertGrossToNet).toHaveBeenCalled();
     });
 
+    it('should recalculate the net value when the gross number field emits an "input-change" event', async () => {
+        const wrapper = await setup({ allowEmpty: false });
+        const convertGrossToNet = jest.spyOn(wrapper.vm, 'convertGrossToNet');
+        await wrapper.setProps({
+            value: [euroPrice],
+            inherited: false,
+        });
+
+        await wrapper.findComponent('.sw-price-field__gross').vm.$emit('input-change', euroPrice.gross);
+        jest.runAllTimers();
+
+        expect(convertGrossToNet).toHaveBeenCalled();
+    });
+
+    it('should recalculate the gross value when the net number field emits an "input-change" event', async () => {
+        const wrapper = await setup({ allowEmpty: false });
+        const convertNetToGross = jest.spyOn(wrapper.vm, 'convertNetToGross');
+        await wrapper.setProps({
+            value: [euroPrice],
+            inherited: false,
+        });
+
+        await wrapper.findComponent('.sw-price-field__net').vm.$emit('input-change', euroPrice.net);
+        jest.runAllTimers();
+
+        expect(convertNetToGross).toHaveBeenCalled();
+    });
+
     it('should not emit update:value event on price gross change', async () => {
         const wrapper = await setup({ allowEmpty: false });
         await wrapper.setProps({

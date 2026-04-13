@@ -8,11 +8,20 @@
 
     <script type="text/javascript">
         window._features_ = <%- featureFlags %>;
+
+        <%- pageLoadingScreen.script %>
     </script>
 
+    <style>
+        <%- pageLoadingScreen.style %>
+    </style>
 </head>
 <body>
     <div id="app"></div>
+
+    <!-- loading indicator when network is very slow and vue hasn't already loaded. The component has been copied from mt-loader -->
+    <%- pageLoadingScreen.markup %>
+
     <script type="text/javascript">
         window.startApplication = () => Shopware.Application.start({
             appContext: {
@@ -23,6 +32,7 @@
                 adminEsEnable: false,
                 storefrontEsEnable: false,
                 productStreamIndexingEnabled: true,
+                analyticsGatewayUrl: '<%- analyticsGatewayUrl %>',
             },
             apiContext: {
                 host: 'localhost',

@@ -10,8 +10,9 @@ test(
         SearchForTerm,
         StorefrontSearchSuggest,
         CheckVisibilityInHome,
+        SalesChannelBaseConfig,
     }) => {
-        const currency = await TestDataService.getCurrency(getCurrencyCodeFromLocale(getLocale()));
+        const currency = await TestDataService.getCurrency(getCurrencyCodeFromLocale());
         const product = await TestDataService.createBasicProduct({
             name: 'Test Product1',
             productNumber: 'TEST-123',
@@ -20,6 +21,12 @@ test(
             price: [
                 {
                     currencyId: currency.id,
+                    gross: 10,
+                    linked: false,
+                    net: 8.4,
+                },
+                {
+                    currencyId: SalesChannelBaseConfig.defaultCurrencyId,
                     gross: 10,
                     linked: false,
                     net: 8.4,

@@ -34,12 +34,18 @@ import { CustomerGroupActivation } from '@tasks/ShopAdmin/Customers/CustomerGrou
  * Orders
  */
 import { AddCreditItem } from '@tasks/ShopAdmin/Orders/AddCreditItemViaAPI';
-import { CreateInvoice } from '@tasks/ShopAdmin/Orders/CreateInvoiceViaAPI';
+import { CreateDocument } from '@tasks/ShopAdmin/Orders/CreateDocumentViaAPI';
 
 /**
  * Rules
  */
 import { CreateRule } from '@tasks/ShopAdmin/RuleBuilder/CreateRule';
+import { CreateRuleBillingCountry } from '@tasks/ShopAdmin/RuleBuilder/CreateRuleBillingCountry';
+
+/**
+ * Flows
+ */
+import { CreateFlowForValidation } from '@tasks/ShopAdmin/FlowBuilder/CreateFlowForValidation';
 
 export const test = mergeTests(
     GenerateVariants,
@@ -49,6 +55,8 @@ export const test = mergeTests(
     CreateLandingPage,
     CustomerGroupActivation,
     AddCreditItem,
-    CreateInvoice,
+    CreateDocument,
     CreateRule,
+    CreateRuleBillingCountry,
+    CreateFlowForValidation,
 );

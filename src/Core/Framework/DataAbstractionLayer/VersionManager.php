@@ -79,7 +79,7 @@ class VersionManager
     /**
      * @param array<array<string, mixed|null>> $rawData
      *
-     * @return array<string, array<EntityWriteResult>>
+     * @return array<string, list<EntityWriteResult>>
      */
     public function upsert(EntityDefinition $definition, array $rawData, WriteContext $writeContext): array
     {
@@ -93,7 +93,7 @@ class VersionManager
     /**
      * @param array<array<string, mixed|null>> $rawData
      *
-     * @return array<string, array<EntityWriteResult>>
+     * @return array<string, list<EntityWriteResult>>
      */
     public function insert(EntityDefinition $definition, array $rawData, WriteContext $writeContext): array
     {
@@ -107,7 +107,7 @@ class VersionManager
     /**
      * @param array<array<string, mixed|null>> $rawData
      *
-     * @return array<string, array<EntityWriteResult>>
+     * @return array<string, list<EntityWriteResult>>
      */
     public function update(EntityDefinition $definition, array $rawData, WriteContext $writeContext): array
     {
@@ -198,7 +198,7 @@ class VersionManager
         // release lock to ensure no other merge is running
         $lock->release();
 
-        // dispatch events to trigger indexer and other subscribts
+        // dispatch events to trigger indexer and other subscribers
         $writes = EntityWrittenContainerEvent::createWithWrittenEvents($result->getWritten(), $liveContext->getContext(), []);
 
         $deletes = EntityWrittenContainerEvent::createWithDeletedEvents($result->getDeleted(), $liveContext->getContext(), []);
@@ -213,7 +213,7 @@ class VersionManager
     }
 
     /**
-     * @return array<string, array<EntityWriteResult>>
+     * @return array<string, list<EntityWriteResult>>
      */
     public function clone(
         EntityDefinition $definition,
@@ -227,7 +227,7 @@ class VersionManager
     }
 
     /**
-     * @return array<string, array<EntityWriteResult>>
+     * @return array<string, list<EntityWriteResult>>
      */
     private function cloneEntity(
         EntityDefinition $definition,
@@ -378,7 +378,7 @@ class VersionManager
                 }
 
                 $nested = array_filter($nested);
-                if (empty($nested)) {
+                if ($nested === []) {
                     continue;
                 }
 
@@ -394,7 +394,7 @@ class VersionManager
                     $nested[] = ['id' => $item['id']];
                 }
 
-                if (empty($nested)) {
+                if ($nested === []) {
                     continue;
                 }
 
@@ -416,8 +416,7 @@ class VersionManager
             }
         }
 
-        /** @phpstan-ignore empty.variable (might be overridden by reference) */
-        if (!empty($extensions)) {
+        if ($extensions !== []) {
             $payload['extensions'] = $extensions;
         }
 
@@ -477,7 +476,7 @@ class VersionManager
                 continue;
             }
 
-            if (mb_strpos('version', $entityName) === 0) {
+            if (str_starts_with('version', $entityName)) {
                 continue;
             }
 
@@ -524,13 +523,13 @@ class VersionManager
     }
 
     /**
-     * @param array<string, string> $payload
+     * @param array<string, mixed> $payload
      *
-     * @return array<string, string>
+     * @return array<string, mixed>
      */
     private function addVersionToPayload(array $payload, EntityDefinition $definition, string $versionId): array
     {
-        $fields = $definition->getFields()->filter(fn (Field $field) => $field instanceof VersionField || $field instanceof ReferenceVersionField);
+        $fields = $definition->getFields()->filter(static fn (Field $field) => $field instanceof VersionField || $field instanceof ReferenceVersionField);
 
         foreach ($fields as $field) {
             $payload[$field->getPropertyName()] = $versionId;
@@ -550,9 +549,9 @@ class VersionManager
 
         foreach ($pkFields as $pkField) {
             /*
-             * `EntityTranslationDefinition`s dont have an `id`, they use a composite primary key consisting of the
-             * entity id and the `languageId`. When cloning the entity we want to copy the `languageId`. The entity id
-             * has to be unset, so that its set by the parent, resulting in a valid primary key.
+             * `EntityTranslationDefinition` doesn't have an `id`; they use a composite primary key consisting of the
+             * entity id and the `languageId`. When cloning the entity, we want to copy the `languageId`. The entity id
+             * has to be unset so that it's set by the parent, resulting in a valid primary key.
              */
             if (
                 $field instanceof TranslationsAssociationField
@@ -577,7 +576,7 @@ class VersionManager
         int $childCounter = 1
     ): void {
         // add all cascade delete associations
-        $cascades = $definition->getFields()->filter(function (Field $field) {
+        $cascades = $definition->getFields()->filter(static function (Field $field) {
             $flag = $field->getFlag(CascadeDelete::class);
 
             return $flag ? $flag->isCloneRelevant() : false;
@@ -662,9 +661,9 @@ class VersionManager
 
     /**
      * @param array<string> $entityId
-     * @param array<string|int, mixed> $payload
+     * @param array<string, mixed> $payload
      *
-     * @return array<string|int, mixed>
+     * @return array<string, mixed>
      */
     private function addTranslationToPayload(array $entityId, array $payload, EntityDefinition $definition, VersionCommitEntity $commit): array
     {
@@ -738,7 +737,7 @@ class VersionManager
     }
 
     /**
-     * @return array{insert:array<string, array<int, mixed>>, update:array<string, array<int, mixed>>, delete:array<string, array<int, mixed>>}
+     * @return array{insert:array<string, list<array<string, mixed>>>, update:array<string, list<array<string, mixed>>>, delete:array<string, list<array<string, mixed>>>}
      */
     private function buildWrites(VersionCommitCollection $commits): array
     {
@@ -760,7 +759,7 @@ class VersionManager
                         }
 
                         $payload = $data->getPayload();
-                        if (empty($payload)) {
+                        if ($payload === null || $payload === []) {
                             break;
                         }
                         $payload = $this->addVersionToPayload($payload, $definition, Defaults::LIVE_VERSION);
@@ -783,7 +782,7 @@ class VersionManager
     }
 
     /**
-     * @param array{insert:array<string, array<int, mixed>>, update:array<string, array<int, mixed>>, delete:array<string, array<int, mixed>>} $writes
+     * @param array{insert:array<string, list<array<string, mixed>>>, update:array<string, list<array<string, mixed>>>, delete:array<string, list<array<string, mixed>>>} $writes
      */
     private function executeWrites(array $writes, WriteContext $liveContext): WriteResult
     {
@@ -801,7 +800,7 @@ class VersionManager
             $operations[] = new SyncOperation('delete-' . $entity, $entity, 'delete', $payload);
         }
 
-        if (empty($operations)) {
+        if ($operations === []) {
             return new WriteResult([], [], []);
         }
 

@@ -151,7 +151,7 @@ class TaskRegistryTest extends TestCase
 
         $this->scheduleTaskRepository->expects($this->once())->method('search')->willReturn($result);
 
-        $this->scheduleTaskRepository->expects($this->exactly(1))->method('update')->willReturnCallback(function (array $data, Context $context) {
+        $this->scheduleTaskRepository->expects($this->exactly(1))->method('update')->willReturnCallback(static function (array $data, Context $context) {
             static::assertCount(2, $data);
 
             static::assertNotEmpty($data[0]);
@@ -213,7 +213,7 @@ class TaskRegistryTest extends TestCase
 
         $this->scheduleTaskRepository->expects($this->once())->method('search')->willReturn($result);
 
-        $this->scheduleTaskRepository->expects($this->exactly(1))->method('update')->willReturnCallback(function (array $data, Context $context) {
+        $this->scheduleTaskRepository->expects($this->exactly(1))->method('update')->willReturnCallback(static function (array $data, Context $context) {
             static::assertCount(2, $data);
 
             static::assertNotEmpty($data[0]);
@@ -259,7 +259,7 @@ class TaskRegistryTest extends TestCase
 
         $this->scheduleTaskRepository->expects($this->once())->method('search')->willReturn($result);
 
-        $this->scheduleTaskRepository->expects($this->exactly(1))->method('update')->willReturnCallback(function (array $data, Context $context) {
+        $this->scheduleTaskRepository->expects($this->exactly(1))->method('update')->willReturnCallback(static function (array $data, Context $context) {
             static::assertCount(1, $data);
 
             static::assertNotEmpty($data[0]);
@@ -297,7 +297,7 @@ class TaskRegistryTest extends TestCase
 
         $this->scheduleTaskRepository->expects($this->once())->method('search')->willReturn($result);
 
-        $this->scheduleTaskRepository->expects($this->exactly(1))->method('update')->willReturnCallback(function (array $data, Context $context) {
+        $this->scheduleTaskRepository->expects($this->exactly(1))->method('update')->willReturnCallback(static function (array $data, Context $context) {
             static::assertCount(1, $data);
 
             static::assertNotEmpty($data[0]);
@@ -385,7 +385,7 @@ class TaskRegistryTest extends TestCase
         $this->scheduleTaskRepository->expects($this->once())
             ->method('update')
             ->with(
-                static::callback(function (array $data) {
+                static::callback(static function (array $data) {
                     static::assertCount(1, $data);
                     static::assertSame('test-task-id', $data[0]['id']);
                     static::assertSame(ScheduledTaskDefinition::STATUS_SCHEDULED, $data[0]['status']);

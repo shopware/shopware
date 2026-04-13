@@ -54,8 +54,8 @@ class RequestTransformerTest extends TestCase
     }
 
     /**
-     * @param array<string, string|array<string, string>> $salesChannels
-     * @param ExpectedRequest[] $requests
+     * @param list<SalesChannel> $salesChannels
+     * @param list<ExpectedRequest> $requests
      */
     #[DataProvider('domainProvider')]
     public function testDomainResolving(array $salesChannels, array $requests): void
@@ -93,7 +93,7 @@ class RequestTransformerTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: SalesChannel[], 1: ExpectedRequest[]}>
+     * @return array<string, array{0: list<SalesChannel>, 1: list<ExpectedRequest>}>
      */
     public static function domainProvider(): array
     {

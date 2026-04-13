@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
-use Shopware\Core\Framework\Api\Exception\InvalidSyncOperationException;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityForeignKeyResolver;
@@ -24,7 +23,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\SetNullOnDeleteCo
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolation;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -53,9 +51,6 @@ class EntityWriter implements EntityWriterInterface
     ) {
     }
 
-    /**
-     * @throws InvalidSyncOperationException
-     */
     public function sync(array $operations, WriteContext $context): WriteResult
     {
         $commandQueue = new WriteCommandQueue();
@@ -167,7 +162,7 @@ class EntityWriter implements EntityWriterInterface
     /**
      * @param array<array<string, mixed>> $rawData
      *
-     * @return array<string, array<EntityWriteResult>>
+     * @return array<string, list<EntityWriteResult>>
      */
     private function write(EntityDefinition $definition, array $rawData, WriteContext $writeContext, ?string $ensure = null): array
     {
@@ -213,14 +208,11 @@ class EntityWriter implements EntityWriterInterface
         return $this->factory->addParentResults($result, $parents);
     }
 
-    /**
-     * @throws InvalidSyncOperationException
-     */
     private function validateSyncOperationInput(SyncOperation $operation): void
     {
         $errors = $operation->validate();
-        if (\count($errors)) {
-            throw new InvalidSyncOperationException(\sprintf('Invalid sync operation. %s', implode(' ', $errors)));
+        if ($errors !== []) {
+            throw DataAbstractionLayerException::invalidSyncOperationException(\sprintf('Invalid sync operation. %s', implode(' ', $errors)));
         }
     }
 
@@ -239,7 +231,7 @@ class EntityWriter implements EntityWriterInterface
 
             foreach ($keys as $key) {
                 if (!\is_array($key)) {
-                    $key = ['id' => $key];
+                    $key = [($affectedDefinition->getPrimaryKeys()->first()?->getPropertyName() ?? 'id') => $key];
                 }
 
                 $primary = EntityHydrator::encodePrimaryKey($affectedDefinition, $key, $writeContext->getContext());
@@ -272,7 +264,7 @@ class EntityWriter implements EntityWriterInterface
 
             foreach ($keys as $key) {
                 if (!\is_array($key)) {
-                    $key = ['id' => $key];
+                    $key = [($affectedDefinition->getPrimaryKeys()->first()?->getPropertyName() ?? 'id') => $key];
                 }
 
                 $primary = EntityHydrator::encodePrimaryKey($affectedDefinition, $key, $writeContext->getContext());
@@ -315,14 +307,14 @@ class EntityWriter implements EntityWriterInterface
 
             /** @var AssociationField $associationField */
             $associationField = $setNullFields
-                ->filter(fn (Field $setNullField) => $setNullField instanceof AssociationField && $setNullField->getReferenceField() === $field)
+                ->filter(static fn (Field $setNullField) => $setNullField instanceof AssociationField && $setNullField->getReferenceField() === $field)
                 ->first();
 
             $flag = $associationField->getFlag(SetNullOnDelete::class);
             $isEnforced = $flag !== null ? $flag->isEnforcedByConstraint() : true;
 
             foreach ($restrictions as $key) {
-                $payload = ['id' => Uuid::fromHexToBytes($key), $field => null];
+                $payload = [($affectedDefinition->getPrimaryKeys()->first()?->getPropertyName() ?? 'id') => Uuid::fromHexToBytes($key), $field => null];
 
                 $primary = EntityHydrator::encodePrimaryKey($affectedDefinition, ['id' => $key], $writeContext->getContext());
 
@@ -361,7 +353,7 @@ class EntityWriter implements EntityWriterInterface
 
             foreach ($fields as $field) {
                 $property = $field->getPropertyName();
-                if (!($field instanceof StorageAware)) {
+                if (!$field instanceof StorageAware) {
                     continue;
                 }
 
@@ -395,7 +387,7 @@ class EntityWriter implements EntityWriterInterface
     /**
      * @param array<mixed> $ids
      *
-     * @return array<mixed>
+     * @return array<string, list<EntityWriteResult>>
      */
     private function extractDeleteCommands(EntityDefinition $definition, array $ids, WriteContext $writeContext, WriteCommandQueue $commandQueue): array
     {
@@ -408,8 +400,8 @@ class EntityWriter implements EntityWriterInterface
         if (!$definition instanceof MappingEntityDefinition) {
             $restrictions = $this->foreignKeyResolver->getAffectedDeleteRestrictions($definition, $resolved, $writeContext->getContext(), true);
 
-            if (!empty($restrictions)) {
-                throw new RestrictDeleteViolationException($definition, [new RestrictDeleteViolation($restrictions)]);
+            if ($restrictions !== []) {
+                throw DataAbstractionLayerException::restrictDeleteViolations($definition, $restrictions);
             }
         }
 

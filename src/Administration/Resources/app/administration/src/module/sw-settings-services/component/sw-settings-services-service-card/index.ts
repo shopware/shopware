@@ -2,7 +2,6 @@
  * @sw-package framework
  */
 import type { PropType } from 'vue';
-import { MtPopoverItem, MtModalRoot, MtModal, MtModalAction } from '@shopware-ag/meteor-component-library';
 import type { CategorizedPermissions, ServiceDescription } from '../../service/shopware-services.service';
 import template from './sw-settings-services-service-card.html.twig';
 import './sw-settings-services-service-card.scss';
@@ -15,13 +14,6 @@ export default Shopware.Component.wrapComponentConfig({
     name: 'sw-settings-services-service-card',
 
     template,
-
-    components: {
-        MtPopoverItem,
-        MtModalAction,
-        MtModalRoot,
-        MtModal,
-    },
 
     props: {
         service: {
@@ -96,6 +88,11 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
+        /** Thin wrapper so tests can spy on navigation without mocking window.location (non-configurable in JSDOM v26). */
+        _reloadPage() {
+            window.location.reload();
+        },
+
         openDeactivateModal(toggleFloatingUi: () => void) {
             this.showDeactivateModal = true;
             toggleFloatingUi();
@@ -113,7 +110,7 @@ export default Shopware.Component.wrapComponentConfig({
                     await extensionService.deactivateExtension(this.service.name, 'app');
                 }
 
-                window.location.reload();
+                this._reloadPage();
             } catch (exception) {
                 Shopware.Store.get('notification').createNotification({
                     variant: 'critical',

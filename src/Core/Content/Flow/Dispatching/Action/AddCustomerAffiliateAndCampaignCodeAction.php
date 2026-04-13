@@ -80,7 +80,7 @@ class AddCustomerAffiliateAndCampaignCodeAction extends FlowAction implements De
         }
 
         $customerData = $this->getAffiliateAndCampaignCodeFromCustomerId($customerId);
-        if (empty($customerData)) {
+        if ($customerData === []) {
             return;
         }
 
@@ -103,7 +103,7 @@ class AddCustomerAffiliateAndCampaignCodeAction extends FlowAction implements De
             $data['campaignCode'] = $campaignCode;
         }
 
-        if (empty($data)) {
+        if ($data === []) {
             return;
         }
 

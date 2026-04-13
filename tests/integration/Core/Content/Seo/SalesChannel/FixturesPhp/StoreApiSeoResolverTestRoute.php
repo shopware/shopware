@@ -26,17 +26,16 @@ class StoreApiSeoResolverTestRoute
     ) {
     }
 
-    #[
-        Route(
-            path: '/store-api/test/store-api-seo-resolver/no-auth-required',
-            name: 'store-api.test.store_api_seo_resolver.no_auth_required',
-            defaults: ['auth_required' => false],
-            methods: [Request::METHOD_GET]
-        )
-    ]
+    #[Route(
+        path: '/store-api/test/store-api-seo-resolver/no-auth-required',
+        name: 'store-api.test.store_api_seo_resolver.no_auth_required',
+        defaults: ['auth_required' => false],
+        methods: [Request::METHOD_GET]
+    )]
     public function noAuthRequiredAction(Request $request): CategoryRouteResponse
     {
-        $salesChannelId = $request->get('sales-channel-id');
+        $salesChannelId = $request->query->get('sales-channel-id');
+        \assert($salesChannelId !== null);
 
         return $this->categoryRoute->load(
             CategoryRoute::HOME,

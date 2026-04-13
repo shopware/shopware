@@ -21,18 +21,18 @@ class Uuid
     private static ?UnixTimeGenerator $generator = null;
 
     /**
-     * @return non-falsy-string
+     * @return non-empty-string
      */
     public static function randomHex(): string
     {
-        /** @var non-falsy-string */
+        /** @var non-empty-string */
         return bin2hex(self::randomBytes());
     }
 
     /**
      * same as Ramsey\Uuid\UuidFactory->uuidFromBytesAndVersion without using a transfer object
      *
-     * @return non-falsy-string
+     * @return non-empty-string
      */
     public static function randomBytes(): string
     {
@@ -62,7 +62,7 @@ class Uuid
      * @throws InvalidUuidException
      * @throws InvalidUuidLengthException
      *
-     * @return non-falsy-string
+     * @return non-empty-string
      */
     public static function fromBytesToHex(string $bytes): string
     {
@@ -75,45 +75,43 @@ class Uuid
             throw UuidException::invalidUuid($uuid);
         }
 
-        \assert(!empty($uuid));
+        \assert($uuid !== '');
 
         return $uuid;
     }
 
     /**
-     * @param array<string> $bytesList
+     * @template TArrayKey of array-key
      *
-     * @return array<non-falsy-string>
+     * @param array<TArrayKey, string> $bytesList
+     *
+     * @return array<TArrayKey, non-empty-string>
      */
     public static function fromBytesToHexList(array $bytesList): array
     {
-        $converted = [];
-        foreach ($bytesList as $key => $bytes) {
-            $converted[$key] = self::fromBytesToHex($bytes);
-        }
-
-        return $converted;
+        return array_map(static function ($bytes) {
+            return self::fromBytesToHex($bytes);
+        }, $bytesList);
     }
 
     /**
-     * @param array<array-key, string> $uuids
+     * @template TArrayKey of array-key
      *
-     * @return array<array-key, non-falsy-string>
+     * @param array<TArrayKey, string> $uuids
+     *
+     * @return array<TArrayKey, non-empty-string>
      */
     public static function fromHexToBytesList(array $uuids): array
     {
-        $converted = [];
-        foreach ($uuids as $key => $uuid) {
-            $converted[$key] = self::fromHexToBytes($uuid);
-        }
-
-        return $converted;
+        return array_map(static function ($uuid) {
+            return self::fromHexToBytes($uuid);
+        }, $uuids);
     }
 
     /**
      * @throws InvalidUuidException
      *
-     * @return non-falsy-string
+     * @return non-empty-string
      */
     public static function fromHexToBytes(string $uuid): string
     {

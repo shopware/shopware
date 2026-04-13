@@ -3,3 +3,11 @@ services:
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Type\CollectionHasSpecifyingExtension
         tags:
             - phpstan.typeSpecifier.methodTypeSpecifyingExtension
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Type\EntityExistenceHasEntityNameSpecifyingExtension
+        tags:
+            - phpstan.typeSpecifier.methodTypeSpecifyingExtension
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Type\FieldIsSpecifyingExtension
+        tags:
+            - phpstan.typeSpecifier.methodTypeSpecifyingExtension

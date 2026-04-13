@@ -50,6 +50,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -148,7 +149,7 @@ class EntityAggregator implements EntityAggregatorInterface
 
         // Early resolve terms to extract score queries
         if ($clone->getTerm()) {
-            $pattern = $this->interpreter->interpret((string) $criteria->getTerm(), $context);
+            $pattern = $this->interpreter->interpret((string) $criteria->getTerm());
             $queries = $this->scoreBuilder->buildScoreQueries($pattern, $definition, $definition->getEntityName(), $context);
             $clone->addQuery(...$queries);
             $clone->setTerm(null);
@@ -176,12 +177,13 @@ class EntityAggregator implements EntityAggregatorInterface
 
         $table = $definition->getEntityName();
 
-        if (\count($scoreCriteria->getQueries()) > 0) {
+        if ($scoreCriteria->getQueries() !== []) {
             $escapedTable = EntityDefinitionQueryHelper::escape($table);
             $scoreQuery = new QueryBuilder($this->connection);
 
             $scoreQuery = $this->criteriaQueryBuilder->build($scoreQuery, $definition, $scoreCriteria, $context, $paths);
-            $pks = $definition->getFields()->filterByFlag(PrimaryKey::class)->map(fn (StorageAware $f) => $f->getStorageName());
+            // @phpstan-ignore argument.type (Phpstan can't correctly infer the type in the map function, as the StorageAware is an interface not directly implemented by the Field class)
+            $pks = $definition->getFields()->filterByFlag(PrimaryKey::class)->filterInstance(StorageAware::class)->map(static fn (StorageAware $f) => $f->getStorageName());
 
             $join = '';
             foreach ($pks as $pk) {
@@ -225,7 +227,7 @@ class EntityAggregator implements EntityAggregatorInterface
     {
         $fields = EntityDefinitionQueryHelper::getFieldsOfAccessor($definition, $aggregation->getField(), false);
 
-        if (\count($fields) === 0) {
+        if ($fields === []) {
             return null;
         }
 
@@ -235,7 +237,7 @@ class EntityAggregator implements EntityAggregatorInterface
         $found = false;
 
         foreach ($fields as $field) {
-            if (!($field instanceof AssociationField)) {
+            if (!$field instanceof AssociationField) {
                 break;
             }
 
@@ -282,7 +284,7 @@ class EntityAggregator implements EntityAggregatorInterface
         EntityDefinition $definition,
         Context $context
     ): void {
-        if (!empty($aggregation->getFilter())) {
+        if ($aggregation->getFilter() !== []) {
             $this->criteriaQueryBuilder->addFilter($definition, new MultiFilter(MultiFilter::CONNECTION_AND, $aggregation->getFilter()), $query, $context);
         }
 
@@ -300,7 +302,8 @@ class EntityAggregator implements EntityAggregatorInterface
     ): void {
         $accessor = $this->queryHelper->getFieldAccessor($aggregation->getField(), $definition, $definition->getEntityName(), $context);
 
-        if ($this->timeZoneSupportEnabled && $aggregation->getTimeZone()) {
+        // @deprecated tag:v6.8.0 - time zone support always enabled, remove if, but keep content
+        if (($this->timeZoneSupportEnabled || Feature::isActive('v6.8.0.0')) && $aggregation->getTimeZone()) {
             $accessor = 'CONVERT_TZ(' . $accessor . ', "UTC", "' . $aggregation->getTimeZone() . '")';
         }
 
@@ -540,7 +543,7 @@ class EntityAggregator implements EntityAggregatorInterface
                 return new CountResult($aggregation->getName(), (int) $value);
 
             case $aggregation instanceof StatsAggregation:
-                if (empty($rows)) {
+                if ($rows === []) {
                     return new StatsResult($aggregation->getName(), 0, 0, 0.0, 0.0);
                 }
 
@@ -570,7 +573,7 @@ class EntityAggregator implements EntityAggregatorInterface
     ): EntityResult {
         $ids = array_filter(array_column($rows, $aggregation->getName()));
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return new EntityResult($aggregation->getName(), new EntityCollection());
         }
 
@@ -593,7 +596,7 @@ class EntityAggregator implements EntityAggregatorInterface
         array $rows,
         Context $context
     ): DateHistogramResult {
-        if (empty($rows)) {
+        if ($rows === []) {
             return new DateHistogramResult($aggregation->getName(), []);
         }
 

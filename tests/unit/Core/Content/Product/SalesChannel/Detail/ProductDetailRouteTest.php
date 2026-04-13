@@ -11,6 +11,8 @@ use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Cms\CmsPageCollection;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader;
+use Shopware\Core\Content\Cms\Service\EntityCmsSlotConfigInheritanceBuilder;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -24,6 +26,7 @@ use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -55,6 +58,11 @@ class ProductDetailRouteTest extends TestCase
      */
     private SystemConfigService $systemConfig;
 
+    /**
+     * @var MockObject&EntityRepository<ProductTranslationCollection>
+     */
+    private MockObject&EntityRepository $productTranslationRepository;
+
     private MockObject&Connection $connection;
 
     private ProductDetailRoute $route;
@@ -75,6 +83,7 @@ class ProductDetailRouteTest extends TestCase
         $this->context = Generator::generateSalesChannelContext();
         $this->idsCollection = new IdsCollection();
         $this->productRepository = $this->createMock(SalesChannelRepository::class);
+        $this->productTranslationRepository = $this->createMock(EntityRepository::class);
         $this->systemConfig = $this->createMock(SystemConfigService::class);
         $this->connection = $this->createMock(Connection::class);
         $configuratorLoader = $this->createMock(ProductConfiguratorLoader::class);
@@ -86,11 +95,13 @@ class ProductDetailRouteTest extends TestCase
 
         $this->route = new ProductDetailRoute(
             $this->productRepository,
+            $this->productTranslationRepository,
             $this->systemConfig,
             $this->connection,
             $configuratorLoader,
             $breadcrumbBuilder,
             $this->cmsPageLoader,
+            $this->createMock(EntityCmsSlotConfigInheritanceBuilder::class),
             new SalesChannelProductDefinition(),
             $this->productCloseoutFilterFactory,
             $this->eventDispatcher,
@@ -131,11 +142,12 @@ class ProductDetailRouteTest extends TestCase
         $productEntity->setAvailable(true);
         $productEntity->setUniqueIdentifier('BestVariant');
 
+        $product1Id = $this->idsCollection->create('product1');
         $idsSearchResult = new IdSearchResult(
             1,
             [
-                [
-                    'primaryKey' => $this->idsCollection->get('product1'),
+                $product1Id => [
+                    'primaryKey' => $product1Id,
                     'data' => [],
                 ],
             ],
@@ -152,7 +164,7 @@ class ProductDetailRouteTest extends TestCase
                 new EntitySearchResult('product', 4, new ProductCollection([$productEntity]), null, new Criteria(), $this->context->getContext())
             );
 
-        $result = $this->route->load($this->idsCollection->get('product1'), new Request(), $this->context, new Criteria());
+        $result = $this->route->load($product1Id, new Request(), $this->context, new Criteria());
 
         static::assertSame('4', $result->getProduct()->getCmsPageId());
         static::assertSame('BestVariant', $result->getProduct()->getUniqueIdentifier());
@@ -167,11 +179,12 @@ class ProductDetailRouteTest extends TestCase
         $productTerm->setUniqueIdentifier('term');
         $productTerm->setName('term');
 
+        $product1Id = $this->idsCollection->create('product1');
         $idsSearchResult = new IdSearchResult(
             1,
             [
-                [
-                    'primaryKey' => $this->idsCollection->get('product1'),
+                $product1Id => [
+                    'primaryKey' => $product1Id,
                     'data' => [],
                 ],
             ],
@@ -190,7 +203,7 @@ class ProductDetailRouteTest extends TestCase
         $request = new Request();
         $request->query->set('search', 'term');
 
-        $result = $this->route->load($this->idsCollection->get('product1'), $request, $this->context, new Criteria());
+        $result = $this->route->load($product1Id, $request, $this->context, new Criteria());
 
         static::assertSame('term', $result->getProduct()->getCmsPageId());
         static::assertSame('term', $result->getProduct()->getUniqueIdentifier());
@@ -225,7 +238,7 @@ class ProductDetailRouteTest extends TestCase
                 )
             );
 
-        $this->eventDispatcher->addListener(ResolveVariantIdEvent::class, function (ResolveVariantIdEvent $event) use ($productId): void {
+        $this->eventDispatcher->addListener(ResolveVariantIdEvent::class, static function (ResolveVariantIdEvent $event) use ($productId): void {
             static::assertSame($productId, $event->getProductId());
             static::assertSame('2', $event->getResolvedVariantId());
         });
@@ -253,7 +266,7 @@ class ProductDetailRouteTest extends TestCase
         $productEntity->setAvailable(true);
         $this->productRepository->expects($this->once())
             ->method('search')
-            ->with(static::callback(function (Criteria $criteria) use ($variantId): bool {
+            ->with(static::callback(static function (Criteria $criteria) use ($variantId): bool {
                 $ids = $criteria->getIds();
                 static::assertCount(1, $ids);
                 static::assertSame($variantId, reset($ids));
@@ -271,7 +284,7 @@ class ProductDetailRouteTest extends TestCase
                 )
             );
 
-        $this->eventDispatcher->addListener(ResolveVariantIdEvent::class, function (ResolveVariantIdEvent $event) use ($variantId): void {
+        $this->eventDispatcher->addListener(ResolveVariantIdEvent::class, static function (ResolveVariantIdEvent $event) use ($variantId): void {
             $event->setResolvedVariantId($variantId);
         });
 
@@ -287,7 +300,7 @@ class ProductDetailRouteTest extends TestCase
             ->expects($this->once())
             ->method('fetchAssociative')
             ->willReturn([
-                'variantListingConfig' => '{"displayParent": 1, "mainVariantId": "2"}', // Wrong displayParent type, should be boolean
+                'variantListingConfig' => '{"displayParent": 1, "mainVariantId": null}', // Wrong displayParent type, should be boolean
                 'parentId' => '2',
             ]);
 
@@ -310,10 +323,51 @@ class ProductDetailRouteTest extends TestCase
                 )
             );
 
-        $this->eventDispatcher->addListener(ResolveVariantIdEvent::class, function (ResolveVariantIdEvent $event) use ($productId): void {
+        $this->eventDispatcher->addListener(ResolveVariantIdEvent::class, static function (ResolveVariantIdEvent $event) use ($productId): void {
             static::assertSame($productId, $event->getProductId());
-            // In checkVariantListingConfig we want to make sure that the variant ID is not returned against displayParent
+            // In checkVariantListingConfig we want to make sure that the variant ID is not returned against displayParent when no variant ID is set
             static::assertNull($event->getResolvedVariantId(), 'Wrong variant ID resolved:' . $event->getResolvedVariantId());
+        });
+
+        $result = $this->route->load($productId, new Request(), $this->context, new Criteria());
+
+        static::assertSame('2', $result->getProduct()->getUniqueIdentifier());
+        static::assertTrue($result->getProduct()->getAvailable());
+    }
+
+    public function testResolveVariantIdFromEventWithDisplayParent(): void
+    {
+        $this->connection
+            ->expects($this->once())
+            ->method('fetchAssociative')
+            ->willReturn([
+                'variantListingConfig' => '{"displayParent": 1, "mainVariantId": "2"}',
+                'parentId' => '2',
+            ]);
+
+        $productId = Uuid::randomHex();
+        $productEntity = new SalesChannelProductEntity();
+        $productEntity->setId($productId);
+        $productEntity->setCmsPageId('4');
+        $productEntity->setUniqueIdentifier('2');
+        $productEntity->setAvailable(true);
+        $this->productRepository->expects($this->once())
+            ->method('search')
+            ->willReturn(
+                new EntitySearchResult(
+                    'product',
+                    1,
+                    new ProductCollection([$productEntity]),
+                    null,
+                    new Criteria(),
+                    $this->context->getContext()
+                )
+            );
+
+        $this->eventDispatcher->addListener(ResolveVariantIdEvent::class, static function (ResolveVariantIdEvent $event) use ($productId): void {
+            static::assertSame($productId, $event->getProductId());
+            // In checkVariantListingConfig we want to make sure that the variant ID is returned even if displayParent is true
+            static::assertSame('2', $event->getResolvedVariantId(), 'Wrong variant ID resolved:' . $event->getResolvedVariantId());
         });
 
         $result = $this->route->load($productId, new Request(), $this->context, new Criteria());

@@ -98,8 +98,9 @@
                             <mt-text-field
                                 v-model="manufacturer.link"
                                 :label="$tc('sw-manufacturer.detail.labelLink')"
-                                :placeholder="$tc('sw-manufacturer.detail.placeholderLink')"
+                                :placeholder="placeholder(manufacturer, 'link', $tc('sw-manufacturer.detail.placeholderLink'))"
                                 name="link"
+                                :error="manufacturerLinkError"
                                 :disabled="!acl.can('product_manufacturer.editor') || undefined"
                             />
                             {% endblock %}
@@ -139,12 +140,25 @@
 
                     {% block sw_manufacturer_detail_base_info_field_description %}
                     <sw-text-editor
+                        v-if="!feature.isActive('METEOR_TEXT_EDITOR')"
                         v-model:value="manufacturer.description"
                         :label="$tc('sw-manufacturer.detail.labelDescription')"
                         :placeholder="placeholder(manufacturer, 'description', $tc('sw-manufacturer.detail.placeholderDescription'))"
                         name="description"
                         sanitize-input
                         sanitize-field-name="product_manufacturer_translation.description"
+                        :error="manufacturerDescriptionError"
+                        :disabled="!acl.can('product_manufacturer.editor') || undefined"
+                    />
+                    <mt-text-editor
+                        v-else
+                        v-model="manufacturer.description"
+                        :label="$tc('sw-manufacturer.detail.labelDescription')"
+                        :placeholder="placeholder(manufacturer, 'description', $tc('sw-manufacturer.detail.placeholderDescription'))"
+                        name="description"
+                        sanitize-input
+                        sanitize-field-name="product_manufacturer_translation.description"
+                        :error="manufacturerDescriptionError"
                         :disabled="!acl.can('product_manufacturer.editor') || undefined"
                     />
                     {% endblock %}

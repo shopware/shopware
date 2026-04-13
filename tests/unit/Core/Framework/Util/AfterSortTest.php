@@ -68,7 +68,7 @@ class AfterSortTest extends TestCase
             $entity4->getName(),
         ];
 
-        $actualNames = array_map(fn (TestEntity $entity) => $entity->getName(), $afterSortCollection->getElements());
+        $actualNames = array_map(static fn (TestEntity $entity) => $entity->getName(), $afterSortCollection->getElements());
 
         static::assertSame($expectedNames, \array_values($actualNames));
     }
@@ -104,7 +104,7 @@ class AfterSortTest extends TestCase
             $entity4->getName(),
         ];
 
-        $actualNames = array_map(fn (TestEntity $entity) => $entity->getName(), $entities->getElements());
+        $actualNames = array_map(static fn (TestEntity $entity) => $entity->getName(), $entities->getElements());
 
         static::assertSame($expectedNames, \array_values($actualNames));
     }
@@ -140,7 +140,7 @@ class AfterSortTest extends TestCase
             $entity3->getName(),
         ];
 
-        $actualNames = array_map(fn (TestEntity $entity) => $entity->getName(), $entities->getElements());
+        $actualNames = array_map(static fn (TestEntity $entity) => $entity->getName(), $entities->getElements());
 
         static::assertSame($expectedNames, \array_values($actualNames));
     }
@@ -179,10 +179,10 @@ class AfterSortTest extends TestCase
 
         $afterSortCollection->sortByAfter();
 
-        $expectedNames = array_values($afterSortCollection->map(fn (TestEntity $entity) => $entity->getName()));
+        $expectedNames = array_values($afterSortCollection->map(static fn (TestEntity $entity) => $entity->getName()));
         sort($expectedNames);
 
-        $actualNames = array_values(array_map(fn (TestEntity $entity) => $entity->getName(), $afterSortCollection->getElements()));
+        $actualNames = array_values(array_map(static fn (TestEntity $entity) => $entity->getName(), $afterSortCollection->getElements()));
 
         static::assertSame($expectedNames, $actualNames);
     }

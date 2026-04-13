@@ -26,6 +26,9 @@ class AdapterException extends HttpException
     public const INVALID_ASSET_URL = 'FRAMEWORK__INVALID_ASSET_URL';
     final public const INVALID_ARGUMENT = 'FRAMEWORK__INVALID_ARGUMENT_EXCEPTION';
     final public const STRING_TEMPLATE_RENDERING_FAILED = 'FRAMEWORK__STRING_TEMPLATE_RENDERING_FAILED';
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed with the next major, as it is unused
+     */
     final public const CURRENCY_FILTER_ERROR = 'FRAMEWORK__CURRENCY_FILTER_ERROR';
     final public const SECURITY_FUNCTION_NOT_ALLOWED = 'FRAMEWORK__SECURITY_FUNCTION_NOT_ALLOWED';
     final public const CACHE_COMPRESSION_ERROR = 'FRAMEWORK__CACHE_COMPRESSION_ERROR';
@@ -38,6 +41,8 @@ class AdapterException extends HttpException
     final public const OPERATOR_NOT_SUPPORTED = 'FRAMEWORK__OPERATOR_NOT_SUPPORTED';
     final public const MISSING_REQUIRED_PARAMETER = 'FRAMEWORK__MISSING_REQUIRED_PARAMETER';
     final public const CIRCULAR_REFERENCE_ESI = 'FRAMEWORK__CIRCULAR_REFERENCE_ESI';
+    final public const CACHE_CLEARER_LOCKED = 'FRAMEWORK__CACHE_CLEARER_LOCKED';
+    final public const INVALID_CACHE_POLICY_CONFIGURATION = 'FRAMEWORK__INVALID_CACHE_POLICY_CONFIGURATION';
 
     /**
      * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
@@ -180,8 +185,16 @@ class AdapterException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed with the next major, as it is unused
+     */
     public static function currencyFilterError(string $message): self
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::CURRENCY_FILTER_ERROR,
@@ -302,6 +315,31 @@ class AdapterException extends HttpException
             'Circular ESI request detected: Request call stack: {{ paths }}',
             [
                 'paths' => implode(', ', $paths),
+            ]
+        );
+    }
+
+    public static function cacheCleanerLocked(string $operation, string $key): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::CACHE_CLEARER_LOCKED,
+            'Cache clearing operation "{{ operation }}" with key "{{ key }}" is already running. Please trigger cache clear later.',
+            [
+                'operation' => $operation,
+                'key' => $key,
+            ]
+        );
+    }
+
+    public static function invalidCachePolicyConfiguration(string $error): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_CACHE_POLICY_CONFIGURATION,
+            'Used cache policy configuration is invalid: {{ error }}',
+            [
+                'error' => $error,
             ]
         );
     }

@@ -345,7 +345,7 @@ EOF;
         $entity = array_pop($entity);
 
         $callTemplate = '';
-        if (!empty($calls)) {
+        if ($calls !== []) {
             $callTemplate = "\n        " . implode("\n        ", $calls);
         }
 

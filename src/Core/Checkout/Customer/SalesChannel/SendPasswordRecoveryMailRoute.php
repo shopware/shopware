@@ -75,7 +75,8 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
         $this->validateRecoverEmail($data, $context, $validateStorefrontUrl);
 
         if (($request = $this->requestStack->getMainRequest()) !== null) {
-            $this->rateLimiter->ensureAccepted(RateLimiter::RESET_PASSWORD, strtolower($data->get('email') . '-' . $request->getClientIp()));
+            $key = strtolower(\sprintf('%s-%s', $data->get('email'), $request->getClientIp()));
+            $this->rateLimiter->ensureAccepted(RateLimiter::RESET_PASSWORD, $key);
         }
 
         try {
@@ -132,7 +133,7 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
 
         if ($validateStorefrontUrl) {
             $validation
-                ->add('storefrontUrl', new NotBlank(), new Choice(array_values($this->getDomainUrls($context))));
+                ->add('storefrontUrl', new NotBlank(), new Choice(choices: array_values($this->getDomainUrls($context))));
         }
 
         $this->dispatchValidationEvent($validation, $data, $context->getContext());
@@ -190,7 +191,7 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
             return;
         }
 
-        $compareValue = $data[$equalityValidation->propertyPath] ?? null;
+        $compareValue = $data[$equalityValidation->propertyPath ?? ''] ?? null;
         if ($data[$field] === $compareValue) {
             return;
         }

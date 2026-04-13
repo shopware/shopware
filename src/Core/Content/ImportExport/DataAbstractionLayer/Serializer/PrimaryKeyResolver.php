@@ -31,6 +31,11 @@ class PrimaryKeyResolver
     ) {
     }
 
+    /**
+     * @param iterable<string, mixed> $record
+     *
+     * @return iterable<string, mixed>
+     */
     public function resolvePrimaryKeyFromUpdatedBy(Config $config, ?EntityDefinition $definition, iterable $record): iterable
     {
         if (!$definition) {
@@ -47,6 +52,11 @@ class PrimaryKeyResolver
         );
     }
 
+    /**
+     * @param iterable<string, mixed> $record
+     *
+     * @return iterable<string, mixed>
+     */
     private function resolvePrimaryKey(Config $config, EntityDefinition $definition, iterable $record, Context $context): iterable
     {
         $updatedBy = $config->getUpdateBy()->get($definition->getEntityName());
@@ -61,7 +71,7 @@ class PrimaryKeyResolver
             return $record;
         }
 
-        $idFields = $definition->getPrimaryKeys()->filter(fn (Field $field) => $field instanceof IdField);
+        $idFields = $definition->getPrimaryKeys()->filter(static fn (Field $field) => $field instanceof IdField);
         $idField = $idFields->first();
 
         if ($idFields->count() !== 1 || !$idField) {
@@ -115,11 +125,15 @@ class PrimaryKeyResolver
     }
 
     /**
-     * @return mixed|null
+     * @param array<string, mixed> $data
+     * @param list<string> $keyPath
      */
-    private function getValueFromPath(array $data, array $keyPath)
+    private function getValueFromPath(array $data, array $keyPath): mixed
     {
         $key = array_shift($keyPath);
+        if ($key === null) {
+            return null;
+        }
 
         if (!isset($data[$key])) {
             return null;
@@ -132,6 +146,9 @@ class PrimaryKeyResolver
         return $this->getValueFromPath($data[$key], $keyPath);
     }
 
+    /**
+     * @param list<string> $updateByFieldPath
+     */
     private function handleTranslationsAssociation(
         EntityDefinition $definition,
         array $updateByFieldPath,
@@ -173,6 +190,11 @@ class PrimaryKeyResolver
         return implode('.', $updateByFieldPath);
     }
 
+    /**
+     * @param iterable<string, mixed> $record
+     *
+     * @return iterable<string, mixed>
+     */
     private function handleManyToManyAssociations(Config $config, EntityDefinition $definition, iterable $record, Context $context): iterable
     {
         foreach ($definition->getFields() as $field) {
@@ -217,7 +239,6 @@ class PrimaryKeyResolver
 
             $repository = $this->definitionInstanceRegistry->getRepository($manyToManyDefinition->getEntityName());
 
-            /** @var list<string> $ids */
             $ids = $repository->searchIds($criteria, $context)->getIds();
 
             $record[$field->getPropertyName()] = implode('|', $ids);

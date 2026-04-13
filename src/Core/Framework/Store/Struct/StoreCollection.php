@@ -6,8 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @codeCoverageIgnore
- *
  * @template TElement of StoreStruct
  *
  * @template-extends Collection<TElement>
@@ -29,10 +27,13 @@ abstract class StoreCollection extends Collection
         }
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will only return string
+     */
     protected function getExpectedClass(): ?string
     {
-        /** @phpstan-ignore-next-line PHPStan somehow thinks the class constant is a string and not a class-string like declared in the parent */
-        return ExtensionStruct::class;
+        /** @phpstan-ignore return.type (The StoreStruct class is used as fallback. Typically, there is a dedicated StoreStruct class) */
+        return StoreStruct::class;
     }
 
     /**

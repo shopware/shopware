@@ -45,12 +45,12 @@ class MediaThumbnailSizeDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
-            (new IntField('width', 'width', 1))->addFlags(new ApiAware(), new Required()),
-            (new IntField('height', 'height', 1))->addFlags(new ApiAware(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required())->setDescription('Unique identity of media thumbnail size defined.'),
+            (new IntField('width', 'width', 1))->addFlags(new ApiAware(), new Required())->setDescription('Width of the thumbnail.'),
+            (new IntField('height', 'height', 1))->addFlags(new ApiAware(), new Required())->setDescription('Height of the thumbnail.'),
             new ManyToManyAssociationField('mediaFolderConfigurations', MediaFolderConfigurationDefinition::class, MediaFolderConfigurationMediaThumbnailSizeDefinition::class, 'media_thumbnail_size_id', 'media_folder_configuration_id'),
             new OneToManyAssociationField('mediaThumbnails', MediaThumbnailDefinition::class, 'media_thumbnail_size_id', 'id'),
-            (new CustomFields())->addFlags(new ApiAware()),
+            (new CustomFields())->addFlags(new ApiAware())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
         ]);
     }
 }

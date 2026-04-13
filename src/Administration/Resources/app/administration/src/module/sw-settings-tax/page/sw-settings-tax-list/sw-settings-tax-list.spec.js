@@ -114,10 +114,13 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
                 `,
                     },
                     'sw-entity-listing': {
-                        props: ['items'],
+                        props: [
+                            'items',
+                            'dataSource',
+                        ],
                         template: `
                     <div>
-                        <template v-for="item in items">
+                        <template v-for="item in (dataSource || items)">
                             <slot name="actions" v-bind="{ item }"></slot>
                             <slot name="column-taxRate" v-bind="{ item, isInlineEdit: true }"></slot>
                         </template>

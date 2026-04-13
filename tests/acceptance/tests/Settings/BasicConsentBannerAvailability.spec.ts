@@ -28,10 +28,10 @@ test('As a shop customer, I want use a basic cookie consent banner in the storef
     });
 
     await test.step('Configure cookie settings', async () => {
-        await StorefrontHome.consentConfigureButton.click();
+        await ShopCustomer.presses(StorefrontHome.consentConfigureButton);
         await ShopCustomer.expects(StorefrontHome.consentDialogTechnicallyRequiredCheckbox).toBeChecked();
-        await ShopCustomer.expects(StorefrontHome.consentDialog.getByRole('checkbox')).toHaveCount(2);
-        await StorefrontHome.consentDialogSaveButton.click();
+        await ShopCustomer.expects(StorefrontHome.consentDialog.getByRole('switch')).toHaveCount(2);
+        await ShopCustomer.presses(StorefrontHome.consentDialogSaveButton);
 
         // Wait for dialog to close, which indicates cookies have been processed
         await ShopCustomer.expects(StorefrontHome.consentDialog).not.toBeVisible();

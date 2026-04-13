@@ -13,7 +13,8 @@
         >
             <p>{{ $tc('sw-flow.flowNotification.messageUnknownTriggerWarning') }}</p>
             <p>{{ $tc('sw-flow.flowNotification.textIntroduce') }}</p>
-            <ul>
+
+            <ul class="sw-flow-detail-flow__warning-unknow-trigger-list">
                 <li>{{ $tc('sw-flow.flowNotification.textGuide1') }}</li>
                 <li>{{ $tc('sw-flow.flowNotification.textGuide2') }}</li>
                 <li>{{ $tc('sw-flow.flowNotification.textGuide3') }}</li>
@@ -27,6 +28,7 @@
         >
             {{ $tc('sw-flow.detail.warningText') }}
         </mt-banner>
+
         {% block sw_flow_detail_trigger_card %}
         <div class="sw-flow-detail-flow__trigger-card">
             {% block sw_flow_detail_flow_trigger_select %}
@@ -79,28 +81,28 @@
                     :key="getSequenceId(sequence)"
                     class="sw-flow-detail-flow__position list-item"
                 >
-
                     {% block sw_flow_sequence_icon_plus %}
-                    <div
+                    <mt-button
                         class="sw-flow-detail-flow__position-plus"
                         :disabled="!acl.can('flow.editor')"
-                        role="button"
+                        variant="secondary"
+                        size="x-small"
                         tabindex="0"
+                        square
                         @click="onAddRootSequence"
-                        @keydown.enter="onAddRootSequence"
                     >
                         <mt-icon
-                            size="16px"
+                            size="12px"
                             name="regular-plus-xs"
                         />
-                    </div>
+                    </mt-button>
                     {% endblock %}
 
                     {% block sw_flow_sequence_icon_connection %}
                     <div class="sw-flow-detail-flow__position-connection">
                         <mt-icon
-                            size="16px"
-                            name="regular-chevron-right-s"
+                            size="12px"
+                            name="regular-chevron-right-xs"
                         />
                     </div>
                     {% endblock %}

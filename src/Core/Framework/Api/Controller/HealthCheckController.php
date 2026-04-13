@@ -56,7 +56,7 @@ class HealthCheckController
     {
         $this->validateStaticOrBearerAuthorization($request);
 
-        $executionContextRaw = (string) $request->get('context', SystemCheckExecutionContext::WEB->value);
+        $executionContextRaw = $request->query->getString('context', SystemCheckExecutionContext::WEB->value);
         $executionContext = SystemCheckExecutionContext::tryFrom($executionContextRaw);
         if (!$executionContext instanceof SystemCheckExecutionContext) {
             throw ApiException::badRequest('Invalid execution context: ' . $executionContextRaw);
@@ -77,7 +77,8 @@ class HealthCheckController
     {
         $authorizationHeader = $request->headers->get(self::HEADER_AUTHORIZATION);
         if (
-            !empty($this->staticToken)
+            $this->staticToken !== null
+            && $this->staticToken !== ''
             && $authorizationHeader !== null
             && str_contains($authorizationHeader, 'Static')
         ) {

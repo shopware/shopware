@@ -10,6 +10,8 @@ abstract class AbstractReader
 {
     /**
      * @param resource $resource
+     *
+     * @return iterable<array<string, mixed>>
      */
     abstract public function read(Config $config, $resource, int $offset): iterable;
 

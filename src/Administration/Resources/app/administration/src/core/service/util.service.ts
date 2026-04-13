@@ -3,16 +3,16 @@
  *
  * @module core/service/utils
  */
-import throttle from 'lodash/throttle';
-import flow from 'lodash/flow';
-import debounce from 'lodash/debounce';
-import flattenDeep from 'lodash/flattenDeep';
+import throttle from 'lodash-es/throttle';
+import flow from 'lodash-es/flow';
+import debounce from 'lodash-es/debounce';
+import flattenDeep from 'lodash-es/flattenDeep';
 import { uuidv7 } from 'uuidv7';
-import remove from 'lodash/remove';
-import slice from 'lodash/slice';
-import uniqBy from 'lodash/uniqBy';
-import chunk from 'lodash/chunk';
-import intersectionBy from 'lodash/intersectionBy';
+import remove from 'lodash-es/remove';
+import slice from 'lodash-es/slice';
+import uniqBy from 'lodash-es/uniqBy';
+import chunk from 'lodash-es/chunk';
+import intersectionBy from 'lodash-es/intersectionBy';
 
 import {
     deepCopyObject,
@@ -178,8 +178,6 @@ export default {
  * @returns { String }
  */
 function createId(): string {
-    // eslint-disable-next-line max-len
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access
     return uuidv7().replace(/-/g, '');
 }
 

@@ -4,6 +4,13 @@
         height: 100%;
         position: absolute;
 
+        &:has(.mt-empty-state) {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
         .sw-review-text_ellipsis {
             max-width: var(--scale-size-224);
             white-space: nowrap;

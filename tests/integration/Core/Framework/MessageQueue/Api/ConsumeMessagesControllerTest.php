@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexingMessage;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Increment\AbstractIncrementer;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
@@ -24,11 +25,16 @@ class ConsumeMessagesControllerTest extends TestCase
     use AdminFunctionalTestBehaviour;
     use QueueTestBehaviour;
 
+    /**
+     * @deprecated tag:v6.8.0 - Property will be removed along with increment-based stats
+     */
     private AbstractIncrementer $incrementer;
 
     protected function setUp(): void
     {
-        $this->incrementer = static::getContainer()->get('shopware.increment.gateway.registry')->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->incrementer = static::getContainer()->get('shopware.increment.gateway.registry')->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
+        }
     }
 
     public function testConsumeMessages(): void
@@ -67,8 +73,13 @@ class ConsumeMessagesControllerTest extends TestCase
         static::assertSame(1, $response['handledMessages']);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Test will be removed along with increment-based stats
+     */
     public function testMessageStatsDecrement(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $messageBus = static::getContainer()->get('messenger.default_bus');
         $message = new ProductIndexingMessage([Uuid::randomHex()]);
         $messageBus->dispatch($message);

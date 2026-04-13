@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\MessageQueue\ScheduledTask\Scheduler;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -26,7 +25,6 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
-#[CoversClass(TaskScheduler::class)]
 class TaskSchedulerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -71,7 +69,7 @@ class TaskSchedulerTest extends TestCase
 
         $this->messageBus->expects($this->once())
             ->method('dispatch')
-            ->with(static::callback(function (TestTask $task) use ($taskId) {
+            ->with(static::callback(static function (TestTask $task) use ($taskId) {
                 static::assertSame($taskId, $task->getTaskId());
 
                 return true;
@@ -114,7 +112,7 @@ class TaskSchedulerTest extends TestCase
 
         $this->messageBus->expects($this->once())
             ->method('dispatch')
-            ->with(static::callback(function (TestTask $task) use ($taskId) {
+            ->with(static::callback(static function (TestTask $task) use ($taskId) {
                 static::assertSame($taskId, $task->getTaskId());
 
                 return true;

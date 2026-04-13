@@ -13,7 +13,7 @@ class OrderLineItemDownloadCollection extends EntityCollection
 {
     public function filterByOrderLineItemId(string $id): self
     {
-        return $this->filter(fn (OrderLineItemDownloadEntity $orderLineItemDownloadEntity) => $orderLineItemDownloadEntity->getOrderLineItemId() === $id);
+        return $this->filter(static fn (OrderLineItemDownloadEntity $orderLineItemDownloadEntity) => $orderLineItemDownloadEntity->getOrderLineItemId() === $id);
     }
 
     public function getApiAlias(): string

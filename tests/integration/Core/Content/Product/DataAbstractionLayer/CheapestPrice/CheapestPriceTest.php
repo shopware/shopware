@@ -425,8 +425,8 @@ class CheapestPriceTest extends TestCase
 
         $cheapestPriceQuery = $connection->prepare('UPDATE product SET cheapest_price = :price WHERE id = :id AND version_id = :version');
 
-        /** @var string $prices */
         $prices = file_get_contents(__DIR__ . '/_fixtures/serialized_prices.json');
+        static::assertIsString($prices);
         foreach ($ids->all() as $key => $id) {
             $prices = str_replace(\sprintf('__id_placeholder_%s__', $key), $id, $prices);
         }
@@ -631,7 +631,7 @@ class CheapestPriceTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{ids: array<string>, rules: array<string>}>
+     * @return iterable<string, array{ids: list<string>, rules: list<string>}>
      */
     public function providerSorting(): iterable
     {
@@ -662,19 +662,19 @@ class CheapestPriceTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{from: int, rules?: array<string>, to: int, expected: array<string>}>
+     * @return iterable<string, array{from: int, rules?: list<string>, to: int, expected: list<string>}>
      */
     public function providerFilterPercentage(): iterable
     {
-        yield 'Test 10% filter without rule' => ['from' => 9, 'to' => 10, 'expected' => ['p.1', 'v.4.2']];
-        yield 'Test 20% filter with rule-a' => ['rules' => ['rule-a'], 'from' => 19, 'to' => 20, 'expected' => ['p.5', 'v.6.1']];
-        yield 'Test 30% filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 29, 'to' => 30, 'expected' => ['v.12.2', 'v.13.2']];
-        yield 'Test 30% filter with rule b+a' => ['rules' => ['rule-b'], 'from' => 29, 'to' => 30, 'expected' => ['v.12.2', 'v.13.2']];
-        yield 'Test 30% filter with rule a and empty result' => ['rules' => ['rule-a'], 'from' => 29, 'to' => 30, 'expected' => []];
+        yield 'Test ~91% ratio without rule' => ['from' => 90, 'to' => 91, 'expected' => ['p.1', 'v.4.2']];
+        yield 'Test ~80% ratio with rule-a' => ['rules' => ['rule-a'], 'from' => 80, 'to' => 81, 'expected' => ['p.5', 'v.6.1']];
+        yield 'Test ~70% ratio with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 70, 'to' => 71, 'expected' => ['v.12.2', 'v.13.2']];
+        yield 'Test ~70% ratio with rule b only' => ['rules' => ['rule-b'], 'from' => 70, 'to' => 71, 'expected' => ['v.12.2', 'v.13.2']];
+        yield 'Test ~70% ratio with rule a and empty result' => ['rules' => ['rule-a'], 'from' => 70, 'to' => 71, 'expected' => []];
     }
 
     /**
-     * @return iterable<string, array{from: int, to: int, expected: array<string>, rules?: array<string>}>
+     * @return iterable<string, array{from: int, to: int, expected: list<string>, rules?: list<string>}>
      */
     public function providerFilterPrice(): iterable
     {
@@ -1268,7 +1268,6 @@ class CheapestPriceTest extends TestCase
             $expected = array_reverse($expected);
         }
 
-        /** @var string[] $actual */
         $actual = $result->getIds();
 
         $actualArray = [];
@@ -1280,7 +1279,7 @@ class CheapestPriceTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{min: string, max: string, rules: array<string>}>
+     * @return iterable<string, array{min: string, max: string, rules: list<string>}>
      */
     private function providerAggregation(): iterable
     {

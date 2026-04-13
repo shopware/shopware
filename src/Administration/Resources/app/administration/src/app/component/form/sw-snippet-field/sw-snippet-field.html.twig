@@ -1,36 +1,40 @@
 {% block sw_snippet_field %}
 <div class="sw-snippet-field">
 
-    <mt-text-field
-        v-if="textField"
-        v-bind="$attrs"
-        :model-value="textValue"
-        :type="fieldType"
-        disabled
-    />
+    <div class="sw-snippet-field__input-wrapper">
+        <mt-text-field
+            v-if="textField"
+            v-bind="$attrs"
+            class="sw-snippet-field__text"
+            :model-value="textValue"
+            :type="fieldType"
+            disabled
+        />
 
-    <mt-textarea
-        v-else-if="textareaField"
-        v-bind="$attrs"
-        :model-value="textValue"
-        :type="fieldType"
-        disabled
-    />
+        <mt-textarea
+            v-else-if="textareaField"
+            v-bind="$attrs"
+            class="sw-snippet-field__textarea"
+            :model-value="textValue"
+            :type="fieldType"
+            disabled
+        />
 
-    <sw-loader
-        v-if="isLoading"
-        size="16px"
-    />
-    <mt-icon
-        v-else
-        v-tooltip="{
-            message: $tc('global.sw-snippet-field.tooltip'),
-        }"
-        class="sw-snippet-field__icon"
-        name="regular-globe-stand"
-        size="16px"
-        @click="openEditModal()"
-    />
+        <sw-loader
+            v-if="isLoading"
+            size="16px"
+        />
+        <mt-icon
+            v-else
+            v-tooltip="{
+                message: $t('global.sw-snippet-field.tooltip'),
+            }"
+            class="sw-snippet-field__icon"
+            name="regular-globe-stand"
+            size="16px"
+            @click="openEditModal()"
+        />
+    </div>
 
     <sw-snippet-field-edit-modal
         v-if="showEditModal"

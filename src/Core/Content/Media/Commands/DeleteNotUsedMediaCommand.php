@@ -69,7 +69,9 @@ class DeleteNotUsedMediaCommand extends Command
             return $this->dryRun($input, $output);
         }
 
-        $confirm = $io->confirm('Are you sure that you want to delete unused media files?', false);
+        $confirm = $input->isInteractive()
+            ? $io->confirm('Are you sure that you want to delete unused media files?', false)
+            : true;
 
         if (!$confirm) {
             $io->caution('Aborting due to user input.');
@@ -151,7 +153,7 @@ class DeleteNotUsedMediaCommand extends Command
             $input->getOption('folder-entity'),
         );
 
-        $output->write(implode(',', array_map(fn ($col) => \sprintf('"%s"', $col), ['Filename', 'Title', 'Uploaded At', 'File Size'])));
+        $output->write(implode(',', array_map(static fn ($col) => \sprintf('"%s"', $col), ['Filename', 'Title', 'Uploaded At', 'File Size'])));
         foreach ($mediaBatches as $mediaBatch) {
             foreach ($mediaBatch as $media) {
                 $row = [
@@ -182,8 +184,8 @@ class DeleteNotUsedMediaCommand extends Command
         );
 
         $totalCount = 0;
-        $finished = $this->consumeGeneratorInBatches($mediaBatches, 20, function ($batchNum, array $medias) use ($io, $cursor, &$totalCount) {
-            if ($batchNum === 0 && \count($medias) === 0) {
+        $finished = $this->consumeGeneratorInBatches($mediaBatches, 20, static function ($batchNum, array $medias) use ($io, $cursor, &$totalCount, $input) {
+            if ($batchNum === 0 && $medias === []) {
                 return true;
             }
 
@@ -208,7 +210,7 @@ class DeleteNotUsedMediaCommand extends Command
             $io->table(
                 ['Filename', 'Title', 'Uploaded At', 'File Size'],
                 array_map(
-                    fn (MediaEntity $media) => [
+                    static fn (MediaEntity $media) => [
                         $media->getFileNameIncludingExtension(),
                         $media->getTitle(),
                         $media->getUploadedAt()?->format('F jS, Y'),
@@ -223,7 +225,9 @@ class DeleteNotUsedMediaCommand extends Command
                 return true;
             }
 
-            return $io->confirm('Show next page?', false);
+            return $input->isInteractive()
+                ? $io->confirm('Show next page?', false)
+                : true;
         });
 
         if ($totalCount === 0) {
@@ -240,6 +244,7 @@ class DeleteNotUsedMediaCommand extends Command
     /**
      * Given a generator which yields arrays of items, this method will consume the generator in batches of the given size.
      *
+     * @param \Generator<list<MediaEntity>> $generator
      * @param callable(int, array<mixed>): bool $callback
      */
     private function consumeGeneratorInBatches(\Generator $generator, int $batchSize, callable $callback): bool
@@ -259,7 +264,7 @@ class DeleteNotUsedMediaCommand extends Command
         }
 
         // last remaining batch
-        if (\count($batch) > 0) {
+        if ($batch !== []) {
             return $callback($i++, $batch);
         }
 

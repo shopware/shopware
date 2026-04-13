@@ -36,7 +36,7 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
         $page = $this->genericLoader->load($request, $context);
         $page = NavigationPage::createFrom($page);
 
-        $navigationId = $request->get('navigationId', $context->getSalesChannel()->getNavigationCategoryId());
+        $navigationId = $request->attributes->get('navigationId', $context->getSalesChannel()->getNavigationCategoryId());
 
         $category = $this->cmsPageRoute
             ->load($navigationId, $request, $context)
@@ -58,6 +58,10 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
             $canonical = ($navigationId === $context->getSalesChannel()->getNavigationCategoryId())
                 ? $this->seoUrlReplacer->generate('frontend.home.page')
                 : $this->seoUrlReplacer->generate(NavigationPageSeoUrlRoute::ROUTE_NAME, ['navigationId' => $navigationId]);
+
+            if ($request->query->has('p') && $request->query->getInt('p') > 1) {
+                $canonical .= '?p=' . $request->query->get('p');
+            }
 
             $page->getMetaInformation()->setCanonical($canonical);
         }

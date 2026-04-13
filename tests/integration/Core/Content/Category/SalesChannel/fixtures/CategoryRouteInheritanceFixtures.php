@@ -245,7 +245,7 @@ final class CategoryRouteInheritanceFixtures
                     'en', 'at',
                 ],
             ],
-            'expected' => 'en Override',
+            'expected' => 'de Template',
         ];
         yield 'AT Storefront, DE templates, EN/AT overrides' => [
             'actual' => [
@@ -324,7 +324,7 @@ final class CategoryRouteInheritanceFixtures
                     'en',
                 ],
             ],
-            'expected' => 'en Override',
+            'expected' => 'de Template',
         ];
         yield 'AT Storefront, EN/DE templates, EN overrides' => [
             'actual' => [
@@ -336,7 +336,7 @@ final class CategoryRouteInheritanceFixtures
                     'en',
                 ],
             ],
-            'expected' => 'en Override',
+            'expected' => 'de Template',
         ];
         yield 'AT Storefront, EN/AT templates, EN overrides' => [
             'actual' => [
@@ -348,7 +348,7 @@ final class CategoryRouteInheritanceFixtures
                     'en',
                 ],
             ],
-            'expected' => 'en Override',
+            'expected' => 'at Template',
         ];
         yield 'AT Storefront, EN/DE/AT templates, EN overrides' => [
             'actual' => [
@@ -360,7 +360,7 @@ final class CategoryRouteInheritanceFixtures
                     'en',
                 ],
             ],
-            'expected' => 'en Override',
+            'expected' => 'at Template',
         ];
     }
 

@@ -183,6 +183,21 @@ class PluginManagerSingleton {
     }
 
     /**
+     * Calls a method on all plugin instances.
+     * 
+     * @param {string} pluginName 
+     * @param {*} methodName 
+     * @param  {...any} args 
+     */
+    callPluginMethod(pluginName, methodName, ...args) {
+        const instances = this.getPluginInstances(pluginName);
+
+        instances.forEach(instance => {
+            instance[methodName](...args);
+        });
+    }
+
+    /**
      * Returns the plugin instance from the passed element selected by plugin Name.
      *
      * @param {HTMLElement} el
@@ -232,6 +247,40 @@ class PluginManagerSingleton {
                     for (const [, entry] of plugin.get('registrations')) {
                         try {
                             this._initializePlugin(plugin.get('class'), entry.selector, entry.options, plugin.get('name'));
+                        } catch (failure) {
+                            initializationFailures.push(failure);
+                        }
+                    }
+                }
+            }
+        }
+
+        initializationFailures.forEach((failure) => {
+            console.error(failure);
+        });
+
+        return Promise.resolve();
+    }
+
+    /**
+     * Initializes all registered plugins, but only for elements within the parent element.
+     *
+     * @param {HTMLElement} parentElement 
+     * @returns {Promise<void>}
+     */
+    async initializePluginsInParentElement(parentElement) {
+        const initializationFailures = [];
+
+        await this._fetchAsyncPlugins();
+
+        for (const [pluginName] of Object.entries(this.getPluginList())) {
+            if (pluginName) {
+                const plugin = this._registry.get(pluginName);
+
+                if (plugin.has('registrations')) {
+                    for (const [, entry] of plugin.get('registrations')) {
+                        try {
+                            this._initializePlugin(plugin.get('class'), entry.selector, entry.options, plugin.get('name'), parentElement);
                         } catch (failure) {
                             initializationFailures.push(failure);
                         }
@@ -404,17 +453,24 @@ class PluginManagerSingleton {
      * @param {String|NodeList|HTMLElement} selector
      * @param {Object} options
      * @param {string} pluginName
+     * @param {HTMLElement} context - Optional parent element to scope the selector query to.
      */
-    _initializePlugin(pluginClass, selector, options, pluginName = false) {
+    _initializePlugin(pluginClass, selector, options, pluginName = false, context = null) {
         if (selector instanceof Node) {
+            if (context && !context.contains(selector)) {
+                return;
+            }
             return PluginManagerSingleton._initializePluginOnElement(selector, pluginClass, options, pluginName);
         }
 
         if (typeof selector === 'string') {
-            selector = PluginManagerSingleton._queryElements(selector);
+            selector = PluginManagerSingleton._queryElements(selector, context);
         }
 
         return Array.from(selector).forEach(el => {
+            if (context && !context.contains(el)) {
+                return;
+            }
             PluginManagerSingleton._initializePluginOnElement(el, pluginClass, options, pluginName);
         });
     }
@@ -440,10 +496,15 @@ class PluginManagerSingleton {
      * instead of the entire compatible characters
      *
      * @param {string} selector
+     * @param {HTMLElement} context - Optional parent element to scope the query to.
      *
      * @return {NodeList|HTMLCollection|Array}
      */
-    static _queryElements(selector) {
+    static _queryElements(selector, context = null) {
+        if (context) {
+            return context.querySelectorAll(selector);
+        }
+
         if (selector.startsWith('.')) {
             const regexEl = /^\.([\w-]+)$/.exec(selector);
             if (regexEl) {
@@ -642,6 +703,16 @@ export default class PluginManager {
     }
 
     /**
+     * Initializes all registered plugins, but only for elements within the parent element.
+     *
+     * @param {HTMLElement} parentElement
+     * @return {Promise<void>}
+     */
+    static initializePluginsInParentElement(parentElement) {
+        return PluginManagerInstance.initializePluginsInParentElement(parentElement);
+    }
+
+    /**
      * Initializes a single plugin.
      *
      * @param {string} pluginName
@@ -651,6 +722,18 @@ export default class PluginManager {
      */
     static initializePlugin(pluginName, selector, options) {
         return PluginManagerInstance.initializePlugin(pluginName, selector, options);
+    }
+
+    /**
+     * Calls a method on all plugin instances.
+     * 
+     * @param {string} pluginName 
+     * @param {string} methodName 
+     * @param  {...any} args 
+     * @returns 
+     */
+    static callPluginMethod(pluginName, methodName, ...args) {
+        return PluginManagerInstance.callPluginMethod(pluginName, methodName, ...args);
     }
 }
 

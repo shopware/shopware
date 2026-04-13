@@ -14,9 +14,11 @@ jobs:
       fail-fast: false
       matrix:
         redis:
-          - redis:alpine
-          - eqalpha/keydb:latest
+          - redis:7.2-alpine
+          - redis:7-alpine
+          - redis:8.2-alpine
           - valkey/valkey:8.0
+          - valkey/valkey:9.0
     services:
       redis:
         image: ${{ matrix.redis }}
@@ -51,7 +53,7 @@ jobs:
     secrets: inherit
     if: github.repository == 'shopware/shopware' || github.event_name == 'workflow_dispatch'
     with:
-      currents: true
+      currents: ${{ github.event_name == 'schedule' }}
   php:
     uses: ./.github/workflows/php.yml
     secrets: inherit
@@ -86,7 +88,7 @@ jobs:
     steps:
       - name: Delay
         run: sleep 20m
-      - uses: octo-sts/action@a26b0c6455c7f13316f29a8766287f939e75f6c8 # 1.0.2
+      - uses: shopware/octo-sts-action@main
         id: sts
         with:
           scope: shopware

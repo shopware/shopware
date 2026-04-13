@@ -34,7 +34,9 @@ class AdminExtensionApiControllerTest extends TestCase
 
     private Context $context;
 
-    /** @var MockObject&EntityRepository<AppCollection> */
+    /**
+     * @var MockObject&EntityRepository<AppCollection>
+     */
     private MockObject&EntityRepository $entityRepository;
 
     private MockObject&Executor $executor;

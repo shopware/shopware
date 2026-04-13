@@ -1,4 +1,4 @@
-import { test, expect, getLocale, getCurrencySymbolFromLocale } from '@fixtures/AcceptanceTest';
+import { test, expect, formatPrice } from '@fixtures/AcceptanceTest';
 
 test(
     'Customer gets a special product price depending on rules.',
@@ -39,11 +39,8 @@ test(
         expect(priceResponse.ok()).toBeTruthy();
 
         await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
-        const currencyIcon = getCurrencySymbolFromLocale(getLocale());
-        await ShopCustomer.expects(StorefrontProductDetail.productSinglePrice).toContainText(`${currencyIcon}10.00`);
+        await ShopCustomer.expects(StorefrontProductDetail.productSinglePrice).toContainText(formatPrice(10.0));
         await ShopCustomer.attemptsTo(AddProductToCart(product));
-        await ShopCustomer.expects(StorefrontProductDetail.offCanvasSummaryTotalPrice).toContainText(
-            `${currencyIcon}8.99`
-        );
+        await ShopCustomer.expects(StorefrontProductDetail.offCanvasSummaryTotalPrice).toContainText(formatPrice(8.99));
     }
 );

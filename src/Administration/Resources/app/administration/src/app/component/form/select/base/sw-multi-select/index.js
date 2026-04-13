@@ -83,7 +83,6 @@ export default {
         highlightSearchTerm: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         // Used to implement a custom search function.
@@ -102,6 +101,11 @@ export default {
             },
         },
         label: {
+            type: String,
+            required: false,
+            default: undefined,
+        },
+        autocomplete: {
             type: String,
             required: false,
             default: undefined,

@@ -26,3 +26,17 @@ updates:
       all:
         patterns:
           - "*"
+
+  - package-ecosystem: "npm"
+    target-branch: trunk
+    directory: "/tests/acceptance"
+    schedule:
+      interval: "daily"
+    commit-message:
+      prefix: "ci(deps): "
+    labels:
+      - "domain/quality-ops"
+      - "backport-6.6.x"
+    allow:
+      - dependency-name: "@shopware-ag/acceptance-test-suite"
+        dependency-type: "direct"

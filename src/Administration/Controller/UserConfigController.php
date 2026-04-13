@@ -58,7 +58,7 @@ class UserConfigController extends AbstractController
     {
         $postUpdateConfigs = $request->request->all();
 
-        if (empty($postUpdateConfigs)) {
+        if ($postUpdateConfigs === []) {
             return new JsonResponse(null, Response::HTTP_NO_CONTENT);
         }
 
@@ -76,7 +76,7 @@ class UserConfigController extends AbstractController
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('userId', $userId));
-        if (!empty($keys)) {
+        if ($keys !== []) {
             $criteria->addFilter(new EqualsAnyFilter('key', $keys));
         }
 

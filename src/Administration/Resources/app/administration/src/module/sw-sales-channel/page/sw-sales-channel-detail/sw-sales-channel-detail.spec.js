@@ -4,7 +4,43 @@
 
 import { mount } from '@vue/test-utils';
 
-async function createWrapper() {
+const mockSave = jest.fn(() => Promise.resolve());
+const mockGet = jest.fn();
+const mockGetSystemConfig = jest.fn(() => Promise.resolve([]));
+const mockGetSystemConfigValues = jest.fn(() => Promise.resolve({}));
+
+const defaultSalesChannelResponse = {
+    id: '1a2b3c4d',
+    typeId: Shopware.Defaults.storefrontSalesChannelTypeId,
+    analyticsId: '1a2b3c',
+    analytics: {
+        id: '1a2b3c',
+        trackingId: 'tracking-id',
+    },
+    productExports: {
+        first: () => ({}),
+    },
+};
+
+async function createWrapper(optionsOrLegacyArg = { id: '1a2b3c4d' }) {
+    const normalizedOptions = Array.isArray(optionsOrLegacyArg)
+        ? { routeParams: { id: '1a2b3c4d' } }
+        : optionsOrLegacyArg.routeParams || optionsOrLegacyArg.salesChannelResponse
+          ? optionsOrLegacyArg
+          : { routeParams: optionsOrLegacyArg };
+
+    const { routeParams = { id: '1a2b3c4d' }, salesChannelResponse = {} } = normalizedOptions;
+
+    mockGet.mockResolvedValue({
+        ...defaultSalesChannelResponse,
+        ...salesChannelResponse,
+        analytics: {
+            ...defaultSalesChannelResponse.analytics,
+            ...(salesChannelResponse.analytics ?? {}),
+        },
+        productExports: salesChannelResponse.productExports ?? defaultSalesChannelResponse.productExports,
+    });
+
     return mount(await wrapTestComponent('sw-sales-channel-detail', { sync: true }), {
         global: {
             stubs: {
@@ -12,6 +48,7 @@ async function createWrapper() {
                     template: `
     <div class="sw-page">
         <slot name="smart-bar-actions"></slot>
+        <slot name="content"></slot>
     </div>
                     `,
                 },
@@ -20,10 +57,21 @@ async function createWrapper() {
                     props: ['disabled'],
                 },
                 'sw-language-switch': true,
-                'sw-card-view': true,
+                'sw-card-view': {
+                    template: '<div class="sw-card-view"><slot /></div>',
+                },
                 'sw-language-info': true,
-                'sw-tabs': true,
-                'sw-tabs-item': true,
+                'sw-tabs': {
+                    template: '<div class="sw-tabs"><slot /></div>',
+                },
+                'sw-tabs-item': {
+                    template: '<div class="sw-tabs-item"><slot /></div>',
+                    props: [
+                        'route',
+                        'title',
+                        'disabled',
+                    ],
+                },
                 'router-view': true,
                 'sw-skeleton': true,
             },
@@ -31,32 +79,24 @@ async function createWrapper() {
                 repositoryFactory: {
                     create: () => ({
                         create: () => ({}),
-                        get: () =>
-                            Promise.resolve({
-                                id: '1a2b3c4d',
-                                analyticsId: '1a2b3c',
-                                analytics: {
-                                    id: '1a2b3c',
-                                    trackingId: 'tracking-id',
-                                },
-                                productExports: {
-                                    first: () => ({}),
-                                },
-                            }),
+                        get: mockGet,
                         search: () => Promise.resolve([]),
                         delete: () => Promise.resolve(),
-                        save: () => Promise.resolve(),
+                        save: mockSave,
                     }),
                 },
                 exportTemplateService: {
                     getProductExportTemplateRegistry: () => ({}),
                 },
+                systemConfigApiService: {
+                    getConfig: mockGetSystemConfig,
+                    getValues: mockGetSystemConfigValues,
+                    batchSave: () => Promise.resolve(),
+                },
             },
             mocks: {
                 $route: {
-                    params: {
-                        id: '1a2b3c4d',
-                    },
+                    params: routeParams,
                     name: '',
                 },
             },
@@ -67,6 +107,10 @@ async function createWrapper() {
 describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
     beforeEach(() => {
         global.activeAclRoles = [];
+        mockSave.mockClear();
+        mockGet.mockClear();
+        mockGetSystemConfig.mockClear();
+        mockGetSystemConfigValues.mockClear();
     });
 
     it('should disable the save button when privilege does not exist', async () => {
@@ -146,5 +190,300 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
                 }),
             }),
         );
+    });
+
+    it('should provide agentic commerce export config accessor for child views', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setData({
+            agenticCommerceExportConfig: [
+                {
+                    provider: 'open-ai',
+                    elements: [],
+                    values: {},
+                    isLoading: false,
+                },
+            ],
+        });
+
+        const provide = wrapper.vm.$options.provide.call(wrapper.vm);
+
+        expect(typeof provide.swSalesChannelDetailGetAgenticCommerceExportConfig).toBe('function');
+        expect(provide.swSalesChannelDetailGetAgenticCommerceExportConfig()).toEqual(wrapper.vm.agenticCommerceExportConfig);
+    });
+
+    it('should load agentic commerce export config in create flow when route has typeId but no id', async () => {
+        mockGetSystemConfig.mockResolvedValueOnce([
+            {
+                elements: [
+                    {
+                        name: 'core.openAiProductExport.returnPolicyUrl',
+                    },
+                ],
+            },
+        ]);
+
+        const wrapper = await createWrapper({
+            typeId: Shopware.Defaults.agenticCommerceTypeId,
+        });
+
+        wrapper.vm.salesChannel = {
+            id: 'new-sales-channel-id',
+            typeId: Shopware.Defaults.agenticCommerceTypeId,
+        };
+
+        await wrapper.vm.loadEntityData();
+        await flushPromises();
+
+        expect(mockGetSystemConfig).toHaveBeenCalledWith('core.openAiProductExport');
+        expect(mockGetSystemConfigValues).toHaveBeenCalledWith('core.openAiProductExport', 'new-sales-channel-id');
+        expect(wrapper.vm.agenticCommerceExportConfig[0].elements).toHaveLength(1);
+    });
+
+    it('shows the insights tab for agentic commerce channels and hides storefront analytics', async () => {
+        const wrapper = await createWrapper({
+            routeParams: {
+                id: '1a2b3c4d',
+            },
+            salesChannelResponse: {
+                typeId: Shopware.Defaults.agenticCommerceTypeId,
+            },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.text()).toContain('sw-sales-channel.detail.productExport.tabInsights');
+        expect(wrapper.text()).not.toContain('sw-sales-channel.detail.tabAnalytics');
+    });
+
+    it('shows storefront analytics tab for storefront channels and hides insights', async () => {
+        const wrapper = await createWrapper({
+            routeParams: {
+                id: '1a2b3c4d',
+            },
+            salesChannelResponse: {
+                typeId: Shopware.Defaults.storefrontSalesChannelTypeId,
+            },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.text()).toContain('sw-sales-channel.detail.tabAnalytics');
+        expect(wrapper.text()).not.toContain('sw-sales-channel.detail.productExport.tabInsights');
+    });
+
+    it('hides the insights tab for product comparison channels', async () => {
+        const wrapper = await createWrapper({
+            salesChannelResponse: {
+                typeId: Shopware.Defaults.productComparisonTypeId,
+            },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.text()).not.toContain('sw-sales-channel.detail.productExport.tabInsights');
+    });
+
+    it('returns true for isProductExportChannel on product comparison and agentic channels', async () => {
+        const agenticWrapper = await createWrapper({
+            salesChannelResponse: {
+                typeId: Shopware.Defaults.agenticCommerceTypeId,
+            },
+        });
+
+        await flushPromises();
+
+        expect(agenticWrapper.vm.isProductExportChannel).toBe(true);
+
+        const comparisonWrapper = await createWrapper({
+            salesChannelResponse: {
+                typeId: Shopware.Defaults.productComparisonTypeId,
+            },
+        });
+
+        await flushPromises();
+
+        expect(comparisonWrapper.vm.isProductExportChannel).toBe(true);
+        agenticWrapper.unmount();
+        comparisonWrapper.unmount();
+    });
+
+    it('returns false for isProductExportChannel on storefront channels', async () => {
+        const wrapper = await createWrapper({
+            salesChannelResponse: {
+                typeId: Shopware.Defaults.storefrontSalesChannelTypeId,
+            },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.vm.isProductExportChannel).toBe(false);
+    });
+
+    it('should save without reloading entity data when saveOnLanguageChange is called', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        mockGet.mockClear();
+
+        await wrapper.vm.saveOnLanguageChange();
+        await flushPromises();
+
+        expect(mockSave).toHaveBeenCalledTimes(1);
+        expect(mockGet).not.toHaveBeenCalled();
+    });
+
+    it('should save and reload entity data when onSave is called', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        mockGet.mockClear();
+
+        await wrapper.vm.onSave();
+        await flushPromises();
+
+        expect(mockSave).toHaveBeenCalledTimes(1);
+        expect(mockGet).toHaveBeenCalledTimes(1);
+    });
+
+    it('should handle errors in saveOnLanguageChange without reloading entity data', async () => {
+        mockSave.mockRejectedValueOnce(new Error('Save failed'));
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        mockGet.mockClear();
+
+        await wrapper.vm.saveOnLanguageChange();
+        await flushPromises();
+
+        expect(wrapper.vm.isSaveSuccessful).toBe(false);
+        expect(wrapper.vm.isLoading).toBe(false);
+        expect(mockGet).not.toHaveBeenCalled();
+    });
+
+    it('should handle errors in onSave without reloading entity data', async () => {
+        mockSave.mockRejectedValueOnce(new Error('Save failed'));
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        mockGet.mockClear();
+
+        await wrapper.vm.onSave();
+        await flushPromises();
+
+        expect(wrapper.vm.isSaveSuccessful).toBe(false);
+        expect(wrapper.vm.isLoading).toBe(false);
+        expect(mockGet).not.toHaveBeenCalled();
+    });
+
+    it('should detect current template on load when product export bodyTemplate matches', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const template = { name: 'open_ai', bodyTemplate: '{{ feedRow|json_encode }}' };
+        wrapper.vm.productComparison.templates = { open_ai: template };
+        wrapper.vm.productComparison.templateOptions = [template];
+        wrapper.vm.salesChannel.productExports = {
+            first: () => ({ bodyTemplate: template.bodyTemplate }),
+        };
+
+        wrapper.vm.detectCurrentTemplate();
+
+        expect(wrapper.vm.productComparison.templateName).toBe('open_ai');
+    });
+
+    it('should not detect a template when bodyTemplate does not match any registered template', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const template = { name: 'open_ai', bodyTemplate: '{{ feedRow|json_encode }}' };
+        wrapper.vm.productComparison.templates = { open_ai: template };
+        wrapper.vm.productComparison.templateOptions = [template];
+        wrapper.vm.salesChannel.productExports = {
+            first: () => ({ bodyTemplate: '<custom>{{ product.name }}</custom>' }),
+        };
+
+        wrapper.vm.detectCurrentTemplate();
+
+        expect(wrapper.vm.productComparison.templateName).toBeNull();
+    });
+
+    it('should set templateName without modal when selecting a template with unchanged content', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const template = { bodyTemplate: '<item />', headerTemplate: '<?xml ?>' };
+        wrapper.vm.productComparison.templates = { google: template };
+        wrapper.vm.salesChannel.productExports = {
+            first: () => ({ bodyTemplate: '<item />', headerTemplate: '<?xml ?>' }),
+        };
+
+        wrapper.vm.onTemplateSelected('google');
+
+        expect(wrapper.vm.productComparison.templateName).toBe('google');
+        expect(wrapper.vm.productComparison.showTemplateModal).toBe(false);
+    });
+
+    it('should store previousTemplateName and show modal when template content differs', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.productComparison.templateName = 'google';
+        wrapper.vm.productComparison.templates = {
+            idealo: { name: 'idealo', bodyTemplate: '"sku"|"title"' },
+        };
+        wrapper.vm.salesChannel.productExports = {
+            first: () => ({ bodyTemplate: '<item />' }),
+        };
+
+        wrapper.vm.onTemplateSelected('idealo');
+
+        expect(wrapper.vm.productComparison.previousTemplateName).toBe('google');
+        expect(wrapper.vm.productComparison.templateName).toBe('idealo');
+        expect(wrapper.vm.productComparison.showTemplateModal).toBe(true);
+    });
+
+    it('should restore previousTemplateName when template modal is closed', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.productComparison.templateName = 'idealo';
+        wrapper.vm.productComparison.previousTemplateName = 'google';
+        wrapper.vm.productComparison.showTemplateModal = true;
+        wrapper.vm.productComparison.selectedTemplate = { bodyTemplate: '"sku"' };
+
+        wrapper.vm.onTemplateModalClose();
+
+        expect(wrapper.vm.productComparison.templateName).toBe('google');
+        expect(wrapper.vm.productComparison.previousTemplateName).toBeNull();
+        expect(wrapper.vm.productComparison.selectedTemplate).toBeNull();
+        expect(wrapper.vm.productComparison.showTemplateModal).toBe(false);
+    });
+
+    it('should apply template with providerName mapping on modal confirm', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.productComparison.previousTemplateName = 'google';
+        wrapper.vm.productComparison.templateName = 'open_ai';
+        wrapper.vm.productComparison.selectedTemplate = {
+            bodyTemplate: '{{ feedRow }}',
+            headerTemplate: '',
+            footerTemplate: '',
+            providerName: 'open-ai',
+        };
+        wrapper.vm.productComparison.showTemplateModal = true;
+
+        const productExport = wrapper.vm.productExport;
+
+        wrapper.vm.onTemplateModalConfirm();
+
+        expect(productExport.bodyTemplate).toBe('{{ feedRow }}');
+        expect(productExport.provider).toBe('open-ai');
+        expect(wrapper.vm.productComparison.templateName).toBe('open_ai');
+        expect(wrapper.vm.productComparison.previousTemplateName).toBeNull();
+        expect(wrapper.vm.productComparison.showTemplateModal).toBe(false);
     });
 });

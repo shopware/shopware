@@ -2,12 +2,54 @@
     {% set sliderConfig = element.fieldConfig.elements %}
     {% set visibleValues = ['inside', 'outside'] %}
     {% set blockId = block.id %}
+    {% set displayMode = sliderConfig.displayMode.value %}
+    {% set navigationArrows = sliderConfig.navigationArrows.value %}
+    {% set navigationDots = sliderConfig.navigationDots.value %}
+    {% set verticalAlign = sliderConfig.verticalAlign.value %}
+    {% set minHeight = sliderConfig.minHeight.value|trim|replace({' ':''}) %}
 
-    <div class="cms-element-{{ element.type }}{% if sliderConfig.displayMode.value == "standard" and sliderConfig.verticalAlign.value %} has-vertical-alignment{% endif %}">
+    {% set containerClass = '' %}
+    {% set alignmentClass = ' align-self-start' %}
+    {% set arrowsClass = '' %}
+    {% set dotsClass = '' %}
+    {% set prevClass = '' %}
+    {% set nextClass = '' %}
+
+    {% if displayMode == 'contain' and verticalAlign %}
+        {% set containerClass = ' has-vertical-align is-align-' %}
+        {% if verticalAlign == 'center' %}
+            {% set containerClass = containerClass ~ 'center' %}
+        {% elseif verticalAlign == 'flex-end' %}
+            {% set containerClass = containerClass ~ 'bottom' %}
+        {% else %}
+            {% set containerClass = containerClass ~ 'top' %}
+        {% endif %}
+    {% endif %}
+
+    {% if verticalAlign == "center" %}
+        {% set alignmentClass = ' align-self-center' %}
+    {% elseif verticalAlign == "flex-end" %}
+        {% set alignmentClass = ' align-self-end' %}
+    {% endif %}
+
+    {% if navigationArrows == "outside" %}
+        {% set arrowsClass = ' has-nav-outside' %}
+        {% set prevClass = ' is-nav-prev-outside' %}
+        {% set nextClass = ' is-nav-next-outside' %}
+    {% elseif navigationArrows == "inside" %}
+        {% set prevClass = ' is-nav-prev-inside' %}
+        {% set nextClass = ' is-nav-next-inside' %}
+    {% endif %}
+
+    {% if navigationDots == "outside" %}
+        {% set dotsClass = ' has-dots-outside' %}
+    {% endif %}
+
+    <div class="cms-element-{{ element.type }}{% if displayMode == "standard" and verticalAlign %} has-vertical-alignment{% endif %}">
         {% set baseSliderOptions = {
             slider: {
-                controls: sliderConfig.navigationArrows.value in visibleValues,
-                nav: sliderConfig.navigationDots.value in visibleValues,
+                controls: navigationArrows in visibleValues,
+                nav: navigationDots in visibleValues,
                 navPosition: 'bottom',
                 mouseDrag: true,
                 autoplay: sliderConfig.autoSlide.value,
@@ -15,16 +57,16 @@
                 autoplayTimeout: sliderConfig.autoplayTimeout.value,
                 speed: sliderConfig.speed.value,
                 ariaLive: sliderConfig.autoSlide.value ? false : true,
-                autoHeight: (sliderConfig.displayMode.value == "standard") ? true : false
+                autoHeight: (displayMode == "standard") ? true : false
             }
         } %}
 
         {% block element_image_slider_alignment %}
             {% if config.verticalAlign.value %}
-                <div class="cms-element-alignment{% if sliderConfig.verticalAlign.value == "center" %} align-self-center{% elseif sliderConfig.verticalAlign.value == "flex-end" %} align-self-end{% else %} align-self-start{% endif %}">
+                <div class="cms-element-alignment{{ alignmentClass }}">
             {% endif %}
                 <div
-                    class="base-slider image-slider{% if sliderConfig.navigationArrows.value == "outside" %} has-nav-outside{% endif %}{% if sliderConfig.navigationDots.value == "outside" %} has-dots-outside{% endif %}"
+                    class="base-slider image-slider{{ arrowsClass }}{{ dotsClass }}"
                     data-base-slider="true"
                     data-base-slider-options='{{ baseSliderOptions|json_encode }}'
                     role="region"
@@ -40,12 +82,12 @@
                             } %}
                         {% endblock %}
 
-                        <div class="image-slider-container"
+                        <div class="image-slider-container{{ containerClass }}"
                              data-base-slider-container="true">
                             {% for image in element.data.sliderItems %}
 
                                 {% set imageElement %}
-                                    <div class="image-slider-item{% if loop.first != true %} is-not-first{% endif %} is-{{ sliderConfig.displayMode.value }}"{% if sliderConfig.minHeight.value and sliderConfig.displayMode.value == "cover" %} style="min-height: {{ sliderConfig.minHeight.value|trim|replace({' ':''}) }}"{% endif %}>
+                                    <div class="image-slider-item{% if loop.first != true %} is-not-first{% endif %} is-{{ displayMode }}"{% if minHeight and displayMode == "cover" %} style="min-height: {{ minHeight }}"{% endif %}>
                                         {% set attributes = {
                                             'class': 'img-fluid image-slider-image',
                                             'alt': element.config.isDecorative.value ? '' : (image.media.translated.alt ?: ''),
@@ -86,14 +128,14 @@
                         </div>
 
                         {% block element_image_slider_controls %}
-                            {% if sliderConfig.navigationArrows.value !== 'none' %}
+                            {% if navigationArrows !== 'none' %}
                                 <div class="image-slider-controls-container">
                                     <div class="base-slider-controls"
                                         data-base-slider-controls="true">
                                         {% block element_image_slider_controls_items %}
                                             {% block element_image_slider_controls_items_arrows %}
                                                 <button
-                                                    class="base-slider-controls-prev image-slider-controls-prev{% if sliderConfig.navigationArrows.value == "outside" %} is-nav-prev-outside{% elseif sliderConfig.navigationArrows.value == "inside" %} is-nav-prev-inside{% endif %}"
+                                                    class="base-slider-controls-prev image-slider-controls-prev{{ prevClass }}"
                                                     aria-label="{{ 'general.previous'|trans|striptags }}"
                                                 >
                                                     {% block element_image_slider_controls_items_prev_icon %}
@@ -101,7 +143,7 @@
                                                     {% endblock %}
                                                 </button>
                                                 <button
-                                                    class="base-slider-controls-next image-slider-controls-next{% if sliderConfig.navigationArrows.value == "outside" %} is-nav-next-outside{% elseif sliderConfig.navigationArrows.value == "inside" %} is-nav-next-inside{% endif %}"
+                                                    class="base-slider-controls-next image-slider-controls-next{{ nextClass }}"
                                                     aria-label="{{ 'general.next'|trans|striptags }}"
                                                 >
                                                     {% block element_image_slider_controls_items_next_icon %}

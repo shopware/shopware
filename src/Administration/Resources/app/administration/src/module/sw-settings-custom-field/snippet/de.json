@@ -80,7 +80,10 @@
         "tooltipAllowCartExpose": "Aktivieren, um dieses Zusatzfeld in den Daten von Warenkorb-Positionen verfügbar zu machen. Dies ist Voraussetzung für die initiale Verwendung dieses benutzerdefinierten Feldes im Rule Builder oder in eigenen Templates.",
         "tooltipCartExposeDisabled": "Diese Einstellung kann zur Zeit nicht geändert werden, da das Zusatzfeld noch von einer oder mehreren Bedingungen im Rule Builder verwendet wird.",
         "labelStoreApiAware": "Sichtbar in Store API",
-        "tooltipStoreApiAware": "Wenn diese Option aktiviert ist, wird dieses Feld in der Store-API sichtbar sein. Diese Option kann deaktiviert werden, um benutzerdefinierte Daten nur intern zu speichern und nicht über die Store API verfügbar zu machen."
+        "tooltipStoreApiAware": "Wenn diese Option aktiviert ist, wird dieses Feld in der Store-API sichtbar sein. Diese Option kann deaktiviert werden, um benutzerdefinierte Daten nur intern zu speichern und nicht über die Store API verfügbar zu machen.",
+        "labelAllowSearchable": "In Suche berücksichtigen",
+        "tooltipAllowSearchable": "Wenn diese Option aktiviert ist, wird dieses Zusatzfeld in Elasticsearch indiziert und kann in Suchkonfigurationen verwendet werden. Wenn das Feld nicht für die Suche benötigt wird, sollte diese Option deaktiviert sein, um den Speicherbedarf gering zu halten. Dies kann die Suche beschleunigen",
+        "bannerSearchableEnabled": "Es ist empfohlen die Daten neu indizieren zu lassen, wenn sich der Such-Status des Felds geändert hat, um weiterhin präzise Suchergebnisse zu gewährleisten."
       },
       "list": {
         "labelCustomFieldLabel": "Label",

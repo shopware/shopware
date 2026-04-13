@@ -143,7 +143,7 @@ class ProductStreamUpdaterTest extends TestCase
                 'type' => 'range',
                 'field' => 'cheapestPrice.percentage',
                 'parameters' => [
-                    'lt' => 50,
+                    'gt' => 50,
                 ],
             ]],
         ];
@@ -254,27 +254,27 @@ class ProductStreamUpdaterTest extends TestCase
         static::assertCount(3, $activeProducts);
         static::assertCount(
             3,
-            $activeProducts->filter(function (ProductEntity $product) use ($activeStreamId) {
+            $activeProducts->filter(static function (ProductEntity $product) use ($activeStreamId) {
                 $streams = $product->getStreams();
                 if ($streams) {
                     return $streams->filterByProperty('id', $activeStreamId)
-                        ->first();
+                        ->first() !== null;
                 }
 
-                return null;
+                return false;
             })
         );
         // Check and ensure the opposite product_stream (inactive) weren't added
         static::assertCount(
             0,
-            $activeProducts->filter(function (ProductEntity $product) use ($inActiveStreamId) {
+            $activeProducts->filter(static function (ProductEntity $product) use ($inActiveStreamId) {
                 $streams = $product->getStreams();
                 if ($streams) {
                     return $streams->filterByProperty('id', $inActiveStreamId)
-                        ->first();
+                        ->first() !== null;
                 }
 
-                return null;
+                return false;
             })
         );
 
@@ -289,27 +289,27 @@ class ProductStreamUpdaterTest extends TestCase
         static::assertCount(1, $inActiveProducts);
         static::assertCount(
             1,
-            $inActiveProducts->filter(function (ProductEntity $product) use ($inActiveStreamId) {
+            $inActiveProducts->filter(static function (ProductEntity $product) use ($inActiveStreamId) {
                 $streams = $product->getStreams();
                 if ($streams) {
                     return $streams->filterByProperty('id', $inActiveStreamId)
-                        ->first();
+                        ->first() !== null;
                 }
 
-                return null;
+                return false;
             })
         );
         // Check and ensure the opposite product_stream (active) weren't added
         static::assertCount(
             0,
-            $inActiveProducts->filter(function (ProductEntity $product) use ($activeStreamId) {
+            $inActiveProducts->filter(static function (ProductEntity $product) use ($activeStreamId) {
                 $streams = $product->getStreams();
                 if ($streams) {
                     return $streams->filterByProperty('id', $activeStreamId)
-                        ->first();
+                        ->first() !== null;
                 }
 
-                return null;
+                return false;
             })
         );
     }

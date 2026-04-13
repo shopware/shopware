@@ -12,6 +12,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LocaleCollection;
+use Symfony\Component\Filesystem\Exception\IOException;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -26,7 +28,8 @@ readonly class AppAdministrationSnippetPersister
     public function __construct(
         private EntityRepository $appAdministrationSnippetRepository,
         private EntityRepository $localeRepository,
-        private CacheInvalidator $cacheInvalidator
+        private CacheInvalidator $cacheInvalidator,
+        private Filesystem $filesystem,
     ) {
     }
 
@@ -50,7 +53,7 @@ readonly class AppAdministrationSnippetPersister
         }
 
         // only throw exception if snippets are given but not en-GB
-        if (!\array_key_exists('en-GB', $snippets) && !empty($snippets)) {
+        if (!\array_key_exists('en-GB', $snippets) && $snippets !== []) {
             throw SnippetException::defaultLanguageNotGiven('en-GB');
         }
 
@@ -106,9 +109,10 @@ readonly class AppAdministrationSnippetPersister
     private function getCoreAdministrationSnippets(): array
     {
         $path = __DIR__ . '/../Resources/app/administration/src/app/snippet/en.json';
-        $snippets = file_get_contents($path);
 
-        if (!$snippets) {
+        try {
+            $snippets = $this->filesystem->readFile($path);
+        } catch (IOException) {
             return [];
         }
 

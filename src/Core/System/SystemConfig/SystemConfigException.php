@@ -23,6 +23,7 @@ class SystemConfigException extends HttpException
     public const BUNDLE_CONFIG_NOT_FOUND = 'SYSTEM__BUNDLE_CONFIG_NOT_FOUND';
     public const INVALID_SETTING_VALUE = 'SYSTEM__INVALID_SETTING_VALUE';
     public const INVALID_KEY = 'SYSTEM__INVALID_KEY';
+    public const MISSING_REQUEST_PARAMETER_CODE = 'SYSTEM__CONFIG_MISSING_REQUEST_PARAMETER';
 
     public static function systemConfigKeyIsManagedBySystems(string $configKey): self
     {
@@ -100,5 +101,15 @@ class SystemConfigException extends HttpException
         });
 
         return $exception;
+    }
+
+    public static function missingRequestParameter(string $name, string $path = ''): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MISSING_REQUEST_PARAMETER_CODE,
+            'Parameter "{{ parameterName }}" is missing.',
+            ['parameterName' => $name, 'path' => $path]
+        );
     }
 }

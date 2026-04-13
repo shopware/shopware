@@ -39,12 +39,27 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
         </service>
 
+        <service id="Shopware\Storefront\Checkout\Customer\CustomerGroupSubscriber">
+            <argument type="service" id="customer_group.repository"/>
+            <argument type="service" id="seo_url.repository"/>
+            <argument type="service" id="language.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPersister"/>
+            <argument type="service" id="slugify"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Storefront\Checkout\Shipping\BlockedShippingMethodSwitcher">
             <argument type="service" id="Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute"/>
         </service>
 
         <service id="Shopware\Storefront\Checkout\Payment\BlockedPaymentMethodSwitcher">
             <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Cache\CacheCookieEventSubscriber">
+            <argument type="service" id="session.factory"/>
+
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Routing\CachedDomainLoader" decorates="Shopware\Storefront\Framework\Routing\DomainLoader" decoration-priority="-1000">
@@ -98,6 +113,7 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeConfigValueAccessor"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeScripts" />
+            <argument type="service" id="assets.packages" />
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeConfigValueAccessor">
@@ -162,6 +178,7 @@
             <argument type="service" id="router"/>
             <argument type="service" id="Shopware\Storefront\Framework\Routing\MaintenanceModeResolver"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="event_dispatcher"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -273,6 +290,8 @@
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute"/>
+            <argument type="service" id="product_review.repository"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader">
@@ -536,13 +555,56 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
+        <service id="Shopware\Storefront\Page\Robots\Parser\RobotsDirectiveParser"/>
+
         <service id="Shopware\Storefront\Page\Robots\RobotsPageLoader">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="sales_channel_domain.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Storefront\Page\Robots\Parser\RobotsDirectiveParser"/>
+        </service>
+
+        <service id="Shopware\Storefront\Page\Robots\RobotsConfigChangeSubscriber">
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Routing\RobotsRouteScopeWhitelist">
+            <tag name="shopware.route_scope_whitelist"/>
+        </service>
+
+        <service id="storefront.twig_component_helper.local_filesystem" class="League\Flysystem\FilesystemOperator">
+            <factory service="Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory" method="privateFactory"/>
+            <argument type="collection">
+                <argument key="type">local</argument>
+                <argument key="config" type="collection">
+                    <argument key="root">%kernel.project_dir%</argument>
+                </argument>
+            </argument>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper">
+            <argument>%storefront.bundle_components%</argument>
+            <argument>%kernel.project_dir%</argument>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
+            <argument type="service" id="storefront.twig_component_helper.local_filesystem"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Twig\Components\TwigComponentRenderEventListener">
+            <argument>%kernel.environment%</argument>
+            <tag name="kernel.event_listener" />
+        </service>
+
+        <service id="Shopware\Storefront\Storybook\StorybookService">
+            <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="media.repository"/>
+            <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
+            <argument type="service" id="Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeRuntimeConfigStorage"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Routing\StorybookRouteScopeAllowList">
             <tag name="shopware.route_scope_whitelist"/>
         </service>
     </services>

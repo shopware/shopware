@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Framework\Api\Controller;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -15,10 +14,9 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Controller\SyncController;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
-use Shopware\Core\Framework\Increment\AbstractIncrementer;
-use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,22 +24,18 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[CoversClass(SyncController::class)]
 #[Group('slow')]
 class SyncControllerTest extends TestCase
 {
     use AdminApiTestBehaviour;
     use IntegrationTestBehaviour;
+    use QueueTestBehaviour;
 
     private Connection $connection;
-
-    private AbstractIncrementer $gateway;
 
     protected function setUp(): void
     {
         $this->connection = static::getContainer()->get(Connection::class);
-        $this->gateway = static::getContainer()->get('shopware.increment.gateway.registry')->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
-        $this->gateway->reset('message_queue_stats');
     }
 
     public function testMultipleProductInsert(): void
@@ -138,7 +132,7 @@ class SyncControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-        $responseData = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
+        $responseData = json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR);
         static::assertFalse($responseData['data']['attributes']['active']);
 
         $this->getBrowser()->request('DELETE', '/api/product/' . $id);
@@ -354,9 +348,6 @@ class SyncControllerTest extends TestCase
             ],
         ];
 
-        $this->connection->executeStatement('DELETE FROM messenger_messages;');
-        $this->connection->executeStatement('DELETE FROM `increment`;');
-
         $this->getBrowser()->request(
             'POST',
             '/api/_action/sync',
@@ -374,10 +365,8 @@ class SyncControllerTest extends TestCase
 
         static::assertNotEmpty($exists);
 
-        $messages = $this->gateway->list('message_queue_stats');
-
-        static::assertNotEmpty($messages);
-        static::assertSame(1, $messages[ProductIndexingMessage::class]['count']);
+        $queuedMessages = $this->getDispatchedMessageCount(ProductIndexingMessage::class);
+        static::assertSame(1, $queuedMessages);
     }
 
     public function testDirectIndexing(): void
@@ -401,12 +390,6 @@ class SyncControllerTest extends TestCase
             ],
         ];
 
-        $this->connection->executeStatement('DELETE FROM messenger_messages;');
-        $this->connection->executeStatement('DELETE FROM `increment`;');
-
-        $keys = $this->gateway->list('message_queue_stats');
-        static::assertEmpty($keys);
-
         $this->getBrowser()->request(
             'POST',
             '/api/_action/sync',
@@ -424,8 +407,7 @@ class SyncControllerTest extends TestCase
 
         static::assertNotEmpty($exists);
 
-        $keys = $this->gateway->list('message_queue_stats');
-        static::assertEmpty($keys);
+        static::assertSame(0, $this->getDispatchedMessageCount(ProductIndexingMessage::class));
     }
 
     public function testSkipIndexer(): void
@@ -450,6 +432,7 @@ class SyncControllerTest extends TestCase
         ];
 
         $headers = [
+            'HTTP_' . PlatformRequest::HEADER_LANGUAGE_ID => Defaults::LANGUAGE_SYSTEM,
             'HTTP_' . PlatformRequest::HEADER_INDEXING_SKIP => ProductIndexer::SEARCH_KEYWORD_UPDATER,
         ];
         $this->getBrowser()->request('POST', '/api/_action/sync', [], [], $headers, json_encode($data, \JSON_THROW_ON_ERROR));
@@ -457,9 +440,61 @@ class SyncControllerTest extends TestCase
         static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
 
         $connection = static::getContainer()->get(Connection::class);
-
         $count = (int) $connection->fetchOne('SELECT COUNT(*) FROM product_search_keyword WHERE product_id = ?', [Uuid::fromHexToBytes($id1)]);
         static::assertSame(0, $count, 'Search keywords should be empty as we skipped it');
+    }
+
+    public function testOnlyIndexer(): void
+    {
+        $id1 = Uuid::randomHex();
+        $data = [
+            [
+                'action' => SyncController::ACTION_UPSERT,
+                'entity' => ProductDefinition::ENTITY_NAME,
+                'payload' => [
+                    [
+                        'id' => $id1,
+                        'productNumber' => Uuid::randomHex(),
+                        'stock' => 1,
+                        'manufacturer' => ['name' => 'test'],
+                        'description' => 'This is a detailed product used to test search indexing.',
+                        'tax' => ['name' => 'test', 'taxRate' => 15],
+                        'name' => 'CREATE-1',
+                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
+                        'keywords' => 'a,b,c',
+                    ],
+                ],
+            ],
+        ];
+
+        $headers = [
+            'HTTP_' . PlatformRequest::HEADER_INDEXING_ONLY => ProductIndexer::SEARCH_KEYWORD_UPDATER,
+            'HTTP_' . PlatformRequest::HEADER_INDEXING_BEHAVIOR => EntityIndexerRegistry::USE_INDEXING_QUEUE,
+        ];
+        $this->getBrowser()->request('POST', '/api/_action/sync', [], [], $headers, json_encode($data, \JSON_THROW_ON_ERROR));
+
+        static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
+
+        // Get messsage from queue.
+        $sqlMessengerMessageBody = $this->connection->fetchOne('SELECT body FROM messenger_messages WHERE headers LIKE \'%ProductIndexingMessage%\'');
+        static::assertIsString($sqlMessengerMessageBody);
+        $data = json_decode($sqlMessengerMessageBody, true, 512, \JSON_THROW_ON_ERROR);
+        $indexerOnly = $data['context']['extensions']['indexer-only']['onlies'];
+        $skip = $data['skip'];
+
+        // Assert message is as expected.
+        static::assertCount(1, $indexerOnly);
+        static::assertSame(ProductIndexer::SEARCH_KEYWORD_UPDATER, $indexerOnly[0], 'Only indexer does not match passed `product.search-keyword` indexer in message.');
+
+        // Assert message contains skip for everything except our only indexer.
+        $productIndexerClassReflection = new \ReflectionClass(ProductIndexer::class);
+        $productIndexerClassInstance = $productIndexerClassReflection->newInstanceWithoutConstructor();
+        $productIndexerOptions = $productIndexerClassReflection->getMethod('getOptions')->invoke($productIndexerClassInstance);
+        $allProductIndexerMinusSearchKeyword = array_filter($productIndexerOptions, static function ($index) {
+            return $index !== ProductIndexer::SEARCH_KEYWORD_UPDATER;
+        });
+
+        static::assertEqualsCanonicalizing($allProductIndexerMinusSearchKeyword, $skip);
     }
 
     public static function invalidOperationProvider(): \Generator

@@ -65,7 +65,7 @@ class TemplateDataExtensionTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->exactly(2))
             ->method('fetchOne')
-            ->willReturnCallback(function (string $query) use ($expectedMinSearchLength, $navigationId) {
+            ->willReturnCallback(static function (string $query) use ($expectedMinSearchLength, $navigationId) {
                 if ($query === 'SELECT path FROM category WHERE id = :id') {
                     return $navigationId . '|019503b99fb57238a79d33ec1461e512|019503c1e1397116a3a7c754858927ef|';
                 }
@@ -112,5 +112,88 @@ class TemplateDataExtensionTest extends TestCase
 
         static::assertArrayHasKey('formViolations', $globals);
         static::assertNull($globals['formViolations']);
+    }
+
+    public function testLandingPageResolvesNavigationIdFromLinkedCategory(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $rootCategoryId = $salesChannelContext->getSalesChannel()->getNavigationCategoryId();
+
+        $landingPageId = Uuid::randomHex();
+        $linkedCategoryId = Uuid::randomHex();
+
+        $request = new Request(attributes: [
+            PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => $salesChannelContext,
+            '_route' => 'frontend.landing.page',
+            'landingPageId' => $landingPageId,
+        ]);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->exactly(3))
+            ->method('fetchOne')
+            ->willReturnCallback(static function (string $query) use ($linkedCategoryId, $rootCategoryId) {
+                if (str_contains($query, 'category_translation')) {
+                    return $linkedCategoryId;
+                }
+                if (str_contains($query, 'SELECT path FROM category')) {
+                    return $rootCategoryId . '|';
+                }
+                if (str_contains($query, 'min_search_length')) {
+                    return 3;
+                }
+
+                throw new \RuntimeException('Unexpected query: ' . $query);
+            });
+
+        $globals = (new TemplateDataExtension(
+            new RequestStack([$request]),
+            false,
+            $connection,
+        ))->getGlobals();
+
+        $navigationInfo = $globals['shopware']['navigation'];
+        static::assertInstanceOf(NavigationInfo::class, $navigationInfo);
+        static::assertSame($linkedCategoryId, $navigationInfo->id);
+    }
+
+    public function testLandingPageFallsBackToRootCategoryWhenNoCategoryLinked(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $rootCategoryId = $salesChannelContext->getSalesChannel()->getNavigationCategoryId();
+
+        $landingPageId = Uuid::randomHex();
+
+        $request = new Request(attributes: [
+            PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => $salesChannelContext,
+            '_route' => 'frontend.landing.page',
+            'landingPageId' => $landingPageId,
+        ]);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->exactly(3))
+            ->method('fetchOne')
+            ->willReturnCallback(static function (string $query) {
+                if (str_contains($query, 'category_translation')) {
+                    return false;
+                }
+                if (str_contains($query, 'SELECT path FROM category')) {
+                    return '';
+                }
+                if (str_contains($query, 'min_search_length')) {
+                    return 3;
+                }
+
+                throw new \RuntimeException('Unexpected query: ' . $query);
+            });
+
+        $globals = (new TemplateDataExtension(
+            new RequestStack([$request]),
+            false,
+            $connection,
+        ))->getGlobals();
+
+        $navigationInfo = $globals['shopware']['navigation'];
+        static::assertInstanceOf(NavigationInfo::class, $navigationInfo);
+        static::assertSame($rootCategoryId, $navigationInfo->id);
     }
 }

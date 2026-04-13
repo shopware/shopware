@@ -14,7 +14,10 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Validation;
 
 #[Package('framework')]
 class MakerCommand extends Command
@@ -54,14 +57,10 @@ class MakerCommand extends Command
                 continue;
             }
 
-            $value = $io->ask($argument->getDescription(), null, function ($value) {
-                if ($value === null || $value === '') {
-                    // @phpstan-ignore-next-line RuntimeException is fine in console IO validators
-                    throw new \RuntimeException('This value should not be blank');
-                }
+            $question = new Question($argument->getDescription());
+            $question->setValidator(Validation::createCallable(new NotBlank()));
 
-                return $value;
-            });
+            $value = $io->askQuestion($question);
 
             $input->setArgument($argument->getName(), $value);
         }

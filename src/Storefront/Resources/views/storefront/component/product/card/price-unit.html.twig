@@ -143,7 +143,8 @@
                 <button class="product-price-tax-link btn btn-link-inline fs-6"
                         type="button"
                         data-ajax-modal="true"
-                        data-url="{{ path(cmsPath, { id: config('core.basicInformation.shippingPaymentInfoPage') }) }}">
+                        data-url="{{ path(cmsPath, { id: config('core.basicInformation.shippingPaymentInfoPage') }) }}"
+                        aria-haspopup="dialog">
                     {% if context.taxState == 'gross' %}
                         {{ 'general.grossTaxInformation'|trans|sw_sanitize }}
                     {% else %}

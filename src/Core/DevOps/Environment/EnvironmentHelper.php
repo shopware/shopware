@@ -41,6 +41,14 @@ class EnvironmentHelper
     }
 
     /**
+     * @internal
+     */
+    public static function isCiMode(): bool
+    {
+        return (bool) self::getVariable('CI');
+    }
+
+    /**
      * @param class-string $transformerClass
      */
     public static function addTransformer(string $transformerClass, int $priority = 0): void

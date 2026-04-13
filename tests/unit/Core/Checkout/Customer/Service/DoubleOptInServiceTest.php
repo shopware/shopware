@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Customer\Service\DoubleOptInService;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
@@ -169,6 +170,26 @@ class DoubleOptInServiceTest extends TestCase
         static::assertEmpty($this->customerRepository->updates);
     }
 
+    public function testResendDoubleOptInMailDisabledWhenIntervalNotConfigured(): void
+    {
+        $customer = $this->createCustomerEntity('testhash', false);
+        $customer->setDoubleOptInEmailSentDate(new \DateTimeImmutable('-10 days'));
+        $context = Generator::generateSalesChannelContext();
+
+        $eventDispatched = false;
+        $this->eventDispatcher->addListener(
+            CustomerDoubleOptInRegistrationEvent::class,
+            static function () use (&$eventDispatched): void {
+                $eventDispatched = true;
+            }
+        );
+
+        $this->createService()->resendDoubleOptInMail($customer, $context);
+
+        static::assertFalse($eventDispatched);
+        static::assertEmpty($this->customerRepository->updates);
+    }
+
     public function testResendDoubleOptInMailSkipsWhenNoSentDate(): void
     {
         $customer = $this->createCustomerEntity('testhash', false);
@@ -209,6 +230,61 @@ class DoubleOptInServiceTest extends TestCase
         ])->resendDoubleOptInMail($customer, $context);
 
         static::assertFalse($eventDispatched);
+    }
+
+    public function testResendDoubleOptInMailSendsWhenCooldownElapsed(): void
+    {
+        $customer = $this->createCustomerEntity('testhash', false);
+        $customer->setDoubleOptInEmailSentDate(new \DateTimeImmutable('-2 days'));
+        $context = Generator::generateSalesChannelContext();
+
+        $dispatched = null;
+        $this->eventDispatcher->addListener(
+            CustomerDoubleOptInRegistrationEvent::class,
+            static function (CustomerDoubleOptInRegistrationEvent $event) use (&$dispatched): void {
+                $dispatched = $event;
+            }
+        );
+
+        $this->createService([
+            'core.loginRegistration.doubleOptInResendInterval' => 86400,
+            'core.loginRegistration.doubleOptInDomain' => 'https://shop.example.com',
+        ])->resendDoubleOptInMail($customer, $context);
+
+        static::assertInstanceOf(CustomerDoubleOptInRegistrationEvent::class, $dispatched);
+        static::assertCount(1, $this->customerRepository->updates);
+        static::assertSame($customer->getId(), $this->customerRepository->updates[0][0]['id']);
+        static::assertInstanceOf(\DateTimeImmutable::class, $this->customerRepository->updates[0][0]['doubleOptInEmailSentDate']);
+    }
+
+    public function testResendDoubleOptInMailFallsBackToSalesChannelDomainRepository(): void
+    {
+        $customer = $this->createCustomerEntity('testhash', false);
+        $customer->setDoubleOptInEmailSentDate(new \DateTimeImmutable('-2 days'));
+        $context = Generator::generateSalesChannelContext();
+
+        $domain = new SalesChannelDomainEntity();
+        $domain->setId(Uuid::randomHex());
+        $domain->setUrl('https://fallback-domain.example.com');
+
+        $this->salesChannelDomainRepository = new StaticEntityRepository([
+            new SalesChannelDomainCollection([$domain]),
+        ]);
+
+        $dispatched = null;
+        $this->eventDispatcher->addListener(
+            CustomerDoubleOptInRegistrationEvent::class,
+            static function (CustomerDoubleOptInRegistrationEvent $event) use (&$dispatched): void {
+                $dispatched = $event;
+            }
+        );
+
+        $this->createService([
+            'core.loginRegistration.doubleOptInResendInterval' => 86400,
+        ])->resendDoubleOptInMail($customer, $context);
+
+        static::assertInstanceOf(CustomerDoubleOptInRegistrationEvent::class, $dispatched);
+        static::assertStringStartsWith('https://fallback-domain.example.com', $dispatched->getConfirmUrl());
     }
 
     public function testMapCustomerDoubleOptInDataReturnUnchangedWhenDoubleOptInDisabled(): void

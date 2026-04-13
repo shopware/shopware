@@ -33,10 +33,15 @@ use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\Framework\Adapter\Storage\ArrayKeyValueStorage;
+use Shopware\Elasticsearch\AbstractFieldQueryBuilder;
+use Shopware\Elasticsearch\ExplainFieldQueryBuilder;
+use Shopware\Elasticsearch\FieldQueryBuilder;
+use Shopware\Elasticsearch\NestedFieldQueryBuilder;
 use Shopware\Elasticsearch\Product\ElasticsearchOptimizeSwitch;
 use Shopware\Elasticsearch\Product\ProductSearchQueryBuilder;
 use Shopware\Elasticsearch\Product\SearchFieldConfig;
 use Shopware\Elasticsearch\TokenQueryBuilder;
+use Shopware\Elasticsearch\TranslatedFieldQueryBuilder;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -57,12 +62,12 @@ class TokenQueryBuilderTest extends TestCase
         $this->tokenQueryBuilder = new TokenQueryBuilder(
             $this->getRegistry(),
             new CustomFieldServiceMock([
-                'evolvesBool' => new BoolField('evolvesBool', 'evolvesBool'),
                 'evolvesInt' => new IntField('evolvesInt', 'evolvesInt'),
                 'evolvesFloat' => new FloatField('evolvesFloat', 'evolvesFloat'),
                 'evolvesText' => new StringField('evolvesText', 'evolvesText'),
+                'evolvesBool' => new BoolField('evolvesBool', 'evolvesBool'),
             ]),
-            $storage
+            $this->createFieldQueryBuilder($storage),
         );
     }
 
@@ -206,10 +211,10 @@ class TokenQueryBuilderTest extends TestCase
 
     /**
      * @param list<SearchFieldConfig> $config
-     * @param array<string, mixed> $expected
+     * @param array<string, mixed>|null $expected
      */
     #[DataProvider('buildMultipleLanguageProvider')]
-    public function testBuildMultipleLanguages(array $config, string $term, array $expected): void
+    public function testBuildMultipleLanguages(array $config, string $term, ?array $expected): void
     {
         $context = Context::createDefaultContext();
         $context->assign([
@@ -217,6 +222,12 @@ class TokenQueryBuilderTest extends TestCase
         ]);
 
         $query = $this->tokenQueryBuilder->build('product', $term, $config, $context);
+
+        if ($expected === null) {
+            static::assertNull($query);
+
+            return;
+        }
 
         static::assertNotNull($query);
         static::assertSame($expected, $query->toArray());
@@ -342,7 +353,6 @@ class TokenQueryBuilderTest extends TestCase
 
         yield 'Test multiple custom fields with terms' => [
             'config' => [
-                self::config(field: 'customFields.evolvesBool', ranking: 600),
                 self::config(field: 'customFields.evolvesText', ranking: 500),
                 self::config(field: 'customFields.evolvesInt', ranking: 400),
                 self::config(field: 'customFields.evolvesFloat', ranking: 500),
@@ -363,7 +373,7 @@ class TokenQueryBuilderTest extends TestCase
     }
 
     /**
-     * @return iterable<array-key, array{config: list<SearchFieldConfig>, term: string, expected: array<string, mixed>}>
+     * @return iterable<array-key, array{config: list<SearchFieldConfig>, term: string, expected: array<string, mixed>|null}>
      */
     public static function buildMultipleLanguageProvider(): iterable
     {
@@ -459,7 +469,6 @@ class TokenQueryBuilderTest extends TestCase
 
         yield 'Test multiple custom fields with numeric term' => [
             'config' => [
-                self::config(field: 'customFields.evolvesBool', ranking: 600),
                 self::config(field: 'customFields.evolvesText', ranking: 500),
                 self::config(field: 'customFields.evolvesInt', ranking: 400),
                 self::config(field: 'customFields.evolvesFloat', ranking: 500),
@@ -491,9 +500,8 @@ class TokenQueryBuilderTest extends TestCase
             ]),
         ];
 
-        yield 'Test invalid boolean custom field token still matches text custom fields' => [
+        yield 'Test multiple custom fields with text term' => [
             'config' => [
-                self::config(field: 'customFields.evolvesBool', ranking: 600),
                 self::config(field: 'customFields.evolvesText', ranking: 500),
                 self::config(field: 'customFields.evolvesInt', ranking: 400),
                 self::config(field: 'customFields.evolvesFloat', ranking: 500),
@@ -514,36 +522,77 @@ class TokenQueryBuilderTest extends TestCase
             ]),
         ];
 
-        yield 'Test boolean custom field with boolean term' => [
+        yield 'Test bool custom field with true term' => [
             'config' => [
-                self::config(field: 'customFields.evolvesBool', ranking: 600),
+                self::config(field: 'customFields.evolvesBool', ranking: 500),
             ],
             'term' => 'true',
             'expected' => self::disMax([
-                self::term($prefixCfLang1 . 'evolvesBool', true, 600),
-                self::term($prefixCfLang2 . 'evolvesBool', true, 480),
+                self::term($prefixCfLang1 . 'evolvesBool', true, 500),
+                self::term($prefixCfLang2 . 'evolvesBool', true, 400),
             ]),
         ];
 
-        yield 'Test boolean custom field with numeric true term' => [
+        yield 'Test bool custom field with false term' => [
             'config' => [
-                self::config(field: 'customFields.evolvesBool', ranking: 600),
+                self::config(field: 'customFields.evolvesBool', ranking: 500),
+            ],
+            'term' => 'false',
+            'expected' => self::disMax([
+                self::term($prefixCfLang1 . 'evolvesBool', false, 500),
+                self::term($prefixCfLang2 . 'evolvesBool', false, 400),
+            ]),
+        ];
+
+        yield 'Test bool custom field with 1 term' => [
+            'config' => [
+                self::config(field: 'customFields.evolvesBool', ranking: 500),
             ],
             'term' => '1',
             'expected' => self::disMax([
-                self::term($prefixCfLang1 . 'evolvesBool', true, 600),
-                self::term($prefixCfLang2 . 'evolvesBool', true, 480),
+                self::term($prefixCfLang1 . 'evolvesBool', true, 500),
+                self::term($prefixCfLang2 . 'evolvesBool', true, 400),
             ]),
         ];
 
-        yield 'Test boolean custom field with numeric false term' => [
+        yield 'Test bool custom field with 0 term' => [
             'config' => [
-                self::config(field: 'customFields.evolvesBool', ranking: 600),
+                self::config(field: 'customFields.evolvesBool', ranking: 500),
             ],
             'term' => '0',
             'expected' => self::disMax([
-                self::term($prefixCfLang1 . 'evolvesBool', false, 600),
-                self::term($prefixCfLang2 . 'evolvesBool', false, 480),
+                self::term($prefixCfLang1 . 'evolvesBool', false, 500),
+                self::term($prefixCfLang2 . 'evolvesBool', false, 400),
+            ]),
+        ];
+
+        yield 'Test bool custom field with non-boolean text term returns null' => [
+            'config' => [
+                self::config(field: 'customFields.evolvesBool', ranking: 500),
+            ],
+            'term' => 'hello',
+            'expected' => null,
+        ];
+
+        yield 'Test non-boolean text term skips bool field but matches text field' => [
+            'config' => [
+                self::config(field: 'customFields.evolvesBool', ranking: 600),
+                self::config(field: 'customFields.evolvesText', ranking: 500),
+                self::config(field: 'customFields.evolvesInt', ranking: 400),
+                self::config(field: 'customFields.evolvesFloat', ranking: 500),
+            ],
+            'term' => 'foo',
+            'expected' => self::disMax([
+                self::disMax([
+                    self::term($prefixCfLang1 . 'evolvesText', 'foo', 1),
+                    self::match($prefixCfLang1 . 'evolvesText.search', 'foo', 0.8, 'AUTO:3,8', 'and', 5),
+                    self::prefix($prefixCfLang1 . 'evolvesText.search', 'foo', 0.4),
+                ], 500),
+                self::disMax([
+                    self::term($prefixCfLang2 . 'evolvesText', 'foo', 1),
+                    self::match($prefixCfLang2 . 'evolvesText.search', 'foo', 0.8, 'AUTO:3,8', 'and', 5),
+                    self::prefix($prefixCfLang2 . 'evolvesText.search', 'foo', 0.4),
+                ], 400),
             ]),
         ];
     }
@@ -558,9 +607,7 @@ class TokenQueryBuilderTest extends TestCase
                 'evolvesFloat' => new FloatField('evolvesFloat', 'evolvesFloat'),
                 'evolvesText' => new StringField('evolvesText', 'evolvesText'),
             ]),
-            $storage,
-            4,
-            false
+            $this->createFieldQueryBuilder($storage, false),
         );
 
         $context = Context::createDefaultContext();
@@ -602,6 +649,30 @@ class TokenQueryBuilderTest extends TestCase
 
         static::expectException(DecorationPatternException::class);
         $builder->getDecorated();
+    }
+
+    public function testFieldBuilderDecorationOrder(): void
+    {
+        $storage = new ArrayKeyValueStorage([ElasticsearchOptimizeSwitch::FLAG => true]);
+
+        $builder = $this->createFieldQueryBuilder($storage);
+
+        static::assertInstanceOf(ExplainFieldQueryBuilder::class, $builder);
+        static::assertInstanceOf(NestedFieldQueryBuilder::class, $builder->getDecorated());
+        static::assertInstanceOf(TranslatedFieldQueryBuilder::class, $builder->getDecorated()->getDecorated());
+        static::assertInstanceOf(FieldQueryBuilder::class, $builder->getDecorated()->getDecorated()->getDecorated());
+    }
+
+    private function createFieldQueryBuilder(ArrayKeyValueStorage $storage, bool $useLanguageAnalyzer = true): AbstractFieldQueryBuilder
+    {
+        return new ExplainFieldQueryBuilder(
+            new NestedFieldQueryBuilder(
+                new TranslatedFieldQueryBuilder(
+                    new FieldQueryBuilder(4, $useLanguageAnalyzer),
+                    $storage,
+                ),
+            ),
+        );
     }
 
     private function getDefinition(): EntityDefinition

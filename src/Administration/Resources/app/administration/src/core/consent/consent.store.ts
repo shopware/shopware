@@ -17,8 +17,22 @@ export type ConsentDTO = {
     readonly latestRevision: string | null;
 };
 
+type ConsentRequestInfo = {
+    consentRequest: {
+        consent: string;
+        requestMessage?: string;
+        privacyLink?: string;
+    };
+    requester: {
+        extensionName: string;
+        origin: string;
+        window: Window;
+    };
+};
+
 type ConsentStoreState = {
     consents: Record<string, ConsentDTO>;
+    consentRequestInfo: ConsentRequestInfo[];
 };
 
 function isConsentAccepted(consent: ConsentDTO): boolean {
@@ -47,6 +61,7 @@ function isConsentStale(consent: ConsentDTO): boolean {
 export default Shopware.Store.register('consent', {
     state: (): ConsentStoreState => ({
         consents: {},
+        consentRequestInfo: [],
     }),
 
     actions: {
@@ -102,6 +117,20 @@ export default Shopware.Store.register('consent', {
             }
 
             return isConsentStale(this.consents[name]);
+        },
+
+        addConsentRequest(
+            consentRequest: ConsentRequestInfo['consentRequest'],
+            requester: ConsentRequestInfo['requester'],
+        ): void {
+            this.consentRequestInfo.push({
+                consentRequest,
+                requester,
+            });
+        },
+
+        removeConsentRequest(): void {
+            this.consentRequestInfo.splice(0, 1);
         },
     },
 });

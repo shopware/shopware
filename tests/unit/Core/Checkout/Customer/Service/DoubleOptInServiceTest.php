@@ -43,16 +43,6 @@ class DoubleOptInServiceTest extends TestCase
         $this->salesChannelDomainRepository = new StaticEntityRepository([]);
     }
 
-    private function createService(array $systemConfig = []): DoubleOptInService
-    {
-        return new DoubleOptInService(
-            $this->customerRepository,
-            $this->eventDispatcher,
-            new StaticSystemConfigService($systemConfig),
-            $this->salesChannelDomainRepository,
-        );
-    }
-
     public function testSendDoubleOptInMailDispatchesRegistrationEvent(): void
     {
         $customer = $this->createCustomerEntity('testhash', false);
@@ -261,6 +251,16 @@ class DoubleOptInServiceTest extends TestCase
         static::assertInstanceOf(\DateTimeImmutable::class, $result['doubleOptInEmailSentDate']);
         static::assertIsString($result['hash']);
         static::assertTrue(Uuid::isValid($result['hash']));
+    }
+
+    private function createService(array $systemConfig = []): DoubleOptInService
+    {
+        return new DoubleOptInService(
+            $this->customerRepository,
+            $this->eventDispatcher,
+            new StaticSystemConfigService($systemConfig),
+            $this->salesChannelDomainRepository,
+        );
     }
 
     private function createCustomerEntity(string $hash, bool $guest): CustomerEntity

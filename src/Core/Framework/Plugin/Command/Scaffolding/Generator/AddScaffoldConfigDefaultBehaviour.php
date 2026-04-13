@@ -28,7 +28,7 @@ trait AddScaffoldConfigDefaultBehaviour
             return;
         }
 
-        if ($this->shouldAskCliQuestion && $io->confirm(self::CLI_QUESTION)) {
+        if ($this->shouldAskCliQuestion && $io->confirm(self::CLI_QUESTION, false)) {
             $config->addOption(self::OPTION_NAME, true);
         }
     }

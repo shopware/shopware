@@ -38,7 +38,14 @@ class StorefrontControllerGeneratorTest extends TestCase
         $input->method('getOption')->willReturn($getOptionResponse);
 
         $io = $this->createMock(SymfonyStyle::class);
-        $io->method('confirm')->willReturn($confirmResponse);
+        if ($getOptionResponse) {
+            $io->expects($this->never())->method('confirm');
+        } else {
+            $io->expects($this->once())
+                ->method('confirm')
+                ->with('Do you want to create an example storefront controller?', false)
+                ->willReturn($confirmResponse);
+        }
 
         (new StorefrontControllerGenerator())
             ->addScaffoldConfig($configuration, $input, $io);

@@ -38,7 +38,14 @@ class CommandGeneratorTest extends TestCase
         $input->method('getOption')->willReturn($getOptionResponse);
 
         $io = $this->createMock(SymfonyStyle::class);
-        $io->method('confirm')->willReturn($confirmResponse);
+        if ($getOptionResponse) {
+            $io->expects($this->never())->method('confirm');
+        } else {
+            $io->expects($this->once())
+                ->method('confirm')
+                ->with('Do you want to create an example console command?', false)
+                ->willReturn($confirmResponse);
+        }
 
         (new CommandGenerator())
             ->addScaffoldConfig($configuration, $input, $io);

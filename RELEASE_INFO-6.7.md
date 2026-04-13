@@ -10,6 +10,11 @@ The login and OAuth token endpoints now support optional per user (`login_user`,
 
 ## Core
 
+### Plugin scaffolding prompts default to no
+
+Interactive `bin/console plugin:create` prompts for optional example scaffolding now default to `no`.
+Use the explicit scaffold flags or answer `yes` to generate optional example files.
+
 ### "Find best variant setting" is now applied for storefront filtering
 
 Users can now control which representative of variant products is shown in filtered listings via the Product settings "Preview best matching variant in search results and filtered listings".

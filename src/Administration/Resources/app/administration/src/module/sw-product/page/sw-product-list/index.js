@@ -121,9 +121,16 @@ export default {
 
         productCriteria() {
             const productCriteria = new Criteria(this.page, this.limit);
+            const sorting = Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting);
 
             productCriteria.setTerm(this.term);
-            productCriteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
+            productCriteria.addSorting(sorting);
+
+            if (this.sortBy === 'stock') {
+                // Stock values often repeat, so add a stable tie-breaker.
+                productCriteria.addSorting(Criteria.sort('id'));
+            }
+
             productCriteria.addAssociation('cover.media');
             productCriteria.addAssociation('manufacturer');
             productCriteria.addAssociation('tax');

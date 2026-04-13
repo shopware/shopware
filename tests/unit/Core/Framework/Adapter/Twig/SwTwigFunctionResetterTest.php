@@ -14,6 +14,11 @@ use Twig\Runtime\EscaperRuntime;
 #[CoversClass(SwTwigFunctionResetter::class)]
 class SwTwigFunctionResetterTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        SwTwigFunction::resetEscapeCache();
+    }
+
     protected function tearDown(): void
     {
         // Clean up static cache after each test

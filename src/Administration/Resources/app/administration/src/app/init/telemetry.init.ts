@@ -8,7 +8,7 @@ import type { TrackableType } from '../../core/telemetry/types';
 export default function initializeTelemetry(): void {
     Shopware.ExtensionAPI.handle('telemetryDispatch', (payload: Omit<telemetryDispatch, 'responseType'>, additionalInfo) => {
         const event = additionalInfo._event_;
-        const sourceWindow = event.source != null ? event.source as Window : undefined;
+        const sourceWindow = event.source != null ? (event.source as Window) : undefined;
 
         Shopware.Telemetry.track({
             eventName: payload.event,

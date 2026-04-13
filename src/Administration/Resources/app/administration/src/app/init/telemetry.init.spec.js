@@ -51,10 +51,7 @@ describe('src/app/init/telemetry.init.ts', () => {
             location: { href: `${window.location.origin}/bundles/local-plugin/index.html` },
         };
 
-        handler(
-            { event: 'page_viewed', data: {} },
-            { _event_: { origin: window.location.origin, source: fakeWindow } },
-        );
+        handler({ event: 'page_viewed', data: {} }, { _event_: { origin: window.location.origin, source: fakeWindow } });
 
         expect(trackSpy).toHaveBeenCalledWith(expect.objectContaining({ source: 'local-plugin' }));
     });

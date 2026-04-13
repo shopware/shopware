@@ -375,6 +375,82 @@ class ProductSearchRouteTest extends TestCase
         static::assertSame('product', $response['elements'][0]['apiAlias']);
     }
 
+    public function testAndSearchKeepsMatchingProductsForReorderedNumericTerms(): void
+    {
+        $ids = new IdsCollection();
+
+        /** @var EntityRepository<ProductCollection> $productRepository */
+        $productRepository = static::getContainer()->get('product.repository');
+
+        $expected = [
+            'Seife Elina 100g Aloe Vera mit Glycerin',
+            'Seife Elina 100g Arganöl',
+            'Seife Elina 100g Arztseife',
+            'Seife Elina 100g Babyseife mit Babyöl & Honig',
+            'Seife Elina 100g Granatapfel mit Glycerin',
+            'Seife Elina 100g Sensitive Urea',
+            'Seife Elina 100g grüne Olive mit Glycerin',
+            'Seife Elina 100g Soft Fresh mit Glyzerin',
+            'Seife Elina 100g Soft Cream mit Milchextract',
+            'Seife Elina 100g Kernseife weiss',
+            'Seife Elina 100g Orangenblüte',
+            'Seife Elina 100g Pflege-Kernseife',
+        ];
+
+        $products = [];
+        $productIds = [];
+
+        foreach ($expected as $index => $name) {
+            $product = (new ProductBuilder($ids, 'elina-soap-' . $index))
+                ->name($name)
+                ->price(10, 9)
+                ->visibility(self::$ids->get('sales-channel'))
+                ->manufacturer('elina')
+                ->build();
+
+            $products[] = $product;
+            $productIds[] = $product['id'];
+        }
+
+        $productRepository->create($products, Context::createDefaultContext());
+        $this->searchKeywordUpdater->update($productIds, Context::createDefaultContext());
+
+        $this->productSearchConfigRepository->update([
+            ['id' => $this->productSearchConfigId, 'andLogic' => true],
+        ], Context::createDefaultContext());
+
+        $searchRoute = static::getContainer()->get(ProductSearchRoute::class);
+        $salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
+            Uuid::randomHex(),
+            self::$ids->get('sales-channel')
+        );
+
+        $forwardNames = array_map(
+            static fn ($product): ?string => $product->getName(),
+            array_values($searchRoute->load(
+                new Request(['search' => 'seife elina 100g']),
+                $salesChannelContext,
+                new Criteria()
+            )->getListingResult()->getEntities()->getElements())
+        );
+
+        $reorderedNames = array_map(
+            static fn ($product): ?string => $product->getName(),
+            array_values($searchRoute->load(
+                new Request(['search' => 'elina seife 100g']),
+                $salesChannelContext,
+                new Criteria()
+            )->getListingResult()->getEntities()->getElements())
+        );
+
+        sort($expected);
+        sort($forwardNames);
+        sort($reorderedNames);
+
+        static::assertSame($expected, $forwardNames);
+        static::assertSame($expected, $reorderedNames);
+    }
+
     /**
      * @param array<array-key, bool> $searchTerms
      */

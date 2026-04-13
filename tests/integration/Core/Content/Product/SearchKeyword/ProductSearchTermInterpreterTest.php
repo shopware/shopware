@@ -159,6 +159,38 @@ class ProductSearchTermInterpreterTest extends TestCase
         static::assertSame($expected, \array_slice($terms, 0, \count($expected)));
     }
 
+    public function testAndSearchBackfillsOverflowKeywordsContainingAllOriginalTokens(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $this->productSearchConfigRepository->update([
+            ['id' => $this->productSearchConfigId, 'andLogic' => true],
+        ], $context);
+
+        $expected = [
+            'seife elina 100g aloe vera mit glycerin',
+            'seife elina 100g arganöl',
+            'seife elina 100g arztseife',
+            'seife elina 100g babyseife mit babyöl honig',
+            'seife elina 100g granatapfel mit glycerin',
+            'seife elina 100g sensitive urea',
+            'seife elina 100g grüne olive mit glycerin',
+            'seife elina 100g soft fresh mit glyzerin',
+            'seife elina 100g soft cream mit milchextract',
+            'seife elina 100g kernseife weiss',
+            'seife elina 100g orangenblüte',
+            'seife elina 100g pflege-kernseife',
+        ];
+
+        $this->insertKeywords($expected);
+
+        $matches = $this->interpreter->interpret('elina seife 100g', $context);
+        $terms = array_map(static fn (SearchTerm $term) => $term->getTerm(), $matches->getTerms());
+
+        static::assertCount(12, $terms);
+        static::assertEqualsCanonicalizing($expected, $terms);
+    }
+
     /**
      * @return array<array{0: string, 1: list<string>}>
      */
@@ -487,6 +519,14 @@ class ProductSearchTermInterpreterTest extends TestCase
             'Klappbarer Camping Sessel',
         ];
 
+        $this->insertKeywords($keywords);
+    }
+
+    /**
+     * @param list<string> $keywords
+     */
+    private function insertKeywords(array $keywords): void
+    {
         $languageId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
 
         foreach ($keywords as $keyword) {

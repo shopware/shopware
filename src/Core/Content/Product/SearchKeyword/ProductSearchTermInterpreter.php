@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterface
 {
     private const RELEVANT_KEYWORD_COUNT = 8;
+    private const BACKFILLED_KEYWORD_COUNT = 4;
 
     /**
      * @internal
@@ -62,12 +63,12 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
 
         $pattern = new SearchPattern(new SearchTerm($word));
 
-        $pattern->setBooleanClause($this->getConfigBooleanClause($context));
+        $booleanClauseAnd = $this->getConfigBooleanClause($context);
+        $pattern->setBooleanClause($booleanClauseAnd);
         $pattern->setTokenTerms($matches);
 
         $scoring = $this->score($tokens, $originalTokens, ArrayNormalizer::flatten($matches), $minSearchLength);
-        // only use the 8 best matches, otherwise the query might explode
-        $scoring = \array_slice($scoring, 0, self::RELEVANT_KEYWORD_COUNT, true);
+        $scoring = $this->selectRelevantKeywords($scoring, $originalTokens, $booleanClauseAnd, $minSearchLength);
 
         foreach ($scoring as $keyword => $score) {
             $this->logger->info('Search match: ' . $keyword . ' with score ' . (float) $score);
@@ -75,6 +76,50 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
         }
 
         return $pattern;
+    }
+
+    /**
+     * @param array<string, float> $scoring
+     * @param list<string> $originalTokens
+     *
+     * @return array<string, float>
+     */
+    private function selectRelevantKeywords(array $scoring, array $originalTokens, bool $booleanClauseAnd, ?int $minSearchLength): array
+    {
+        $primary = \array_slice($scoring, 0, self::RELEVANT_KEYWORD_COUNT, true);
+
+        if (!$booleanClauseAnd || \count($originalTokens) <= 1) {
+            return $primary;
+        }
+
+        $backfill = [];
+        foreach ($scoring as $keyword => $score) {
+            if (isset($primary[$keyword])) {
+                continue;
+            }
+
+            /** @phpstan-ignore arguments.count (This ignore should be removed when the deprecated method signature is updated) */
+            $keywordTokens = $this->tokenizer->tokenize($keyword, $minSearchLength);
+
+            if (!$this->containsAllOriginalTokens($originalTokens, $keywordTokens)) {
+                continue;
+            }
+
+            if ($this->isSameTokenSet($originalTokens, $keywordTokens)) {
+                continue;
+            }
+
+            $backfill[$keyword] = $score;
+
+            if (\count($backfill) >= self::BACKFILLED_KEYWORD_COUNT) {
+                break;
+            }
+        }
+
+        $selected = array_merge($primary, $backfill);
+        uasort($selected, static fn ($a, $b) => $b <=> $a);
+
+        return $selected;
     }
 
     /**
@@ -222,6 +267,25 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
         uasort($scoring, static fn ($a, $b) => $b <=> $a);
 
         return $scoring;
+    }
+
+    /**
+     * @param list<string> $originalTokens
+     * @param list<string> $keywordTokens
+     */
+    private function containsAllOriginalTokens(array $originalTokens, array $keywordTokens): bool
+    {
+        return array_diff($originalTokens, $keywordTokens) === [];
+    }
+
+    /**
+     * @param list<string> $originalTokens
+     * @param list<string> $keywordTokens
+     */
+    private function isSameTokenSet(array $originalTokens, array $keywordTokens): bool
+    {
+        return \count($keywordTokens) === \count($originalTokens)
+            && array_diff($originalTokens, $keywordTokens) === [];
     }
 
     private function getConfigBooleanClause(Context $context): bool

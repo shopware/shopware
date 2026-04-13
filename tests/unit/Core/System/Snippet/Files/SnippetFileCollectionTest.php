@@ -105,15 +105,14 @@ class SnippetFileCollectionTest extends TestCase
         static::assertSame('de', $result[0]->getIso());
     }
 
-    public function testGetSnippetFilesWithLocaleFallbackFallsBackToAgnosticLanguage(): void
+    public function testGetSnippetFilesWithLocaleFallbackDoesNotIncludeAgnosticLanguage(): void
     {
         $collection = new SnippetFileCollection();
         $collection->add(new MockSnippetFile('agnostic.de', 'de', '{}', true, 'SwagPlugin'));
 
         $result = $collection->getSnippetFilesWithLocaleFallback('de-AT');
 
-        static::assertCount(1, $result);
-        static::assertSame('de', $result[0]->getIso());
+        static::assertEmpty($result);
     }
 
     public function testGetSnippetFilesWithLocaleFallbackFallsBackToCanonicalForm(): void
@@ -157,19 +156,17 @@ class SnippetFileCollectionTest extends TestCase
         static::assertEmpty($result);
     }
 
-    public function testGetSnippetFilesWithLocaleFallbackCombinesAllPriorityLevels(): void
+    public function testGetSnippetFilesWithLocaleFallbackCombinesBothPriorityLevels(): void
     {
         $collection = new SnippetFileCollection();
-        $collection->add(new MockSnippetFile('agnostic.de', 'de', '{}', false, 'SwagPlugin'));
         $collection->add(new MockSnippetFile('canonical.de-DE', 'de-DE', '{}', false, 'SwagPlugin'));
         $collection->add(new MockSnippetFile('country.de-AT', 'de-AT', '{}', false, 'SwagPlugin'));
 
         $result = $collection->getSnippetFilesWithLocaleFallback('de-AT');
 
-        static::assertCount(3, $result);
-        static::assertSame('de', $result[0]->getIso());
-        static::assertSame('de-DE', $result[1]->getIso());
-        static::assertSame('de-AT', $result[2]->getIso());
+        static::assertCount(2, $result);
+        static::assertSame('de-DE', $result[0]->getIso());
+        static::assertSame('de-AT', $result[1]->getIso());
     }
 
     public function testGetSnippetFilesWithLocaleFallbackDoesNotDoubleCountCanonicalLocale(): void

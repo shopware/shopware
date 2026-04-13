@@ -118,15 +118,18 @@ class SnippetFileCollection extends Collection
     }
 
     /**
-     * Returns snippet files for the given locale with a language fallback chain.
+     * Returns snippet files for the given locale with a canonical-locale fallback.
      *
-     * For locales without a region part (e.g. agnostic "de"), the result is identical to {@see getSnippetFilesByIso()}.
+     * Bare-language files (e.g. "de") are intentionally excluded here; they are loaded separately via the
+     * {@see SnippetService::getStorefrontSnippets()} fallback-locale mechanism.
+     *
+     * For locales without a region part (e.g. "de"), the result is identical to {@see getSnippetFilesByIso()}.
      *
      * @return list<AbstractSnippetFile>
      */
     public function getSnippetFilesWithLocaleFallback(string $locale): array
     {
-        if (!preg_match(SnippetPatterns::COMPLETE_LOCALE_PATTERN, $locale, $matches) || empty($matches['region'])) {
+        if (!preg_match(SnippetPatterns::COMPLETE_LOCALE_PATTERN, $locale, $matches) || ($matches['region'] ?? '') === '') {
             return $this->getSnippetFilesByIso($locale);
         }
 
@@ -136,10 +139,6 @@ class SnippetFileCollection extends Collection
         $list = $this->getListSortedByIso();
 
         $result = [];
-
-        foreach ($list[$agnosticLanguage] ?? [] as $file) {
-            $result[] = $file;
-        }
 
         if ($canonicalIso !== $locale) {
             foreach ($list[$canonicalIso] ?? [] as $file) {

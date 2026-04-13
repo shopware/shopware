@@ -208,7 +208,6 @@ class SnippetServiceTest extends TestCase
         yield 'with messages from catalogue' => [
             'expected' => [
                 'catalogue_key' => 'Catalogue EN',
-                'title' => 'Storefront EN',
             ],
             'catalogueLocale' => 'en-GB',
             'catalogueMessages' => [
@@ -397,11 +396,10 @@ class SnippetServiceTest extends TestCase
             ],
         ];
 
-        yield 'es-AR iso falls back to es' => [
+        yield 'es-AR iso loads exact locale only' => [
             'iso' => 'es-AR',
             'expectedSnippets' => [
                 'title' => 'Country es-AR',
-                'baseOnly' => 'Agnostic ES',
             ],
         ];
 
@@ -412,12 +410,9 @@ class SnippetServiceTest extends TestCase
             ],
         ];
 
-        yield 'country es-EM does not exist - only bare es exists' => [
+        yield 'unknown regional variant returns nothing when only bare language exists' => [
             'iso' => 'es-EM',
-            'expectedSnippets' => [
-                'title' => 'Agnostic ES',
-                'baseOnly' => 'Agnostic ES',
-            ],
+            'expectedSnippets' => [],
         ];
     }
 

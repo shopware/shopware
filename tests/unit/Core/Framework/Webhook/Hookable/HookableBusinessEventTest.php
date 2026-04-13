@@ -39,7 +39,7 @@ class HookableBusinessEventTest extends TestCase
             $scalarEvent,
             new BusinessEventEncoder(
                 $this->createMock(JsonEntityEncoder::class),
-                $this->createMock(DefinitionInstanceRegistry::class),
+                $this->createMock(DefinitionInstanceRegistry::class)
             )
         );
 

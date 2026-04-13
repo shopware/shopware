@@ -4,17 +4,21 @@ namespace Shopware\Core\Migration\V6_7;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
+use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\Subscriber\RegisteredIndexerSubscriber;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Migration\IndexerQueuer;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 
 /**
  * Schedules a product index pass that runs only the variant listing updater ({@see ProductIndexer::VARIANT_LISTING_UPDATER}),
- * which recalculates {@see \Shopware\Core\Content\Product\ProductEntity::displayGroup} with the same logic as a full product
- * index. Execution is deferred until post-install/update flows process {@see \Shopware\Core\Framework\Migration\IndexerQueuer}
- * (for example after {@see \Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent}), so migrations stay fast even on
+ * which recalculates {@see ProductEntity::displayGroup} with the same logic as a full product
+ * index. Execution is deferred until post-install/update flows process {@see IndexerQueuer}
+ * (for example after {@see UpdatePostFinishEvent}), so migrations stay fast even on
  * large catalogs.
  *
- * After update, {@see \Shopware\Core\Framework\DataAbstractionLayer\Indexing\Subscriber\RegisteredIndexerSubscriber} runs the product indexer
+ * After update, {@see RegisteredIndexerSubscriber} runs the product indexer
  * with a computed skip list ({@code array_diff} of {@see ProductIndexer::getOptions()} and the registered option names),
  * so only the variant-listing updater executes.
  *

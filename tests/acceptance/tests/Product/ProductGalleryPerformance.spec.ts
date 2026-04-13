@@ -5,6 +5,8 @@ const VISIBLE_THUMBNAILS = 5;
 
 const SELECTOR_MAIN_SLIDE_IMAGE = '.gallery-slider-container .gallery-slider-item-container.tns-item:not(.tns-slide-cloned) .gallery-slider-image';
 const SELECTOR_THUMBNAIL_IMAGE = '.gallery-slider-thumbnails.tns-slider .gallery-slider-thumbnails-image';
+const SELECTOR_THUMBNAIL_COLUMN = '.gallery-slider-thumbnails-col.is-left';
+const SELECTOR_GALLERY_COLUMN = '.gallery-slider-col';
 
 test('Product gallery should lazy-load non-visible images and constrain thumbnail height.', { tag: ['@Product', '@Storefront'] }, async ({
     ShopCustomer,
@@ -59,5 +61,17 @@ test('Product gallery should lazy-load non-visible images and constrain thumbnai
         for (let i = 1; i < IMAGE_COUNT; i++) {
             await expect(mainSlideImages.nth(i)).toHaveAttribute('loading', 'lazy');
         }
+    });
+
+    await test.step('Thumbnail column should not be taller than the gallery column.', async () => {
+        const thumbnailColumn = StorefrontProductDetail.page.locator(SELECTOR_THUMBNAIL_COLUMN);
+        const galleryColumn = StorefrontProductDetail.page.locator(SELECTOR_GALLERY_COLUMN);
+
+        const thumbBox = await thumbnailColumn.boundingBox();
+        const galleryBox = await galleryColumn.boundingBox();
+
+        expect(thumbBox).not.toBeNull();
+        expect(galleryBox).not.toBeNull();
+        expect(thumbBox!.height).toBeLessThanOrEqual(galleryBox!.height);
     });
 });

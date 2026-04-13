@@ -62,6 +62,7 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('timeout')->end()
                         ->integerNode('term_max_length')->end()
                         ->scalarNode('search_type')->end()
+                        ->integerNode('precision_threshold')->defaultNull()->end()
                     ->end()
                 ->end()
                 ->arrayNode('administration')

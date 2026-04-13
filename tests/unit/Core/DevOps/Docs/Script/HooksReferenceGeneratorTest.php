@@ -15,6 +15,7 @@ use Shopware\Core\DevOps\Docs\Script\ServiceReferenceGenerator;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Twig\Environment;
+use Twig\Loader\LoaderInterface;
 
 /**
  * @internal
@@ -63,7 +64,7 @@ class HooksReferenceGeneratorTest extends TestCase
 
         $this->twig = $this->createMock(Environment::class);
         $this->twig->method('render')->willReturn('');
-        $this->twig->method('getLoader')->willReturn(static::createStub(\Twig\Loader\LoaderInterface::class));
+        $this->twig->method('getLoader')->willReturn(static::createStub(LoaderInterface::class));
 
         $this->container = $this->createMock(ContainerInterface::class);
         $this->serviceReferenceGenerator = $this->createMock(ServiceReferenceGenerator::class);

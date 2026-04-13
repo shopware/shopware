@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
+ * @codeCoverageIgnore
  */
 #[Package('after-sales')]
 readonly class GetDataAndSendRequest

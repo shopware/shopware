@@ -4,6 +4,9 @@ namespace Shopware\Core\Content\MailTemplate\Validation;
 
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('after-sales')]
 class MailTemplateRenderError extends MailTemplateRenderResult
 {

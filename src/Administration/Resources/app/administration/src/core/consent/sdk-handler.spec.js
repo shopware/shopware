@@ -165,12 +165,13 @@ describe('src/core/consent/sdk-handler.ts', () => {
 
     describe('sendConsentRequestResponse', () => {
         it('sends the consent response to the receiver window', async () => {
-            await sendConsentRequestResponse(window, consent);
+            await sendConsentRequestResponse(window, 'request-id', consent);
 
             expect(send).toHaveBeenCalledWith(
                 'consentRequestResponse',
                 {
                     name: consent.name,
+                    requestId: 'request-id',
                     consent: {
                         ...consent,
                     },

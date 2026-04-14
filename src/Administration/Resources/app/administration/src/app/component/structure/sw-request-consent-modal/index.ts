@@ -75,6 +75,7 @@ export default Shopware.Component.wrapComponentConfig({
             } finally {
                 sendConsentRequestResponse(
                     this.state.requester.window,
+                    this.state.consentRequest.requestId,
                     consentStore.consents[this.state.consentRequest.consent],
                 );
                 consentStore.removeConsentRequest();
@@ -105,6 +106,7 @@ export default Shopware.Component.wrapComponentConfig({
             } finally {
                 sendConsentRequestResponse(
                     this.state.requester.window,
+                    this.state.consentRequest.requestId,
                     consentStore.consents[this.state.consentRequest.consent],
                 );
                 consentStore.removeConsentRequest();

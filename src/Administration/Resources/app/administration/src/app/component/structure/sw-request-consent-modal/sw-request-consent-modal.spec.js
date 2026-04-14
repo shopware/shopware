@@ -53,6 +53,7 @@ function addConsentRequest(consent = 'test_consent') {
     useConsentStore().addConsentRequest(
         {
             consent,
+            requestId: 'request-id',
             requestMessage: 'Please allow analytics',
             privacyLink: 'https://example.com/privacy',
         },
@@ -68,6 +69,7 @@ function addConsentRequestWithoutOptionalFields(consent = 'test_consent') {
     useConsentStore().addConsentRequest(
         {
             consent,
+            requestId: 'request-id'
         },
         {
             extensionName: 'test-app',
@@ -158,6 +160,7 @@ describe('src/app/component/structure/sw-request-consent-modal', () => {
 
         expect(sendConsentRequestResponse).toHaveBeenCalledWith(
             window,
+            'request-id',
             expect.objectContaining({
                 name: 'test_consent',
                 status: 'accepted',
@@ -183,6 +186,7 @@ describe('src/app/component/structure/sw-request-consent-modal', () => {
 
         expect(sendConsentRequestResponse).toHaveBeenCalledWith(
             window,
+            'request-id',
             expect.objectContaining({
                 name: 'test_consent',
                 status: 'revoked',

@@ -312,6 +312,7 @@ describe('/core/consent/consent.store', () => {
             store.addConsentRequest(
                 {
                     consent: 'test_consent',
+                    requestId: 'request-id',
                     requestMessage: 'Please allow analytics',
                     privacyLink: 'https://example.com/privacy',
                 },
@@ -326,6 +327,7 @@ describe('/core/consent/consent.store', () => {
                 {
                     consentRequest: {
                         consent: 'test_consent',
+                        requestId: 'request-id',
                         requestMessage: 'Please allow analytics',
                         privacyLink: 'https://example.com/privacy',
                     },

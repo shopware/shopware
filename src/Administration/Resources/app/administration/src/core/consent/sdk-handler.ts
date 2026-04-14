@@ -52,6 +52,7 @@ export const handleConsentRequest: HandleMethod<'consentRequest'> = async (messa
     consentStore.addConsentRequest(
         {
             consent: message.consent,
+            requestId: message.requestId,
             privacyLink: message.privacyLink,
             requestMessage: message.requestMessage,
         },
@@ -66,11 +67,12 @@ export const handleConsentRequest: HandleMethod<'consentRequest'> = async (messa
 /**
  * @private
  */
-export const sendConsentRequestResponse = (receiver: Window, consent: ConsentDTO) => {
+export const sendConsentRequestResponse = (receiver: Window, requestId: string, consent: ConsentDTO) => {
     send(
         'consentRequestResponse',
         {
             name: consent.name,
+            requestId: requestId,
             consent: {
                 ...consent,
             },

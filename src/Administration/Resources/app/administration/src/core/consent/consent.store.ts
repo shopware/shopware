@@ -20,6 +20,7 @@ export type ConsentDTO = {
 type ConsentRequestInfo = {
     consentRequest: {
         consent: string;
+        requestId: string;
         requestMessage?: string;
         privacyLink?: string;
     };

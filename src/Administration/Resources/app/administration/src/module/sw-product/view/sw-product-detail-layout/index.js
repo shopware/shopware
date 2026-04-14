@@ -145,7 +145,7 @@ export default {
 
             this.product.cmsPageId = cmsPageId;
             this.resetSlotConfig();
-            Shopware.Store.get('swProductDetail').product = this.product;
+            State.commit('swProductDetail/setProduct', this.product);
         },
 
         handleGetCmsPage() {

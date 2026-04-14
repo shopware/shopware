@@ -197,7 +197,7 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
 
     it('should reset translated slotConfig overrides when changing the layout', async () => {
         const wrapper = await createWrapper();
-        Store.get('swProductDetail').product = {
+        State.commit('swProductDetail/setProduct', {
             id: '1',
             slotConfig: {
                 currentSlotId: {
@@ -218,10 +218,10 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
                     },
                 },
             ],
-        };
+        });
 
         wrapper.vm.onSelectLayout('cmsPageId');
-        await nextTick();
+        await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.product.slotConfig).toBeNull();
         expect(wrapper.vm.product.translations[0].slotConfig).toBeNull();

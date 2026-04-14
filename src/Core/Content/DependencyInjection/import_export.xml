@@ -82,6 +82,9 @@
         <service id="Shopware\Core\Content\ImportExport\Service\DownloadService">
             <argument type="service" id="shopware.filesystem.private"/>
             <argument type="service" id="import_export_file.repository"/>
+            <argument type="service" id="logger"/>
+            <argument>%shopware.filesystem.private_local_download_strategy%</argument>
+            <argument>%shopware.filesystem.private_local_path_prefix%</argument>
         </service>
 
 

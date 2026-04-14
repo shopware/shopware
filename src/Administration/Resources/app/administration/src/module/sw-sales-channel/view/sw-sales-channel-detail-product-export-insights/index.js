@@ -206,12 +206,12 @@ export default {
             try {
                 const promises = [];
 
-                if (this.acl.can('order.viewer')) {
-                    promises.push(this.getHistoryOrderCountData(), this.getHistoryOrderSumData());
-                }
-
-                if (this.acl.can('customer.viewer')) {
-                    promises.push(this.getHistoryCustomerCountData());
+                if (this.acl.can('sales_channel.viewer')) {
+                    promises.push(
+                        this.getHistoryOrderCountData(),
+                        this.getHistoryOrderSumData(),
+                        this.getHistoryCustomerCountData(),
+                    );
                 }
 
                 await Promise.allSettled(promises);

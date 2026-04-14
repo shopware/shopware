@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Util;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Tests\Integration\Core\Framework\Util\FilesystemTest;
 use Symfony\Component\Filesystem\Filesystem as Io;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
@@ -13,7 +14,7 @@ use Symfony\Component\Finder\SplFileInfo;
  *
  * @codeCoverageIgnore
  *
- * @see \Shopware\Tests\Integration\Core\Framework\Util\FilesystemTest
+ * @see FilesystemTest
  */
 #[Package('framework')]
 class Filesystem

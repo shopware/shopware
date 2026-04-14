@@ -118,11 +118,11 @@ class ProductListingLoader
 
         $fields = array_map(static fn (string $field) => preg_replace('/^product./', '', $field), $fields);
 
-        if (\in_array('options.id', $fields, true)) {
+        if (\in_array('options.id', $fields, true) || \in_array('properties.id', $fields, true)) {
             return true;
         }
 
-        return \in_array('optionIds', $fields, true);
+        return \in_array('optionIds', $fields, true) || \in_array('propertyIds', $fields, true);
     }
 
     private function addGrouping(Criteria $criteria): void
@@ -314,18 +314,18 @@ class ProductListingLoader
 
     private function shouldLoadPreviews(bool $hasOptionFilter, Criteria $criteria, SalesChannelContext $context): bool
     {
-        if ($hasOptionFilter === true) {
-            return false;
-        }
-
-        $isSearchRoute = $criteria->hasState(ResolvedCriteriaProductSearchRoute::STATE, ProductSuggestRoute::STATE);
-
-        $shouldLoadPreviewsOnSearch = !$this->systemConfigService->getBool(
+        $loadPreview = !$this->systemConfigService->getBool(
             'core.listing.findBestVariant',
             $context->getSalesChannelId()
         );
 
-        if ($shouldLoadPreviewsOnSearch && $isSearchRoute) {
+        if ($hasOptionFilter === true) {
+            return $loadPreview;
+        }
+
+        $isSearchRoute = $criteria->hasState(ResolvedCriteriaProductSearchRoute::STATE, ProductSuggestRoute::STATE);
+
+        if ($loadPreview && $isSearchRoute) {
             return true;
         }
 

@@ -18,5 +18,8 @@ import { runNpmAudit } from '../../../.github/bin/js/run-npm-audit.ts';
  */
 runNpmAudit({
     ignoredGHSAs: [
+        'https://github.com/advisories/GHSA-qj83-cq47-w5f8', // axios HTTP/2 cleanup issue, legacy compatibility setup intentionally allows older axios while newer axios is used where migrated
+        'https://github.com/advisories/GHSA-3p68-rc4w-qgx5', // axios NO_PROXY SSRF advisory, ignored for the same legacy compatibility reason
+        'https://github.com/advisories/GHSA-fvcv-3m26-pcqx', // axios header injection/cloud metadata advisory, ignored for the same legacy compatibility reason
     ],
 });

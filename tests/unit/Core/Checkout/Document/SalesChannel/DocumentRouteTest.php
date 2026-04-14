@@ -333,6 +333,7 @@ class DocumentRouteTest extends TestCase
         $orderCustomer = new OrderCustomerEntity();
         $orderCustomer->setId(Uuid::randomHex());
         $orderCustomer->setCustomer($customer);
+        $orderCustomer->setCustomerId($customer->getId());
         $orderCustomer->setEmail('email');
 
         $order = new OrderEntity();

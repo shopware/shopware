@@ -280,6 +280,11 @@ The `\Shopware\Core\System\SalesChannel\Context\BaseSalesChannelContextFactory` 
 As a consequence the query with the title `base-context-factory::sales-channel` no longer adds the `languages` association,
 which means the `salesChannel` property of the `BaseSalesChannelContext` no longer contains the current language object.
 
+## Removal of `permisionsLocked` property of `SalesChannelContext`
+
+The `permisionsLocked` property of the `SalesChannelContext` was removed.
+Use `permissionsLocked` property or `SalesChannelContext::isPermissionsLocked()` instead.
+
 ## `RequestParamHelper::get` ignores `attribute` bag
 
 The `RequestParamHelper::get` method now ignores the `attribute` bag when fetching parameters from the request.
@@ -575,6 +580,29 @@ shopware:
         increment_name:
           type: 'mysql'
 ```
+
+## Events require `Context` constructor parameter
+
+The following events now require `Context` as the last constructor parameter and implement `ShopwareEvent`.
+The deprecated `getNullableContext()` method was removed.
+
+```php
+// Before
+$event = new ThemeAssignedEvent($themeId, $salesChannelId);
+
+// After
+$event = new ThemeAssignedEvent($themeId, $salesChannelId, $context);
+```
+
+- `Shopware\Core\Content\ImportExport\Event\EnrichExportCriteriaEvent`
+- `Shopware\Core\Content\ImportExport\Event\ImportExportBeforeExportRecordEvent`
+- `Shopware\Core\Content\ImportExport\Event\ImportExportExceptionImportExportHandlerEvent`
+- `Shopware\Core\Content\Seo\Event\SeoUrlUpdateEvent`
+- `Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent`
+- `Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent`
+- `Shopware\Storefront\Theme\Event\ThemeAssignedEvent`
+- `Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent`
+- `Shopware\Storefront\Theme\Event\ThemeConfigResetEvent`
 
 ### Changed Exception Classes towards domain exceptions
 

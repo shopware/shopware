@@ -2,27 +2,42 @@
 
 namespace Shopware\Tests\Unit\Core\Content\MailTemplate\Service;
 
-use Faker\Factory;
 use Faker\Generator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailDataSimulatorFieldEvent;
 use Shopware\Core\Content\MailTemplate\Service\MailDataSimulator;
+use Shopware\Core\Content\Shared\MailFlow\DataProvider\AbstractProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\EmailField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentFkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\StringFieldSerializer;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventCollectorResponse;
+use Shopware\Core\Framework\Event\BusinessEventDefinition;
+use Shopware\Core\Framework\Event\EventData\EntityType;
+use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
+use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\System\Language\LanguageCollection;
+use Shopware\Core\System\Language\LanguageDefinition;
+use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
+use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -34,139 +49,260 @@ class MailDataSimulatorTest extends TestCase
 {
     public function testGenerateFieldDataUsesEmailFieldSimulationForStringSubclass(): void
     {
-        $result = $this->invokeGenerateFieldData(
-            new EmailField('email', 'email')
+        $definition = new TestMailTemplateEntityDefinition(new FieldCollection([
+            (new EmailField('email', 'email'))->addFlags(new ApiAware()),
+        ]));
+
+        $simulator = $this->createSimulator(
+            [
+                'testEntity' => [
+                    'type' => EntityType::TYPE,
+                    'entityClass' => TestMailTemplateEntityDefinition::ENTITY_NAME,
+                ],
+            ],
+            $definition
         );
 
-        static::assertIsString($result);
-        static::assertNotFalse(filter_var($result, \FILTER_VALIDATE_EMAIL));
+        $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext(), 1234);
+
+        static::assertInstanceOf(ArrayEntity::class, $result['testEntity']);
+        static::assertIsString($result['testEntity']->get('email'));
+        static::assertNotFalse(filter_var($result['testEntity']->get('email'), \FILTER_VALIDATE_EMAIL));
     }
 
     public function testGenerateFieldDataUsesNumberRangeFieldSimulationForStringSubclass(): void
     {
-        $result = $this->invokeGenerateFieldData(
-            new NumberRangeField('number_range', 'numberRange')
+        $definition = new TestMailTemplateEntityDefinition(new FieldCollection([
+            (new NumberRangeField('number_range', 'numberRange'))->addFlags(new ApiAware()),
+        ]));
+
+        $simulator = $this->createSimulator(
+            [
+                'testEntity' => [
+                    'type' => EntityType::TYPE,
+                    'entityClass' => TestMailTemplateEntityDefinition::ENTITY_NAME,
+                ],
+            ],
+            $definition
         );
 
-        static::assertIsString($result);
-        static::assertMatchesRegularExpression('/^"\d+"$/', $result);
+        $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext(), 1234);
+
+        static::assertInstanceOf(ArrayEntity::class, $result['testEntity']);
+        static::assertIsString($result['testEntity']->get('numberRange'));
+        static::assertMatchesRegularExpression('/^"\d+"$/', $result['testEntity']->get('numberRange'));
     }
 
     public function testGenerateFieldDataUsesParentFkFallbackBeforeFkFieldLogic(): void
     {
-        $result = $this->invokeGenerateFieldData(
-            new ParentFkField('dummy_definition')
+        $definition = new TestMailTemplateEntityDefinition(new FieldCollection([
+            (new ParentFkField('dummy_definition'))->addFlags(new ApiAware()),
+        ]));
+
+        $simulator = $this->createSimulator(
+            [
+                'testEntity' => [
+                    'type' => EntityType::TYPE,
+                    'entityClass' => TestMailTemplateEntityDefinition::ENTITY_NAME,
+                ],
+            ],
+            $definition
         );
 
-        static::assertNull($result);
+        $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext(), 1234);
+
+        static::assertInstanceOf(ArrayEntity::class, $result['testEntity']);
+        static::assertNull($result['testEntity']->get('parentId'));
     }
 
     public function testGenerateFieldDataReturnsNullForUnknownFieldType(): void
     {
-        $result = $this->invokeGenerateFieldData(
-            new UnknownTestField('unknown')
+        $definition = new TestMailTemplateEntityDefinition(new FieldCollection([
+            (new UnknownTestField('unknown'))->addFlags(new ApiAware()),
+        ]));
+
+        $simulator = $this->createSimulator(
+            [
+                'testEntity' => [
+                    'type' => EntityType::TYPE,
+                    'entityClass' => TestMailTemplateEntityDefinition::ENTITY_NAME,
+                ],
+            ],
+            $definition
         );
 
-        static::assertNull($result);
+        $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext(), 1234);
+
+        static::assertInstanceOf(ArrayEntity::class, $result['testEntity']);
+        static::assertNull($result['testEntity']->get('unknown'));
     }
 
     public function testFieldEventCanOverrideSubclassOfKnownCoreFieldType(): void
     {
-        $context = Context::createDefaultContext();
-        $eventHolder = new \stdClass();
-        $eventHolder->event = null;
-        $dispatcher = new class($eventHolder, $context) implements EventDispatcherInterface {
-            public function __construct(
-                private readonly \stdClass $eventHolder,
-                private readonly Context $context,
-            ) {
-            }
+        $capturedEvent = null;
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher->method('dispatch')->willReturnCallback(function (object $event) use (&$capturedEvent): object {
+            if ($event instanceof MailDataSimulatorFieldEvent) {
+                $capturedEvent = $event;
 
-            public function dispatch(object $event, ?string $eventName = null): object
-            {
-                if ($event instanceof MailDataSimulatorFieldEvent) {
-                    $this->eventHolder->event = $event;
-
-                    if ($event->getField() instanceof CustomStringField) {
-                        TestCase::assertSame($this->context, $event->getContext());
-                        $event->setValue('event-value');
-                    }
+                if ($event->getField() instanceof CustomStringField) {
+                    $event->setValue('event-value');
                 }
-
-                return $event;
             }
-        };
 
-        $result = $this->invokeGenerateFieldData(
-            new CustomStringField('custom_string', 'customString'),
-            $dispatcher,
-            $context
+            return $event;
+        });
+
+        $definition = new TestMailTemplateEntityDefinition(new FieldCollection([
+            (new CustomStringField('custom_string', 'customString'))->addFlags(new ApiAware()),
+        ]));
+
+        $simulator = $this->createSimulator(
+            [
+                'testEntity' => [
+                    'type' => EntityType::TYPE,
+                    'entityClass' => TestMailTemplateEntityDefinition::ENTITY_NAME,
+                ],
+            ],
+            $definition,
+            $dispatcher
         );
 
-        static::assertSame('event-value', $result);
-        static::assertInstanceOf(MailDataSimulatorFieldEvent::class, $eventHolder->event);
-        static::assertInstanceOf(CustomStringField::class, $eventHolder->event->getField());
-        static::assertInstanceOf(Generator::class, $eventHolder->event->getFaker());
+        $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext(), 1234);
+
+        static::assertInstanceOf(ArrayEntity::class, $result['testEntity']);
+        static::assertSame('event-value', $result['testEntity']->get('customString'));
+        static::assertInstanceOf(MailDataSimulatorFieldEvent::class, $capturedEvent);
+        static::assertInstanceOf(CustomStringField::class, $capturedEvent->getField());
+        static::assertSame($capturedEvent->getFaker()::class, Generator::class);
     }
 
     public function testGenerateEventDataTypeDataStillSimulatesScalarFloat(): void
     {
-        $simulator = $this->createSimulator();
-        $faker = Factory::create();
-        $faker->seed(1234);
-        $entityCache = [];
-        $context = Context::createDefaultContext();
+        $simulator = $this->createSimulator([
+            'score' => ['type' => ScalarValueType::TYPE_FLOAT],
+        ]);
 
-        $result = (function (array $dataType, Context $context, Generator $faker) use (&$entityCache): mixed {
-            return $this->generateEventDataTypeData($dataType, $entityCache, $context, $faker);
-        })->call($simulator, ['type' => ScalarValueType::TYPE_FLOAT], $context, $faker);
+        $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext(), 1234);
 
-        static::assertIsFloat($result);
-        static::assertGreaterThanOrEqual(1, $result);
-        static::assertLessThanOrEqual(10000, $result);
+        static::assertIsFloat($result['score']);
+        static::assertGreaterThanOrEqual(1, $result['score']);
+        static::assertLessThanOrEqual(10000, $result['score']);
     }
 
-    private function invokeGenerateFieldData(
-        Field $field,
-        ?EventDispatcherInterface $dispatcher = null,
-        ?Context $context = null
-    ): mixed {
-        $simulator = $this->createSimulator($dispatcher);
-        $faker = Factory::create();
-        $faker->seed(1234);
-        $entityCache = [];
-
-        return (function (Field $field, Generator $faker, Context $context) use (&$entityCache): mixed {
-            return $this->generateFieldData($field, $entityCache, $faker, $context);
-        })->call($simulator, $field, $faker, $context ?? Context::createDefaultContext());
-    }
-
-    private function createSimulator(?EventDispatcherInterface $dispatcher = null): MailDataSimulator
+    public function testGetTemplateDataUsesProviderCriteriaForEntityEventData(): void
     {
-        /** @var EntityRepository<LanguageCollection> $languageRepository */
-        $languageRepository = new TestEntityRepository();
+        $definition = new TestMailTemplateEntityDefinition(new FieldCollection([
+            (new StringField('name', 'name'))->addFlags(new ApiAware()),
+        ]));
+
+        $provider = new class($this->createStub(EventDispatcherInterface::class), $this->createStub(ContainerInterface::class)) extends AbstractProvider {
+            public bool $wasCalled = false;
+
+            public function getEntityName(): string
+            {
+                return TestMailTemplateEntityDefinition::ENTITY_NAME;
+            }
+
+            protected function constructCriteria(string $entityId): Criteria
+            {
+                $this->wasCalled = true;
+
+                return new Criteria([$entityId]);
+            }
+        };
+
+        $simulator = $this->createSimulator(
+            [
+                'testEntity' => [
+                    'type' => EntityType::TYPE,
+                    'entityClass' => TestMailTemplateEntityDefinition::ENTITY_NAME,
+                ],
+            ],
+            $definition,
+            null,
+            [TestMailTemplateEntityDefinition::ENTITY_NAME => $provider]
+        );
+
+        $simulator->getTemplateData('test.flow', Context::createDefaultContext(), 1234);
+
+        static::assertTrue($provider->wasCalled);
+    }
+
+    /**
+     * @param array<string, mixed> $eventData
+     * @param iterable<string, AbstractProvider<Entity, EntityCollection<Entity>>> $dataProviders
+     */
+    private function createSimulator(
+        array $eventData,
+        ?TestMailTemplateEntityDefinition $eventEntityDefinition = null,
+        ?EventDispatcherInterface $dispatcher = null,
+        iterable $dataProviders = [],
+    ): MailDataSimulator {
+        $context = Context::createDefaultContext();
+        $response = new BusinessEventCollectorResponse();
+        $response->set('test.flow', new BusinessEventDefinition('test.flow', TestMailAwareEvent::class, $eventData));
+
+        $businessEventCollector = static::createStub(BusinessEventCollector::class);
+        $businessEventCollector->method('collect')->willReturn($response);
+
+        $language = new LanguageEntity();
+        $language->setUniqueIdentifier($context->getLanguageId());
+
+        $languageRepository = $this->createMock(EntityRepository::class);
+        $languageRepository->method('search')->willReturn(new EntitySearchResult(
+            LanguageDefinition::ENTITY_NAME,
+            1,
+            new LanguageCollection([$language]),
+            null,
+            new Criteria(),
+            $context
+        ));
+
+        $salesChannelDefinition = new TestSalesChannelDefinition();
+        $definitions = [
+            SalesChannelDefinition::class => $salesChannelDefinition,
+        ];
+
+        if ($eventEntityDefinition !== null) {
+            $definitions[$eventEntityDefinition->getEntityName()] = $eventEntityDefinition;
+        }
+
+        $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+
+        foreach ($definitions as $definition) {
+            $definition->compile($definitionRegistry);
+        }
+
+        $definitionRegistry->method('getByClassOrEntityName')
+            ->willReturnCallback(function (string $definitionClassOrEntityName) use ($definitions) {
+                if (!isset($definitions[$definitionClassOrEntityName])) {
+                    throw new \RuntimeException(\sprintf('Unknown definition %s', $definitionClassOrEntityName));
+                }
+
+                return $definitions[$definitionClassOrEntityName];
+            });
 
         return new MailDataSimulator(
-            new TestBusinessEventCollector(),
-            new TestDefinitionInstanceRegistry(),
+            $businessEventCollector,
+            $definitionRegistry,
             $languageRepository,
-            $dispatcher ?? new class implements EventDispatcherInterface {
-                public function dispatch(object $event, ?string $eventName = null): object
-                {
-                    return $event;
-                }
-            },
-            []
+            $dispatcher ?? static::createStub(EventDispatcherInterface::class),
+            $dataProviders
         );
     }
 }
 
-#[Package('after-sales')]
+/**
+ * @internal
+ */
 class CustomStringField extends StringField
 {
 }
 
-#[Package('after-sales')]
+/**
+ * @internal
+ */
 class UnknownTestField extends Field
 {
     protected function getSerializerClass(): string
@@ -175,46 +311,57 @@ class UnknownTestField extends Field
     }
 }
 
-#[Package('after-sales')]
-class TestBusinessEventCollector extends BusinessEventCollector
+/**
+ * @internal
+ */
+class TestMailAwareEvent implements MailAware
 {
-    public function __construct()
+    public function getMailStruct(): MailRecipientStruct
     {
+        return new MailRecipientStruct([]);
     }
 
-    public function collect(Context $context): BusinessEventCollectorResponse
+    public function getSalesChannelId(): ?string
     {
-        return new BusinessEventCollectorResponse();
+        return null;
     }
 }
 
-#[Package('after-sales')]
-class TestDefinitionInstanceRegistry extends DefinitionInstanceRegistry
+/**
+ * @internal
+ */
+class TestMailTemplateEntityDefinition extends EntityDefinition
 {
-    public function __construct()
+    final public const ENTITY_NAME = 'test_mail_template_entity';
+
+    public function __construct(private readonly FieldCollection $definitionFields)
     {
+        parent::__construct();
     }
 
-    public function get(string $class): EntityDefinition
+    public function getEntityName(): string
     {
-        throw new \RuntimeException('Not needed in this test.');
+        return self::ENTITY_NAME;
     }
 
-    public function getByEntityName(string $entityName): EntityDefinition
+    protected function defineFields(): FieldCollection
     {
-        throw new \RuntimeException('Not needed in this test.');
-    }
-
-    public function getByClassOrEntityName(string $key): EntityDefinition
-    {
-        throw new \RuntimeException('Not needed in this test.');
+        return $this->definitionFields;
     }
 }
 
-#[Package('after-sales')]
-class TestEntityRepository extends EntityRepository
+/**
+ * @internal
+ */
+class TestSalesChannelDefinition extends EntityDefinition
 {
-    public function __construct()
+    public function getEntityName(): string
     {
+        return 'sales_channel';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection();
     }
 }

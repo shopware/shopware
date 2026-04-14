@@ -77,7 +77,7 @@ class FileSaver
             $context
         );
 
-        $this->validateFileExtension($mediaFile, $mediaId, $currentMedia->isPrivate());
+        $this->validateFileExtension($mediaFile, $mediaId, $context, $currentMedia->isPrivate());
 
         $this->removeOldMediaData($currentMedia, $context);
 
@@ -363,9 +363,9 @@ class FileSaver
     /**
      * @throws MediaException
      */
-    private function validateFileExtension(MediaFile $mediaFile, string $mediaId, bool $isPrivate = false): void
+    private function validateFileExtension(MediaFile $mediaFile, string $mediaId, Context $context, bool $isPrivate = false): void
     {
-        $event = new MediaFileExtensionWhitelistEvent($isPrivate ? $this->privateAllowedExtensions : $this->allowedExtensions);
+        $event = new MediaFileExtensionWhitelistEvent($isPrivate ? $this->privateAllowedExtensions : $this->allowedExtensions, $context);
         $this->eventDispatcher->dispatch($event);
 
         $fileExtension = mb_strtolower($mediaFile->getFileExtension());

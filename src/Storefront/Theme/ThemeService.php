@@ -166,7 +166,7 @@ class ThemeService implements ResetInterface
         }
 
         if (\array_key_exists('configValues', $data)) {
-            $this->dispatcher->dispatch(new ThemeConfigChangedEvent($themeId, $data['configValues']));
+            $this->dispatcher->dispatch(new ThemeConfigChangedEvent($themeId, $data['configValues'], $context));
         }
 
         // This part is not executed if the theme was reset before, because the config values are then empty.
@@ -210,7 +210,7 @@ class ThemeService implements ResetInterface
             ]], $context);
         });
 
-        $this->dispatcher->dispatch(new ThemeAssignedEvent($themeId, $salesChannelId));
+        $this->dispatcher->dispatch(new ThemeAssignedEvent($themeId, $salesChannelId, $context));
 
         return true;
     }
@@ -225,7 +225,7 @@ class ThemeService implements ResetInterface
         $data = ['id' => $themeId];
         $data['configValues'] = null;
 
-        $this->dispatcher->dispatch(new ThemeConfigResetEvent($themeId));
+        $this->dispatcher->dispatch(new ThemeConfigResetEvent($themeId, $context));
 
         $this->themeRepository->update([$data], $context);
 

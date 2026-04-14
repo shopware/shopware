@@ -4,6 +4,7 @@
 import { MtModal, MtModalRoot, MtModalAction, MtModalClose } from '@shopware-ag/meteor-component-library';
 import DOMPurify from 'dompurify';
 import useConsentStore from 'src/core/consent/consent.store';
+import useNotificationStore from 'src/app/store/notification.store';
 import { sendConsentRequestResponse } from 'src/core/consent/sdk-handler';
 import template from './sw-request-consent-modal.html.twig';
 import './sw-request-consent-modal.scss';
@@ -61,8 +62,18 @@ export default Shopware.Component.wrapComponentConfig({
 
             try {
                 await consentStore.accept(this.state.consentRequest.consent);
+            } catch (e: unknown) {
+                const notificationStore = useNotificationStore();
+                notificationStore.createNotification({
+                    variant: 'critical',
+                    title: this.$t('global.default.error'),
+                    message: this.$t('sw-request-consent-modal.updateFailed'),
+                    autoClose: false,
+                })
+
+                throw e;
             } finally {
-                await sendConsentRequestResponse(
+                sendConsentRequestResponse(
                     this.state.requester.window,
                     consentStore.consents[this.state.consentRequest.consent],
                 );
@@ -81,8 +92,18 @@ export default Shopware.Component.wrapComponentConfig({
 
             try {
                 await consentStore.revoke(this.state.consentRequest.consent);
+            }  catch (e: unknown) {
+                const notificationStore = useNotificationStore();
+                notificationStore.createNotification({
+                    variant: 'critical',
+                    title: this.$t('global.default.error'),
+                    message: this.$t('sw-request-consent-modal.updateFailed'),
+                    autoClose: false,
+                })
+
+                throw e;
             } finally {
-                await sendConsentRequestResponse(
+                sendConsentRequestResponse(
                     this.state.requester.window,
                     consentStore.consents[this.state.consentRequest.consent],
                 );

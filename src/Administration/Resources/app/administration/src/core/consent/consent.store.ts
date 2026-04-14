@@ -61,7 +61,7 @@ function isConsentStale(consent: ConsentDTO): boolean {
 export default Shopware.Store.register('consent', {
     state: (): ConsentStoreState => ({
         consents: {},
-        consentRequestInfo: [],
+        consentRequestInfo: [], // acts as a FIFO queue
     }),
 
     actions: {
@@ -130,7 +130,7 @@ export default Shopware.Store.register('consent', {
         },
 
         removeConsentRequest(): void {
-            this.consentRequestInfo.splice(0, 1);
+            this.consentRequestInfo.shift();
         },
     },
 });

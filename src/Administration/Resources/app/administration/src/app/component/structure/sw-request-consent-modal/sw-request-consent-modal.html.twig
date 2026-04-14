@@ -3,7 +3,7 @@
     :closable="false"
 >
     <mt-modal
-        title="Consent required"
+        :title="$t('sw-request-consent-modal.title')"
         class="sw-request-consent-modal"
     >
         <div class="sw-request-consent-modal__content">
@@ -55,7 +55,7 @@
                     {{ $t('sw-request-consent-modal.acceptButton') }}
                 </mt-button>
 
-                <mt-loader v-if="isLoading" size="var(--scale-size-32)"></mt-loader>
+                <mt-loader v-if="isLoading"></mt-loader>
             </div>
         </template>
     </mt-modal>

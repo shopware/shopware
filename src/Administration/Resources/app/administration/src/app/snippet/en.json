@@ -1757,6 +1757,7 @@
     "message": "The extension {appName} requests your consent for the following topic: {consentName}",
     "readMore": "For more information see:",
     "acceptButton": "Accept",
-    "declineButton": "Decline"
+    "declineButton": "Decline",
+    "updateFailed": "An error has occurred whilst updating your consent. Your previous choice, if any, will be retained."
   }
 }

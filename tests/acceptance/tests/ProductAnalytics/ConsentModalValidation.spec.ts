@@ -13,7 +13,7 @@ test(
         SalesChannelBaseConfig,
         browser,
         TestDataService,
-        InstanceMeta
+        InstanceMeta,
     }) => {
 
         const { capturedRequests, handler } = setupProductAnalyticsInterceptor();
@@ -279,3 +279,71 @@ test('Only authorized users in administration can change store consent and user 
         await page.close();
     });
 });
+
+test(
+    'Each user can only manage their own user-data consent.',
+    { tag: '@ProductAnalytics' },
+    async ({
+               SalesChannelBaseConfig,
+               browser,
+               TestDataService,
+           }) => {
+
+        const { capturedRequests, handler } = setupProductAnalyticsInterceptor();
+        const { consentHandler } = setupConsentInterceptor();
+        const { consentRevokeHandler } = setupConsentRevokeInterceptor();
+
+        const page: Page = await createNewAdminPageContext(browser, SalesChannelBaseConfig);
+        const user1: User = await TestDataService.createUser({ createdAt: '2024-01-01T00:00:00.000Z' });
+        const AdminConsentModal = new AdminPageObjects['DataSharingConsentModal'](page);
+
+        await test.step('Modify product analytics API and consent API requests.', async () => {
+
+            await page.route(`**/${PRODUCT_ANALYTICS_ENDPOINT}**`, handler);
+            await page.route(`**/${CONSENTS_ENDPOINT}`, consentHandler);
+            await page.route(`**/${CONSENTS_ENDPOINT}/revoke`, consentRevokeHandler);
+        });
+
+        await test.step('Login to shopware administration with first user', async () => {
+
+            await loginToAdministration(
+                page,
+                user1,
+                TestDataService.AdminApiClient,
+            );
+
+            await waitForCapturedRequests(capturedRequests, 1);
+
+            await removeSymfonyToolbar(page);
+            await AdminConsentModal.shareUsageDataCheckbox.click();
+            await AdminConsentModal.savePreferencesButton.click();
+        });
+
+        await test.step('Validate second user sees their own consent.', async () => {
+
+            const page = await createNewAdminPageContext(browser, SalesChannelBaseConfig);
+            const AdminConsentModal = new AdminPageObjects['DataSharingConsentModal'](page);
+            const user2: User = await TestDataService.createUser({ createdAt: '2024-01-01T00:00:00.000Z' });
+
+            await loginToAdministration(
+                page,
+                user2,
+                TestDataService.AdminApiClient,
+            );
+
+            await removeSymfonyToolbar(page);
+            await AdminConsentModal.shareUsageDataCheckbox.scrollIntoViewIfNeeded();
+            await expect(AdminConsentModal.shareUsageDataCheckbox).not.toBeChecked();
+            await expect(AdminConsentModal.shareUsageDataCheckbox).toBeEditable();
+
+            TestDataService.addCreatedRecord('user', user2.id);
+            await page.close();
+
+        });
+
+        await test.step('Cleanup.', async () => {
+
+            TestDataService.addCreatedRecord('user', user1.id);
+            await page.close();
+        });
+    });

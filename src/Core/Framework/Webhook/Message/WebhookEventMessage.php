@@ -3,13 +3,12 @@
 namespace Shopware\Core\Framework\Webhook\Message;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 
 /**
  * @internal
  */
 #[Package('framework')]
-class WebhookEventMessage implements AsyncMessageInterface
+class WebhookEventMessage
 {
     /**
      * @internal
@@ -28,6 +27,10 @@ class WebhookEventMessage implements AsyncMessageInterface
         private readonly string $languageId,
         private readonly string $userLocale,
         private readonly array $webhookHeaders = [],
+        /**
+         * @deprecated tag:v6.8.0 - Will become non-nullable. Null only for BC with old serialized messages already in the queue.
+         */
+        private readonly ?string $partitionKey = null,
     ) {
     }
 
@@ -85,5 +88,13 @@ class WebhookEventMessage implements AsyncMessageInterface
     public function getWebhookHeaders(): array
     {
         return $this->webhookHeaders;
+    }
+
+    /**
+     * Returns the raw partition key input (e.g. app ID or 'default').
+     */
+    public function getPartitionKey(): string
+    {
+        return $this->partitionKey ?? $this->appId ?? 'default';
     }
 }

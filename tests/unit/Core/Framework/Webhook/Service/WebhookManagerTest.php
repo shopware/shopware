@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Webhook\Service;
 
-use Doctrine\DBAL\Connection;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
@@ -29,6 +28,7 @@ use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
+use Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository;
 use Shopware\Core\Framework\Webhook\Service\WebhookClient;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
@@ -36,6 +36,7 @@ use Shopware\Core\Framework\Webhook\Service\WebhookRequest;
 use Shopware\Core\Framework\Webhook\Webhook;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Contracts\EventDispatcher\Event;
 
@@ -49,8 +50,6 @@ class WebhookManagerTest extends TestCase
 
     private EventDispatcherInterface&MockObject $eventDispatcher;
 
-    private Connection&MockObject $connection;
-
     private MockHandler $clientMock;
 
     private WebhookClient $webhookClient;
@@ -63,7 +62,6 @@ class WebhookManagerTest extends TestCase
     {
         $this->webhookLoader = $this->createMock(WebhookLoader::class);
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $this->connection = $this->createMock(Connection::class);
         $this->clientMock = new MockHandler([new Response(200, [], '{}')]);
         $stack = HandlerStack::create($this->clientMock);
         $stack->push(new AuthMiddleware('6.7.0', $this->createMock(AppLocaleProvider::class)));
@@ -426,7 +424,6 @@ class WebhookManagerTest extends TestCase
         return new WebhookManager(
             $this->webhookLoader,
             $this->eventDispatcher,
-            $this->connection,
             $this->eventFactory,
             $this->createMock(AppLocaleProvider::class),
             $appPayloadServiceHelper,
@@ -434,7 +431,9 @@ class WebhookManagerTest extends TestCase
             $this->bus,
             'https://example.com',
             '0.0.0',
-            $isAdminWorkerEnabled
+            $isAdminWorkerEnabled,
+            $this->createMock(OutboxEventRepository::class),
+            new MockClock(),
         );
     }
 

@@ -6,9 +6,10 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
+use Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository;
 use Shopware\Core\Framework\Webhook\Service\RelatedWebhooks;
+use Shopware\Core\Framework\Webhook\WebhookException;
 use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
@@ -30,6 +31,7 @@ class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
      */
     public function __construct(
         private readonly Connection $connection,
+        private readonly OutboxEventRepository $outboxEventRepository,
         private readonly RelatedWebhooks $relatedWebhooks,
         string $failureStrategy = WebhookFailureStrategy::DisableOnThreshold->value,
     ) {
@@ -45,24 +47,26 @@ class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
 
     public function failed(WorkerMessageFailedEvent $event): void
     {
-        if ($event->willRetry()) {
-            return;
-        }
-
         $message = $event->getEnvelope()->getMessage();
         if (!$message instanceof WebhookEventMessage) {
             return;
         }
 
+        $response = $event->getThrowable() instanceof WebhookException
+            ? $event->getThrowable()->getDeliveryResponse()
+            : null;
+
+        if ($event->willRetry()) {
+            $this->outboxEventRepository->resetForRetry($message->getWebhookEventId(), $response);
+
+            return;
+        }
+
+        $this->outboxEventRepository->markFailed($message->getWebhookEventId(), $response);
+
         $webhookId = $message->getWebhookId();
-        $webhookEventLogId = $message->getWebhookEventId();
 
         $context = Context::createDefaultContext();
-
-        $this->connection->executeStatement('UPDATE webhook_event_log SET delivery_status = :status WHERE id = :id', [
-            'status' => WebhookEventLogDefinition::STATUS_FAILED,
-            'id' => Uuid::fromHexToBytes($webhookEventLogId),
-        ]);
 
         $rows = $this->connection->fetchAllAssociative(
             'SELECT active, error_count FROM webhook WHERE id = :id',

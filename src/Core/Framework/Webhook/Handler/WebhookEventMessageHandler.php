@@ -7,12 +7,11 @@ use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
-use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
+use Shopware\Core\Framework\Webhook\Outbox\DeliveryResponse;
+use Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository;
 use Shopware\Core\Framework\Webhook\Service\RelatedWebhooks;
 use Shopware\Core\Framework\Webhook\Service\WebhookClient;
 use Shopware\Core\Framework\Webhook\WebhookException;
@@ -27,21 +26,20 @@ final readonly class WebhookEventMessageHandler
 {
     /**
      * @internal
-     *
-     * @param EntityRepository<ScheduledTaskCollection> $webhookEventLogRepository
      */
     public function __construct(
-        private WebhookClient $webhookClient,
+        private readonly WebhookClient $webhookClient,
         private readonly AppPayloadServiceHelper $appPayloadServiceHelper,
         private readonly ClockInterface $clock,
-        private EntityRepository $webhookEventLogRepository,
-        private RelatedWebhooks $relatedWebhooks,
+        private readonly RelatedWebhooks $relatedWebhooks,
+        private readonly OutboxEventRepository $outboxEventRepository,
     ) {
     }
 
     public function __invoke(WebhookEventMessage $message): void
     {
         $context = Context::createDefaultContext();
+
         $request = $this->appPayloadServiceHelper->createWebhookRequest(
             $message->getPayload(),
             $message->getUrl(),
@@ -54,83 +52,45 @@ final readonly class WebhookEventMessageHandler
             $message->getWebhookHeaders(),
         );
 
-        $this->updateLogIfItExists(
-            [
-                'id' => $message->getWebhookEventId(),
-                'deliveryStatus' => WebhookEventLogDefinition::STATUS_RUNNING,
-                'timestamp' => $request->timestamp,
-                'requestContent' => [
-                    'headers' => $request->headers,
-                    'body' => $request->body,
-                ],
-            ],
-            $context
-        );
+        $this->outboxEventRepository->markRunning($message->getWebhookEventId());
 
-        $result = $this->webhookClient->send($request);
+        try {
+            $result = $this->webhookClient->send($request);
+        } catch (\Throwable $e) {
+            $response = new DeliveryResponse(
+                processingTime: $this->clock->now()->getTimestamp() - $request->timestamp,
+                requestContent: json_encode(['headers' => $request->headers, 'body' => $request->body], \JSON_THROW_ON_ERROR),
+            );
+
+            $this->outboxEventRepository->resetForRetry($message->getWebhookEventId(), $response);
+
+            throw WebhookException::webhookFailedException($message->getWebhookId(), $e)
+                ->withDeliveryResponse($response);
+        }
+
+        $processingTime = $this->clock->now()->getTimestamp() - $request->timestamp;
+        $response = DeliveryResponse::from($request, $result, $processingTime);
 
         if ($result->successful()) {
-            $this->updateLogIfItExists(
-                [
-                    'id' => $message->getWebhookEventId(),
-                    'deliveryStatus' => WebhookEventLogDefinition::STATUS_SUCCESS,
-                    'processingTime' => $this->clock->now()->getTimestamp() - $request->timestamp,
-                    'responseContent' => [
-                        'headers' => $result->headers,
-                        'body' => $result->body,
-                    ],
-                    'responseStatusCode' => $result->statusCode,
-                    'responseReasonPhrase' => $result->reasonPhrase,
-                ],
-                $context
-            );
+            $this->outboxEventRepository->markSuccess($message->getWebhookEventId(), $response);
 
             try {
                 $this->relatedWebhooks->updateRelated($message->getWebhookId(), ['error_count' => 0], $context);
             } catch (AppNotFoundException|WriteTypeIntendException) {
-                // may happen if app or webhook got deleted in the meantime,
-                // we don't need to update the error-count in that case, so we can ignore the error
             }
 
             return;
         }
 
-        $payload = [
-            'id' => $message->getWebhookEventId(),
-            'deliveryStatus' => WebhookEventLogDefinition::STATUS_QUEUED, // we use the message retry mechanism to retry the message here so we set the status to queued, because it will be automatically executed again.
-            'processingTime' => $this->clock->now()->getTimestamp() - $request->timestamp,
-        ];
-
-        if ($result->hasResponse()) {
-            $payload = array_merge($payload, [
-                'responseContent' => [
-                    'headers' => $result->headers,
-                    'body' => $result->body,
-                ],
-                'responseStatusCode' => $result->statusCode,
-                'responseReasonPhrase' => $result->reasonPhrase,
-            ]);
-        }
-
-        $this->updateLogIfItExists($payload, $context);
+        $this->outboxEventRepository->resetForRetry($message->getWebhookEventId(), $response);
 
         $exception = $result->exception;
-        if ($exception instanceof BadResponseException && $message->getAppId()) {
-            throw WebhookException::appWebhookFailedException($message->getWebhookId(), $message->getAppId(), $exception);
+        if ($exception instanceof BadResponseException && $message->getAppId() !== null) {
+            throw WebhookException::appWebhookFailedException($message->getWebhookId(), $message->getAppId(), $exception)
+                ->withDeliveryResponse($response);
         }
 
-        throw WebhookException::webhookFailedException($message->getWebhookId(), $exception);
-    }
-
-    /**
-     * @param array<string, mixed|null> $payload
-     */
-    private function updateLogIfItExists(array $payload, Context $context): void
-    {
-        try {
-            $this->webhookEventLogRepository->update([$payload], $context);
-        } catch (WriteTypeIntendException) {
-            // ignore, as that indicates the log entry was already deleted, in that case we don't need to update it
-        }
+        throw WebhookException::webhookFailedException($message->getWebhookId(), $exception)
+            ->withDeliveryResponse($response);
     }
 }

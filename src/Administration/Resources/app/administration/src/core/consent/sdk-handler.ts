@@ -66,8 +66,8 @@ export const handleConsentRequest: HandleMethod<'consentRequest'> = async (messa
 /**
  * @private
  */
-export const sendConsentRequestResponse = async (receiver: Window, consent: ConsentDTO) => {
-    await send(
+export const sendConsentRequestResponse = (receiver: Window, consent: ConsentDTO) => {
+    send(
         'consentRequestResponse',
         {
             name: consent.name,
@@ -76,7 +76,9 @@ export const sendConsentRequestResponse = async (receiver: Window, consent: Cons
             },
         },
         receiver,
-    );
+    ).catch(() => {
+        // ignore timeouts if request is aborted
+    });
 };
 
 function isWindow(source: MessageEventSource | null): source is Window {

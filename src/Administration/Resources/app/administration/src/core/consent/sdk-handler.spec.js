@@ -11,7 +11,7 @@ import {
 } from 'src/core/consent/sdk-handler';
 
 jest.mock('@shopware-ag/meteor-admin-sdk/es/channel', () => ({
-    send: jest.fn(),
+    send: jest.fn(() => Promise.resolve()),
 }));
 
 describe('src/core/consent/sdk-handler.ts', () => {

@@ -11,6 +11,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
+ *
+ * @extends AbstractProviderTestCase<CustomerProvider>
  */
 #[Package('after-sales')]
 #[CoversClass(CustomerProvider::class)]

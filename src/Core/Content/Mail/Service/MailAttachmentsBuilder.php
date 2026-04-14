@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -155,12 +156,13 @@ class MailAttachmentsBuilder
         $deduplicated = [];
 
         foreach ($attachments as $attachment) {
-            $key = $attachment['id'] ?? sha1(
+            $key = $attachment['id'] ?? Hasher::hash(
                 $attachment['fileName']
                 . '|'
                 . ($attachment['mimeType'] ?? '')
                 . '|'
-                . $attachment['content']
+                . $attachment['content'],
+                'sha1'
             );
 
             if (isset($seen[$key])) {

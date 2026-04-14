@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Content\MailTemplate\Service;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\Payload\MailPayload;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeCollection;
@@ -26,7 +25,6 @@ use Symfony\Component\Mime\Email;
  * @internal
  */
 #[Package('after-sales')]
-#[CoversClass(MailTemplateService::class)]
 class MailTemplateServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -137,8 +137,12 @@ class MailDataSimulator
             return [];
         }
 
-        $flowEvent = new \ReflectionClass($definition->getClass());
-        if (!$flowEvent->implementsInterface(MailAware::class)) {
+        $eventClass = $definition->getClass();
+        if (!class_exists($eventClass)) {
+            return [];
+        }
+
+        if (!is_a($eventClass, MailAware::class, true)) {
             return [];
         }
 

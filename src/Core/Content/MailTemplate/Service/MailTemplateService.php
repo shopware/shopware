@@ -187,7 +187,7 @@ class MailTemplateService
     ): array {
         $templateData = $this->mailDataSimulator->getTemplateData($flowEvent, $context);
 
-        if ($parentVariablePath === '') {
+        if ($parentVariablePath === null || $parentVariablePath === '') {
             return \array_map(
                 fn ($fieldName) => [
                     'fieldName' => $fieldName,

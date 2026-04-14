@@ -114,17 +114,11 @@ class GetDataAndSendRequestFactoryTest extends TestCase
         $context = Context::createDefaultContext();
         $mailTemplate = $this->createMailTemplate();
         $mailPayload = new MailPayload(subject: 'payload subject');
-        $request = $this->createMock(RequestDataBag::class);
-
-        $request->method('getString')
-            ->with('mailTemplateId')
-            ->willReturn('template-id');
-
-        $request->method('get')
-            ->willReturnMap([
-                ['entities', [], ['order' => 'order-id', 'customer' => 'customer-id']],
-                ['templateData', [], ['foo' => 'bar']],
-            ]);
+        $request = new RequestDataBag([
+            'mailTemplateId' => 'template-id',
+            'entities' => ['order' => 'order-id', 'customer' => 'customer-id'],
+            'templateData' => ['foo' => 'bar'],
+        ]);
 
         $this->mailTemplateService->expects($this->once())
             ->method('loadTemplate')

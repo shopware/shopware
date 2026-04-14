@@ -6,6 +6,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\AbstractProvider;
 use Shopware\Core\Content\Shared\MailFlow\Event\MailFlowDataCriteriaEvent;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -13,6 +15,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
+ *
+ * @template TProvider of AbstractProvider
  */
 abstract class AbstractProviderTestCase extends TestCase
 {
@@ -97,6 +101,9 @@ abstract class AbstractProviderTestCase extends TestCase
     {
     }
 
+    /**
+     * @return TProvider
+     */
     abstract protected function createProvider(
         EventDispatcherInterface $eventDispatcher,
         ContainerInterface $container,

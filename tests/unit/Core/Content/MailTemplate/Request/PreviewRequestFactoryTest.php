@@ -91,17 +91,11 @@ class PreviewRequestFactoryTest extends TestCase
     {
         $context = Context::createDefaultContext();
         $mailTemplate = $this->createMailTemplate();
-        $request = $this->createMock(RequestDataBag::class);
-
-        $request->method('getString')
-            ->with('mailTemplateId')
-            ->willReturn('template-id');
-
-        $request->method('get')
-            ->willReturnMap([
-                ['entities', [], ['order' => 'order-id', 'customer' => 'customer-id']],
-                ['templateData', [], ['foo' => 'bar']],
-            ]);
+        $request = new RequestDataBag([
+            'mailTemplateId' => 'template-id',
+            'entities' => ['order' => 'order-id', 'customer' => 'customer-id'],
+            'templateData' => ['foo' => 'bar'],
+        ]);
 
         $this->mailTemplateService->expects($this->once())
             ->method('loadTemplate')

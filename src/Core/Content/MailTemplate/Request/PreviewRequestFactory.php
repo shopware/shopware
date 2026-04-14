@@ -29,9 +29,9 @@ readonly class PreviewRequestFactory
         $mailTemplateType = $mailTemplate->getMailTemplateType();
 
         if ($mailTemplateType !== null) {
-            foreach ($entities as $key => $id) {
-                $availableEntities = $mailTemplateType->getAvailableEntities();
+            $availableEntities = $mailTemplateType->getAvailableEntities() ?? [];
 
+            foreach ($entities as $key => $id) {
                 if (!\array_key_exists($key, $availableEntities)) {
                     unset($entities[$key]); // TODO Do we need this? Or do we want to throw instead?
                 }

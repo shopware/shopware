@@ -200,14 +200,11 @@ class MailActionControllerTest extends TestCase
     public function testSimulateAcceptsArrayMailTemplateContent(): void
     {
         $context = Context::createDefaultContext();
-        $request = $this->createMock(RequestDataBag::class);
-
-        $request->method('get')
-            ->willReturnMap([
-                ['mailTemplateContent', null, ['contentHtml' => 'Hello {{ email }}']],
-                ['eventName', null, 'checkout.customer.before.login'],
-                ['strict', false, true],
-            ]);
+        $request = new RequestDataBag([
+            'mailTemplateContent' => ['contentHtml' => 'Hello {{ email }}'],
+            'eventName' => 'checkout.customer.before.login',
+            'strict' => true,
+        ]);
 
         $result = new MailTemplateRenderResultCollection();
         $result->set('contentHtml', new MailTemplateRenderSuccess('Hello test@example.com'));

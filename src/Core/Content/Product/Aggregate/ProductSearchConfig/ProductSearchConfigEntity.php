@@ -17,6 +17,8 @@ class ProductSearchConfigEntity extends Entity
 
     protected bool $andLogic;
 
+    protected int $strictness = 0;
+
     protected int $minSearchLength;
 
     /**
@@ -40,12 +42,24 @@ class ProductSearchConfigEntity extends Entity
 
     public function getAndLogic(): bool
     {
-        return $this->andLogic;
+        return $this->strictness === 100 || $this->andLogic;
     }
 
     public function setAndLogic(bool $andLogic): void
     {
         $this->andLogic = $andLogic;
+        $this->strictness = $andLogic ? 100 : 0;
+    }
+
+    public function getStrictness(): int
+    {
+        return max(0, min(100, $this->strictness));
+    }
+
+    public function setStrictness(int $strictness): void
+    {
+        $this->strictness = max(0, min(100, $strictness));
+        $this->andLogic = $this->strictness === 100;
     }
 
     public function getMinSearchLength(): int

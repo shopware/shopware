@@ -22,8 +22,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class SearchConfigLoaderTest extends TestCase
 {
     /**
-     * @param array<string, list<array{and_logic: string, excluded_terms: string, min_search_length: int, field: string, tokenize: int, ranking: float}>> $configKeyedByLanguageId
-     * @param array<array{and_logic: string, field: string, tokenize: int, ranking: float}> $expectedResult
+     * @param array<string, list<array{and_logic: string, strictness: int, excluded_terms: string, min_search_length: int, field: string, tokenize: int, ranking: float}>> $configKeyedByLanguageId
+     * @param array<array{and_logic: string, strictness: int, field: string, tokenize: int, ranking: float}> $expectedResult
      */
     #[DataProvider('loadDataProvider')]
     public function testLoad(array $configKeyedByLanguageId, array $expectedResult): void
@@ -75,7 +75,7 @@ class SearchConfigLoaderTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{configKeyedByLanguageId: array<string, list<array{and_logic: string, excluded_terms: string, min_search_length: int, field: string, tokenize: int, ranking: float}>>, expectedResult: array<array{and_logic: string, field: string, tokenize: int, ranking: float}>}>
+     * @return iterable<string, array{configKeyedByLanguageId: array<string, list<array{and_logic: string, strictness: int, excluded_terms: string, min_search_length: int, field: string, tokenize: int, ranking: float}>>, expectedResult: array<array{and_logic: string, strictness: int, field: string, tokenize: int, ranking: float}>}>
      */
     public static function loadDataProvider(): iterable
     {
@@ -83,6 +83,7 @@ class SearchConfigLoaderTest extends TestCase
             'configKeyedByLanguageId' => [
                 Defaults::LANGUAGE_SYSTEM => [[
                     'and_logic' => 'and',
+                    'strictness' => 0,
                     'excluded_terms' => json_encode(['term1', 'term2'], \JSON_THROW_ON_ERROR),
                     'min_search_length' => 5,
                     'field' => 'name',
@@ -93,6 +94,7 @@ class SearchConfigLoaderTest extends TestCase
             'expectedResult' => [
                 [
                     'and_logic' => 'and',
+                    'strictness' => 100,
                     'excluded_terms' => ['term1', 'term2'],
                     'min_search_length' => 5,
                     'field' => 'name',
@@ -106,6 +108,7 @@ class SearchConfigLoaderTest extends TestCase
             'configKeyedByLanguageId' => [
                 Defaults::LANGUAGE_SYSTEM => [[
                     'and_logic' => 'and',
+                    'strictness' => 0,
                     'field' => 'name',
                     'tokenize' => 1,
                     'ranking' => 100.0,
@@ -114,6 +117,7 @@ class SearchConfigLoaderTest extends TestCase
                 ]],
                 Uuid::randomHex() => [[
                     'and_logic' => 'and',
+                    'strictness' => 50,
                     'excluded_terms' => json_encode(['term3', 'term4'], \JSON_THROW_ON_ERROR),
                     'min_search_length' => 15,
                     'field' => 'name',
@@ -124,6 +128,7 @@ class SearchConfigLoaderTest extends TestCase
             'expectedResult' => [
                 [
                     'and_logic' => 'and',
+                    'strictness' => 100,
                     'excluded_terms' => ['term1', 'term2'],
                     'min_search_length' => 5,
                     'field' => 'name',

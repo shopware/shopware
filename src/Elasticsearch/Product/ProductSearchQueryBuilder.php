@@ -30,7 +30,7 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
         private readonly AbstractTokenFilter $tokenFilter,
         private readonly TokenizerInterface $tokenizer,
         private readonly SearchConfigLoader $configLoader,
-        private readonly TokenQueryBuilder $tokenQueryBuilder
+        private readonly TokenQueryBuilder $tokenQueryBuilder,
     ) {
     }
 
@@ -59,10 +59,11 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
                 $item['ranking'],
                 (bool) $item['tokenize'],
                 (bool) $item['and_logic'],
+                strictness: $item['strictness'] ?? null,
             );
         }, $searchConfig);
 
-        if (!$configs[0]->isAndLogic()) {
+        if (!$configs[0]->isAndLogic() && !$configs[0]->usesStrictness()) {
             $tokens = [$originalTerm];
         }
 
@@ -89,9 +90,7 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
             return $queries[0];
         }
 
-        $andSearch = $configs[0]->isAndLogic() ? BoolQuery::MUST : BoolQuery::SHOULD;
-
-        $tokensQuery = new BoolQuery([$andSearch => $queries]);
+        $tokensQuery = $this->buildTokensQuery($queries, $configs[0]);
 
         if (\in_array($originalTerm, $tokens, true)) {
             return $tokensQuery;
@@ -114,5 +113,24 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
         $dismax->addQuery($originalTermQuery);
 
         return $dismax;
+    }
+
+    /**
+     * @param list<BuilderInterface> $queries
+     */
+    private function buildTokensQuery(array $queries, SearchFieldConfig $config): BoolQuery
+    {
+        if ($config->isAndLogic()) {
+            return new BoolQuery([BoolQuery::MUST => $queries]);
+        }
+
+        $tokensQuery = new BoolQuery([BoolQuery::SHOULD => $queries]);
+        $minimumShouldMatch = $config->getMinimumShouldMatch(\count($queries));
+
+        if ($minimumShouldMatch !== null) {
+            $tokensQuery->addParameter('minimum_should_match', $minimumShouldMatch);
+        }
+
+        return $tokensQuery;
     }
 }

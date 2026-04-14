@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @phpstan-type SearchConfig array{and_logic: string, excluded_terms: array<string>, min_search_length: int, field: string, tokenize: int, ranking: float}
+ * @phpstan-type SearchConfig array{and_logic: string, strictness: int, excluded_terms: array<string>, min_search_length: int, field: string, tokenize: int, ranking: float}
  */
 #[Package('framework')]
 class SearchConfigLoader
@@ -36,6 +36,7 @@ class SearchConfigLoader
             $config = $this->connection->fetchAllAssociative(
                 'SELECT
 product_search_config.and_logic,
+product_search_config.strictness,
 LOWER(product_search_config.excluded_terms) as `excluded_terms`,
 product_search_config.`min_search_length`,
 product_search_config_field.field,
@@ -56,8 +57,16 @@ WHERE product_search_config.language_id = :languageId AND product_search_config_
 
             if ($config !== []) {
                 return array_map(static function (array $item): array {
+                    $strictness = (int) $item['strictness'];
+
+                    // Legacy compatibility: treat old AND-only updates as 100% strictness.
+                    if ($strictness === 0 && (bool) $item['and_logic']) {
+                        $strictness = 100;
+                    }
+
                     return [
                         'and_logic' => $item['and_logic'],
+                        'strictness' => $strictness,
                         'excluded_terms' => json_decode($item['excluded_terms'], true),
                         'min_search_length' => (int) $item['min_search_length'],
                         'field' => $item['field'],

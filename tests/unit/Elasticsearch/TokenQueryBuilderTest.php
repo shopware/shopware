@@ -273,6 +273,18 @@ class TokenQueryBuilderTest extends TestCase
             ], 1000),
         ];
 
+        yield 'Strictness adds minimum should match for OR search' => [
+            'config' => [
+                self::config(field: 'name', ranking: 1000, and: false, strictness: 50),
+            ],
+            'term' => 'foo bar baz',
+            'expected' => self::disMax([
+                self::should('name.' . Defaults::LANGUAGE_SYSTEM, ['foo', 'bar', 'baz'], 2, 1),
+                self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo bar baz', 0.8, 'AUTO:3,8', 'or', 5, null, 2),
+                self::matchPhrasePrefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo bar baz', 0.6, 3, 5),
+            ], 1000),
+        ];
+
         yield 'Tokenized field uses ngram match for long term' => [
             'config' => [
                 self::config(field: 'name', ranking: 1000, tokenize: true, and: false),
@@ -630,9 +642,9 @@ class TokenQueryBuilderTest extends TestCase
         );
     }
 
-    private static function config(string $field, float $ranking, bool $tokenize = false, bool $and = true, bool $prefixMatch = true): SearchFieldConfig
+    private static function config(string $field, float $ranking, bool $tokenize = false, bool $and = true, bool $prefixMatch = true, ?int $strictness = null): SearchFieldConfig
     {
-        return new SearchFieldConfig($field, $ranking, $tokenize, $and, $prefixMatch);
+        return new SearchFieldConfig($field, $ranking, $tokenize, $and, $prefixMatch, $strictness);
     }
 
     /**
@@ -677,7 +689,7 @@ class TokenQueryBuilderTest extends TestCase
     /**
      * @return array<mixed>
      */
-    private static function match(string $field, string|int|float $query, int|float $boost, int|string|null $fuzziness = null, string $operator = 'or', ?int $maxExpansions = null, ?string $analyzer = null): array
+    private static function match(string $field, string|int|float $query, int|float $boost, int|string|null $fuzziness = null, string $operator = 'or', ?int $maxExpansions = null, ?string $analyzer = null, ?int $minimumShouldMatch = null): array
     {
         $payload = [
             'query' => $query,
@@ -688,6 +700,7 @@ class TokenQueryBuilderTest extends TestCase
             'max_expansions' => $maxExpansions,
             'prefix_length' => 1,
             'analyzer' => $analyzer,
+            'minimum_should_match' => $minimumShouldMatch,
         ];
 
         return [
@@ -737,13 +750,17 @@ class TokenQueryBuilderTest extends TestCase
      *
      * @return array{ bool: array<string, array<mixed>> }
      */
-    private static function bool(array $queries): array
+    private static function bool(array $queries, ?int $minimumShouldMatch = null): array
     {
-        return [
-            'bool' => [
-                BoolQuery::SHOULD => $queries,
-            ],
+        $payload = [
+            BoolQuery::SHOULD => $queries,
         ];
+
+        if ($minimumShouldMatch !== null) {
+            $payload['minimum_should_match'] = $minimumShouldMatch;
+        }
+
+        return ['bool' => $payload];
     }
 
     /**
@@ -759,6 +776,24 @@ class TokenQueryBuilderTest extends TestCase
             'bool' => [
                 BoolQuery::MUST => $queries,
                 'boost' => $boost,
+            ],
+        ];
+    }
+
+    /**
+     * @param array<string> $tokens
+     *
+     * @return array{bool: array{should: array<array{term: array<string, string>}>, boost: float|int, minimum_should_match: int}}
+     */
+    private static function should(string $field, array $tokens, int $minimumShouldMatch, int|float $boost = 1): array
+    {
+        $queries = array_map(static fn (string $token) => ['term' => [$field => $token]], $tokens);
+
+        return [
+            'bool' => [
+                BoolQuery::SHOULD => $queries,
+                'boost' => $boost,
+                'minimum_should_match' => $minimumShouldMatch,
             ],
         ];
     }

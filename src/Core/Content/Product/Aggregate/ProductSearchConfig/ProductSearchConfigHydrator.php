@@ -23,6 +23,10 @@ class ProductSearchConfigHydrator extends EntityHydrator
         if (isset($row[$root . '.andLogic'])) {
             $entity->andLogic = (bool) $row[$root . '.andLogic'];
         }
+        if (isset($row[$root . '.strictness'])) {
+            $entity->strictness = max(0, min(100, (int) $row[$root . '.strictness']));
+            $entity->andLogic = $entity->strictness === 100;
+        }
         if (isset($row[$root . '.minSearchLength'])) {
             $entity->minSearchLength = (int) $row[$root . '.minSearchLength'];
         }

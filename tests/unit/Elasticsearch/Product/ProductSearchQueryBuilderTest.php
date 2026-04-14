@@ -140,6 +140,46 @@ class ProductSearchQueryBuilderTest extends TestCase
         static::assertEquals($expected, $parsed->toArray());
     }
 
+    public function testBuildWithStrictnessOnOrSearch(): void
+    {
+        $builder = $this->getBuilder([
+            self::config(field: 'name', ranking: 1000, and: false, strictness: 50),
+        ]);
+
+        $criteria = new Criteria();
+        $criteria->setTerm('foo bar baz');
+
+        $parsed = $builder->build($criteria, Context::createDefaultContext());
+
+        static::assertEquals(
+            self::disMax([
+                self::bool([
+                    self::disMax([
+                        self::term('name.' . Defaults::LANGUAGE_SYSTEM, 'foo', 1),
+                        self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.8, 'AUTO:3,8', 'or', 5),
+                        self::prefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4),
+                    ], 1000),
+                    self::disMax([
+                        self::term('name.' . Defaults::LANGUAGE_SYSTEM, 'bar', 1),
+                        self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'bar', 0.8, 'AUTO:3,8', 'or', 5),
+                        self::prefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'bar', 0.4),
+                    ], 1000),
+                    self::disMax([
+                        self::term('name.' . Defaults::LANGUAGE_SYSTEM, 'baz', 1),
+                        self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'baz', 0.8, 'AUTO:3,8', 'or', 5),
+                        self::prefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'baz', 0.4),
+                    ], 1000),
+                ], BoolQuery::SHOULD, 2),
+                self::disMax([
+                    self::should('name.' . Defaults::LANGUAGE_SYSTEM, ['foo', 'bar', 'baz'], 2, 1),
+                    self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo bar baz', 0.8, 'AUTO:3,8', 'or', 5, 2),
+                    self::matchPhrasePrefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo bar baz', 0.6, 3, 5),
+                ], 1000),
+            ]),
+            $parsed->toArray()
+        );
+    }
+
     /**
      * @return iterable<array-key, array{config: array{array{and_logic: string, field: string, tokenize: int, ranking: int|float}}, term: string, expected: array<string, mixed>}>
      */
@@ -517,21 +557,27 @@ class ProductSearchQueryBuilderTest extends TestCase
             $tokenFilter,
             new Tokenizer(2),
             $configLoader,
-            $this->tokenQueryBuilder
+            $this->tokenQueryBuilder,
         );
     }
 
     /**
-     * @return array{and_logic: string, field: string, tokenize: int, ranking: float}
+     * @return array{and_logic: string, field: string, tokenize: int, ranking: float, strictness?: int}
      */
-    private static function config(string $field, float $ranking, bool $tokenize = false, bool $and = true): array
+    private static function config(string $field, float $ranking, bool $tokenize = false, bool $and = true, ?int $strictness = null): array
     {
-        return [
+        $config = [
             'and_logic' => $and ? '1' : '0',
             'field' => $field,
             'tokenize' => $tokenize ? 1 : 0,
             'ranking' => $ranking,
         ];
+
+        if ($strictness !== null) {
+            $config['strictness'] = $strictness;
+        }
+
+        return $config;
     }
 
     /**
@@ -567,7 +613,7 @@ class ProductSearchQueryBuilderTest extends TestCase
     /**
      * @return array{match: array<string, array{query: string|int|float, boost: float, operator: string, fuzzy_transpositions: bool, prefix_length: int, fuzziness?: int|string, max_expansions?: int}>}
      */
-    private static function match(string $field, string|int|float $query, int|float $boost, int|string|null $fuzziness = null, string $operator = 'and', ?int $maxExpansions = null): array
+    private static function match(string $field, string|int|float $query, int|float $boost, int|string|null $fuzziness = null, string $operator = 'and', ?int $maxExpansions = null, ?int $minimumShouldMatch = null): array
     {
         $payload = [
             'query' => $query,
@@ -577,6 +623,7 @@ class ProductSearchQueryBuilderTest extends TestCase
             'fuzzy_transpositions' => true,
             'max_expansions' => $maxExpansions,
             'prefix_length' => 1,
+            'minimum_should_match' => $minimumShouldMatch,
         ];
 
         return [
@@ -611,13 +658,17 @@ class ProductSearchQueryBuilderTest extends TestCase
      *
      * @return array{ bool: array<string, array<mixed>> }
      */
-    private static function bool(array $queries, string $operator = BoolQuery::SHOULD): array
+    private static function bool(array $queries, string $operator = BoolQuery::SHOULD, ?int $minimumShouldMatch = null): array
     {
-        return [
-            'bool' => [
-                $operator => $queries,
-            ],
+        $payload = [
+            $operator => $queries,
         ];
+
+        if ($minimumShouldMatch !== null) {
+            $payload['minimum_should_match'] = $minimumShouldMatch;
+        }
+
+        return ['bool' => $payload];
     }
 
     /**
@@ -633,6 +684,24 @@ class ProductSearchQueryBuilderTest extends TestCase
             'bool' => [
                 BoolQuery::MUST => $queries,
                 'boost' => $boost,
+            ],
+        ];
+    }
+
+    /**
+     * @param array<string> $tokens
+     *
+     * @return array{bool: array{should: array<array{term: array<string, string>}>, boost: float|int, minimum_should_match: int}}
+     */
+    private static function should(string $field, array $tokens, int $minimumShouldMatch, int|float $boost = 1): array
+    {
+        $queries = array_map(static fn (string $token) => ['term' => [$field => $token]], $tokens);
+
+        return [
+            'bool' => [
+                BoolQuery::SHOULD => $queries,
+                'boost' => $boost,
+                'minimum_should_match' => $minimumShouldMatch,
             ],
         ];
     }

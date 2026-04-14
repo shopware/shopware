@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\SearchKeyword\KeywordLoader;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchPattern;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
 
@@ -137,5 +138,40 @@ class ProductSearchTermInterpreterTest extends TestCase
         }
 
         static::assertSame($expectedScoring, $actualScoringFlat);
+    }
+
+    public function testStrictnessSetsMinimumShouldMatch(): void
+    {
+        $term = 'alpha beta gamma';
+        $keywordLoader = static::createMock(KeywordLoader::class);
+        $keywordLoader->expects($this->once())
+            ->method('fetch')
+            ->willReturn([
+                ['alpha', '1', '0', '0'],
+                ['beta', '0', '1', '0'],
+                ['gamma', '0', '0', '1'],
+            ]);
+
+        $configLoader = static::createMock(SearchConfigLoader::class);
+        $configLoader->method('load')->willReturn([[
+            'min_search_length' => 1,
+            'excluded_terms' => [],
+            'strictness' => 50,
+            'and_logic' => false,
+        ]]);
+
+        $interpreter = new ProductSearchTermInterpreter(
+            $this->createMock(Connection::class),
+            new Tokenizer(1),
+            $this->createMock(LoggerInterface::class),
+            new TokenFilter($configLoader),
+            $keywordLoader,
+            $configLoader,
+        );
+
+        $pattern = $interpreter->interpret($term, Context::createDefaultContext());
+
+        static::assertSame(2, $pattern->getMinimumShouldMatch());
+        static::assertSame(SearchPattern::BOOLEAN_CLAUSE_OR, $pattern->getBooleanClause());
     }
 }

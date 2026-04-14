@@ -11,7 +11,7 @@ async function createWrapper(privileges = []) {
         {
             props: {
                 searchBehaviourConfigs: {
-                    andLogic: true,
+                    strictness: 100,
                     minSearchLength: 2,
                 },
             },
@@ -61,23 +61,38 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-search/component/sw-settings-search-search-behaviour', () => {
-    it('should not be able to change the behaviour search which includes and, or', async () => {
+    it('should not be able to change the search strictness without edit permissions', async () => {
         const wrapper = await createWrapper([
             'product_search_config.viewer',
         ]);
         await flushPromises();
-        const andBehaviourElement = wrapper.find('.sw-settings-search__search-behaviour-condition').findAll('input').at(0);
-        expect(andBehaviourElement.attributes().disabled).toBeDefined();
+        const strictnessElements = wrapper.find('.sw-settings-search__search-behaviour-condition').findAll('input');
 
-        const orBehaviourElement = wrapper.find('.sw-settings-search__search-behaviour-condition').findAll('input').at(1);
-        expect(orBehaviourElement.attributes().disabled).toBeDefined();
+        expect(strictnessElements).toHaveLength(5);
+        strictnessElements.forEach((element) => {
+            expect(element.attributes().disabled).toBeDefined();
+        });
 
         const minSearchLengthElement = wrapper.findByLabel('sw-settings-search.generalTab.labelMinimalSearchTerm');
         expect(minSearchLengthElement.attributes().disabled).toBeDefined();
 
-        await orBehaviourElement.trigger('click');
-        expect(orBehaviourElement.element.checked).toBeFalsy();
-        expect(wrapper.vm.searchBehaviourConfigs.andLogic).toBe(true);
+        await strictnessElements.at(2).trigger('click');
+        expect(strictnessElements.at(2).element.checked).toBeFalsy();
+        expect(wrapper.vm.searchBehaviourConfigs.strictness).toBe(100);
+    });
+
+    it('should expose the strictness presets for merchants', async () => {
+        const wrapper = await createWrapper([
+            'product_search_config.editor',
+        ]);
+
+        expect(wrapper.vm.strictnessOptions).toEqual([
+            expect.objectContaining({ value: 0 }),
+            expect.objectContaining({ value: 33 }),
+            expect.objectContaining({ value: 50 }),
+            expect.objectContaining({ value: 66 }),
+            expect.objectContaining({ value: 100 }),
+        ]);
     });
 
     it('should be able to change minimal search term length between limit value', async () => {

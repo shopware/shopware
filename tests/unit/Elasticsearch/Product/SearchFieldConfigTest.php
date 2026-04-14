@@ -49,4 +49,21 @@ class SearchFieldConfigTest extends TestCase
         static::assertSame(0, $searchConfig->getFuzziness('1234'));
         static::assertSame(0, $searchConfig->getFuzziness('1234.5'));
     }
+
+    public function testStrictnessHelpers(): void
+    {
+        $searchConfig = new SearchFieldConfig('fooField', 1000.0, true, false, true, 50);
+
+        static::assertSame(50, $searchConfig->getStrictness());
+        static::assertTrue($searchConfig->usesStrictness());
+        static::assertSame(2, $searchConfig->getMinimumShouldMatch(3));
+        static::assertNull($searchConfig->getMinimumShouldMatch(1));
+
+        $clampedSearchConfig = new SearchFieldConfig('fooField', 1000.0, true, false, true, 250);
+        static::assertSame(100, $clampedSearchConfig->getStrictness());
+
+        $andSearchConfig = new SearchFieldConfig('fooField', 1000.0, true, true, true, 50);
+        static::assertTrue($andSearchConfig->usesStrictness());
+        static::assertSame(2, $andSearchConfig->getMinimumShouldMatch(3));
+    }
 }

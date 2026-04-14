@@ -2,10 +2,8 @@
 
 namespace Shopware\Core\Content\Product\SearchKeyword;
 
-use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractTokenFilter;
@@ -14,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTerm;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\TokenizerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\ArrayNormalizer;
-use Shopware\Core\Framework\Uuid\Uuid;
 
 #[Package('inventory')]
 class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterface
@@ -62,7 +59,10 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
 
         $pattern = new SearchPattern(new SearchTerm($word));
 
-        $pattern->setBooleanClause($this->getConfigBooleanClause($context));
+        $strictness = $this->getConfigStrictness($config);
+
+        $pattern->setBooleanClause($strictness === 100);
+        $pattern->setMinimumShouldMatch($this->getMinimumShouldMatch($strictness, \count($matches)));
         $pattern->setTokenTerms($matches);
 
         $scoring = $this->score($tokens, $originalTokens, ArrayNormalizer::flatten($matches), $minSearchLength);
@@ -224,24 +224,27 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
         return $scoring;
     }
 
-    private function getConfigBooleanClause(Context $context): bool
+    /**
+     * @param array<int, array<string, mixed>> $config
+     */
+    private function getConfigStrictness(array $config): int
     {
-        $andLogic = false;
-        $currentLanguageId = $context->getLanguageId();
+        $strictness = (int) ($config[0]['strictness'] ?? 0);
 
-        $configurations = $this->connection->fetchAllAssociative(
-            'SELECT `and_logic`, `language_id` FROM `product_search_config` WHERE `language_id` IN (:language)',
-            ['language' => Uuid::fromHexToBytesList([$currentLanguageId, Defaults::LANGUAGE_SYSTEM])],
-            ['language' => ArrayParameterType::BINARY]
-        );
-        foreach ($configurations as $configuration) {
-            $andLogic = (bool) $configuration['and_logic'];
-            if (Uuid::fromBytesToHex($configuration['language_id']) === $currentLanguageId) {
-                break;
-            }
+        if ($strictness === 0 && (bool) ($config[0]['and_logic'] ?? false)) {
+            return 100;
         }
 
-        return $andLogic;
+        return max(0, min(100, $strictness));
+    }
+
+    private function getMinimumShouldMatch(int $strictness, int $tokenCount): int
+    {
+        if ($tokenCount <= 1 || $strictness <= 0) {
+            return 1;
+        }
+
+        return max(1, (int) ceil($tokenCount * ($strictness / 100)));
     }
 
     private function reverseToken(string $token): string

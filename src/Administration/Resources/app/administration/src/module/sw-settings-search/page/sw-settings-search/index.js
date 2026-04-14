@@ -5,6 +5,7 @@ import template from './sw-settings-search.html.twig';
 
 const { Mixin } = Shopware;
 const { EntityCollection, Criteria } = Shopware.Data;
+const STRICTNESS_PRESETS = [0, 33, 50, 66, 100];
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -30,7 +31,8 @@ export default {
     data: () => {
         return {
             productSearchConfigs: {
-                andLogic: true,
+                andLogic: false,
+                strictness: 0,
                 minSearchLength: 2,
             },
             isLoading: false,
@@ -129,7 +131,7 @@ export default {
                     if (!items.total) {
                         this.onSaveDefaultSearchConfig();
                     } else {
-                        this.productSearchConfigs = items.first();
+                        this.productSearchConfigs = this.normalizeSearchConfig(items.first());
                     }
                 })
                 .catch((err) => {
@@ -146,7 +148,7 @@ export default {
             this.productSearchRepository
                 .search(this.productDefaultConfigsCriteria)
                 .then((items) => {
-                    this.defaultConfig = items.first();
+                    this.defaultConfig = this.normalizeSearchConfig(items.first());
                 })
                 .catch((err) => {
                     this.createNotificationError({
@@ -158,6 +160,7 @@ export default {
         createDefaultSearchConfig() {
             const defaultConfig = this.productSearchRepository.create();
             defaultConfig.andLogic = this.defaultConfig.andLogic;
+            defaultConfig.strictness = this.defaultConfig.strictness;
             defaultConfig.minSearchLength = this.defaultConfig.minSearchLength;
             defaultConfig.excludedTerms = [];
             defaultConfig.languageId = Shopware.Context.api.languageId;
@@ -213,6 +216,7 @@ export default {
 
         onSaveSearchSettings() {
             this.isLoading = true;
+            this.syncLegacySearchMode(this.productSearchConfigs);
             this.productSearchRepository
                 .save(this.productSearchConfigs)
                 .then(() => {
@@ -241,6 +245,49 @@ export default {
             this.salesChannelRepository.search(new Criteria(1, 25)).then((response) => {
                 this.salesChannels = response;
             });
+        },
+
+        normalizeSearchConfig(config) {
+            if (!config) {
+                return config;
+            }
+
+            const strictness = this.normalizeStrictnessValue(
+                config.strictness,
+                config.andLogic ? 100 : 0,
+            );
+
+            config.strictness = strictness;
+            config.andLogic = strictness === 100;
+
+            return config;
+        },
+
+        syncLegacySearchMode(config) {
+            if (!config) {
+                return;
+            }
+
+            config.strictness = this.normalizeStrictnessValue(config.strictness, 0);
+            config.andLogic = config.strictness === 100;
+        },
+
+        normalizeStrictnessValue(strictness, fallback = 0) {
+            const parsedValue = Number.parseInt(strictness, 10);
+            const normalizedValue = Number.isNaN(parsedValue) ? fallback : parsedValue;
+            const clampedValue = Math.min(100, Math.max(0, normalizedValue));
+
+            if (STRICTNESS_PRESETS.includes(clampedValue)) {
+                return clampedValue;
+            }
+
+            return STRICTNESS_PRESETS.reduce((closestValue, currentValue) => {
+                if (Math.abs(currentValue - clampedValue) < Math.abs(closestValue - clampedValue)) {
+                    return currentValue;
+                }
+
+                return closestValue;
+            }, STRICTNESS_PRESETS[0]);
         },
 
         unsavedDataLeaveHandler(to, from, next) {

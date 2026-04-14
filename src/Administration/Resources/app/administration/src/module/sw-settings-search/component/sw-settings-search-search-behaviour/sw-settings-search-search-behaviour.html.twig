@@ -13,17 +13,17 @@
 
     {% block sw_settings_search_search_behaviour_condition %}
     <sw-radio-field
-        v-model:value="searchBehaviourConfigs.andLogic"
+        v-model:value="searchBehaviourConfigs.strictness"
         v-tooltip="{
             message: $tc('sw-privileges.tooltip.warning'),
             disabled: acl.can('product_search_config.editor'),
             showOnDisabledElements: true
         }"
-        name="sw-field--searchBehaviourConfigs-andLogic"
+        name="sw-field--searchBehaviourConfigs-strictness"
         class="sw-settings-search__search-behaviour-condition"
         block
         :disabled="!acl.can('product_search_config.editor')"
-        :options="conditionsOptions"
+        :options="strictnessOptions"
     />
     {% endblock %}
 

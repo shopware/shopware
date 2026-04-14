@@ -23,6 +23,8 @@ class SearchPattern
      */
     private array $tokenTerms = [];
 
+    private int $minimumShouldMatch = 1;
+
     private ?string $booleanClause = null;
 
     public function __construct(private readonly SearchTerm $original)
@@ -55,6 +57,16 @@ class SearchPattern
     public function getBooleanClause(): string
     {
         return $this->booleanClause ?? self::BOOLEAN_CLAUSE_OR;
+    }
+
+    public function setMinimumShouldMatch(int $minimumShouldMatch): void
+    {
+        $this->minimumShouldMatch = max(1, $minimumShouldMatch);
+    }
+
+    public function getMinimumShouldMatch(): int
+    {
+        return max(1, $this->minimumShouldMatch);
     }
 
     /**

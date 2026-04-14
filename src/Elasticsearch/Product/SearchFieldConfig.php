@@ -12,7 +12,8 @@ class SearchFieldConfig
         private float $ranking,
         private readonly bool $tokenize,
         private readonly bool $andLogic = false,
-        private readonly bool $prefixMatch = true
+        private readonly bool $prefixMatch = true,
+        private readonly ?int $strictness = null,
     ) {
     }
 
@@ -36,11 +37,6 @@ class SearchFieldConfig
         return str_contains($this->field, 'customFields');
     }
 
-    public function isAndLogic(): bool
-    {
-        return $this->andLogic;
-    }
-
     public function setRanking(float $ranking): void
     {
         $this->ranking = $ranking;
@@ -49,6 +45,38 @@ class SearchFieldConfig
     public function usePrefixMatch(): bool
     {
         return $this->prefixMatch;
+    }
+
+    public function getStrictness(): int
+    {
+        if ($this->strictness === null) {
+            return $this->andLogic ? 100 : 0;
+        }
+
+        return max(0, min(100, $this->strictness));
+    }
+
+    public function usesStrictness(): bool
+    {
+        return $this->strictness !== null && $this->getStrictness() > 0 && $this->getStrictness() < 100;
+    }
+
+    public function getMinimumShouldMatch(int $clauseCount): ?int
+    {
+        if (!$this->usesStrictness() || $clauseCount <= 1) {
+            return null;
+        }
+
+        return max(1, (int) ceil($clauseCount * ($this->getStrictness() / 100)));
+    }
+
+    public function isAndLogic(): bool
+    {
+        if ($this->strictness !== null) {
+            return $this->getStrictness() === 100;
+        }
+
+        return $this->andLogic;
     }
 
     public function getFuzziness(string $token): string|int

@@ -164,7 +164,7 @@ class TokenQueryBuilder
 
         $queries = array_values(array_filter([
             $this->buildExactMatchQuery($config, $tokens, $normalizedToken, $tokenCount),
-            $this->buildFuzzyMatchQuery($searchField, $normalizedToken, $config, $maxExpansions),
+            $this->buildFuzzyMatchQuery($searchField, $normalizedToken, $config, $tokenCount, $maxExpansions),
             $this->buildPrefixMatchQuery($searchField, $normalizedToken, $config, $tokenCount, $maxExpansions),
             $this->buildNgramQuery($normalizedToken, $config, $tokenCount),
         ]));
@@ -179,6 +179,21 @@ class TokenQueryBuilder
     {
         if ($tokenCount === 1) {
             return new TermQuery($config->getField(), $token, ['boost' => 1]);
+        }
+
+        $minimumShouldMatch = $config->getMinimumShouldMatch($tokenCount);
+
+        if ($minimumShouldMatch !== null) {
+            $exactMatchQuery = new BoolQuery();
+
+            foreach ($tokens as $tokenPart) {
+                $exactMatchQuery->add(new TermQuery($config->getField(), $tokenPart), BoolQuery::SHOULD);
+            }
+
+            $exactMatchQuery->addParameter('boost', 1);
+            $exactMatchQuery->addParameter('minimum_should_match', $minimumShouldMatch);
+
+            return $exactMatchQuery;
         }
 
         if ($config->isAndLogic()) {
@@ -196,7 +211,7 @@ class TokenQueryBuilder
         return new TermsQuery($config->getField(), $tokens, ['boost' => 1]);
     }
 
-    private function buildFuzzyMatchQuery(string $searchField, string $token, SearchFieldConfig $config, int $maxExpansions): MatchQuery
+    private function buildFuzzyMatchQuery(string $searchField, string $token, SearchFieldConfig $config, int $tokenCount, int $maxExpansions): MatchQuery
     {
         $matchQueryParams = [
             'boost' => 0.8,
@@ -209,6 +224,12 @@ class TokenQueryBuilder
 
         if (!$this->useLanguageAnalyzer) {
             $matchQueryParams['analyzer'] = 'sw_whitespace_analyzer';
+        }
+
+        $minimumShouldMatch = $config->getMinimumShouldMatch($tokenCount);
+
+        if ($minimumShouldMatch !== null) {
+            $matchQueryParams['minimum_should_match'] = $minimumShouldMatch;
         }
 
         return new MatchQuery($searchField, $token, $matchQueryParams);
@@ -291,6 +312,7 @@ class TokenQueryBuilder
                 $config->tokenize(),
                 $config->isAndLogic(),
                 $config->usePrefixMatch(),
+                $config->getStrictness(),
             );
 
             $languageQuery = $this->matchQuery($field, $token, $languageConfig);

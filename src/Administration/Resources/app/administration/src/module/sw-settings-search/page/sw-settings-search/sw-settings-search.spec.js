@@ -7,15 +7,19 @@ import { createRouter, createWebHashHistory } from 'vue-router';
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
 
+let saveMock;
+
 const mockData = [
     {
         andLogic: false,
+        strictness: 0,
         minSearchLength: 4,
         excludedTerms: [],
         languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
     },
     {
         andLogic: true,
+        strictness: 100,
         minSearchLength: 4,
         excludedTerms: [],
         languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20c',
@@ -50,20 +54,25 @@ async function createWrapper() {
 
                 provide: {
                     repositoryFactory: {
-                        create: () => ({
-                            search: () => {
-                                return Promise.resolve(new EntityCollection('', '', Context.api, null, mockData));
-                            },
-                            save: (productSearchConfigs) => {
+                        create: () => {
+                            saveMock = jest.fn((productSearchConfigs) => {
                                 if (!productSearchConfigs) {
                                     return Promise.reject({ error: 'Error' });
                                 }
+
                                 return Promise.resolve();
-                            },
-                            create: jest.fn(() => {
-                                return {};
-                            }),
-                        }),
+                            });
+
+                            return {
+                                search: () => {
+                                    return Promise.resolve(new EntityCollection('', '', Context.api, null, mockData));
+                                },
+                                save: saveMock,
+                                create: jest.fn(() => {
+                                    return {};
+                                }),
+                            };
+                        },
                     },
                 },
 
@@ -112,6 +121,7 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
     beforeEach(async () => {
         Shopware.Application.view.deleteReactive = () => {};
         global.activeAclRoles = [];
+        saveMock = undefined;
     });
 
     it('should not able to save product search config without editor privilege', async () => {
@@ -145,12 +155,17 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
         wrapper.vm.getProductSearchConfigs = jest.fn();
         wrapper.vm.productSearchConfigs = {
             andLogic: true,
+            strictness: 100,
             minSearchLength: 2,
         };
 
         await wrapper.vm.onSaveSearchSettings();
         await wrapper.vm.$nextTick();
 
+        expect(saveMock).toHaveBeenCalledWith(expect.objectContaining({
+            strictness: 100,
+            andLogic: true,
+        }));
         expect(wrapper.vm.getProductSearchConfigs).toHaveBeenCalled();
         expect(wrapper.vm.createNotificationSuccess).toHaveBeenCalledWith({
             message: 'sw-settings-search.notification.saveSuccess',
@@ -183,8 +198,52 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
         await wrapper.vm.getProductSearchConfigs();
 
         expect(wrapper.vm.productSearchConfigs.andLogic).toBe(mockData[0].andLogic);
+        expect(wrapper.vm.productSearchConfigs.strictness).toBe(mockData[0].strictness);
         expect(wrapper.vm.productSearchConfigs.minSearchLength).toBe(mockData[0].minSearchLength);
         expect(wrapper.vm.productSearchConfigs.excludedTerms).toHaveLength(0);
         expect(wrapper.vm.productSearchConfigs.languageId).toBe('2fbb5fe2e29a4d70aa5854ce7ce3e20b');
+    });
+
+    it('should sync the legacy andLogic flag from strictness on save', async () => {
+        global.activeAclRoles = ['product_search_config.editor'];
+
+        const wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
+
+        wrapper.vm.productSearchConfigs = {
+            andLogic: true,
+            strictness: 50,
+            minSearchLength: 2,
+        };
+
+        await wrapper.vm.onSaveSearchSettings();
+        await wrapper.vm.$nextTick();
+
+        expect(saveMock).toHaveBeenCalledWith(expect.objectContaining({
+            strictness: 50,
+            andLogic: false,
+        }));
+    });
+
+    it('should normalize legacy AND configs to the strictest preset', async () => {
+        global.activeAclRoles = ['product_search_config.editor'];
+
+        const wrapper = await createWrapper();
+        const normalized = wrapper.vm.normalizeSearchConfig({
+            andLogic: true,
+            minSearchLength: 2,
+        });
+
+        expect(normalized.strictness).toBe(100);
+        expect(normalized.andLogic).toBe(true);
+    });
+
+    it('should normalize unsupported strictness values to the nearest preset', async () => {
+        global.activeAclRoles = ['product_search_config.editor'];
+
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.normalizeStrictnessValue(40)).toBe(33);
+        expect(wrapper.vm.normalizeStrictnessValue(60)).toBe(66);
     });
 });

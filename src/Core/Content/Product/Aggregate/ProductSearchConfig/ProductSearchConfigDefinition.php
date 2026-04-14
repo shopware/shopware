@@ -47,7 +47,8 @@ class ProductSearchConfigDefinition extends EntityDefinition
     public function getDefaults(): array
     {
         return [
-            'andLogic' => true,
+            'andLogic' => false,
+            'strictness' => 0,
             'minSearchLength' => 2,
             'excludedTerms' => [],
         ];
@@ -64,6 +65,7 @@ class ProductSearchConfigDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of Product Search Configuration.'),
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new Required())->setDescription('Unique identity of language.'),
             (new BoolField('and_logic', 'andLogic'))->addFlags(new Required())->setDescription('Product search configuration with add logic.'),
+            (new IntField('strictness', 'strictness'))->addFlags(new Required())->setDescription('Defines how many entered search terms need to match in percent.'),
             (new IntField('min_search_length', 'minSearchLength'))->addFlags(new Required())->setDescription('Minimum number of characters used for product search.'),
             (new ListField('excluded_terms', 'excludedTerms', StringField::class))->setDescription('Excluded terms in product search.'),
             new OneToOneAssociationField('language', 'language_id', 'id', LanguageDefinition::class, false),

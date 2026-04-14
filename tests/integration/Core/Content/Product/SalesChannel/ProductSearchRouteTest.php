@@ -245,6 +245,22 @@ class ProductSearchRouteTest extends TestCase
         $this->proceedTestSearch($browser, $term, $expected);
     }
 
+    public function testSearchStrictnessWithIntermediatePreset(): void
+    {
+        $browser = self::$browser;
+        $this->productSearchConfigRepository->update([
+            [
+                'id' => $this->productSearchConfigId,
+                'andLogic' => false,
+                'strictness' => 50,
+            ],
+        ], Context::createDefaultContext());
+
+        $this->proceedTestSearch($browser, 'Incredible Copper Vitro', [
+            'Fantastic Copper Ginger Vitro',
+        ]);
+    }
+
     public function testFindingProductAlreadyHaveVariantsWithCustomSearchKeywords(): void
     {
         $browser = self::$browser;

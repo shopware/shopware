@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -36,6 +37,7 @@ use Shopware\Core\Test\TestDefaults;
 #[Package('inventory')]
 class ProductStreamBuilderTest extends TestCase
 {
+    use EnvTestBehaviour;
     use IntegrationTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;
 
@@ -195,30 +197,13 @@ class ProductStreamBuilderTest extends TestCase
             ]],
         ]], Context::createDefaultContext());
 
-        $serverTestsRunning = $_SERVER['TESTS_RUNNING'] ?? null;
-        $envTestsRunning = $_ENV['TESTS_RUNNING'] ?? null;
-        $_SERVER['TESTS_RUNNING'] = false;
-        $_ENV['TESTS_RUNNING'] = false;
+        $this->setEnvVars(['TESTS_RUNNING' => false]);
 
-        try {
-            $this->expectUserDeprecationMessageMatches(
-                '/Method "Shopware\\\\Core\\\\Content\\\\ProductStream\\\\Service\\\\ProductStreamBuilder::buildFilters\\(\\)" is deprecated and will be removed in v6\\.8\\.0\\.0\\./'
-            );
+        $this->expectUserDeprecationMessageMatches(
+            '/Method "Shopware\\\\Core\\\\Content\\\\ProductStream\\\\Service\\\\ProductStreamBuilder::buildFilters\\(\\)" is deprecated and will be removed in v6\\.8\\.0\\.0\\./'
+        );
 
-            $this->service->buildFilters($ids->get('stream'), Context::createDefaultContext());
-        } finally {
-            if ($serverTestsRunning === null) {
-                unset($_SERVER['TESTS_RUNNING']);
-            } else {
-                $_SERVER['TESTS_RUNNING'] = $serverTestsRunning;
-            }
-
-            if ($envTestsRunning === null) {
-                unset($_ENV['TESTS_RUNNING']);
-            } else {
-                $_ENV['TESTS_RUNNING'] = $envTestsRunning;
-            }
-        }
+        $this->service->buildFilters($ids->get('stream'), Context::createDefaultContext());
     }
 
     public function testBuildFiltersThrowsWhenFeatureIsActive(): void

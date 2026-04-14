@@ -144,7 +144,7 @@ export default {
             }
 
             this.product.cmsPageId = cmsPageId;
-            this.product.slotConfig = null;
+            this.resetSlotConfig();
             State.commit('swProductDetail/setProduct', this.product);
         },
 
@@ -192,6 +192,14 @@ export default {
             if (slotContent && slotContent.value) {
                 slotContent.value = element.config.content.value;
             }
+        },
+
+        resetSlotConfig() {
+            this.product.slotConfig = null;
+
+            this.product.translations?.forEach((translation) => {
+                translation.slotConfig = null;
+            });
         },
     },
 };

@@ -912,6 +912,9 @@ Use the parent blocks instead
 ## File accessibility changed from public to private
 `administration/src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/index.js`
 
+## The following template blocks have been replaced due to a typo in their name
+* `sw_condiiton_date_range_field_to_date` -> `sw_condition_date_range_field_to_date`
+
 ## Removed .png and .jpg images
 
 In favor of WebP the following images have been removed:

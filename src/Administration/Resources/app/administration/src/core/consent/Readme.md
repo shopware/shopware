@@ -19,6 +19,8 @@ Each consent entry contains revision metadata in addition to the raw status:
 - if a consent has no revisions, `status === 'accepted'` is enough
 - if a consent has revisions, `isAccepted()` only returns `true` when `acceptedRevision === latestRevision`
 
+> **Note:** this differs from the PHP `ConsentState::isAccepted()`, which only checks the status and is not revision-aware. The JS `isAccepted()` is equivalent to the PHP `isCurrent()` method. If you need the raw status check without revision awareness, read `consent.status === 'accepted'` directly.
+
 If you need to distinguish "accepted, but outdated" from "not accepted", use `consentStore.isStale()`.
 
 ```ts

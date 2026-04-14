@@ -14,8 +14,8 @@ readonly class MailPayload
      * @param array<string,string|null> $recipients
      * @param list<string> $documentIds
      * @param list<string> $mediaIds
-     * @param list<mixed> $attachments
-     * @param list<array{content: resource|string, fileName: string|null, mimeType: string|null}>|null $binAttachments
+     * @param array<mixed> $attachments
+     * @param array<int|string, array{content: resource|string, fileName: string|null, mimeType: string|null}>|null $binAttachments
      * @param string|array<string,string|null>|null $recipientsCc
      * @param string|array<string,string|null>|null $recipientsBcc
      * @param string|array<string,string|null>|null $replyTo

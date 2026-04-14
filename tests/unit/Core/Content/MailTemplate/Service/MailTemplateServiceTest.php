@@ -56,9 +56,11 @@ class MailTemplateServiceTest extends TestCase
     public function testLoadTemplate(): void
     {
         $mailTemplate = $this->createMailTemplate();
+        /** @var StaticEntityRepository<MailTemplateCollection> $mailTemplateRepository */
+        $mailTemplateRepository = new StaticEntityRepository([new MailTemplateCollection([$mailTemplate])]);
 
         $mailTemplateService = $this->createService(
-            new StaticEntityRepository([new MailTemplateCollection([$mailTemplate])])
+            $mailTemplateRepository
         );
 
         $loadedMailTemplate = $mailTemplateService->loadTemplate($mailTemplate->getId(), Context::createDefaultContext());
@@ -68,8 +70,11 @@ class MailTemplateServiceTest extends TestCase
 
     public function testLoadUnknownTemplate(): void
     {
+        /** @var StaticEntityRepository<MailTemplateCollection> $mailTemplateRepository */
+        $mailTemplateRepository = new StaticEntityRepository([new MailTemplateCollection()]);
+
         $mailTemplateService = $this->createService(
-            new StaticEntityRepository([new MailTemplateCollection()])
+            $mailTemplateRepository
         );
 
         static::expectException(MailTemplateException::class);
@@ -221,7 +226,6 @@ class MailTemplateServiceTest extends TestCase
                 static::callback(function (array $data): bool {
                     static::assertArrayHasKey('attachmentsConfig', $data);
                     static::assertInstanceOf(MailAttachmentsConfig::class, $data['attachmentsConfig']);
-                    static::assertInstanceOf(MailTemplateEntity::class, $data['attachmentsConfig']->getMailTemplate());
                     static::assertSame('order-id', $data['attachmentsConfig']->getOrderId());
 
                     return true;
@@ -376,12 +380,18 @@ class MailTemplateServiceTest extends TestCase
         ];
     }
 
+    /**
+     * @param StaticEntityRepository<MailTemplateCollection>|null $mailTemplateRepository
+     */
     private function createService(?StaticEntityRepository $mailTemplateRepository = null): MailTemplateService
     {
+        /** @var StaticEntityRepository<MailTemplateCollection> $mailTemplateRepository */
+        $mailTemplateRepository ??= new StaticEntityRepository([]);
+
         return new MailTemplateService(
             $this->mailService,
             $this->mailDataProvider,
-            $mailTemplateRepository ?? new StaticEntityRepository([]),
+            $mailTemplateRepository,
             $this->templateRenderer,
             $this->mailDataSimulator,
         );

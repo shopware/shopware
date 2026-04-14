@@ -1,5 +1,6 @@
 import template from './sw-order-send-document-modal.html.twig';
 import './sw-order-send-document-modal.scss';
+import ApiService from 'src/core/service/api.service';
 
 /**
  * @sw-package checkout
@@ -58,10 +59,6 @@ export default {
 
         mailTemplateRepository() {
             return this.repositoryFactory.create('mail_template');
-        },
-
-        mailHeaderFooterRepository() {
-            return this.repositoryFactory.create('mail_header_footer');
         },
 
         mailTemplateCriteria() {
@@ -159,34 +156,22 @@ export default {
 
             this.subject = localMailTemplate.subject;
 
-            if (!this.order.salesChannel || !this.order.salesChannel.mailHeaderFooterId) {
-                return this.mailService
-                    .buildRenderPreview(localMailTemplate.mailTemplateType, localMailTemplate)
-                    .then((result) => {
-                        this.content = result;
-                    });
-            }
-
-            const mailTemplateWithHeaderFooter = { ...localMailTemplate };
-            return this.mailHeaderFooterRepository
-                .search(new Criteria(1, 1).addFilter(Criteria.equals('id', this.order.salesChannel.mailHeaderFooterId)))
-                .then((mailHeaderFooter) => {
-                    if (mailHeaderFooter[0].headerHtml) {
-                        mailTemplateWithHeaderFooter.contentHtml =
-                            mailHeaderFooter[0].headerHtml + mailTemplateWithHeaderFooter.contentHtml;
-                    }
-
-                    if (mailHeaderFooter[0].footerHtml) {
-                        mailTemplateWithHeaderFooter.contentHtml += mailHeaderFooter[0].footerHtml;
-                    }
-
-                    return this.mailService.buildRenderPreview(
-                        mailTemplateWithHeaderFooter.mailTemplateType,
-                        mailTemplateWithHeaderFooter,
-                    );
-                })
-                .then((result) => {
-                    this.content = result;
+            return this.mailService.httpClient
+                .post(
+                    `/_action/${this.mailService.getApiBasePath()}/preview`,
+                    {
+                        mailTemplateId: localMailTemplate.id,
+                        entities: {
+                            order: this.order.id,
+                            salesChannel: this.order.salesChannelId,
+                        },
+                    },
+                    {
+                        headers: this.mailService.getBasicHeaders(),
+                    },
+                )
+                .then((response) => {
+                    this.content = ApiService.handleResponse(response)?.contentHtml?.content ?? '';
                 });
         },
 
@@ -209,39 +194,41 @@ export default {
                         }
                     });
 
-                    this.mailService
-                        .sendMailTemplate(
-                            this.recipient,
-                            `${this.order.orderCustomer.firstName} ${this.order.orderCustomer.lastName}`,
+                    this.mailService.httpClient
+                        .post(
+                            `/_action/${this.mailService.getApiBasePath()}/get-data-and-send`,
                             {
-                                ...mailTemplate,
-                                ...{
-                                    subject: this.subject,
-                                    recipient: this.recipient,
+                                recipients: {
+                                    [this.recipient]: `${this.order.orderCustomer.firstName} ${this.order.orderCustomer.lastName}`,
+                                },
+                                salesChannelId: this.order.salesChannelId,
+                                mediaIds: mediaCollection.getIds(),
+                                subject: this.subject,
+                                senderMail: mailTemplate.senderMail,
+                                senderName: mailTemplate.senderName ?? mailTemplate.translated?.senderName,
+                                documentIds: [this.document.id],
+                                testMode: false,
+                                mailTemplateId: mailTemplate.id,
+                                entities: {
+                                    order: this.order.id,
+                                    salesChannel: this.order.salesChannelId,
+                                },
+                                templateData: {
+                                    a11yDocuments: this.a11yDocuments,
                                 },
                             },
-                            mediaCollection,
-                            this.order.salesChannelId,
-                            false,
-                            [this.document.id],
                             {
-                                order: this.order,
-                                salesChannel: this.order.salesChannel,
-                                document: this.document,
-                                a11yDocuments: this.a11yDocuments,
+                                headers: this.mailService.getBasicHeaders(apiContext),
                             },
-                            null,
-                            null,
-                            apiContext,
                         )
+                        .then(() => {
+                            this.$emit('document-sent');
+                        })
                         .catch(() => {
                             this.createNotificationError({
                                 message: this.$t('sw-order.documentSendModal.errorMessage'),
                             });
                             this.$emit('modal-close');
-                        })
-                        .then(() => {
-                            this.$emit('document-sent');
                         })
                         .finally(() => {
                             this.isLoading = false;

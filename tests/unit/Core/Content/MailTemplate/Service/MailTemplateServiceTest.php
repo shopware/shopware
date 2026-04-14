@@ -4,26 +4,29 @@ namespace Shopware\Tests\Unit\Core\Content\MailTemplate\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Mail\Payload\MailPayload;
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateException;
+use Shopware\Core\Content\MailTemplate\Request\GetDataAndSendRequest;
+use Shopware\Core\Content\MailTemplate\Request\PreviewRequest;
 use Shopware\Core\Content\MailTemplate\Service\MailDataProvider;
+use Shopware\Core\Content\MailTemplate\Service\MailDataSimulator;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
 use Shopware\Core\Content\MailTemplate\Validation\MailTemplateRenderError;
 use Shopware\Core\Content\MailTemplate\Validation\MailTemplateRenderSuccess;
-use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
-use Shopware\Core\Content\Product\SalesChannel\Review\Event\ReviewFormEvent;
-use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\Mime\Email;
 
 /**
  * @internal
@@ -32,23 +35,30 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 #[Package('after-sales')]
 class MailTemplateServiceTest extends TestCase
 {
+    private AbstractMailService&MockObject $mailService;
+
+    private MailDataProvider&MockObject $mailDataProvider;
+
+    private StringTemplateRenderer&MockObject $templateRenderer;
+
+    private MailDataSimulator&MockObject $mailDataSimulator;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->mailService = $this->createMock(AbstractMailService::class);
+        $this->mailDataProvider = $this->createMock(MailDataProvider::class);
+        $this->templateRenderer = $this->createMock(StringTemplateRenderer::class);
+        $this->mailDataSimulator = $this->createMock(MailDataSimulator::class);
+    }
+
     public function testLoadTemplate(): void
     {
-        $mailTemplate = new MailTemplateEntity();
-        $mailTemplate->setId(Uuid::randomHex());
-        $mailTemplate->setContentHtml('html');
+        $mailTemplate = $this->createMailTemplate();
 
-        $mailService = $this->createMock(AbstractMailService::class);
-        $mailDataProvider = $this->createMock(MailDataProvider::class);
-        /** @var StaticEntityRepository<MailTemplateCollection> $mailTemplateRepository */
-        $mailTemplateRepository = new StaticEntityRepository([new MailTemplateCollection([$mailTemplate])]);
-        $stringTemplateRenderer = $this->createMock(StringTemplateRenderer::class);
-
-        $mailTemplateService = new MailTemplateService(
-            $mailService,
-            $mailDataProvider,
-            $mailTemplateRepository,
-            $stringTemplateRenderer
+        $mailTemplateService = $this->createService(
+            new StaticEntityRepository([new MailTemplateCollection([$mailTemplate])])
         );
 
         $loadedMailTemplate = $mailTemplateService->loadTemplate($mailTemplate->getId(), Context::createDefaultContext());
@@ -58,147 +68,178 @@ class MailTemplateServiceTest extends TestCase
 
     public function testLoadUnknownTemplate(): void
     {
-        $mailTemplate = new MailTemplateEntity();
-        $mailTemplate->setId(Uuid::randomHex());
-        $mailTemplate->setContentHtml('html');
-
-        $mailService = $this->createMock(AbstractMailService::class);
-        $mailDataProvider = $this->createMock(MailDataProvider::class);
-        /** @var StaticEntityRepository<MailTemplateCollection> $mailTemplateRepository */
-        $mailTemplateRepository = new StaticEntityRepository([new MailTemplateCollection()]);
-        $stringTemplateRenderer = $this->createMock(StringTemplateRenderer::class);
-
-        $mailTemplateService = new MailTemplateService(
-            $mailService,
-            $mailDataProvider,
-            $mailTemplateRepository,
-            $stringTemplateRenderer
+        $mailTemplateService = $this->createService(
+            new StaticEntityRepository([new MailTemplateCollection()])
         );
 
-        static::expectExceptionObject(MailTemplateException::templateNotFound());
+        static::expectException(MailTemplateException::class);
+        static::expectExceptionMessage('Mail Template not found.');
 
-        $mailTemplateService->loadTemplate($mailTemplate->getId(), Context::createDefaultContext());
+        $mailTemplateService->loadTemplate(Uuid::randomHex(), Context::createDefaultContext());
     }
 
-    public function testPreview(): void
-    {
-        $mailService = $this->createMock(AbstractMailService::class);
-        $mailDataProvider = $this->createMock(MailDataProvider::class);
-        $mailDataProvider->method('getTemplateData')->willReturn([]);
-        /** @var StaticEntityRepository<MailTemplateCollection> $mailTemplateRepository */
-        $mailTemplateRepository = new StaticEntityRepository([]);
-        $stringTemplateRenderer = $this->createMock(StringTemplateRenderer::class);
-        $stringTemplateRenderer->method('render')->willReturn('bar');
-
-        $mailTemplateService = new MailTemplateService(
-            $mailService,
-            $mailDataProvider,
-            $mailTemplateRepository,
-            $stringTemplateRenderer
-        );
-
-        $rendered = $mailTemplateService->preview(['content' => 'foo'], Context::createDefaultContext(), false, ContactFormEvent::class);
-
-        static::assertCount(1, $rendered);
-        static::assertEquals(new MailTemplateRenderSuccess('bar'), $rendered->get('content'));
-    }
-
-    public function testPreviewThrowsException(): void
-    {
-        $mailService = $this->createMock(AbstractMailService::class);
-        $mailDataProvider = $this->createMock(MailDataProvider::class);
-        /** @var StaticEntityRepository<MailTemplateCollection> $mailTemplateRepository */
-        $mailTemplateRepository = new StaticEntityRepository([]);
-        $stringTemplateRenderer = $this->createMock(StringTemplateRenderer::class);
-        $stringTemplateRenderer->method('render')->willThrowException(AdapterException::renderingTemplateFailed('Some error message'));
-
-        $mailTemplateService = new MailTemplateService(
-            $mailService,
-            $mailDataProvider,
-            $mailTemplateRepository,
-            $stringTemplateRenderer
-        );
-
-        $rendered = $mailTemplateService->preview(['content' => 'foo'], Context::createDefaultContext(), false, ContactFormEvent::class);
-
-        static::assertCount(1, $rendered);
-        static::assertEquals(new MailTemplateRenderError('Failed rendering string template using Twig: Some error message'), $rendered->get('content'));
-    }
-
-    public function testGetDataAndSend(): void
+    public function testSimulateUsesSimulatorTemplateDataAndCollectsRenderResults(): void
     {
         $context = Context::createDefaultContext();
 
-        $mailTemplate = new MailTemplateEntity();
-        $mailTemplate->setId(Uuid::randomHex());
-        $mailTemplate->setContentHtml('html');
-        $mailTemplate->setContentPlain('plain');
-        $mailTemplate->setSubject('subject');
-        $mailTemplate->setSenderName('sender name');
+        $this->mailDataSimulator->expects($this->once())
+            ->method('getTemplateData')
+            ->with('checkout.order.placed', $context)
+            ->willReturn(['order' => ['id' => 'order-id']]);
 
-        $mailService = $this->createMock(AbstractMailService::class);
-        $mailService->expects($this->once())->method('send')->willReturn(null);
+        $this->templateRenderer->expects($this->once())->method('enableTestMode');
+        $this->templateRenderer->expects($this->once())->method('disableTestMode');
+        $this->templateRenderer->expects($this->exactly(2))
+            ->method('render')
+            ->willReturnCallback(
+                static function (string $content): string {
+                    if ($content === 'broken') {
+                        throw new \RuntimeException('broken template');
+                    }
 
-        $mailDataProvider = $this->createMock(MailDataProvider::class);
-        $mailDataProvider->method('getTemplateData')->willReturn([]);
+                    return 'rendered: ' . $content;
+                }
+            );
 
-        /** @var StaticEntityRepository<MailTemplateCollection> $mailTemplateRepository */
-        $mailTemplateRepository = new StaticEntityRepository([new MailTemplateCollection([$mailTemplate])]);
-        $stringTemplateRenderer = $this->createMock(StringTemplateRenderer::class);
+        $mailTemplateService = $this->createService();
 
-        $mailTemplateService = new MailTemplateService(
-            $mailService,
-            $mailDataProvider,
-            $mailTemplateRepository,
-            $stringTemplateRenderer
+        $rendered = $mailTemplateService->simulate(
+            [
+                'subject' => 'hello',
+                'contentHtml' => 'broken',
+            ],
+            'checkout.order.placed',
+            $context
         );
 
-        $email = $mailTemplateService->getTemplateDataAndSend([], $context, ContactFormEvent::class);
+        $subject = $rendered->get('subject');
+        static::assertInstanceOf(MailTemplateRenderSuccess::class, $subject);
+        static::assertSame('rendered: hello', $subject->getContent());
 
-        static::assertNull($email);
+        $contentHtml = $rendered->get('contentHtml');
+        static::assertInstanceOf(MailTemplateRenderError::class, $contentHtml);
+        static::assertSame('broken template', $contentHtml->getContent());
     }
 
-    public function testSendSuccess(): void
+    public function testPreviewUsesProviderDataAndTemplateContent(): void
     {
-        $data = (new RequestDataBag([
-            'id' => 'random',
-            'mailTemplateData' => [
-                'order' => [
-                    'id' => Uuid::randomHex(),
-                ],
-            ],
-            'documentIds' => ['1'],
-        ]))->all();
+        $context = Context::createDefaultContext();
+        $mailTemplate = $this->createMailTemplate();
+        $request = new PreviewRequest($mailTemplate, ['order' => 'order-id'], ['foo' => 'bar']);
 
-        $mailService = $this->createMock(AbstractMailService::class);
-        $mailService->expects($this->once())
+        $this->mailDataProvider->expects($this->once())
+            ->method('getTemplateData')
+            ->with($mailTemplate, ['order' => 'order-id'], $context, ['foo' => 'bar'])
+            ->willReturn(['foo' => 'bar']);
+
+        $this->templateRenderer->expects($this->once())->method('enableTestMode');
+        $this->templateRenderer->expects($this->once())->method('disableTestMode');
+        $this->templateRenderer->expects($this->exactly(4))
+            ->method('render')
+            ->willReturnCallback(static fn (string $value): string => 'rendered: ' . $value);
+
+        $mailTemplateService = $this->createService();
+
+        $rendered = $mailTemplateService->preview($request, $context);
+
+        static::assertSame('rendered: subject', $rendered->get('subject')?->getContent());
+        static::assertSame('rendered: sender', $rendered->get('senderName')?->getContent());
+        static::assertSame('rendered: <p>html</p>', $rendered->get('contentHtml')?->getContent());
+        static::assertSame('rendered: plain', $rendered->get('contentPlain')?->getContent());
+    }
+
+    public function testPreviewDoesNotUseTestModeInStrictMode(): void
+    {
+        $context = Context::createDefaultContext();
+        $mailTemplate = $this->createMailTemplate();
+
+        $this->mailDataProvider->method('getTemplateData')->willReturn([]);
+
+        $this->templateRenderer->expects($this->never())->method('enableTestMode');
+        $this->templateRenderer->expects($this->never())->method('disableTestMode');
+        $this->templateRenderer->expects($this->exactly(4))
+            ->method('render')
+            ->willReturn('rendered');
+
+        $mailTemplateService = $this->createService();
+
+        $rendered = $mailTemplateService->preview(new PreviewRequest($mailTemplate), $context, true);
+
+        static::assertCount(4, $rendered);
+    }
+
+    public function testGetTemplateDataAndSendUsesProviderDataAndTemplateForAttachments(): void
+    {
+        $context = Context::createDefaultContext();
+        $mailTemplate = $this->createMailTemplate();
+        $mailPayload = new MailPayload(
+            recipients: ['test@example.com' => 'Test'],
+            subject: 'Subject',
+            senderName: 'Shopware',
+            documentIds: ['document-id'],
+            mediaIds: ['media-id']
+        );
+        $request = new GetDataAndSendRequest($mailTemplate, ['order' => 'order-id'], ['foo' => 'bar'], $mailPayload);
+
+        $this->mailDataProvider->expects($this->once())
+            ->method('getTemplateData')
+            ->with($mailTemplate, ['order' => 'order-id'], $context, ['foo' => 'bar'])
+            ->willReturn(['order' => ['id' => 'order-id']]);
+
+        $this->mailService->expects($this->once())
             ->method('send')
             ->with(
-                static::callback(function (array $data) {
+                static::callback(function (array $data) use ($mailTemplate): bool {
                     static::assertArrayHasKey('attachmentsConfig', $data);
                     static::assertInstanceOf(MailAttachmentsConfig::class, $data['attachmentsConfig']);
+                    static::assertSame($mailTemplate, $data['attachmentsConfig']->getMailTemplate());
+                    static::assertSame('order-id', $data['attachmentsConfig']->getOrderId());
+                    static::assertSame(['document-id'], $data['attachmentsConfig']->getExtension()->getDocumentIds());
+                    static::assertSame(['media-id'], $data['attachmentsConfig']->getExtension()->getMediaIds());
 
                     return true;
                 }),
-                static::anything(),
-                static::anything()
-            );
+                $context,
+                ['order' => ['id' => 'order-id']]
+            )
+            ->willReturn(null);
 
-        $mailDataProvider = $this->createMock(MailDataProvider::class);
-        $mailDataProvider->method('getTemplateData')->willReturn([]);
+        $mailTemplateService = $this->createService();
 
-        /** @var StaticEntityRepository<MailTemplateCollection> $mailTemplateRepository */
-        $mailTemplateRepository = new StaticEntityRepository([]);
-        $stringTemplateRenderer = $this->createMock(StringTemplateRenderer::class);
+        static::assertNull($mailTemplateService->getTemplateDataAndSend($request, $context));
+    }
 
-        $mailTemplateService = new MailTemplateService(
-            $mailService,
-            $mailDataProvider,
-            $mailTemplateRepository,
-            $stringTemplateRenderer
+    public function testSendBuildsAttachmentsConfigFromOrderEntityWithoutMailTemplate(): void
+    {
+        $context = Context::createDefaultContext();
+        $order = new OrderEntity();
+        $order->setId('order-id');
+
+        $this->mailService->expects($this->once())
+            ->method('send')
+            ->with(
+                static::callback(function (array $data): bool {
+                    static::assertArrayHasKey('attachmentsConfig', $data);
+                    static::assertInstanceOf(MailAttachmentsConfig::class, $data['attachmentsConfig']);
+                    static::assertInstanceOf(MailTemplateEntity::class, $data['attachmentsConfig']->getMailTemplate());
+                    static::assertSame('order-id', $data['attachmentsConfig']->getOrderId());
+
+                    return true;
+                }),
+                $context,
+                ['order' => $order]
+            )
+            ->willReturn($this->createMock(Email::class));
+
+        $mailTemplateService = $this->createService();
+
+        $result = $mailTemplateService->send(
+            new MailPayload(subject: 'Subject', senderName: 'Sender'),
+            $context,
+            ['order' => $order]
         );
 
-        $mailTemplateService->send($data, Context::createDefaultContext(), []);
+        static::assertInstanceOf(Email::class, $result);
     }
 
     /**
@@ -207,33 +248,31 @@ class MailTemplateServiceTest extends TestCase
     #[DataProvider('fieldPathProvider')]
     public function testAvailableVariables(string $fieldPath, array $expected): void
     {
-        $mailService = $this->createMock(AbstractMailService::class);
-
-        $mailDataProvider = $this->createMock(MailDataProvider::class);
-        $mailDataProvider->method('getTemplateData')->willReturn([
-            'foo' => 'value',
-            'bar' => [
-                'foobar' => 'value',
-                'baz' => [
-                    'key' => 'value',
+        $this->mailDataSimulator->expects($this->once())
+            ->method('getTemplateData')
+            ->with('review_form.send', static::isInstanceOf(Context::class))
+            ->willReturn([
+                'foo' => 'value',
+                'bar' => [
+                    'foobar' => 'value',
+                    'baz' => [
+                        'key' => 'value',
+                    ],
+                    'struct' => new ArrayEntity([
+                        'units' => new ArrayEntity([
+                            'length' => ['name' => 'cm'],
+                            'weight' => ['name' => 'kg'],
+                        ]),
+                    ]),
                 ],
-                'struct' => MeasurementUnits::createDefaultUnits(),
-            ],
-            'topLevelStruct' => MeasurementUnits::createDefaultUnits(),
-        ]);
+                'topLevelStruct' => new ArrayEntity([
+                    'units' => ['length' => 'cm'],
+                ]),
+            ]);
 
-        /** @var StaticEntityRepository<MailTemplateCollection> $mailTemplateRepository */
-        $mailTemplateRepository = new StaticEntityRepository([new MailTemplateCollection()]);
-        $stringTemplateRenderer = $this->createMock(StringTemplateRenderer::class);
+        $mailTemplateService = $this->createService();
 
-        $mailTemplateService = new MailTemplateService(
-            $mailService,
-            $mailDataProvider,
-            $mailTemplateRepository,
-            $stringTemplateRenderer
-        );
-
-        $result = $mailTemplateService->availableVariables($fieldPath, Context::createDefaultContext(), ReviewFormEvent::class);
+        $result = $mailTemplateService->getAvailableVariables('review_form.send', Context::createDefaultContext(), $fieldPath);
 
         static::assertSame($expected, $result);
     }
@@ -304,7 +343,7 @@ class MailTemplateServiceTest extends TestCase
                     'hasChildren' => false,
                 ],
                 [
-                    'fieldName' => 'system',
+                    'fieldName' => 'translated',
                     'hasChildren' => false,
                 ],
                 [
@@ -318,37 +357,45 @@ class MailTemplateServiceTest extends TestCase
             'fieldPath' => 'bar.struct.units',
             'expected' => [
                 [
-                    'fieldName' => 'length',
+                    'fieldName' => 'extensions',
                     'hasChildren' => false,
                 ],
                 [
-                    'fieldName' => 'weight',
+                    'fieldName' => 'translated',
                     'hasChildren' => false,
+                ],
+                [
+                    'fieldName' => 'length',
+                    'hasChildren' => true,
+                ],
+                [
+                    'fieldName' => 'weight',
+                    'hasChildren' => true,
                 ],
             ],
         ];
     }
 
-    public function testAvailableVariablesWithEmptyTemplateData(): void
+    private function createService(?StaticEntityRepository $mailTemplateRepository = null): MailTemplateService
     {
-        $mailService = $this->createMock(AbstractMailService::class);
-
-        $mailDataProvider = $this->createMock(MailDataProvider::class);
-        $mailDataProvider->method('getTemplateData')->willReturn([]);
-
-        /** @var StaticEntityRepository<MailTemplateCollection> $mailTemplateRepository */
-        $mailTemplateRepository = new StaticEntityRepository([new MailTemplateCollection()]);
-        $stringTemplateRenderer = $this->createMock(StringTemplateRenderer::class);
-
-        $mailTemplateService = new MailTemplateService(
-            $mailService,
-            $mailDataProvider,
-            $mailTemplateRepository,
-            $stringTemplateRenderer
+        return new MailTemplateService(
+            $this->mailService,
+            $this->mailDataProvider,
+            $mailTemplateRepository ?? new StaticEntityRepository([]),
+            $this->templateRenderer,
+            $this->mailDataSimulator,
         );
+    }
 
-        $result = $mailTemplateService->availableVariables('foobar.foo.bar', Context::createDefaultContext(), ReviewFormEvent::class);
+    private function createMailTemplate(): MailTemplateEntity
+    {
+        $mailTemplate = new MailTemplateEntity();
+        $mailTemplate->setId(Uuid::randomHex());
+        $mailTemplate->setSubject('subject');
+        $mailTemplate->setSenderName('sender');
+        $mailTemplate->setContentHtml('<p>html</p>');
+        $mailTemplate->setContentPlain('plain');
 
-        static::assertSame([], $result);
+        return $mailTemplate;
     }
 }

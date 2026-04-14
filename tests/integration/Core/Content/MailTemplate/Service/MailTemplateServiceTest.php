@@ -2,40 +2,34 @@
 
 namespace Shopware\Tests\Integration\Core\Content\MailTemplate\Service;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
-use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
-use Shopware\Core\Content\Mail\Service\MailService;
+use Shopware\Core\Content\Mail\Payload\MailPayload;
+use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeCollection;
+use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
+use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateException;
-use Shopware\Core\Content\MailTemplate\Service\Event\MailErrorEvent;
-use Shopware\Core\Content\MailTemplate\Service\MailDataProvider;
+use Shopware\Core\Content\MailTemplate\Request\GetDataAndSendRequest;
+use Shopware\Core\Content\MailTemplate\Request\PreviewRequest;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
-use Shopware\Core\Content\MailTemplate\Validation\MailTemplateRenderError;
 use Shopware\Core\Content\MailTemplate\Validation\MailTemplateRenderSuccess;
-use Shopware\Core\Content\Product\SalesChannel\Review\Event\ReviewFormEvent;
-use Shopware\Core\Content\Test\Flow\OrderActionTrait;
-use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Adapter\AdapterException;
-use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
-use Shopware\Core\Test\Stub\Framework\IdsCollection;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Mime\Email;
 
 /**
  * @internal
  */
 #[Package('after-sales')]
+#[CoversClass(MailTemplateService::class)]
 class MailTemplateServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use OrderActionTrait;
 
     private MailTemplateService $mailTemplateService;
 
@@ -46,14 +40,11 @@ class MailTemplateServiceTest extends TestCase
      */
     private EntityRepository $mailTemplateRepository;
 
-    private IdsCollection $ids;
-
     protected function setUp(): void
     {
         $this->mailTemplateRepository = static::getContainer()->get('mail_template.repository');
         $this->mailTemplateService = static::getContainer()->get(MailTemplateService::class);
         $this->context = Context::createDefaultContext();
-        $this->ids = new IdsCollection();
     }
 
     public function testLoadTemplateNoTemplateFound(): void
@@ -65,282 +56,90 @@ class MailTemplateServiceTest extends TestCase
 
     public function testLoadTemplate(): void
     {
-        $id = Uuid::randomHex();
-        $this->mailTemplateRepository->create([
-            [
-                'id' => $id,
-                'systemDefault' => false,
-                'mailTemplateType' => [
-                    'name' => 'Test',
-                    'technicalName' => 'test',
-                    'availableEntities' => [],
-                ],
-                'translations' => [
-                    Defaults::LANGUAGE_SYSTEM => [
-                        'subject' => 'Test',
-                        'contentHtml' => 'Some html text',
-                        'contentPlain' => 'Some plain text',
-                        'senderName' => 'Shopware',
-                    ],
-                ],
-            ],
-        ], $this->context);
+        $mailTemplate = $this->createSimpleMailTemplate();
 
-        $mailTemplate = $this->mailTemplateService->loadTemplate($id, $this->context);
+        $loadedTemplate = $this->mailTemplateService->loadTemplate($mailTemplate->getId(), $this->context);
 
-        static::assertSame('Test', $mailTemplate->getSubject());
-        static::assertSame('Some html text', $mailTemplate->getContentHtml());
-        static::assertSame('Some plain text', $mailTemplate->getContentPlain());
-        static::assertSame('Shopware', $mailTemplate->getSenderName());
+        static::assertSame($mailTemplate->getId(), $loadedTemplate->getId());
+        static::assertSame('Hello {{ customName }}', $loadedTemplate->getSubject());
+        static::assertSame('<p>Hello {{ customName }}</p>', $loadedTemplate->getContentHtml());
+        static::assertSame('Hello {{ customName }}', $loadedTemplate->getContentPlain());
+        static::assertSame('Shopware', $loadedTemplate->getSenderName());
     }
 
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testPreviewNonExistingEntitiesErrorInStrictMode(): void
+    public function testPreviewRendersTemplateData(): void
     {
-        $templateContent = 'Order ID: {{ order.id }}';
+        $mailTemplate = $this->createSimpleMailTemplate();
+
         $rendered = $this->mailTemplateService->preview(
-            ['contentHtml' => $templateContent, 'contentPlain' => $templateContent],
-            $this->context,
-            true,
-            ReviewFormEvent::class
+            new PreviewRequest($mailTemplate, [], ['customName' => 'Shopware']),
+            $this->context
         );
 
-        static::assertCount(2, $rendered);
-
-        static::assertSame(MailTemplateRenderError::TYPE, $rendered->get('contentHtml')?->getType());
-        static::assertMatchesRegularExpression('/^Failed rendering string template using Twig: Variable "order" does not exist in "[0-9a-f]{32}" at line 1.$/', $rendered->get('contentHtml')->getContent());
-        static::assertSame(MailTemplateRenderError::TYPE, $rendered->get('contentPlain')?->getType());
-        static::assertMatchesRegularExpression('/^Failed rendering string template using Twig: Variable "order" does not exist in "[0-9a-f]{32}" at line 1.$/', $rendered->get('contentPlain')->getContent());
+        static::assertEquals(new MailTemplateRenderSuccess('Hello Shopware'), $rendered->get('subject'));
+        static::assertEquals(new MailTemplateRenderSuccess('Shopware'), $rendered->get('senderName'));
+        static::assertEquals(new MailTemplateRenderSuccess('<p>Hello Shopware</p>'), $rendered->get('contentHtml'));
+        static::assertEquals(new MailTemplateRenderSuccess('Hello Shopware'), $rendered->get('contentPlain'));
     }
 
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testPreviewIgnoresMissingVariablesInNonStrictMode(): void
+    public function testGetTemplateDataAndSend(): void
     {
-        $rendered = $this->mailTemplateService->preview(
-            ['contentHtml' => 'Order ID: {{ order.id }}', 'contentPlain' => 'Order ID: {{ order.id }}'],
-            $this->context,
-            false,
-            ReviewFormEvent::class
-        );
-
-        static::assertCount(2, $rendered);
-
-        $expected = new MailTemplateRenderSuccess('Order ID: ');
-
-        static::assertEquals($expected, $rendered->get('contentHtml'));
-        static::assertEquals($expected, $rendered->get('contentPlain'));
-    }
-
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testPreviewCanRenderVariables(): void
-    {
-        $rendered = $this->mailTemplateService->preview(
-            ['contentHtml' => 'Order ID: {{ order.id }}', 'contentPlain' => 'Order ID: {{ order.id }}'],
-            $this->context,
-            false,
-            CheckoutOrderPlacedEvent::class
-        );
-
-        static::assertCount(2, $rendered);
-
-        $contentHtml = $rendered->get('contentHtml');
-        static::assertNotNull($contentHtml);
-        static::assertSame(MailTemplateRenderSuccess::TYPE, $contentHtml->getType());
-
-        $renderedHtml = $contentHtml->getContent();
-        static::assertStringContainsString('Order ID: ', $renderedHtml);
-        static::assertTrue(Uuid::isValid(\explode('Order ID: ', $renderedHtml)[1]));
-
-        $contentPlain = $rendered->get('contentPlain');
-        static::assertNotNull($contentPlain);
-        static::assertSame(MailTemplateRenderSuccess::TYPE, $contentPlain->getType());
-
-        $renderedPlain = $contentPlain->getContent();
-        static::assertStringContainsString('Order ID: ', $renderedPlain);
-        static::assertTrue(Uuid::isValid(\explode('Order ID: ', $renderedPlain)[1]));
-    }
-
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testSendNoEntitiesButNotRequired(): void
-    {
-        $data = [
-            'contentHtml' => 'test',
-            'contentPlain' => 'test',
-            'subject' => 'Test',
-            'senderName' => 'Shopware',
-        ];
-
-        $mailService = $this->createMock(MailService::class);
-        $mailService
-            ->expects($this->once())
-            ->method('send')
-            ->with(
-                static::callback(function (array $data) {
-                    // We check if the data gets correctly enriched with the template data
-                    $expectedData = [
-                        'contentHtml' => 'test',
-                        'contentPlain' => 'test',
-                        'subject' => 'Test',
-                        'senderName' => 'Shopware',
-                    ];
-
-                    foreach ($expectedData as $key => $value) {
-                        if (!\array_key_exists($key, $data)) {
-                            return false;
-                        }
-
-                        if ($data[$key] !== $value) {
-                            return false;
-                        }
-                    }
-
-                    return true;
-                }),
-                $this->context,
-                static::anything()
-            );
-
-        /** @var MailDataProvider $mailDataProvider */
-        $mailDataProvider = static::getContainer()->get(MailDataProvider::class);
-
-        /** @var StringTemplateRenderer $stringTemplateRenderer */
-        $stringTemplateRenderer = static::getContainer()->get(StringTemplateRenderer::class);
-
-        $mailTemplateService = new MailTemplateService(
-            $mailService,
-            $mailDataProvider,
-            $this->mailTemplateRepository,
-            $stringTemplateRenderer,
-        );
-
-        $mailTemplateService->getTemplateDataAndSend($data, $this->context, ContactFormEvent::class);
-    }
-
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testSendNonExistingEntities(): void
-    {
-        $data = [
-            'recipients' => [
-                'test@shopware.com' => 'Test',
-            ],
-            'contentHtml' => 'Order ID: {{ order.id }}',
-            'contentPlain' => 'Order ID: {{ order.id }}',
-            'subject' => 'Test',
-            'senderName' => 'Shopware',
-        ];
-
-        $state = new \stdClass();
-        $state->throwable = null;
-
-        $subscriber = new TestSubscriber($state);
-
-        static::getContainer()->get('event_dispatcher')->addSubscriber($subscriber);
+        $mailTemplate = $this->createSimpleMailTemplate();
 
         $email = $this->mailTemplateService->getTemplateDataAndSend(
-            $data,
-            $this->context,
-            ReviewFormEvent::class
-        );
-
-        static::assertNull($email);
-        // @phpstan-ignore-next-line because throwable is set in the event listener but phpstan does not recognize this
-        static::assertInstanceOf(AdapterException::class, $state->throwable);
-        static::assertSame(
-            AdapterException::STRING_TEMPLATE_RENDERING_FAILED,
-            $state->throwable->getErrorCode()
-        );
-    }
-
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testCanSend(): void
-    {
-        $data = [
-            'recipients' => [
-                'test@shopware.com' => 'Test',
-            ],
-            'contentHtml' => 'Order ID: {{ order.id }}',
-            'contentPlain' => 'Order ID: {{ order.id }}',
-            'subject' => 'Test',
-            'senderName' => 'Shopware',
-        ];
-
-        $email = $this->mailTemplateService->getTemplateDataAndSend($data, $this->context, CheckoutOrderPlacedEvent::class);
-
-        static::assertInstanceOf(Email::class, $email);
-
-        $textBody = $email->getTextBody();
-        static::assertIsString($textBody);
-        static::assertMatchesRegularExpression('/"[\w \.]+"Order ID: [0-9a-f]{32}"[\w \.]+"/', $textBody);
-
-        $htmlBody = $email->getHtmlBody();
-        static::assertIsString($htmlBody);
-        static::assertMatchesRegularExpression('/"[\w \.]+"Order ID: [0-9a-f]{32}"[\w \.]+"/', $htmlBody);
-
-        static::assertSame('Test', $email->getSubject());
-        static::assertSame('Shopware', $email->getFrom()[0]->getName());
-        static::assertSame('Test', $email->getTo()[0]->getName());
-        static::assertSame('test@shopware.com', $email->getTo()[0]->getAddress());
-    }
-
-    #[DisabledFeatures(['v6.8.0.0'])]
-    public function testCanSendMultipleEntities(): void
-    {
-        $data = [
-            'recipients' => [
-                'test@shopware.com' => 'Test',
-            ],
-            'contentHtml' => 'Main order ID: {{ order.id }}, Customer ID: {{ customer.id }}',
-            'contentPlain' => 'Main order ID: {{ order.id }}, Customer ID: {{ customer.id }}',
-            'subject' => 'Test',
-            'senderName' => 'Shopware',
-        ];
-
-        $email = $this->mailTemplateService->getTemplateDataAndSend(
-            $data,
-            $this->context,
-            CheckoutOrderPlacedEvent::class
+            new GetDataAndSendRequest(
+                $mailTemplate,
+                [],
+                ['customName' => 'Shopware'],
+                new MailPayload(
+                    recipients: ['test@example.com' => 'Test'],
+                    contentHtml: $mailTemplate->getContentHtml(),
+                    contentPlain: $mailTemplate->getContentPlain(),
+                    subject: $mailTemplate->getSubject(),
+                    senderName: $mailTemplate->getSenderName(),
+                )
+            ),
+            $this->context
         );
 
         static::assertInstanceOf(Email::class, $email);
-
-        $textBody = $email->getTextBody();
-        static::assertIsString($textBody);
-
-        static::assertMatchesRegularExpression('/"[\w \.]+"Main order ID: [0-9a-f]{32}, Customer ID: [0-9a-f]{32}"[\w \.]+"/', $textBody);
-
-        $htmlBody = $email->getHtmlBody();
-        static::assertIsString($htmlBody);
-
-        static::assertMatchesRegularExpression('/"[\w \.]+"Main order ID: [0-9a-f]{32}, Customer ID: [0-9a-f]{32}"[\w \.]+"/', $htmlBody);
-
-        static::assertSame('Test', $email->getSubject());
+        static::assertSame('Hello Shopware', $email->getSubject());
         static::assertSame('Shopware', $email->getFrom()[0]->getName());
         static::assertSame('Test', $email->getTo()[0]->getName());
-        static::assertSame('test@shopware.com', $email->getTo()[0]->getAddress());
-    }
-}
-
-/**
- * @internal
- */
-class TestSubscriber implements EventSubscriberInterface
-{
-    private \stdClass $state;
-
-    public function __construct(\stdClass $state)
-    {
-        $this->state = $state;
+        static::assertSame('test@example.com', $email->getTo()[0]->getAddress());
+        static::assertSame('Hello Shopware', $email->getTextBody());
+        static::assertSame('<p>Hello Shopware</p>', $email->getHtmlBody());
     }
 
-    public static function getSubscribedEvents(): array
+    private function createSimpleMailTemplate(): MailTemplateEntity
     {
-        return [
-            MailErrorEvent::class => 'onMailError',
-        ];
-    }
+        $typeCriteria = new Criteria();
+        $typeCriteria->setLimit(1);
 
-    public function onMailError(MailErrorEvent $event): void
-    {
-        $this->state->throwable = $event->getThrowable();
+        /** @var EntityRepository<MailTemplateTypeCollection> $mailTemplateTypeRepository */
+        $mailTemplateTypeRepository = static::getContainer()->get('mail_template_type.repository');
+        $mailTemplateType = $mailTemplateTypeRepository->search($typeCriteria, $this->context)->first();
+
+        static::assertInstanceOf(MailTemplateTypeEntity::class, $mailTemplateType);
+
+        $mailTemplateId = Uuid::randomHex();
+
+        $this->mailTemplateRepository->create([[
+            'id' => $mailTemplateId,
+            'mailTemplateTypeId' => $mailTemplateType->getId(),
+            'subject' => 'Hello {{ customName }}',
+            'senderName' => 'Shopware',
+            'contentHtml' => '<p>Hello {{ customName }}</p>',
+            'contentPlain' => 'Hello {{ customName }}',
+        ]], $this->context);
+
+        $mailTemplate = $this->mailTemplateRepository->search(
+            new Criteria([$mailTemplateId]),
+            $this->context
+        )->first();
+
+        static::assertInstanceOf(MailTemplateEntity::class, $mailTemplate);
+
+        return $mailTemplate;
     }
 }

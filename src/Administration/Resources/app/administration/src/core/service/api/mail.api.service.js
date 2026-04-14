@@ -119,6 +119,42 @@ class MailApiService extends ApiService {
             });
     }
 
+    previewMailTemplate(mailTemplateId, entities = {}, templateData = {}, additionalHeaders = {}) {
+        const apiRoute = `/_action/${this.getApiBasePath()}/preview`;
+
+        return this.httpClient
+            .post(
+                apiRoute,
+                {
+                    mailTemplateId,
+                    entities,
+                    templateData,
+                },
+                {
+                    headers: this.getBasicHeaders(additionalHeaders),
+                },
+            )
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
+    getDataAndSendMailTemplate(payload, additionalHeaders = {}) {
+        const apiRoute = `/_action/${this.getApiBasePath()}/get-data-and-send`;
+
+        return this.httpClient
+            .post(
+                apiRoute,
+                payload,
+                {
+                    headers: this.getBasicHeaders(additionalHeaders),
+                },
+            )
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
     simulateMailTemplate(mailTemplateContent, eventName, strict = false) {
         const apiRoute = `/_action/${this.getApiBasePath()}/simulate`;
 

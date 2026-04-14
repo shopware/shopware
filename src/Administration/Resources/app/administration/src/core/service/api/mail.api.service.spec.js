@@ -98,4 +98,51 @@ describe('mailApiService', () => {
             expect(clientMock.history.post[0].headers['sw-language-id']).toBe(Shopware.Context.api.languageId);
         });
     });
+
+    describe('previewMailTemplate', () => {
+        it('is defined', async () => {
+            const { mailApiService } = getMailApiService();
+
+            expect(mailApiService.previewMailTemplate).toBeDefined();
+        });
+
+        it('calls the correct endpoint', async () => {
+            const { mailApiService, clientMock } = getMailApiService();
+
+            await mailApiService.previewMailTemplate(
+                'mail-template-id',
+                { order: 'order-id', salesChannel: 'sales-channel-id' },
+                { a11yDocuments: [] },
+                { languageId: 'language-id' },
+            );
+
+            expect(clientMock.history.post[0].url).toBe(`/_action/mail-template/preview`);
+            expect(clientMock.history.post[0].headers['sw-language-id']).toBe('language-id');
+        });
+    });
+
+    describe('getDataAndSendMailTemplate', () => {
+        it('is defined', async () => {
+            const { mailApiService } = getMailApiService();
+
+            expect(mailApiService.getDataAndSendMailTemplate).toBeDefined();
+        });
+
+        it('calls the correct endpoint', async () => {
+            const { mailApiService, clientMock } = getMailApiService();
+
+            await mailApiService.getDataAndSendMailTemplate(
+                {
+                    recipients: { 'test@example.com': 'Test User' },
+                    mailTemplateId: 'mail-template-id',
+                    entities: { order: 'order-id', salesChannel: 'sales-channel-id' },
+                    templateData: { a11yDocuments: [] },
+                },
+                { languageId: 'language-id' },
+            );
+
+            expect(clientMock.history.post[0].url).toBe(`/_action/mail-template/get-data-and-send`);
+            expect(clientMock.history.post[0].headers['sw-language-id']).toBe('language-id');
+        });
+    });
 });

@@ -185,30 +185,23 @@ const replaceTemplateVariables = (template = '', variables = {}) => {
 };
 
 async function createWrapper(props = defaultProps, sendingSucceds = true, mailTemplates = mockMailTemplates) {
-    const httpClientPost = jest.fn((url, payload) => {
-        if (url === '/_action/mail-template/preview') {
-            const mailTemplate = mailTemplates.find((template) => template.id === payload.mailTemplateId) ?? mailTemplates[0];
-            const entities = {
-                order: props.order,
-                salesChannel: props.order.salesChannel,
-            };
+    const previewMailTemplate = jest.fn((mailTemplateId) => {
+        const mailTemplate = mailTemplates.find((template) => template.id === mailTemplateId) ?? mailTemplates[0];
+        const entities = {
+            order: props.order,
+            salesChannel: props.order.salesChannel,
+        };
 
-            return Promise.resolve({
-                data: {
-                    contentHtml: {
-                        content: replaceTemplateVariables(mailTemplate.contentHtml, entities),
-                    },
-                },
-            });
-        }
-
-        if (url === '/_action/mail-template/get-data-and-send') {
-            return sendingSucceds
-                ? Promise.resolve({ data: { size: 1 } })
-                : Promise.reject();
-        }
-
-        return Promise.reject(new Error(`Unhandled URL ${url}`));
+        return Promise.resolve({
+            contentHtml: {
+                content: replaceTemplateVariables(mailTemplate.contentHtml, entities),
+            },
+        });
+    });
+    const getDataAndSendMailTemplate = jest.fn(() => {
+        return sendingSucceds
+            ? Promise.resolve({ size: 1 })
+            : Promise.reject();
     });
 
     return mount(await wrapTestComponent('sw-order-send-document-modal', { sync: true }), {
@@ -244,11 +237,8 @@ async function createWrapper(props = defaultProps, sendingSucceds = true, mailTe
                     },
                 },
                 mailService: {
-                    getApiBasePath: jest.fn(() => 'mail-template'),
-                    getBasicHeaders: jest.fn(() => ({})),
-                    httpClient: {
-                        post: httpClientPost,
-                    },
+                    previewMailTemplate,
+                    getDataAndSendMailTemplate,
                 },
             },
         },
@@ -417,9 +407,8 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         await wrapper.findByText('button', 'sw-order.documentCard.labelSendDocument').trigger('click');
         await flushPromises();
 
-        expect(wrapper.vm.mailService.httpClient.post).toHaveBeenCalledTimes(2);
-        expect(wrapper.vm.mailService.httpClient.post).toHaveBeenLastCalledWith(
-            '/_action/mail-template/get-data-and-send',
+        expect(wrapper.vm.mailService.getDataAndSendMailTemplate).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.mailService.getDataAndSendMailTemplate).toHaveBeenLastCalledWith(
             {
                 recipients: {
                     [mockOrderWithMailHeaderFooter.orderCustomer.email]: `${mockOrderWithMailHeaderFooter.orderCustomer.firstName} ${mockOrderWithMailHeaderFooter.orderCustomer.lastName}`,
@@ -446,9 +435,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
                     ],
                 },
             },
-            {
-                headers: {},
-            },
+            Shopware.Context.api,
         );
         expect(wrapper.emitted('document-sent')).toHaveLength(1);
     });

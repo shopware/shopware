@@ -1,6 +1,5 @@
 import template from './sw-order-send-document-modal.html.twig';
 import './sw-order-send-document-modal.scss';
-import ApiService from 'src/core/service/api.service';
 
 /**
  * @sw-package checkout
@@ -156,22 +155,16 @@ export default {
 
             this.subject = localMailTemplate.subject;
 
-            return this.mailService.httpClient
-                .post(
-                    `/_action/${this.mailService.getApiBasePath()}/preview`,
+            return this.mailService
+                .previewMailTemplate(
+                    localMailTemplate.id,
                     {
-                        mailTemplateId: localMailTemplate.id,
-                        entities: {
-                            order: this.order.id,
-                            salesChannel: this.order.salesChannelId,
-                        },
-                    },
-                    {
-                        headers: this.mailService.getBasicHeaders(),
+                        order: this.order.id,
+                        salesChannel: this.order.salesChannelId,
                     },
                 )
-                .then((response) => {
-                    this.content = ApiService.handleResponse(response)?.contentHtml?.content ?? '';
+                .then((preview) => {
+                    this.content = preview?.contentHtml?.content ?? '';
                 });
         },
 
@@ -194,9 +187,8 @@ export default {
                         }
                     });
 
-                    this.mailService.httpClient
-                        .post(
-                            `/_action/${this.mailService.getApiBasePath()}/get-data-and-send`,
+                    this.mailService
+                        .getDataAndSendMailTemplate(
                             {
                                 recipients: {
                                     [this.recipient]: `${this.order.orderCustomer.firstName} ${this.order.orderCustomer.lastName}`,
@@ -217,9 +209,7 @@ export default {
                                     a11yDocuments: this.a11yDocuments,
                                 },
                             },
-                            {
-                                headers: this.mailService.getBasicHeaders(apiContext),
-                            },
+                            apiContext,
                         )
                         .then(() => {
                             this.$emit('document-sent');

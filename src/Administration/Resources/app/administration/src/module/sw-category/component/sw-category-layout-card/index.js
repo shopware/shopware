@@ -73,6 +73,7 @@ export default {
     methods: {
         onLayoutSelect(selectedLayout) {
             this.category.cmsPageId = selectedLayout;
+            this.resetSlotConfig();
         },
 
         onLayoutReset() {
@@ -103,6 +104,14 @@ export default {
 
         closeLayoutModal() {
             this.showLayoutSelectionModal = false;
+        },
+
+        resetSlotConfig() {
+            this.category.slotConfig = null;
+
+            this.category.translations?.forEach((translation) => {
+                translation.slotConfig = null;
+            });
         },
     },
 };

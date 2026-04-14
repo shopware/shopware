@@ -34,7 +34,12 @@ class SalesChannelContext extends Struct
      */
     protected array $permissions = [];
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:parameter-name-change - Property `permisionsLocked` will be removed, use `permissionsLocked` instead
+     */
     protected bool $permisionsLocked = false;
+
+    protected bool $permissionsLocked = false;
 
     protected ?string $imitatingUserId = null;
 
@@ -214,7 +219,9 @@ class SalesChannelContext extends Struct
 
     public function lockPermissions(): void
     {
+        /** @deprecated tag:v6.8.0 - `$this->permisionsLocked` setter will be removed without replacement */
         $this->permisionsLocked = true;
+        $this->permissionsLocked = true;
     }
 
     public function getToken(): string
@@ -259,7 +266,8 @@ class SalesChannelContext extends Struct
      */
     public function setPermissions(array $permissions): void
     {
-        if ($this->permisionsLocked) {
+        /** @deprecated tag:v6.8.0 - `$this->permisionsLocked` will be removed from condition without replacement */
+        if ($this->permisionsLocked || $this->permissionsLocked) {
             throw SalesChannelException::contextPermissionsLocked();
         }
 
@@ -426,7 +434,8 @@ class SalesChannelContext extends Struct
      */
     public function withPermissions(array $permissions, callable $callback): mixed
     {
-        if ($this->permisionsLocked) {
+        /** @deprecated tag:v6.8.0 - `$this->permisionsLocked` will be removed from condition without replacement */
+        if ($this->permisionsLocked || $this->permissionsLocked) {
             return $callback($this);
         }
 

@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Content\Media\Subscriber;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent;
 use Shopware\Core\Content\Media\MediaCollection;
@@ -24,7 +23,6 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(CustomFieldsUnusedMediaSubscriber::class)]
 class CustomFieldsUnusedMediaSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;

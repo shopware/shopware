@@ -2,7 +2,7 @@ import './acl';
 
 const { Module, Feature } = Shopware;
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-mail-template-list', () => import('./component/sw-mail-template-list'));
 Shopware.Component.register('sw-mail-header-footer-list', () => import('./component/sw-mail-header-footer-list'));
 Shopware.Component.register('sw-mail-template-detail', () => import('./page/sw-mail-template-detail'));
@@ -24,7 +24,7 @@ Shopware.Component.register(
     'sw-mail-template-view-header-footer',
     () => import('./view/sw-mail-template-view-header-footer'),
 );
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 /**
  * @sw-package after-sales

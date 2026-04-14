@@ -65,7 +65,7 @@ describe('FormSerializeUtil', () => {
 
         expect(() => {
             FormSerializeUtil.serializeJson(document.querySelector('#test-form'), true);
-        }).toThrowError('The passed element is not a form!');
+        }).toThrow('The passed element is not a form!');
     });
 
     test('will return an empty object when the given element is not a form an "strict" is false', () => {

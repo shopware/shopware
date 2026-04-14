@@ -32,13 +32,15 @@ class ElasticsearchIndexerTest extends TestCase
     public function testFirstIndexDoesNotCreateTask(): void
     {
         $c = static::getContainer()->get(Connection::class);
-        static::assertEmpty($c->fetchAllAssociative('SELECT * FROM elasticsearch_index_task'));
+        $beforeResult = $c->fetchAllAssociative('SELECT * FROM elasticsearch_index_task');
+        static::assertSame([], $beforeResult);
 
         $indexer = static::getContainer()->get(ElasticsearchIndexer::class);
         static::assertNotNull($indexer);
         $indexer->iterate(null);
 
-        static::assertEmpty($c->fetchAllAssociative('SELECT * FROM elasticsearch_index_task'));
+        $afterResult = $c->fetchAllAssociative('SELECT * FROM elasticsearch_index_task');
+        static::assertSame([], $afterResult);
     }
 
     public function testSecondIndexingCreatesTask(): void

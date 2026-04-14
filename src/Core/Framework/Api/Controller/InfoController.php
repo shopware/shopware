@@ -102,7 +102,7 @@ class InfoController extends AbstractController
     public function queue(): JsonResponse
     {
         if (Feature::isActive('v6.8.0.0')) { // avoiding polluting logs, as our code still calling this endpoint
-            Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0', '\Shopware\Core\Framework\Api\Controller\InfoController::messageStats'));
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', '\Shopware\Core\Framework\Api\Controller\InfoController::messageStats'));
         }
 
         try {

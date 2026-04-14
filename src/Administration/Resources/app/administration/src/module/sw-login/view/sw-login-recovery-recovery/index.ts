@@ -60,7 +60,6 @@ export default Component.wrapComponentConfig({
             if (val === true) {
                 void this.$nextTick(() =>
                     // @ts-expect-error
-                    // eslint-disable-next-line max-len
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
                     this.$refs.swLoginRecoveryRecoveryNewPasswordField.$el.querySelector('input')?.focus(),
                 );
@@ -106,13 +105,11 @@ export default Component.wrapComponentConfig({
                     .catch((error) => {
                         Shopware.Store.get('error').addApiError({
                             expression: `user.${this.hash}.password`,
-                            // eslint-disable-next-line max-len
                             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
                             error: new Shopware.Classes.ShopwareError(error.response.data.errors[0]),
                         });
 
                         this.createNotificationError({
-                            // eslint-disable-next-line max-len
                             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
                             message: error.message,
                         });

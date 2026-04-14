@@ -63,7 +63,6 @@ export default Shopware.Component.wrapComponentConfig({
                     this.showErrorNotification({ type: name, payload: args as MappedError[][] }),
                 );
             })
-            // eslint-disable-next-line @typescript-eslint/no-empty-function
             .catch(() => {});
     },
 
@@ -106,7 +105,6 @@ export default Shopware.Component.wrapComponentConfig({
 
                 this.$emit('login-success');
 
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                 this.createNotificationSuccess({
                     message: this.$tc('sw-extension.my-extensions.account.loginNotificationMessage'),
                 });
@@ -135,7 +133,6 @@ export default Shopware.Component.wrapComponentConfig({
                     }
 
                     // Methods from mixins are not recognized
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                     this.createNotificationError({
                         message: this.$tc(error.message),
                     });
@@ -148,7 +145,6 @@ export default Shopware.Component.wrapComponentConfig({
             const docLink = this.$tc('sw-extension.errors.messageToTheShopwareDocumentation', error.parameters, 0);
 
             // Methods from mixins are not recognized
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             this.createNotificationError({
                 title: error.title,
                 message: `${error.message} ${docLink}`,

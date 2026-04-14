@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Store;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\JWT\JWTDecoder;
 use Shopware\Core\Framework\Log\Package;
@@ -17,7 +16,6 @@ use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
  * @internal
  */
 #[Package('checkout')]
-#[CoversClass(InAppPurchase::class)]
 class InAppPurchaseTest extends TestCase
 {
     use KernelTestBehaviour;

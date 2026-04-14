@@ -23,8 +23,7 @@ describe('core/helper/sanitizer.helper.js', () => {
 
         expect(Sanitizer.sanitize('<details open ontoggle=confirm()>')).toBe('<details open=""></details>');
 
-        expect(Sanitizer.sanitize(`<script y="><">/*<script* */prompt()</script`)) // eslint-disable-line
-            .toBe('');
+        expect(Sanitizer.sanitize(`<script y="><">/*<script* */prompt()</script`)).toBe('');
 
         expect(Sanitizer.sanitize('<w="/x="y>"/ondblclick=`<`[confir\u006d``]>z')).toBe('z');
 

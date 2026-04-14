@@ -12,7 +12,7 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
-use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
+use Shopware\Core\Framework\App\Lifecycle\PermissionLifecycleService;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Lifecycle\Registration\HandshakeFactory;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -324,14 +324,14 @@ class AppRegistrationServiceTest extends TestCase
             ],
         ]], $context);
 
-        $permissionPersister = static::getContainer()->get(PermissionPersister::class);
+        $permissionLifecycle = static::getContainer()->get(PermissionLifecycleService::class);
         $permissions = Permissions::fromArray([
             'permissions' => [
                 'product' => ['update'],
             ],
         ]);
 
-        $permissionPersister->updatePrivileges($permissions, $id, true, $context);
+        $permissionLifecycle->updatePrivileges($permissions, $id, true, $context);
     }
 
     private function buildAppResponse(Manifest $manifest, string $appSecret, ?ShopId $shopId = null): string

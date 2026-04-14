@@ -102,6 +102,11 @@ async function createWrapper(privileges = [], isSso = { isSso: false }, saveFunc
                         return Promise.resolve(isSso);
                     },
                 },
+                validationApiService: {
+                    validateEmailAddress: () => {
+                        return Promise.resolve(true);
+                    },
+                },
             },
         },
     });

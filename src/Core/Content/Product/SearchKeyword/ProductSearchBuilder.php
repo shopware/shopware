@@ -25,7 +25,8 @@ class ProductSearchBuilder implements ProductSearchBuilderInterface
     public function __construct(
         private readonly ProductSearchTermInterpreterInterface $interpreter,
         private readonly LoggerInterface $logger,
-        private readonly int $searchTermMaxLength
+        private readonly int $searchTermMaxLength,
+        private readonly bool $searchKeywordIndexingEnabled = true,
     ) {
     }
 
@@ -51,6 +52,12 @@ class ProductSearchBuilder implements ProductSearchBuilderInterface
 
         if ($term === '') {
             throw ProductException::missingRequestParameter('search');
+        }
+
+        if (!$this->searchKeywordIndexingEnabled) {
+            $criteria->setTerm($term);
+
+            return;
         }
 
         $pattern = $this->interpreter->interpret($term, $context->getContext());

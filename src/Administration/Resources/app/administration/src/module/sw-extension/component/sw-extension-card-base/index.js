@@ -422,9 +422,14 @@ export default {
             this.showPrivacyModal = false;
         },
 
+        /** Thin wrapper so tests can spy on navigation without mocking window.location (non-configurable in JSDOM v26). */
+        _reloadPage() {
+            window.location.reload();
+        },
+
         clearCacheAndReloadPage() {
             return this.cacheApiService.clear().then(() => {
-                window.location.reload();
+                this._reloadPage();
             });
         },
 

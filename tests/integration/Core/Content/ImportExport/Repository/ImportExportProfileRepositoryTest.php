@@ -249,7 +249,7 @@ class ImportExportProfileRepositoryTest extends TestCase
 
             // Remove property before write
             $property = array_pop($properties);
-            if ($property === 'id') {
+            if ($property === 'id' || $property === null) {
                 continue;
             }
             unset($upsertData[$id][$property]);
@@ -354,7 +354,7 @@ class ImportExportProfileRepositoryTest extends TestCase
     /**
      * Prepare a defined number of test data.
      *
-     * @return array<string, array<string, mixed>>
+     * @return non-empty-array<string, array<string, mixed>>
      */
     protected function prepareImportExportProfileTestData(int $num = 1, string $add = ''): array
     {
@@ -374,6 +374,8 @@ class ImportExportProfileRepositoryTest extends TestCase
                 'mapping' => ['Mapping ' . $i => 'Value ' . $i . $add],
             ];
         }
+
+        static::assertNotSame([], $data);
 
         return $data;
     }

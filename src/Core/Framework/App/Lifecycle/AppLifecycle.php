@@ -23,11 +23,11 @@ use Shopware\Core\Framework\App\Event\PostAppDeletedEvent;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
-use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PersisterInterface;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Source\SourceResolver;
+use Shopware\Core\Framework\App\Validation\AppRequirementsValidator;
 use Shopware\Core\Framework\App\Validation\ConfigValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -66,7 +66,7 @@ class AppLifecycle extends AbstractAppLifecycle
     public function __construct(
         private readonly iterable $persisters,
         private readonly EntityRepository $appRepository,
-        private readonly PermissionPersister $permissionPersister,
+        private readonly PermissionLifecycleService $permissionLifecycle,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AppRegistrationService $registrationService,
         private readonly AppStateService $appStateService,
@@ -87,6 +87,7 @@ class AppLifecycle extends AbstractAppLifecycle
         private readonly SourceResolver $sourceResolver,
         private readonly ConfigReader $configReader,
         private readonly DeletedAppsGateway $deletedAppsGateway,
+        private readonly AppRequirementsValidator $requirementsValidator,
     ) {
     }
 
@@ -98,6 +99,7 @@ class AppLifecycle extends AbstractAppLifecycle
     public function install(Manifest $manifest, AppInstallParameters $parameters, Context $context): void
     {
         $this->ensureIsCompatible($manifest);
+        $this->ensureMeetsRequirements($manifest);
 
         $app = $this->loadAppByName($manifest->getMetadata()->getName(), $context);
         if ($app) {
@@ -135,6 +137,7 @@ class AppLifecycle extends AbstractAppLifecycle
     public function update(Manifest $manifest, AppUpdateParameters $parameters, array $app, Context $context): void
     {
         $this->ensureIsCompatible($manifest);
+        $this->ensureMeetsRequirements($manifest);
 
         $defaultLocale = $this->getDefaultLocale($context);
         $metadata = $manifest->getMetadata()->toArray($defaultLocale);
@@ -216,7 +219,7 @@ class AppLifecycle extends AbstractAppLifecycle
 
         $this->updateCustomEntities($app, $manifest);
 
-        $this->permissionPersister->updatePrivileges(
+        $this->permissionLifecycle->updatePrivileges(
             $manifest->getPermissions(),
             $id,
             $manifest->validatesPermissions() === false && $parameters->acceptPermissions,
@@ -308,10 +311,10 @@ class AppLifecycle extends AbstractAppLifecycle
                     'id' => $app->getIntegrationId(),
                     'deletedAt' => new \DateTimeImmutable(),
                 ]], $context);
-                $this->permissionPersister->softDeleteRole($app->getAclRoleId());
+                $this->permissionLifecycle->softDeleteRole($app->getAclRoleId());
             } else {
                 $this->integrationRepository->delete([['id' => $app->getIntegrationId()]], $context);
-                $this->permissionPersister->removeRole($app->getAclRoleId());
+                $this->permissionLifecycle->removeRole($app->getAclRoleId());
             }
 
             $this->deleteAclRole($app->getName(), $context);
@@ -627,6 +630,14 @@ class AppLifecycle extends AbstractAppLifecycle
 
         if ($usedFeatures !== []) {
             throw AppException::appSecretRequiredForFeatures($app->getName(), $usedFeatures);
+        }
+    }
+
+    private function ensureMeetsRequirements(Manifest $manifest): void
+    {
+        $violations = $this->requirementsValidator->validate($manifest);
+        if (\count($violations) > 0) {
+            throw AppException::requirementsNotMet(...$violations);
         }
     }
 }

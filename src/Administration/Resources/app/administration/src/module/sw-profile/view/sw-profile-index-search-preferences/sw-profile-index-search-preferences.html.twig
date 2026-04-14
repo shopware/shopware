@@ -101,8 +101,8 @@
                         <mt-checkbox
                             v-model:checked="searchPreference._searchable"
                             :label="getModuleTitle(searchPreference.entityName)"
-                            @update:checked="onChangeSearchPreference(searchPreference)"
                             name="sw-field--searchPreference-_searchable"
+                            @update:checked="onChangeSearchPreference(searchPreference)"
                         />
                         <ul class="sw-profile-index-search-preferences-searchable-elements__entity">
                             <li

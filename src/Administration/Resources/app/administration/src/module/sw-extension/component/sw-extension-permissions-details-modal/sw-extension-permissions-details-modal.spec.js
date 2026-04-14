@@ -14,7 +14,6 @@ async function createWrapper({ permissions, modalTitle, selectedEntity }) {
                 stubs: {
                     'sw-modal': {
                         props: ['title'],
-                        // eslint-disable-next-line max-len
                         template:
                             '<div><div class="sw-modal__title">{{ title }}</div><div class="sw-modal__body"><slot/></div><slot name="modal-footer"></slot></div>',
                     },

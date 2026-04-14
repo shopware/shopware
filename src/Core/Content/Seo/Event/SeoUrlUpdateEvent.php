@@ -8,10 +8,16 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('inventory')]
 class SeoUrlUpdateEvent extends Event
 {
+    /**
+     * @param list<array<string, mixed>> $seoUrls
+     */
     public function __construct(protected array $seoUrls)
     {
     }
 
+    /**
+     * @return list<array<string, mixed>>
+     */
     public function getSeoUrls(): array
     {
         return $this->seoUrls;

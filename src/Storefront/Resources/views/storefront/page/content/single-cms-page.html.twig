@@ -3,9 +3,12 @@
 {% endblock %}
 
 {% block single_cms_page_html %}
+    {# @deprecated tag:v6.8.0 - WebPage microdata on <html> replaced by JSON-LD. Will be removed. #}
     <html lang="{{ "meta.xmlLang"|trans|striptags }}"
+          {% if not feature('JSON_LD_DATA') %}
           itemscope="itemscope"
-          itemtype="https://schema.org/WebPage">
+          itemtype="https://schema.org/WebPage"
+          {% endif %}>
 {% endblock %}
 
 {% block single_cms_page_head %}

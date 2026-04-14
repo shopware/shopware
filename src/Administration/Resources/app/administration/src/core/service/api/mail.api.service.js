@@ -20,7 +20,6 @@ class MailApiService extends ApiService {
 
         let languageIdHeader = {};
 
-        // eslint-disable-next-line no-restricted-globals
         if (self?.Shopware && typeof apiContext.languageId === 'string') {
             languageIdHeader = {
                 'sw-language-id': apiContext.languageId,

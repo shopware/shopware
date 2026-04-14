@@ -40,24 +40,23 @@ class CustomFieldServiceTest extends TestCase
     }
 
     /**
-     * @return array<int, array<int, string>>
+     * @return list<array{CustomFieldTypes::*, class-string<Field>}>
      */
     public static function attributeFieldTestProvider(): array
     {
         return [
-            [
-                CustomFieldTypes::BOOL, BoolField::class,
-                CustomFieldTypes::DATETIME, DateTimeField::class,
-                CustomFieldTypes::FLOAT, FloatField::class,
-                CustomFieldTypes::HTML, LongTextField::class,
-                CustomFieldTypes::INT, IntField::class,
-                CustomFieldTypes::JSON, JsonField::class,
-                CustomFieldTypes::TEXT, LongTextField::class,
-            ],
+            [CustomFieldTypes::BOOL, BoolField::class],
+            [CustomFieldTypes::DATETIME, DateTimeField::class],
+            [CustomFieldTypes::FLOAT, FloatField::class],
+            [CustomFieldTypes::HTML, LongTextField::class],
+            [CustomFieldTypes::INT, IntField::class],
+            [CustomFieldTypes::JSON, JsonField::class],
+            [CustomFieldTypes::TEXT, LongTextField::class],
         ];
     }
 
     /**
+     * @param CustomFieldTypes::* $attributeType
      * @param class-string<Field> $expectedFieldClass
      */
     #[DataProvider('attributeFieldTestProvider')]
@@ -69,10 +68,7 @@ class CustomFieldServiceTest extends TestCase
         ];
         $this->attributeRepository->create([$attribute], Context::createDefaultContext());
 
-        static::assertInstanceOf(
-            $expectedFieldClass,
-            $this->attributeService->getCustomField('test_attr')
-        );
+        static::assertInstanceOf($expectedFieldClass, $this->attributeService->getCustomField('test_attr'));
     }
 
     public function testOnlyGetActive(): void

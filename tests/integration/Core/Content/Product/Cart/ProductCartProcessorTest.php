@@ -315,9 +315,9 @@ class ProductCartProcessorTest extends TestCase
     }
 
     /**
-     * @param array{type: string} $testedFeature
+     * @param array{type: string, id: string|null, name: string|null, position: int} $testedFeature
      * @param array<string, mixed> $productData
-     * @param array{type: string, value: array{price: string}, label: string} $expectedFeature
+     * @param array{type: string, value: mixed, label: string} $expectedFeature
      */
     #[DataProvider('productFeatureProvider')]
     #[Group('slow')]
@@ -352,11 +352,11 @@ class ProductCartProcessorTest extends TestCase
     }
 
     /**
-     * @return array{
-     *     0: array{type: string},
-     *     1: array<string, mixed>,
-     *     2: array{type: string, value: mixed, label: string}
-     *     }[]
+     * @return list<array{
+     *     array{type: string, id: string|null, name: string|null, position: int},
+     *     array<string, mixed>,
+     *     array{type: string, value: mixed, label: string}
+     * }>
      */
     public static function productFeatureProvider(): array
     {
@@ -1041,11 +1041,11 @@ class ProductCartProcessorTest extends TestCase
     }
 
     /**
-     * @param array{type: string}[]|null $features
+     * @param list<array{type: string, id: string|null, name: string|null, position: int}> $features
      *
      * @return array<string, mixed>
      */
-    private function createFeatureSet(?array $features = []): array
+    private function createFeatureSet(array $features): array
     {
         return [
             'id' => $this->ids->create('product-feature-set'),

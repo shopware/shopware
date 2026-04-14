@@ -34,14 +34,13 @@ export default {
     ],
 
     props: {
-        // eslint-disable-next-line vue/require-prop-types
+        // null is a common value here, e.g. passed by the inheritance system.
         value: {
-            required: true,
+            required: false,
         },
         highlightSearchTerm: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         placeholder: {
@@ -159,7 +158,6 @@ export default {
         disabled: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: undefined,
         },
         label: {

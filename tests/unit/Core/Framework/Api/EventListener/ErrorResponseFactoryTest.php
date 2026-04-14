@@ -9,7 +9,7 @@ use PHPUnit\Metadata\Api\DataProvider as DataProviderObject;
 use Shopware\Core\Framework\Api\EventListener\ErrorResponseFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\ShopwareHttpException;
-use Shopware\Core\System\NumberRange\Exception\NoConfigurationException;
+use Shopware\Core\System\NumberRange\NumberRangeException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
@@ -38,14 +38,32 @@ class ErrorResponseFactoryTest extends TestCase
             ? $data['errors'][0]['trace']
             : $data['errors'][0]['meta']['trace'];
 
-        static::assertSame(self::class, $stack[0]['class']);
-        static::assertSame('getResponseFromExceptionProvider', $stack[0]['function']);
+        $expectedStackTrace = [
+            [
+                'class' => self::class,
+                'function' => 'getResponseFromExceptionProvider',
+            ],
+            [
+                'class' => DataProviderObject::class,
+                'function' => 'dataProvidedByMethods',
+            ],
+            [
+                'class' => DataProviderObject::class,
+                'function' => 'providedData',
+            ],
+        ];
 
-        static::assertSame(DataProviderObject::class, $stack[1]['class']);
-        static::assertSame('dataProvidedByMethods', $stack[1]['function']);
+        if ($exception instanceof ShopwareHttpException) {
+            array_unshift($expectedStackTrace, [
+                'class' => NumberRangeException::class,
+                'function' => 'noConfigurationForEntity',
+            ]);
+        }
 
-        static::assertSame(DataProviderObject::class, $stack[2]['class']);
-        static::assertSame('providedData', $stack[2]['function']);
+        foreach ($expectedStackTrace as $index => $trace) {
+            static::assertSame($trace['class'], $stack[$index]['class']);
+            static::assertSame($trace['function'], $stack[$index]['function']);
+        }
     }
 
     #[DataProvider('getResponseFromExceptionProvider')]
@@ -77,7 +95,7 @@ class ErrorResponseFactoryTest extends TestCase
 
         yield 'exception' => [new \Exception($message)];
         yield 'http exception' => [new HttpException(500)];
-        yield 'shopware http exception' => [new NoConfigurationException($message)];
+        yield 'domain exception' => [NumberRangeException::noConfigurationForEntity($message)];
     }
 
     public function testItTransformsRegularExceptionsToJson(): void

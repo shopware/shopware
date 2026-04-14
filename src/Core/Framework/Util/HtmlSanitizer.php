@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Shopware\Core\Framework\Util;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Tests\Unit\Core\Framework\Util\HtmlSanitizerTest;
 use Symfony\Contracts\Service\ResetInterface;
 
 #[Package('framework')]
@@ -26,7 +27,7 @@ class HtmlSanitizer implements ResetInterface
     public function __construct(
         ?string $cacheDir = null,
         private readonly bool $cacheEnabled = true,
-        private array $sets = [],
+        private readonly array $sets = [],
         private readonly array $fieldSets = [],
         private readonly bool $enabled = true
     ) {
@@ -43,7 +44,7 @@ class HtmlSanitizer implements ResetInterface
         }
 
         /** Fix double encoding
-         * @see \Shopware\Tests\Unit\Core\Framework\Util\HtmlSanitizerTest::testSanitizeHtmlEntities()
+         * @see HtmlSanitizerTest::testSanitizeHtmlEntities()
          */
         $text = htmlspecialchars_decode($text, \ENT_QUOTES | \ENT_HTML5);
 
@@ -110,7 +111,7 @@ class HtmlSanitizer implements ResetInterface
         }
 
         if (!$override) {
-            $sets = $this->fieldSets[$field]['sets'] ?? ['basic'];
+            $sets = $this->fieldSets[(string) $field]['sets'] ?? ['basic'];
 
             foreach ($sets as $set) {
                 if (isset($this->sets[$set]['tags'])) {

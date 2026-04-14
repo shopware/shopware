@@ -187,7 +187,7 @@ class OrderStockSubscriberTest extends TestCase
      * @param list<array{id: string, quantity: string, referenced_id: string}> $beforeState
      * @param list<array{id: string, quantity: string, referenced_id: string}> $afterState
      * @param list<array{lineItemId: string, productId: string, quantityBefore: int, newQuantity: int}> $expectedUpdates
-     * @param list<array{type: 'insert'|'delete'|'update', id: string, state: array<string, mixed>}> $commands
+     * @param list<array{type: 'insert', id: string}|array{type: 'delete', id: string}|array{type: 'update', id: string, state: array<string, mixed>}> $commands
      */
     #[DataProvider('orderItemWriteProvider')]
     public function testOrderItemWrites(array $beforeState, array $afterState, array $expectedUpdates, array $commands): void

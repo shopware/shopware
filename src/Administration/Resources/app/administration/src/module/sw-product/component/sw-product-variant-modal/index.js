@@ -398,7 +398,7 @@ export default {
             });
 
             if (foundVariantIndex >= 0) {
-                delete variant.price[foundVariantIndex];
+                variant.price.splice(foundVariantIndex, 1);
             }
 
             if (variant.price.length <= 0) {

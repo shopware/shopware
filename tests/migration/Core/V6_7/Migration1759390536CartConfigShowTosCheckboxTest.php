@@ -32,6 +32,7 @@ class Migration1759390536CartConfigShowTosCheckboxTest extends TestCase
 
         $newConfiguration = $this->getConditionValues();
         $id = array_key_first($newConfiguration);
+        static::assertNotNull($id);
 
         static::assertCount(1, $newConfiguration);
         static::assertSame(['_value' => false], $newConfiguration[$id]);
@@ -46,6 +47,7 @@ class Migration1759390536CartConfigShowTosCheckboxTest extends TestCase
 
         $newConfiguration = $this->getConditionValues();
         $id = array_key_first($newConfiguration);
+        static::assertNotNull($id);
 
         static::assertCount(1, $newConfiguration);
         static::assertSame(['_value' => true], $newConfiguration[$id]);

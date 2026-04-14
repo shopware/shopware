@@ -5,17 +5,7 @@ test(
     {
         tag: ['@Product, @Variant', '@Storefront'],
     },
-    async ({
-        ShopCustomer,
-        TestDataService,
-        StorefrontHome,
-        StorefrontProductDetail,
-        SalesChannelBaseConfig,
-        InstanceMeta,
-    }) => {
-        await test.skip(InstanceMeta.isSaaS, 'Skipping on SaaS instances due to instability in variant creation.');
-        // TODO: https://github.com/shopware/shopware/issues/14608
-
+    async ({ ShopCustomer, TestDataService, StorefrontHome, StorefrontProductDetail, SalesChannelBaseConfig }) => {
         const currency = await TestDataService.getCurrency(getCurrencyCodeFromLocale());
         const prices = [
             {
@@ -39,6 +29,16 @@ test(
                 gross: 10,
                 linked: false,
                 net: 8.4,
+                listPrice: {
+                    currencyId: currency.id,
+                    gross: 20,
+                    linked: false,
+                    net: 16.8,
+                },
+                percentage: {
+                    gross: 50,
+                    net: 50,
+                },
             },
         ];
 
@@ -52,9 +52,21 @@ test(
         const variantProducts = await TestDataService.createVariantProducts(parentProduct, propertyGroups, {
             price: prices,
         });
-        const productItemLocators = await StorefrontHome.getListingItemByProductName(parentProduct.name);
+
+        await ShopCustomer.expects(async () => {
+            await test.step('Wait for products to be visible on storefront.', async () => {
+                await TestDataService.clearCaches();
+                await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);
+                const productItemLocators = await StorefrontHome.getListingItemByProductName(parentProduct.name);
+                await ShopCustomer.expects(productItemLocators.productName).toBeVisible();
+            });
+        }).toPass({
+            intervals: [1_000, 2_500],
+        });
+
         await test.step('Validating listing price is available on product listing page for base variant product.', async () => {
-            await ShopCustomer.goesTo(StorefrontHome.url());
+            await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);
+            const productItemLocators = await StorefrontHome.getListingItemByProductName(parentProduct.name);
             await ShopCustomer.expects(productItemLocators.productPrice).toContainText(formatPrice(10.0));
             await ShopCustomer.expects(productItemLocators.productListingPrice).toContainText(formatPrice(20.0));
             await ShopCustomer.expects(productItemLocators.productListingPricePercentage).toContainText('(50% saved)');

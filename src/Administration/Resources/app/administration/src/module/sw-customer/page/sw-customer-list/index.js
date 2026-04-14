@@ -82,7 +82,6 @@ export default {
 
         defaultCriteria() {
             const defaultCriteria = new Criteria(this.page, this.limit);
-            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
             this.naturalSorting = this.sortBy === 'customerNumber';
 
             defaultCriteria.setTerm(this.term);

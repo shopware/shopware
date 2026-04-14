@@ -28,7 +28,7 @@ class FeatureTest extends TestCase
     public static string $customCacheId = 'beef3f0ee9c61829627676afd6294bb029';
 
     /**
-     * @var string[]
+     * @var list<string>
      */
     private array $fixtureFlags = [
         'FEATURE_NEXT_101',
@@ -247,6 +247,14 @@ class FeatureTest extends TestCase
         static::assertTrue(Feature::isActive('FEATURE_NEXT_102'));
     }
 
+    /**
+     * @return \Generator<string, array{
+     *     list<string>|array<string, array<string, bool>>,
+     *     array<string, string>,
+     *     string,
+     *     bool
+     * }>
+     */
     public static function isActiveDataProvider(): \Generator
     {
         yield 'registered active feature' => [
@@ -569,7 +577,7 @@ class FeatureTest extends TestCase
     }
 
     /**
-     * @param array<string, array{name?: string, default?: bool, major?: bool, description?: string}> $featureConfig
+     * @param array<string, FeatureFlagConfig>|list<string> $featureConfig
      * @param array<string, string> $env
      */
     #[DataProvider('isActiveDataProvider')]

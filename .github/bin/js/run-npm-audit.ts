@@ -283,6 +283,9 @@ export function runNpmAudit(options: NpmAuditOptions = {}): void {
         (pkg) => Array.isArray(pkg.via) && pkg.via.length > 0,
     );
 
+    // Only remaining vulnerabilities block the pipeline. Advisories are
+    // printed for visibility but intentionally do not cause a failure, so
+    // newly published advisories don't immediately break unrelated PRs.
     if (remaining.length === 0) {
         console.log(`No vulnerabilities (${totalIgnored} ignored).`);
         return;

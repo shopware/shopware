@@ -1864,7 +1864,7 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
     'identifier' => 'shopware.noNativeTimeRead',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/src/Core/Content/ImportExport/Service/DownloadService.php',
 ];
 $ignoreErrors[] = [

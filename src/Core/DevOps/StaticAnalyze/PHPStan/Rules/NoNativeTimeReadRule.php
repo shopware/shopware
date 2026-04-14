@@ -9,6 +9,7 @@ use PhpParser\Node\Name;
 use PhpParser\Node\Scalar\String_;
 use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ReflectionProvider;
+use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 use Shopware\Core\Framework\Log\Package;
@@ -63,7 +64,7 @@ class NoNativeTimeReadRule implements Rule
     }
 
     /**
-     * @return list<\PHPStan\Rules\IdentifierRuleError>
+     * @return list<IdentifierRuleError>
      */
     private function checkNew(New_ $node, Scope $scope): array
     {
@@ -93,7 +94,7 @@ class NoNativeTimeReadRule implements Rule
     }
 
     /**
-     * @return list<\PHPStan\Rules\IdentifierRuleError>
+     * @return list<IdentifierRuleError>
      */
     private function checkFuncCall(FuncCall $node, Scope $scope): array
     {
@@ -118,7 +119,7 @@ class NoNativeTimeReadRule implements Rule
     }
 
     /**
-     * @return list<\PHPStan\Rules\IdentifierRuleError>
+     * @return list<IdentifierRuleError>
      */
     private function buildError(): array
     {

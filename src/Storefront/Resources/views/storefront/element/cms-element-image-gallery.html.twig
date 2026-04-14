@@ -335,6 +335,10 @@
                                                                                     {% set attributes = attributes|merge({ fetchpriority: 'high' }) %}
                                                                                 {% endif %}
 
+                                                                                {% if not loop.first %}
+                                                                                    {% set attributes = attributes|merge({ loading: 'lazy' }) %}
+                                                                                {% endif %}
+
                                                                                 {% sw_thumbnails 'gallery-slider-image-thumbnails' with {
                                                                                     media: image,
                                                                                     attributes: attributes,
@@ -588,6 +592,8 @@
                                                                             {% set attributes = attributes|merge({
                                                                                 alt: (image.translated.alt ?: false)
                                                                             }) %}
+
+                                                                            {% set attributes = attributes|merge({ loading: 'lazy' }) %}
 
                                                                             {# @deprecated tag:v6.8.0 - Product image microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
                                                                             {% if not feature('JSON_LD_DATA') and isProduct %}

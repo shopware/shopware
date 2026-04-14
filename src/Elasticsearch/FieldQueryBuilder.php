@@ -200,6 +200,7 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
         }
 
         $dismax->addParameter('boost', $boost);
+        $dismax->addParameter('tie_breaker', 0.2);
 
         return $dismax;
     }

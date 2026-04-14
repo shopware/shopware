@@ -97,6 +97,14 @@
             {% set isListPrice = price.listPrice.percentage > 0 %}
             {% set isRegulationPrice = price.regulationPrice != null %}
 
+            <span class="visually-hidden product-detail-price-label">
+                {% if isListPrice %}
+                    {{ 'listing.listPriceLabel'|trans|sw_sanitize }}
+                {% else %}
+                    {{ 'listing.regularPriceLabel'|trans|sw_sanitize }}
+                {% endif %}
+            </span>
+
             <p class="product-detail-price{% if isListPrice %} with-list-price{% endif %}{% if isRegulationPrice %} with-regulation-price{% endif %}">
                 {{ price.unitPrice|currency }}
             </p>
@@ -113,6 +121,8 @@
                     {% block buy_widget_was_price_wrapper %}
                         <span class="product-detail-list-price-wrapper">
                             {% if beforeListPriceSnippetExists %}{{'listing.beforeListPrice'|trans|trim}}{% endif %}
+
+                            <span class="visually-hidden list-price-label">{{ 'listing.regularPriceLabel'|trans|sw_sanitize }}</span>
 
                             <span{% if not (afterListPriceSnippetExists or beforeListPriceSnippetExists) %} class="list-price-price"{% endif %}>{{ listPrice.price|currency }}</span>
 

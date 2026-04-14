@@ -183,6 +183,53 @@ return (new Config())
         );
     })
     ->useRule(function (Context $context): void {
+        $touchedPhp = $context->platform->pullRequest->getFiles()
+            ->filter(fn (File $f) => in_array($f->status, [File::STATUS_ADDED, File::STATUS_MODIFIED], true))
+            ->matches('src/**/*.php');
+
+        // exempt: migrations (point-in-time artifacts), hydrators (parse DB strings, not "now"),
+        // tests (use MockClock or fixed dates intentionally), profiling/measurement code.
+        $exemptPathPattern = '#(/Migration/|Hydrator\.php$|/Test/|/tests/|/Profiling/|Profiler|/DevOps/)#';
+
+        // matches: new \DateTime(), new DateTime(), new \DateTimeImmutable(), new DateTimeImmutable(),
+        // time(), microtime(...), strtotime(...). Argumentless DateTime[Immutable] only
+        $forbiddenCallPattern = '/(new\s+\\\\?DateTime(Immutable)?\s*\(\s*\)|\btime\s*\(\s*\)|\bmicrotime\s*\(|\bstrtotime\s*\()/';
+
+        $offenders = [];
+        foreach ($touchedPhp as $file) {
+            if (preg_match($exemptPathPattern, $file->name)) {
+                continue;
+            }
+
+            // only flag NEW lines (additions in the patch), not pre-existing usages,
+            // so unrelated edits to a file with legacy violations do not get blocked.
+            foreach (explode("\n", (string) $file->patch) as $line) {
+                if (str_starts_with($line, '+')
+                    && !str_starts_with($line, '+++')
+                    && preg_match($forbiddenCallPattern, $line)
+                ) {
+                    $offenders[] = $file->name;
+                    break;
+                }
+            }
+        }
+
+        if (count($offenders) > 0) {
+            $context->failure(
+                'Do not introduce native time reads (`new \DateTime()`, `new \DateTimeImmutable()`,'
+                . ' `time()`, `microtime()`, `strtotime()`).<br/>'
+                . 'Use `Psr\Clock\ClockInterface`'
+                . ' (see `src/Core/Checkout/Payment/Cleanup/CleanupPaymentTokenTaskHandler.php`'
+                . ' for `@internal` services and'
+                . ' `src/Core/Content/Product/IsNewDetector.php` for public classes whose'
+                . ' constructor is `@internal`),'
+                . ' or `Symfony\Component\Clock\ClockAwareTrait` when the constructor cannot change.<br/><br/>'
+                . 'Affected files:<br/>'
+                . implode('<br/>', array_unique($offenders))
+            );
+        }
+    })
+    ->useRule(function (Context $context): void {
         $changedTemplates = $context->platform->pullRequest->getFiles()
             ->filterStatus(File::STATUS_MODIFIED)
             ->matches('src/Storefront/Resources/views/*.twig')

@@ -110,13 +110,18 @@ class SyntaxValidationTemplateError extends Error {
 
 function createSimulationResponse(mailTemplateContent) {
     return Object.fromEntries(
-        Object.entries(mailTemplateContent).map(([key, content]) => [
-            key,
-            {
-                type: 'success',
+        Object.entries(mailTemplateContent).map(
+            ([
+                key,
                 content,
-            },
-        ]),
+            ]) => [
+                key,
+                {
+                    type: 'success',
+                    content,
+                },
+            ],
+        ),
     );
 }
 
@@ -128,7 +133,9 @@ async function createWrapper(privileges = []) {
                     create: repositoryMockFactory,
                 },
                 mailService: {
-                    simulateMailTemplate: jest.fn((mailTemplateContent) => Promise.resolve(createSimulationResponse(mailTemplateContent))),
+                    simulateMailTemplate: jest.fn((mailTemplateContent) =>
+                        Promise.resolve(createSimulationResponse(mailTemplateContent)),
+                    ),
                     sendMailTemplate: jest.fn(() => Promise.resolve({ size: 1 })),
                     loadAvailableVariables: jest.fn(() => Promise.resolve({})),
                 },
@@ -145,13 +152,15 @@ async function createWrapper(privileges = []) {
                     },
                 },
                 businessEventService: {
-                    getBusinessEvents: jest.fn(() => Promise.resolve([
-                        {
-                            name: 'checkout.order.placed',
-                            aware: ['mailAware'],
-                            data: {},
-                        },
-                    ])),
+                    getBusinessEvents: jest.fn(() =>
+                        Promise.resolve([
+                            {
+                                name: 'checkout.order.placed',
+                                aware: ['mailAware'],
+                                data: {},
+                            },
+                        ]),
+                    ),
                 },
             },
             mocks: {
@@ -186,7 +195,12 @@ async function createWrapper(privileges = []) {
                     template: '<textarea :disabled="disabled"></textarea>',
                 },
                 'mt-select': {
-                    props: ['modelValue', 'disabled', 'options', 'valueProperty'],
+                    props: [
+                        'modelValue',
+                        'disabled',
+                        'options',
+                        'valueProperty',
+                    ],
                     template: '<div><slot name="hint"></slot></div>',
                 },
                 'mt-banner': {
@@ -648,12 +662,14 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
     it('should load variable schemas from the backend', async () => {
         const wrapper = await createWrapper();
-        wrapper.vm.mailService.loadAvailableVariables = jest.fn(() => Promise.resolve({
-            orderNumber: {
-                fieldName: 'orderNumber',
-                hasChildren: false,
-            },
-        }));
+        wrapper.vm.mailService.loadAvailableVariables = jest.fn(() =>
+            Promise.resolve({
+                orderNumber: {
+                    fieldName: 'orderNumber',
+                    hasChildren: false,
+                },
+            }),
+        );
 
         await wrapper.setData({
             triggerEvent: {
@@ -733,24 +749,26 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             },
         });
 
-        wrapper.vm.mailService.simulateMailTemplate = jest.fn(() => Promise.resolve({
-            subject: {
-                type: 'success',
-                content: 'Rendered subject',
-            },
-            senderName: {
-                type: 'success',
-                content: 'Rendered sender',
-            },
-            contentPlain: {
-                type: 'success',
-                content: 'Rendered plain',
-            },
-            contentHtml: {
-                type: 'error',
-                content: 'Twig syntax error: unexpected end of template.',
-            },
-        }));
+        wrapper.vm.mailService.simulateMailTemplate = jest.fn(() =>
+            Promise.resolve({
+                subject: {
+                    type: 'success',
+                    content: 'Rendered subject',
+                },
+                senderName: {
+                    type: 'success',
+                    content: 'Rendered sender',
+                },
+                contentPlain: {
+                    type: 'success',
+                    content: 'Rendered plain',
+                },
+                contentHtml: {
+                    type: 'error',
+                    content: 'Twig syntax error: unexpected end of template.',
+                },
+            }),
+        );
 
         await wrapper.vm.onClickShowPreview();
 
@@ -808,12 +826,14 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         const sendTestMail = wrapper.findComponent('.sw-mail-template-detail__send-test-mail');
 
         expect(sendTestMail.attributes().disabled).toBeUndefined();
-        wrapper.vm.mailService.simulateMailTemplate = jest.fn(() => Promise.resolve({
-            subject: {
-                type: 'error',
-                content: 'Twig syntax error: unexpected end of template.',
-            },
-        }));
+        wrapper.vm.mailService.simulateMailTemplate = jest.fn(() =>
+            Promise.resolve({
+                subject: {
+                    type: 'error',
+                    content: 'Twig syntax error: unexpected end of template.',
+                },
+            }),
+        );
 
         wrapper.vm.createNotificationError = jest.fn();
         const notificationMock = wrapper.vm.createNotificationError;

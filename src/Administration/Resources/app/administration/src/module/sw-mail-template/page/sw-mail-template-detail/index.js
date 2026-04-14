@@ -401,11 +401,7 @@ export default {
             const criteria = new Criteria();
             criteria.addAssociation('languages');
 
-            const salesChannel = await this.salesChannelRepository.get(
-                this.testMailSalesChannelId,
-                Context.api,
-                criteria,
-            );
+            const salesChannel = await this.salesChannelRepository.get(this.testMailSalesChannelId, Context.api, criteria);
 
             if (!salesChannel.languages.has(Shopware.Context.api.languageId)) {
                 this.showLanguageNotAssignedToSalesChannelWarning = true;
@@ -466,8 +462,12 @@ export default {
         },
 
         hasPreviewErrors(mailPreview = this.mailPreview) {
-            return ['subject', 'senderName', 'contentHtml', 'contentPlain']
-                .some((key) => mailPreview?.[key]?.type === 'error');
+            return [
+                'subject',
+                'senderName',
+                'contentHtml',
+                'contentPlain',
+            ].some((key) => mailPreview?.[key]?.type === 'error');
         },
 
         onTriggerEventChange(eventName) {
@@ -520,7 +520,7 @@ export default {
         },
 
         async setMailPreview() {
-            this.mailPreview = await this.simulateMailPreview() ?? null;
+            this.mailPreview = (await this.simulateMailPreview()) ?? null;
 
             return this.mailPreview;
         },

@@ -252,6 +252,7 @@
       "babel-jest": "$babel-jest",
       "jest": "$jest"
     },
-    "tmp": "0.2.5"
+    "tmp": "0.2.5",
+    "follow-redirects": "1.16.0"
   }
 }

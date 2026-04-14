@@ -36,6 +36,7 @@ use Shopware\Storefront\Theme\ThemeFilesystemResolver;
 use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem as LocalFilesystem;
 
 /**
@@ -710,6 +711,159 @@ class ThemeCompilerTest extends TestCase
         static::assertEquals($originalCollection, $collection);
     }
 
+    // ===================================
+    // buildComponentImportMap() Tests
+    // ===================================
+
+    public function testBuildComponentImportMapReturnsNullWhenShopwareRuntimeMissing(): void
+    {
+        // localFilesystem->exists() returns false (the setUp default) → no shopware.js → null
+        $result = $this->createThemeCompiler()->buildComponentImportMap(TestDefaults::SALES_CHANNEL, 'theme-id');
+
+        static::assertNull($result);
+    }
+
+    public function testBuildComponentImportMapReturnsBaseStructureWithShopwareEntry(): void
+    {
+        // Only shopware.js exists; no components have scripts; no vendor maps.
+        $this->localFilesystem = $this->createMock(LocalFilesystem::class);
+        $this->localFilesystem->method('exists')->willReturnCallback(
+            static fn (string $path): bool => str_ends_with($path, 'shopware.js')
+        );
+
+        $result = $this->createThemeCompiler()->buildComponentImportMap(TestDefaults::SALES_CHANNEL, 'theme-id');
+
+        $urlPrefix = $this->expectedUrlPrefix();
+        static::assertNotNull($result);
+        static::assertSame(['shopware' => $urlPrefix . '/js/shopware/shopware.js'], $result['imports']);
+        static::assertArrayNotHasKey('scopes', $result);
+    }
+
+    public function testBuildComponentImportMapIncludesComponentsWithScriptFile(): void
+    {
+        $component = new TwigComponent('Sw:Button', '/base/Storefront/Resources/views/components/Sw/Button.html.twig', 'Storefront');
+
+        $this->twigComponentHelper = $this->createMock(TwigComponentHelper::class);
+        $this->twigComponentHelper->method('getComponents')->willReturn(new TwigComponentCollection([$component]));
+
+        // shopware.js present; component script present; no manifest (no Vite build).
+        $this->localFilesystem = $this->createMock(LocalFilesystem::class);
+        $this->localFilesystem->method('exists')->willReturnCallback(
+            static fn (string $path): bool => str_ends_with($path, 'shopware.js') || str_ends_with($path, 'Button.js')
+        );
+
+        $result = $this->createThemeCompiler()->buildComponentImportMap(TestDefaults::SALES_CHANNEL, 'theme-id');
+
+        $urlPrefix = $this->expectedUrlPrefix();
+        static::assertNotNull($result);
+        static::assertArrayHasKey('Sw:Button', $result['imports']);
+        static::assertSame($urlPrefix . '/js/components/Sw/Button.js', $result['imports']['Sw:Button']);
+        static::assertArrayNotHasKey('scopes', $result);
+    }
+
+    public function testBuildComponentImportMapSkipsComponentsWithNoScriptFile(): void
+    {
+        $component = new TwigComponent('Sw:Badge', '/base/Storefront/Resources/views/components/Sw/Badge.html.twig', 'Storefront');
+
+        $this->twigComponentHelper = $this->createMock(TwigComponentHelper::class);
+        $this->twigComponentHelper->method('getComponents')->willReturn(new TwigComponentCollection([$component]));
+
+        // Only shopware.js exists; component script does not.
+        $this->localFilesystem = $this->createMock(LocalFilesystem::class);
+        $this->localFilesystem->method('exists')->willReturnCallback(
+            static fn (string $path): bool => str_ends_with($path, 'shopware.js')
+        );
+
+        $result = $this->createThemeCompiler()->buildComponentImportMap(TestDefaults::SALES_CHANNEL, 'theme-id');
+
+        static::assertNotNull($result);
+        static::assertArrayNotHasKey('Sw:Badge', $result['imports']);
+    }
+
+    public function testBuildComponentImportMapIncludesExtensionComponentsWhenViteBuildPresent(): void
+    {
+        $component = new TwigComponent(
+            'Widget:Counter',
+            '/ext/MyPlugin/Resources/views/components/Widget/Counter.html.twig',
+            'MyPlugin',
+            '/ext/MyPlugin/Resources/app/storefront',
+        );
+
+        $this->twigComponentHelper = $this->createMock(TwigComponentHelper::class);
+        $this->twigComponentHelper->method('getComponents')->willReturn(new TwigComponentCollection([$component]));
+
+        // shopware.js exists + manifest exists for the extension (Vite build present).
+        $this->localFilesystem = $this->createMock(LocalFilesystem::class);
+        $this->localFilesystem->method('exists')->willReturnCallback(
+            static fn (string $path): bool => str_ends_with($path, 'shopware.js')
+                || str_ends_with($path, 'manifest.json')
+        );
+
+        $result = $this->createThemeCompiler()->buildComponentImportMap(TestDefaults::SALES_CHANNEL, 'theme-id');
+
+        $urlPrefix = $this->expectedUrlPrefix();
+        static::assertNotNull($result);
+        // Extension component should be included because hasViteBuild() returned true.
+        static::assertArrayHasKey('MyPlugin:Widget:Counter', $result['imports']);
+        static::assertSame($urlPrefix . '/js/components/MyPlugin/Widget/Counter.js', $result['imports']['MyPlugin:Widget:Counter']);
+    }
+
+    public function testBuildComponentImportMapPopulatesVendorMapIntoScopes(): void
+    {
+        $component = new TwigComponent(
+            'Widget:Counter',
+            '/ext/MyPlugin/Resources/views/components/Widget/Counter.html.twig',
+            'MyPlugin',
+            '/ext/MyPlugin/Resources/app/storefront',
+        );
+
+        $this->twigComponentHelper = $this->createMock(TwigComponentHelper::class);
+        $this->twigComponentHelper->method('getComponents')->willReturn(new TwigComponentCollection([$component]));
+
+        $this->localFilesystem = $this->createMock(LocalFilesystem::class);
+        $this->localFilesystem->method('exists')->willReturn(true);
+        $this->localFilesystem->method('readFile')->willReturnCallback(
+            static fn (string $path): string => str_ends_with($path, 'vendor-map.json')
+                ? '{"debounce":"MyPlugin/vendor/debounce-abc123.js"}'
+                : ''
+        );
+
+        $result = $this->createThemeCompiler()->buildComponentImportMap(TestDefaults::SALES_CHANNEL, 'theme-id');
+
+        $urlPrefix = $this->expectedUrlPrefix();
+        static::assertNotNull($result);
+        static::assertArrayHasKey('scopes', $result);
+        $scopeKey = $urlPrefix . '/js/components/MyPlugin/';
+        static::assertArrayHasKey($scopeKey, $result['scopes']);
+        static::assertSame(
+            $urlPrefix . '/js/components/MyPlugin/vendor/debounce-abc123.js',
+            $result['scopes'][$scopeKey]['debounce']
+        );
+    }
+
+    public function testBuildComponentImportMapHandlesVendorMapReadFailureGracefully(): void
+    {
+        $component = new TwigComponent(
+            'Widget:Counter',
+            '/ext/MyPlugin/Resources/views/components/Widget/Counter.html.twig',
+            'MyPlugin',
+            '/ext/MyPlugin/Resources/app/storefront',
+        );
+
+        $this->twigComponentHelper = $this->createMock(TwigComponentHelper::class);
+        $this->twigComponentHelper->method('getComponents')->willReturn(new TwigComponentCollection([$component]));
+
+        $this->localFilesystem = $this->createMock(LocalFilesystem::class);
+        $this->localFilesystem->method('exists')->willReturn(true);
+        $this->localFilesystem->method('readFile')->willThrowException(new IOException('Permission denied'));
+
+        $result = $this->createThemeCompiler()->buildComponentImportMap(TestDefaults::SALES_CHANNEL, 'theme-id');
+
+        // The import map should still be built; scopes should be absent because the vendor map could not be read.
+        static::assertNotNull($result);
+        static::assertArrayNotHasKey('scopes', $result);
+    }
+
     public function testCopyComponentScriptFilesIncludesComponentsWithScriptPath(): void
     {
         $this->setupBasicFileResolution();
@@ -724,9 +878,12 @@ class ThemeCompilerTest extends TestCase
         $this->twigComponentHelper->method('getComponents')
             ->willReturn(new TwigComponentCollection([$component]));
 
-        // Recreate the mock so exists() returns true without conflicts from setUp's willReturn(false).
+        // Return false for the Vite manifest so copyComponentScriptFiles uses the no-Vite fallback,
+        // but return true for any component script path.
         $this->localFilesystem = $this->createMock(LocalFilesystem::class);
-        $this->localFilesystem->method('exists')->willReturn(true);
+        $this->localFilesystem->method('exists')->willReturnCallback(
+            static fn (string $path): bool => !str_ends_with($path, 'manifest.json')
+        );
 
         // Replace the filesystem adapter with one that also implements WriteBatchInterface.
         // CopyBatch::copy detects this and calls writeBatch() instead of fopen() on the
@@ -977,7 +1134,11 @@ class ThemeCompilerTest extends TestCase
         $this->scssPhpCompiler->method('compileString')->willReturn('compiled css');
 
         $localFilesystem = $this->createMock(LocalFilesystem::class);
-        $localFilesystem->method('exists')->willReturn(true);
+        // Return false for Vite manifest so copyComponentScriptFiles uses the no-Vite fallback,
+        // but return true for the actual component script path (php://temp).
+        $localFilesystem->method('exists')->willReturnCallback(
+            static fn (string $path): bool => !str_ends_with($path, 'manifest.json')
+        );
 
         $compiler = new ThemeCompiler(
             $this->filesystem,
@@ -993,6 +1154,7 @@ class ThemeCompilerTest extends TestCase
             $this->logger,
             $this->pathBuilder,
             $this->scssPhpCompiler,
+            '', // storefrontJsDir
             [],
             false,
             Visibility::PUBLIC,
@@ -1017,6 +1179,15 @@ class ThemeCompilerTest extends TestCase
     // Helper Methods
     // ===================================
 
+    /**
+     * Returns the expected URL prefix used by buildComponentImportMap() in tests.
+     * The test compiler uses UrlPackage('http://localhost') as the 'theme' package.
+     */
+    private function expectedUrlPrefix(): string
+    {
+        return 'http://localhost/theme/' . $this->pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'theme-id');
+    }
+
     private function createThemeCompiler(?MD5ThemePathBuilder $pathBuilder = null): ThemeCompiler
     {
         return new ThemeCompiler(
@@ -1033,6 +1204,7 @@ class ThemeCompilerTest extends TestCase
             $this->logger,
             $pathBuilder ?? $this->pathBuilder,
             $this->scssPhpCompiler,
+            '', // storefrontJsDir
             [], // customAllowedRegex
             false, // validate
             Visibility::PUBLIC,

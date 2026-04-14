@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Theme;
 
+use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -24,16 +25,20 @@ class ThemeScriptsTest extends TestCase
 
     private ThemeRuntimeConfigService&MockObject $themeRuntimeConfigService;
 
+    private FilesystemOperator&MockObject $tempFilesystem;
+
     private ThemeScripts $themeScripts;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->themeRuntimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
+        $this->tempFilesystem = $this->createMock(FilesystemOperator::class);
         $this->requestStack = new RequestStack();
         $this->themeScripts = new ThemeScripts(
             $this->requestStack,
             $this->themeRuntimeConfigService,
+            $this->tempFilesystem,
         );
     }
 
@@ -89,5 +94,97 @@ class ThemeScriptsTest extends TestCase
         $this->themeRuntimeConfigService->expects($this->once())->method('getResolvedRuntimeConfig')->willReturn($themeRuntimeConfig);
 
         static::assertSame(['js/foo/foo.js', 'js/foo/bar.js'], $this->themeScripts->getThemeScripts());
+    }
+
+    public function testGetComponentImportMapReturnsNullWhenNoRequest(): void
+    {
+        $this->themeRuntimeConfigService->expects($this->never())->method('getResolvedRuntimeConfig');
+
+        static::assertNull($this->themeScripts->getComponentImportMap());
+    }
+
+    public function testGetComponentImportMapReturnsNullWhenNoBuildPresent(): void
+    {
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, 'Storefront');
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_ID, 'Storefront');
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, Generator::generateSalesChannelContext());
+        $this->requestStack->push($request);
+
+        $themeRuntimeConfig = ThemeRuntimeConfig::fromArray([
+            'themeId' => 'Storefront',
+            'technicalName' => 'Storefront',
+            'resolvedConfig' => [],
+            'viewInheritance' => [],
+            'scriptFiles' => ['js/storefront/storefront.js'],
+            'iconSets' => [],
+            // componentImportMap deliberately absent (no Vite build yet)
+            'updatedAt' => new \DateTimeImmutable(),
+        ]);
+
+        $this->themeRuntimeConfigService->method('getResolvedRuntimeConfig')->willReturn($themeRuntimeConfig);
+
+        static::assertNull($this->themeScripts->getComponentImportMap());
+    }
+
+    public function testGetComponentImportMapReturnsStoredMap(): void
+    {
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, 'Storefront');
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_ID, 'Storefront');
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, Generator::generateSalesChannelContext());
+        $this->requestStack->push($request);
+
+        $importMap = [
+            'imports' => [
+                'shopware' => 'js/shopware/shopware.js',
+                'Sw:Button' => 'js/components/Sw/Button.js',
+            ],
+            'scopes' => [
+                'js/components/MyPlugin/' => [
+                    'debounce' => 'js/components/MyPlugin/vendor/debounce-abc123.js',
+                ],
+            ],
+        ];
+
+        $themeRuntimeConfig = ThemeRuntimeConfig::fromArray([
+            'themeId' => 'Storefront',
+            'technicalName' => 'Storefront',
+            'resolvedConfig' => [],
+            'viewInheritance' => [],
+            'scriptFiles' => ['js/storefront/storefront.js'],
+            'iconSets' => [],
+            'componentImportMap' => $importMap,
+            'updatedAt' => new \DateTimeImmutable(),
+        ]);
+
+        $this->themeRuntimeConfigService->method('getResolvedRuntimeConfig')->willReturn($themeRuntimeConfig);
+
+        static::assertSame($importMap, $this->themeScripts->getComponentImportMap());
+    }
+
+    public function testGetDevImportMapReturnsNullWhenFlagFileAbsent(): void
+    {
+        $this->tempFilesystem->method('fileExists')->with('cache/storefront_components.dev.json')->willReturn(false);
+
+        static::assertNull($this->themeScripts->getDevImportMap());
+    }
+
+    public function testGetDevImportMapReturnsParsedMapWhenFlagFilePresent(): void
+    {
+        $devMap = ['imports' => ['shopware' => 'http://localhost:5176/src/shopware.ts']];
+
+        $this->tempFilesystem->method('fileExists')->with('cache/storefront_components.dev.json')->willReturn(true);
+        $this->tempFilesystem->method('read')->with('cache/storefront_components.dev.json')->willReturn((string) json_encode($devMap));
+
+        static::assertSame($devMap, $this->themeScripts->getDevImportMap());
+    }
+
+    public function testGetDevImportMapReturnsNullForInvalidJson(): void
+    {
+        $this->tempFilesystem->method('fileExists')->with('cache/storefront_components.dev.json')->willReturn(true);
+        $this->tempFilesystem->method('read')->with('cache/storefront_components.dev.json')->willReturn('not json {{{');
+
+        static::assertNull($this->themeScripts->getDevImportMap());
     }
 }

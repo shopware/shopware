@@ -113,7 +113,7 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeConfigValueAccessor"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeScripts" />
-            <argument type="service" id="assets.packages" />
+            <argument>%kernel.environment%</argument>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeConfigValueAccessor">

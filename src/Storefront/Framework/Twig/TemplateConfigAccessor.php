@@ -7,7 +7,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Theme\ThemeConfigValueAccessor;
 use Shopware\Storefront\Theme\ThemeScripts;
-use Symfony\Component\Asset\Packages;
 
 #[Package('framework')]
 class TemplateConfigAccessor
@@ -19,7 +18,7 @@ class TemplateConfigAccessor
         private readonly SystemConfigService $systemConfigService,
         private readonly ThemeConfigValueAccessor $themeConfigAccessor,
         private readonly ThemeScripts $themeScripts,
-        private readonly Packages $packages,
+        private readonly string $kernelEnvironment = 'prod',
     ) {
     }
 
@@ -53,52 +52,37 @@ class TemplateConfigAccessor
         $scripts = [];
 
         foreach ($this->themeScripts->getThemeScripts() as $script) {
-            if (!str_starts_with($script, 'js/components/')) {
-                $scripts[] = $script;
-            }
+            $scripts[] = $script;
         }
 
         return $scripts;
     }
 
     /**
-     * @return array<string, mixed>
+     * Returns the full import map data: top-level imports and optional scoped imports for extensions.
+     *
+     * When the Vite component dev server is running it writes a flag file that
+     * IS the import map (all entries already contain full dev-server URLs).
+     * That map is returned verbatim.
+     *
+     * In production the stored map already contains full URLs pre-computed at theme
+     * compile time by ThemeCompiler::buildComponentImportMap(), so no URL conversion
+     * is required here. `scopes` is omitted when no extension vendor chunks are present.
+     *
+     * @return array{imports: array<string, string>, scopes?: array<string, array<string, string>>}
      */
     public function componentImportMap(): array
     {
-        $componentImportMap = [];
-        $themeScripts = $this->themeScripts->getThemeScripts();
-
-        // Filter theme scripts to component scripts only.
-        $componentScripts = array_filter($themeScripts, function ($script) {
-            return str_contains($script, 'js/components/');
-        });
-
-        // Create import map based on component tag.
-        foreach ($componentScripts as $componentScript) {
-            $componentTag = $this->getComponentTagFromScriptPath($componentScript);
-            $componentImportMap[$componentTag] = $this->packages->getUrl($componentScript, 'theme');
+        // Vite dev server running: the flag file IS the complete import map.
+        // Only active in the dev environment — never in production or test.
+        if ($this->kernelEnvironment === 'dev') {
+            $devMap = $this->themeScripts->getDevImportMap();
+            if ($devMap !== null) {
+                return $devMap;
+            }
         }
 
-        return $componentImportMap;
-    }
-
-    /**
-     * Derives the component tag from the script path.
-     * Example: js/components/Sw/Product/BuyButton.js => Sw:Product:BuyButton
-     * Example: js/components/Sw/Product/Detail/Reviews/index.js => Sw:Product:Detail:Reviews
-     */
-    private function getComponentTagFromScriptPath(string $path): string
-    {
-        $tag = str_replace('js/components/', '', $path);
-        $tag = str_replace('.js', '', $tag);
-        $tag = str_replace('/', ':', $tag);
-
-        if (str_ends_with($tag, ':index')) {
-            $tag = substr($tag, 0, -\strlen(':index'));
-        }
-
-        return $tag;
+        return $this->themeScripts->getComponentImportMap() ?? ['imports' => []];
     }
 
     /**

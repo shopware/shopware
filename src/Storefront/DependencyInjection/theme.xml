@@ -36,6 +36,7 @@
             <argument type="service" id="Psr\Log\LoggerInterface"/>
             <argument type="service" id="Shopware\Storefront\Theme\AbstractThemePathBuilder"/>
             <argument type="service" id="Shopware\Storefront\Theme\ScssPhpCompiler"/>
+            <argument>%storefrontRoot%/Resources/app/storefront</argument>
             <argument>%storefront.theme.allowed_scss_values%</argument>
             <argument>%storefront.theme.validate_on_compile%</argument>
             <argument>%shopware.filesystem.theme.visibility%</argument>
@@ -65,6 +66,7 @@
         <service id="Shopware\Storefront\Theme\ThemeScripts">
             <argument type="service" id="request_stack"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeRuntimeConfigService"/>
+            <argument type="service" id="shopware.filesystem.temp"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeMergedConfigBuilder">

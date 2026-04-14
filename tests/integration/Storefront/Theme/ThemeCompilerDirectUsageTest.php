@@ -68,6 +68,7 @@ class ThemeCompilerDirectUsageTest extends TestCase
             $this->createMock(LoggerInterface::class),
             new MD5ThemePathBuilder(),
             static::getContainer()->get(ScssPhpCompiler::class),
+            '', // storefrontJsDir
             [],
             false
         );
@@ -741,6 +742,7 @@ SCSS;
             $this->createMock(LoggerInterface::class),
             new MD5ThemePathBuilder(),
             static::getContainer()->get(ScssPhpCompiler::class),
+            '', // storefrontJsDir
             [],
             false
         );

@@ -17,6 +17,12 @@ class TwigComponent
         public string $name,
         public string $path,
         public string $namespace,
+        /**
+         * Absolute path to the bundle's `Resources/app/storefront` directory.
+         * Populated at discovery time so that ThemeCompiler can locate build artefacts
+         * (dist-es/) without having to re-derive the path from the Twig template path.
+         */
+        public string $storefrontDir = '',
     ) {
     }
 

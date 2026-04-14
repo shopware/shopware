@@ -12,12 +12,6 @@ import 'src/helper/polyfill-loader.helper';
  */
 import * as bootstrap from 'bootstrap';
 
-/**
- * Shopware component system.
- */
-import 'src/component-system/shopware';
-import 'src/component-system/component';
-
 /*
 import helpers
  */

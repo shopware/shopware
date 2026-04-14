@@ -604,7 +604,7 @@ class ProductSearchQueryBuilderTest extends TestCase
      *
      * @return array{dis_max: array{queries: array<mixed>}}
      */
-    private static function disMax(array $queries, float|int|null $boost = null): array
+    private static function disMax(array $queries, float|int|null $boost = null, float|null $tieBreaker = 0.2): array
     {
         $payload = [
             'queries' => $queries,
@@ -612,6 +612,10 @@ class ProductSearchQueryBuilderTest extends TestCase
 
         if ($boost !== null) {
             $payload['boost'] = (float) $boost;
+        }
+
+        if ($tieBreaker !== null) {
+            $payload['tie_breaker'] = $tieBreaker;
         }
 
         return [

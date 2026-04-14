@@ -120,6 +120,8 @@ class TranslatedFieldQueryBuilder extends AbstractFieldQueryBuilder
             $dismax->addQuery($query);
         }
 
+        $dismax->addParameter('tie_breaker', 0.2);
+
         return $dismax;
     }
 }

@@ -112,6 +112,7 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
 
         $dismax->addQuery($tokensQuery);
         $dismax->addQuery($originalTermQuery);
+        $dismax->addParameter('tie_breaker', 0.2);
 
         return $dismax;
     }

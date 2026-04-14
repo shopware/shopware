@@ -123,9 +123,9 @@ export default {
 
             if (Context.app.adminEsEnable) {
                 string = string
-                    .replace(/(^|\s)[+-](?=\S)/g, '$1') // remove + and - at the beginning and end of words
+                    .replace(/(?<!\S)[+-]|[+-](?!\S)/g, '') // remove + and - which are not part of a word
                     .replace(/[.*~"|()]/g, '') // remove special elasticsearch characters
-                    .replace(/ AND | and | OR | or |  +/g, ' ') // remove AND and OR bool operators
+                    .replace(/\b(AND|OR)\b/gi, ' ') // remove AND and OR bool operators
                     .replace(/\s+/g, ' '); // replace multiple spaces with single space
 
                 return escapeRegex(string);

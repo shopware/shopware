@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Symfony\Component\Clock\NativeClock;
 
 #[Package('inventory')]
 class IsNewDetector extends AbstractIsNewDetector

@@ -201,7 +201,7 @@ describe('runMigration — skip (no twig file)', () => {
     let tmpDir: string;
     let componentDir: string;
 
-    beforeAll(() => {
+    beforeEach(() => {
         tmpDir = createTempDir();
         componentDir = makeComponent(
             tmpDir,
@@ -211,7 +211,7 @@ describe('runMigration — skip (no twig file)', () => {
         );
     });
 
-    afterAll(() => {
+    afterEach(() => {
         rmSync(tmpDir, { recursive: true, force: true });
     });
 
@@ -236,7 +236,7 @@ describe('runMigration — not-migratable (render function)', () => {
     let tmpDir: string;
     let componentDir: string;
 
-    beforeAll(() => {
+    beforeEach(() => {
         tmpDir = createTempDir();
         // render-component has no .html.twig fixture, so provide a minimal one
         componentDir = makeComponent(
@@ -247,7 +247,7 @@ describe('runMigration — not-migratable (render function)', () => {
         );
     });
 
-    afterAll(() => {
+    afterEach(() => {
         rmSync(tmpDir, { recursive: true, force: true });
     });
 
@@ -336,7 +336,7 @@ describe('runMigration — partially-migrated (mixins)', () => {
     let tmpDir: string;
     let componentDir: string;
 
-    beforeAll(() => {
+    beforeEach(() => {
         tmpDir = createTempDir();
         // mixin-component has no .html.twig fixture, so provide a minimal one
         componentDir = makeComponent(
@@ -347,7 +347,7 @@ describe('runMigration — partially-migrated (mixins)', () => {
         );
     });
 
-    afterAll(() => {
+    afterEach(() => {
         rmSync(tmpDir, { recursive: true, force: true });
     });
 
@@ -362,7 +362,6 @@ describe('runMigration — partially-migrated (mixins)', () => {
     });
 
     it('writes .vue file in write mode', () => {
-        rmSync(join(componentDir, 'sw-mixin-list.vue'), { force: true });
         runMigration(tmpDir, { dryRun: false });
         expect(existsSync(join(componentDir, 'sw-mixin-list.vue'))).toBe(true);
     });
@@ -583,7 +582,7 @@ describe('runMigration — delete-originals (not-migratable)', () => {
     let tmpDir: string;
     let componentDir: string;
 
-    beforeAll(() => {
+    beforeEach(() => {
         tmpDir = createTempDir();
         componentDir = makeComponent(
             tmpDir,
@@ -593,7 +592,7 @@ describe('runMigration — delete-originals (not-migratable)', () => {
         );
     });
 
-    afterAll(() => {
+    afterEach(() => {
         rmSync(tmpDir, { recursive: true, force: true });
     });
 

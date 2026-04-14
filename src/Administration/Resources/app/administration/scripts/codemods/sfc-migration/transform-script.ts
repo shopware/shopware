@@ -10,7 +10,8 @@ import {
 // Public types
 // ---------------------------------------------------------------------------
 
-export type MigrationStatus = 'fully-migratable' | 'partially-migratable' | 'not-migratable';
+import type { MigrationStatus } from './types';
+export type { MigrationStatus } from './types';
 
 export interface TransformScriptResult {
     script: string;
@@ -61,8 +62,10 @@ type ComputedProp =
 
 interface WatchProp {
     name: string;
-    paramName: string;
+    paramsText: string;
     bodyText: string;
+    deep?: boolean;
+    immediate?: boolean;
 }
 
 interface MethodProp {
@@ -169,16 +172,32 @@ function extractInjectKeys(optionsObj: ObjectLiteralExpression): string[] {
     const prop = optionsObj.getProperty('inject');
     if (!prop?.isKind(SyntaxKind.PropertyAssignment)) return [];
 
-    const initializer = prop
-        .asKindOrThrow(SyntaxKind.PropertyAssignment)
-        .getInitializerIfKind(SyntaxKind.ArrayLiteralExpression);
+    const pa = prop.asKindOrThrow(SyntaxKind.PropertyAssignment);
 
-    return (
-        initializer
-            ?.getElements()
+    // Array form: inject: ['acl', 'repositoryFactory']
+    const arrayInit = pa.getInitializerIfKind(SyntaxKind.ArrayLiteralExpression);
+    if (arrayInit) {
+        return arrayInit
+            .getElements()
             .filter((el) => el.isKind(SyntaxKind.StringLiteral))
-            .map((el) => el.asKindOrThrow(SyntaxKind.StringLiteral).getLiteralValue()) ?? []
-    );
+            .map((el) => el.asKindOrThrow(SyntaxKind.StringLiteral).getLiteralValue());
+    }
+
+    // Object form: inject: { acl: 'acl', repositoryFactory: { from: 'repositoryFactory' } }
+    const objInit = pa.getInitializerIfKind(SyntaxKind.ObjectLiteralExpression);
+    if (objInit) {
+        return objInit
+            .getProperties()
+            .filter((p) => p.isKind(SyntaxKind.PropertyAssignment) || p.isKind(SyntaxKind.ShorthandPropertyAssignment))
+            .map((p) => {
+                if (p.isKind(SyntaxKind.ShorthandPropertyAssignment)) {
+                    return p.asKindOrThrow(SyntaxKind.ShorthandPropertyAssignment).getName();
+                }
+                return p.asKindOrThrow(SyntaxKind.PropertyAssignment).getName();
+            });
+    }
+
+    return [];
 }
 
 /**
@@ -188,17 +207,42 @@ function extractInjectKeys(optionsObj: ObjectLiteralExpression): string[] {
  */
 function extractDataProps(optionsObj: ObjectLiteralExpression): DataProp[] {
     const dataProp = optionsObj.getProperty('data');
-    if (!dataProp?.isKind(SyntaxKind.MethodDeclaration)) return [];
+    if (!dataProp) return [];
 
-    const body = dataProp.asKindOrThrow(SyntaxKind.MethodDeclaration).getBody();
-    if (!body) return [];
+    let returnExpr: ObjectLiteralExpression | undefined;
 
-    const returnStmt = body.getDescendantsOfKind(SyntaxKind.ReturnStatement)[0];
-    const returnExpr = returnStmt?.getExpression();
-    if (!returnExpr?.isKind(SyntaxKind.ObjectLiteralExpression)) return [];
+    if (dataProp.isKind(SyntaxKind.MethodDeclaration)) {
+        // data() { return { ... } }
+        const body = dataProp.asKindOrThrow(SyntaxKind.MethodDeclaration).getBody();
+        const returnStmt = body?.getDescendantsOfKind(SyntaxKind.ReturnStatement)[0];
+        returnExpr = returnStmt?.getExpression()?.isKind(SyntaxKind.ObjectLiteralExpression)
+            ? returnStmt.getExpression()!.asKindOrThrow(SyntaxKind.ObjectLiteralExpression)
+            : undefined;
+    } else if (dataProp.isKind(SyntaxKind.PropertyAssignment)) {
+        const init = dataProp.asKindOrThrow(SyntaxKind.PropertyAssignment).getInitializer();
+        if (init?.isKind(SyntaxKind.ArrowFunction) || init?.isKind(SyntaxKind.FunctionExpression)) {
+            const body = init.isKind(SyntaxKind.ArrowFunction)
+                ? init.asKindOrThrow(SyntaxKind.ArrowFunction).getBody()
+                : init.asKindOrThrow(SyntaxKind.FunctionExpression).getBody();
+            if (body?.isKind(SyntaxKind.ParenthesizedExpression)) {
+                // Arrow: () => ({ ... })
+                const inner = body.asKindOrThrow(SyntaxKind.ParenthesizedExpression).getExpression();
+                returnExpr = inner.isKind(SyntaxKind.ObjectLiteralExpression)
+                    ? inner.asKindOrThrow(SyntaxKind.ObjectLiteralExpression)
+                    : undefined;
+            } else if (body?.isKind(SyntaxKind.Block)) {
+                // Function: function() { return { ... } }
+                const returnStmt = body.asKindOrThrow(SyntaxKind.Block).getDescendantsOfKind(SyntaxKind.ReturnStatement)[0];
+                returnExpr = returnStmt?.getExpression()?.isKind(SyntaxKind.ObjectLiteralExpression)
+                    ? returnStmt.getExpression()!.asKindOrThrow(SyntaxKind.ObjectLiteralExpression)
+                    : undefined;
+            }
+        }
+    }
+
+    if (!returnExpr) return [];
 
     return returnExpr
-        .asKindOrThrow(SyntaxKind.ObjectLiteralExpression)
         .getProperties()
         .filter((p) => p.isKind(SyntaxKind.PropertyAssignment))
         .map((p) => p.asKindOrThrow(SyntaxKind.PropertyAssignment))
@@ -257,6 +301,14 @@ function extractComputedProps(optionsObj: ObjectLiteralExpression): ComputedProp
                     setterParam: setter.getParameters()[0]?.getName() ?? 'val',
                     setterBodyText: setter.getBodyText() ?? '',
                 });
+            } else if (getterProp?.isKind(SyntaxKind.MethodDeclaration)) {
+                // Getter-only object form: label: { get() { ... } }
+                const getter = getterProp.asKindOrThrow(SyntaxKind.MethodDeclaration);
+                result.push({
+                    name: pa.getName(),
+                    kind: 'getter',
+                    bodyText: getter.getBodyText() ?? '',
+                });
             }
         }
     }
@@ -277,15 +329,38 @@ function extractWatchProps(optionsObj: ObjectLiteralExpression): WatchProp[] {
         .getInitializerIfKind(SyntaxKind.ObjectLiteralExpression);
     if (!watchObj) return [];
 
-    return watchObj
-        .getProperties()
-        .filter((p) => p.isKind(SyntaxKind.MethodDeclaration))
-        .map((p) => p.asKindOrThrow(SyntaxKind.MethodDeclaration))
-        .map((method) => ({
-            name: method.getName(),
-            paramName: method.getParameters()[0]?.getName() ?? '',
-            bodyText: method.getBodyText() ?? '',
-        }));
+    const result: WatchProp[] = [];
+    for (const p of watchObj.getProperties()) {
+        if (p.isKind(SyntaxKind.MethodDeclaration)) {
+            const method = p.asKindOrThrow(SyntaxKind.MethodDeclaration);
+            result.push({
+                name: method.getName(),
+                paramsText: method.getParameters().map((param) => param.getName()).join(', '),
+                bodyText: method.getBodyText() ?? '',
+            });
+        } else if (p.isKind(SyntaxKind.PropertyAssignment)) {
+            const pa = p.asKindOrThrow(SyntaxKind.PropertyAssignment);
+            const innerObj = pa.getInitializerIfKind(SyntaxKind.ObjectLiteralExpression);
+            if (!innerObj) continue;
+            const handlerProp = innerObj.getProperty('handler');
+            if (!handlerProp?.isKind(SyntaxKind.MethodDeclaration)) continue;
+            const handler = handlerProp.asKindOrThrow(SyntaxKind.MethodDeclaration);
+            const deepProp = innerObj.getProperty('deep');
+            const immediProp = innerObj.getProperty('immediate');
+            result.push({
+                name: pa.getName(),
+                paramsText: handler.getParameters().map((param) => param.getName()).join(', '),
+                bodyText: handler.getBodyText() ?? '',
+                deep: deepProp?.isKind(SyntaxKind.PropertyAssignment)
+                    ? deepProp.asKindOrThrow(SyntaxKind.PropertyAssignment).getInitializer()?.getText() === 'true'
+                    : undefined,
+                immediate: immediProp?.isKind(SyntaxKind.PropertyAssignment)
+                    ? immediProp.asKindOrThrow(SyntaxKind.PropertyAssignment).getInitializer()?.getText() === 'true'
+                    : undefined,
+            });
+        }
+    }
+    return result;
 }
 
 /**
@@ -383,16 +458,27 @@ function extractEmitsKeys(optionsObj: ObjectLiteralExpression): string[] {
     const prop = optionsObj.getProperty('emits');
     if (!prop?.isKind(SyntaxKind.PropertyAssignment)) return [];
 
-    const initializer = prop
-        .asKindOrThrow(SyntaxKind.PropertyAssignment)
-        .getInitializerIfKind(SyntaxKind.ArrayLiteralExpression);
+    const pa = prop.asKindOrThrow(SyntaxKind.PropertyAssignment);
 
-    return (
-        initializer
-            ?.getElements()
+    const arrayInit = pa.getInitializerIfKind(SyntaxKind.ArrayLiteralExpression);
+    if (arrayInit) {
+        return arrayInit
+            .getElements()
             .filter((el) => el.isKind(SyntaxKind.StringLiteral))
-            .map((el) => el.asKindOrThrow(SyntaxKind.StringLiteral).getLiteralValue()) ?? []
-    );
+            .map((el) => el.asKindOrThrow(SyntaxKind.StringLiteral).getLiteralValue());
+    }
+
+    // Object form: emits: { save: validator }
+    const objInit = pa.getInitializerIfKind(SyntaxKind.ObjectLiteralExpression);
+    if (objInit) {
+        return objInit.getProperties()
+            .filter((p) => p.isKind(SyntaxKind.PropertyAssignment) || p.isKind(SyntaxKind.MethodDeclaration))
+            .map((p) => p.isKind(SyntaxKind.MethodDeclaration)
+                ? p.asKindOrThrow(SyntaxKind.MethodDeclaration).getName()
+                : p.asKindOrThrow(SyntaxKind.PropertyAssignment).getName());
+    }
+
+    return [];
 }
 
 /**
@@ -518,6 +604,17 @@ function rewriteThisInBody(bodyText: string, ctx: RewriteContext): string {
     // `this.$el` has no clean composition-API equivalent; mark for manual follow-up
     result = result.replace(/\bthis\.\$el\b/g, '/* TODO: $el */ getCurrentInstance()?.proxy?.$el');
 
+    // Vuex store — mark for manual migration to Pinia/composable
+    result = result.replace(
+        /\bthis\.\$store\b/g,
+        "/* TODO: migrate $store to composable */\n        (() => { throw new Error('$store used here — replace with the appropriate Pinia store or composable before shipping'); })()",
+    );
+    // $parent / $root / $options / $forceUpdate — no composition API equivalent
+    result = result.replace(/\bthis\.\$parent\b/g, '/* TODO: $parent */ undefined');
+    result = result.replace(/\bthis\.\$root\b/g, '/* TODO: $root */ undefined');
+    result = result.replace(/\bthis\.\$options\b/g, '/* TODO: $options */ {}');
+    result = result.replace(/\bthis\.\$forceUpdate\b/g, '/* TODO: $forceUpdate */ (() => {})');
+
     // Named props → `props.NAME`
     for (const name of ctx.propNames) {
         result = result.replace(new RegExp(`\\bthis\\.${escapeRegExp(name)}\\b`, 'g'), `props.${name}`);
@@ -577,7 +674,7 @@ function detectBlockers(optionsObj: ObjectLiteralExpression, sourceFile: SourceF
 // Code generators
 // ---------------------------------------------------------------------------
 
-function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componentName: string, sourceFile: SourceFile): { script: string; publicNames: string[] } {
+function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componentName: string, sourceFile: SourceFile, useDataScope: boolean): { script: string; publicNames: string[] } {
     const injectKeys = extractInjectKeys(optionsObj);
     const dataProps = extractDataProps(optionsObj);
     const computedProps = extractComputedProps(optionsObj);
@@ -628,6 +725,7 @@ function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componen
     // Check whether we need getCurrentInstance for $el handling
     const needsGetCurrentInstance = allBodies.some((b) => /\bthis\.\$el\b/.test(b));
     if (needsGetCurrentInstance) vueImports.push('getCurrentInstance');
+    if (useDataScope) vueImports.push('reactive');
 
     const regularHooks = lifecycleHooks.filter((h) => h.compositionName !== null);
     vueImports.push(...new Set(regularHooks.map((h) => h.compositionName as string)));
@@ -642,7 +740,27 @@ function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componen
         ...methodProps.map((p) => p.name),
     ];
 
+    const todoComments: string[] = [];
+
+    if (optionsObj.getProperty('provide')) {
+        todoComments.push('// TODO: migrate `provide` manually — map each key to provide(key, value) calls');
+    }
+    if (optionsObj.getProperty('components')) {
+        todoComments.push('// TODO: verify local component registrations in `components:` — remove if globally registered');
+    }
+    if (optionsObj.getProperty('directives')) {
+        todoComments.push('// TODO: migrate `directives` manually');
+    }
+    if (optionsObj.getProperty('beforeCreate')) {
+        todoComments.push('// TODO: `beforeCreate` was dropped — move logic to top of setup if needed');
+    }
+
     const lines: string[] = [];
+
+    if (todoComments.length > 0) {
+        lines.push(todoComments.join('\n'));
+        lines.push('');
+    }
 
     // ── module-level code (scss imports, cloneDeep, colors, etc.) ────────────
     if (moduleLevelCode) {
@@ -651,8 +769,16 @@ function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componen
     }
 
     // ── Vue compiler macros (defineOptions, defineProps, defineEmits) ─────────
-    if (!inheritAttrs) {
-        lines.push(`defineOptions({ inheritAttrs: false });`);
+    const componentNameProp = optionsObj.getProperty('name');
+    const nameValue = componentNameProp?.isKind(SyntaxKind.PropertyAssignment)
+        ? componentNameProp.asKindOrThrow(SyntaxKind.PropertyAssignment).getInitializer()?.getText()
+        : undefined;
+    const defineOptionsArgs = [
+        !inheritAttrs ? 'inheritAttrs: false' : '',
+        nameValue ? `name: ${nameValue}` : '',
+    ].filter(Boolean);
+    if (defineOptionsArgs.length > 0) {
+        lines.push(`defineOptions({ ${defineOptionsArgs.join(', ')} });`);
         lines.push('');
     }
 
@@ -765,14 +891,15 @@ function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componen
     if (computedProps.length > 0) lines.push('');
 
     // ── watch ─────────────────────────────────────────────────────────────────
-    watchProps.forEach(({ name, paramName, bodyText }) => {
-        // Use `props.name` for watched props, `name.value` for watched data/computed refs
+    watchProps.forEach(({ name, paramsText, bodyText, deep, immediate }) => {
         const source = propNames.has(name) ? `props.${name}` : `${name}.value`;
         const body = rewriteThisInBody(bodyText, ctx);
-        const paramPart = paramName ? `(${paramName}) => {` : `() => {`;
+        const paramPart = paramsText ? `(${paramsText}) => {` : `() => {`;
+        const hasOptions = deep || immediate;
+        const optionsParts = [deep ? 'deep: true' : '', immediate ? 'immediate: true' : ''].filter(Boolean);
         lines.push(`        watch(() => ${source}, ${paramPart}`);
         lines.push(indentBlock(body, 12));
-        lines.push(`        });`);
+        lines.push(hasOptions ? `        }, { ${optionsParts.join(', ')} });` : `        });`);
     });
     if (watchProps.length > 0) lines.push('');
 
@@ -780,7 +907,8 @@ function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componen
     methodProps.forEach(({ name, paramsText, bodyText, isAsync, rawText }) => {
         if (rawText !== undefined) {
             // Property-assignment method (e.g. `debounce(...)`): emit verbatim after this-rewriting.
-            const rewritten = rewriteThisInBody(rawText, ctx);
+            let rewritten = rewriteThisInBody(rawText, ctx);
+            rewritten = rewritten.replace(/\bfunction\s+\w*\s*\(([^)]*)\)\s*\{/g, '($1) => {');
             lines.push(`        const ${name} = ${rewritten};`);
         } else {
             const asyncKw = isAsync ? 'async ' : '';
@@ -821,6 +949,11 @@ function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componen
     lines.push('    },');
     lines.push(');');
 
+    if (useDataScope) {
+        lines.push('');
+        lines.push(`const $dataScope = reactive({ ${publicNames.join(', ')} });`);
+    }
+
     return { script: lines.join('\n'), publicNames };
 }
 
@@ -844,9 +977,18 @@ function extractPropNamesFromText(optionsObj: ObjectLiteralExpression): string[]
     const prop = optionsObj.getProperty('props');
     if (!prop?.isKind(SyntaxKind.PropertyAssignment)) return [];
 
-    const initializer = prop
-        .asKindOrThrow(SyntaxKind.PropertyAssignment)
-        .getInitializerIfKind(SyntaxKind.ObjectLiteralExpression);
+    const pa = prop.asKindOrThrow(SyntaxKind.PropertyAssignment);
+
+    // Array form: props: ['label', 'value']
+    const arrayInit = pa.getInitializerIfKind(SyntaxKind.ArrayLiteralExpression);
+    if (arrayInit) {
+        return arrayInit
+            .getElements()
+            .filter((el) => el.isKind(SyntaxKind.StringLiteral))
+            .map((el) => el.asKindOrThrow(SyntaxKind.StringLiteral).getLiteralValue());
+    }
+
+    const initializer = pa.getInitializerIfKind(SyntaxKind.ObjectLiteralExpression);
 
     return (
         initializer
@@ -869,14 +1011,19 @@ function extractPropNamesFromText(optionsObj: ObjectLiteralExpression): string[]
  * (which is replaced by the `<template>` section in the SFC).
  */
 function buildOptionsApiBackoff(sourceFile: SourceFile): string {
-    // Use ts-morph to find and remove only the `import template from '…'` declaration
-    const templateImport = sourceFile
+    const project = new Project({
+        useInMemoryFileSystem: true,
+        compilerOptions: { allowJs: true },
+        skipAddingFilesFromTsConfig: true,
+    });
+    const clone = project.createSourceFile('component.js', sourceFile.getFullText(), { scriptKind: ScriptKind.JS });
+
+    const templateImport = clone
         .getImportDeclarations()
         .find((imp) => imp.getDefaultImport()?.getText() === 'template');
 
     templateImport?.remove();
-
-    return sourceFile.getFullText().trim();
+    return clone.getFullText().trim();
 }
 
 // ---------------------------------------------------------------------------
@@ -896,7 +1043,7 @@ function buildOptionsApiBackoff(sourceFile: SourceFile): string {
  * to handle edge cases that regex cannot: template literals, brace-in-strings,
  * comments, default parameters, async methods, etc.
  */
-export function transformScript(jsContent: string): TransformScriptResult {
+export function transformScript(jsContent: string, useDataScope = false): TransformScriptResult {
     const sourceFile = parseSource(jsContent);
     const optionsObj = findOptionsObject(sourceFile);
     const componentName = extractComponentName(sourceFile);
@@ -921,7 +1068,7 @@ export function transformScript(jsContent: string): TransformScriptResult {
         };
     }
 
-    const { script, publicNames } = buildCompositionApiScript(optionsObj, componentName, sourceFile);
+    const { script, publicNames } = buildCompositionApiScript(optionsObj, componentName, sourceFile, useDataScope);
     return {
         script,
         scriptType: 'setup',

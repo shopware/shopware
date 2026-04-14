@@ -19,7 +19,7 @@ describe('scripts/codemods/sfc-migration/transform-template', () => {
         let result: string;
 
         beforeAll(() => {
-            result = transformTemplate(readFixture('block-component.html.twig'));
+            result = transformTemplate(readFixture('block-component.html.twig')).template;
         });
 
         it('wraps the entire output in a <template> tag', () => {
@@ -67,7 +67,7 @@ describe('scripts/codemods/sfc-migration/transform-template', () => {
         let result: string;
 
         beforeAll(() => {
-            result = transformTemplate(readFixture('simple-component.html.twig'));
+            result = transformTemplate(readFixture('simple-component.html.twig')).template;
         });
 
         it('wraps the output in a <template> tag', () => {
@@ -98,7 +98,7 @@ describe('scripts/codemods/sfc-migration/transform-template', () => {
         let result: string;
 
         beforeAll(() => {
-            result = transformTemplate(readFixture('twig-comments.html.twig'));
+            result = transformTemplate(readFixture('twig-comments.html.twig')).template;
         });
 
         it('wraps the output in a <template> tag', () => {
@@ -137,7 +137,7 @@ describe('scripts/codemods/sfc-migration/transform-template', () => {
         let result: string;
 
         beforeAll(() => {
-            result = transformTemplate(readFixture('extends-template.html.twig'));
+            result = transformTemplate(readFixture('extends-template.html.twig')).template;
         });
 
         it('wraps the output in a <template> tag', () => {

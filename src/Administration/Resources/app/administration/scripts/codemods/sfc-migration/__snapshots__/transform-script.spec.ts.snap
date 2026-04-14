@@ -254,7 +254,7 @@ const {
         const doSearch = () => {
             query.value = query.value.trim();
         };
-        const searchDebounce = debounce(function onSearch() {
+        const searchDebounce = debounce(() => {
             doSearch();
         }, 300);
 

@@ -509,4 +509,148 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             expect(result.script).toMatchSnapshot();
         });
     });
+
+    // -------------------------------------------------------------------------
+    describe('watch object form with deep option', () => {
+        let result: ReturnType<typeof transformScript>;
+
+        beforeAll(() => {
+            const js = `Shopware.Component.register('sw-test', {
+                template,
+                data() { return { items: [], count: 0 }; },
+                watch: {
+                    items: {
+                        handler(newItems) { this.count = newItems.length; },
+                        deep: true,
+                        immediate: true,
+                    }
+                },
+            });`;
+            result = transformScript(js);
+        });
+
+        it('generates watch() call with deep/immediate options', () => {
+            expect(result.script).toContain('watch(() => items.value, (newItems) => {');
+            expect(result.script).toContain('}, { deep: true, immediate: true });');
+        });
+
+        it('rewrites this.count inside handler', () => {
+            expect(result.script).not.toContain('this.count');
+        });
+    });
+
+    // -------------------------------------------------------------------------
+    describe('array-form props', () => {
+        let result: ReturnType<typeof transformScript>;
+
+        beforeAll(() => {
+            const js = `Shopware.Component.register('sw-test', {
+                template,
+                props: ['label', 'value'],
+                methods: {
+                    getLabel() { return this.label; },
+                },
+            });`;
+            result = transformScript(js);
+        });
+
+        it('rewrites this.label to props.label', () => {
+            expect(result.script).toContain('props.label');
+            expect(result.script).not.toContain('this.label');
+        });
+    });
+
+    // -------------------------------------------------------------------------
+    it('preserves both newVal and oldVal watcher parameters', () => {
+        const js = `Shopware.Component.register('sw-test', {
+            template,
+            data() { return { count: 0 }; },
+            watch: {
+                count(newVal, oldVal) { console.log(newVal, oldVal); }
+            },
+        });`;
+        const result = transformScript(js);
+        expect(result.script).toContain('(newVal, oldVal) =>');
+    });
+
+    // -------------------------------------------------------------------------
+    describe('inject object form', () => {
+        let result: ReturnType<typeof transformScript>;
+
+        beforeAll(() => {
+            const js = `Shopware.Component.register('sw-test', {
+                template,
+                inject: { repositoryFactory: { from: 'repositoryFactory', default: null } },
+                methods: {
+                    create() { return this.repositoryFactory.create(); }
+                },
+            });`;
+            result = transformScript(js);
+        });
+
+        it('generates inject() call for object-form inject key', () => {
+            expect(result.script).toContain("inject('repositoryFactory')");
+        });
+
+        it('rewrites this.repositoryFactory in methods', () => {
+            expect(result.script).not.toContain('this.repositoryFactory');
+            expect(result.script).toContain('repositoryFactory.create()');
+        });
+    });
+
+    // -------------------------------------------------------------------------
+    it('emits defineEmits([]) when $emit is used with a dynamic event name', () => {
+        const js = `Shopware.Component.register('sw-test', {
+            template,
+            methods: {
+                fire(eventName) { this.$emit(eventName); }
+            },
+        });`;
+        const result = transformScript(js);
+        expect(result.script).toContain('const emit = defineEmits([])');
+    });
+
+    // -------------------------------------------------------------------------
+    it('replaces this.$store with a throwing IIFE, not a bare this.$store reference', () => {
+        const js = `
+        Shopware.Component.register('sw-store-user', {
+            methods: {
+                getCount() { return this.$store.getters['sw-example/count']; },
+            },
+        });
+    `;
+        const result = transformScript(js);
+        expect(result.script).not.toContain('this.$store');
+        expect(result.script).toContain('throw new Error');
+        expect(result.script).toContain('TODO: migrate $store');
+    });
+
+    // -------------------------------------------------------------------------
+    describe('block-component with useDataScope=true: reactive is in the vue import, not appended', () => {
+        let result: ReturnType<typeof transformScript>;
+
+        beforeAll(() => {
+            result = transformScript(readFixture('block-component.index.js'), true);
+        });
+
+        it('includes reactive in the vue import line', () => {
+            expect(result.script).toMatch(/import\s*\{[^}]*reactive[^}]*\}\s*from\s*['"]vue['"]/);
+        });
+
+        it('does not have a second standalone import for reactive', () => {
+            const importMatches = result.script.match(/import\s*\{[^}]*\}\s*from\s*['"]vue['"]/g) ?? [];
+            expect(importMatches).toHaveLength(1);
+        });
+
+        it('emits $dataScope const after the createExtendableSetup closing paren', () => {
+            // Find the closing ); of createExtendableSetup by locating the setup
+            // call start and then the first ); that follows its callback.
+            const setupCallIdx = result.script.indexOf('createExtendableSetup(');
+            // The last ); before the $dataScope line is the one closing createExtendableSetup.
+            const dataScopeIdx = result.script.indexOf('const $dataScope = reactive(');
+            const setupCloseIdx = result.script.lastIndexOf(');', dataScopeIdx);
+            expect(setupCallIdx).toBeGreaterThan(-1);
+            expect(dataScopeIdx).toBeGreaterThan(setupCloseIdx);
+        });
+    });
 });

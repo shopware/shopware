@@ -4,9 +4,6 @@
  * is a single fixed token that never nests inside JS expressions.
  */
 
-const BLOCK_START_RE = /\{%\s*block\s+([^%\s}]+)\s*%\}/g;
-const BLOCK_END_RE = /\{%\s*endblock\s*%\}/g;
-const PARENT_RE = /\{[{%]\s*parent\(?\)?\s*[%}]\}/g;
 const EXTENDS_RE = /\{%\s*extends\s+'[^']+'\s*%\}/;
 const TWIG_COMMENT_RE = /\{#([\s\S]*?)#\}/g;
 const ESLINT_DISABLE_TWIG = '<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->';
@@ -21,9 +18,12 @@ const ESLINT_DISABLE_TWIG = '<!-- eslint-disable-next-line sw-deprecation-rules/
  * - Accompanying eslint-disable-next-line comments are removed
  * - Plain HTML / Vue expressions pass through unchanged
  */
-export function transformTemplate(twigContent: string): string {
+export function transformTemplate(twigContent: string): { template: string; useDataScope: boolean } {
+    const BLOCK_START_RE = /\{%\s*block\s+([^%\s}]+)\s*%\}/g;
+    const BLOCK_END_RE = /\{%\s*endblock(?:\s+\w+)?\s*%\}/g;
+    const PARENT_RE = /\{[{%]\s*parent\(?\)?\s*[%}]\}/g;
+
     const hasTwigBlocks = BLOCK_START_RE.test(twigContent);
-    BLOCK_START_RE.lastIndex = 0; // reset after .test()
 
     let body = twigContent;
 
@@ -42,5 +42,7 @@ export function transformTemplate(twigContent: string): string {
             .join('\n');
     }
 
-    return `<template>\n${body}\n</template>`;
+    const transformed = `<template>\n${body}\n</template>`;
+    const useDataScope = transformed.includes('$dataScope');
+    return { template: transformed, useDataScope };
 }

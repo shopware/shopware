@@ -91,6 +91,17 @@ if (result.status === 'fully-migrated') {
 // result.blockers — list of detected blockers (e.g. ['mixins', 'extends'])
 ```
 
+## ⚠ Destructive Operations
+
+`--delete-originals` is **irreversible**. It deletes both `index.js` and `.html.twig`
+for every component that produces a `.vue` file — including **partially-migrated**
+components (those with unresolved blockers that still use Options API).
+
+Before using `--delete-originals`:
+1. Commit or stash all current changes to git.
+2. Run with `--dry-run` first to review what would be written.
+3. Verify the generated `.vue` files are correct before deletion.
+
 ## What needs manual review
 
 After running the codemod, search for `TODO` comments in the generated files:
@@ -130,7 +141,7 @@ Automatic inlining is out of scope for this codemod because it requires resolvin
 ### Steps
 
 1. **Find the parent component source** — the report shows the name, e.g. `sw-button`. Locate it at
-   `src/Administration/Resources/app/administration/app/component/<name>/index.js`.
+   `src/Administration/Resources/app/administration/src/app/component/{base,form,structure,...}/<name>/index.js`.
 
 2. **Copy relevant options** — merge the parent's `data`, `computed`, `methods`, and lifecycle hooks
    into the child, following [Vue's merge strategy](https://v3-migration.vuejs.org/breaking-changes/merge-strategy.html):
@@ -161,3 +172,23 @@ Automatic inlining is out of scope for this codemod because it requires resolvin
    ```bash
    npm run codemod:sfc-migration -- --write path/to/sw-extended-button
    ```
+
+## Known Limitations
+
+The following Options API features are **not automatically converted**. After migration,
+search your codebase for the `TODO:` comments the codemod inserts, and resolve each one manually.
+
+| Feature | Behavior | How to fix |
+|---------|----------|-----------|
+| `provide` | Drops with TODO comment | Add `provide(key, value)` calls manually in setup |
+| `components` | Drops silently | Verify components are globally registered; remove if so |
+| `directives` | Drops with TODO comment | Register directives globally or inline in setup |
+| `name` | Now emitted via `defineOptions({ name })` | No action needed |
+| `beforeCreate` | Drops with TODO comment | Move logic to top of `<script setup>` |
+| `inject` (object form) | Now supported | — |
+| `emits` (object form) | Now supported | — |
+| `watch` (object form) | Now supported | — |
+| `this.$store` | Inserts TODO comment | Migrate Vuex access to a composable |
+| `this.$parent` / `this.$root` | Inserts TODO comment | Refactor to avoid parent traversal |
+| `data` as arrow function | Now supported | — |
+| Nested watch path `'a.b'` | Silently dropped | Write watcher manually |

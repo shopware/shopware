@@ -29,7 +29,7 @@ import { Project, ScriptKind } from 'ts-morph';
 import { mergeComponentFiles } from './generate-sfc';
 
 export interface RunOptions {
-    dryRun: boolean;
+    dryRun?: boolean;
     force?: boolean;
     deleteOriginals?: boolean;
 }
@@ -43,6 +43,7 @@ export interface RunStats {
     deletedOriginals: number;
     elWarnings: number;
     extendsComponents: number;
+    errors: number;
 }
 
 export interface RunResult {
@@ -51,9 +52,13 @@ export interface RunResult {
 }
 
 export function findTwigFile(dir: string): string | null {
-    const entries = readdirSync(dir);
-    const twig = entries.find((f) => f.endsWith('.html.twig'));
-    return twig ? join(dir, twig) : null;
+    try {
+        const entries = readdirSync(dir);
+        const twig = entries.find((f) => f.endsWith('.html.twig'));
+        return twig ? join(dir, twig) : null;
+    } catch {
+        return null;
+    }
 }
 
 /**
@@ -89,7 +94,7 @@ export function normaliseJsContent(jsContent: string, componentName: string): st
 }
 
 export function runMigration(targetDir: string, options: RunOptions): RunResult {
-    const { dryRun, force = false, deleteOriginals = false } = options;
+    const { dryRun = true, force = false, deleteOriginals = false } = options;
     const indexFiles = globSync('**/index.js', { cwd: targetDir, absolute: true });
 
     const stats: RunStats = {
@@ -101,87 +106,93 @@ export function runMigration(targetDir: string, options: RunOptions): RunResult 
         deletedOriginals: 0,
         elWarnings: 0,
         extendsComponents: 0,
+        errors: 0,
     };
     const report: string[] = [];
 
     for (const indexPath of indexFiles) {
-        const jsContent = readFileSync(indexPath, 'utf-8');
+        try {
+            const jsContent = readFileSync(indexPath, 'utf-8');
 
-        const dir = dirname(indexPath);
-        const componentName = dir.split('/').at(-1) ?? 'unknown';
-        const twigPath = findTwigFile(dir);
+            const dir = dirname(indexPath);
+            const componentName = dir.split('/').at(-1) ?? 'unknown';
+            const twigPath = findTwigFile(dir);
 
-        if (!twigPath) {
-            stats.skipped++;
-            report.push(`SKIP (no twig)  ${indexPath}`);
-            continue;
-        }
+            if (!twigPath) {
+                stats.skipped++;
+                report.push(`SKIP (no twig)  ${indexPath}`);
+                continue;
+            }
 
-        const twigContent = readFileSync(twigPath, 'utf-8');
-        const normalisedJs = normaliseJsContent(jsContent, componentName);
-        const result = mergeComponentFiles(twigContent, normalisedJs);
+            const twigContent = readFileSync(twigPath, 'utf-8');
+            const normalisedJs = normaliseJsContent(jsContent, componentName);
+            const result = mergeComponentFiles(twigContent, normalisedJs);
 
-        switch (result.status) {
-            case 'fully-migrated': {
-                const vuePath = join(dir, `${componentName}.vue`);
-                if (!dryRun && !force && existsSync(vuePath)) {
-                    stats.skippedExisting++;
-                    report.push(`SKIP (already exists)  ${vuePath}`);
+            switch (result.status) {
+                case 'fully-migrated': {
+                    const vuePath = join(dir, `${componentName}.vue`);
+                    if (!dryRun && !force && existsSync(vuePath)) {
+                        stats.skippedExisting++;
+                        report.push(`SKIP (already exists)  ${vuePath}`);
+                        break;
+                    }
+                    if (!dryRun) {
+                        writeFileSync(vuePath, result.sfc, 'utf-8');
+                        if (deleteOriginals) {
+                            rmSync(indexPath);
+                            rmSync(twigPath);
+                            stats.deletedOriginals++;
+                            report.push(`  deleted originals    ${indexPath}`);
+                            report.push(`  deleted originals    ${twigPath}`);
+                        }
+                    }
+                    stats.fullyMigrated++;
+                    const fullyPrefix = dryRun ? '[DRY RUN] Would write: ' : '';
+                    report.push(`✓  fully-migrated        ${fullyPrefix}${vuePath}`);
+                    for (const warning of result.warnings) {
+                        stats.elWarnings++;
+                        report.push(`   ⚠  ${warning}`);
+                    }
                     break;
                 }
-                if (!dryRun) {
-                    writeFileSync(vuePath, result.sfc, 'utf-8');
-                    if (deleteOriginals) {
-                        rmSync(indexPath);
-                        rmSync(twigPath);
-                        stats.deletedOriginals++;
-                        report.push(`  deleted originals    ${indexPath}`);
-                        report.push(`  deleted originals    ${twigPath}`);
+                case 'partially-migrated': {
+                    const vuePath = join(dir, `${componentName}.vue`);
+                    if (!dryRun && !force && existsSync(vuePath)) {
+                        stats.skippedExisting++;
+                        report.push(`SKIP (already exists)  ${vuePath}`);
+                        break;
                     }
-                }
-                stats.fullyMigrated++;
-                const fullyPrefix = dryRun ? '[DRY RUN] Would write: ' : '';
-                report.push(`✓  fully-migrated        ${fullyPrefix}${vuePath}`);
-                for (const warning of result.warnings) {
-                    stats.elWarnings++;
-                    report.push(`   ⚠  ${warning}`);
-                }
-                break;
-            }
-            case 'partially-migrated': {
-                const vuePath = join(dir, `${componentName}.vue`);
-                if (!dryRun && !force && existsSync(vuePath)) {
-                    stats.skippedExisting++;
-                    report.push(`SKIP (already exists)  ${vuePath}`);
+                    if (!dryRun) {
+                        writeFileSync(vuePath, result.sfc, 'utf-8');
+                        if (deleteOriginals) {
+                            rmSync(indexPath);
+                            rmSync(twigPath);
+                            stats.deletedOriginals++;
+                            report.push(`  deleted originals    ${indexPath}`);
+                            report.push(`  deleted originals    ${twigPath}`);
+                        }
+                    }
+                    stats.partiallyMigrated++;
+                    const partialPrefix = dryRun ? '[DRY RUN] Would write: ' : '';
+                    report.push(`~  partially-migrated  [${result.blockers.join(', ')}]  ${partialPrefix}${vuePath}`);
+                    const extendsBlocker = result.blockers.find((b) => b.startsWith('extends'));
+                    if (extendsBlocker) {
+                        const parentMatch = extendsBlocker.match(/\(parent: ([^)]+)\)/);
+                        const parentName = parentMatch ? parentMatch[1] : 'unknown';
+                        stats.extendsComponents++;
+                        report.push(`   ⚠  manually inline parent options from '${parentName}' before re-running codemod; see README.md`);
+                    }
                     break;
                 }
-                if (!dryRun) {
-                    writeFileSync(vuePath, result.sfc, 'utf-8');
-                    if (deleteOriginals) {
-                        rmSync(indexPath);
-                        rmSync(twigPath);
-                        stats.deletedOriginals++;
-                        report.push(`  deleted originals    ${indexPath}`);
-                        report.push(`  deleted originals    ${twigPath}`);
-                    }
+                case 'not-migratable': {
+                    stats.notMigratable++;
+                    report.push(`✗  not-migratable      [${result.blockers.join(', ')}]  ${indexPath}`);
+                    break;
                 }
-                stats.partiallyMigrated++;
-                const partialPrefix = dryRun ? '[DRY RUN] Would write: ' : '';
-                report.push(`~  partially-migrated  [${result.blockers.join(', ')}]  ${partialPrefix}${vuePath}`);
-                const extendsBlocker = result.blockers.find((b) => b.startsWith('extends'));
-                if (extendsBlocker) {
-                    const parentMatch = extendsBlocker.match(/\(parent: ([^)]+)\)/);
-                    const parentName = parentMatch ? parentMatch[1] : 'unknown';
-                    stats.extendsComponents++;
-                    report.push(`   ⚠  manually inline parent options from '${parentName}' before re-running codemod; see README.md`);
-                }
-                break;
             }
-            case 'not-migratable': {
-                stats.notMigratable++;
-                report.push(`✗  not-migratable      [${result.blockers.join(', ')}]  ${indexPath}`);
-                break;
-            }
+        } catch (err) {
+            stats.errors = (stats.errors ?? 0) + 1;
+            report.push(`ERROR  ${indexPath}: ${err instanceof Error ? err.message : String(err)}`);
         }
     }
 
@@ -191,6 +202,17 @@ export function runMigration(targetDir: string, options: RunOptions): RunResult 
 // Only execute when invoked directly as a script, not when imported by tests.
 if (process.argv[1] === __filename) {
     const args = process.argv.slice(2);
+
+    if (args.includes('--help') || args.includes('-h')) {
+        console.log('Usage: npx tsx run-sfc-migration.ts [--dry-run | --write] [--force] [--delete-originals] <path>');
+        console.log('  <path>               Directory to scan for index.js component files');
+        console.log('  --dry-run            (default) Preview what would be written without writing files');
+        console.log('  --write              Write .vue files to disk');
+        console.log('  --force              Overwrite existing .vue files (default: skip if already exists)');
+        console.log('  --delete-originals   Delete source index.js and .html.twig after writing the .vue file');
+        process.exit(0);
+    }
+
     const targetArg = args.find((a) => !a.startsWith('--'));
 
     if (!targetArg) {
@@ -208,6 +230,10 @@ if (process.argv[1] === __filename) {
     const force = args.includes('--force');
     const deleteOriginals = args.includes('--delete-originals');
 
+    if (!dryRun && deleteOriginals) {
+        console.warn('WARNING: --delete-originals will permanently delete source files. Ensure git is clean.');
+    }
+
     const { stats, report } = runMigration(TARGET_DIR, { dryRun, force, deleteOriginals });
 
     console.log(report.join('\n'));
@@ -222,9 +248,14 @@ Skipped (exists):    ${stats.skippedExisting}
 Deleted originals:   ${stats.deletedOriginals}
 Components with $el: ${stats.elWarnings}
 Components (extends): ${stats.extendsComponents}
+Errors:              ${stats.errors}
 `);
 
     if (dryRun) {
         console.log('[DRY RUN] No files were written. Run with --write to apply.');
+    }
+
+    if (stats.errors > 0 || stats.notMigratable > 0) {
+        process.exit(1);
     }
 }

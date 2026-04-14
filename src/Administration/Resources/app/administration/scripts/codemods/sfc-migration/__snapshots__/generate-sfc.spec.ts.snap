@@ -43,7 +43,7 @@ const props = defineProps({
 const emit = defineEmits(['action', 'reset']);
 
 import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';
-import { ref, computed, inject, watch, onMounted } from 'vue';
+import { ref, computed, inject, watch, reactive, onMounted } from 'vue';
 
 const cardWrapper = ref(null);
 
@@ -121,7 +121,7 @@ const {
     },
 );
 
-const $dataScope = { acl, title, description, count, canEdit, label, onAction, onReset };
+const $dataScope = reactive({ acl, title, description, count, canEdit, label, onAction, onReset });
 </script>"
 `;
 

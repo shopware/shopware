@@ -5,8 +5,7 @@ import { transformScript } from './transform-script';
 // Public types
 // ---------------------------------------------------------------------------
 
-/** Distinguishes the three possible outcomes of merging a component's files. */
-export type MergeStatus = 'fully-migrated' | 'partially-migrated' | 'not-migratable';
+export type { MergeStatus } from './types';
 
 export interface MergeResult {
     /** The complete `.vue` SFC string, or `''` for non-migratable components. */
@@ -36,31 +35,25 @@ export interface MergeResult {
  * The `<template>` section always precedes `<script …>` in the output.
  */
 export function mergeComponentFiles(twigContent: string, jsContent: string): MergeResult {
-    const scriptResult = transformScript(jsContent);
+    // Determine useDataScope before calling transformScript so reactive is
+    // included in the vue import block, not appended after it.
+    const { template: templateSection, useDataScope } = transformTemplate(twigContent);
+
+    const scriptResult = transformScript(jsContent, useDataScope);
 
     if (scriptResult.status === 'not-migratable') {
         return { sfc: '', status: 'not-migratable', blockers: scriptResult.blockers, warnings: [] };
     }
 
-    const templateSection = transformTemplate(twigContent);
-
     if (scriptResult.status === 'partially-migratable') {
         const sfc = [templateSection, '', `<script>\n${scriptResult.script}\n</script>`].join('\n');
-
         return { sfc, status: 'partially-migrated', blockers: scriptResult.blockers, warnings: [] };
     }
 
-    // If the template uses $dataScope (i.e. it has <sw-block> elements), append a
-    // $dataScope constant that exposes all public setup state so block overrides can
-    // access the parent component's reactive data via the :data binding.
-    let scriptContent = scriptResult.script;
-    if (templateSection.includes('$dataScope')) {
-        const scopeEntries = scriptResult.publicNames.join(', ');
-        scriptContent += `\n\nconst $dataScope = { ${scopeEntries} };`;
-    }
-
-    const sfc = [templateSection, '', `<script setup>\n${scriptContent}\n</script>`].join('\n');
-    const warnings = sfc.includes('TODO: $el') ? ['$el usage detected — replace with a template ref or verify getCurrentInstance() call context'] : [];
+    const sfc = [templateSection, '', `<script setup>\n${scriptResult.script}\n</script>`].join('\n');
+    const warnings = sfc.includes('TODO: $el')
+        ? ['$el usage detected — replace with a template ref or verify getCurrentInstance() call context']
+        : [];
 
     return { sfc, status: 'fully-migrated', blockers: [], warnings };
 }

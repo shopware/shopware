@@ -127,7 +127,7 @@ describe('scripts/codemods/sfc-migration/generate-sfc', () => {
         });
 
         it('defines $dataScope after createExtendableSetup so <sw-block> can pass reactive state to overrides', () => {
-            expect(result.sfc).toContain('const $dataScope = {');
+            expect(result.sfc).toContain('const $dataScope = reactive({');
             expect(result.sfc).toContain('acl,');
             expect(result.sfc).toContain('title,');
             expect(result.sfc).toContain('onAction,');

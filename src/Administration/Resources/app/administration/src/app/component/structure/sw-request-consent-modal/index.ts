@@ -69,7 +69,7 @@ export default Shopware.Component.wrapComponentConfig({
                     title: this.$t('global.default.error'),
                     message: this.$t('sw-request-consent-modal.updateFailed'),
                     autoClose: false,
-                })
+                });
 
                 throw e;
             } finally {
@@ -93,14 +93,14 @@ export default Shopware.Component.wrapComponentConfig({
 
             try {
                 await consentStore.revoke(this.state.consentRequest.consent);
-            }  catch (e: unknown) {
+            } catch (e: unknown) {
                 const notificationStore = useNotificationStore();
                 notificationStore.createNotification({
                     variant: 'critical',
                     title: this.$t('global.default.error'),
                     message: this.$t('sw-request-consent-modal.updateFailed'),
                     autoClose: false,
-                })
+                });
 
                 throw e;
             } finally {

@@ -8,17 +8,17 @@ import useConsentStore, { type ConsentDTO } from 'src/core/consent/consent.store
 /**
  * @private
  */
-export const handleConsentStatus: HandleMethod<'consentStatus'> = async (message) => {
+export const handleConsentStatus: HandleMethod<'consentStatus'> = (message) => {
     const consentStore = useConsentStore();
     const consent = consentStore.consents[message.consent];
 
     if (!consent) {
-        throw new Error(`Could not find consent with name: "${message.consent}"`);
+        return Promise.reject(new Error(`Could not find consent with name: "${message.consent}"`));
     }
 
-    return {
+    return Promise.resolve({
         ...consent,
-    };
+    });
 };
 
 /**

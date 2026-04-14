@@ -42,20 +42,20 @@
         <template #footer>
             <div class="sw-request-consent-modal__footer">
                 <mt-button
-                        variant="primary"
-                        @click="decline"
+                    variant="primary"
+                    @click="decline"
                 >
                     {{ $t('sw-request-consent-modal.declineButton') }}
                 </mt-button>
 
                 <mt-button
-                        variant="primary"
-                        @click="accept"
+                    variant="primary"
+                    @click="accept"
                 >
                     {{ $t('sw-request-consent-modal.acceptButton') }}
                 </mt-button>
 
-                <mt-loader v-if="isLoading"></mt-loader>
+                <mt-loader v-if="isLoading" />
             </div>
         </template>
     </mt-modal>

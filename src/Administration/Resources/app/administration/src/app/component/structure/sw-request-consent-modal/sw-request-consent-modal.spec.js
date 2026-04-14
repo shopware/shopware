@@ -69,7 +69,7 @@ function addConsentRequestWithoutOptionalFields(consent = 'test_consent') {
     useConsentStore().addConsentRequest(
         {
             consent,
-            requestId: 'request-id'
+            requestId: 'request-id',
         },
         {
             extensionName: 'test-app',

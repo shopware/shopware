@@ -4,11 +4,7 @@
 import { send } from '@shopware-ag/meteor-admin-sdk/es/channel';
 import useExtensionsStore from 'src/app/store/extensions.store';
 import useConsentStore from 'src/core/consent/consent.store';
-import {
-    handleConsentRequest,
-    handleConsentStatus,
-    sendConsentRequestResponse,
-} from 'src/core/consent/sdk-handler';
+import { handleConsentRequest, handleConsentStatus, sendConsentRequestResponse } from 'src/core/consent/sdk-handler';
 
 jest.mock('@shopware-ag/meteor-admin-sdk/es/channel', () => ({
     send: jest.fn(() => Promise.resolve()),
@@ -95,18 +91,20 @@ describe('src/core/consent/sdk-handler.ts', () => {
                 },
             );
 
-            expect(consentStore.consentRequestInfo).toEqual([{
-                consentRequest: {
-                    consent: consent.name,
-                    privacyLink: 'https://app.example.com/privacy',
-                    requestMessage: 'Please allow analytics',
+            expect(consentStore.consentRequestInfo).toEqual([
+                {
+                    consentRequest: {
+                        consent: consent.name,
+                        privacyLink: 'https://app.example.com/privacy',
+                        requestMessage: 'Please allow analytics',
+                    },
+                    requester: {
+                        extensionName: 'test-app',
+                        origin: 'https://app.example.com',
+                        window: sourceWindow,
+                    },
                 },
-                requester: {
-                    extensionName: 'test-app',
-                    origin: 'https://app.example.com',
-                    window: sourceWindow,
-                },
-            }]);
+            ]);
         });
 
         it('throws when no extension matches the event origin', async () => {

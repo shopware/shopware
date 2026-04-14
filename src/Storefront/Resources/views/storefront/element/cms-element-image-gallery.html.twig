@@ -516,9 +516,11 @@
                                                         {% endif %}
                                                     {% endfor %}
                                                 {% else %}
-                                                    {% sw_icon 'placeholder' style {
-                                                        'size': 'fluid'
-                                                    } %}
+                                                    {% block element_image_gallery_inner_image_placeholder %}
+                                                        {% sw_icon 'placeholder' style {
+                                                            'size': 'fluid'
+                                                        } %}
+                                                    {% endblock %}
                                                 {% endif %}
                                             </div>
                                         {% endblock %}

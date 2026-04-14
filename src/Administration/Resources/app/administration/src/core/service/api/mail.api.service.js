@@ -143,13 +143,9 @@ class MailApiService extends ApiService {
         const apiRoute = `/_action/${this.getApiBasePath()}/get-data-and-send`;
 
         return this.httpClient
-            .post(
-                apiRoute,
-                payload,
-                {
-                    headers: this.getBasicHeaders(additionalHeaders),
-                },
-            )
+            .post(apiRoute, payload, {
+                headers: this.getBasicHeaders(additionalHeaders),
+            })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });

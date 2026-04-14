@@ -199,9 +199,7 @@ async function createWrapper(props = defaultProps, sendingSucceds = true, mailTe
         });
     });
     const getDataAndSendMailTemplate = jest.fn(() => {
-        return sendingSucceds
-            ? Promise.resolve({ size: 1 })
-            : Promise.reject();
+        return sendingSucceds ? Promise.resolve({ size: 1 }) : Promise.reject();
     });
 
     return mount(await wrapTestComponent('sw-order-send-document-modal', { sync: true }), {
@@ -326,7 +324,9 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         await flushPromises();
 
         const previewContent = wrapper.find('.sw-order-send-document-modal__email-content');
-        expect(previewContent.element.innerHTML).toBe(replaceTemplateVariables(mockMailTemplates[3].contentHtml, defaultProps));
+        expect(previewContent.element.innerHTML).toBe(
+            replaceTemplateVariables(mockMailTemplates[3].contentHtml, defaultProps),
+        );
     });
 
     it('should update the email template information when changing the email template', async () => {
@@ -411,7 +411,8 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         expect(wrapper.vm.mailService.getDataAndSendMailTemplate).toHaveBeenLastCalledWith(
             {
                 recipients: {
-                    [mockOrderWithMailHeaderFooter.orderCustomer.email]: `${mockOrderWithMailHeaderFooter.orderCustomer.firstName} ${mockOrderWithMailHeaderFooter.orderCustomer.lastName}`,
+                    [mockOrderWithMailHeaderFooter.orderCustomer.email]:
+                        `${mockOrderWithMailHeaderFooter.orderCustomer.firstName} ${mockOrderWithMailHeaderFooter.orderCustomer.lastName}`,
                 },
                 salesChannelId: mockOrderWithMailHeaderFooter.salesChannelId,
                 mediaIds: [mockMailTemplates[0].media.first().media.id],

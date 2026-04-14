@@ -156,13 +156,10 @@ export default {
             this.subject = localMailTemplate.subject;
 
             return this.mailService
-                .previewMailTemplate(
-                    localMailTemplate.id,
-                    {
-                        order: this.order.id,
-                        salesChannel: this.order.salesChannelId,
-                    },
-                )
+                .previewMailTemplate(localMailTemplate.id, {
+                    order: this.order.id,
+                    salesChannel: this.order.salesChannelId,
+                })
                 .then((preview) => {
                     this.content = preview?.contentHtml?.content ?? '';
                 });
@@ -191,10 +188,11 @@ export default {
                         .getDataAndSendMailTemplate(
                             {
                                 recipients: {
-                                    [this.recipient]: `${this.order.orderCustomer.firstName} ${this.order.orderCustomer.lastName}`,
+                                    [this.recipient]:
+                                        `${this.order.orderCustomer.firstName} ${this.order.orderCustomer.lastName}`,
                                 },
                                 salesChannelId: this.order.salesChannelId,
-                                mediaIds: mediaCollection.getIds(),
+                                mediaIds: Array.from(mediaCollection.getIds()),
                                 subject: this.subject,
                                 senderMail: mailTemplate.senderMail,
                                 senderName: mailTemplate.senderName ?? mailTemplate.translated?.senderName,

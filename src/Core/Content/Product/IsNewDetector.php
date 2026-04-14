@@ -18,7 +18,7 @@ class IsNewDetector extends AbstractIsNewDetector
      */
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
-        private readonly ClockInterface $clock = new NativeClock(),
+        private readonly ClockInterface $clock,
     ) {
     }
 

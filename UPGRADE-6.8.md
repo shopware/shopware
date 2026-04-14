@@ -276,6 +276,11 @@ The `\Shopware\Core\System\SalesChannel\Context\BaseSalesChannelContextFactory` 
 As a consequence the query with the title `base-context-factory::sales-channel` no longer adds the `languages` association,
 which means the `salesChannel` property of the `BaseSalesChannelContext` no longer contains the current language object.
 
+## Removal of `permisionsLocked` property of `SalesChannelContext`
+
+The `permisionsLocked` property of the `SalesChannelContext` was removed.
+Use `permissionsLocked` property or `SalesChannelContext::isPermissionsLocked()` instead.
+
 ## `RequestParamHelper::get` ignores `attribute` bag
 
 The `RequestParamHelper::get` method now ignores the `attribute` bag when fetching parameters from the request.

@@ -217,6 +217,12 @@ class SalesChannelContext extends Struct
         $this->context->lockRules();
     }
 
+    public function isPermissionsLocked(): bool
+    {
+        /** @deprecated tag:v6.8.0 - `$this->permisionsLocked` will be removed from condition without replacement */
+        return $this->permissionsLocked || $this->permisionsLocked;
+    }
+
     public function lockPermissions(): void
     {
         /** @deprecated tag:v6.8.0 - `$this->permisionsLocked` setter will be removed without replacement */

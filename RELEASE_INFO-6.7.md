@@ -24,6 +24,11 @@ If your integration or plugin assumes a 32-character `display_group`, compares a
 
 Users can now control which representative of variant products is shown in filtered listings via the Product settings "Preview best matching variant in search results and filtered listings".
 
+### Deprecation of `permisionsLocked` property of `SalesChannelContext`
+
+The `permisionsLocked` property of the `SalesChannelContext` is deprecated.
+Use `permissionsLocked` property or the new `SalesChannelContext::isPermissionsLocked()` getter method instead.
+
 ## Administration
 
 ### Re-render iframe integrations when location changes

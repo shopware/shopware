@@ -297,5 +297,4 @@ SQL;
             $this->connection->delete('cms_slot', ['cms_block_id' => $cmsPageByteId]);
         }
     }
-
 }

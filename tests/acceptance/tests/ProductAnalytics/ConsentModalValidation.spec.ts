@@ -1,7 +1,7 @@
 import { test, expect, Page, Locator } from '@fixtures/AcceptanceTest';
 import { parseCapturedRequests, removeSymfonyToolbar, setupConsentRevokeInterceptor,
     setupConsentInterceptor, setupProductAnalyticsInterceptor, waitForCapturedRequests } from '@helpers/productanalytics-helpers';
-import { createNewAdminPageContext, loginToAdministration, User } from '@shopware-ag/acceptance-test-suite';
+import {AdminPageObjects, createNewAdminPageContext, loginToAdministration, User } from '@shopware-ag/acceptance-test-suite';
 
 const PRODUCT_ANALYTICS_ENDPOINT = 'event';
 const CONSENTS_ENDPOINT = 'consents';
@@ -189,7 +189,6 @@ test(
 
         let page: Page;
         let user: User;
-        let consentModal: Locator;
 
         await test.step('Setup page object before login to shopware administration', async () => {
 
@@ -232,12 +231,14 @@ test(
 
         await test.step('Validate no store data consent option available.', async () => {
 
-            consentModal = page.getByRole('dialog').filter({ has: page.getByRole('heading', { name: 'Help us to improve Shopware' }) });
-            const shareStoreDataCheckbox = consentModal.getByRole('checkbox', { name: 'Share store data (anonymous)' });
+            const AdminConsentModal = new AdminPageObjects['DataSharingConsentModal'](page);
 
-            await expect(consentModal).toBeVisible();
-            await expect(shareStoreDataCheckbox).toHaveCount(0);
-
+            await expect(AdminConsentModal.consentModal).toBeVisible();
+            await expect(AdminConsentModal.shareStoreDataCheckbox).toHaveCount(0);
+            await expect(AdminConsentModal.shareUsageDataCheckbox).toHaveCount(0);
+            await expect(AdminConsentModal.shareUsageDataHeadline).toBeVisible()
+            await expect(AdminConsentModal.shareUsageDataText).toBeVisible()
+            await expect(AdminConsentModal.privacyPolicyLink).toBeVisible();
         });
 
         await test.step('Cleanup.', async () => {
@@ -247,4 +248,114 @@ test(
         });
     });
 
+test('Only authorized users in administration can change store consent and user data consent', { tag: '@ProductAnalytics' }, async ({
+    TestDataService,
+    SalesChannelBaseConfig,
+    browser,
+    InstanceMeta,
+    IdProvider,
+}) => {
 
+    const { handler } = setupProductAnalyticsInterceptor();
+    const { consentHandler } = setupConsentInterceptor();
+    const { consentRevokeHandler } = setupConsentRevokeInterceptor();
+
+    let page: Page;
+    let user: User;
+
+    await test.step('Setup page object before login to shopware administration', async () => {
+
+        const { id, uuid } = IdProvider.getIdPair();
+
+        user = {
+            id: uuid,
+            username: `admin_${id}`,
+            firstName: `${id} admin`,
+            lastName: `${id} admin`,
+            localeId: SalesChannelBaseConfig.currentLocaleId,
+            email: `admin_${id}@example.com`,
+            timezone: 'Europe/Berlin',
+            password: 'shopware',
+            admin: false,
+            createdAt: '2024-01-01T00:00:00.000Z',
+        };
+
+        const userResponse = await TestDataService.AdminApiClient.post('user', { data: user });
+        expect(userResponse.ok()).toBeTruthy();
+
+        page = await createNewAdminPageContext(browser, SalesChannelBaseConfig);
+    });
+
+    await test.step('Modify product analytics API and consent API requests.', async () => {
+
+        await page.route(`**/${PRODUCT_ANALYTICS_ENDPOINT}**`, handler);
+        await page.route(`**/${CONSENTS_ENDPOINT}`, consentHandler);
+        await page.route(`**/${CONSENTS_ENDPOINT}/revoke`, consentRevokeHandler);
+    });
+
+    await test.step('Setup user which can not change store consent but user data consent', async () => {
+
+        let permissions: string[];
+        // eslint-disable-next-line playwright/no-conditional-in-test
+        if (InstanceMeta.isSaaS) {
+            permissions = [
+                'language:read',
+                'locale:read',
+                'log_entry:create',
+                'message_queue_stats:read',
+                'system_config:read',
+                'user.update_profile', 'user:read', 'user_change_me', 'user_config:create', 'user_config:read', 'user_config:update',
+
+            ];
+        } else {
+            permissions = [
+                'language:read',
+                'locale:read',
+                'log_entry:create',
+                'message_queue_stats:read',
+                'system_config:read',
+                'user.update_profile', 'user:read', 'user_change_me', 'user_config:create', 'user_config:read', 'user_config:update',
+            ];
+        }
+
+        const onlyChangeUserProfilePermissions = await TestDataService.createAclRole({ privileges: permissions });
+        await TestDataService.assignAclRoleUser(onlyChangeUserProfilePermissions.id, user.id);
+    });
+
+    await test.step('Login to shopware administration', async () => {
+
+        await loginToAdministration(
+            page,
+            user,
+            TestDataService.AdminApiClient,
+        );
+
+    });
+
+    await test.step('Validate no store data consent option available.', async () => {
+
+        const AdminConsentModal = new AdminPageObjects['DataSharingConsentModal'](page);
+        const AdminYourProfile = new AdminPageObjects['YourProfile'](page);
+
+        await AdminYourProfile.page.goto(AdminYourProfile.url('privacy-preferences'));
+
+        await expect(AdminConsentModal.consentModal).toBeVisible();
+        await expect(AdminConsentModal.shareStoreDataCheckbox).toHaveCount(0);
+        await expect(AdminConsentModal.shareUsageDataCheckbox).toHaveCount(0);
+        await expect(AdminConsentModal.shareUsageDataHeadline).toBeVisible()
+        await expect(AdminConsentModal.shareUsageDataText).toBeVisible()
+        await expect(AdminConsentModal.privacyPolicyLink).toBeVisible();
+
+        await AdminConsentModal.page.getByRole('button', { name: 'Decline' }).click();
+
+        await expect(AdminYourProfile.dataSharingUsageDataCheckbox).toBeEditable();
+        await expect(AdminYourProfile.dataSharingUsageDataCheckbox).not.toBeChecked();
+
+    });
+
+    await test.step('Cleanup.', async () => {
+
+        TestDataService.addCreatedRecord('user', user.id);
+        await page.close();
+    });
+});

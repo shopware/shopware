@@ -18,6 +18,7 @@ export default function createTelemetryEventHandler(
     const telemetryEventHandlers: TelemetryEventHandlers = {
         page_change: (event) => {
             client.track('page_viewed', {
+                source: 'admin',
                 sw_route_from_name: normalizeRouteName(event.eventData.from.name),
                 sw_route_from_href: event.eventData.from.path,
                 sw_route_to_name: normalizeRouteName(event.eventData.to.name),
@@ -31,10 +32,10 @@ export default function createTelemetryEventHandler(
             }
         },
         login: () => {
-            client.track('login');
+            client.track('login', { source: 'admin' });
         },
         logout: () => {
-            client.track('logout');
+            client.track('logout', { source: 'admin' });
             void client.flush();
         },
         user_interaction: (event) => {
@@ -64,10 +65,11 @@ export default function createTelemetryEventHandler(
                 eventProperties.sw_pointer_button = originalEvent.buttons;
             }
 
-            client.track(eventName, eventProperties);
+            client.track(eventName, { source: 'admin', ...eventProperties });
         },
         programmatic: (event) => {
-            client.track(event.eventData.eventName, event.eventData);
+            const { eventName, ...properties } = event.eventData;
+            client.track(eventName, { source: 'admin', ...properties });
         },
     };
 

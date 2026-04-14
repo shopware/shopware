@@ -5,8 +5,8 @@ namespace Shopware\Tests\Unit\Core\Content\Shared\MailFlow\DataProvider;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\OrderProvider;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 

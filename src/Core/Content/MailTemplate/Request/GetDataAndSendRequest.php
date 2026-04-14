@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
+ *
  * @codeCoverageIgnore
  */
 #[Package('after-sales')]
@@ -16,8 +17,8 @@ readonly class GetDataAndSendRequest
     /**
      * @param array<string,string> $entityMapping Associative array where the key is the variable name used in the template
      *                                            and the value is the corresponding entity ID.
-     * @param array<string,mixed> $templateData   Associative array where the key is the variable name used in the template
-     *                                            and the value is the corresponding data to be used during rendering.
+     * @param array<string,mixed> $templateData Associative array where the key is the variable name used in the template
+     *                                          and the value is the corresponding data to be used during rendering.
      */
     public function __construct(
         public MailTemplateEntity $mailTemplate,

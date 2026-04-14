@@ -82,8 +82,6 @@ readonly class MailPayloadFactory
     }
 
     /**
-     * @param mixed $value
-     *
      * @return array<string,string|null>
      */
     private function normalizeAddressMap(mixed $value): array
@@ -106,8 +104,6 @@ readonly class MailPayloadFactory
     }
 
     /**
-     * @param mixed $value
-     *
      * @return list<string>
      */
     private function normalizeStringList(mixed $value): array
@@ -120,8 +116,6 @@ readonly class MailPayloadFactory
     }
 
     /**
-     * @param mixed $value
-     *
      * @return string|array<string,string|null>|null
      */
     private function normalizeAddressValue(mixed $value): string|array|null

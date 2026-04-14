@@ -192,7 +192,7 @@ class MailTemplateService
                 fn ($fieldName) => [
                     'fieldName' => $fieldName,
                     'hasChildren' => \is_object($templateData[$fieldName])
-                        || (\is_array($templateData[$fieldName]) && $templateData[$fieldName] !== [])
+                        || (\is_array($templateData[$fieldName]) && $templateData[$fieldName] !== []),
                 ],
                 \array_keys($templateData)
             );
@@ -224,7 +224,7 @@ class MailTemplateService
             fn ($fieldName) => [
                 'fieldName' => $fieldName,
                 'hasChildren' => \is_object($templateData[$fieldName])
-                    || (\is_array($templateData[$fieldName]) && $templateData[$fieldName] !== [])
+                    || (\is_array($templateData[$fieldName]) && $templateData[$fieldName] !== []),
             ],
             \array_keys($templateData)
         );

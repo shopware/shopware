@@ -48,9 +48,6 @@ class MailTemplateException extends HttpException
         );
     }
 
-    /**
-     * @param string $dataType
-     */
     public static function unknownEventDataType(string $dataType): self
     {
         return new self(

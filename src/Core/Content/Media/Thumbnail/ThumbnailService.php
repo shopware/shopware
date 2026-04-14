@@ -21,6 +21,7 @@ use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\Subscriber\MediaDeletionSubscriber;
 use Shopware\Core\Content\Media\Upload\MediaUploadService;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
@@ -183,7 +184,7 @@ class ThumbnailService
 
         $delete = \array_values(\array_map(static fn (string $id) => ['id' => $id], $toBeDeletedThumbnails->getIds()));
 
-        $update = $this->connection->transactional(function () use ($delete, $media, $config, $context, $toBeCreatedSizes): array {
+        $update = RetryableTransaction::transactional($this->connection, function () use ($delete, $media, $config, $context, $toBeCreatedSizes): array {
             return $context->state(function () use ($delete, $media, $config, $context, $toBeCreatedSizes): array {
                 $this->thumbnailRepository->delete($delete, $context);
 

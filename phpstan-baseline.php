@@ -1675,5 +1675,839 @@ $ignoreErrors[] = [
     'count' => 1,
     'path' => __DIR__ . '/src/Storefront/Theme/ThemeConfigFieldFactory.php',
 ];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Administration/Controller/UserConfigController.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 2,
+    'path' => __DIR__ . '/src/Administration/Framework/SystemCheck/AdministrationReadinessCheck.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 2,
+    'path' => __DIR__ . '/src/Core/Checkout/Cart/CartPersister.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Checkout/Cart/Command/CartMigrateCommand.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Checkout/Cart/Delivery/Struct/DeliveryDate.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Checkout/Cart/Order/Transformer/CartTransformer.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Checkout/Customer/CleanupCustomerRecoveryTaskHandler.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 2,
+    'path' => __DIR__ . '/src/Core/Checkout/Customer/ImitateCustomerTokenGenerator.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 2,
+    'path' => __DIR__ . '/src/Core/Checkout/Customer/Rule/CustomerAgeRule.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Checkout/Customer/Rule/CustomerBirthdayRule.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Checkout/Customer/SalesChannel/AccountService.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Checkout/Customer/SalesChannel/CustomerRecoveryIsExpiredRoute.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Checkout/Customer/SalesChannel/RegisterConfirmRoute.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 2,
+    'path' => __DIR__ . '/src/Core/Checkout/Customer/SalesChannel/RegisterRoute.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Checkout/Customer/SalesChannel/ResetPasswordRoute.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Checkout/Document/Renderer/CreditNoteRenderer.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Checkout/Document/Renderer/DeliveryNoteRenderer.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Checkout/Document/Renderer/InvoiceRenderer.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Checkout/Document/Renderer/StornoRenderer.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Checkout/Document/Renderer/ZugferdCancellationInvoiceRenderer.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Checkout/Document/Renderer/ZugferdCreditNoteRenderer.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Checkout/Document/Renderer/ZugferdRenderer.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Checkout/Document/Service/DocumentGenerator.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Checkout/Document/Zugferd/ZugferdDocument.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Checkout/Order/SalesChannel/OrderRoute.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 3,
+    'path' => __DIR__ . '/src/Core/Checkout/Payment/Cart/Token/JWTFactoryV2.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Checkout/Payment/Cart/Token/TokenStruct.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Checkout/Payment/Cleanup/CleanupPaymentTokenTaskHandler.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Checkout/Promotion/Gateway/Template/ActiveDateRange.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Checkout/Promotion/Service/PromotionDateTimeService.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 2,
+    'path' => __DIR__ . '/src/Core/Content/ImportExport/Command/ImportEntityCommand.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Content/ImportExport/Service/DownloadService.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Content/ImportExport/Service/MappingService.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Content/Mail/Subscriber/FailedMessageSubscriber.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Content/Media/File/DownloadResponseGenerator.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Content/Media/File/FileSaver.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Content/Media/ScheduledTask/CleanupCorruptedMediaHandler.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Content/Media/UnusedMediaPurger.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Content/Media/Upload/PresignedUploadUrlGenerator.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Content/Newsletter/SalesChannel/NewsletterConfirmRoute.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Content/Newsletter/ScheduledTask/NewsletterRecipientTaskHandler.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Content/Product/DataAbstractionLayer/ProductIndexer.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Content/Product/DataAbstractionLayer/SearchKeywordUpdater.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Content/Product/IsNewDetector.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 3,
+    'path' => __DIR__ . '/src/Core/Content/Product/ProductEntity.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Content/ProductExport/SalesChannel/ExportController.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Content/ProductExport/ScheduledTask/ProductExportGenerateTaskHandler.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Content/ProductExport/ScheduledTask/ProductExportPartialGenerationHandler.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Content/ProductExport/Service/ProductExportFileHandler.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Content/ProductExport/Service/ProductExporter.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Content/RevocationRequest/SalesChannel/RevocationRequestRoute.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Content/Seo/SeoUrlPersister.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Content/Sitemap/Provider/HomeUrlProvider.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 2,
+    'path' => __DIR__ . '/src/Core/Content/Sitemap/Service/SitemapLister.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Content/Sitemap/Struct/Sitemap.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/Adapter/Cache/CacheInvalidator.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/Adapter/Cache/Http/CacheStore.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/Adapter/Messenger/Middleware/QueuedTimeMiddleware.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/Adapter/Messenger/Stamp/SentAtStamp.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/Api/EventListener/Authentication/UserCredentialsChangedSubscriber.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/Api/OAuth/ClientRepository.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 2,
+    'path' => __DIR__ . '/src/Core/Framework/Api/OAuth/RefreshTokenRepository.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/App/ActionButton/Executor.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 2,
+    'path' => __DIR__ . '/src/Core/Framework/App/Api/AppJWTGenerateRoute.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/App/Hmac/QuerySigner.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 2,
+    'path' => __DIR__ . '/src/Core/Framework/App/Lifecycle/AppLifecycle.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 2,
+    'path' => __DIR__ . '/src/Core/Framework/App/Lifecycle/AppSecretRotationService.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/App/Lifecycle/PermissionLifecycleService.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/App/Lifecycle/Persister/WebhookPersister.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/App/Lifecycle/Registration/AppRegistrationService.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/App/Lifecycle/Registration/PrivateHandshake.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/App/Lifecycle/Registration/StoreHandshake.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/App/ScheduledTask/DeleteCascadeAppsHandler.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/DataAbstractionLayer/Command/CreateMigrationCommand.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/DataAbstractionLayer/FieldSerializer/CreatedAtFieldSerializer.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/DataAbstractionLayer/FieldSerializer/UpdatedAtFieldSerializer.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/DataAbstractionLayer/Search/Parser/QueryStringParser.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/DataAbstractionLayer/Version/Aggregate/VersionCommit/VersionCommitDefinition.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/DataAbstractionLayer/Version/Cleanup/CleanupVersionTaskHandler.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/DataAbstractionLayer/Version/VersionDefinition.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 5,
+    'path' => __DIR__ . '/src/Core/Framework/DataAbstractionLayer/VersionManager.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 2,
+    'path' => __DIR__ . '/src/Core/Framework/Demodata/DemodataService.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 2,
+    'path' => __DIR__ . '/src/Core/Framework/Demodata/Generator/RuleGenerator.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/Demodata/PersonalData/CleanPersonalDataCommand.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 3,
+    'path' => __DIR__ . '/src/Core/Framework/Increment/MySQLIncrementer.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/Log/Monolog/DoctrineSQLHandler.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 3,
+    'path' => __DIR__ . '/src/Core/Framework/MessageQueue/Command/ScheduledTaskRunner.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 2,
+    'path' => __DIR__ . '/src/Core/Framework/MessageQueue/ScheduledTask/Registry/TaskRegistry.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/MessageQueue/ScheduledTask/ScheduledTaskDefinition.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/MessageQueue/ScheduledTask/ScheduledTaskHandler.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/MessageQueue/ScheduledTask/Scheduler/TaskRunner.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 3,
+    'path' => __DIR__ . '/src/Core/Framework/MessageQueue/ScheduledTask/Scheduler/TaskScheduler.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/MessageQueue/Stats/AbstractStatsRepository.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/MessageQueue/Stats/StatsService.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/MessageQueue/Subscriber/PluginLifecycleSubscriber.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/Plugin/Command/Scaffolding/Generator/EntityGenerator.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 4,
+    'path' => __DIR__ . '/src/Core/Framework/Plugin/PluginLifecycleService.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/RateLimiter/Exception/RateLimitExceededException.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 2,
+    'path' => __DIR__ . '/src/Core/Framework/RateLimiter/Policy/TimeBackoff.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/RateLimiter/Policy/TimeBackoffLimiter.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/RateLimiter/RateLimiterFactory.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/Rule/Container/DaysSinceRule.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/Rule/RuleScope.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 2,
+    'path' => __DIR__ . '/src/Core/Framework/Script/Debugging/ScriptTraces.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/Sso/LoginResponseService.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/Sso/ShopwareGrantType.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/Sso/TokenService/TokenResult.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/Sso/TokenTimeToLive.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 3,
+    'path' => __DIR__ . '/src/Core/Framework/Sso/UserService/UserService.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/Store/InAppPurchase/Services/InAppPurchaseProvider.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 2,
+    'path' => __DIR__ . '/src/Core/Framework/Store/Struct/FrwState.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/Update/Services/ApiClient.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/Update/Struct/Version.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/Webhook/Service/WebhookManager.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 4,
+    'path' => __DIR__ . '/src/Core/Installer/Configuration/ShopConfigurationService.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Installer/Controller/FinishController.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 3,
+    'path' => __DIR__ . '/src/Core/Installer/Database/DatabaseMigrator.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Maintenance/System/Command/SystemInstallCommand.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Maintenance/System/Service/ShopConfigurator.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Maintenance/User/Service/UserProvisioner.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Service/Permission/PermissionsService.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/System/Consent/ConsentRepository.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/System/Consent/DTO/ConsentState.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/System/Consent/Log/DatabaseLog.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 2,
+    'path' => __DIR__ . '/src/Core/System/CustomEntity/Schema/CustomEntityPersister.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 2,
+    'path' => __DIR__ . '/src/Core/System/NumberRange/ValueGenerator/Pattern/IncrementStorage/IncrementSqlStorage.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/System/SalesChannel/Context/Cleanup/CleanupSalesChannelContextTaskHandler.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 5,
+    'path' => __DIR__ . '/src/Core/System/SalesChannel/Context/SalesChannelContextPersister.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/System/Snippet/Subscriber/CustomFieldSubscriber.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 2,
+    'path' => __DIR__ . '/src/Core/System/SystemConfig/SystemConfigService.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/System/Tax/TaxRuleType/AbstractTaxRuleTypeFilter.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/System/User/Recovery/UserRecoveryService.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 2,
+    'path' => __DIR__ . '/src/Elasticsearch/Admin/AdminSearchRegistry.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Elasticsearch/Framework/Indexing/ElasticsearchIndexer.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 3,
+    'path' => __DIR__ . '/src/Storefront/Framework/SystemCheck/Util/SalesChannelDomainUtil.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 2,
+    'path' => __DIR__ . '/src/Storefront/Theme/Command/ThemeCompileCommand.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Storefront/Theme/ScheduledTask/DeleteThemeFilesTaskHandler.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Storefront/Theme/ThemeRuntimeConfig.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Do not use native time reads. Use Psr\\Clock\\ClockInterface instead.',
+    'identifier' => 'shopware.noNativeTimeRead',
+    'count' => 3,
+    'path' => __DIR__ . '/src/Storefront/Theme/ThemeRuntimeConfigService.php',
+];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

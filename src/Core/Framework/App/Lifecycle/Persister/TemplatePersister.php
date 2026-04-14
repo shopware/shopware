@@ -9,6 +9,7 @@ use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
 use Shopware\Core\Framework\App\Template\AbstractTemplateLoader;
 use Shopware\Core\Framework\App\Template\TemplateCollection;
+use Shopware\Core\Framework\App\Template\TemplateStateService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -91,7 +92,7 @@ class TemplatePersister implements PersisterInterface
          * only clear cache when we are in an update context
          * otherwise cache is cleared on template active/deactivate
          *
-         * @see \Shopware\Core\Framework\App\Template\TemplateStateService::updateAppTemplates
+         * @see TemplateStateService::updateAppTemplates
          **/
         if ($needsCacheClear && !$context->isInstall) {
             $this->cacheClearer->clearHttpCache();

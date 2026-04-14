@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1773420826AddSalutationPositionColumn;
 
 /**
@@ -28,9 +29,8 @@ class Migration1773420826AddSalutationPositionColumnTest extends TestCase
         $migration->update($connection);
         $migration->update($connection);
 
-        $columnDefinition = $connection->fetchAssociative('SHOW COLUMNS FROM `salutation` LIKE "position"');
-        static::assertNotFalse($columnDefinition);
-        static::assertSame('NO', $columnDefinition['Null']);
+        $column = TableHelper::getColumnOfTable($connection, 'salutation', 'position');
+        static::assertTrue($column->isNotNull);
 
         $positions = $connection->fetchAllKeyValue('SELECT salutation_key, position FROM salutation');
 
@@ -62,10 +62,8 @@ class Migration1773420826AddSalutationPositionColumnTest extends TestCase
 
     private function dropPositionColumnIfExists(Connection $connection): void
     {
-        try {
+        if (TableHelper::columnExists($connection, 'salutation', 'position')) {
             $connection->executeStatement('ALTER TABLE `salutation` DROP COLUMN `position`');
-        } catch (\Throwable $e) {
-            // column didn't exist – ignore
         }
     }
 }

@@ -17,7 +17,7 @@ class InstallerKernelStub extends InstallerKernel
     public function __construct(
         string $environment,
         bool $debug,
-        private readonly string $composerVersion,
+        private readonly ?string $composerVersion = null,
     ) {
         parent::__construct($environment, $debug);
     }
@@ -42,6 +42,10 @@ class InstallerKernelStub extends InstallerKernel
 
     protected function resolveComposerVersion(): string
     {
-        return $this->composerVersion;
+        if ($this->composerVersion !== null) {
+            return $this->composerVersion;
+        }
+
+        return parent::resolveComposerVersion();
     }
 }

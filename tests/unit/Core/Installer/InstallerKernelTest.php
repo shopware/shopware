@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Installer;
 
+use Composer\InstalledVersions;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
@@ -30,16 +31,6 @@ class InstallerKernelTest extends TestCase
 
         static::assertSame('6.6.0.0', $params['kernel.shopware_version']);
         static::assertSame('abc123platform', $params['kernel.shopware_version_revision']);
-    }
-
-    #[TestDox('constructor falls back to shopware/core version when platform is not installed')]
-    public function testConstructorUsesCoreVersionWhenPlatformNotInstalled(): void
-    {
-        $kernel = new InstallerKernelStub('test', false, '6.6.1.0@def456core');
-        $params = $kernel->exposeKernelParameters();
-
-        static::assertSame('6.6.1.0', $params['kernel.shopware_version']);
-        static::assertSame('def456core', $params['kernel.shopware_version_revision']);
     }
 
     #[TestDox('registerBundles yields FrameworkBundle, TwigBundle and Installer')]
@@ -93,5 +84,45 @@ class InstallerKernelTest extends TestCase
         $routes = new RoutingConfigurator(new RouteCollection(), $loader, '', '');
 
         $kernel->exposeConfigureRoutes($routes);
+    }
+
+    #[TestDox('resolveComposerVersion falls back to shopware/core when shopware/platform is not installed')]
+    public function testResolveComposerVersionFallsBackToCorePackage(): void
+    {
+        $originalData = InstalledVersions::getAllRawData();
+        $canGetVendors = new \ReflectionProperty(InstalledVersions::class, 'canGetVendors');
+
+        try {
+            InstalledVersions::reload([
+                'root' => [
+                    'name' => 'shopware/production',
+                    'pretty_version' => '6.6.1.0',
+                    'version' => '6.6.1.0',
+                    'reference' => 'abc123',
+                    'type' => 'project',
+                    'install_path' => __DIR__,
+                    'aliases' => [],
+                    'dev' => false,
+                ],
+                'versions' => [
+                    'shopware/core' => [
+                        'pretty_version' => '6.6.1.0',
+                        'version' => '6.6.1.0',
+                        'reference' => 'coreref123',
+                        'dev_requirement' => false,
+                    ],
+                ],
+            ]);
+            $canGetVendors->setValue(null, false);
+
+            $kernel = new InstallerKernelStub('test', false);
+            $params = $kernel->exposeKernelParameters();
+
+            static::assertSame('6.6.1.0', $params['kernel.shopware_version']);
+            static::assertSame('coreref123', $params['kernel.shopware_version_revision']);
+        } finally { // tear down no matter the results of assertions above
+            $canGetVendors->setValue(null, null);
+            InstalledVersions::reload($originalData[0]);
+        }
     }
 }

@@ -43,6 +43,14 @@ This helps merchants spot internal notes directly from the list view without ope
 
 ## Storefront
 
+### `robots.txt` no longer duplicates path rules from custom User-agent blocks
+
+Domain-specific `robots.txt` rules that are written as `User-agent` blocks are now emitted only inside those blocks in the rendered `robots.txt` file.
+Path directives from those blocks are no longer repeated in the preceding unscoped section, which removes duplicate `Allow`/`Disallow` lines when several bots are configured.
+
+If you subscribe to `RobotsPageLoadedEvent` and read `DomainRuleStruct::getDirectives()`, note that this list now contains only directives that appear before the first `User-agent` line in the configuration (the legacy format without an explicit bot block).
+Rules from `User-agent` blocks remain available on `RobotsPage::getGlobalUserAgentBlocks()`.
+
 ### Order cancellation only shown for open orders
 
 The account order cancellation action is now only shown for orders in state `open`.

@@ -197,6 +197,36 @@ class RobotsPageLoaderTest extends TestCase
         static::assertEquals(['https://example.com/sitemap.xml'], $page->getSitemaps());
     }
 
+    public function testLoadWithOrphanedPathDirectivesAndUserAgentBlocks(): void
+    {
+        $request = new Request(server: ['HTTP_HOST' => 'example.com']);
+        $context = Context::createDefaultContext();
+        $salesChannelId = 'test-sales-channel-id';
+
+        $domain = $this->createExampleComDomain($salesChannelId);
+        $domains = [$domain];
+
+        $this->robotsPageLoader = $this->setupLoaderWithDomains($domains, [
+            'core.basicInformation.robotsRules' => "Disallow: /orphan/\n\nUser-agent: Googlebot\nDisallow: /google-only/\n",
+        ]);
+
+        $this->setupEventDispatcherExpectation();
+
+        $page = $this->robotsPageLoader->load($request, $context);
+
+        $domainRule = $page->getDomainRules()->first();
+        static::assertInstanceOf(DomainRuleStruct::class, $domainRule);
+        static::assertCount(1, $domainRule->getDirectives());
+        static::assertSame(RobotsDirectiveType::DISALLOW, $domainRule->getDirectives()[0]->type);
+        static::assertSame('/orphan/', $domainRule->getDirectives()[0]->value);
+
+        static::assertCount(1, $page->getGlobalUserAgentBlocks());
+        static::assertSame('Googlebot', $page->getGlobalUserAgentBlocks()[0]->userAgent);
+        static::assertCount(1, $page->getGlobalUserAgentBlocks()[0]->directives);
+        static::assertSame(RobotsDirectiveType::DISALLOW, $page->getGlobalUserAgentBlocks()[0]->directives[0]->type);
+        static::assertSame('/google-only/', $page->getGlobalUserAgentBlocks()[0]->directives[0]->value);
+    }
+
     public function testLoadWithHttpAndHttpsDomains(): void
     {
         $request = new Request(server: ['HTTP_HOST' => 'example.com']);
@@ -319,7 +349,7 @@ class RobotsPageLoaderTest extends TestCase
         $this->assertDirectivePaths($directives, RobotsDirectiveType::DISALLOW, ['/account/', '/en/private/']);
         $this->assertDirectivePaths($directives, RobotsDirectiveType::ALLOW, ['/en/api/', '/widgets/']);
 
-        // Domain rules should still exist but only contain the path directives for each domain
+        // Domain rules still exist per matched domain; path directives live only in User-agent blocks
         $domainRules = $page->getDomainRules();
         $firstDomainRule = $domainRules->first();
         $secondDomainRule = $domainRules->last();
@@ -330,8 +360,8 @@ class RobotsPageLoaderTest extends TestCase
         static::assertSame('', $firstDomainRule->getBasePath());
         static::assertSame('/en', $secondDomainRule->getBasePath());
 
-        static::assertCount(2, $firstDomainRule->getDirectives());
-        static::assertCount(2, $secondDomainRule->getDirectives());
+        static::assertCount(0, $firstDomainRule->getDirectives());
+        static::assertCount(0, $secondDomainRule->getDirectives());
     }
 
     public function testLoadWithUserAgentBlocksOnlyNonPathDirectives(): void
@@ -407,8 +437,15 @@ class RobotsPageLoaderTest extends TestCase
         $this->assertDirectivePaths($directives, RobotsDirectiveType::DISALLOW, ['/account/', '/en/private/']);
         $this->assertDirectivePaths($directives, RobotsDirectiveType::ALLOW, ['/en/api/', '/widgets/']);
 
-        // Domain rules should also exist with the same path directives
-        static::assertCount(2, $page->getDomainRules());
+        $domainRules = $page->getDomainRules();
+        static::assertCount(2, $domainRules);
+
+        $firstDomainRule = $domainRules->first();
+        $lastDomainRule = $domainRules->last();
+        static::assertNotNull($firstDomainRule);
+        static::assertNotNull($lastDomainRule);
+        static::assertCount(0, $firstDomainRule->getDirectives());
+        static::assertCount(0, $lastDomainRule->getDirectives());
     }
 
     public function testLoadWithMultipleDifferentUserAgentBlocks(): void

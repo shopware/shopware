@@ -10,7 +10,7 @@ export default function initializeLocaleService() {
     if (!snippetService) {
         console.warn('Snippet service not found. Snippets could not be loaded');
 
-        return localeFactory;
+        return Promise.resolve(localeFactory);
     }
 
     // Load locales and snippets before rendering to avoid showing raw snippet keys

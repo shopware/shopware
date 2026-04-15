@@ -11,6 +11,12 @@ elasticsearch:
         search_type: "query_then_fetch"
         # Optional: improves grouped Storefront product count accuracy in OpenSearch, but higher values also increase memory usage.
         # precision_threshold: 40000
+        # Controls how much non-best-matching clauses contribute to the dis_max query score.
+        # Elasticsearch default is 0.0 (only the best match counts). A value of 0.2 means other
+        # matching clauses contribute 20% of their score, improving ranking for documents that
+        # match across multiple fields or language variants without diluting the primary match.
+        # Valid range: 0.0 (pure dis_max) to 1.0 (effectively a bool/should sum).
+        dismax_tie_breaker: 0.2
     administration:
         hosts: "%env(string:ADMIN_OPENSEARCH_URL)%"
         enabled: "%env(bool:SHOPWARE_ADMIN_ES_ENABLED)%"

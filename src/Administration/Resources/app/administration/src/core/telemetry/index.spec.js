@@ -7,7 +7,6 @@ describe('src/core/telemetry/index.js', () => {
     let mockLoginService;
 
     beforeEach(() => {
-        global.activeFeatureFlags = ['PRODUCT_ANALYTICS'];
         jest.useFakeTimers({
             now: new Date('2025-09-23'),
         });
@@ -53,15 +52,9 @@ describe('src/core/telemetry/index.js', () => {
     });
 
     describe('user changes', () => {
-        it('should dispatch identify event when user logs in', () => {
+        it('should dispatch login event when user logs in', () => {
             const telemetry = new Telemetry({ queries: [] });
             const eventBusSpy = jest.spyOn(Shopware.Utils.EventBus, 'emit');
-
-            const currentUser = {
-                id: '8b8ebef4-7fa3-4844-ab7e-120463ea558b',
-                admin: true,
-            };
-            Shopware.Store.get('session').currentUser = currentUser;
 
             let loginCallback;
             mockLoginService.addOnLoginListener.mockImplementation((callback) => {
@@ -71,17 +64,10 @@ describe('src/core/telemetry/index.js', () => {
             telemetry.initialize();
             loginCallback();
 
-            expect(eventBusSpy).toHaveBeenCalledWith(
-                'telemetry',
-                new TelemetryEvent('identify', {
-                    userId: currentUser.id,
-                    locale: 'en-GB',
-                    isAdmin: currentUser.admin,
-                }),
-            );
+            expect(eventBusSpy).toHaveBeenCalledWith('telemetry', new TelemetryEvent('login', {}));
         });
 
-        it('should dispatch reset event when user logs out', () => {
+        it('should dispatch logout event when user logs out', () => {
             const telemetry = new Telemetry({ queries: [] });
             const eventBusSpy = jest.spyOn(Shopware.Utils.EventBus, 'emit');
 
@@ -93,10 +79,10 @@ describe('src/core/telemetry/index.js', () => {
             telemetry.initialize();
             logoutCallback();
 
-            expect(eventBusSpy).toHaveBeenCalledWith('telemetry', new TelemetryEvent('reset', {}));
+            expect(eventBusSpy).toHaveBeenCalledWith('telemetry', new TelemetryEvent('logout', {}));
         });
 
-        it('dispatches identify events', () => {
+        it('dispatches identify events', async () => {
             const handler = jest.fn();
             Shopware.Utils.EventBus.on('telemetry', handler);
 
@@ -109,6 +95,8 @@ describe('src/core/telemetry/index.js', () => {
             const telemetry = new Telemetry({ queries: [] });
 
             telemetry.identify();
+
+            await flushPromises();
 
             expect(handler).toHaveBeenCalledWith(
                 new TelemetryEvent('identify', {
@@ -161,7 +149,7 @@ describe('src/core/telemetry/index.js', () => {
             );
         });
 
-        it('does not emit page change event when navigating to the same route', async () => {
+        it('emits page change event on same-route navigations to capture query param changes', async () => {
             const telemetry = new Telemetry({ queries: [] });
             const eventBusSpy = jest.spyOn(Shopware.Utils.EventBus, 'emit');
 
@@ -190,7 +178,7 @@ describe('src/core/telemetry/index.js', () => {
             await router.push({ name: 'test' });
             await router.push({ name: 'test' });
 
-            expect(eventBusSpy).toHaveBeenCalledTimes(1);
+            expect(eventBusSpy).toHaveBeenCalledTimes(2);
         });
     });
 

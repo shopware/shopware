@@ -165,7 +165,9 @@ class QueryStringParserTest extends TestCase
         yield [['type' => 'equals', 'field' => 'foo', 'value' => 'bar'], false];
         yield [['type' => 'equals', 'field' => 'foo', 'value' => ''], false];
         yield [['type' => 'equals', 'field' => '', 'value' => 'bar'], true];
+        /** @phpstan-ignore argument.type (Intentional missing "value") */
         yield [['type' => 'equals', 'field' => 'foo'], true];
+        /** @phpstan-ignore argument.type (Intentional missing "field") */
         yield [['type' => 'equals', 'value' => 'bar'], true];
         yield [['type' => 'equals', 'field' => 'foo', 'value' => true], false];
         yield [['type' => 'equals', 'field' => 'foo', 'value' => false], false];
@@ -202,7 +204,9 @@ class QueryStringParserTest extends TestCase
         yield [['type' => 'contains', 'field' => 'foo', 'value' => 'bar'], false];
         yield [['type' => 'contains', 'field' => 'foo', 'value' => ''], true];
         yield [['type' => 'contains', 'field' => '', 'value' => 'bar'], true];
+        /** @phpstan-ignore argument.type (Intentional missing "value") */
         yield [['type' => 'contains', 'field' => 'foo'], true];
+        /** @phpstan-ignore argument.type (Intentional missing "field") */
         yield [['type' => 'contains', 'value' => 'bar'], true];
         yield [['type' => 'contains', 'field' => 'foo', 'value' => true], false];
         yield [['type' => 'contains', 'field' => 'foo', 'value' => false], false];
@@ -235,7 +239,9 @@ class QueryStringParserTest extends TestCase
         yield [['type' => 'prefix', 'field' => 'foo', 'value' => 'bar'], false];
         yield [['type' => 'prefix', 'field' => 'foo', 'value' => ''], true];
         yield [['type' => 'prefix', 'field' => '', 'value' => 'bar'], true];
+        /** @phpstan-ignore argument.type (Intentional missing "value") */
         yield [['type' => 'prefix', 'field' => 'foo'], true];
+        /** @phpstan-ignore argument.type (Intentional missing "field") */
         yield [['type' => 'prefix', 'value' => 'bar'], true];
         yield [['type' => 'prefix', 'field' => 'foo', 'value' => true], false];
         yield [['type' => 'prefix', 'field' => 'foo', 'value' => false], false];
@@ -268,7 +274,9 @@ class QueryStringParserTest extends TestCase
         yield [['type' => 'suffix', 'field' => 'foo', 'value' => 'bar'], false];
         yield [['type' => 'suffix', 'field' => 'foo', 'value' => ''], true];
         yield [['type' => 'suffix', 'field' => '', 'value' => 'bar'], true];
+        /** @phpstan-ignore argument.type (Intentional missing "value") */
         yield [['type' => 'suffix', 'field' => 'foo'], true];
+        /** @phpstan-ignore argument.type (Intentional missing "field") */
         yield [['type' => 'suffix', 'value' => 'bar'], true];
         yield [['type' => 'suffix', 'field' => 'foo', 'value' => true], false];
         yield [['type' => 'suffix', 'field' => 'foo', 'value' => false], false];
@@ -313,7 +321,9 @@ class QueryStringParserTest extends TestCase
         yield [['type' => 'equalsAny', 'field' => '', 'value' => 'bar'], true];
         yield [['type' => 'equalsAny', 'field' => 'foo', 'value' => 'abc|def|ghi'], false];
         yield [['type' => 'equalsAny', 'field' => 'foo', 'value' => 'false|true|0'], false];
+        /** @phpstan-ignore argument.type (Intentional missing "value") */
         yield [['type' => 'equalsAny', 'field' => 'foo'], true];
+        /** @phpstan-ignore argument.type (Intentional missing "field") */
         yield [['type' => 'equalsAny', 'value' => 'foo'], true];
         yield [['type' => 'equalsAny', 'field' => 'foo', 'value' => '||||'], true];
         yield [['type' => 'equalsAny', 'field' => 'foo', 'value' => true], false];
@@ -323,7 +333,7 @@ class QueryStringParserTest extends TestCase
     }
 
     /**
-     * @param EqualsAnyFilterType $filter
+     * @param array{type: 'equalsAll', field?: string, value?: mixed} $filter
      */
     #[DataProvider('equalsAllFilterDataProvider')]
     public function testEqualsAllFilter(array $filter, ?Filter $expectedFilter, bool $expectException): void
@@ -337,6 +347,9 @@ class QueryStringParserTest extends TestCase
         static::assertEquals($expectedFilter, $result);
     }
 
+    /**
+     * @return \Generator<string, array{array{type: 'equalsAll', field?: string, value?: mixed}, Filter|null, bool}>
+     */
     public static function equalsAllFilterDataProvider(): \Generator
     {
         yield 'With empty value' => [['type' => 'equalsAll', 'field' => 'foo', 'value' => ''], null, true];
@@ -488,6 +501,7 @@ class QueryStringParserTest extends TestCase
         // test exceptions being thrown
         yield 'missing field exception' => [['type' => 'until', 'field' => '', 'value' => 'P5D', 'parameters' => ['operator' => 'gt']], true];
         yield 'missing value exception' => [['type' => 'until', 'field' => 'foo', 'value' => '', 'parameters' => ['operator' => 'gt']], true];
+        /** @phpstan-ignore argument.type (Intentional missing "parameters" offset) */
         yield 'missing parameters exception' => [['type' => 'until', 'field' => 'foo', 'value' => 'P5D'], true];
         // test days until
         yield 'time until gt' => [['type' => 'until', 'field' => 'foo', 'value' => 'P5D', 'parameters' => ['operator' => 'gt']], false, 'gt'];

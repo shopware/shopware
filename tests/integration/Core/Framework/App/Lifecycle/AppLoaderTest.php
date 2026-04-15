@@ -21,7 +21,7 @@ class AppLoaderTest extends TestCase
 
         $manifests = $appLoader->load();
 
-        static::assertCount(8, $manifests);
+        static::assertCount(9, $manifests);
         static::assertInstanceOf(Manifest::class, $manifests['minimal']);
     }
 
@@ -40,7 +40,7 @@ class AppLoaderTest extends TestCase
 
         $manifests = $appLoader->load();
 
-        static::assertCount(8, $manifests);
+        static::assertCount(9, $manifests);
         foreach ($manifests as $manifest) {
             static::assertInstanceOf(Manifest::class, $manifest);
         }

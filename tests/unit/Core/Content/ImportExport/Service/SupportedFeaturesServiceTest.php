@@ -21,8 +21,8 @@ class SupportedFeaturesServiceTest extends TestCase
     }
 
     /**
-     * @param iterable<string> $entities
-     * @param iterable<string> $fileTypes
+     * @param iterable<string|int|float|true|array{}|\stdClass|null> $entities
+     * @param iterable<string|int|float|true|array{}|\stdClass|null> $fileTypes
      * @param class-string<\Throwable>|null $expectedException
      */
     #[DataProvider('constructDataProvider')]
@@ -37,6 +37,7 @@ class SupportedFeaturesServiceTest extends TestCase
             $this->expectExceptionMessage($expectedExceptionMessage);
         }
 
+        /** @phpstan-ignore argument.type,argument.type (Intentionally pass wrong types) */
         new SupportedFeaturesService($entities, $fileTypes);
 
         $this->expectNotToPerformAssertions();

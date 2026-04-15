@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
@@ -22,7 +21,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
  * @internal
  */
 #[Package('fundamentals@after-sales')]
-#[CoversClass(CustomerSerializer::class)]
 class CustomerSerializerTest extends TestCase
 {
     use IntegrationTestBehaviour;

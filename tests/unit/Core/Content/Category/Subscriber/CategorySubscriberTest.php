@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
@@ -315,7 +316,7 @@ class CategorySubscriberTest extends TestCase
     }
 
     /**
-     * @param array<\Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand> $commands
+     * @param array<WriteCommand> $commands
      */
     private function dispatchEvent(CategorySubscriber $subscriber, array $commands): void
     {

@@ -160,7 +160,7 @@ class HttpCacheKeyGenerator
 
             $responseCookies = $response->headers->getCookies(ResponseHeaderBag::COOKIES_ARRAY);
 
-            $responseCookie = $responseCookies[$cookie->getDomain()][$cookie->getPath()][$cookieName] ?? null;
+            $responseCookie = $responseCookies[$cookie->getDomain() ?? ''][$cookie->getPath()][$cookieName] ?? null;
 
             if ($responseCookie) {
                 // if the response contains the cookie, we use it instead of the request cookie

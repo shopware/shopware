@@ -51,12 +51,20 @@ function setConsentEligibilityContext({
 
 describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consent-modal-data-provider', () => {
     beforeEach(() => {
+        global.activeAclRoles = [
+            'system.system_config',
+            'user.update_profile',
+        ];
         useConsentStore().consents = {
             backend_data: {
                 status: 'unset',
+                acceptedRevision: null,
+                latestRevision: null,
             },
             product_analytics: {
                 status: 'unset',
+                acceptedRevision: null,
+                latestRevision: null,
             },
         };
         localStorage.removeItem(WRONG_APP_URL_MODAL_STORAGE_KEY);
@@ -136,15 +144,81 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
             consentStore.consents = {
                 backend_data: {
                     status: 'accepted',
+                    acceptedRevision: null,
+                    latestRevision: null,
                 },
                 product_analytics: {
                     status: 'accepted',
+                    acceptedRevision: '2026-02-02',
+                    latestRevision: '2026-02-02',
                 },
             };
 
             const wrapper = await createWrapper();
 
             expect(wrapper.findComponent(SwSettingsUsageDataConsentModal).exists()).toBe(false);
+        });
+
+        it('shows modal again if product analytics consent is stale', async () => {
+            const consentStore = useConsentStore();
+            consentStore.consents = {
+                backend_data: {
+                    status: 'accepted',
+                    acceptedRevision: null,
+                    latestRevision: null,
+                },
+                product_analytics: {
+                    status: 'accepted',
+                    acceptedRevision: '2026-02-01',
+                    latestRevision: '2026-02-02',
+                },
+            };
+
+            const wrapper = await createWrapper();
+
+            expect(wrapper.findComponent(SwSettingsUsageDataConsentModal).exists()).toBe(true);
+        });
+
+        it('does not show modal if only product analytics needs an update but the user lacks profile permissions', async () => {
+            global.activeAclRoles = ['system.system_config'];
+
+            const consentStore = useConsentStore();
+            consentStore.consents = {
+                backend_data: {
+                    status: 'accepted',
+                    acceptedRevision: null,
+                    latestRevision: null,
+                },
+                product_analytics: {
+                    status: 'accepted',
+                    acceptedRevision: '2026-02-01',
+                    latestRevision: '2026-02-02',
+                },
+            };
+
+            const wrapper = await createWrapper();
+
+            expect(wrapper.findComponent(SwSettingsUsageDataConsentModal).exists()).toBe(false);
+        });
+
+        it('shows modal again if backend data consent is stale', async () => {
+            const consentStore = useConsentStore();
+            consentStore.consents = {
+                backend_data: {
+                    status: 'accepted',
+                    acceptedRevision: '2026-02-01',
+                    latestRevision: '2026-02-02',
+                },
+                product_analytics: {
+                    status: 'accepted',
+                    acceptedRevision: '2026-02-02',
+                    latestRevision: '2026-02-02',
+                },
+            };
+
+            const wrapper = await createWrapper();
+
+            expect(wrapper.findComponent(SwSettingsUsageDataConsentModal).exists()).toBe(true);
         });
 
         it.each([
@@ -165,9 +239,13 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
             consentStore.consents = {
                 backend_data: {
                     status: initialBackendDataConsent,
+                    acceptedRevision: initialBackendDataConsent === 'accepted' ? '2026-02-02' : null,
+                    latestRevision: initialBackendDataConsent === 'accepted' ? '2026-02-02' : null,
                 },
                 product_analytics: {
                     status: 'unset',
+                    acceptedRevision: null,
+                    latestRevision: null,
                 },
             };
 

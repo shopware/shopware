@@ -118,6 +118,26 @@ class CreatedByFieldTest extends TestCase
         static::assertSame($userId, $result->getCreatedById());
     }
 
+    public function testCreateCreatedByWithCrudScope(): void
+    {
+        $userId = $this->fetchFirstIdFromTable('user');
+        $context = $this->getAdminContext($userId);
+
+        $payload = $this->createOrderPayload();
+
+        $context->scope(Context::CRUD_API_SCOPE, function (Context $context) use ($payload): void {
+            $this->orderRepository->create([$payload], $context);
+        });
+
+        $result = $this->orderRepository->search(
+            new Criteria([$payload['id']]),
+            $context
+        )->getEntities()->first();
+
+        static::assertNotNull($result);
+        static::assertSame($userId, $result->getCreatedById());
+    }
+
     private function getAdminContext(string $userId): Context
     {
         $source = new AdminApiSource($userId);

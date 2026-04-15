@@ -359,9 +359,9 @@ class DeleteNotUsedMediaCommandTest extends TestCase
     }
 
     /**
-     * @param array<int> $batches
+     * @param list<int> $batches
      *
-     * @return callable(): \Generator
+     * @return callable(): \Generator<MediaEntity>
      */
     private function generatorOfMedia(array $batches): callable
     {

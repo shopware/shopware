@@ -275,7 +275,7 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
-    public static function invalidSortQuery(string $message, string $path = ''): self
+    public static function invalidSortQuery(string $message, string $path = ''): InvalidSortQueryException
     {
         return new InvalidSortQueryException(
             $message,

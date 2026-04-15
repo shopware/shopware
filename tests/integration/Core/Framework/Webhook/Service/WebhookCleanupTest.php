@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\Webhook\Service;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -16,7 +15,6 @@ use Symfony\Component\Clock\MockClock;
 /**
  * @internal
  */
-#[CoversClass(WebhookCleanup::class)]
 class WebhookCleanupTest extends TestCase
 {
     use IntegrationTestBehaviour;

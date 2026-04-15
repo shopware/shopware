@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppArchiveValidator;
 use Shopware\Core\Framework\App\Exception\AppArchiveValidationFailure;
@@ -12,7 +11,6 @@ use Symfony\Component\Filesystem\Filesystem;
 /**
  * @internal
  */
-#[CoversClass(AppArchiveValidator::class)]
 class AppArchiveValidatorTest extends TestCase
 {
     private string $temporaryFilePath;

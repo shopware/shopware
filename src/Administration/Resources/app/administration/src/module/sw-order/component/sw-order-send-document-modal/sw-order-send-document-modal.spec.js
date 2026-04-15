@@ -1,6 +1,7 @@
 import { mount } from '@vue/test-utils';
 import uuid from 'test/_helper_/uuid';
 import EntityCollection from 'src/core/data/entity-collection.data';
+import Entity from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 
 /**
  * @sw-package checkout
@@ -96,6 +97,18 @@ const mockMailTemplates = [
         },
         contentHtml: '<div>Cancellation email template content.</div>\n',
         subject: 'Nex document for your order',
+        media: new EntityCollection('/mail-template-media', 'mail-template-media', null, null, [
+            new Entity(
+                'mail-template-media-id',
+                'mail-template-media',
+                {
+                    id: 'mail-template-media-is',
+                    languageId: Shopware.Context.api.languageId,
+                    media: new Entity('media-id', 'media', { id: 'media-id' }, []),
+                },
+                [],
+            ),
+        ]),
     },
     {
         id: uuid.get('delivery_mail'),
@@ -396,42 +409,64 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
+        wrapper.vm.mailService.sendMailTemplate = jest
+            .fn()
+            .mockImplementation(
+                (
+                    recipientMail,
+                    recipient,
+                    mailTemplate,
+                    mailTemplateMedia,
+                    salesChannelId,
+                    testMode = false,
+                    documentIds = [],
+                    templateData = null,
+                    mailTemplateTypeId = null,
+                    mailTemplateId = null,
+                    additionalHeaders = {},
+                ) => {
+                    expect(recipientMail).toEqual(mockOrderWithMailHeaderFooter.orderCustomer.email);
+                    expect(recipient).toBe(
+                        `${mockOrderWithMailHeaderFooter.orderCustomer.firstName} ${mockOrderWithMailHeaderFooter.orderCustomer.lastName}`,
+                    );
+                    expect(mailTemplate).toEqual({
+                        ...mockMailTemplates[0],
+                        ...{
+                            recipient: mockOrderWithMailHeaderFooter.orderCustomer.email,
+                        },
+                    });
+                    expect(mailTemplateMedia).toHaveLength(1);
+                    expect(mailTemplateMedia[0]).toEqual(mockMailTemplates[0].media.first().media);
+                    expect(salesChannelId).toEqual(mockOrderWithMailHeaderFooter.salesChannelId);
+                    expect(testMode).toBe(false);
+                    expect(documentIds).toEqual([mockDocuments[0].id]);
+                    expect(templateData).toEqual({
+                        order: mockOrderWithMailHeaderFooter,
+                        salesChannel: mockOrderWithMailHeaderFooter.salesChannel,
+                        document: mockDocuments[0],
+                        a11yDocuments: [
+                            {
+                                documentId: mockDocuments[0].id,
+                                deepLinkCode: mockDocuments[0].deepLinkCode,
+                                fileExtension: 'html',
+                            },
+                        ],
+                    });
+                    expect(mailTemplateTypeId).toBeNull();
+                    expect(mailTemplateId).toBeNull();
+                    expect(additionalHeaders).toEqual(Shopware.Context.api);
+
+                    return Promise.resolve();
+                },
+            );
+
         await wrapper.findByText('button', 'sw-order.documentCard.labelSendDocument').trigger('click');
         await flushPromises();
 
         expect(wrapper.vm.mailService.sendMailTemplate).toHaveBeenCalledTimes(1);
-        expect(wrapper.vm.mailService.sendMailTemplate).toHaveBeenCalledWith(
-            mockOrderWithMailHeaderFooter.orderCustomer.email,
-            `${mockOrderWithMailHeaderFooter.orderCustomer.firstName} ${mockOrderWithMailHeaderFooter.orderCustomer.lastName}`,
-            {
-                ...mockMailTemplates[0],
-                ...{
-                    recipient: mockOrderWithMailHeaderFooter.orderCustomer.email,
-                },
-            },
-            {
-                getIds: expect.any(Function),
-            },
-            mockOrderWithMailHeaderFooter.salesChannelId,
-            false,
-            [mockDocuments[0].id],
-            {
-                order: mockOrderWithMailHeaderFooter,
-                salesChannel: mockOrderWithMailHeaderFooter.salesChannel,
-                document: mockDocuments[0],
-                a11yDocuments: [
-                    {
-                        documentId: mockDocuments[0].id,
-                        deepLinkCode: mockDocuments[0].deepLinkCode,
-                        fileExtension: 'html',
-                    },
-                ],
-            },
-            null,
-            null,
-            Shopware.Context.api,
-        );
         expect(wrapper.emitted('document-sent')).toHaveLength(1);
+
+        jest.resetAllMocks();
     });
 
     it('should show an error when the email sending fails', async () => {

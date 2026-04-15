@@ -36,7 +36,6 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
             'system.system_config',
             'user.update_profile',
         ];
-        global.activeFeatureFlags = ['PRODUCT_ANALYTICS'];
         jest.useFakeTimers();
     });
 

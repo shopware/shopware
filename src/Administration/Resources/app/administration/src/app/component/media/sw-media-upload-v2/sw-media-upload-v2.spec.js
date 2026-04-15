@@ -10,6 +10,7 @@ async function createWrapper(customOptions = {}) {
         create: () => ({}),
         save: () => Promise.resolve({}),
         saveAll: () => Promise.resolve({}),
+        sync: () => Promise.resolve({}),
     };
 
     return mount(await wrapTestComponent('sw-media-upload-v2', { sync: true }), {
@@ -276,6 +277,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
                                 create: () => ({}),
                                 save: () => Promise.resolve({}),
                                 saveAll: () => Promise.resolve({}),
+                                sync: () => Promise.resolve({}),
                             }),
                         },
                         mediaService: {
@@ -343,6 +345,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
                                 create: () => ({}),
                                 save: () => Promise.resolve({}),
                                 saveAll: () => Promise.resolve({}),
+                                sync: () => Promise.resolve({}),
                             }),
                         },
                         mediaService: {
@@ -531,14 +534,14 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
                 uploadTag: 'my-upload',
             },
         });
-        wrapper.vm.mediaRepository.saveAll = jest.fn();
+        wrapper.vm.mediaRepository.sync = jest.fn().mockResolvedValue({});
 
         await wrapper.vm.handleUpload([
             new File([''], 'foo.jpg'),
             new File([''], 'bar.gif'),
         ]);
 
-        expect(wrapper.vm.mediaRepository.saveAll).toHaveBeenCalled();
+        expect(wrapper.vm.mediaRepository.sync).toHaveBeenCalled();
     });
 
     it('should show a single preview in single mode', async () => {

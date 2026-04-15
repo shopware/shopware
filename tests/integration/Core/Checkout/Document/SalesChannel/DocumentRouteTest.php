@@ -25,7 +25,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -67,12 +69,25 @@ class DocumentRouteTest extends TestCase
 
     private DocumentGenerator $documentGenerator;
 
+    public static function setUpBeforeClass(): void
+    {
+        DisableRateLimiterCompilerPass::disableNoLimit();
+        KernelLifecycleManager::bootKernel(true, Uuid::randomHex());
+    }
+
+    public static function tearDownAfterClass(): void
+    {
+        DisableRateLimiterCompilerPass::enableNoLimit();
+        KernelLifecycleManager::bootKernel(true, Uuid::randomHex());
+    }
+
     protected function setUp(): void
     {
         $this->ids = new IdsCollection();
 
         $this->documentGenerator = static::getContainer()->get(DocumentGenerator::class);
         static::getContainer()->get(DocumentConfigLoader::class)->reset();
+        static::getContainer()->get('cache.rate_limiter')->clear();
 
         $this->createCustomer(null, false, ['id' => $this->ids->get('customer')]);
         $this->createCustomer(null, true, ['id' => $this->ids->get('guest')]);
@@ -213,6 +228,18 @@ class DocumentRouteTest extends TestCase
             'expectedErrorCode' => OrderException::CHECKOUT_GUEST_WRONG_CREDENTIALS,
         ];
 
+        yield 'guest with invalid request params and invalid deep link code' => [
+            'orderCustomerId' => 'guest',
+            'loggedInCustomerId' => null,
+            'requestParameters' => [
+                'email' => 'invalid',
+                'zipcode' => 'invalid',
+            ],
+            'withValidDeepLinkCode' => false,
+            'expectedException' => DocumentException::class,
+            'expectedErrorCode' => DocumentException::DOCUMENT_NOT_FOUND,
+        ];
+
         yield 'guest with correct request params and without deep link code' => [
             'orderCustomerId' => 'guest',
             'loggedInCustomerId' => null,
@@ -221,8 +248,8 @@ class DocumentRouteTest extends TestCase
                 'zipcode' => '48624',
             ],
             'withValidDeepLinkCode' => null,
-            'expectedException' => CustomerNotLoggedInException::class,
-            'expectedErrorCode' => CartException::CUSTOMER_NOT_LOGGED_IN_CODE,
+            'expectedException' => DocumentException::class,
+            'expectedErrorCode' => DocumentException::DOCUMENT_NOT_FOUND,
         ];
 
         yield 'guest with correct request params and invalid deep link code' => [
@@ -276,8 +303,8 @@ class DocumentRouteTest extends TestCase
             'loggedInCustomerId' => 'customer',
             'requestParameters' => [],
             'withValidDeepLinkCode' => true,
-            'expectedException' => GuestNotAuthenticatedException::class,
-            'expectedErrorCode' => OrderException::CHECKOUT_GUEST_NOT_AUTHENTICATED,
+            'expectedException' => CustomerNotLoggedInException::class,
+            'expectedErrorCode' => CartException::CUSTOMER_NOT_LOGGED_IN_CODE,
         ];
 
         yield 'order by guest but logged in customer with valid deep link code with correct request params' => [
@@ -288,6 +315,8 @@ class DocumentRouteTest extends TestCase
                 'zipcode' => '48624',
             ],
             'withValidDeepLinkCode' => true,
+            'expectedException' => CustomerNotLoggedInException::class,
+            'expectedErrorCode' => CartException::CUSTOMER_NOT_LOGGED_IN_CODE,
         ];
 
         yield 'order by customer but guest with with correct request params' => [

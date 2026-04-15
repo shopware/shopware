@@ -10,6 +10,11 @@ use Shopware\Core\Installer\InstallerKernel;
 use Shopware\Core\Test\Stub\Installer\InstallerKernelStub;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\TwigBundle\TwigBundle;
+use Symfony\Component\Config\Loader\LoaderInterface;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
+use Symfony\Component\Routing\Loader\PhpFileLoader;
+use Symfony\Component\Routing\RouteCollection;
 
 /**
  * @internal
@@ -58,5 +63,35 @@ class InstallerKernelTest extends TestCase
         $projectDir = $kernel->getProjectDir();
 
         static::assertDirectoryExists($projectDir . '/vendor');
+    }
+
+    #[TestDox('configureContainer loads the installer yaml config')]
+    public function testConfigureContainerLoadsInstallerYaml(): void
+    {
+        $kernel = new InstallerKernelStub('test', false, '6.6.0.0@abc123');
+
+        $container = new ContainerBuilder();
+        $loader = $this->createMock(LoaderInterface::class);
+        $loader->expects($this->once())
+            ->method('load')
+            ->with(static::stringEndsWith('/Framework/Resources/config/packages/installer.yaml'));
+
+        $kernel->exposeConfigureContainer($container, $loader);
+    }
+
+    #[TestDox('configureRoutes imports the installer routes xml')]
+    public function testConfigureRoutesImportsRoutesXml(): void
+    {
+        $kernel = new InstallerKernelStub('test', false, '6.6.0.0@abc123');
+
+        $loader = $this->createMock(PhpFileLoader::class);
+        $loader->expects($this->once())
+            ->method('import')
+            ->with(static::stringEndsWith('/Installer/Resources/config/routes.xml'))
+            ->willReturn(new RouteCollection());
+
+        $routes = new RoutingConfigurator(new RouteCollection(), $loader, '', '');
+
+        $kernel->exposeConfigureRoutes($routes);
     }
 }

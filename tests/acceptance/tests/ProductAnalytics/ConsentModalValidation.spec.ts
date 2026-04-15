@@ -1,4 +1,4 @@
-import { test, expect, Page, Locator } from '@fixtures/AcceptanceTest';
+import { test, expect, Page } from '@fixtures/AcceptanceTest';
 import { parseCapturedRequests, removeSymfonyToolbar, setupConsentRevokeInterceptor,
     setupConsentInterceptor, setupProductAnalyticsInterceptor, waitForCapturedRequests } from '@helpers/productanalytics-helpers';
 import {AdminPageObjects, createNewAdminPageContext, loginToAdministration, User } from '@shopware-ag/acceptance-test-suite';

@@ -678,7 +678,7 @@ class TokenQueryBuilderTest extends TestCase
 
         static::assertArrayHasKey('term', $queryArray['dis_max']['queries'][0]);
         static::assertArrayHasKey('match', $queryArray['dis_max']['queries'][1]);
-        static::assertArrayHasKey('prefix', $queryArray['dis_max']['queries'][2]);
+        static::assertArrayHasKey('match_bool_prefix', $queryArray['dis_max']['queries'][2]);
         static::assertArrayHasKey('match', $queryArray['dis_max']['queries'][3]);
     }
 
@@ -946,26 +946,6 @@ class TokenQueryBuilderTest extends TestCase
     }
 
     /**
-     * @return array{match_phrase_prefix: array<string, array{query: string|int|float, boost: float, slop: int}>}
-     */
-    private static function matchPhrasePrefix(string $field, string|int|float $query, float $boost, int $slop = 3, int $maxExpansion = 10, ?string $analyzer = null): array
-    {
-        $payload = [
-            'query' => $query,
-            'boost' => $boost,
-            'slop' => $slop,
-            'max_expansions' => $maxExpansion,
-            'analyzer' => $analyzer,
-        ];
-
-        return [
-            'match_phrase_prefix' => [
-                $field => array_filter($payload, static fn ($value) => $value !== null),
-            ],
-        ];
-    }
-
-    /**
      * @param array<string> $tokens
      *
      * @return array{terms: non-empty-array<string, array<string>|float|int>}
@@ -981,15 +961,32 @@ class TokenQueryBuilderTest extends TestCase
     }
 
     /**
-     * @return array{prefix: array<string, array{value: string|int|float, boost: float}>}
+     * @return array{match_bool_prefix: array<string, array{query: string|int|float, boost: float}>}
      */
     private static function prefix(string $field, string|int|float $query, float $boost = 1): array
     {
         return [
-            'prefix' => [
+            'match_bool_prefix' => [
                 $field => [
-                    'value' => $query,
+                    'query' => $query,
                     'boost' => $boost,
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @return array{match_phrase_prefix: array<string, array{query: string|int|float, boost: float, slop: int, max_expansions: int}>}
+     */
+    private static function matchPhrasePrefix(string $field, string|int|float $query, float $boost, int $slop = 3, int $maxExpansions = 10): array
+    {
+        return [
+            'match_phrase_prefix' => [
+                $field => [
+                    'query' => $query,
+                    'boost' => $boost,
+                    'slop' => $slop,
+                    'max_expansions' => $maxExpansions,
                 ],
             ],
         ];

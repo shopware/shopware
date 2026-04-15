@@ -28,7 +28,6 @@ use Shopware\Storefront\Storefront;
 use Shopware\Storefront\Theme\AbstractResolvedConfigLoader;
 use Shopware\Storefront\Theme\ThemeConfigValueAccessor;
 use Shopware\Storefront\Theme\ThemeScripts;
-use Symfony\Component\Asset\Packages;
 use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -243,8 +242,7 @@ class ThumbnailExtensionTest extends TestCase
                 $this->createMock(AbstractResolvedConfigLoader::class),
                 $this->createMock(CacheTagCollector::class)
             ),
-            static::createStub(ThemeScripts::class),
-            static::createStub(Packages::class),
+            $this->createMock(ThemeScripts::class)
         );
 
         $twig->addExtension(new NodeExtension($templateFinder, $scopeDetector));

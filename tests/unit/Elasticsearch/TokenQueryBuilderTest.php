@@ -34,6 +34,7 @@ use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\Framework\Adapter\Storage\ArrayKeyValueStorage;
 use Shopware\Elasticsearch\AbstractFieldQueryBuilder;
+use Shopware\Elasticsearch\AbstractTokenQueryBuilder;
 use Shopware\Elasticsearch\ExplainFieldQueryBuilder;
 use Shopware\Elasticsearch\FieldQueryBuilder;
 use Shopware\Elasticsearch\NestedFieldQueryBuilder;
@@ -47,6 +48,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
+#[CoversClass(AbstractTokenQueryBuilder::class)]
 #[CoversClass(TokenQueryBuilder::class)]
 #[Package('inventory')]
 class TokenQueryBuilderTest extends TestCase
@@ -651,6 +653,111 @@ class TokenQueryBuilderTest extends TestCase
         $builder->getDecorated();
     }
 
+    public function testTokenQueryBuilderDecoration(): void
+    {
+        static::expectException(DecorationPatternException::class);
+        $this->tokenQueryBuilder->getDecorated();
+    }
+
+    public function testTieBreakerRewardsMultiClauseMatchWithinField(): void
+    {
+        $config = [
+            self::config(field: 'name', ranking: 1000, tokenize: true, and: false),
+        ];
+
+        $context = Context::createDefaultContext();
+        $context->assign(['languageIdChain' => [Defaults::LANGUAGE_SYSTEM]]);
+
+        $query = $this->tokenQueryBuilder->build('product', 'stihl', $config, $context);
+        static::assertNotNull($query);
+
+        $queryArray = $query->toArray();
+
+        static::assertSame(0.2, $queryArray['dis_max']['tie_breaker']);
+        static::assertCount(4, $queryArray['dis_max']['queries']);
+
+        static::assertArrayHasKey('term', $queryArray['dis_max']['queries'][0]);
+        static::assertArrayHasKey('match', $queryArray['dis_max']['queries'][1]);
+        static::assertArrayHasKey('prefix', $queryArray['dis_max']['queries'][2]);
+        static::assertArrayHasKey('match', $queryArray['dis_max']['queries'][3]);
+    }
+
+    public function testTieBreakerRewardsMultiLanguageMatch(): void
+    {
+        $config = [
+            self::config(field: 'categories.name', ranking: 200, tokenize: true, and: false),
+        ];
+
+        $context = Context::createDefaultContext();
+        $context->assign(['languageIdChain' => [Defaults::LANGUAGE_SYSTEM, self::SECOND_LANGUAGE_ID]]);
+
+        $query = $this->tokenQueryBuilder->build('product', 'foo', $config, $context);
+        static::assertNotNull($query);
+
+        $queryArray = $query->toArray();
+
+        static::assertArrayHasKey('nested', $queryArray);
+        $outerDisMax = $queryArray['nested']['query']['dis_max'];
+
+        static::assertSame(0.2, $outerDisMax['tie_breaker']);
+        static::assertCount(2, $outerDisMax['queries']);
+
+        $lang1Query = $outerDisMax['queries'][0];
+        $lang2Query = $outerDisMax['queries'][1];
+
+        static::assertSame(0.2, $lang1Query['dis_max']['tie_breaker']);
+        static::assertSame(0.2, $lang2Query['dis_max']['tie_breaker']);
+
+        static::assertSame(200.0, $lang1Query['dis_max']['boost']);
+        static::assertSame(160.0, $lang2Query['dis_max']['boost']);
+    }
+
+    public function testTieBreakerAcrossMultipleFields(): void
+    {
+        $config = [
+            self::config(field: 'name', ranking: 1000, tokenize: true, and: false),
+            self::config(field: 'tags.name', ranking: 500, tokenize: true, and: false),
+        ];
+
+        $context = Context::createDefaultContext();
+        $context->assign(['languageIdChain' => [Defaults::LANGUAGE_SYSTEM]]);
+
+        $query = $this->tokenQueryBuilder->build('product', 'stihl', $config, $context);
+        static::assertNotNull($query);
+
+        $queryArray = $query->toArray();
+
+        static::assertArrayHasKey('bool', $queryArray);
+        $shouldClauses = $queryArray['bool']['should'];
+        static::assertCount(2, $shouldClauses);
+
+        $nameDisMax = $shouldClauses[0]['dis_max'];
+        static::assertSame(0.2, $nameDisMax['tie_breaker']);
+        static::assertSame(1000.0, $nameDisMax['boost']);
+
+        $tagsNested = $shouldClauses[1]['nested']['query']['dis_max'];
+        static::assertSame(0.2, $tagsNested['tie_breaker']);
+        static::assertSame(500.0, $tagsNested['boost']);
+    }
+
+    public function testTieBreakerWithNgramClause(): void
+    {
+        $config = [
+            self::config(field: 'name', ranking: 1000, tokenize: true, and: false),
+        ];
+
+        $context = Context::createDefaultContext();
+        $context->assign(['languageIdChain' => [Defaults::LANGUAGE_SYSTEM]]);
+
+        $query = $this->tokenQueryBuilder->build('product', 'foooooooooo', $config, $context);
+        static::assertNotNull($query);
+
+        $queryArray = $query->toArray();
+
+        static::assertSame(0.2, $queryArray['dis_max']['tie_breaker']);
+        static::assertCount(4, $queryArray['dis_max']['queries']);
+    }
+
     public function testFieldBuilderDecorationOrder(): void
     {
         $storage = new ArrayKeyValueStorage([ElasticsearchOptimizeSwitch::FLAG => true]);
@@ -788,7 +895,7 @@ class TokenQueryBuilderTest extends TestCase
      *
      * @return array{dis_max: array{queries: array<mixed>}}
      */
-    private static function disMax(array $queries, float|int|null $boost = null, float|null $tieBreaker = 0.2): array
+    private static function disMax(array $queries, float|int|null $boost = null, ?float $tieBreaker = 0.2): array
     {
         $payload = [
             'queries' => $queries,

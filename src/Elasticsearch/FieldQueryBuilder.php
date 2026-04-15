@@ -23,12 +23,16 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Elasticsearch\Product\SearchFieldConfig;
 
+/**
+ * @internal
+ */
 #[Package('inventory')]
 class FieldQueryBuilder extends AbstractFieldQueryBuilder
 {
     public function __construct(
         private readonly int $minGram = 4,
         private readonly bool $useLanguageAnalyzer = true,
+        private readonly float $dismaxTieBreaker = 0.2,
     ) {
     }
 
@@ -200,7 +204,7 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
         }
 
         $dismax->addParameter('boost', $boost);
-        $dismax->addParameter('tie_breaker', 0.2);
+        $dismax->addParameter('tie_breaker', $this->dismaxTieBreaker);
 
         return $dismax;
     }

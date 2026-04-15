@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Product\ElasticsearchOptimizeSwitch;
 use Shopware\Elasticsearch\Product\SearchFieldConfig;
 
+/**
+ * @internal
+ */
 #[Package('inventory')]
 class TranslatedFieldQueryBuilder extends AbstractFieldQueryBuilder
 {
@@ -21,6 +24,7 @@ class TranslatedFieldQueryBuilder extends AbstractFieldQueryBuilder
     public function __construct(
         private readonly AbstractFieldQueryBuilder $fieldQueryBuilder,
         private readonly AbstractKeyValueStorage $storage,
+        private readonly float $dismaxTieBreaker = 0.2,
     ) {
     }
 
@@ -120,7 +124,7 @@ class TranslatedFieldQueryBuilder extends AbstractFieldQueryBuilder
             $dismax->addQuery($query);
         }
 
-        $dismax->addParameter('tie_breaker', 0.2);
+        $dismax->addParameter('tie_breaker', $this->dismaxTieBreaker);
 
         return $dismax;
     }

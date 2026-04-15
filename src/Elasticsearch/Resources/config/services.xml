@@ -263,12 +263,14 @@
             <argument type="service" id="Shopware\Elasticsearch\Product\StopwordTokenFilter"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader"/>
-            <argument type="service" id="Shopware\Elasticsearch\TokenQueryBuilder"/>
+            <argument type="service" id="Shopware\Elasticsearch\AbstractTokenQueryBuilder"/>
+            <argument>%elasticsearch.search.dismax_tie_breaker%</argument>
         </service>
 
         <service id="Shopware\Elasticsearch\AbstractFieldQueryBuilder" class="Shopware\Elasticsearch\FieldQueryBuilder">
             <argument>%elasticsearch.analysis.filter.sw_ngram_filter.min_gram%</argument>
             <argument>%elasticsearch.use_language_analyzer%</argument>
+            <argument>%elasticsearch.search.dismax_tie_breaker%</argument>
         </service>
 
         <service id="Shopware\Elasticsearch\TranslatedFieldQueryBuilder"
@@ -276,6 +278,7 @@
                  decoration-priority="300">
             <argument type="service" id="Shopware\Elasticsearch\TranslatedFieldQueryBuilder.inner"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage" />
+            <argument>%elasticsearch.search.dismax_tie_breaker%</argument>
         </service>
 
         <service id="Shopware\Elasticsearch\NestedFieldQueryBuilder"
@@ -290,11 +293,13 @@
             <argument type="service" id="Shopware\Elasticsearch\ExplainFieldQueryBuilder.inner"/>
         </service>
 
-        <service id="Shopware\Elasticsearch\TokenQueryBuilder">
+        <service id="Shopware\Elasticsearch\AbstractTokenQueryBuilder" class="Shopware\Elasticsearch\TokenQueryBuilder">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\System\CustomField\CustomFieldService"/>
             <argument type="service" id="Shopware\Elasticsearch\AbstractFieldQueryBuilder"/>
         </service>
+
+        <service id="Shopware\Elasticsearch\TokenQueryBuilder" alias="Shopware\Elasticsearch\AbstractTokenQueryBuilder"/>
 
         <service id="Shopware\Elasticsearch\Product\CustomFieldUpdater">
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>

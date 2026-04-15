@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Product\SearchFieldConfig;
 
+/**
+ * @internal
+ */
 #[Package('inventory')]
 class ExplainFieldQueryBuilder extends AbstractFieldQueryBuilder
 {

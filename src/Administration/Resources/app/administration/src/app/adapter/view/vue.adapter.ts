@@ -4,7 +4,13 @@
 import ViewAdapter from 'src/core/adapter/view.adapter';
 import { createI18n } from 'vue-i18n';
 import type { FallbackLocale, I18n } from 'vue-i18n';
-import type { NavigationGuardNext, Router, RouteLocationRaw } from 'vue-router';
+import type {
+    NavigationGuardNext,
+    Router,
+    RouteLocationNormalized,
+    RouteLocationNormalizedLoaded,
+    RouteLocationRaw,
+} from 'vue-router';
 import { createApp, defineAsyncComponent, h } from 'vue';
 import type { Component as VueComponent, App } from 'vue';
 import VuePlugins from 'src/app/plugin';
@@ -53,7 +59,12 @@ import useSession from '../../composables/use-session';
 const { Component, State, Mixin } = Shopware;
 
 type RouteGuardName = 'beforeRouteEnter' | 'beforeRouteLeave' | 'beforeRouteUpdate';
-type RouteGuard = (this: unknown, to: RouteLocationRaw, from: RouteLocationRaw, next: NavigationGuardNext) => unknown;
+type RouteGuard = (
+    this: unknown,
+    to: RouteLocationNormalized,
+    from: RouteLocationNormalizedLoaded,
+    next: NavigationGuardNext,
+) => unknown;
 type RouteEnterCallback =
     Exclude<Parameters<NavigationGuardNext>[0], undefined> extends (vm: infer VM) => void ? (vm: VM) => void : never;
 type RouteGuardResult = false | RouteLocationRaw | Error | RouteEnterCallback | undefined;
@@ -893,6 +904,10 @@ export default class VueAdapter extends ViewAdapter {
                                 reject(error instanceof Error ? error : new Error(String(error)));
                             });
                         } catch (error) {
+                            if (isSettled) {
+                                return;
+                            }
+
                             isSettled = true;
                             reject(error instanceof Error ? error : new Error(String(error)));
                         }

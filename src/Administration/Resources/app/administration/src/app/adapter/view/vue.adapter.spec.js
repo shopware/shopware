@@ -663,6 +663,35 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         ]);
     });
 
+    it('should ignore synchronous errors thrown after next() in callback-style route guards', async () => {
+        const suffix = Shopware.Utils.createId();
+        const componentName = `route-guard-post-next-throw-${suffix}`;
+
+        Shopware.Component.register(componentName, {
+            template: '<div></div>',
+            name: componentName,
+            beforeRouteUpdate(to, from, next) {
+                next();
+                throw new Error('post-next cleanup failed');
+            },
+        });
+
+        const routeComponent = await vueAdapter.getComponentForRoute(componentName)();
+
+        expect(routeComponent).not.toBe(false);
+
+        if (routeComponent === false) {
+            throw new Error('Expected component config for route component');
+        }
+
+        const next = jest.fn();
+
+        await expect(routeComponent.beforeRouteUpdate.call({ id: 'route-vm' }, {}, {}, next)).resolves.toBeUndefined();
+
+        expect(next).toHaveBeenCalledTimes(1);
+        expect(next).toHaveBeenCalledWith();
+    });
+
     it('should build & create a vue.js component', async () => {
         const componentDefinition = {
             name: 'sw-foo',

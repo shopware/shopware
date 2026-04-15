@@ -118,7 +118,7 @@ class MailTemplateServiceTest extends TestCase
         );
 
         static::assertInstanceOf(MailTemplateRenderSuccess::class, $rendered->get('contentHtml'));
-        static::assertNotSame('', $rendered->get('contentHtml')?->getContent());
+        static::assertNotSame('', $rendered->get('contentHtml')->getContent());
     }
 
     public function testGetAvailableVariables(): void

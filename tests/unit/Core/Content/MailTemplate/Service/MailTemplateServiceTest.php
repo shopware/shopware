@@ -274,11 +274,8 @@ class MailTemplateServiceTest extends TestCase
                     'units' => ['length' => 'cm'],
                 ]),
                 'collectionStruct' => new ArrayEntity([
-                    'items' => new class([new ArrayEntity([
-                        'name' => 'first item',
-                        'nested' => ['value' => 'nested value'],
-                    ])]) extends Collection {
-                        protected function getExpectedClass(): ?string
+                    'items' => new class([new ArrayEntity(['name' => 'first item', 'nested' => ['value' => 'nested value']])]) extends Collection {
+                        protected function getExpectedClass(): string
                         {
                             return ArrayEntity::class;
                         }
@@ -308,6 +305,10 @@ class MailTemplateServiceTest extends TestCase
                 ],
                 [
                     'fieldName' => 'topLevelStruct',
+                    'hasChildren' => true,
+                ],
+                [
+                    'fieldName' => 'collectionStruct',
                     'hasChildren' => true,
                 ],
             ],

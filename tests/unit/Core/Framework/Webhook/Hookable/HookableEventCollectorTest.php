@@ -17,6 +17,9 @@ use Shopware\Core\Framework\Event\BusinessEventDefinition;
 use Shopware\Core\Framework\Webhook\Hookable;
 use Shopware\Core\Framework\Webhook\Hookable\CoreHookableEventDescriber;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
+use Shopware\Core\Framework\Webhook\Hookable\HookableEventDescriber;
+use Shopware\Core\Framework\Webhook\Hookable\HookableEventDescription;
+use Shopware\Core\Framework\Webhook\WebhookException;
 
 /**
  * @internal
@@ -200,6 +203,31 @@ class HookableEventCollectorTest extends TestCase
         static::assertSame(['product:read'], $result['checkout.customer.login']['privileges']);
     }
 
+    public function testGetHookableEventNamesWithPrivilegesThrowsOnDuplicateDescribedEvents(): void
+    {
+        $hookableEventCollector = new HookableEventCollector(
+            $this->businessEventCollector,
+            $this->definitionRegistry,
+            [],
+            new \ArrayIterator([
+                new TestHookableEventDescriber('duplicate.described.event', 'First duplicate event.', ['first:read']),
+                new TestHookableEventDescriber('duplicate.described.event', 'Second duplicate event.', ['second:read']),
+            ])
+        );
+
+        $this->expectExceptionObject(
+            WebhookException::duplicateDescribedEvent(
+                'duplicate.described.event',
+                TestHookableEventDescriber::class
+            )
+        );
+
+        $hookableEventCollector->getHookableEventNamesWithPrivileges(
+            Context::createDefaultContext(),
+            Manifest::createFromXmlFile(self::MANIFEST_FIXTURE)
+        );
+    }
+
     private function createProductDefinition(): EntityDefinition
     {
         $definition = static::createStub(EntityDefinition::class);
@@ -236,4 +264,32 @@ class HookableEventCollectorTest extends TestCase
 #[EntityAttribute(name: 'test_entity')]
 class TestEntityWithAttribute extends Entity
 {
+}
+
+/**
+ * @internal Test fixture
+ */
+class TestHookableEventDescriber implements HookableEventDescriber
+{
+    /**
+     * @param list<string> $privileges
+     */
+    public function __construct(
+        private readonly string $eventName,
+        private readonly string $description,
+        private readonly array $privileges
+    ) {
+    }
+
+    public function describe(): array
+    {
+        return [];
+    }
+
+    public function describeForValidation(Manifest $manifest): array
+    {
+        return [
+            new HookableEventDescription($this->eventName, $this->description, $this->privileges),
+        ];
+    }
 }

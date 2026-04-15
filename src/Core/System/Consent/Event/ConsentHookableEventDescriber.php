@@ -22,7 +22,20 @@ class ConsentHookableEventDescriber implements HookableEventDescriber
     /**
      * @return list<HookableEventDescription>
      */
-    public function describe(Manifest $manifest): array
+    public function describe(): array
+    {
+        return $this->getDescriptions();
+    }
+
+    public function describeForValidation(Manifest $manifest): array
+    {
+        return $this->getDescriptions();
+    }
+
+    /**
+     * @return list<HookableEventDescription>
+     */
+    private function getDescriptions(): array
     {
         $events = [];
 
@@ -30,8 +43,16 @@ class ConsentHookableEventDescriber implements HookableEventDescriber
             $consentName = $consentDefinition->getName();
             $privilege = \sprintf('consent:%s:%s', $consentName, AclRoleDefinition::PRIVILEGE_READ);
 
-            $events[] = new HookableEventDescription(\sprintf('consent.%s.accepted', $consentName), [$privilege]);
-            $events[] = new HookableEventDescription(\sprintf('consent.%s.revoked', $consentName), [$privilege]);
+            $events[] = new HookableEventDescription(
+                \sprintf('consent.%s.accepted', $consentName),
+                \sprintf('Fires when the %s consent is accepted.', $consentName),
+                [$privilege]
+            );
+            $events[] = new HookableEventDescription(
+                \sprintf('consent.%s.revoked', $consentName),
+                \sprintf('Fires when the %s consent is revoked.', $consentName),
+                [$privilege]
+            );
         }
 
         return $events;

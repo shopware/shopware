@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventDefinition;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Webhook\WebhookException;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
@@ -143,7 +144,16 @@ class HookableEventCollector implements ResetInterface
         $events = [];
 
         foreach ($this->hookableEventDescribers as $describer) {
-            foreach ($describer->describe($manifest) as $eventDescription) {
+            $describerClass = $describer::class;
+
+            foreach ($describer->describeForValidation($manifest) as $eventDescription) {
+                if (isset($events[$eventDescription->eventName])) {
+                    throw WebhookException::duplicateDescribedEvent(
+                        $eventDescription->eventName,
+                        $describerClass
+                    );
+                }
+
                 $events[$eventDescription->eventName] = [self::PRIVILEGES => $eventDescription->privileges];
             }
         }

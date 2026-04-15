@@ -15,6 +15,7 @@ readonly class HookableEventDescription
      */
     public function __construct(
         public string $eventName,
+        public string $description,
         public array $privileges,
     ) {
     }

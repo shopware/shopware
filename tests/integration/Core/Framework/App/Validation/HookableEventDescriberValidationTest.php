@@ -88,10 +88,15 @@ class HookableEventDescriberValidationTest extends TestCase
  */
 class TestHookableEventDescriber implements HookableEventDescriber
 {
-    public function describe(Manifest $manifest): array
+    public function describe(): array
+    {
+        return [];
+    }
+
+    public function describeForValidation(Manifest $manifest): array
     {
         return [
-            new HookableEventDescription('test.described.event', ['described:read']),
+            new HookableEventDescription('test.described.event', 'Test described event.', ['described:read']),
         ];
     }
 }

@@ -494,7 +494,8 @@ export default {
                 };
             });
 
-            await this.mediaRepository.saveAll(syncEntities, Context.api);
+            await this.mediaRepository.sync(syncEntities, Context.api);
+
             await this.mediaService.addUploads(this.uploadTag, uploadData);
         },
 

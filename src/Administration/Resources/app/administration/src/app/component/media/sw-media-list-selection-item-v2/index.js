@@ -16,7 +16,6 @@ export default {
     ],
 
     props: {
-        // eslint-disable-next-line vue/require-prop-types
         item: {
             required: true,
         },

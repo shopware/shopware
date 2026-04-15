@@ -12,6 +12,8 @@ use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
+ * @deprecated tag:v6.8.0 - reason:remove-subscriber - Will be removed as it unused
+ *
  * @internal
  */
 #[Package('framework')]
@@ -37,7 +39,7 @@ class SystemUpdateListener
 
         $entitiesToReindex = $this->storage->get(self::CONFIG_KEY, []);
 
-        if (empty($entitiesToReindex)) {
+        if ($entitiesToReindex === []) {
             return;
         }
 

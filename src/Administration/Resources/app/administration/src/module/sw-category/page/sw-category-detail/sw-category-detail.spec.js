@@ -281,4 +281,12 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
 
         expect(result).toEqual(expectedSlotOverrides);
     });
+
+    it('should load landing page translations for CMS inheritance handling', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.landingPageCriteria.associations.some(({ association }) => association === 'translations')).toBe(
+            true,
+        );
+    });
 });

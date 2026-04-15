@@ -28,6 +28,7 @@
             :name="grossFieldName"
             v-bind="attributesWithoutListeners"
             @update:model-value="onPriceGrossInputChange"
+            @input-change="onPriceGrossInputChange"
             @keyup="keymonitor"
             @ends-with-decimal-separator="onEndsWithDecimalSeparator"
         >
@@ -81,6 +82,7 @@
             :name="netFieldName"
             v-bind="attributesWithoutListeners"
             @update:model-value="onPriceNetInputChange"
+            @input-change="onPriceNetInputChange"
             @keyup="keymonitor"
             @ends-with-decimal-separator="onEndsWithDecimalSeparator"
         >

@@ -244,6 +244,7 @@ class DeleteNotUsedMediaCommand extends Command
     /**
      * Given a generator which yields arrays of items, this method will consume the generator in batches of the given size.
      *
+     * @param \Generator<list<MediaEntity>> $generator
      * @param callable(int, array<mixed>): bool $callback
      */
     private function consumeGeneratorInBatches(\Generator $generator, int $batchSize, callable $callback): bool

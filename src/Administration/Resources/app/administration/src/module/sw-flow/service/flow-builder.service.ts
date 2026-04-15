@@ -365,7 +365,6 @@ export default class FlowBuilderService {
                     descriptions = `${descriptions}${this.convertLabelPreview(context, fieldName)}:<br/> ${html}`;
                 } else {
                     const valPreview = this.formatValuePreview(context, fieldName, fieldValue);
-                    // eslint-disable-next-line max-len
                     descriptions = `${descriptions}${this.convertLabelPreview(context, fieldName)}: ${valPreview.toString()}<br/>`;
                 }
             },

@@ -1,4 +1,8 @@
 .sw-order-create-initial-modal {
+    .sw-modal__dialog {
+        width: 1200px;
+    }
+
     .sw-modal__body {
         height: 700px;
     }
@@ -7,5 +11,9 @@
         .mt-card__content {
             height: 500px;
         }
+    }
+
+    .mt-card {
+        max-width: 100%;
     }
 }

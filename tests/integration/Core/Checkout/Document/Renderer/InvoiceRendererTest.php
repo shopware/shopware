@@ -5,13 +5,9 @@ namespace Shopware\Tests\Integration\Core\Checkout\Document\Renderer;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
-use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
 use Shopware\Core\Checkout\Cart\Order\RecalculationService;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
-use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
-use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent;
 use Shopware\Core\Checkout\Document\Event\InvoiceOrdersEvent;
@@ -25,12 +21,9 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Content\Product\ProductCollection;
-use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
@@ -42,7 +35,6 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\Integration\Traits\SnapshotTesting;
-use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 
@@ -60,14 +52,7 @@ class InvoiceRendererTest extends TestCase
 
     private Context $context;
 
-    /**
-     * @var EntityRepository<ProductCollection>
-     */
-    private EntityRepository $productRepository;
-
     private InvoiceRenderer $invoiceRenderer;
-
-    private CartService $cartService;
 
     private static string $deLanguageId;
 
@@ -104,9 +89,7 @@ class InvoiceRendererTest extends TestCase
         );
 
         $this->salesChannelContext->setRuleIds([$priceRuleId]);
-        $this->productRepository = static::getContainer()->get('product.repository');
         $this->invoiceRenderer = static::getContainer()->get(InvoiceRenderer::class);
-        $this->cartService = static::getContainer()->get(CartService::class);
         self::$deLanguageId = $this->getDeDeLanguageId();
     }
 
@@ -131,7 +114,7 @@ class InvoiceRendererTest extends TestCase
             $this->salesChannelContext->getContext()
         );
 
-        $cart = $this->generateDemoCart([7]);
+        $cart = $this->generateDemoCartWithTaxes([7]);
         $orderId = $this->persistCart($cart);
 
         static::getContainer()->get('order.repository')->update([
@@ -187,7 +170,7 @@ class InvoiceRendererTest extends TestCase
     #[DataProvider('invoiceDataProvider')]
     public function testRender(array $possibleTaxes, ?\Closure $beforeRenderHook, \Closure $assertionCallback): void
     {
-        $cart = $this->generateDemoCart($possibleTaxes);
+        $cart = $this->generateDemoCartWithTaxes($possibleTaxes);
         $orderId = $this->persistCart($cart);
 
         $operationInvoice = new DocumentGenerateOperation($orderId, HtmlRenderer::FILE_EXTENSION);
@@ -677,7 +660,7 @@ class InvoiceRendererTest extends TestCase
 
     public function testCreateNewOrderVersionId(): void
     {
-        $cart = $this->generateDemoCart([7]);
+        $cart = $this->generateDemoCartWithTaxes([7]);
         $orderId = $this->persistCart($cart);
 
         $operationInvoice = new DocumentGenerateOperation($orderId);
@@ -705,7 +688,7 @@ class InvoiceRendererTest extends TestCase
         string $vatNumber,
         bool $shouldDisplay
     ): void {
-        $cart = $this->generateDemoCart([7]);
+        $cart = $this->generateDemoCartWithTaxes([7]);
         $orderId = $this->persistCart($cart);
         $invoice = new DocumentGenerateOperation($orderId, HtmlRenderer::FILE_EXTENSION);
 
@@ -830,44 +813,5 @@ class InvoiceRendererTest extends TestCase
             'vatNumber' => 'invalid',
             'shouldDisplay' => false,
         ];
-    }
-
-    /**
-     * @param array<int|string, int> $taxes
-     */
-    private function generateDemoCart(array $taxes): Cart
-    {
-        $cart = $this->cartService->createNew('A');
-
-        $products = [];
-
-        $factory = new ProductLineItemFactory(new PriceDefinitionFactory());
-
-        $ids = new IdsCollection();
-
-        $lineItems = [];
-
-        foreach ($taxes as $index => $tax) {
-            $price = 100.0 + (int) $index;
-            $name = 'product ' . $index;
-            $number = 'p' . $index;
-
-            $product = (new ProductBuilder($ids, $number))
-                ->price($price)
-                ->name($name)
-                ->active(true)
-                ->tax('test-' . Uuid::randomHex(), $tax)
-                ->visibility()
-                ->build();
-
-            $products[] = $product;
-
-            $lineItems[] = $factory->create(['id' => $ids->get($number), 'referencedId' => $ids->get($number)], $this->salesChannelContext);
-            $this->addTaxDataToSalesChannel($this->salesChannelContext, $product['tax']);
-        }
-
-        $this->productRepository->create($products, Context::createDefaultContext());
-
-        return $this->cartService->add($cart, $lineItems, $this->salesChannelContext);
     }
 }

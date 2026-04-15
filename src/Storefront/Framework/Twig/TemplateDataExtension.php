@@ -83,6 +83,10 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
             'context' => $context,
             'activeRoute' => $request->attributes->get('_route'),
             'formViolations' => $request->attributes->get('formViolations'),
+            // JSON_HEX_TAG and JSON_HEX_AMP encode < > & so a value like "</script>" cannot close the script tag
+            // and inject arbitrary HTML (XSS) when embedding JSON in an HTML <script> block.
+            // |escape('js') is not suitable because it escapes double quotes, breaking the JSON structure.
+            'jsonLdFlags' => \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE | \JSON_HEX_TAG | \JSON_HEX_AMP,
         ];
     }
 

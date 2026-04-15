@@ -7,6 +7,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Event\AppPermissionsUpdated;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -173,7 +174,7 @@ class Privileges
             ['id' => Uuid::fromHexToBytes($appId)]
         );
 
-        $existingPrivileges = json_decode($existingPrivileges, true, \JSON_THROW_ON_ERROR);
+        $existingPrivileges = json_decode($existingPrivileges, true, flags: \JSON_THROW_ON_ERROR);
 
         sort($privileges);
         sort($existingPrivileges);
@@ -201,7 +202,7 @@ class Privileges
     {
         return array_map(
             static fn (?string $appPrivileges) => $appPrivileges
-                ? json_decode($appPrivileges, true, \JSON_THROW_ON_ERROR)
+                ? json_decode($appPrivileges, true, flags: \JSON_THROW_ON_ERROR)
                 : [],
             $privileges
         );
@@ -227,8 +228,8 @@ class Privileges
         );
 
         return array_map(static fn (array $row): array => [
-            json_decode($row['privileges'], true, \JSON_THROW_ON_ERROR),
-            json_decode($row['requested_privileges'], true, \JSON_THROW_ON_ERROR),
+            json_decode($row['privileges'], true, flags: \JSON_THROW_ON_ERROR),
+            json_decode($row['requested_privileges'], true, flags: \JSON_THROW_ON_ERROR),
         ], $privileges);
     }
 
@@ -238,7 +239,8 @@ class Privileges
      */
     private function writePrivileges(string $appId, array $privileges, array $requestedPrivileges, Context $context): void
     {
-        $this->connection->transactional(
+        RetryableTransaction::transactional(
+            $this->connection,
             static function (Connection $transaction) use ($appId, $privileges, $requestedPrivileges): void {
                 $transaction->executeStatement(
                     <<<'SQL'

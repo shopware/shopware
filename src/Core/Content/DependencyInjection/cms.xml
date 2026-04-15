@@ -64,6 +64,10 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
         </service>
 
+        <service id="Shopware\Core\Content\Cms\Service\EntityCmsSlotConfigInheritanceBuilder">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
         <service id="Shopware\Core\Content\Cms\SalesChannel\CmsRoute" public="true">
             <argument type="service" id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader"/>
         </service>

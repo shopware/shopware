@@ -427,6 +427,17 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         expect(wrapper.vm.flyoutStyle.top).toBe('80px');
     });
 
+    it('should call logoutSso and clear stores on logout', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.loginService.logoutSso = jest.fn().mockResolvedValue(undefined);
+
+        await wrapper.vm.onLogoutUser();
+
+        expect(wrapper.vm.loginService.logoutSso).toHaveBeenCalledTimes(1);
+    });
+
     it('should not show icons in flyout menu items', async () => {
         const app = document.createElement('div');
         app.id = 'app';

@@ -110,9 +110,9 @@ export default Shopware.Component.wrapComponentConfig({
             handler() {
                 if (!this.value) return;
                 this.currentValue = {
-                    x: Number(this.value.x) ?? 0,
-                    y: Number(this.value.y) ?? 0,
-                    z: Number(this.value.z) ?? 0,
+                    x: Number(this.value.x) || 0,
+                    y: Number(this.value.y) || 0,
+                    z: Number(this.value.z) || 0,
                 };
             },
         },

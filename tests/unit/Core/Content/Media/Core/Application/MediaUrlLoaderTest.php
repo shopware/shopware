@@ -21,7 +21,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 class MediaUrlLoaderTest extends TestCase
 {
     /**
-     * @param array<string, string> $expected
+     * @param array<string, string|null> $expected
      */
     #[DataProvider('loadedProvider')]
     public function testLoad(IdsCollection $ids, PartialEntity $entity, array $expected): void

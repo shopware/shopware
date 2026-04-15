@@ -88,7 +88,7 @@ class RotateAppSecretCommand extends Command
             }
         }
 
-        if (!empty($failedApps)) {
+        if ($failedApps !== []) {
             return self::FAILURE;
         }
 

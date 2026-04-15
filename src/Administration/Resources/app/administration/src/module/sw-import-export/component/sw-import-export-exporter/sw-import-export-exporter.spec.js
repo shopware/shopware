@@ -87,7 +87,6 @@ describe('components/sw-import-export-exporter', () => {
                                     return Promise.resolve();
                                 }
 
-                                // eslint-disable-next-line prefer-promise-reject-errors
                                 return Promise.reject({
                                     response: {
                                         data: {

@@ -4,7 +4,7 @@
 import type { uiComponentSectionRenderer } from '@shopware-ag/meteor-admin-sdk/es/ui/component-section';
 import { reactive } from 'vue';
 
-// eslint-disable-next-line max-len,sw-deprecation-rules/private-feature-declarations
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type ComponentSectionEntry = Omit<uiComponentSectionRenderer, 'responseType' | 'positionId'> & {
     extensionName: string;
 };

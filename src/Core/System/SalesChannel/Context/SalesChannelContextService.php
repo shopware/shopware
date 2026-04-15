@@ -135,7 +135,7 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
             }
 
             // skip cart calculation on ESI sub-requests if it has already been done.
-            $esiRequest = $currentRequest?->attributes->has('_sw_esi') ?? false;
+            $esiRequest = $currentRequest?->attributes->has('_esi') ?? false;
             if (!$this->cartService->hasCart($token) || !$esiRequest) {
                 // @deprecated tag:v6.8.0 - Permission will always be true
                 $result = $context->withPermissions(

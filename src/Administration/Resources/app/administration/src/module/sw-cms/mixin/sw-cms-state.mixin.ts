@@ -2,10 +2,18 @@ import { defineComponent } from 'vue';
 import '../store/cms-page.store';
 import type { CmsSlotConfig } from '../service/cms.service';
 
+const { cloneDeep } = Shopware.Utils.object;
+
 type WithSlotConfig = {
     slotConfig?: {
         [slotId: string]: CmsSlotConfig;
     };
+    translations?: Array<{
+        languageId: string;
+        slotConfig?: {
+            [slotId: string]: CmsSlotConfig;
+        };
+    }>;
 };
 
 type ContentEntity<T extends keyof EntitySchema.Entities> = Entity<T> & WithSlotConfig;
@@ -89,6 +97,40 @@ export default Shopware.Mixin.register(
                 }
 
                 return null;
+            },
+
+            inheritedSlotConfig() {
+                const currentLanguageId = Shopware.Store.get('context').api.languageId;
+                const parentLanguageId = Shopware.Store.get('context').api.language?.parentId;
+
+                const currentSlotConfig = this.getSlotConfigForLanguage(currentLanguageId);
+                const parentSlotConfig = parentLanguageId ? this.getSlotConfigForLanguage(parentLanguageId) : null;
+
+                if (currentSlotConfig && parentSlotConfig) {
+                    return cloneDeep({
+                        ...parentSlotConfig,
+                        ...currentSlotConfig,
+                    });
+                }
+
+                return cloneDeep(currentSlotConfig ?? parentSlotConfig ?? null);
+            },
+        },
+        methods: {
+            getSlotConfigForLanguage(languageId?: string | null) {
+                if (!languageId) {
+                    return null;
+                }
+
+                if (languageId === Shopware.Store.get('context').api.languageId) {
+                    return this.contentEntity?.slotConfig ?? null;
+                }
+
+                const translation = this.contentEntity?.translations?.find((entityTranslation) => {
+                    return entityTranslation.languageId === languageId;
+                });
+
+                return translation?.slotConfig ?? null;
             },
         },
     }),

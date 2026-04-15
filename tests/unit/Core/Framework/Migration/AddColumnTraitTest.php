@@ -10,6 +10,7 @@ use Doctrine\DBAL\Schema\MySQLSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Migration\AddColumnTrait;
 
@@ -118,7 +119,7 @@ class AddColumnTraitTest extends TestCase
     }
 
     /**
-     * @return Connection&\PHPUnit\Framework\MockObject\MockObject
+     * @return Connection&MockObject
      */
     private function createConnectionMock(bool $columnExists): Connection
     {

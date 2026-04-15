@@ -315,7 +315,7 @@ class DocumentGeneratorTest extends TestCase
     }
 
     /**
-     * @param array<string, string|null> $mediaIds
+     * @param list<string|null> $mediaIds
      * @param array<string, DocumentGenerateOperation> $operations
      */
     #[DataProvider('generateDataProvider')]

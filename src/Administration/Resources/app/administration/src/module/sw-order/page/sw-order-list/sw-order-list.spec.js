@@ -198,6 +198,43 @@ describe('src/module/sw-order/page/sw-order-list', () => {
         expect(secondRow.find('.sw-order-list__manual-order-label').exists()).toBeFalsy();
     });
 
+    it('should render comment tooltip buttons depending on available comments', async () => {
+        global.activeAclRoles = [];
+        wrapper = await createWrapper();
+        await wrapper.setData({
+            orders: [
+                {
+                    ...mockItem,
+                    customerComment: 'Customer comment',
+                    internalComment: 'Internal comment',
+                },
+                {
+                    ...mockItem,
+                    customerComment: 'Customer comment',
+                    internalComment: null,
+                },
+                {
+                    ...mockItem,
+                    customerComment: null,
+                    internalComment: 'Internal comment',
+                },
+            ],
+            total: 3,
+        });
+
+        const firstRowButtons = wrapper.find('.sw-data-grid__row--0').findAll('.sw-order-list__tooltip-order-comment');
+        const secondRowButtons = wrapper.find('.sw-data-grid__row--1').findAll('.sw-order-list__tooltip-order-comment');
+        const thirdRowButtons = wrapper.find('.sw-data-grid__row--2').findAll('.sw-order-list__tooltip-order-comment');
+
+        expect(firstRowButtons).toHaveLength(2);
+        expect(firstRowButtons.at(0).classes()).toContain('mt-button--secondary');
+        expect(firstRowButtons.at(1).classes()).toContain('mt-button--primary');
+        expect(secondRowButtons).toHaveLength(1);
+        expect(secondRowButtons.at(0).classes()).toContain('mt-button--secondary');
+        expect(thirdRowButtons).toHaveLength(1);
+        expect(thirdRowButtons.at(0).classes()).toContain('mt-button--primary');
+    });
+
     it('should contain empty customer', async () => {
         global.activeAclRoles = [];
         wrapper = await createWrapper();

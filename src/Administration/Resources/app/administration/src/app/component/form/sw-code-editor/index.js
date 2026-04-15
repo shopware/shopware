@@ -101,7 +101,6 @@ export default {
         softWraps: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -290,7 +289,7 @@ export default {
                             this.editor.setValue(sanitizedValue?.preview ?? value, 1);
                             return this.editor.getValue();
                         }
-                    } catch (ignore) {
+                    } catch (_ignore) {
                         /* api endpoint did not work, keep user entry */
                     }
                 }

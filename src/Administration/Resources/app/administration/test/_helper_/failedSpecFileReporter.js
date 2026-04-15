@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-
 /**
  * @sw-package framework
  */

@@ -107,8 +107,6 @@ export default Shopware.Component.wrapComponentConfig({
         initializeCustomEntity(): void {
             if (this.adminConfig !== null) {
                 // @ts-expect-error
-                // eslint-disable-next-line max-len
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-non-null-assertion
                 this.$route.meta.$module.icon = this.adminConfig?.icon;
             }
 
@@ -137,7 +135,6 @@ export default Shopware.Component.wrapComponentConfig({
                 console.error(e);
 
                 // Methods from mixins are not recognized
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                 this.createNotificationError({
                     message: this.$tc('global.notification.notificationLoadingDataErrorMessage'),
                 });

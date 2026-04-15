@@ -52,9 +52,17 @@ class ProductCriteriaParser extends CriteriaParser
 
             $query = new BoolQuery();
 
-            $query->add(
-                new TermQuery('active', true),
-            );
+            // Shopware\Administration\Controller\AdminProductStreamController::productStreamPreview() add ProductAvailableFilter
+            // but remove active filter, so we need to check if active filter is added to the query
+            foreach ($filter->getQueries() as $subFilter) {
+                if ($subFilter instanceof EqualsFilter && \in_array($subFilter->getField(), ['product.active', 'active'], true)) {
+                    $query->add(
+                        new TermQuery('active', true),
+                    );
+
+                    break;
+                }
+            }
 
             $query->add(
                 new RangeQuery('visibility_' . $filter->getSalesChannelId(), [RangeFilter::GTE => $filter->getVisibility()]),

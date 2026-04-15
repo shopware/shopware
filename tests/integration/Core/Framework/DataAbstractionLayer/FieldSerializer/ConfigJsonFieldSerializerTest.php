@@ -54,37 +54,28 @@ class ConfigJsonFieldSerializerTest extends TestCase
     }
 
     /**
-     * @return array<int, array<int, array<int, array<int|string, array<string, int>|int|string>|bool|float|int|string|null>>>
+     * @return list<list<string|int|float|false|array<string, mixed>|list<int>|null>>
      */
     public static function serializerProvider(): array
     {
         return [
-            [['string']],
-            [[11234]],
-            [[11234.123243]],
-            [[
-                [
-                    'foo' => 'sadfsadf',
-                    'bar' => [
-                        'a' => 1234,
-                    ],
-                ],
-            ]],
-            [[
-                [1, 2, 3],
-            ]],
-            [[null]],
-            [[false]],
-            [[0]],
-            [['']],
+            ['string'],
+            [11234],
+            [11234.123243],
+            [['foo' => 'sadfsadf', 'bar' => ['a' => 1234]]],
+            [[1, 2, 3]],
+            [null],
+            [false],
+            [0],
+            [''],
         ];
     }
 
     /**
-     * @param array<string, int>|int|string|bool|float|null $input
+     * @param float|false|int|string|array<string, mixed>|list<int>|null $input
      */
     #[DataProvider('serializerProvider')]
-    public function testSerializer($input): void
+    public function testSerializer(array|float|false|int|string|null $input): void
     {
         $kvPair = new KeyValuePair('password', $input, true);
         $encoded = $this->serializer->encode($this->field, $this->existence, $kvPair, $this->parameters)->current();

@@ -226,7 +226,7 @@ class WebhookManager implements ResetInterface
             : [];
 
         // partition by app for now. Later, PartitionAwareHookable allows event-level partitioning.
-        $partitionKey = $webhook->appId ?? 'default';
+        $partitionKey = $webhook->appId ?? WebhookEventMessage::DEFAULT_PARTITION_KEY;
 
         return new WebhookEventMessage(
             $webhookData['source']['eventId'],

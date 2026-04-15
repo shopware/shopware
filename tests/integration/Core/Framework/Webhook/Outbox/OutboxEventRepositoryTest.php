@@ -373,6 +373,7 @@ class OutboxEventRepositoryTest extends TestCase
         $this->repository->markRunning($this->ids->get('evt-1'));
         $this->repository->resetForRetry($this->ids->get('evt-1'), new DeliveryResponse(
             processingTime: 100,
+            requestContent: '{}',
             responseStatusCode: 503,
             responseReasonPhrase: 'Service Unavailable',
         ));

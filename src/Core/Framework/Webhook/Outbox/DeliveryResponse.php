@@ -16,7 +16,7 @@ final readonly class DeliveryResponse
 {
     public function __construct(
         public int $processingTime,
-        public ?string $requestContent = null,
+        public string $requestContent,
         public ?string $responseContent = null,
         public ?int $responseStatusCode = null,
         public ?string $responseReasonPhrase = null,
@@ -37,7 +37,7 @@ final readonly class DeliveryResponse
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array{processing_time: int, request_content: string, response_content?: string, response_status_code?: int, response_reason_phrase?: string}
      */
     public function toArray(): array
     {

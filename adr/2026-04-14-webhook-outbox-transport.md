@@ -22,9 +22,11 @@ Introduce an outbox-first persistence layer and a dedicated Messenger transport 
 Every webhook delivery (sync and async) is now persisted to `webhook_event_log` + `webhook_delivery` before the first HTTP attempt. A dedicated `shopware-webhook://` transport handles persistence, then forwards to `async` for worker consumption (transitional — removed in PR 3).
 
 Key decisions:
-- **Partition key computed at dispatch time** where the `Hookable` event is available, enabling future event-level partitioning. Stored as `BINARY(16)` using `xxh128` (pinned explicitly, independent of `Hasher::ALGO`).
-- **Terminal delivery rows eagerly deleted** from `webhook_delivery` to keep the hot table small. The event log retains the audit trail.
-- **Idempotent insertion** via unique constraint — duplicate dispatches are safe.
+- **Partition key** using `xxh128` into `BINARY(16)`. Fast, uniform distribution, and fixed-width binary is compact and index-friendly.
+- **Completed deliveries are deleted** from `webhook_delivery` immediately. This keeps the hot table small. The `webhook_event_log` row keeps the full audit trail.
+- **Idempotent insertion** via unique constraint on `webhook_delivery.webhook_event_log_id`. The Doctrine transport is at-least-once: a worker crash before `ack()` causes the same message to be consumed again. The constraint makes the second insert a no-op.
+
+  > The Doctrine async forwarding is transitional — PR 3 replaces it with outbox-owned consumption (`messenger:consume webhook`), at which point this at-least-once concern shifts to the outbox's own lease/ack mechanism.
 - **No behavioral change** from trunk: Messenger still owns retries, failure strategy unchanged.
 
 ### PR 2 — Outbox-Owned Simple Retries

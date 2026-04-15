@@ -1107,8 +1107,8 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
 
                 expect(productRepositoryGet).toHaveBeenCalledTimes(1);
                 expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
-                expect(wrapper.vm.translatedInheritanceLoadKey).toBe(null);
-                expect(wrapper.vm.inheritedCustomFields).toBe(null);
+                expect(wrapper.vm.translatedInheritanceLoadKey).toBeNull();
+                expect(wrapper.vm.inheritedCustomFields).toBeNull();
 
                 await wrapper.vm.loadInheritedCustomFields();
                 await flushPromises();

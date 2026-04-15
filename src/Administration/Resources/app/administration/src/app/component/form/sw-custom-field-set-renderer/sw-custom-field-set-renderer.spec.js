@@ -1075,6 +1075,55 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         }
     });
 
+    it('should retry loading inherited translated custom fields after a fetch error', async () => {
+        const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+        const productRepositoryGet = jest
+            .fn()
+            .mockRejectedValueOnce(new Error('simulated fetch failure'))
+            .mockResolvedValueOnce({
+                customFields: {
+                    translatedTextField: 'inherited value from retry',
+                },
+            });
+
+        try {
+            await withTranslatedLanguageContext({}, async () => {
+                wrapper = await createWrapper(
+                    {
+                        sets: createTranslatedFieldSet([createTranslatedTextField()]),
+                        entity: createTranslatedEntity({
+                            customFields: {
+                                translatedTextField: 'translated own value',
+                            },
+                            translatedCustomFields: {
+                                translatedTextField: 'translated own value',
+                            },
+                        }),
+                        parentEntity: null,
+                    },
+                    createProductRepositoryOptions(productRepositoryGet),
+                );
+                await flushPromises();
+
+                expect(productRepositoryGet).toHaveBeenCalledTimes(1);
+                expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
+                expect(wrapper.vm.translatedInheritanceLoadKey).toBe(null);
+                expect(wrapper.vm.inheritedCustomFields).toBe(null);
+
+                await wrapper.vm.loadInheritedCustomFields();
+                await flushPromises();
+
+                expect(productRepositoryGet).toHaveBeenCalledTimes(2);
+                expect(wrapper.vm.inheritedCustomFields).toEqual({
+                    translatedTextField: 'inherited value from retry',
+                });
+                expect(wrapper.vm.getInheritedCustomField('translatedTextField')).toBe('inherited value from retry');
+            });
+        } finally {
+            consoleErrorSpy.mockRestore();
+        }
+    });
+
     it('should ignore stale inherited field responses after the entity changes', async () => {
         const inheritedFieldA = createDeferred();
         const inheritedFieldB = createDeferred();

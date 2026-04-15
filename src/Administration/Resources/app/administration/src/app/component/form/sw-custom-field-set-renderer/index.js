@@ -349,7 +349,7 @@ export default {
                 console.error(error);
 
                 if (this.translatedInheritanceLoadKey === loadKey) {
-                    this.inheritedCustomFields = null;
+                    this.resetTranslatedInheritanceState();
                 }
             }
         },

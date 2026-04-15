@@ -412,7 +412,8 @@ class DocumentRouteTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(null);
 
-        static::expectExceptionObject(DocumentException::documentAuthThrottledException(60));
+        static::expectException(DocumentException::class);
+        static::expectExceptionCode(Response::HTTP_TOO_MANY_REQUESTS);
         $route->download($document->getId(), $request, $context, 'deepLinkCode');
     }
 

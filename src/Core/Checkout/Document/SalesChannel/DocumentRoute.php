@@ -214,7 +214,7 @@ final class DocumentRoute extends AbstractDocumentRoute
             throw DocumentException::documentNotFound($documentId);
         }
 
-        $cacheKey = mb_strtolower($document->getDeepLinkCode()) . '-' . (string) $request->getClientIp();
+        $cacheKey = mb_strtolower($document->getDeepLinkCode()) . '-' . ($request->getClientIp() ?? '');
 
         try {
             $this->rateLimiter->ensureAccepted(RateLimiter::GUEST_LOGIN, $cacheKey);

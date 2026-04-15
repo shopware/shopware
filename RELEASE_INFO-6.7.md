@@ -63,6 +63,11 @@ preserve the `data-quantity-selector-options` attribute with a `purchaseLimitUrl
 User are now able to play animations from their 3D models in the Storefront.
 Simply upload a model with one or multiple animations baked into the file, bind the file to a product, and display it in the Storefront.
 
+### robots.txt user-agent rules no longer duplicate path directives
+
+Storefront `robots.txt` output now keeps path-based directives that are declared inside `User-agent` blocks scoped to those blocks instead of rendering them a second time as domain rules.
+If you configure custom crawler-specific rules in Basic Information, the generated file now matches the configured groups without duplicate `Allow` / `Disallow` lines.
+
 ### Show child line items if available
 
 New block `component_line_item_type_product_children` added to template `storefront/component/line-item/type/product.html.twig` to display child line items if available

@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Mime\Email;
 
@@ -201,6 +202,16 @@ class MailTemplateService
         $fieldPathParts = \explode('.', $parentVariablePath);
 
         foreach ($fieldPathParts as $fieldPathPart) {
+            if ($templateData instanceof Collection) {
+                if ($fieldPathPart !== 'first') {
+                    return [];
+                }
+
+                $templateData = $templateData->first();
+
+                continue;
+            }
+
             if ($templateData instanceof Struct) {
                 $templateData = $templateData->jsonSerialize();
             }
@@ -210,6 +221,19 @@ class MailTemplateService
             }
 
             $templateData = $templateData[$fieldPathPart];
+        }
+
+        if ($templateData instanceof Collection) {
+            $first = $templateData->first();
+
+            if ($first === null) {
+                return [];
+            }
+
+            return [[
+                'fieldName' => 'first',
+                'hasChildren' => \is_object($first) || (\is_array($first) && $first !== []),
+            ]];
         }
 
         if ($templateData instanceof Struct) {

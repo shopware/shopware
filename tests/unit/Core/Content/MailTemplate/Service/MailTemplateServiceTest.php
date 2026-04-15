@@ -24,6 +24,7 @@ use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
+use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Mime\Email;
@@ -272,6 +273,17 @@ class MailTemplateServiceTest extends TestCase
                 'topLevelStruct' => new ArrayEntity([
                     'units' => ['length' => 'cm'],
                 ]),
+                'collectionStruct' => new ArrayEntity([
+                    'items' => new class([new ArrayEntity([
+                        'name' => 'first item',
+                        'nested' => ['value' => 'nested value'],
+                    ])]) extends Collection {
+                        protected function getExpectedClass(): ?string
+                        {
+                            return ArrayEntity::class;
+                        }
+                    },
+                ]),
             ]);
 
         $mailTemplateService = $this->createService();
@@ -374,6 +386,38 @@ class MailTemplateServiceTest extends TestCase
                 ],
                 [
                     'fieldName' => 'weight',
+                    'hasChildren' => true,
+                ],
+            ],
+        ];
+
+        yield 'collection field path' => [
+            'fieldPath' => 'collectionStruct.items',
+            'expected' => [
+                [
+                    'fieldName' => 'first',
+                    'hasChildren' => true,
+                ],
+            ],
+        ];
+
+        yield 'access collection first property' => [
+            'fieldPath' => 'collectionStruct.items.first',
+            'expected' => [
+                [
+                    'fieldName' => 'extensions',
+                    'hasChildren' => false,
+                ],
+                [
+                    'fieldName' => 'translated',
+                    'hasChildren' => false,
+                ],
+                [
+                    'fieldName' => 'name',
+                    'hasChildren' => false,
+                ],
+                [
+                    'fieldName' => 'nested',
                     'hasChildren' => true,
                 ],
             ],

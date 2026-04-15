@@ -64,8 +64,7 @@ final readonly class WebhookEventMessageHandler
 
             $this->outboxEventRepository->resetForRetry($message->getWebhookEventId(), $response);
 
-            throw WebhookException::webhookFailedException($message->getWebhookId(), $e)
-                ->withDeliveryResponse($response);
+            throw WebhookException::webhookFailedException($message->getWebhookId(), $e);
         }
 
         $processingTime = $this->clock->now()->getTimestamp() - $request->timestamp;
@@ -86,11 +85,9 @@ final readonly class WebhookEventMessageHandler
 
         $exception = $result->exception;
         if ($exception instanceof BadResponseException && $message->getAppId() !== null) {
-            throw WebhookException::appWebhookFailedException($message->getWebhookId(), $message->getAppId(), $exception)
-                ->withDeliveryResponse($response);
+            throw WebhookException::appWebhookFailedException($message->getWebhookId(), $message->getAppId(), $exception);
         }
 
-        throw WebhookException::webhookFailedException($message->getWebhookId(), $exception)
-            ->withDeliveryResponse($response);
+        throw WebhookException::webhookFailedException($message->getWebhookId(), $exception);
     }
 }

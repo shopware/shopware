@@ -9,7 +9,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository;
 use Shopware\Core\Framework\Webhook\Service\RelatedWebhooks;
-use Shopware\Core\Framework\Webhook\WebhookException;
 use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
@@ -52,17 +51,11 @@ class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $response = $event->getThrowable() instanceof WebhookException
-            ? $event->getThrowable()->getDeliveryResponse()
-            : null;
-
         if ($event->willRetry()) {
-            $this->outboxEventRepository->resetForRetry($message->getWebhookEventId(), $response);
-
             return;
         }
 
-        $this->outboxEventRepository->markFailed($message->getWebhookEventId(), $response);
+        $this->outboxEventRepository->markFailed($message->getWebhookEventId());
 
         $webhookId = $message->getWebhookId();
 

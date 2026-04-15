@@ -60,6 +60,7 @@ class OutboxEventRepository
 
         RetryableTransaction::retryable($this->connection, function () use ($eventLogId, $now): void {
             $id = Uuid::fromHexToBytes($eventLogId);
+            $nowFormatted = $now->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
             $this->connection->update('webhook_event_log', [
                 'delivery_status' => WebhookEventLogDefinition::STATUS_RUNNING,
@@ -67,10 +68,10 @@ class OutboxEventRepository
             ], ['id' => $id]);
 
             $this->connection->executeStatement(
-                'UPDATE webhook_delivery SET delivery_status = :status, execution_count = execution_count + 1, last_attempt_at = :now WHERE webhook_event_log_id = :id',
+                'UPDATE webhook_delivery SET delivery_status = :status, execution_count = execution_count + 1, last_attempt_at = :now, updated_at = :now WHERE webhook_event_log_id = :id',
                 [
                     'status' => WebhookEventLogDefinition::STATUS_RUNNING,
-                    'now' => $now->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'now' => $nowFormatted,
                     'id' => $id,
                 ]
             );
@@ -96,8 +97,12 @@ class OutboxEventRepository
             $id = $this->updateEventLog($eventLogId, WebhookEventLogDefinition::STATUS_QUEUED, $response);
 
             $this->connection->executeStatement(
-                'UPDATE webhook_delivery SET delivery_status = :status WHERE webhook_event_log_id = :id',
-                ['status' => WebhookEventLogDefinition::STATUS_QUEUED, 'id' => $id]
+                'UPDATE webhook_delivery SET delivery_status = :status, updated_at = :now WHERE webhook_event_log_id = :id',
+                [
+                    'status' => WebhookEventLogDefinition::STATUS_QUEUED,
+                    'now' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'id' => $id,
+                ]
             );
         });
     }

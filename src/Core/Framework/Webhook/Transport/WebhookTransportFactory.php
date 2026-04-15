@@ -35,6 +35,6 @@ class WebhookTransportFactory implements TransportFactoryInterface
      */
     public function supports(string $dsn, array $options): bool
     {
-        return str_starts_with($dsn, 'shopware-webhook://');
+        return $dsn === 'shopware-webhook://default';
     }
 }

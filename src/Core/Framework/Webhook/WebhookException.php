@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Webhook;
 
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Webhook\Outbox\DeliveryResponse;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('framework')]
@@ -16,20 +15,6 @@ class WebhookException extends HttpException
     public const UNSUPPORTED_MESSAGE = 'FRAMEWORK__WEBHOOK_UNSUPPORTED_MESSAGE';
     public const INVALID_DATA_MAPPING = 'FRAMEWORK__WEBHOOK_INVALID_DATA_MAPPING';
     public const UNKNOWN_DATA_TYPE = 'FRAMEWORK__WEBHOOK_UNKNOWN_DATA_TYPE';
-
-    private ?DeliveryResponse $deliveryResponse = null;
-
-    public function withDeliveryResponse(DeliveryResponse $response): self
-    {
-        $this->deliveryResponse = $response;
-
-        return $this;
-    }
-
-    public function getDeliveryResponse(): ?DeliveryResponse
-    {
-        return $this->deliveryResponse;
-    }
 
     public static function webhookFailedException(string $webhookId, \Throwable $e): self
     {

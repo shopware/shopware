@@ -105,7 +105,9 @@ class WebhookTransportTest extends TestCase
             }));
 
         $asyncTransport = $this->createMock(TransportInterface::class);
-        $asyncTransport->method('send')->willReturn($envelope);
+        $asyncTransport->expects($this->once())
+            ->method('send')
+            ->willReturn($envelope);
 
         $transport = new WebhookTransport($repository, $asyncTransport);
         $transport->send($envelope);
@@ -136,7 +138,9 @@ class WebhookTransportTest extends TestCase
             }));
 
         $asyncTransport = $this->createMock(TransportInterface::class);
-        $asyncTransport->method('send')->willReturn($envelope);
+        $asyncTransport->expects($this->once())
+            ->method('send')
+            ->willReturn($envelope);
 
         $transport = new WebhookTransport($repository, $asyncTransport);
         $transport->send($envelope);

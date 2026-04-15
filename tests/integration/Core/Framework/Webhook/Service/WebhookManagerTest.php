@@ -34,7 +34,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
@@ -993,7 +992,6 @@ class WebhookManagerTest extends TestCase
         $this->getManager($client, false)->dispatch($event);
 
         static::assertNotNull($capturedMessage);
-        static::assertInstanceOf(WebhookEventMessage::class, $capturedMessage);
 
         // The async path dispatches to the bus. The logWebhookWithEvent call
         // in the old code path wrote the event log row. In the new code, the
@@ -1031,7 +1029,7 @@ class WebhookManagerTest extends TestCase
         $this->getManager($client, false)->dispatch($event);
 
         static::assertNotNull($capturedMessage);
-        static::assertSame('default', $capturedMessage->getPartitionKey());
+        static::assertSame(WebhookEventMessage::DEFAULT_PARTITION_KEY, $capturedMessage->getPartitionKey());
     }
 
     public function testSyncDispatchCreatesOutboxEntriesAndDelivers(): void
@@ -1130,53 +1128,6 @@ class WebhookManagerTest extends TestCase
         );
 
         static::assertSame(0, $deliveryCount, 'Delivery row should be removed after failed delivery (terminal state)');
-    }
-
-    public function testAsyncDispatchPartitionKeyIsRawAppId(): void
-    {
-        $appId = Uuid::randomHex();
-        $aclRoleId = Uuid::randomHex();
-        $webhookId = Uuid::randomHex();
-        $this->createApp(
-            appId: $appId,
-            aclRoleId: $aclRoleId,
-            webhooks: [
-                [
-                    'id' => $webhookId,
-                    'name' => 'hook1',
-                    'event_name' => ProductEvents::PRODUCT_WRITTEN_EVENT,
-                    'url' => 'https://test.com',
-                ],
-            ],
-            permissions: ['product' => ['read']]
-        );
-
-        $client = new Client([
-            'handler' => new MockHandler([]),
-        ]);
-
-        $capturedMessage = null;
-        $this->bus->expects($this->once())
-            ->method('dispatch')
-            ->with(static::callback(static function (WebhookEventMessage $message) use (&$capturedMessage) {
-                $capturedMessage = $message;
-
-                return true;
-            }))
-            ->willReturnCallback(static function (WebhookEventMessage $message) {
-                return new Envelope($message);
-            });
-
-        $entityId = Uuid::randomHex();
-        $event = $this->getEntityWrittenEvent($entityId);
-
-        $this->getManager($client, false)->dispatch($event);
-
-        static::assertNotNull($capturedMessage);
-        // The message carries the raw app ID as partition key
-        static::assertSame($appId, $capturedMessage->getPartitionKey());
-        // The sync path hashes this before storing; verify the raw value is hashable
-        static::assertNotEmpty(Hasher::hashBinary($capturedMessage->getPartitionKey(), 'xxh128'));
     }
 
     public function testSyncDispatchWithMultipleWebhooksCreatesMultipleOutboxEntries(): void

@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Webhook\Outbox\DeliveryResponse;
 use Shopware\Core\Framework\Webhook\WebhookException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -69,7 +68,6 @@ class WebhookExceptionTest extends TestCase
     {
         $e = WebhookException::unsupportedMessage('stdClass');
 
-        static::assertInstanceOf(WebhookException::class, $e);
         static::assertSame('The webhook transport only supports WebhookEventMessage, got "stdClass".', $e->getMessage());
         static::assertSame('FRAMEWORK__WEBHOOK_UNSUPPORTED_MESSAGE', $e->getErrorCode());
         static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
@@ -79,22 +77,8 @@ class WebhookExceptionTest extends TestCase
     {
         $e = WebhookException::webhookNotFound('abc123');
 
-        static::assertInstanceOf(WebhookException::class, $e);
         static::assertSame('Webhook "abc123" not found.', $e->getMessage());
         static::assertSame('FRAMEWORK__WEBHOOK_NOT_FOUND', $e->getErrorCode());
         static::assertSame(Response::HTTP_NOT_FOUND, $e->getStatusCode());
-    }
-
-    public function testWithDeliveryResponseAndGetDeliveryResponse(): void
-    {
-        $e = WebhookException::webhookFailedException('wh-1', new \Exception('fail'));
-
-        static::assertNull($e->getDeliveryResponse());
-
-        $response = new DeliveryResponse(processingTime: 42, responseStatusCode: 500);
-        $returned = $e->withDeliveryResponse($response);
-
-        static::assertSame($e, $returned, 'withDeliveryResponse should return same instance');
-        static::assertSame($response, $e->getDeliveryResponse());
     }
 }

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\DeliveryResponse;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxEntry;
@@ -49,7 +50,7 @@ class OutboxEventRepositoryTest extends TestCase
         );
 
         static::assertNotFalse($eventLog);
-        static::assertSame('queued', $eventLog['delivery_status']);
+        static::assertSame(WebhookEventLogDefinition::STATUS_QUEUED, $eventLog['delivery_status']);
         static::assertGreaterThan(0, (int) $eventLog['sequence']);
 
         $delivery = $this->connection->fetchAssociative(
@@ -58,7 +59,7 @@ class OutboxEventRepositoryTest extends TestCase
         );
 
         static::assertNotFalse($delivery);
-        static::assertSame('queued', $delivery['delivery_status']);
+        static::assertSame(WebhookEventLogDefinition::STATUS_QUEUED, $delivery['delivery_status']);
         static::assertSame(0, (int) $delivery['execution_count']);
     }
 
@@ -109,7 +110,7 @@ class OutboxEventRepositoryTest extends TestCase
             ['id' => $this->ids->getBytes('evt-1')]
         );
 
-        $expected = Hasher::hashBinary('default', 'xxh128');
+        $expected = Hasher::hashBinary(WebhookEventMessage::DEFAULT_PARTITION_KEY, 'xxh128');
 
         static::assertSame($expected, $partitionKey);
     }
@@ -163,14 +164,14 @@ class OutboxEventRepositoryTest extends TestCase
             'SELECT delivery_status FROM webhook_event_log WHERE id = :id',
             ['id' => $this->ids->getBytes('evt-1')]
         );
-        static::assertSame('running', $status);
+        static::assertSame(WebhookEventLogDefinition::STATUS_RUNNING, $status);
 
         $delivery = $this->connection->fetchAssociative(
             'SELECT delivery_status, execution_count FROM webhook_delivery WHERE webhook_event_log_id = :id',
             ['id' => $this->ids->getBytes('evt-1')]
         );
         static::assertNotFalse($delivery);
-        static::assertSame('running', $delivery['delivery_status']);
+        static::assertSame(WebhookEventLogDefinition::STATUS_RUNNING, $delivery['delivery_status']);
         static::assertSame(1, (int) $delivery['execution_count']);
     }
 
@@ -184,14 +185,14 @@ class OutboxEventRepositoryTest extends TestCase
         $this->repository->markRunning($this->ids->get('evt-1'));
         $this->repository->resetForRetry($this->ids->get('evt-1'));
 
-        $this->assertEventLogStatus('evt-1', 'queued');
+        $this->assertEventLogStatus('evt-1', WebhookEventLogDefinition::STATUS_QUEUED);
         $this->assertDeliveryExists('evt-1');
 
         // Attempt 2: QUEUED → RUNNING → success → deleted
         $this->repository->markRunning($this->ids->get('evt-1'));
         $this->repository->markSuccess($this->ids->get('evt-1'));
 
-        $this->assertEventLogStatus('evt-1', 'success');
+        $this->assertEventLogStatus('evt-1', WebhookEventLogDefinition::STATUS_SUCCESS);
         $this->assertDeliveryDeleted('evt-1');
     }
 
@@ -210,7 +211,7 @@ class OutboxEventRepositoryTest extends TestCase
             responseReasonPhrase: 'OK',
         ));
 
-        $this->assertEventLogStatus('evt-1', 'success');
+        $this->assertEventLogStatus('evt-1', WebhookEventLogDefinition::STATUS_SUCCESS);
         $this->assertDeliveryDeleted('evt-1');
 
         $eventLog = $this->connection->fetchAssociative(
@@ -231,7 +232,7 @@ class OutboxEventRepositoryTest extends TestCase
         $this->repository->markRunning($this->ids->get('evt-1'));
         $this->repository->markFailed($this->ids->get('evt-1'));
 
-        $this->assertEventLogStatus('evt-1', 'failed');
+        $this->assertEventLogStatus('evt-1', WebhookEventLogDefinition::STATUS_FAILED);
         $this->assertDeliveryDeleted('evt-1');
     }
 
@@ -244,7 +245,7 @@ class OutboxEventRepositoryTest extends TestCase
         $this->repository->markRunning($this->ids->get('evt-1'));
         $this->repository->resetForRetry($this->ids->get('evt-1'));
 
-        $this->assertEventLogStatus('evt-1', 'queued');
+        $this->assertEventLogStatus('evt-1', WebhookEventLogDefinition::STATUS_QUEUED);
         $this->assertDeliveryExists('evt-1');
 
         $delivery = $this->connection->fetchAssociative(
@@ -252,7 +253,7 @@ class OutboxEventRepositoryTest extends TestCase
             ['id' => $this->ids->getBytes('evt-1')]
         );
         static::assertNotFalse($delivery);
-        static::assertSame('queued', $delivery['delivery_status']);
+        static::assertSame(WebhookEventLogDefinition::STATUS_QUEUED, $delivery['delivery_status']);
     }
 
     public function testExecutionCountIncrementsAcrossRetries(): void
@@ -288,7 +289,7 @@ class OutboxEventRepositoryTest extends TestCase
             ['id' => $this->ids->getBytes('evt-1')]
         );
         static::assertNotFalse($eventLog);
-        static::assertSame('running', $eventLog['delivery_status']);
+        static::assertSame(WebhookEventLogDefinition::STATUS_RUNNING, $eventLog['delivery_status']);
         static::assertNotNull($eventLog['timestamp']);
 
         $delivery = $this->connection->fetchAssociative(
@@ -296,7 +297,7 @@ class OutboxEventRepositoryTest extends TestCase
             ['id' => $this->ids->getBytes('evt-1')]
         );
         static::assertNotFalse($delivery);
-        static::assertSame('running', $delivery['delivery_status']);
+        static::assertSame(WebhookEventLogDefinition::STATUS_RUNNING, $delivery['delivery_status']);
         static::assertSame(1, (int) $delivery['execution_count']);
         static::assertNotNull($delivery['last_attempt_at']);
     }
@@ -322,7 +323,7 @@ class OutboxEventRepositoryTest extends TestCase
             ['id' => $this->ids->getBytes('evt-1')]
         );
         static::assertNotFalse($eventLog);
-        static::assertSame('success', $eventLog['delivery_status']);
+        static::assertSame(WebhookEventLogDefinition::STATUS_SUCCESS, $eventLog['delivery_status']);
         static::assertSame(150, (int) $eventLog['processing_time']);
         static::assertSame(200, (int) $eventLog['response_status_code']);
         static::assertSame('OK', $eventLog['response_reason_phrase']);
@@ -354,7 +355,7 @@ class OutboxEventRepositoryTest extends TestCase
             ['id' => $this->ids->getBytes('evt-1')]
         );
         static::assertNotFalse($eventLog);
-        static::assertSame('failed', $eventLog['delivery_status']);
+        static::assertSame(WebhookEventLogDefinition::STATUS_FAILED, $eventLog['delivery_status']);
         static::assertSame(300, (int) $eventLog['processing_time']);
         static::assertSame(500, (int) $eventLog['response_status_code']);
         static::assertSame('Internal Server Error', $eventLog['response_reason_phrase']);
@@ -377,14 +378,14 @@ class OutboxEventRepositoryTest extends TestCase
         ));
 
         // Both tables back to QUEUED
-        $this->assertEventLogStatus('evt-1', 'queued');
+        $this->assertEventLogStatus('evt-1', WebhookEventLogDefinition::STATUS_QUEUED);
 
         $delivery = $this->connection->fetchAssociative(
             'SELECT delivery_status, execution_count FROM webhook_delivery WHERE webhook_event_log_id = :id',
             ['id' => $this->ids->getBytes('evt-1')]
         );
         static::assertNotFalse($delivery, 'Delivery row must be preserved after resetForRetry');
-        static::assertSame('queued', $delivery['delivery_status']);
+        static::assertSame(WebhookEventLogDefinition::STATUS_QUEUED, $delivery['delivery_status']);
         // execution_count stays at 1 from the markRunning call (resetForRetry does not change it)
         static::assertSame(1, (int) $delivery['execution_count']);
 
@@ -427,7 +428,7 @@ class OutboxEventRepositoryTest extends TestCase
         $entry = new OutboxEntry(
             Uuid::randomHex(),
             $nonExistentWebhookId,
-            Hasher::hashBinary('default', 'xxh128'),
+            Hasher::hashBinary(WebhookEventMessage::DEFAULT_PARTITION_KEY, 'xxh128'),
             serialize('test'),
         );
 
@@ -532,7 +533,7 @@ class OutboxEventRepositoryTest extends TestCase
             Defaults::LANGUAGE_SYSTEM,
             'en-GB',
             [],
-            $appId ?? 'default',
+            $appId ?? WebhookEventMessage::DEFAULT_PARTITION_KEY,
         );
     }
 

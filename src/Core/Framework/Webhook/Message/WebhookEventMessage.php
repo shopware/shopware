@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class WebhookEventMessage
 {
+    public const DEFAULT_PARTITION_KEY = 'default';
+
     /**
      * @internal
      *
@@ -95,6 +97,6 @@ class WebhookEventMessage
      */
     public function getPartitionKey(): string
     {
-        return $this->partitionKey ?? $this->appId ?? 'default';
+        return $this->partitionKey ?? $this->appId ?? self::DEFAULT_PARTITION_KEY;
     }
 }

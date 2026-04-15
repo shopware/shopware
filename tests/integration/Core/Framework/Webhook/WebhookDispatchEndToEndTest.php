@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Framework\Webhook;
 
 use Doctrine\DBAL\Connection;
 use GuzzleHttp\Psr7\Response;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Defaults;
@@ -31,7 +30,6 @@ use Symfony\Component\Messenger\TraceableMessageBus;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(WebhookManager::class)]
 class WebhookDispatchEndToEndTest extends TestCase
 {
     use GuzzleTestClientBehaviour;
@@ -65,7 +63,7 @@ class WebhookDispatchEndToEndTest extends TestCase
         static::assertSame($webhookId, $message->getWebhookId());
         static::assertSame($webhookUrl, $message->getUrl());
         static::assertNull($message->getAppId());
-        static::assertSame('default', $message->getPartitionKey());
+        static::assertSame(WebhookEventMessage::DEFAULT_PARTITION_KEY, $message->getPartitionKey());
 
         $payload = $message->getPayload();
         static::assertArrayHasKey('source', $payload);
@@ -183,6 +181,47 @@ class WebhookDispatchEndToEndTest extends TestCase
             WebhookEventLogDefinition::STATUS_SUCCESS,
             $eventLogs[0]['delivery_status']
         );
+    }
+
+    public function testAsyncWebhookIsDeliveredWhenWorkerRuns(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $webhookUrl = 'https://example.com/webhook';
+
+        $this->createWebhook($webhookId, 'test-webhook', CustomerBeforeLoginEvent::EVENT_NAME, $webhookUrl);
+
+        $this->appendNewResponse(new Response(200));
+
+        $manager = $this->getWebhookManager(isAdminWorkerEnabled: false);
+        $event = $this->createCustomerBeforeLoginEvent();
+
+        $manager->dispatch($event);
+
+        static::assertSame(1, $this->getDispatchedMessageCount(WebhookEventMessage::class));
+
+        $this->runWorker();
+
+        $request = $this->getLastRequest();
+        static::assertNotNull($request, 'Expected an HTTP request to be made by the worker');
+        static::assertSame('POST', $request->getMethod());
+
+        $eventLogs = $this->connection->fetchAllAssociative(
+            'SELECT * FROM webhook_event_log WHERE webhook_name = :name',
+            ['name' => 'test-webhook']
+        );
+
+        static::assertCount(1, $eventLogs);
+        static::assertSame(
+            WebhookEventLogDefinition::STATUS_SUCCESS,
+            $eventLogs[0]['delivery_status']
+        );
+
+        $deliveryCount = (int) $this->connection->fetchOne(
+            'SELECT COUNT(*) FROM webhook_delivery WHERE webhook_id = :webhookId',
+            ['webhookId' => Uuid::fromHexToBytes($webhookId)]
+        );
+
+        static::assertSame(0, $deliveryCount, 'Delivery row should be cleaned up after successful delivery');
     }
 
     private function getWebhookManager(bool $isAdminWorkerEnabled = false): WebhookManager

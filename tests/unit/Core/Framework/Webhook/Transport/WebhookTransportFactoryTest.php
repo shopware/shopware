@@ -23,13 +23,13 @@ class WebhookTransportFactoryTest extends TestCase
         $factory = $this->createFactory();
 
         static::assertTrue($factory->supports('shopware-webhook://default', []));
-        static::assertTrue($factory->supports('shopware-webhook://custom', []));
     }
 
     public function testDoesNotSupportOtherDsn(): void
     {
         $factory = $this->createFactory();
 
+        static::assertFalse($factory->supports('shopware-webhook://custom', []));
         static::assertFalse($factory->supports('doctrine://default', []));
         static::assertFalse($factory->supports('amqp://localhost', []));
         static::assertFalse($factory->supports('', []));

@@ -188,14 +188,18 @@ class WebhookManager implements ResetInterface
         $results = $this->webhookClient->sendBatch($requests);
 
         foreach ($results as $eventId => $result) {
-            $request = $requests[$eventId];
-            $processingTime = $this->clock->now()->getTimestamp() - $request->timestamp;
-            $response = DeliveryResponse::from($request, $result, $processingTime);
+            try {
+                $request = $requests[$eventId];
+                $processingTime = $this->clock->now()->getTimestamp() - $request->timestamp;
+                $response = DeliveryResponse::from($request, $result, $processingTime);
 
-            if ($result->successful()) {
-                $this->outboxEventRepository->markSuccess($eventId, $response);
-            } else {
-                $this->outboxEventRepository->markFailed($eventId, $response);
+                if ($result->successful()) {
+                    $this->outboxEventRepository->markSuccess($eventId, $response);
+                } else {
+                    $this->outboxEventRepository->markFailed($eventId, $response);
+                }
+            } catch (\Throwable) {
+                // Don't let one entry block the rest — failed entries stay in 'running'
             }
         }
     }

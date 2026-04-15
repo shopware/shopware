@@ -62,6 +62,8 @@ class ProductTranslationDefinition extends EntityTranslationDefinition
             (new StringField('pack_unit_plural', 'packUnitPlural'))->addFlags(new ApiAware()),
             new ListField('custom_search_keywords', 'customSearchKeywords'),
             (new JsonField('slot_config', 'slotConfig'))->addFlags(new ApiAware()),
+            (new StringField('og_title', 'ogTitle'))->addFlags(new ApiAware()),
+            (new StringField('og_description', 'ogDescription'))->addFlags(new ApiAware()),
             (new CustomFields())->addFlags(new ApiAware()),
         ]);
     }

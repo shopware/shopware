@@ -12,9 +12,7 @@ use Shopware\Core\Content\MailTemplate\MailTemplateException;
 use Shopware\Core\Content\MailTemplate\Request\GetDataAndSendRequest;
 use Shopware\Core\Content\MailTemplate\Request\PreviewRequest;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
-use Shopware\Core\Content\MailTemplate\Validation\MailTemplateRenderError;
-use Shopware\Core\Content\MailTemplate\Validation\MailTemplateRenderResultCollection;
-use Shopware\Core\Content\MailTemplate\Validation\MailTemplateRenderSuccess;
+use Shopware\Core\Content\MailTemplate\Validation\MailTemplateRenderResult;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -60,14 +58,16 @@ class MailTemplateService
 
     /**
      * @param array<int|string,string> $templateContent
+     *
+     * @return array<int|string, MailTemplateRenderResult>
      */
     public function simulate(
         array $templateContent,
         string $flowEvent,
         Context $context,
-        bool $strict = false
-    ): MailTemplateRenderResultCollection {
-        $renderedResult = new MailTemplateRenderResultCollection();
+        bool $strict = true
+    ): array {
+        $renderedResult = [];
 
         $templateData = $this->mailDataSimulator->getTemplateData($flowEvent, $context);
 
@@ -79,9 +79,9 @@ class MailTemplateService
             try {
                 $rendered = $this->templateRenderer->render($content, $templateData, $context, false);
 
-                $renderedResult->set($key, new MailTemplateRenderSuccess($rendered));
+                $renderedResult[$key] = MailTemplateRenderResult::success($rendered);
             } catch (\Throwable $e) {
-                $renderedResult->set($key, new MailTemplateRenderError($e->getMessage()));
+                $renderedResult[$key] = MailTemplateRenderResult::error($e->getMessage());
             }
         }
 
@@ -92,12 +92,15 @@ class MailTemplateService
         return $renderedResult;
     }
 
+    /**
+     * @return array<int|string, MailTemplateRenderResult>
+     */
     public function preview(
         PreviewRequest $request,
         Context $context,
         bool $strict = false
-    ): MailTemplateRenderResultCollection {
-        $renderedResult = new MailTemplateRenderResultCollection();
+    ): array {
+        $renderedResult = [];
 
         $templateData = $this->mailDataProvider->getTemplateData(
             $request->mailTemplate,
@@ -114,9 +117,9 @@ class MailTemplateService
             try {
                 $rendered = $this->templateRenderer->render($value, $templateData, $context, false);
 
-                $renderedResult->set($key, new MailTemplateRenderSuccess($rendered));
+                $renderedResult[$key] = MailTemplateRenderResult::success($rendered);
             } catch (\Throwable $e) {
-                $renderedResult->set($key, new MailTemplateRenderError($e->getMessage()));
+                $renderedResult[$key] = MailTemplateRenderResult::error($e->getMessage());
             }
         }
 

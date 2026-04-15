@@ -6,10 +6,26 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 #[Package('after-sales')]
-abstract class MailTemplateRenderResult extends Struct
+class MailTemplateRenderResult extends Struct
 {
-    public function __construct(private readonly string $content)
+    public const TYPE_SUCCESS = 'success';
+
+    public const TYPE_ERROR = 'error';
+
+    private function __construct(
+        private readonly string $type,
+        private readonly string $content,
+    ) {
+    }
+
+    public static function success(string $content): self
     {
+        return new self(self::TYPE_SUCCESS, $content);
+    }
+
+    public static function error(string $content): self
+    {
+        return new self(self::TYPE_ERROR, $content);
     }
 
     public function getContent(): string
@@ -17,7 +33,10 @@ abstract class MailTemplateRenderResult extends Struct
         return $this->content;
     }
 
-    abstract public function getType(): string;
+    public function getType(): string
+    {
+        return $this->type;
+    }
 
     public function jsonSerialize(): array
     {

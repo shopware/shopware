@@ -498,7 +498,6 @@ export default {
                         contentPlain: this.mailTemplate.contentPlain ?? this.mailTemplate.translated?.contentPlain,
                     },
                     this.triggerEvent.name,
-                    true,
                 )
                 .then((response) => {
                     Object.keys(response).forEach((key) => {

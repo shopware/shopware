@@ -15,8 +15,7 @@ use Shopware\Core\Content\MailTemplate\Request\GetDataAndSendRequestFactory;
 use Shopware\Core\Content\MailTemplate\Request\PreviewRequest;
 use Shopware\Core\Content\MailTemplate\Request\PreviewRequestFactory;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
-use Shopware\Core\Content\MailTemplate\Validation\MailTemplateRenderResultCollection;
-use Shopware\Core\Content\MailTemplate\Validation\MailTemplateRenderSuccess;
+use Shopware\Core\Content\MailTemplate\Validation\MailTemplateRenderResult;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -171,8 +170,9 @@ class MailActionControllerTest extends TestCase
             'strict' => true,
         ]);
 
-        $result = new MailTemplateRenderResultCollection();
-        $result->set('contentHtml', new MailTemplateRenderSuccess('Hello test@example.com'));
+        $result = [
+            'contentHtml' => MailTemplateRenderResult::success('Hello test@example.com'),
+        ];
 
         $this->mailTemplateService->expects($this->once())
             ->method('simulate')
@@ -206,8 +206,9 @@ class MailActionControllerTest extends TestCase
             'strict' => true,
         ]);
 
-        $result = new MailTemplateRenderResultCollection();
-        $result->set('contentHtml', new MailTemplateRenderSuccess('Hello test@example.com'));
+        $result = [
+            'contentHtml' => MailTemplateRenderResult::success('Hello test@example.com'),
+        ];
 
         $this->mailTemplateService->expects($this->once())
             ->method('simulate')
@@ -254,8 +255,9 @@ class MailActionControllerTest extends TestCase
         ]);
         $previewRequest = new PreviewRequest(new MailTemplateEntity());
 
-        $result = new MailTemplateRenderResultCollection();
-        $result->set('subject', new MailTemplateRenderSuccess('Subject'));
+        $result = [
+            'subject' => MailTemplateRenderResult::success('Subject'),
+        ];
 
         $this->previewRequestFactory->expects($this->once())
             ->method('make')

@@ -151,7 +151,7 @@ class MailApiService extends ApiService {
             });
     }
 
-    simulateMailTemplate(mailTemplateContent, eventName, strict = false) {
+    simulateMailTemplate(mailTemplateContent, eventName, strict = true) {
         const apiRoute = `/_action/${this.getApiBasePath()}/simulate`;
 
         return this.httpClient

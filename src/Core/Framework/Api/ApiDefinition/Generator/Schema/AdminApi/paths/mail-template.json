@@ -395,8 +395,9 @@
                                         "example": "checkout.order.placed"
                                     },
                                     "strict": {
-                                        "description": "Enables strict checking during the mail template rendering and surfaces errors for unknown variables.",
-                                        "type": "boolean"
+                                        "description": "Enables strict checking during the mail template rendering and surfaces errors for unknown variables. Defaults to `true`.",
+                                        "type": "boolean",
+                                        "default": true
                                     }
                                 },
                                 "type": "object"

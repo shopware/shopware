@@ -155,7 +155,7 @@ class MailActionController extends AbstractController
             throw MailTemplateException::invalidRequestParameterType('eventName', 'string', get_debug_type($eventName));
         }
 
-        $strict = $post->get('strict', false);
+        $strict = $post->get('strict', true);
         if (!\is_bool($strict)) {
             throw MailTemplateException::invalidRequestParameterType('strict', 'bool', get_debug_type($strict));
         }

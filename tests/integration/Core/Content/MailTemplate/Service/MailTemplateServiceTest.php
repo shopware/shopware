@@ -12,7 +12,7 @@ use Shopware\Core\Content\MailTemplate\MailTemplateException;
 use Shopware\Core\Content\MailTemplate\Request\GetDataAndSendRequest;
 use Shopware\Core\Content\MailTemplate\Request\PreviewRequest;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
-use Shopware\Core\Content\MailTemplate\Validation\MailTemplateRenderSuccess;
+use Shopware\Core\Content\MailTemplate\Validation\MailTemplateRenderResult;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -74,10 +74,10 @@ class MailTemplateServiceTest extends TestCase
             $this->context
         );
 
-        static::assertEquals(new MailTemplateRenderSuccess('Hello Shopware'), $rendered->get('subject'));
-        static::assertEquals(new MailTemplateRenderSuccess('Shopware'), $rendered->get('senderName'));
-        static::assertEquals(new MailTemplateRenderSuccess('<p>Hello Shopware</p>'), $rendered->get('contentHtml'));
-        static::assertEquals(new MailTemplateRenderSuccess('Hello Shopware'), $rendered->get('contentPlain'));
+        static::assertEquals(MailTemplateRenderResult::success('Hello Shopware'), $rendered['subject']);
+        static::assertEquals(MailTemplateRenderResult::success('Shopware'), $rendered['senderName']);
+        static::assertEquals(MailTemplateRenderResult::success('<p>Hello Shopware</p>'), $rendered['contentHtml']);
+        static::assertEquals(MailTemplateRenderResult::success('Hello Shopware'), $rendered['contentPlain']);
     }
 
     public function testGetTemplateDataAndSend(): void
@@ -117,8 +117,9 @@ class MailTemplateServiceTest extends TestCase
             $this->context
         );
 
-        static::assertInstanceOf(MailTemplateRenderSuccess::class, $rendered->get('contentHtml'));
-        static::assertNotSame('', $rendered->get('contentHtml')->getContent());
+        static::assertInstanceOf(MailTemplateRenderResult::class, $rendered['contentHtml']);
+        static::assertSame(MailTemplateRenderResult::TYPE_SUCCESS, $rendered['contentHtml']->getType());
+        static::assertNotSame('', $rendered['contentHtml']->getContent());
     }
 
     public function testGetAvailableVariables(): void

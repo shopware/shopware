@@ -18,8 +18,7 @@ use Shopware\Core\Content\MailTemplate\Request\PreviewRequest;
 use Shopware\Core\Content\MailTemplate\Service\MailDataProvider;
 use Shopware\Core\Content\MailTemplate\Service\MailDataSimulator;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
-use Shopware\Core\Content\MailTemplate\Validation\MailTemplateRenderError;
-use Shopware\Core\Content\MailTemplate\Validation\MailTemplateRenderSuccess;
+use Shopware\Core\Content\MailTemplate\Validation\MailTemplateRenderResult;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -118,12 +117,14 @@ class MailTemplateServiceTest extends TestCase
             $context
         );
 
-        $subject = $rendered->get('subject');
-        static::assertInstanceOf(MailTemplateRenderSuccess::class, $subject);
+        $subject = $rendered['subject'];
+        static::assertInstanceOf(MailTemplateRenderResult::class, $subject);
+        static::assertSame(MailTemplateRenderResult::TYPE_SUCCESS, $subject->getType());
         static::assertSame('rendered: hello', $subject->getContent());
 
-        $contentHtml = $rendered->get('contentHtml');
-        static::assertInstanceOf(MailTemplateRenderError::class, $contentHtml);
+        $contentHtml = $rendered['contentHtml'];
+        static::assertInstanceOf(MailTemplateRenderResult::class, $contentHtml);
+        static::assertSame(MailTemplateRenderResult::TYPE_ERROR, $contentHtml->getType());
         static::assertSame('broken template', $contentHtml->getContent());
     }
 
@@ -148,10 +149,10 @@ class MailTemplateServiceTest extends TestCase
 
         $rendered = $mailTemplateService->preview($request, $context);
 
-        static::assertSame('rendered: subject', $rendered->get('subject')?->getContent());
-        static::assertSame('rendered: sender', $rendered->get('senderName')?->getContent());
-        static::assertSame('rendered: <p>html</p>', $rendered->get('contentHtml')?->getContent());
-        static::assertSame('rendered: plain', $rendered->get('contentPlain')?->getContent());
+        static::assertSame('rendered: subject', $rendered['subject']->getContent());
+        static::assertSame('rendered: sender', $rendered['senderName']->getContent());
+        static::assertSame('rendered: <p>html</p>', $rendered['contentHtml']->getContent());
+        static::assertSame('rendered: plain', $rendered['contentPlain']->getContent());
     }
 
     public function testPreviewDoesNotUseTestModeInStrictMode(): void

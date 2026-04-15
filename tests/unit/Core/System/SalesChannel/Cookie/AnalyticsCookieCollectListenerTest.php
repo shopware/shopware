@@ -41,16 +41,19 @@ class AnalyticsCookieCollectListenerTest extends TestCase
 
     public function testSalesChannelHasNoAnalyticsId(): void
     {
-        /** @phpstan-ignore shopware.mockingSimpleObjects (A mock is used here to ensure that the method is not called) */
-        $salesChannel = $this->createMock(SalesChannelEntity::class);
-        $salesChannel->expects($this->once())->method('getAnalyticsId')->willReturn(null);
-        $salesChannel->expects($this->never())->method('getAnalytics');
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId(Uuid::randomHex());
 
         $context = Generator::generateSalesChannelContext(salesChannel: $salesChannel);
 
-        $event = new CookieGroupCollectEvent(new CookieGroupCollection(), new Request(), $context);
+        $statisticalGroup = new CookieGroup(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_STATISTICAL);
+        $marketingGroup = new CookieGroup(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_MARKETING);
+        $event = new CookieGroupCollectEvent(new CookieGroupCollection([$statisticalGroup, $marketingGroup]), new Request(), $context);
 
         $this->listener->__invoke($event);
+
+        static::assertNull($event->cookieGroupCollection->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_STATISTICAL)?->getEntries()?->get('google-analytics-enabled'));
+        static::assertNull($event->cookieGroupCollection->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_MARKETING)?->getEntries()?->get('google-ads-enabled'));
     }
 
     public function testSalesChannelNeedsToLoadAnalyticsButIsNotActive(): void
@@ -60,16 +63,18 @@ class AnalyticsCookieCollectListenerTest extends TestCase
         $salesChannel->setAnalyticsId(Uuid::randomHex());
         $context = Generator::generateSalesChannelContext(salesChannel: $salesChannel);
 
-        /** @phpstan-ignore shopware.mockingSimpleObjects (A mock is used here to ensure that the method is not called) */
-        $cookieCollection = $this->createMock(CookieGroupCollection::class);
-        $cookieCollection->expects($this->never())->method('get');
-        $event = new CookieGroupCollectEvent($cookieCollection, new Request(), $context);
+        $statisticalGroup = new CookieGroup(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_STATISTICAL);
+        $marketingGroup = new CookieGroup(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_MARKETING);
+        $event = new CookieGroupCollectEvent(new CookieGroupCollection([$statisticalGroup, $marketingGroup]), new Request(), $context);
 
         $analyticsEntity = $this->createChannelAnalyticsEntity(active: false);
 
         $this->analyticsRepo->addSearch(new SalesChannelAnalyticsCollection([$analyticsEntity]));
 
         $this->listener->__invoke($event);
+
+        static::assertNull($event->cookieGroupCollection->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_STATISTICAL)?->getEntries()?->get('google-analytics-enabled'));
+        static::assertNull($event->cookieGroupCollection->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_MARKETING)?->getEntries()?->get('google-ads-enabled'));
     }
 
     public function testStatisticalAndMarketingCookieGroupsNotPresent(): void

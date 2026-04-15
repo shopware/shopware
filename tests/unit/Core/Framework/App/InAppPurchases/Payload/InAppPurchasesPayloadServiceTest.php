@@ -4,9 +4,12 @@ namespace Shopware\Tests\Unit\Core\Framework\App\InAppPurchases\Payload;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
@@ -22,6 +25,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\Clock\MockClock;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 /**
  * @internal
@@ -72,7 +76,7 @@ class InAppPurchasesPayloadServiceTest extends TestCase
 
         $filterPayloadService = new InAppPurchasesPayloadService(
             $appPayloadServiceHelper,
-            new Client(['handler' => new MockHandler([new Response(200, [], $responseContent)])]),
+            new Client(['handler' => new MockHandler([new Response(SymfonyResponse::HTTP_OK, [], $responseContent)])]),
         );
 
         $url = 'https://example.com/filter-mah-features';
@@ -133,7 +137,7 @@ class InAppPurchasesPayloadServiceTest extends TestCase
 
         $filterPayloadService = new InAppPurchasesPayloadService(
             $appPayloadServiceHelper,
-            new Client(['handler' => new MockHandler([new Response(200, [], $responseContent)])]),
+            new Client(['handler' => new MockHandler([new Response(SymfonyResponse::HTTP_OK, [], $responseContent)])]),
         );
 
         $url = 'https://example.com/filter-mah-features';
@@ -220,18 +224,28 @@ class InAppPurchasesPayloadServiceTest extends TestCase
                 'body' => '{"purchases":["purchase-1","purchase-2"]}',
             ]));
 
-        /** @phpstan-ignore shopware.mockingSimpleObjects (for test purpose) */
-        $client = $this->createMock(Client::class);
-        $client
-            ->expects($this->once())
-            ->method('post')
-            ->willReturn(new Response(200, [], \json_encode([
-                'purchases' => [
-                    'purchase-2',
-                ],
-            ], \JSON_THROW_ON_ERROR)));
+        $responseContent = \json_encode([
+            'purchases' => [
+                'purchase-2',
+            ],
+        ], \JSON_THROW_ON_ERROR);
+
+        $mockHandler = new MockHandler([new Response(SymfonyResponse::HTTP_OK, [], $responseContent)]);
+        $handlerStack = HandlerStack::create($mockHandler);
+
+        $history = [];
+        $handlerStack->push(Middleware::history($history));
+
+        $client = new Client(['handler' => $handlerStack]);
 
         $inAppPayloadServiceHelper = new InAppPurchasesPayloadService($appPayloadServiceHelper, $client);
         $inAppPayloadServiceHelper->request('https://example.com', new InAppPurchasesPayload([]), new AppEntity(), Context::createDefaultContext());
+
+        static::assertIsArray($history);
+        static::assertCount(1, $history);
+
+        $request = $history[0]['request'];
+        static::assertInstanceOf(RequestInterface::class, $request);
+        static::assertSame('POST', $request->getMethod());
     }
 }

@@ -29,8 +29,8 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Assert\StrictEmpty;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
-use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
@@ -212,14 +212,8 @@ class StoreApiSeoResolverTest extends TestCase
 
     public function testRequestHeaderDoesNotIncludeSeoUrls(): void
     {
-        /** @phpstan-ignore shopware.mockingSimpleObjects (for test purpose) */
-        $attributes = $this->createMock(ParameterBag::class);
-        $attributes
-            ->expects($this->never())
-            ->method('get');
-
+        $productEntity = $this->createProductEntity();
         $request = new Request();
-        $request->attributes = $attributes;
 
         $event = new ResponseEvent(
             $this->createMock(HttpKernelInterface::class),
@@ -228,7 +222,7 @@ class StoreApiSeoResolverTest extends TestCase
             new ProductListResponse(new EntitySearchResult(
                 'product',
                 1,
-                new ProductCollection([$this->createProductEntity()]),
+                new ProductCollection([$productEntity]),
                 null,
                 new Criteria(),
                 Context::createDefaultContext(),
@@ -238,7 +232,7 @@ class StoreApiSeoResolverTest extends TestCase
         $storeApiSeoResolver = $this->createStoreApiSeoResolver();
         $storeApiSeoResolver->addSeoInformation($event);
 
-        // Implicitly asserts that no exception is thrown, since `$this->enrich` would receive a wrong context
+        StrictEmpty::assertEmpty($productEntity->getSeoUrls());
     }
 
     public function testContextIsNoSalesChannelContext(): void

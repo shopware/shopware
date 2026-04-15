@@ -10,10 +10,10 @@
     }
 
     &__trigger .mt-icon {
-        padding-top: 2px;
-        padding-right: 1px;
-        padding-bottom: 2px;
-        padding-left: 1px;
+        padding-top: var(--scale-size-2);
+        padding-right: var(--scale-size-1);
+        padding-bottom: var(--scale-size-2);
+        padding-left: var(--scale-size-1);
     }
 
     &__container {

@@ -24,7 +24,7 @@
         display: block;
         font-size: var(--font-size-xs);
         line-height: var(--scale-size-22);
-        letter-spacing: 0.1px;
+        letter-spacing: 0.0063rem;
     }
 
     &__searchable-content-tab-title {
@@ -45,7 +45,7 @@
     }
 
     &__searchable-content-add-button.mt-button {
-        margin-right: var(--scale-size-15);
+        margin-right: var(--scale-size-16);
     }
 
     &__searchable-content-list {
@@ -58,7 +58,7 @@
         }
 
         .sw-data-grid__cell--header.sw-data-grid__cell--actions.sw-data-grid__cell-settings {
-            box-shadow: inset 0 -1px 0 var(--color-gray-300);
+            box-shadow: inset 0 calc(var(--scale-size-1) * -1) 0 var(--color-gray-300);
         }
 
         .sw-data-grid__cell.sw-data-grid__cell--actions {

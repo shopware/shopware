@@ -6,7 +6,7 @@
     gap: var(--scale-size-32);
 
     &__figure {
-        width: 250px;
+        width: calc(var(--scale-size-224) + var(--scale-size-26));
     }
 
     &__heading {

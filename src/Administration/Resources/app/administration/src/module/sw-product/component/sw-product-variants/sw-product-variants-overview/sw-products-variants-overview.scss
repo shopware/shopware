@@ -1,19 +1,21 @@
 @import "~scss/variables";
 @import "~scss/mixins";
 
+$base-size: calc(var(--scale-size-224) + var(--scale-size-56));
+
 .sw-product-variants-overview {
     .sw-configuration-option-list__toolbar {
         background-color: var(--color-background-secondary-default);
-        border-bottom: 1px solid var(--color-gray-300);
-        padding: 25px;
+        border-bottom: var(--scale-size-1) solid var(--color-gray-300);
+        padding: var(--scale-size-26);
 
         .mt-button {
             height: var(--scale-size-32);
-            line-height: 16px;
+            line-height: var(--scale-size-16);
 
             .mt-icon {
-                width: 15px;
-                height: 15px;
+                width: var(--scale-size-16);
+                height: var(--scale-size-16);
             }
         }
 
@@ -24,7 +26,7 @@
 
     .sw-product-variants-overview__data-grid {
         .sw-data-grid__wrapper {
-            max-height: 500px;
+            max-height: calc(#{$base-size} + var(--scale-size-40) * 5 + var(--scale-size-20));
         }
 
         a.sw-product-variants-overview__variation-link {
@@ -35,7 +37,7 @@
                 color: var(--color-shopware-brand-500);
                 width: var(--scale-size-12);
                 height: var(--scale-size-12);
-                margin-right: 5px;
+                margin-right: var(--scale-size-6);
             }
 
             &:hover {
@@ -73,7 +75,7 @@
 
         &::after {
             content: "-";
-            margin: 0 5px;
+            margin: 0 var(--scale-size-6);
         }
 
         &:last-child::after {
@@ -90,8 +92,8 @@
             z-index: 10;
 
             .sw-tree {
-                max-height: 450px;
-                width: 280px;
+                max-height: calc(#{$base-size} + var(--scale-size-40) * 4 + var(--scale-size-10));
+                width: calc(var(--scale-size-224) + var(--scale-size-56));
                 overflow: auto;
             }
 
@@ -184,7 +186,7 @@
             @include square(var(--scale-size-12));
 
             opacity: 0;
-            margin-right: 5px;
+            margin-right: var(--scale-size-6);
             color: var(--color-shopware-brand-500);
         }
 
@@ -202,7 +204,7 @@
         }
 
         .sw-media-upload-v2__content {
-            width: 330px;
+            width: calc(var(--scale-size-224) + var(--scale-size-56) + var(--scale-size-40) + var(--scale-size-10));
         }
 
         .sw-product-variants-overview__variation-link-name {
@@ -210,7 +212,7 @@
 
             &::after {
                 content: "-";
-                margin: 0 5px;
+                margin: 0 var(--scale-size-6);
             }
 
             &:last-child::after {
@@ -220,6 +222,6 @@
     }
 
     .sw-media-upload-v2__content {
-        width: 330px;
+        width: calc(var(--scale-size-224) + var(--scale-size-56) + var(--scale-size-40) + var(--scale-size-10));
     }
 }

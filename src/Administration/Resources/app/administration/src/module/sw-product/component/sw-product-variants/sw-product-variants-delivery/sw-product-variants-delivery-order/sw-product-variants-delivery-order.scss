@@ -1,5 +1,7 @@
 @import "~scss/variables";
 
+$base-size: calc(var(--scale-size-224) + var(--scale-size-56));
+
 .sw-product-variants-delivery-order {
     display: flex;
     height: 100%;
@@ -9,10 +11,10 @@
     .sw-product-variants-delivery-order__groups {
         background-color: var(--color-white);
         font-size: var(--font-size-xs);
-        flex-basis: 500px;
+        flex-basis: calc(#{$base-size} + var(--scale-size-40) * 5 + var(--scale-size-20));
         height: 100%;
         overflow: auto;
-        border-right: 1px solid var(--color-gray-300);
+        border-right: var(--scale-size-1) solid var(--color-gray-300);
 
         .sw-tree {
             border-width: 0;

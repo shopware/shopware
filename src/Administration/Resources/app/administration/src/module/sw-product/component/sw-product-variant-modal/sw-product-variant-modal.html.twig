@@ -13,7 +13,7 @@
     <div class="sw-configuration-option-list__toolbar">
         {% block sw_product_variant_modal_toolbar_container %}
         <sw-container
-            columns="1fr minmax(50px, max-content)"
+            columns="1fr minmax(calc(var(--scale-size-40) + var(--scale-size-10)), max-content)"
             gap="0 var(--scale-size-16)"
         >
 
@@ -51,7 +51,7 @@
                 >
                     <sw-container
                         columns="1fr"
-                        gap="5px"
+                        gap="var(--scale-size-6)"
                     >
 
                         {% block sw_product_variant_modal_option_list_toolbar_container_filter_tree %}

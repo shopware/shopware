@@ -13,7 +13,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    padding: 50px;
+    padding: calc(var(--scale-size-40) + var(--scale-size-10));
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -22,7 +22,7 @@
     transform-origin: top right;
 
     .generate-variant-progress-bar {
-        max-width: 300px;
+        max-width: calc(var(--scale-size-224) + var(--scale-size-56) + var(--scale-size-20));
     }
 
     .generate-variant-progress-bar__description {

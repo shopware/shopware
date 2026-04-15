@@ -4,12 +4,12 @@
         color: var(--color-text-primary-default);
         font-size: var(--font-size-xs);
         font-weight: var(--font-weight-regular);
-        line-height: 20px;
+        line-height: var(--font-line-height-s);
     }
 
     &__description-group a.sw-internal-link {
         font-size: var(--font-size-xs);
         font-weight: var(--font-weight-regular);
-        line-height: 20px;
+        line-height: var(--font-line-height-s);
     }
 }

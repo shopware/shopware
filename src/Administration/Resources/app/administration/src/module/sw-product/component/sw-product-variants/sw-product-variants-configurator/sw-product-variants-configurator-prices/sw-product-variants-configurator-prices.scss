@@ -19,10 +19,10 @@
 
     .sw-product-variants-configurator-prices__groups {
         font-size: var(--font-size-xs);
-        flex-basis: 270px;
+        flex-basis: calc(var(--scale-size-224) + var(--scale-size-24) + var(--scale-size-22));
         height: 100%;
         overflow: auto;
-        border-right: 1px solid var(--color-gray-300);
+        border-right: var(--scale-size-1) solid var(--color-gray-300);
         padding: var(--scale-size-20) 0;
 
         .mt-icon {
@@ -34,8 +34,8 @@
         cursor: pointer;
         display: flex;
         align-items: center;
-        min-height: 34px;
-        line-height: 34px;
+        min-height: calc(var(--scale-size-32) + var(--scale-size-2));
+        line-height: calc(var(--scale-size-32) + var(--scale-size-2));
         list-style: none;
         padding-left: var(--scale-size-20);
 
@@ -55,7 +55,7 @@
         flex-direction: column;
 
         .sw-data-grid {
-            border-bottom: 1px solid var(--color-gray-300);
+            border-bottom: var(--scale-size-1) solid var(--color-gray-300);
         }
     }
 
@@ -65,8 +65,8 @@
     }
 
     .sw-product-variants-configurator-prices__search {
-        padding: 25px;
+        padding: var(--scale-size-26);
         background-color: var(--color-background-secondary-default);
-        border-bottom: 1px solid var(--color-gray-300);
+        border-bottom: var(--scale-size-1) solid var(--color-gray-300);
     }
 }

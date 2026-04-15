@@ -10,7 +10,7 @@
 
     &__inheritance-group-field .sw-inheritance-switch {
         position: absolute;
-        top: var(--scale-size-15);
+        top: var(--scale-size-16);
         left: calc(var(--scale-size-30) * -1);
         margin-top: 0;
         line-height: 0;
@@ -40,7 +40,7 @@
     }
 
     .mt-field--checkbox__content {
-        padding: var(--scale-size-15) 0;
+        padding: var(--scale-size-16) 0;
     }
 
     .sw-data-grid__table {

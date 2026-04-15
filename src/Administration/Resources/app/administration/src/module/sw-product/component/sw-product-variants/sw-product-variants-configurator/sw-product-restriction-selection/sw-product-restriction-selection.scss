@@ -9,12 +9,20 @@
         .sw-product-restriction-selection__select-group-wrapper {
             display: grid;
             box-sizing: border-box;
-            grid-template-columns: minmax(150px, 200px) minmax(120px, 150px);
+            grid-template-columns:
+                minmax(
+                    calc(var(--scale-size-128) + var(--scale-size-22)),
+                    calc(var(--scale-size-160) + var(--scale-size-40))
+                )
+                minmax(
+                    calc(var(--scale-size-80) + var(--scale-size-40)),
+                    calc(var(--scale-size-128) + var(--scale-size-22))
+                );
             background-color: var(--color-white);
-            max-height: 48px;
+            max-height: var(--scale-size-48);
             border-radius: var(--border-radius-xs) 0 0 var(--border-radius-xs);
-            border-top: 1px solid var(--color-gray-300);
-            border-bottom: 1px solid var(--color-gray-300);
+            border-top: var(--scale-size-1) solid var(--color-gray-300);
+            border-bottom: var(--scale-size-1) solid var(--color-gray-300);
         }
 
         .sw-block-field__block {
@@ -44,8 +52,8 @@
             content: "";
             box-sizing: border-box;
             position: absolute;
-            height: 45px;
-            width: 25px;
+            height: calc(var(--scale-size-40) + var(--scale-size-6));
+            width: var(--scale-size-26);
             right: 0;
         }
 
@@ -55,9 +63,9 @@
             width: 0;
             height: 0;
             border-style: solid;
-            border-width: var(--scale-size-24) 0 21px 16px;
+            border-width: var(--scale-size-24) 0 calc(var(--scale-size-20) + var(--scale-size-1)) var(--scale-size-16);
             border-color: transparent transparent transparent var(--color-gray-900);
-            right: 2px;
+            right: var(--scale-size-2);
         }
 
         .sw-field.sw-product-restriction-selection__select-group .mt-icon {
@@ -74,7 +82,7 @@
             z-index: 1;
             justify-content: center;
             align-items: center;
-            height: 45px;
+            height: calc(var(--scale-size-40) + var(--scale-size-6));
             margin-right: var(--scale-size-16);
             padding-right: var(--scale-size-8);
         }
@@ -85,10 +93,10 @@
             width: 0;
             height: 0;
             border-style: solid;
-            border-width: var(--scale-size-24) 0 21px 16px;
+            border-width: var(--scale-size-24) 0 calc(var(--scale-size-20) + var(--scale-size-1)) var(--scale-size-16);
             border-color: transparent transparent transparent var(--color-gray-300);
             right: 0;
-            transform: translate(calc(100% + 1px), 0);
+            transform: translate(calc(100% + var(--scale-size-1)), 0);
         }
 
         .sw-product-restriction-selection__isFrom::before {
@@ -97,11 +105,11 @@
 
         .sw-product-restriction-selection__isFrom::after {
             border-color: transparent transparent transparent var(--color-white);
-            right: 1px;
+            right: var(--scale-size-1);
         }
 
         .sw-multi-select {
-            border: 1px solid var(--color-gray-300);
+            border: var(--scale-size-1) solid var(--color-gray-300);
             border-radius: 0;
         }
 
@@ -114,16 +122,16 @@
         }
 
         .sw-multi-select .sw-multi-select__results-list {
-            max-height: 140px;
+            max-height: calc(var(--scale-size-128) + var(--scale-size-12));
         }
 
         .sw-product-restriction-selection__select-option-wrapper .sw-context-button {
             display: flex;
             justify-content: center;
-            height: 48px;
+            height: var(--scale-size-48);
             align-items: center;
             background-color: var(--color-white);
-            border: 1px solid var(--color-gray-300);
+            border: var(--scale-size-1) solid var(--color-gray-300);
             border-left-width: 0;
             border-top-right-radius: var(--border-radius-xs);
             border-bottom-right-radius: var(--border-radius-xs);
@@ -136,7 +144,7 @@
         }
 
         .mt-select.sw-product-restriction-selection__select-group {
-            margin-top: -1px;
+            margin-top: -var(--scale-size-1);
         }
     }
 }

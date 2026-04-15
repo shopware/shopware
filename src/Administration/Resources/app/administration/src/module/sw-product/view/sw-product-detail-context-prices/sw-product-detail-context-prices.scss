@@ -2,7 +2,7 @@
 
 .sw-product-detail-context-prices {
     width: 100%;
-    max-width: 1330px;
+    max-width: calc(var(--scale-size-224) * 5 + var(--scale-size-160) + var(--scale-size-40) + var(--scale-size-10));
     margin: 0 auto;
 
     .mt-card.context-price {
@@ -13,7 +13,7 @@
         width: 100%;
 
         .mt-card__content {
-            min-height: 250px;
+            min-height: calc(var(--scale-size-224) + var(--scale-size-26));
             position: relative;
         }
 
@@ -27,9 +27,9 @@
     }
 
     .sw-product-detail-context-prices__toolbar {
-        padding: 25px;
+        padding: var(--scale-size-26);
         background-color: var(--color-gray-100);
-        border-bottom: 1px solid var(--color-gray-300);
+        border-bottom: var(--scale-size-1) solid var(--color-gray-300);
     }
 
     .sw-product-detail-context-prices__toolbar-selection {
@@ -42,14 +42,14 @@
 
     .sw-data-grid .sw-data-grid__body .sw-data-grid__cell-content {
         height: auto;
-        padding: 5px var(--scale-size-20) var(--scale-size-10);
+        padding: var(--scale-size-6) var(--scale-size-20) var(--scale-size-10);
     }
 
     .sw-data-grid .sw-data-grid__body .product-detail-context-prices__price-field-wrapper {
         display: flex;
         flex-wrap: nowrap;
         align-items: center;
-        margin-bottom: 5px;
+        margin-bottom: var(--scale-size-6);
 
         .sw-product-detail-context-prices__inherited-icon {
             margin-right: var(--scale-size-10);
@@ -63,7 +63,7 @@
     .sw-product-detail-context-prices__type-label {
         display: flex;
         flex-direction: column;
-        gap: 34px;
+        gap: calc(var(--scale-size-32) + var(--scale-size-2));
     }
 
     input[name="sw-field--item-quantityEnd"] {
@@ -83,9 +83,9 @@
     }
 
     .sw-product-detail-context-prices__empty-state {
-        max-width: 350px;
+        max-width: calc(var(--scale-size-224) + var(--scale-size-56) + var(--scale-size-40) + var(--scale-size-30));
         margin: 0 auto;
-        padding: 60px var(--scale-size-20);
+        padding: calc(var(--scale-size-40) + var(--scale-size-20)) var(--scale-size-20);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -114,7 +114,7 @@
     .sw-product-detail-context-prices__inherit-toggle-wrapper {
         display: flex;
         align-items: center;
-        line-height: 16px;
+        line-height: var(--scale-size-16);
         font-size: var(--font-size-xs);
         margin-bottom: var(--scale-size-20);
         color: var(--color-darkgray-200);

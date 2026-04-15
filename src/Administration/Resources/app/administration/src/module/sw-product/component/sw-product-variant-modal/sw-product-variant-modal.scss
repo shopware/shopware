@@ -2,6 +2,8 @@
 @import "~scss/variables";
 @import "~scss/mixins";
 
+$tree-base-size: calc(var(--scale-size-224) + var(--scale-size-56));
+
 .sw-product-variant-modal {
     &__main-product-link {
         color: var(--color-shopware-brand-500);
@@ -17,7 +19,7 @@
     div.sw-modal__body {
         display: grid;
         grid-template-columns: 100%;
-        grid-template-rows: 84px auto;
+        grid-template-rows: calc(var(--scale-size-80) + var(--scale-size-4)) auto;
         height: 100%;
         padding: 0;
     }
@@ -52,7 +54,7 @@
 
     &__variants {
         color: var(--color-gray-600);
-        margin-left: 5px;
+        margin-left: var(--scale-size-6);
     }
 
     &__price-inheritance-switch {
@@ -79,7 +81,7 @@
     }
 
     span.sw-data-grid__bulk-selected {
-        margin: 0 5px 0 0;
+        margin: 0 var(--scale-size-6) 0 0;
     }
 
     &__delete-modal-subline {
@@ -89,7 +91,7 @@
     }
 
     &__variant-name {
-        margin-right: 5px;
+        margin-right: var(--scale-size-6);
     }
 
     &__variant-options span {
@@ -110,8 +112,8 @@
 
     .sw-configuration-option-list__toolbar {
         background-color: var(--color-background-secondary-default);
-        border-bottom: 1px solid var(--color-gray-300);
-        padding: 25px;
+        border-bottom: var(--scale-size-1) solid var(--color-gray-300);
+        padding: var(--scale-size-26);
     }
 
     .sw-product-variant-modal__filter-list-button {
@@ -125,12 +127,12 @@
 
             .sw-context-menu__content::before {
                 left: auto;
-                right: 48px;
+                right: var(--scale-size-48);
             }
 
             .sw-tree {
-                max-height: 450px;
-                width: 280px;
+                max-height: calc(#{$tree-base-size} + var(--scale-size-40) * 4 + var(--scale-size-10));
+                width: calc(var(--scale-size-224) + var(--scale-size-56));
                 overflow: auto;
             }
 

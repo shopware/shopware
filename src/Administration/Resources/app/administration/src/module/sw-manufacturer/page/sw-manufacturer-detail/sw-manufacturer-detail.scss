@@ -11,7 +11,7 @@
             }
 
             &__dropzone {
-                min-height: 150px;
+                min-height: calc(var(--scale-size-128) + var(--scale-size-22));
             }
 
             &__url-form {

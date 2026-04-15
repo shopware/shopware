@@ -858,7 +858,11 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
             expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toBeUndefined();
 
             // remove inheritance
-            await inheritanceSwitch.find('.mt-icon').trigger('click');
+            if (config.legacy) {
+                await inheritanceSwitch.find('.mt-icon').trigger('click');
+            } else {
+                await inheritanceSwitch.trigger('click');
+            }
 
             // check if inheritance switch is not inherit anymore
             field = wrapper.find(`.sw-system-config--field-${kebabCase(name)}`);
@@ -926,7 +930,11 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
             expect(inheritanceSwitch.attributes('aria-label')).toBe('Link inheritance');
 
             // restore inheritance
-            await inheritanceSwitch.find('.mt-icon').trigger('click');
+            if (config.legacy) {
+                await inheritanceSwitch.find('.mt-icon').trigger('click');
+            } else {
+                await inheritanceSwitch.trigger('click');
+            }
             await flushPromises();
 
             // check if inheritance switch is not inherit anymore
@@ -994,7 +1002,11 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
             expect(inheritanceSwitch.attributes('aria-label')).toBe('Link inheritance');
 
             // restore inheritance
-            await inheritanceSwitch.find('.mt-icon').trigger('click');
+            if (config.legacy) {
+                await inheritanceSwitch.find('.mt-icon').trigger('click');
+            } else {
+                await inheritanceSwitch.trigger('click');
+            }
 
             // check if inheritance switch is not inherit anymore
             field = wrapper.find(`.sw-system-config--field-${kebabCase(name)}`);

@@ -38,15 +38,15 @@ export const handleConsentRequest: HandleMethod<'consentRequest'> = (message, { 
     );
 
     if (!extension) {
-        throw new Error(`No extension found for origin: ${_event_.origin}`);
+        return Promise.reject(new Error(`No extension found for origin: ${_event_.origin}`));
     }
 
     if (!isWindow(_event_.source)) {
-        throw new Error('The source of the ConsentRequest is not a window.');
+        return Promise.reject(new Error('The source of the ConsentRequest is not a window.'));
     }
 
     if (!consentStore.consents[message.consent]) {
-        throw new Error(`Consent with name "${message.consent}" does not exist.`);
+        return Promise.reject(new Error(`Consent with name "${message.consent}" does not exist.`));
     }
 
     consentStore.addConsentRequest(
@@ -62,6 +62,8 @@ export const handleConsentRequest: HandleMethod<'consentRequest'> = (message, { 
             window: _event_.source,
         },
     );
+
+    return Promise.resolve();
 };
 
 /**

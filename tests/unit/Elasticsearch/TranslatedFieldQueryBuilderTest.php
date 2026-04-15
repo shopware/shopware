@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Stub\Framework\Adapter\Storage\ArrayKeyValueStorage;
 use Shopware\Elasticsearch\AbstractFieldQueryBuilder;
 use Shopware\Elasticsearch\Product\SearchFieldConfig;
 use Shopware\Elasticsearch\ResolvedField;
@@ -30,7 +31,7 @@ class TranslatedFieldQueryBuilderTest extends TestCase
     public function testGetDecorated(): void
     {
         $inner = $this->createMock(AbstractFieldQueryBuilder::class);
-        $builder = new TranslatedFieldQueryBuilder($inner, new ArrayKeyValueStorageStub([]));
+        $builder = new TranslatedFieldQueryBuilder($inner, new ArrayKeyValueStorage([]));
 
         static::assertSame($inner, $builder->getDecorated());
     }
@@ -44,7 +45,7 @@ class TranslatedFieldQueryBuilderTest extends TestCase
             ->method('build')
             ->willReturn($expected);
 
-        $builder = new TranslatedFieldQueryBuilder($inner, new ArrayKeyValueStorageStub([]));
+        $builder = new TranslatedFieldQueryBuilder($inner, new ArrayKeyValueStorage([]));
         $field = new ResolvedField(new IntField('stock', 'stock'));
         $config = new SearchFieldConfig('stock', 300, false);
 
@@ -61,7 +62,7 @@ class TranslatedFieldQueryBuilderTest extends TestCase
                 return new TermQuery($config->getField(), $token, ['boost' => $config->getRanking()]);
             });
 
-        $builder = new TranslatedFieldQueryBuilder($inner, new ArrayKeyValueStorageStub([]));
+        $builder = new TranslatedFieldQueryBuilder($inner, new ArrayKeyValueStorage([]));
         $translatedField = new TranslatedField('name');
         $field = new TranslatedResolvedField(new StringField('name', 'name'), $translatedField);
         $config = new SearchFieldConfig('name', 500, false);
@@ -95,7 +96,7 @@ class TranslatedFieldQueryBuilderTest extends TestCase
                 return new TermQuery($config->getField(), $token, ['boost' => $config->getRanking()]);
             });
 
-        $builder = new TranslatedFieldQueryBuilder($inner, new ArrayKeyValueStorageStub([]));
+        $builder = new TranslatedFieldQueryBuilder($inner, new ArrayKeyValueStorage([]));
         $translatedField = new TranslatedField('name');
         $field = new TranslatedResolvedField(new StringField('name', 'name'), $translatedField);
         $config = new SearchFieldConfig('name', 500, false);
@@ -114,7 +115,7 @@ class TranslatedFieldQueryBuilderTest extends TestCase
         $inner = $this->createMock(AbstractFieldQueryBuilder::class);
         $inner->method('build')->willReturn(null);
 
-        $builder = new TranslatedFieldQueryBuilder($inner, new ArrayKeyValueStorageStub([]));
+        $builder = new TranslatedFieldQueryBuilder($inner, new ArrayKeyValueStorage([]));
         $translatedField = new TranslatedField('name');
         $field = new TranslatedResolvedField(new StringField('name', 'name'), $translatedField);
         $config = new SearchFieldConfig('name', 500, false);
@@ -139,7 +140,7 @@ class TranslatedFieldQueryBuilderTest extends TestCase
                 return new TermQuery($config->getField(), $token, ['boost' => $config->getRanking()]);
             });
 
-        $builder = new TranslatedFieldQueryBuilder($inner, new ArrayKeyValueStorageStub([]));
+        $builder = new TranslatedFieldQueryBuilder($inner, new ArrayKeyValueStorage([]));
         $translatedField = new TranslatedField('customFields');
         $field = new TranslatedResolvedField(new StringField('evolvesText', 'evolvesText'), $translatedField);
         $config = new SearchFieldConfig('customFields.evolvesText', 500, false);
@@ -165,7 +166,7 @@ class TranslatedFieldQueryBuilderTest extends TestCase
                 return new TermQuery($config->getField(), $token);
             });
 
-        $builder = new TranslatedFieldQueryBuilder($inner, new ArrayKeyValueStorageStub([]));
+        $builder = new TranslatedFieldQueryBuilder($inner, new ArrayKeyValueStorage([]));
         $translatedField = new TranslatedField('name');
         $field = new TranslatedResolvedField(new StringField('name', 'name'), $translatedField, 'categories');
         $config = new SearchFieldConfig('categories.name', 500, false);
@@ -178,38 +179,5 @@ class TranslatedFieldQueryBuilderTest extends TestCase
         static::assertCount(1, $capturedFields);
         static::assertNotInstanceOf(TranslatedResolvedField::class, $capturedFields[0]);
         static::assertNull($capturedFields[0]->getRoot());
-    }
-}
-
-/**
- * @internal
- */
-class ArrayKeyValueStorageStub extends \Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage
-{
-    /**
-     * @param array<string, mixed> $data
-     */
-    public function __construct(private array $data = [])
-    {
-    }
-
-    public function has(string $key): bool
-    {
-        return \array_key_exists($key, $this->data);
-    }
-
-    public function get(string $key, mixed $default = null): mixed
-    {
-        return $this->data[$key] ?? $default;
-    }
-
-    public function set(string $key, mixed $value): void
-    {
-        $this->data[$key] = $value;
-    }
-
-    public function remove(string $key): void
-    {
-        unset($this->data[$key]);
     }
 }

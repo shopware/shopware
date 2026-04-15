@@ -389,11 +389,14 @@ class DocumentRouteTest extends TestCase
             PdfRenderer::FILE_EXTENSION => $this->createMock(AbstractDocumentTypeRenderer::class),
         ]);
 
+        $rateLimitExceededException = $this->createMock(RateLimitExceededException::class);
+        $rateLimitExceededException->method('getWaitTime')->willReturn(60);
+
         $rateLimiter = $this->createMock(RateLimiter::class);
         $rateLimiter->expects($this->once())
             ->method('ensureAccepted')
             ->with(RateLimiter::GUEST_LOGIN, 'deeplinkcode-127.0.0.1')
-            ->willThrowException(new RateLimitExceededException(time() + 60));
+            ->willThrowException($rateLimitExceededException);
 
         $rateLimiter->expects($this->never())->method('reset');
 
@@ -412,8 +415,10 @@ class DocumentRouteTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(null);
 
-        static::expectException(DocumentException::class);
-        static::expectExceptionCode(Response::HTTP_TOO_MANY_REQUESTS);
+        static::expectExceptionObject(
+            DocumentException::documentAuthThrottledException($rateLimitExceededException->getWaitTime())
+        );
+
         $route->download($document->getId(), $request, $context, 'deepLinkCode');
     }
 

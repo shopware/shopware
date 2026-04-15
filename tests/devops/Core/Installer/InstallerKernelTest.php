@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Installer;
+namespace Shopware\Tests\DevOps\Core\Installer;
 
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
@@ -15,7 +15,6 @@ use Symfony\Bundle\TwigBundle\TwigBundle;
 /**
  * @internal
  */
-#[CoversClass(InstallerKernel::class)]
 class InstallerKernelTest extends TestCase
 {
     use EnvTestBehaviour;
@@ -26,6 +25,7 @@ class InstallerKernelTest extends TestCase
         $this->setEnvVars(['COMPOSER_HOME' => null]);
     }
 
+    #[TestDox('boot configures container with shopware version and bundles')]
     public function testItCorrectlyConfiguresTheContainer(): void
     {
         $kernel = new InstallerKernel('test', false);
@@ -45,6 +45,7 @@ class InstallerKernelTest extends TestCase
         );
     }
 
+    #[TestDox('boot sets project dir and COMPOSER_HOME fallback')]
     public function testItCorrectlyConfiguresProjectDir(): void
     {
         $kernel = new InstallerKernel('test', false);

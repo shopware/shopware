@@ -81,3 +81,63 @@ We expect:
   But we are not limiting ourselves to this and might adjust things to provide a better UX overall.
 - That all existing (already generated) documents will be migrated and will still be accessible untouched in the new implementation UI.
 - All extensions and integrations that did anything document-related will have to be updated to use the new implementation.
+
+### Estimated impact on customers
+
+We scanned the codebases of plugins available in our extension store and summarized the results below.
+
+We make the following assumptions:
+- In total, 204 of the 3,204 scanned plugins use some part of the existing document generation API surface. That is 6.4% of the plugin ecosystem.
+- The 84 plugins that touch only the Twig templates are probably unaffected, since we will continue using the same templates
+  and will try not to introduce breaking changes to them. This reduces the estimated number of affected plugins to 120.
+- If we keep the current configuration database schemas backward compatible, we could reduce that number by a further 51 plugins,
+  bringing the estimated number of affected plugins down to 69.
+  - It turns out that some plugins use only our configuration schemas and do not actually use our rendering system,
+    but instead build their own.
+
+With these assumptions, we estimate that this refactor would break 69 plugins, which is 2.2% of our plugin ecosystem.
+Of course, these numbers are only estimates, and not every plugin is published in our extension store.
+
+#### Overview
+
+| metric | value |
+|---|---:|
+| plugins scanned | 3204 |
+| plugins using any extension point | 204 |
+| unique plugin/extension-point usages | 553 |
+| average extension points per matching plugin | 2.71 |
+
+#### Extension Point Groups
+
+| group | contains | plugins | group-only | shared with other groups/points | share of matching plugins |
+|---|---|---:|---:|---:|---:|
+| twig templates (any) | @Framework/documents/base.html.twig, credit_note.html.twig, delivery_note.html.twig, invoice.html.twig, storno.html.twig | 117 | 84 | 33 | 57.4% |
+| renderers/builders (any) | document.renderer, AbstractDocumentRenderer, CreditNoteRenderer, DeliveryNoteRenderer, InvoiceRenderer, StornoRenderer, ZugferdBuilder, ZugferdRenderer | 39 | 2 | 37 | 19.1% |
+| type renderers (any) | document_type.renderer, AbstractDocumentTypeRenderer, HtmlRenderer, PdfRenderer | 30 | 4 | 26 | 14.7% |
+| config entities (any) | document_base_config, document_base_config_sales_channel | 77 | 51 | 26 | 37.7% |
+
+#### Per Extension Point
+
+| extension point | plugins | exclusive | shared | share of matching plugins |
+|---|---:|---:|---:|---:|
+| document.renderer | 19 | 1 | 18 | 9.3% |
+| document_type.renderer | 4 | 0 | 4 | 2.0% |
+| AbstractDocumentRenderer | 19 | 0 | 19 | 9.3% |
+| AbstractDocumentTypeRenderer | 4 | 1 | 3 | 2.0% |
+| CreditNoteRenderer | 7 | 0 | 7 | 3.4% |
+| DeliveryNoteRenderer | 10 | 0 | 10 | 4.9% |
+| DocumentFileRendererRegistry | 11 | 0 | 11 | 5.4% |
+| DocumentGenerateOperation | 44 | 11 | 33 | 21.6% |
+| HtmlRenderer | 4 | 0 | 4 | 2.0% |
+| InvoiceRenderer | 28 | 0 | 28 | 13.7% |
+| PdfRenderer | 28 | 2 | 26 | 13.7% |
+| StornoRenderer | 7 | 0 | 7 | 3.4% |
+| ZugferdBuilder | 0 | 0 | 0 | 0.0% |
+| ZugferdRenderer | 0 | 0 | 0 | 0.0% |
+| @Framework/documents/base.html.twig | 52 | 20 | 32 | 25.5% |
+| credit_note.html.twig | 28 | 0 | 28 | 13.7% |
+| delivery_note.html.twig | 48 | 2 | 46 | 23.5% |
+| invoice.html.twig | 76 | 21 | 55 | 37.3% |
+| storno.html.twig | 33 | 0 | 33 | 16.2% |
+| document_base_config | 77 | 12 | 65 | 37.7% |
+| document_base_config_sales_channel | 54 | 0 | 54 | 26.5% |

@@ -341,6 +341,10 @@ export default {
         },
 
         showAdvanceModeSetting() {
+            if (this.isLoading) {
+                return false;
+            }
+
             if (this.isChild) {
                 return false;
             }

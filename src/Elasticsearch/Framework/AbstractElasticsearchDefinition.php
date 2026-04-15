@@ -31,6 +31,13 @@ abstract class AbstractElasticsearchDefinition
         ],
     ];
 
+    final public const SEARCH_FIELD_WITH_LENGTH_NORM = [
+        'fields' => [
+            'search' => ['type' => 'text', 'analyzer' => 'sw_whitespace_analyzer', 'similarity' => 'sw_length_norm'],
+            'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+        ],
+    ];
+
     abstract public function getEntityDefinition(): EntityDefinition;
 
     /**
@@ -64,5 +71,16 @@ abstract class AbstractElasticsearchDefinition
     protected static function getTextFieldConfig(): array
     {
         return self::KEYWORD_FIELD + self::SEARCH_FIELD;
+    }
+
+    /**
+     * Returns text field config with BM25 length normalization (b=0.75) for long-form text fields
+     * like description and metaDescription, where document length IS a relevance signal.
+     *
+     * @return array<string, mixed>
+     */
+    protected static function getTextFieldWithLengthNormConfig(): array
+    {
+        return self::KEYWORD_FIELD + self::SEARCH_FIELD_WITH_LENGTH_NORM;
     }
 }

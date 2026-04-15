@@ -100,8 +100,25 @@
             <argument type="tagged_iterator" tag="shopware.product_export.validator"/>
         </service>
 
+        <service id="Shopware\Core\Content\ProductExport\Validator\JsonlRowParser"/>
+
         <service id="Shopware\Core\Content\ProductExport\Validator\XmlValidator">
             <tag name="shopware.product_export.validator"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ProductExport\Validator\OpenAiProductExportValidator">
+            <argument type="service" id="Shopware\Core\Content\ProductExport\Validator\JsonlRowParser"/>
+            <tag name="shopware.product_export.validator"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ProductExport\Provider\AgenticCommerceProductExportProviderRegistry">
+            <argument type="tagged_iterator" tag="shopware.product_export.provider"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ProductExport\Provider\OpenAiProductExportProvider">
+            <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <tag name="shopware.product_export.provider"/>
         </service>
 
         <service id="Shopware\Core\Content\ProductExport\DataAbstractionLayer\ProductExportExceptionHandler">
@@ -112,6 +129,11 @@
             <argument type="service" id="product_export.repository"/>
             <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportFileHandler"/>
             <argument type="service" id="shopware.filesystem.private"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ProductExport\Subscriber\AgenticCommerceProductExportProviderContextSubscriber">
+            <argument type="service" id="Shopware\Core\Content\ProductExport\Provider\AgenticCommerceProductExportProviderRegistry"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 

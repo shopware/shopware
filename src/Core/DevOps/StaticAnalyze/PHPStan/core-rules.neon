@@ -13,7 +13,6 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\DomainExceptionRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\ExtensionRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoNewRequestInStorefrontRule
-    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoNativeTimeReadRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\AclValidPermissionsInMethodRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\AclValidPermissionsInRouteAttributesRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\ShopwareNamespaceStyleRule

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelpe
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Elasticsearch\Product\SearchFieldConfig;
 
@@ -18,7 +19,7 @@ use Shopware\Elasticsearch\Product\SearchFieldConfig;
  * @final
  */
 #[Package('inventory')]
-class TokenQueryBuilder
+class TokenQueryBuilder extends AbstractTokenQueryBuilder
 {
     /**
      * @internal
@@ -28,6 +29,11 @@ class TokenQueryBuilder
         private readonly CustomFieldService $customFieldService,
         private readonly AbstractFieldQueryBuilder $fieldQueryBuilder,
     ) {
+    }
+
+    public function getDecorated(): AbstractTokenQueryBuilder
+    {
+        throw new DecorationPatternException(self::class);
     }
 
     /**

@@ -13,6 +13,7 @@
 
             @include media-breakpoint-up(lg) {
                 @include make-col(8);
+                margin-bottom: 0;
             }
         }
 

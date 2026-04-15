@@ -24,7 +24,7 @@ export const handleConsentStatus: HandleMethod<'consentStatus'> = (message) => {
 /**
  * @private
  */
-export const handleConsentRequest: HandleMethod<'consentRequest'> = async (message, { _event_ }) => {
+export const handleConsentRequest: HandleMethod<'consentRequest'> = (message, { _event_ }) => {
     const extensionsStore = useExtensionsStore();
     const consentStore = useConsentStore();
 

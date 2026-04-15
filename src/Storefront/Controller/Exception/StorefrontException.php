@@ -8,6 +8,7 @@ use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Twig\Error\Error as TwigError;
 
 #[Package('framework')]
@@ -135,7 +136,7 @@ class StorefrontException extends HttpException
     }
 
     /**
-     * Throwing the custom exception allows to still catch {@see \Symfony\Component\Routing\Exception\RouteNotFoundException} as usual
+     * Throwing the custom exception allows to still catch {@see RouteNotFoundException} as usual
      */
     public static function routeNotFound(string $route, ?\Throwable $previous = null): StorefrontRouteNotFoundException
     {

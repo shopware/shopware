@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitio
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBuilder;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiGenerator;
 use Shopware\Core\Framework\Api\ApiException;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\CustomBundleWithApiSchema\ShopwareBundleWithName;
@@ -774,7 +775,7 @@ class StoreApiGeneratorTest extends TestCase
         $foundDefinitionWithAssociations = false;
 
         foreach ($this->definitionRegistry->getDefinitions() as $definition) {
-            if (!$definition instanceof \Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition) {
+            if (!$definition instanceof EntityDefinition) {
                 continue;
             }
 

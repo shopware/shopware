@@ -18,6 +18,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
+use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Hmac\RequestSigner;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\Payload\Source;
@@ -28,8 +29,10 @@ use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
+use Shopware\Core\Framework\Webhook\Service\WebhookClient;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
+use Shopware\Core\Framework\Webhook\Service\WebhookRequest;
 use Shopware\Core\Framework\Webhook\Webhook;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
@@ -50,7 +53,7 @@ class WebhookManagerTest extends TestCase
 
     private MockHandler $clientMock;
 
-    private Client $client;
+    private WebhookClient $webhookClient;
 
     private HookableEventFactory&MockObject $eventFactory;
 
@@ -61,8 +64,11 @@ class WebhookManagerTest extends TestCase
         $this->webhookLoader = $this->createMock(WebhookLoader::class);
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $this->connection = $this->createMock(Connection::class);
-        $this->clientMock = new MockHandler([new Response(200)]);
-        $this->client = new Client(['handler' => HandlerStack::create($this->clientMock)]);
+        $this->clientMock = new MockHandler([new Response(200, [], '{}')]);
+        $stack = HandlerStack::create($this->clientMock);
+        $stack->push(new AuthMiddleware('6.7.0', $this->createMock(AppLocaleProvider::class)));
+        $guzzle = new Client(['handler' => $stack]);
+        $this->webhookClient = new WebhookClient($guzzle);
         $this->eventFactory = $this->createMock(HookableEventFactory::class);
         $this->bus = new CollectingMessageBus();
     }
@@ -414,7 +420,8 @@ class WebhookManagerTest extends TestCase
     private function getWebhookManager(bool $isAdminWorkerEnabled): WebhookManager
     {
         $appPayloadServiceHelper = $this->createMock(AppPayloadServiceHelper::class);
-        $appPayloadServiceHelper->expects($this->any())->method('buildSource')->willReturn(new Source('https://example.com', 'foobar', '0.0.0'));
+        $appPayloadServiceHelper->method('buildSource')->willReturn(new Source('https://example.com', 'foobar', '0.0.0'));
+        $appPayloadServiceHelper->method('createWebhookRequest')->willReturnCallback($this->buildWebhookRequest(...));
 
         return new WebhookManager(
             $this->webhookLoader,
@@ -423,12 +430,48 @@ class WebhookManagerTest extends TestCase
             $this->eventFactory,
             $this->createMock(AppLocaleProvider::class),
             $appPayloadServiceHelper,
-            $this->client,
+            $this->webhookClient,
             $this->bus,
             'https://example.com',
             '0.0.0',
             $isAdminWorkerEnabled
         );
+    }
+
+    /**
+     * Minimal stand-in for AppPayloadServiceHelper::createWebhookRequest.
+     * The real method is unit-tested in AppPayloadServiceHelperTest; here we only
+     * need a valid WebhookRequest so the Guzzle MockHandler receives a sendable request.
+     *
+     * @param array<string, mixed> $payload
+     * @param array<string, string> $webhookHeaders
+     */
+    private function buildWebhookRequest(
+        array $payload,
+        string $url,
+        string $shopwareVersion,
+        int $connectionTimeout,
+        int $requestTimeout,
+        ?string $secret = null,
+        ?string $languageId = null,
+        ?string $userLocale = null,
+        array $webhookHeaders = [],
+    ): WebhookRequest {
+        $payload['timestamp'] = time();
+        $jsonPayload = json_encode($payload, \JSON_THROW_ON_ERROR);
+
+        $headers = ['Content-Type' => 'application/json', 'sw-version' => $shopwareVersion, ...$webhookHeaders];
+        if ($languageId !== null && $userLocale !== null) {
+            $headers[AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE] = $languageId;
+            $headers[AuthMiddleware::SHOPWARE_USER_LANGUAGE] = $userLocale;
+        }
+
+        $options = ['connect_timeout' => $connectionTimeout, 'timeout' => $requestTimeout];
+        if ($secret !== null) {
+            $options[AuthMiddleware::APP_REQUEST_TYPE] = [AuthMiddleware::APP_SECRET => $secret];
+        }
+
+        return new WebhookRequest(new Request('POST', $url, $headers, $jsonPayload), $headers, $jsonPayload, time(), $options);
     }
 
     private function getWebhook(string $eventName, bool $onlyLiveVersion = false): Webhook

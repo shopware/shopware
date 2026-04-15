@@ -124,6 +124,7 @@ export default {
             }
 
             Promise.allSettled(Object.values(this.selection).map((option) => this.onOptionDelete(option))).then(() => {
+                this.resetSelectionState();
                 this.refreshOptionList();
             });
         },
@@ -179,6 +180,11 @@ export default {
             this.$refs.grid.load().then(() => {
                 this.isLoading = false;
             });
+        },
+
+        resetSelectionState() {
+            this.selection = null;
+            this.deleteButtonDisabled = true;
         },
 
         onOptionEdit(option) {

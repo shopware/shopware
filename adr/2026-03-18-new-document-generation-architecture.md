@@ -46,19 +46,19 @@ erDiagram
     DOCUMENT_FILE ||--|| DOCUMENT_FORMAT : in
 ```
 
-- An order has zero or more `document`'s
-- Each `document` is of a single `document_type`
-- Each `document` has one or more `document_file`'s
-- Each `document_file` is in a single `document_format`
+- An order has zero or more `document`s.
+- Each `document` is of a single `document_type`.
+- Each `document` has one or more `document_file`s.
+- Each `document_file` is in a single `document_format`.
 
 ```mermaid
 erDiagram
     DOCUMENT_TYPE ||--|{ DOCUMENT_FORMAT : supports
 ```
 
-- Each `document_type` supports one or more `document_format`'s
+- Each `document_type` supports one or more `document_format`s.
 - This information can later be used in the admin UI or for the API user to determine which
-  generation options are available
+  generation options are available.
 
 #### Disclaimer
 
@@ -70,8 +70,8 @@ document providers and document renderers and returns the supported document typ
 
 It will also consider any additional document types and formats that are registered in an App manifest.
 
-The reasoning behind this is that storing them in the DB could lead to issues, like when an extension
-gets uninstalled, they have to clean up properly otherwise these types and formats might remain broken in the system.
+The reasoning behind this is that storing them in the DB could lead to issues. For example, when an extension
+gets uninstalled, it would have to clean up properly; otherwise, these types and formats might remain broken in the system.
 
 ### Generation dependencies
 
@@ -88,11 +88,11 @@ stateDiagram-v2
 
 Where the generation process could look like this:
 
-1. Generate HTML from a Twig template and order data
-2. Generate PDF from the HTML using DomPDF
-3. Generate Zugferd XML from a different Twig template and order data
-4. Generate Zugferd Embedded PDF by combining the Zugferd XML and the PDF into a single file
-5. Only step 4 is persisted as an artifact (`document_file`) of the document generation, as requested by the user
+1. Generate HTML from a Twig template and order data.
+2. Generate PDF from the HTML using DomPDF.
+3. Generate Zugferd XML from a different Twig template and order data.
+4. Generate Zugferd Embedded PDF by combining the Zugferd XML and the PDF into a single file.
+5. Only step 4 is persisted as an artifact (`document_file`) of the document generation, as requested by the user.
 
 But potentially multiple formats can be artifacts of the same generation process.
 For example, if the user wants to generate an invoice in PDF, HTML, and Zugferd XML format,
@@ -126,17 +126,17 @@ public function generate(
 ```
 
 The caller is responsible for:
-- creating an order version to persist the order data in its current state
-  - then pass in an existing order version where documents should be generated for
-  - passing in the LIVE_VERSION is not allowed and will throw an exception
-- passing in a single document type
-  - it's passed a string by design (for extensibility), but you can use the `DocumentType` enum values
-  - the actual implementation will propably use a union type of `DocumentType|string` for all places
-- passing in a list of formats to generate the document for
-  - again a string by design, but you can use the `DocumentFormat` enum values
-  - the actual implementation will propably use a union type of `DocumentFormat|string` for all places
-- passing in a Shopware context with the necessary permissions to generate the document
-- optionally passing in a document number to use for the document, otherwise a new one will be generated
+- Creating an order version to persist the order data in its current state.
+  - Then passing in an existing order version for which documents should be generated.
+  - Passing in `LIVE_VERSION` is not allowed and will throw an exception.
+- Passing in a single document type.
+  - It is passed as a string by design for extensibility, but you can use the `DocumentType` enum values.
+  - The actual implementation will probably use a union type of `DocumentType|string` in all relevant places.
+- Passing in a list of formats for which the document should be generated.
+  - Again, this is a string by design, but you can use the `DocumentFormat` enum values.
+  - The actual implementation will probably use a union type of `DocumentFormat|string` in all relevant places.
+- Passing in a Shopware context with the necessary permissions to generate the document.
+- Optionally passing in a document number to use for the document; otherwise, a new one will be generated.
 
 On success, it returns the document entity, which was already persisted with all its document files in the DB.
 You can use it to access the media URL of the generated document files as well as other metadata.
@@ -151,12 +151,12 @@ it possible to generate documents from the admin frontend as well.
 
 Every document data provider is:
 
-- a Symfony service
-- tagged with `shopware.documentV2.provider`
-- responsible for one or more document types
-  - by providing data that is later used by the renderers
-- extends from the abstract `AbstractDocumentDataProvider` class to follow a certain interface
-- is automatically called by the `DocumentGenerator` service at the right time and at most once per generation call
+- A Symfony service.
+- Tagged with `shopware.documentV2.provider`.
+- Responsible for one or more document types.
+  - By providing data that is later used by the renderers.
+- Extending the abstract `AbstractDocumentDataProvider` class to follow a certain interface.
+- Automatically called by the `DocumentGenerator` service at the right time and at most once per generation call.
 
 This is based on Symfony tagged services, which makes it easy for us and for third-party plugins
 to add new document data providers.
@@ -193,23 +193,23 @@ abstract class AbstractDocumentDataProvider
 ```
 
 Some further remarks on the data providers:
-- They can enrich the order criteria with additional associations via `enrichOrderCriteria`
-- They provide render data and get access to the order entity
-  - `RenderData` is an (almost) empty abstract class and each provider should create their own DTO class extending from it
-  - They should return their concrete DTO class in their implementation of `provideRenderingData`
-  - It will be stored in the `RenderInput` (used / explained later) under the key returned by `getKey`
+- They can enrich the order criteria with additional associations via `enrichOrderCriteria`.
+- They provide render data and get access to the order entity.
+  - `RenderData` is an almost empty abstract class, and each provider should create its own DTO class extending it.
+  - They should return their concrete DTO class in their implementation of `provideRenderingData`.
+  - It will be stored in the `RenderInput` (used and explained later) under the key returned by `getKey`.
 
 ### Renderer design
 
 Every renderer is:
 
-- a Symfony service
-- tagged with `shopware.documentV2.renderer`
-- responsible for rendering a single format
-  - of one or more document types
-  - but only one document type at a time / per generation call
-- extends from the abstract `AbstractDocumentRenderer` class to follow a certain interface
-- is automatically called by the `DocumentGenerator` service at the right time and at most once per generation call
+- A Symfony service.
+- Tagged with `shopware.documentV2.renderer`.
+- Responsible for rendering a single format.
+  - Of one or more document types.
+  - But only one document type at a time, per generation call.
+- Extending the abstract `AbstractDocumentRenderer` class to follow a certain interface.
+- Automatically called by the `DocumentGenerator` service at the right time and at most once per generation call.
 
 A rough draft of the `AbstractDocumentRenderer` interface looks like this
 (note this might change slightly during implementation)
@@ -256,21 +256,22 @@ abstract class AbstractDocumentRenderer
 
 Some further remarks on the renderers:
 
-- They declare if they support a certain document type by returning `true` from their `supports` implementation
-  - The reasoning why they don't just return an array of supported types is easier extensibility,
-    e.g. extensions likely want to reuse the logic of the `HtmlRenderer` or `PdfRenderer` when adding a new doc type.
-    The `supports` method could check if a Twig template exists for the given doc type and support it out of the box.
-    Extensions could still provide their own Renderer and override the existing ones if desired
-    (giving the tagged service higher priority than the ones provided by Shopware)
-- They can register dependencies on other renderers (document formats) via `getDependencies()`
-- They can access their dependencies (output of other renderers) via the `RenderState`
-- They get access to the `RenderInput` which contains
-  - the document type
-  - the document number
-  - the order entity
-  - any additional / prepared data that DataProviders returned as `RenderData` for this doc type, which could include
-    configuration data (e.g., company data, file prefix / suffix, or other `extensions` data)
-- The `persistToFile` method is likely further refined during implementation, to simplify the renderers even further,
+- They declare whether they support a certain document type by returning `true` from their `supports` implementation.
+  - The reason they do not just return an array of supported types is easier extensibility.
+    For example, extensions will likely want to reuse the logic of the `HtmlRenderer` or `PdfRenderer` when adding a new document type.
+    The `supports` method could check whether a Twig template exists for the given document type and support it out of the box.
+    Extensions could still provide their own renderer and override the existing ones if desired
+    by giving the tagged service a higher priority than the one provided by Shopware.
+- They can register dependencies on other renderers (document formats) via `getDependencies()`.
+- They can access their dependencies (output of other renderers) via the `RenderState`.
+- They get access to the `RenderInput`.
+  It contains:
+  - The document type.
+  - The document number.
+  - The order entity.
+  - Any additional prepared data that DataProviders returned as `RenderData` for this document type, which could include
+    configuration data (e.g. company data, file prefix or suffix, or other `extensions` data).
+- The `persistToFile` method will likely be refined further during implementation to simplify the renderers even more,
   e.g., so they are only responsible for providing the file content + filename + extension + mime type instead of
   handling the file persistence logic themselves.
 
@@ -286,10 +287,10 @@ Extension points of this new architecture are described in a separate ADR:
 We have chosen abstract classes for `AbstractDocumentDataProvider` and `AbstractDocumentRenderer`
 over normal PHP interfaces,
 with these reasons in mind:
-- Not all methods need to be implemented by all providers and renderers, e.g.
-  - `AbstractDocumentDataProvider::enrichOrderCriteria`
-  - `AbstractDocumentRenderer::getDependencies`
+- Not all methods need to be implemented by all providers and renderers. For example:
+  - `AbstractDocumentDataProvider::enrichOrderCriteria`.
+  - `AbstractDocumentRenderer::getDependencies`.
 - It will give us more flexibility in the future to add further methods to the abstract classes without
   breaking existing implementations, like interfaces would.
-- There was also a decision in the past to not introduce further interfaces and use abstract classes instead:
-  [2020-11-25-decoration-pattern.md](https://github.com/shopware/shopware/blob/trunk/adr/2020-11-25-decoration-pattern.md)
+- There was also a decision in the past not to introduce further interfaces and to use abstract classes instead.
+  See [2020-11-25-decoration-pattern.md](https://github.com/shopware/shopware/blob/trunk/adr/2020-11-25-decoration-pattern.md).

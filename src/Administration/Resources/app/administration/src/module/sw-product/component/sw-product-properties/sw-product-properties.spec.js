@@ -145,7 +145,10 @@ async function createWrapper() {
                     `,
                 },
                 'mt-empty-state': {
-                    props: ['headline', 'description'],
+                    props: [
+                        'headline',
+                        'description',
+                    ],
                     template: `
                         <div class="mt-empty-state">
                             <div class="mt-empty-state__headline">{{ headline }}</div>

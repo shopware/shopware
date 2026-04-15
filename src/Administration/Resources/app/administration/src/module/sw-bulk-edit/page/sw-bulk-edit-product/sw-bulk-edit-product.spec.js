@@ -891,10 +891,12 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
     it('should provide bulk-edit specific property empty-state copy', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.vm.propertyFormFields[0].config.emptyStateTitle)
-            .toBe('sw-bulk-edit.product.property.titleEmptyState');
-        expect(wrapper.vm.propertyFormFields[0].config.emptyStateDescription)
-            .toBe('sw-bulk-edit.product.property.descriptionEmptyState');
+        expect(wrapper.vm.propertyFormFields[0].config.emptyStateTitle).toBe(
+            'sw-bulk-edit.product.property.titleEmptyState',
+        );
+        expect(wrapper.vm.propertyFormFields[0].config.emptyStateDescription).toBe(
+            'sw-bulk-edit.product.property.descriptionEmptyState',
+        );
     });
 
     it('should disable processing button', async () => {

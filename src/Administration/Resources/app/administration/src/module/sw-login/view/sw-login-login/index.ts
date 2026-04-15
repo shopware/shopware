@@ -94,6 +94,7 @@ export default Component.wrapComponentConfig({
 
             this.ssoLoading = true;
             window.sessionStorage.setItem('redirectFromLogin', 'true');
+            window.sessionStorage.setItem('sw-sso-session', 'true');
             this._navigateTo(this.loginConfig.url);
         },
 

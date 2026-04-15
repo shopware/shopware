@@ -629,11 +629,12 @@ class PluginLifecycleService
         $pluginLoader = $this->container->get(KernelPluginLoader::class);
 
         $plugins = $pluginLoader->getPluginInfos();
-        foreach ($plugins as $i => $pluginData) {
+        foreach ($plugins as &$pluginData) {
             if ($pluginData['baseClass'] === $plugin->getBaseClass()) {
-                $plugins[$i]['active'] = $plugin->getActive();
+                $pluginData['active'] = $plugin->getActive();
             }
         }
+        unset($pluginData);
 
         if (!$plugin->getActive()) {
             $this->clearEntityExtensions($pluginNamespace);

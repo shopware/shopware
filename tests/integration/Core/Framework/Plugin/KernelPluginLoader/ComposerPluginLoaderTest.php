@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Shopware\Tests\Integration\Core\Framework\Plugin\KernelPluginLoader;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Composer\ComposerInfoProvider;
 use Shopware\Core\Framework\Adapter\Composer\ComposerPackage;
@@ -14,7 +13,6 @@ use SwagTestComposerLoaded\SwagTestComposerLoaded;
 /**
  * @internal
  */
-#[CoversClass(ComposerPluginLoader::class)]
 class ComposerPluginLoaderTest extends TestCase
 {
     use PluginIntegrationTestBehaviour;

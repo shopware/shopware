@@ -291,7 +291,7 @@ class SnippetService
      */
     private function getSnippetsByLocale(SnippetFileCollection $snippetFileCollection, string $locale): array
     {
-        $files = $snippetFileCollection->getSnippetFilesByIso($locale);
+        $files = $snippetFileCollection->getSnippetFilesWithLocaleFallback($locale);
         $snippets = [];
 
         foreach ($files as $file) {
@@ -306,7 +306,7 @@ class SnippetService
     }
 
     /**
-     *  Collects snippet files for each given locale.
+     * Collects snippet files for each given locale, with a canonical-form fallback.
      *
      *  For each locale (e.g., "es-AR"), the method first tries to load files
      *  that match the exact locale. If that locale contains a region separator ("-"),
@@ -323,26 +323,7 @@ class SnippetService
     {
         $result = [];
         foreach ($isoList as $iso) {
-            // Load all snippet files that match the exact locale (e.g., "es-AR")
-            $files = $this->snippetFileCollection->getSnippetFilesByIso($iso);
-            preg_match(
-                SnippetPatterns::COMPLETE_LOCALE_PATTERN,
-                $iso,
-                $matchedPattern,
-                \PREG_UNMATCHED_AS_NULL
-            );
-
-            // If the locale has a region (e.g., "es-AR"), try to load its base language ("es")
-            $region = $matchedPattern['region'] ?? '';
-            if ($region !== '' && strtolower($region) !== $iso) {
-                $language = $matchedPattern['language'] ?? '';
-                \assert($language !== '');
-                $fallbackFiles = $this->snippetFileCollection->getSnippetFilesByIso($language);
-                // Prepend fallback files so region-specific ones override them
-                $files = [...$fallbackFiles, ...$files];
-            }
-
-            $result[$iso] = $files;
+            $result[$iso] = $this->snippetFileCollection->getSnippetFilesWithLocaleFallback($iso);
         }
 
         return $result;

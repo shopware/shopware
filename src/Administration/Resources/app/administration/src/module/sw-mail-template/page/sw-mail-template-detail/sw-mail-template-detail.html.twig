@@ -427,7 +427,7 @@
             <sw-sidebar-item
                 icon="regular-eye"
                 :title="$tc('sw-mail-template.detail.sidebar.titleShowPreview')"
-                :disabled="isLoading || showPreview || !hasTemplateData"
+                :disabled="!previewAllowed"
                 class="sw-mail-template-detail__show-preview-sidebar"
                 @click="onClickShowPreview"
             />

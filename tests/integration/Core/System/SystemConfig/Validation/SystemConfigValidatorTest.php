@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\System\SystemConfig\Validation;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
@@ -17,14 +16,13 @@ use Shopware\Core\System\SystemConfig\Validation\SystemConfigValidator;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(SystemConfigValidator::class)]
 class SystemConfigValidatorTest extends TestCase
 {
     use KernelTestBehaviour;
 
     /**
-     * @param array<string, array<string, string|int|null>> $inputValues
-     * @param array{elements: array{config: array<string, int|string|bool>, name: string}[]} $formConfigs
+     * @param array<string, array<string, string|null>> $inputValues
+     * @param list<array{elements: list<array{name: string, config: array{required?: bool, maxLength?: int}}>}> $formConfigs
      */
     #[DataProvider('validateProvider')]
     public function testValidate(array $inputValues, array $formConfigs, bool $expectErrors): void
@@ -32,7 +30,7 @@ class SystemConfigValidatorTest extends TestCase
         $configurationServiceMock = $this->createMock(ConfigurationService::class);
         $validator = new SystemConfigValidator(
             $configurationServiceMock,
-            $this->getContainer()->get(DataValidator::class)
+            self::getContainer()->get(DataValidator::class)
         );
 
         $configurationServiceMock
@@ -43,11 +41,18 @@ class SystemConfigValidatorTest extends TestCase
         $contextMock = Context::createDefaultContext();
 
         if ($expectErrors) {
-            self::expectException(ConstraintViolationException::class);
+            $this->expectException(ConstraintViolationException::class);
         }
         $validator->validate($inputValues, $contextMock);
     }
 
+    /**
+     * @return \Generator<string, array{
+     *     inputValues: array<string, array<string, string|null>>,
+     *     formConfigs: list<array{elements: list<array{name: string, config: array{required?: bool, maxLength?: int}}>}>,
+     *     expectErrors: bool
+     * }>
+     */
     public static function validateProvider(): \Generator
     {
         yield 'Validate success with required rule' => [

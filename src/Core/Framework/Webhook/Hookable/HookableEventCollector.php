@@ -23,12 +23,12 @@ class HookableEventCollector implements ResetInterface
     private const PRIVILEGES = 'privileges';
 
     /**
-     * @var string[][][]
+     * @var array<string, array{privileges: list<string>}>
      */
     private array $hookableEventNamesWithPrivileges = [];
 
     /**
-     * @var array<string>|null
+     * @var list<string>|null
      */
     private ?array $hookableEntities = null;
 
@@ -43,7 +43,7 @@ class HookableEventCollector implements ResetInterface
     }
 
     /**
-     * @return array<array<array<string>>>
+     * @return array<string, array{privileges: list<string>}>
      */
     public function getHookableEventNamesWithPrivileges(Context $context): array
     {
@@ -93,7 +93,7 @@ class HookableEventCollector implements ResetInterface
     /**
      * Dynamically discovers all hookable entities by checking for services tagged with 'shopware.entity.hookable'.
      *
-     * @return array<string>
+     * @return list<string>
      */
     public function getHookableEntities(): array
     {
@@ -120,7 +120,7 @@ class HookableEventCollector implements ResetInterface
             }
         }
 
-        $this->hookableEntities = array_unique($hookableEntities);
+        $this->hookableEntities = array_values(array_unique($hookableEntities));
 
         return $this->hookableEntities;
     }

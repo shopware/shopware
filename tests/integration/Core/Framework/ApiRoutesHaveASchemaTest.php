@@ -106,12 +106,14 @@ class ApiRoutesHaveASchemaTest extends TestCase
             $missingRoutes[] = $path;
         }
 
-        if (!empty($schemaRoutes)) {
+        if ($schemaRoutes !== []) {
             foreach ($schemaRoutes as $path => $routeSchema) {
                 $routesFromPathParameter = $this->getRoutesFromSchemaDefinitionPath($path, $routeSchema);
                 foreach ($routesFromPathParameter as $routeFromPathParameter) {
                     if (\in_array($routeFromPathParameter, $missingRoutes, true)) {
-                        unset($schemaRoutes[$path], $missingRoutes[array_search($routeFromPathParameter, $missingRoutes, true)]);
+                        $missingRouteKey = array_search($routeFromPathParameter, $missingRoutes, true);
+                        static::assertNotFalse($missingRouteKey);
+                        unset($schemaRoutes[$path], $missingRoutes[$missingRouteKey]);
                     }
                 }
                 $missingRoutes = array_values($missingRoutes);
@@ -365,7 +367,7 @@ class ApiRoutesHaveASchemaTest extends TestCase
                     continue;
                 }
 
-                if ($item['schema']['type'] === 'string' && !empty($item['schema']['enum'])) {
+                if ($item['schema']['type'] === 'string' && isset($item['schema']['enum'])) {
                     foreach ($item['schema']['enum'] as $enum) {
                         $paths[] = str_replace('{' . $item['name'] . '}', $enum, $path);
                     }

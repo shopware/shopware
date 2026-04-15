@@ -21,6 +21,7 @@ class SetupStagingEvent
     /**
      * @param list<DomainRewriteRule> $domainMappings
      * @param list<string> $extensionsToDisable
+     * @param array<string, array<string, mixed>> $systemConfigOverrides
      */
     public function __construct(
         public readonly Context $context,
@@ -28,6 +29,7 @@ class SetupStagingEvent
         public readonly bool $disableMailDelivery = true,
         public readonly array $domainMappings = [],
         public readonly array $extensionsToDisable = [],
+        public readonly array $systemConfigOverrides = [],
     ) {
     }
 }

@@ -4,21 +4,16 @@ namespace Shopware\Tests\Integration\Core\System\NumberRange;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeType\NumberRangeTypeCollection;
 use Shopware\Core\System\NumberRange\NumberRangeCollection;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGenerator;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
-use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternDate;
-use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternIncrement;
-use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternRegistry;
 
 /**
  * @internal
@@ -37,42 +32,6 @@ class NumberRangeValueGeneratorTest extends TestCase
         $this->connection = static::getContainer()->get(Connection::class);
         $this->setupDatabase();
         $this->context = Context::createDefaultContext();
-    }
-
-    public function testGenerateStandardPattern(): void
-    {
-        $value = $this->getGenerator('Pre_{n}_suf')->getValue(ProductDefinition::class, $this->context, null);
-        static::assertSame('Pre_5_suf', $value);
-    }
-
-    public function testGenerateDatePattern(): void
-    {
-        $value = $this->getGenerator('Pre_{date}_suf')->getValue(ProductDefinition::class, $this->context, null);
-        static::assertSame('Pre_' . date(ValueGeneratorPatternDate::STANDARD_FORMAT) . '_suf', $value);
-    }
-
-    public function testGenerateDateWithFormatPattern(): void
-    {
-        $value = $this->getGenerator('Pre_{date_ymd}_suf')->getValue(ProductDefinition::class, $this->context, null);
-        static::assertSame('Pre_' . date('ymd') . '_suf', $value);
-    }
-
-    public function testGenerateAllPatterns(): void
-    {
-        $value = $this->getGenerator('Pre_{date}_{date_ymd}_{n}_suf')->getValue(ProductDefinition::class, $this->context, null);
-        static::assertSame(
-            'Pre_' . date(ValueGeneratorPatternDate::STANDARD_FORMAT) . '_' . date('ymd') . '_5_suf',
-            $value
-        );
-    }
-
-    public function testGenerateExtraCharsAllPatterns(): void
-    {
-        $value = $this->getGenerator('Pre_!"§$%&/()=_{date}_{date_ymd}_{n}_suf')->getValue(ProductDefinition::class, $this->context, null);
-        static::assertSame(
-            'Pre_!"§$%&/()=_' . date(ValueGeneratorPatternDate::STANDARD_FORMAT) . '_' . date('ymd') . '_5_suf',
-            $value
-        );
     }
 
     public function testGetConfiguration(): void
@@ -136,24 +95,27 @@ class NumberRangeValueGeneratorTest extends TestCase
         static::assertSame('20000', $value);
     }
 
-    private function getGenerator(string $pattern): NumberRangeValueGenerator
+    public function testGetValueStartingFromZero(): void
     {
-        $incrPattern = $this->createMock(ValueGeneratorPatternIncrement::class);
-        $incrPattern->method('getPatternId')->willReturn('n');
-        $incrPattern->method('generate')->willReturn('5');
+        /** @var NumberRangeValueGenerator $realGenerator */
+        $realGenerator = static::getContainer()->get(NumberRangeValueGeneratorInterface::class);
 
-        $patternReg = new ValueGeneratorPatternRegistry([$incrPattern, new ValueGeneratorPatternDate()]);
+        /** @var EntityRepository<NumberRangeCollection> $numberRange */
+        $numberRange = static::getContainer()->get('number_range.repository');
 
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->once())
-            ->method('fetchAssociative')
-            ->willReturn(['id' => Uuid::randomHex(), 'pattern' => $pattern, 'start' => 1]);
+        $search = $numberRange->search((new Criteria())->addFilter(new EqualsFilter('type.technicalName', 'order')), $this->context)
+            ->getEntities()
+            ->first();
 
-        return new NumberRangeValueGenerator(
-            $patternReg,
-            static::getContainer()->get('event_dispatcher'),
-            $connection,
-        );
+        static::assertNotNull($search);
+
+        static::getContainer()->get('number_range.repository')->update([[
+            'id' => $search->getId(),
+            'start' => 0,
+        ]], $this->context);
+
+        $value = $realGenerator->getValue('order', $this->context, Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
+        static::assertSame('0', $value);
     }
 
     private function setupDatabase(): void

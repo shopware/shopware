@@ -28,6 +28,7 @@ class RoutingException extends HttpException
     public const MISSING_PRIVILEGE = 'FRAMEWORK__ROUTING_MISSING_PRIVILEGE';
     public const INVALID_ROUTE_SCOPE = 'FRAMEWORK__ROUTING_INVALID_ROUTE_SCOPE';
     public const MISSING_MAIN_REQUEST = 'FRAMEWORK__MAIN_REQUEST_MISSING';
+    public const MISSING_ROUTE_ATTRIBUTE = 'FRAMEWORK__ROUTING_ROUTE_ATTRIBUTE_MISSING';
 
     public static function invalidRequestParameter(string $name): self
     {
@@ -143,6 +144,16 @@ class RoutingException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::MISSING_MAIN_REQUEST,
             'Unable to check the request scope without main request.'
+        );
+    }
+
+    public static function missingRouteAttribute(string $routeAttribute, string $route): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MISSING_ROUTE_ATTRIBUTE,
+            'Route attribute "{{ routeAttribute }}" on route "{{ route }}" is missing.',
+            ['routeAttribute' => $routeAttribute, 'route' => $route],
         );
     }
 }

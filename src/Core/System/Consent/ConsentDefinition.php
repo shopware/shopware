@@ -20,4 +20,16 @@ interface ConsentDefinition
      * @return array<string>
      */
     public function getRequiredPermissions(): array;
+
+    /**
+     * The current/latest revision of this consent.
+     * Returns null if this consent does not use revisions.
+     *
+     * The revision is an opaque string — the format is up to each definition.
+     *
+     * This method is called on every consent state read. Implementations that
+     * resolve revisions from a remote source must use some form of caching: do
+     * not make a remote call on every invocation.
+     */
+    public function getLatestRevision(): ?string;
 }

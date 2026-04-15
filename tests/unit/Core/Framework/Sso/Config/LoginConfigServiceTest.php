@@ -55,7 +55,7 @@ class LoginConfigServiceTest extends TestCase
     }
 
     /**
-     * @param array{use_default: bool, client_id: non-empty-string, client_secret: non-empty-string, redirect_uri: non-empty-string, base_url: non-empty-string, authorize_path: non-empty-string, token_path: non-empty-string, jwks_path: non-empty-string, scope: non-empty-string, register_url: non-empty-string} $rawConfig
+     * @param array<string, mixed> $rawConfig
      */
     #[DataProvider('getConfigErrorsTestDataProvider')]
     public function testGetConfigErrors(array $rawConfig, string $exceptionMessage): void

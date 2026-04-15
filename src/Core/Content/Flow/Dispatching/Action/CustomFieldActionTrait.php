@@ -16,10 +16,10 @@ trait CustomFieldActionTrait
      */
     public function getCustomFieldForUpdating(?array $customFields, array $config): ?array
     {
-        $customFieldId = $config['customFieldId'];
-        $customFieldValue = $config['customFieldValue'];
+        $customFieldId = (string) ($config['customFieldId'] ?? '');
+        $customFieldValue = $config['customFieldValue'] ?? null;
 
-        if (empty($customFieldId) && empty($customFieldValue)) {
+        if ($customFieldId === '' && $customFieldValue === null) {
             return null;
         }
 
@@ -53,7 +53,7 @@ trait CustomFieldActionTrait
 
                 break;
             case 'add':
-                if (empty($customFieldValue)) {
+                if ($customFieldValue === null) {
                     return null;
                 }
 
@@ -68,7 +68,7 @@ trait CustomFieldActionTrait
 
                 break;
             case 'remove':
-                if (!isset($customFields[$customFieldName]) || empty($customFieldValue)) {
+                if (!isset($customFields[$customFieldName]) || $customFieldValue === null) {
                     return null;
                 }
 

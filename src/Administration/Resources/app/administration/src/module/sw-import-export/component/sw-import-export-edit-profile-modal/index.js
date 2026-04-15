@@ -47,8 +47,9 @@ export default {
 
     data() {
         return {
-            missingRequiredFields: [],
+            duplicateMappings: [],
             systemRequiredFields: {},
+            missingRequiredFields: [],
         };
     },
 
@@ -82,7 +83,7 @@ export default {
         },
 
         showValidationError() {
-            return this.missingRequiredFields.length > 0;
+            return this.missingRequiredFields.length > 0 || this.duplicateMappings.length > 0;
         },
 
         profileRepository() {
@@ -110,7 +111,7 @@ export default {
             this.getParentProfileSelected().then((parentProfile) => {
                 this.checkValidation(parentProfile);
 
-                if (this.missingRequiredFields.length === 0) {
+                if (!this.showValidationError) {
                     this.$emit('profile-save');
                 }
             });
@@ -148,8 +149,10 @@ export default {
             }
 
             const parentMapping = parentProfile ? parentProfile.mapping : [];
+
             const isOnlyUpdateProfile =
                 this.profile.config.createEntities === false && this.profile.config.updateEntities === true;
+
             const validationErrors = this.importExportProfileMapping.validate(
                 this.profile.sourceEntity,
                 this.profile.mapping,
@@ -157,13 +160,13 @@ export default {
                 isOnlyUpdateProfile,
             );
 
-            if (validationErrors.missingRequiredFields.length > 0) {
-                this.missingRequiredFields = validationErrors.missingRequiredFields;
-            }
+            this.missingRequiredFields = validationErrors.missingRequiredFields;
+            this.duplicateMappings = validationErrors.duplicateMappings;
         },
 
         resetViolations() {
             this.missingRequiredFields = [];
+            this.duplicateMappings = [];
         },
 
         loadSystemRequiredFieldsForEntity(entityName) {

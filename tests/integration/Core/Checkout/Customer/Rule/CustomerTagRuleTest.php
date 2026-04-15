@@ -2,10 +2,8 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Rule;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Customer\Rule\CustomerAgeRule;
 use Shopware\Core\Checkout\Customer\Rule\CustomerTagRule;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionCollection;
 use Shopware\Core\Content\Rule\RuleCollection;
@@ -24,7 +22,6 @@ use Symfony\Component\Validator\Constraints\Type;
  * @internal
  */
 #[Package('fundamentals@after-sales')]
-#[CoversClass(CustomerAgeRule::class)]
 #[Group('rules')]
 class CustomerTagRuleTest extends TestCase
 {

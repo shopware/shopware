@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Document\Renderer;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -57,7 +56,6 @@ use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
  * @internal
  */
 #[Package('after-sales')]
-#[CoversClass(CreditNoteRenderer::class)]
 class CreditNoteRendererTest extends TestCase
 {
     use DocumentTrait;
@@ -192,7 +190,7 @@ class CreditNoteRendererTest extends TestCase
     /**
      * @param array<int, int> $possibleTaxes
      * @param array<int, int> $creditPrices
-     * @param array<string, int> $additionalConfig
+     * @param array<string, int|string|array<string, string>> $additionalConfig
      */
     #[DataProvider('creditNoteRendererDataProvider')]
     public function testRender(
@@ -328,7 +326,6 @@ class CreditNoteRendererTest extends TestCase
                     $rendered->getContent()
                 );
             },
-            null,
         ];
 
         yield 'render credit_note without credit items' => [

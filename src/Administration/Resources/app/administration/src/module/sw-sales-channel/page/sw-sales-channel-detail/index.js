@@ -6,6 +6,7 @@ import template from './sw-sales-channel-detail.html.twig';
 
 const { Mixin, Context, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
+const objectHelper = Shopware.Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -14,9 +15,16 @@ export default {
     inject: [
         'repositoryFactory',
         'exportTemplateService',
+        'systemConfigApiService',
         'acl',
         'feature',
     ],
+
+    provide() {
+        return {
+            swSalesChannelDetailGetAgenticCommerceExportConfig: () => this.agenticCommerceExportConfig,
+        };
+    },
 
     mixins: [
         Mixin.getByName('notification'),
@@ -40,9 +48,11 @@ export default {
                 templateOptions: [],
                 templates: null,
                 templateName: null,
+                previousTemplateName: null,
                 showTemplateModal: false,
                 selectedTemplate: null,
             },
+            agenticCommerceExportConfig: [],
         };
     },
 
@@ -97,6 +107,18 @@ export default {
             return this.salesChannel.typeId === Defaults.apiSalesChannelTypeId;
         },
 
+        isAgenticCommerce() {
+            if (!this.salesChannel) {
+                return this.$route.params.typeId === Defaults.agenticCommerceTypeId;
+            }
+
+            return this.salesChannel.typeId === Defaults.agenticCommerceTypeId;
+        },
+
+        isProductExportChannel() {
+            return this.isProductComparison || this.isAgenticCommerce;
+        },
+
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
         },
@@ -139,6 +161,17 @@ export default {
         allowSaving() {
             return this.acl.can('sales_channel.editor');
         },
+
+        defaultAgenticCommerceExportConfig() {
+            return [
+                {
+                    provider: 'open-ai',
+                    systemConfigDomain: 'core.openAiProductExport',
+                    titleSnippet: 'sw-sales-channel.detail.agenticCommerce.openAiSettingsTitle',
+                    positionIdentifier: 'sw-sales-channel-detail-base-agentic-commerce-export-config-open-ai',
+                },
+            ];
+        },
     },
 
     watch: {
@@ -163,11 +196,20 @@ export default {
         },
 
         loadEntityData() {
-            if (!this.$route.params.id) {
+            const hasRouteId = Boolean(this.$route.params.id);
+            const hasRouteTypeId = Boolean(this.$route.params.typeId);
+
+            if (!hasRouteId && hasRouteTypeId && this.salesChannel?.id) {
+                this.loadAgenticCommerceExportConfig();
                 return;
             }
 
-            if (this.$route.params.typeId) {
+            if (!hasRouteId) {
+                return;
+            }
+
+            if (hasRouteTypeId) {
+                this.loadAgenticCommerceExportConfig();
                 return;
             }
 
@@ -193,6 +235,8 @@ export default {
                     }
 
                     this.generateAccessUrl();
+                    this.loadAgenticCommerceExportConfig();
+                    this.detectCurrentTemplate();
 
                     this.isLoading = false;
                 });
@@ -228,29 +272,43 @@ export default {
                 return;
             }
 
-            this.productComparison.selectedTemplate = this.productComparison.templates[templateName];
+            this.productComparison.selectedTemplate = { ...this.productComparison.templates[templateName] };
             const contentChanged = Object.keys(this.productComparison.selectedTemplate).some((value) => {
                 return this.productExport[value] !== this.productComparison.selectedTemplate[value];
             });
 
             if (!contentChanged) {
+                this.productComparison.templateName = templateName;
                 return;
             }
 
+            this.productComparison.previousTemplateName = this.productComparison.templateName;
+            this.productComparison.templateName = templateName;
             this.productComparison.showTemplateModal = true;
         },
 
         onTemplateModalClose() {
             this.productComparison.selectedTemplate = null;
-            this.productComparison.templateName = null;
+            this.productComparison.templateName = this.productComparison.previousTemplateName ?? null;
+            this.productComparison.previousTemplateName = null;
             this.productComparison.showTemplateModal = false;
         },
 
         onTemplateModalConfirm() {
-            Object.keys(this.productComparison.selectedTemplate).forEach((value) => {
-                this.productExport[value] = this.productComparison.selectedTemplate[value];
+            const selectedTemplate = this.productComparison.selectedTemplate;
+
+            Object.keys(selectedTemplate).forEach((key) => {
+                if (key === 'providerName') {
+                    this.productExport.provider = selectedTemplate[key];
+                    return;
+                }
+
+                this.productExport[key] = selectedTemplate[key];
             });
-            this.onTemplateModalClose();
+
+            this.productComparison.selectedTemplate = null;
+            this.productComparison.previousTemplateName = null;
+            this.productComparison.showTemplateModal = false;
 
             this.createNotificationInfo({
                 message: this.$tc('sw-sales-channel.detail.productComparison.templates.message.template-applied-message'),
@@ -285,6 +343,20 @@ export default {
             this.productComparison.templates = this.exportTemplateService.getProductExportTemplateRegistry();
         },
 
+        detectCurrentTemplate() {
+            if (!this.productComparison.templates || !this.productExport) {
+                return;
+            }
+
+            const matchedTemplate = this.productComparison.templateOptions.find((template) => {
+                return template.bodyTemplate !== undefined && template.bodyTemplate === this.productExport.bodyTemplate;
+            });
+
+            if (matchedTemplate) {
+                this.productComparison.templateName = matchedTemplate.name;
+            }
+        },
+
         saveFinish() {
             this.isSaveSuccessful = false;
         },
@@ -294,7 +366,9 @@ export default {
         },
 
         prepareSaveData() {
-            if (this.isProductComparison && !this.salesChannel.productExports.length) {
+            const needsProductExport = this.isProductExportChannel;
+
+            if (needsProductExport && !this.salesChannel.productExports.length) {
                 this.salesChannel.productExports.add(this.productExport);
             }
 
@@ -340,8 +414,93 @@ export default {
         async onSave() {
             const saveSuccessful = await this.saveSalesChannel();
 
-            if (saveSuccessful) {
-                this.loadEntityData();
+            if (!saveSuccessful) {
+                return;
+            }
+
+            const configSaveSuccessful = await this.saveAgenticCommerceExportConfig();
+
+            if (!configSaveSuccessful) {
+                return;
+            }
+
+            this.loadEntityData();
+        },
+
+        async loadAgenticCommerceExportConfig() {
+            this.agenticCommerceExportConfig = this.defaultAgenticCommerceExportConfig.map((configEntry) => {
+                return {
+                    ...configEntry,
+                    elements: [],
+                    values: {},
+                    isLoading: false,
+                    isLoaded: false,
+                };
+            });
+
+            if (!this.isAgenticCommerce || !this.salesChannel?.id) {
+                return;
+            }
+
+            await Promise.all(
+                this.agenticCommerceExportConfig.map(async (configEntry) => {
+                    configEntry.isLoading = true;
+
+                    try {
+                        const [
+                            config,
+                            values,
+                        ] = await Promise.all([
+                            this.systemConfigApiService.getConfig(configEntry.systemConfigDomain),
+                            this.systemConfigApiService.getValues(configEntry.systemConfigDomain, this.salesChannel.id),
+                        ]);
+
+                        configEntry.elements = config.flatMap((card) => card.elements);
+                        configEntry.values = values;
+                        configEntry.isLoaded = true;
+                    } catch (_error) {
+                        this.createNotificationError({
+                            message: this.$t('sw-sales-channel.detail.messageAPIError'),
+                        });
+                    } finally {
+                        configEntry.isLoading = false;
+                    }
+                }),
+            );
+        },
+
+        async saveAgenticCommerceExportConfig() {
+            if (!this.isAgenticCommerce || !this.salesChannel?.id) {
+                return true;
+            }
+
+            const loadedConfigs = this.agenticCommerceExportConfig.filter((configEntry) => configEntry.isLoaded);
+
+            if (loadedConfigs.length === 0) {
+                return true;
+            }
+
+            const mergedValues = loadedConfigs.reduce((accumulator, configEntry) => {
+                return {
+                    ...accumulator,
+                    ...objectHelper.deepCopyObject(configEntry.values),
+                };
+            }, {});
+
+            try {
+                await this.systemConfigApiService.batchSave({
+                    [this.salesChannel.id]: mergedValues,
+                });
+
+                return true;
+            } catch (_error) {
+                this.createNotificationError({
+                    message: this.$t('sw-sales-channel.detail.messageSaveError', {
+                        name: this.salesChannel.name || this.placeholder(this.salesChannel, 'name'),
+                    }),
+                });
+
+                return false;
             }
         },
 

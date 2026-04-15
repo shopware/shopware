@@ -36,8 +36,8 @@ class JoinGroupBuilder
      * - A `JoinGroup` is generated when a to-many association is filtered by more than one `multi-filter`
      * - An "empty" filter will not lead to a join group (example `new EqualsFilter('product.tags.id', null)`)
      *
-     * @param Filter[] $filters
-     * @param string[] $additionalFields
+     * @param list<Filter> $filters
+     * @param list<string> $additionalFields
      *
      * @return list<Filter>
      */
@@ -82,9 +82,11 @@ class JoinGroupBuilder
     }
 
     /**
-     * @param Filter[] $filters
+     * @param array<Filter> $filters
      *
-     * @return array<string, mixed>
+     * @return array<string, mixed> Returned array shape looks like this:
+     *                              array<string(random-uuid), array{self::NOT_RELEVANT?: list<Filter>, operator: MultiFilter::CONNECTION_*, negated: bool, string(association-name): list<Filter>}>
+     *                              `association-name` is different for each call, but such array shape could not be handled by PHPStan, see https://github.com/phpstan/phpstan/issues/8438
      */
     private function recursion(array $filters, EntityDefinition $definition, string $operator, bool $negated): array
     {
@@ -188,10 +190,10 @@ class JoinGroupBuilder
     }
 
     /**
-     * @param array<string, mixed> $mapped
-     * @param string[] $fields
+     * @param array<string, array<string, mixed>> $mapped
+     * @param list<string> $fields
      *
-     * @return string[]
+     * @return list<string>
      */
     private function getDuplicates(array $mapped, array $fields): array
     {

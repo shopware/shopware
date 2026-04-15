@@ -21,6 +21,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
+use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -45,6 +47,7 @@ final class DocumentRoute extends AbstractDocumentRoute
     public function __construct(
         private readonly DocumentGenerator $documentGenerator,
         private readonly EntityRepository $documentRepository,
+        private readonly RateLimiter $rateLimiter,
         private readonly GuestAuthenticator $guestAuthenticator,
         private readonly iterable $renderers,
     ) {
@@ -68,7 +71,7 @@ final class DocumentRoute extends AbstractDocumentRoute
         string $deepLinkCode = '',
         ?string $fileType = null
     ): Response {
-        $this->checkAuth($documentId, $request, $context);
+        $this->checkAuth($documentId, $deepLinkCode, $request, $context);
 
         $isGuest = $context->getCustomer() === null || $context->getCustomer()->getGuest();
         if ($isGuest && $deepLinkCode === '') {
@@ -177,7 +180,7 @@ final class DocumentRoute extends AbstractDocumentRoute
         return $response;
     }
 
-    private function checkAuth(string $documentId, Request $request, SalesChannelContext $context): void
+    private function checkAuth(string $documentId, string $deepLinkCode, Request $request, SalesChannelContext $context): void
     {
         $criteria = (new Criteria([$documentId]))
             ->addAssociations(['order.orderCustomer.customer', 'order.billingAddress']);
@@ -193,23 +196,43 @@ final class DocumentRoute extends AbstractDocumentRoute
         }
 
         $orderCustomer = $order->getOrderCustomer();
+        $contextCustomer = $context->getCustomer();
 
         if ($orderCustomer === null || $orderCustomer->getCustomerId() === null) {
             throw DocumentException::customerNotLoggedIn();
         }
 
-        if ($orderCustomer->getCustomerId() === $context->getCustomer()?->getId()) {
+        if ($orderCustomer->getCustomerId() === $contextCustomer?->getId()) {
             return;
+        }
+
+        if ($contextCustomer !== null) {
+            throw DocumentException::customerNotLoggedIn();
+        }
+
+        if ($deepLinkCode === '' || $document->getDeepLinkCode() !== $deepLinkCode) {
+            throw DocumentException::documentNotFound($documentId);
+        }
+
+        $cacheKey = mb_strtolower($document->getDeepLinkCode()) . '-' . (string) $request->getClientIp();
+
+        try {
+            $this->rateLimiter->ensureAccepted(RateLimiter::GUEST_LOGIN, $cacheKey);
+        } catch (RateLimitExceededException $exception) {
+            throw DocumentException::documentAuthThrottledException($exception->getWaitTime());
         }
 
         if (!Feature::isActive('v6.8.0.0')) {
             // feature flag due to different exceptions
             Feature::silent('v6.8.0.0', fn () => $this->checkGuestAuth($order, $orderCustomer, $request));
 
+            $this->rateLimiter->reset(RateLimiter::GUEST_LOGIN, $cacheKey);
+
             return;
         }
 
         $this->guestAuthenticator->validate($order, $request);
+        $this->rateLimiter->reset(RateLimiter::GUEST_LOGIN, $cacheKey);
     }
 
     /**

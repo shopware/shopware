@@ -232,7 +232,7 @@ class StoreApiSeoResolverTest extends TestCase
         $storeApiSeoResolver = $this->createStoreApiSeoResolver();
         $storeApiSeoResolver->addSeoInformation($event);
 
-        StrictEmpty::assertEmpty($productEntity->getSeoUrls());
+        static::assertNull($productEntity->getSeoUrls());
     }
 
     public function testContextIsNoSalesChannelContext(): void

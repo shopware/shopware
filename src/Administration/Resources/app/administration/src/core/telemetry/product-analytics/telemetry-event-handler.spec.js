@@ -30,13 +30,13 @@ describe('src/core/telemetry/product-analytics/telemetry-event-handler.ts', () =
     it('tracks login event', () => {
         pushTelemetryEventToGateway(new TelemetryEvent('login', {}));
 
-        expect(client.track).toHaveBeenCalledWith('login');
+        expect(client.track).toHaveBeenCalledWith('login', { source: 'admin' });
     });
 
     it('tracks logout event', () => {
         pushTelemetryEventToGateway(new TelemetryEvent('logout', {}));
 
-        expect(client.track).toHaveBeenCalledWith('logout');
+        expect(client.track).toHaveBeenCalledWith('logout', { source: 'admin' });
         expect(client.flush).toHaveBeenCalled();
     });
 
@@ -56,6 +56,7 @@ describe('src/core/telemetry/product-analytics/telemetry-event-handler.ts', () =
         );
 
         expect(client.track).toHaveBeenCalledWith('page_viewed', {
+            source: 'admin',
             sw_route_from_name: 'Symbol(from-route)',
             sw_route_from_href: '/from',
             sw_route_to_name: null,
@@ -71,8 +72,6 @@ describe('src/core/telemetry/product-analytics/telemetry-event-handler.ts', () =
             }),
         );
 
-        expect(client.track).toHaveBeenCalledWith('page_viewed', {
-            eventName: 'page_viewed',
-        });
+        expect(client.track).toHaveBeenCalledWith('page_viewed', { source: 'admin' });
     });
 });

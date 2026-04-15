@@ -141,19 +141,6 @@
             {% endif %}
         {% endblock %}
 
-        {# ludtwig-ignore twig-json-encode-escape-js #}
-        {% block layout_head_component_importmap %}
-            {% set importmap = component_import_map() %}
-
-            {% if importmap is not empty %}
-                <script type="importmap">
-                    {
-                        "imports": {{ importmap|json_encode|raw }}
-                    }
-                </script>
-            {% endif %}
-        {% endblock %}
-
         {% block layout_head_javascript_feature %}
             {% sw_include '@Storefront/storefront/component/feature.html.twig' %}
         {% endblock %}

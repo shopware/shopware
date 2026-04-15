@@ -153,13 +153,23 @@ export default {
                 localMailTemplate.mailTemplateType.templateData.order = this.order;
             }
 
+            const apiContext = {
+                ...Shopware.Context.api,
+                languageId: this.order.languageId || Shopware.Context.api.languageId,
+            };
+
             this.subject = localMailTemplate.subject;
 
             return this.mailService
-                .previewMailTemplate(localMailTemplate.id, {
-                    order: this.order.id,
-                    salesChannel: this.order.salesChannelId,
-                })
+                .previewMailTemplate(
+                    localMailTemplate.id,
+                    {
+                        order: this.order.id,
+                        salesChannel: this.order.salesChannelId,
+                    },
+                    {},
+                    apiContext,
+                )
                 .then((preview) => {
                     this.content = preview?.contentHtml?.content ?? '';
                 });

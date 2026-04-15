@@ -109,6 +109,27 @@ class MailTemplateServiceTest extends TestCase
         static::assertSame('<p>Hello Shopware</p>', $email->getHtmlBody());
     }
 
+    public function testSimulate(): void
+    {
+        $rendered = $this->mailTemplateService->simulate(
+            ['contentHtml' => '<p>{{ order.id }}</p>'],
+            'checkout.order.placed',
+            $this->context
+        );
+
+        static::assertInstanceOf(MailTemplateRenderSuccess::class, $rendered->get('contentHtml'));
+        static::assertNotSame('', $rendered->get('contentHtml')?->getContent());
+    }
+
+    public function testGetAvailableVariables(): void
+    {
+        $variables = $this->mailTemplateService->getAvailableVariables('checkout.order.placed', $this->context, 'order');
+
+        static::assertIsArray($variables);
+        static::assertNotSame([], $variables);
+        static::assertContains('lineItems', array_column($variables, 'fieldName'));
+    }
+
     private function createSimpleMailTemplate(): MailTemplateEntity
     {
         $typeCriteria = new Criteria();

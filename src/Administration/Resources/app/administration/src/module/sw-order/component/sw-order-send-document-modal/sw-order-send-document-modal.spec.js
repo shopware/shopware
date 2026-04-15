@@ -9,6 +9,7 @@ import Entity from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 
 const mockOrderWithMailHeaderFooter = {
     id: uuid.get('orderId0'),
+    languageId: uuid.get('languageId0'),
     orderCustomer: {
         email: 'test@shopware.com',
         firstName: 'Test',
@@ -22,6 +23,7 @@ const mockOrderWithMailHeaderFooter = {
 
 const mockOrderWithoutMailHeaderFooter = {
     id: uuid.get('orderId1'),
+    languageId: uuid.get('languageId1'),
     orderCustomer: {
         email: 'test@shopware.com',
     },
@@ -297,6 +299,19 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
+        expect(wrapper.vm.mailService.previewMailTemplate).toHaveBeenCalledWith(
+            mockMailTemplates[0].id,
+            {
+                order: mockOrderWithMailHeaderFooter.id,
+                salesChannel: mockOrderWithMailHeaderFooter.salesChannelId,
+            },
+            {},
+            {
+                ...Shopware.Context.api,
+                languageId: mockOrderWithMailHeaderFooter.languageId,
+            },
+        );
+
         const previewContent = wrapper.find('.sw-order-send-document-modal__email-content');
         expect(previewContent.element.innerHTML).toBe(mockMailTemplates[0].contentHtml);
     });
@@ -436,7 +451,10 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
                     ],
                 },
             },
-            Shopware.Context.api,
+            {
+                ...Shopware.Context.api,
+                languageId: mockOrderWithMailHeaderFooter.languageId,
+            },
         );
         expect(wrapper.emitted('document-sent')).toHaveLength(1);
     });

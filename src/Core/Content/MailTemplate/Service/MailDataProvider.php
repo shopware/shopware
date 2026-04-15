@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\MailTemplate\Service;
 
+use Shopware\Core\Content\MailTemplate\MailTemplateException;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\AbstractProvider;
 use Shopware\Core\Framework\Context;
@@ -51,7 +52,7 @@ class MailDataProvider
         foreach ($entities as $key => $entityId) {
             $entityName = $availableEntities[$key];
 
-            $dataProvider = $this->dataProviders[$entityName];
+            $dataProvider = $this->dataProviders[$entityName] ?? throw MailTemplateException::missingDataProvider($entityName);
 
             $data = $dataProvider->getData($entityId, $context);
 

@@ -179,6 +179,47 @@ class MailActionControllerTest extends TestCase
         static::assertGreaterThan(0, $response['size']);
     }
 
+    public function testSimulateSuccess(): void
+    {
+        $this->getBrowser()->request(
+            'POST',
+            '/api/_action/mail-template/simulate',
+            [
+                'mailTemplateContent' => [
+                    'contentHtml' => '<p>{{ order.id }}</p>',
+                ],
+                'eventName' => 'checkout.order.placed',
+            ],
+        );
+
+        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
+
+        $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertIsArray($response);
+        static::assertSame('success', $response['contentHtml']['type']);
+        static::assertNotSame('', $response['contentHtml']['content']);
+    }
+
+    public function testAvailableVariablesSuccess(): void
+    {
+        $this->getBrowser()->request(
+            'POST',
+            '/api/_action/mail-template/available-variables',
+            [
+                'eventName' => 'checkout.order.placed',
+                'parentVariablePath' => 'order',
+            ],
+        );
+
+        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
+
+        $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertIsArray($response);
+        static::assertContains('lineItems', array_column($response, 'fieldName'));
+    }
+
     private function createCustomer(Context $context): string
     {
         $customerId = Uuid::randomHex();

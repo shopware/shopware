@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\MailTemplate\Service;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeEntity;
+use Shopware\Core\Content\MailTemplate\MailTemplateException;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Service\MailDataProvider;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\AbstractProvider;
@@ -84,6 +85,19 @@ class MailDataProviderTest extends TestCase
                 'extra' => 'value',
             ],
             $result
+        );
+    }
+
+    public function testGetTemplateDataThrowsWhenProviderIsMissingForAvailableEntity(): void
+    {
+        $mailDataProvider = new MailDataProvider([]);
+
+        $this->expectExceptionObject(MailTemplateException::missingDataProvider('order'));
+
+        $mailDataProvider->getTemplateData(
+            $this->createMailTemplate(['order' => 'order']),
+            ['order' => 'order-id'],
+            Context::createDefaultContext(),
         );
     }
 

@@ -12,6 +12,7 @@ class MailTemplateException extends HttpException
 {
     public const MAIL_INVALID_TEMPLATE_CONTENT = 'CONTENT__INVALID_MAIL_TEMPLATE_CONTENT';
     public const MAIL_TEMPLATE_NOT_FOUND = 'CONTENT__MAIL_TEMPLATE_NOT_FOUND';
+    public const MAIL_TEMPLATE_MISSING_DATA_PROVIDER = 'CONTENT__MAIL_TEMPLATE_MISSING_DATA_PROVIDER';
     public const MAIL_TEMPLATE_UNKNOWN_EVENT_DATA_TYPE = 'CONTENT__MAIL_TEMPLATE_UNKNOWN_EVENT_DATA_TYPE';
     public const MAIL_TEMPLATE_UNKNOWN_FIELD_TYPE = 'CONTENT__MAIL_TEMPLATE_UNKNOWN_FIELD_TYPE';
     public const INVALID_REQUEST_PARAMETER_TYPE = 'CONTENT__MAIL_TEMPLATE_INVALID_REQUEST_PARAMETER_TYPE';
@@ -31,6 +32,16 @@ class MailTemplateException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::MAIL_TEMPLATE_NOT_FOUND,
             'Mail Template not found.'
+        );
+    }
+
+    public static function missingDataProvider(string $entityName): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MAIL_TEMPLATE_MISSING_DATA_PROVIDER,
+            'Missing mail data provider for entity "{{ entityName }}".',
+            ['entityName' => $entityName],
         );
     }
 

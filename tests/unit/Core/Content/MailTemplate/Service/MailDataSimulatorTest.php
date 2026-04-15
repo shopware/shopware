@@ -9,14 +9,18 @@ use Shopware\Core\Content\MailTemplate\Service\Event\MailDataSimulatorFieldEvent
 use Shopware\Core\Content\MailTemplate\Service\MailDataSimulator;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\AbstractProvider;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\EmailField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentFkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -229,15 +233,90 @@ class MailDataSimulatorTest extends TestCase
         static::assertTrue($provider->wasCalled);
     }
 
+    public function testGetTemplateDataKeepsAttributeEntityAssociationsSeparated(): void
+    {
+        $definition = new TestMailTemplateEntityDefinition(new FieldCollection([
+            (new ManyToOneAssociationField('firstAttribute', 'first_attribute_id', 'first_attribute_entity', 'id', true))->addFlags(new ApiAware()),
+            (new ManyToOneAssociationField('secondAttribute', 'second_attribute_id', 'second_attribute_entity', 'id', true))->addFlags(new ApiAware()),
+        ]));
+
+        $firstAttributeDefinition = new AttributeEntityDefinition([
+            'entity_name' => 'first_attribute_entity',
+            'entity_class' => Entity::class,
+            'collection_class' => EntityCollection::class,
+            'hydrator_class' => EntityHydrator::class,
+            'fields' => [
+                [
+                    'class' => IdField::class,
+                    'args' => ['id', 'id'],
+                    'translated' => false,
+                    'flags' => [['class' => ApiAware::class, 'args' => []]],
+                ],
+                [
+                    'class' => StringField::class,
+                    'args' => ['name', 'name'],
+                    'translated' => false,
+                    'flags' => [['class' => ApiAware::class, 'args' => []]],
+                ],
+            ],
+        ]);
+
+        $secondAttributeDefinition = new AttributeEntityDefinition([
+            'entity_name' => 'second_attribute_entity',
+            'entity_class' => Entity::class,
+            'collection_class' => EntityCollection::class,
+            'hydrator_class' => EntityHydrator::class,
+            'fields' => [
+                [
+                    'class' => IdField::class,
+                    'args' => ['id', 'id'],
+                    'translated' => false,
+                    'flags' => [['class' => ApiAware::class, 'args' => []]],
+                ],
+                [
+                    'class' => StringField::class,
+                    'args' => ['name', 'name'],
+                    'translated' => false,
+                    'flags' => [['class' => ApiAware::class, 'args' => []]],
+                ],
+            ],
+        ]);
+
+        $simulator = $this->createSimulator(
+            [
+                'testEntity' => [
+                    'type' => EntityType::TYPE,
+                    'entityClass' => TestMailTemplateEntityDefinition::ENTITY_NAME,
+                ],
+            ],
+            $definition,
+            null,
+            [],
+            [$firstAttributeDefinition, $secondAttributeDefinition]
+        );
+
+        $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext(), 1234);
+
+        static::assertInstanceOf(ArrayEntity::class, $result['testEntity']);
+        static::assertInstanceOf(Entity::class, $result['testEntity']->get('firstAttribute'));
+        static::assertInstanceOf(Entity::class, $result['testEntity']->get('secondAttribute'));
+        static::assertNotSame(
+            $result['testEntity']->get('firstAttribute')->get('name'),
+            $result['testEntity']->get('secondAttribute')->get('name')
+        );
+    }
+
     /**
      * @param array<string, mixed> $eventData
      * @param iterable<string, AbstractProvider<Entity, EntityCollection<Entity>>> $dataProviders
+     * @param list<EntityDefinition> $additionalDefinitions
      */
     private function createSimulator(
         array $eventData,
         ?TestMailTemplateEntityDefinition $eventEntityDefinition = null,
         ?EventDispatcherInterface $dispatcher = null,
         iterable $dataProviders = [],
+        array $additionalDefinitions = [],
     ): MailDataSimulator {
         $context = Context::createDefaultContext();
         $response = new BusinessEventCollectorResponse();
@@ -261,12 +340,14 @@ class MailDataSimulatorTest extends TestCase
 
         $salesChannelDefinition = new TestSalesChannelDefinition();
         $definitions = [
-            SalesChannelDefinition::class => $salesChannelDefinition,
+            $salesChannelDefinition,
         ];
 
         if ($eventEntityDefinition !== null) {
-            $definitions[$eventEntityDefinition->getEntityName()] = $eventEntityDefinition;
+            $definitions[] = $eventEntityDefinition;
         }
+
+        $definitions = [...$definitions, ...$additionalDefinitions];
 
         $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
 
@@ -274,13 +355,24 @@ class MailDataSimulatorTest extends TestCase
             $definition->compile($definitionRegistry);
         }
 
+        $definitionMap = [];
+        foreach ($definitions as $definition) {
+            $definitionMap[$definition->getEntityName()] = $definition;
+
+            if (!isset($definitionMap[$definition->getClass()])) {
+                $definitionMap[$definition->getClass()] = $definition;
+            }
+        }
+
+        $definitionMap[SalesChannelDefinition::class] = $salesChannelDefinition;
+
         $definitionRegistry->method('getByClassOrEntityName')
-            ->willReturnCallback(function (string $definitionClassOrEntityName) use ($definitions) {
-                if (!isset($definitions[$definitionClassOrEntityName])) {
+            ->willReturnCallback(function (string $definitionClassOrEntityName) use ($definitionMap) {
+                if (!isset($definitionMap[$definitionClassOrEntityName])) {
                     throw new \RuntimeException(\sprintf('Unknown definition %s', $definitionClassOrEntityName));
                 }
 
-                return $definitions[$definitionClassOrEntityName];
+                return $definitionMap[$definitionClassOrEntityName];
             });
 
         return new MailDataSimulator(

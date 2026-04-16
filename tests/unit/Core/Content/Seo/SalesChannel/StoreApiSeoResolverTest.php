@@ -304,6 +304,7 @@ class StoreApiSeoResolverTest extends TestCase
 
         $productDefinition = $definitionInstanceRegistry->getByClassOrEntityName('product');
 
+        // not a PHPUnit assertion to avoid indirect assertions and hiding risky tests, narrows from EntityDefinition
         \assert($productDefinition instanceof ProductDefinition);
 
         $salesChannelRepository = static::createStub(SalesChannelRepository::class);

@@ -289,6 +289,12 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             expect(result.script).toContain('loadItems');
         });
 
+        it('removes the template import and stale top-level template option from backoff output', () => {
+            expect(result.script).not.toContain('import template from');
+            expect(result.script).not.toMatch(/^[\t ]*template,?$/m);
+            expect(result.script).not.toMatch(/^[\t ]*template\s*:/m);
+        });
+
         it('matches the complete Options API backoff script snapshot', () => {
             expect(result.script).toMatchSnapshot();
         });
@@ -536,6 +542,38 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
 
         it('rewrites this.count inside handler', () => {
             expect(result.script).not.toContain('this.count');
+        });
+    });
+
+    // -------------------------------------------------------------------------
+    describe('route watcher source generation', () => {
+        let result: ReturnType<typeof transformScript>;
+
+        beforeAll(() => {
+            const js = `Shopware.Component.register('sw-test', {
+                template,
+                watch: {
+                    $route(to, from) {
+                        this.handleRouteChange(to, from);
+                    }
+                },
+                methods: {
+                    handleRouteChange(to, from) {
+                        return [to, from];
+                    },
+                },
+            });`;
+            result = transformScript(js);
+        });
+
+        it('uses a route snapshot getter as the watcher source so updates stay reactive and to/from remain distinct', () => {
+            expect(result.script).toContain('watch(() => ({ ...route, params: { ...route.params }, query: { ...route.query } }), (to, from) => {');
+            expect(result.script).not.toContain('$route.value');
+        });
+
+        it('imports and declares useRoute for the generated watcher', () => {
+            expect(result.script).toMatch(/import\s*\{[^}]*useRoute[^}]*\}\s*from\s*['"]vue-router['"]/);
+            expect(result.script).toContain('const route = useRoute();');
         });
     });
 

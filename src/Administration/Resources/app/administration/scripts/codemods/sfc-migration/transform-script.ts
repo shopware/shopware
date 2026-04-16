@@ -107,6 +107,18 @@ interface UsedComposables {
     needsAttrs: boolean;
 }
 
+function buildWatchSource(name: string, propNames: Set<string>): string {
+    if (propNames.has(name)) {
+        return `props.${name}`;
+    }
+
+    if (name === '$route') {
+        return `({ ...route, params: { ...route.params }, query: { ...route.query } })`;
+    }
+
+    return `${name}.value`;
+}
+
 // ---------------------------------------------------------------------------
 // AST helpers
 // ---------------------------------------------------------------------------
@@ -545,11 +557,11 @@ function collectThisRefNames(bodies: string[]): string[] {
  * Inspects a list of code snippets and reports which Vue Router / I18n / DOM
  * composables are needed (based on `this.$xxx` patterns found).
  */
-function detectUsedComposables(bodies: string[]): UsedComposables {
+function detectUsedComposables(bodies: string[], watchProps: WatchProp[]): UsedComposables {
     const combined = bodies.join('\n');
     return {
         needsRouter: /\bthis\.\$router\b/.test(combined),
-        needsRoute: /\bthis\.\$route\b/.test(combined),
+        needsRoute: /\bthis\.\$route\b/.test(combined) || watchProps.some((prop) => prop.name === '$route'),
         needsNextTick: /\bthis\.\$nextTick\b/.test(combined),
         needsSlots: /\bthis\.\$slots\b/.test(combined),
         needsI18n: /\bthis\.\$tc\b|\bthis\.\$t\b/.test(combined),
@@ -705,7 +717,7 @@ function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componen
         ...lifecycleHooks.map((h) => h.bodyText),
     ];
 
-    const usedComposables = detectUsedComposables(allBodies);
+    const usedComposables = detectUsedComposables(allBodies, watchProps);
     const templateRefNames = collectThisRefNames(allBodies);
 
     // Determine the final emits list: prefer explicit `emits: [...]`, fall back to
@@ -892,7 +904,7 @@ function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componen
 
     // ── watch ─────────────────────────────────────────────────────────────────
     watchProps.forEach(({ name, paramsText, bodyText, deep, immediate }) => {
-        const source = propNames.has(name) ? `props.${name}` : `${name}.value`;
+        const source = buildWatchSource(name, propNames);
         const body = rewriteThisInBody(bodyText, ctx);
         const paramPart = paramsText ? `(${paramsText}) => {` : `() => {`;
         const hasOptions = deep || immediate;
@@ -1008,7 +1020,8 @@ function extractPropNamesFromText(optionsObj: ObjectLiteralExpression): string[]
 
 /**
  * Preserves the original Options API source, removing only the template import
- * (which is replaced by the `<template>` section in the SFC).
+ * and matching top-level component option (both are replaced by the `<template>`
+ * section in the generated SFC).
  */
 function buildOptionsApiBackoff(sourceFile: SourceFile): string {
     const project = new Project({
@@ -1023,6 +1036,10 @@ function buildOptionsApiBackoff(sourceFile: SourceFile): string {
         .find((imp) => imp.getDefaultImport()?.getText() === 'template');
 
     templateImport?.remove();
+
+    const optionsObj = findOptionsObject(clone);
+    optionsObj?.getProperty('template')?.remove();
+
     return clone.getFullText().trim();
 }
 

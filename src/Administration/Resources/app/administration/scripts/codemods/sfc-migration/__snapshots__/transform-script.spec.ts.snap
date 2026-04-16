@@ -323,8 +323,6 @@ exports[`scripts/codemods/sfc-migration/transform-script mixin-component: detect
 "import listingMixin from 'src/app/mixin/listing.mixin';
 
 Shopware.Component.register('sw-mixin-list', {
-    template,
-
     mixins: [
         Shopware.Mixin.getByName('notification'),
         listingMixin,

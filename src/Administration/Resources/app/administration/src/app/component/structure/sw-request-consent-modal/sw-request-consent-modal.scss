@@ -1,0 +1,16 @@
+.sw-request-consent-modal__requestMessage {
+    margin: var(--scale-size-16) 0;
+    background-color: var(--color-elevation-surface-sunken);
+    border-radius: var(--border-radius-overlay);
+
+    ul {
+        list-style: disc inside;
+    }
+}
+
+.sw-request-consent-modal__footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--scale-size-8);
+    justify-content: flex-end;
+}

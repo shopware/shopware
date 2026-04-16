@@ -73,11 +73,6 @@ final class DocumentRoute extends AbstractDocumentRoute
     ): Response {
         $this->checkAuth($documentId, $deepLinkCode, $request, $context);
 
-        $isGuest = $context->getCustomer() === null || $context->getCustomer()->getGuest();
-        if ($isGuest && $deepLinkCode === '') {
-            throw DocumentException::customerNotLoggedIn();
-        }
-
         $download = $request->query->getBoolean('download');
 
         $fileTypes = $this->resolveRequest($request, $fileType);
@@ -202,16 +197,22 @@ final class DocumentRoute extends AbstractDocumentRoute
             throw DocumentException::customerNotLoggedIn();
         }
 
+        if ($deepLinkCode === '') {
+            throw DocumentException::customerNotLoggedIn();
+        }
+
+        if ($document->getDeepLinkCode() !== $deepLinkCode) {
+            throw DocumentException::documentNotFound($documentId);
+        }
+
         if ($orderCustomer->getCustomerId() === $contextCustomer?->getId()) {
             return;
         }
 
-        if ($contextCustomer !== null) {
-            throw DocumentException::customerNotLoggedIn();
-        }
+        $isGuest = $orderCustomer->getCustomer()?->getGuest() ?? false;
 
-        if ($deepLinkCode === '' || $document->getDeepLinkCode() !== $deepLinkCode) {
-            throw DocumentException::documentNotFound($documentId);
+        if (!$isGuest) {
+            throw DocumentException::customerNotLoggedIn();
         }
 
         $cacheKey = mb_strtolower($document->getDeepLinkCode()) . '-' . ($request->getClientIp() ?? '');

@@ -248,8 +248,8 @@ class DocumentRouteTest extends TestCase
                 'zipcode' => '48624',
             ],
             'withValidDeepLinkCode' => null,
-            'expectedException' => DocumentException::class,
-            'expectedErrorCode' => DocumentException::DOCUMENT_NOT_FOUND,
+            'expectedException' => CustomerNotLoggedInException::class,
+            'expectedErrorCode' => CartException::CUSTOMER_NOT_LOGGED_IN_CODE,
         ];
 
         yield 'guest with correct request params and invalid deep link code' => [
@@ -303,8 +303,8 @@ class DocumentRouteTest extends TestCase
             'loggedInCustomerId' => 'customer',
             'requestParameters' => [],
             'withValidDeepLinkCode' => true,
-            'expectedException' => CustomerNotLoggedInException::class,
-            'expectedErrorCode' => CartException::CUSTOMER_NOT_LOGGED_IN_CODE,
+            'expectedException' => GuestNotAuthenticatedException::class,
+            'expectedErrorCode' => OrderException::CHECKOUT_GUEST_NOT_AUTHENTICATED,
         ];
 
         yield 'order by guest but logged in customer with valid deep link code with correct request params' => [
@@ -315,8 +315,6 @@ class DocumentRouteTest extends TestCase
                 'zipcode' => '48624',
             ],
             'withValidDeepLinkCode' => true,
-            'expectedException' => CustomerNotLoggedInException::class,
-            'expectedErrorCode' => CartException::CUSTOMER_NOT_LOGGED_IN_CODE,
         ];
 
         yield 'order by customer but guest with with correct request params' => [

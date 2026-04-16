@@ -281,7 +281,7 @@ class DocumentRouteTest extends TestCase
             'zipcode' => 'zipcode',
         ]);
         $context = $this->createMock(SalesChannelContext::class);
-        $context->method('getCustomer')->willReturn(null);
+        $context->method('getCustomer')->willReturn($customer);
 
         static::expectException(CustomerNotLoggedInException::class);
         static::expectExceptionMessage('Customer is not logged in.');

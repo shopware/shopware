@@ -52,6 +52,7 @@ class OrderStockSubscriberTest extends TestCase
         $this->connection = static::createStub(Connection::class);
         $this->stockStorage = static::createMock(StockStorage::class);
 
+        // WriteCommand constructors require a compiled definition (calls getPrimaryKeys)
         new StaticDefinitionInstanceRegistry(
             [$this->definition = new OrderLineItemDefinition()],
             static::createStub(ValidatorInterface::class),

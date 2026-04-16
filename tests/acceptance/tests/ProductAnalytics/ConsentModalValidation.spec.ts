@@ -72,10 +72,7 @@ test(
 
         await test.step('Validate anonymous events are fired.', async () => {
 
-            // We expect 4 events to be fired when rejecting consents:
-            // 1 consent_modal_viewed (Dashboard)
-            // 2 consent_status_change (one for each consent)
-            // 1 consent_modal_decision
+            // Cumulative expected events: 1 consent_modal_viewed + 2 consent_status_change + 1 consent_modal_decision = 4.
             const requests = parseCapturedRequests(capturedTrackingEventRequests);
             expect(requests.length).toBeGreaterThanOrEqual(1);
 
@@ -162,6 +159,7 @@ test(
             const getAnalyticsEvents = () =>
                 parseCapturedRequests(capturedTrackingEventRequests).flatMap(request => request.events);
 
+            // Cumulative expected events stay at 4 (0 additional events after opening privacy settings).
             await waitForEventCount(getAnalyticsEvents, 4);
         });
 

@@ -7,8 +7,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
-use Shopware\Core\Framework\Webhook\Outbox\OutboxEntry;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository;
+use Shopware\Core\Framework\Webhook\Outbox\OutboxInsert;
 use Shopware\Core\Framework\Webhook\Transport\WebhookTransport;
 use Shopware\Core\Framework\Webhook\WebhookException;
 use Symfony\Component\Messenger\Envelope;
@@ -39,7 +39,7 @@ class WebhookTransportTest extends TestCase
         $repository = $this->createMock(OutboxEventRepository::class);
         $repository->expects($this->once())
             ->method('ensureOutboxEntry')
-            ->with(static::callback(function (OutboxEntry $entry) use ($message): bool {
+            ->with(static::callback(function (OutboxInsert $entry) use ($message): bool {
                 return $entry->webhookEventId === $message->getWebhookEventId()
                     && $entry->webhookId === $message->getWebhookId();
             }));
@@ -100,7 +100,7 @@ class WebhookTransportTest extends TestCase
         $repository = $this->createMock(OutboxEventRepository::class);
         $repository->expects($this->once())
             ->method('ensureOutboxEntry')
-            ->with(static::callback(function (OutboxEntry $entry) use ($expectedPartitionKey): bool {
+            ->with(static::callback(function (OutboxInsert $entry) use ($expectedPartitionKey): bool {
                 return $entry->partitionKey === $expectedPartitionKey;
             }));
 
@@ -133,7 +133,7 @@ class WebhookTransportTest extends TestCase
         $repository = $this->createMock(OutboxEventRepository::class);
         $repository->expects($this->once())
             ->method('ensureOutboxEntry')
-            ->with(static::callback(function (OutboxEntry $entry) use ($expectedSerialized): bool {
+            ->with(static::callback(function (OutboxInsert $entry) use ($expectedSerialized): bool {
                 return $entry->serializedMessage === $expectedSerialized;
             }));
 

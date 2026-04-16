@@ -15,6 +15,9 @@ use Shopware\Core\Framework\Webhook\Service\WebhookResult;
 final readonly class DeliveryResponse
 {
     public function __construct(
+        /**
+         * HTTP round-trip duration in milliseconds
+         */
         public int $processingTime,
         public string $requestContent,
         public ?string $responseContent = null,
@@ -23,10 +26,10 @@ final readonly class DeliveryResponse
     ) {
     }
 
-    public static function from(WebhookRequest $request, WebhookResult $result, int $processingTime): self
+    public static function from(WebhookRequest $request, WebhookResult $result): self
     {
         return new self(
-            processingTime: $processingTime,
+            processingTime: (int) round(($result->durationSeconds ?? 0) * 1000),
             requestContent: json_encode(['headers' => $request->headers, 'body' => $request->body], \JSON_THROW_ON_ERROR),
             responseContent: $result->hasResponse()
                 ? json_encode(['headers' => $result->headers, 'body' => $result->body], \JSON_THROW_ON_ERROR)

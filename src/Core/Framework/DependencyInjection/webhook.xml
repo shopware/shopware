@@ -38,6 +38,15 @@
             <argument type="service" id="Symfony\Component\Clock\ClockInterface"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Webhook\Outbox\RetryDelayCalculator">
+            <argument type="service" id="Symfony\Component\Clock\ClockInterface"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Webhook\Service\WebhookStateRepository">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Service\RelatedWebhooks"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Webhook\Transport\WebhookTransportFactory">
             <argument type="service" id="Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository"/>
             <argument type="service" id="messenger.transport.async"/>
@@ -56,7 +65,7 @@
             <argument>%kernel.shopware_version%</argument>
             <argument>%shopware.admin_worker.enable_admin_worker%</argument>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository"/>
-            <argument type="service" id="Symfony\Component\Clock\ClockInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService"/>
         </service>
 
         <service id="Shopware\Core\Framework\Webhook\WebhookCacheClearer">
@@ -100,12 +109,25 @@
             <argument type="tagged_iterator" tag="shopware.entity.hookable"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService">
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Service\WebhookClient"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Outbox\RetryDelayCalculator"/>
+            <argument type="service" id="Symfony\Component\Messenger\MessageBusInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Service\WebhookStateRepository"/>
+            <argument type="service" id="logger"/>
+            <argument>%shopware.admin_worker.enable_admin_worker%</argument>
+            <argument>%shopware.webhook.failure_strategy%</argument>
+        </service>
+
         <service id="Shopware\Core\Framework\Webhook\Handler\WebhookEventMessageHandler">
             <argument type="service" id="Shopware\Core\Framework\Webhook\Service\WebhookClient"/>
             <argument type="service" id="Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper"/>
-            <argument type="service" id="Symfony\Component\Clock\ClockInterface"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Service\RelatedWebhooks"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService"/>
+            <argument type="service" id="logger"/>
 
             <tag name="messenger.message_handler"/>
         </service>
@@ -122,6 +144,7 @@
         <service id="Shopware\Core\Framework\Webhook\Service\WebhookCleanup">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
             <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="Symfony\Component\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Framework\Webhook\ScheduledTask\CleanupWebhookEventLogTask">

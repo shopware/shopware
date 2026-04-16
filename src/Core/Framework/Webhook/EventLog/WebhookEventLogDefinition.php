@@ -25,6 +25,8 @@ class WebhookEventLogDefinition extends EntityDefinition
 
     final public const STATUS_RUNNING = 'running';
 
+    final public const STATUS_PENDING_RETRY = 'pending_retry';
+
     final public const STATUS_FAILED = 'failed';
 
     final public const STATUS_SUCCESS = 'success';

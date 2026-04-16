@@ -265,6 +265,77 @@ class WebhookClientTest extends TestCase
         static::assertNull($result->body);
     }
 
+    public function testSendSuccessRecordsDurationSeconds(): void
+    {
+        $mockHandler = new MockHandler([
+            new Response(200, [], '{}'),
+        ]);
+
+        $client = $this->createClient($mockHandler);
+        $result = $client->send($this->createWebhookRequest());
+
+        static::assertNotNull($result->durationSeconds);
+        static::assertGreaterThan(0, $result->durationSeconds);
+    }
+
+    public function testSendFailureRecordsDurationSeconds(): void
+    {
+        $mockHandler = new MockHandler([
+            new ConnectException('Connection refused', new Request('POST', 'https://example.com')),
+        ]);
+
+        $client = $this->createClient($mockHandler);
+        $result = $client->send($this->createWebhookRequest());
+
+        static::assertFalse($result->successful());
+        static::assertNotNull($result->durationSeconds);
+        static::assertGreaterThan(0, $result->durationSeconds);
+    }
+
+    public function testSendBatchFulfilledRecordsDurationSeconds(): void
+    {
+        $mockHandler = new MockHandler([
+            new Response(200, [], '{}'),
+            new Response(201, [], '{}'),
+        ]);
+
+        $client = $this->createClient($mockHandler);
+
+        $results = $client->sendBatch([
+            'hook1' => $this->createWebhookRequest(url: 'https://example.com/hook1'),
+            'hook2' => $this->createWebhookRequest(url: 'https://example.com/hook2'),
+        ]);
+
+        static::assertCount(2, $results);
+        foreach ($results as $key => $result) {
+            static::assertTrue($result->successful(), "Expected result '{$key}' to be successful");
+            static::assertNotNull($result->durationSeconds, "Expected result '{$key}' to have durationSeconds");
+            static::assertGreaterThan(0, $result->durationSeconds, "Expected result '{$key}' durationSeconds > 0");
+        }
+    }
+
+    public function testSendBatchRejectedRecordsDurationSeconds(): void
+    {
+        $mockHandler = new MockHandler([
+            new ConnectException('Connection refused', new Request('POST', 'https://example.com/hook1')),
+            new ConnectException('Timeout', new Request('POST', 'https://example.com/hook2')),
+        ]);
+
+        $client = $this->createClient($mockHandler);
+
+        $results = $client->sendBatch([
+            'hook1' => $this->createWebhookRequest(url: 'https://example.com/hook1'),
+            'hook2' => $this->createWebhookRequest(url: 'https://example.com/hook2'),
+        ]);
+
+        static::assertCount(2, $results);
+        foreach ($results as $key => $result) {
+            static::assertFalse($result->successful(), "Expected result '{$key}' to be a failure");
+            static::assertNotNull($result->durationSeconds, "Expected result '{$key}' to have durationSeconds");
+            static::assertGreaterThan(0, $result->durationSeconds, "Expected result '{$key}' durationSeconds > 0");
+        }
+    }
+
     private function createClient(MockHandler $mockHandler): WebhookClient
     {
         $stack = HandlerStack::create($mockHandler);

@@ -82,6 +82,8 @@ framework:
                     max_delay: 0
             webhook:
                 dsn: 'shopware-webhook://default'
+                retry_strategy:
+                    max_retries: 0
         buses:
             messenger.bus.default:
                 middleware:

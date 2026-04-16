@@ -31,19 +31,25 @@ Key decisions:
 
 ### PR 2 — Outbox-Owned Simple Retries
 
-The outbox takes over retry scheduling from Messenger. Delivery still goes through the async transport — the outbox drives *when* to retry, not *how* to consume.
+Retry scaffolding: the outbox records retry scheduling. Delivery still goes through the async transport — the outbox drives *when* to retry; consumption of due retries is deferred to PR 3.
 
 - `PENDING_RETRY` status + `next_retry_at` on `webhook_delivery`. Failed deliveries schedule their next attempt via a fixed lookup table (`5s → 30s → 5min → 30min → 4h`) instead of Messenger's 1s/2s/4s.
-- Messenger retry disabled (`max_retries: 0`). The handler catches all failures internally and always ACKs.
-- Consumer contract headers: `X-Shopware-Event-Id`, `X-Shopware-Sequence`, `X-Shopware-Attempt`.
+- `RetryDelayCalculator` computes retry delays from a fixed lookup table. Max-retry decision owned by `WebhookDeliveryService`.
+- Feature-flagged via `WEBHOOKS_REWORK` (Shopware Feature flag, default off). Flag ON: handler catches all failures internally, marks `PENDING_RETRY` with `next_retry_at`, always ACKs. Flag OFF: existing Messenger retry behavior.
+- Messenger retry disabled on the `webhook` transport (`max_retries: 0`).
+- Failure strategy consistent with trunk: on terminal failure, `error_count` is incremented via `RelatedWebhooks` (propagates to webhooks with same event+URL). Per-webhook isolation deferred to Phase 2 health model.
+- Sync path (admin worker / app lifecycle): failures mark `PENDING_RETRY` when flag ON. App lifecycle events (`$forceSynchronous`) are delivered synchronously to preserve race-condition prevention semantics (deprecated, removed in v6.8.0). `PENDING_RETRY` rows written by the sync path are not yet consumed — PR 3 (stream leasing) will add the receiver.
 
-### PR 3 — MySQL Receiver and Ordered Delivery
+  > **Not in this PR:** Transport-level consumption of due retries (`WebhookTransport.get()`), consumer contract headers (`X-Shopware-Event-Id`, `X-Shopware-Sequence`, `X-Shopware-Attempt`), and stream leasing. These ship in PR 3.
+
+### PR 3 — MySQL Receiver, Retry Consumption, and Ordered Delivery
 
 The outbox becomes the queue. Workers consume directly from `webhook_delivery`.
 
-- Partition-scoped stream leasing via `SKIP LOCKED` for insertion-ordered delivery within an app.
+- `WebhookTransport.get()` polls `webhook_delivery` for due `PENDING_RETRY` rows via `SKIP LOCKED`.
+- Partition-scoped stream leasing for insertion-ordered delivery within an app.
+- Consumer contract headers: `X-Shopware-Event-Id`, `X-Shopware-Sequence`, `X-Shopware-Attempt`.
 - The `async` forwarding is removed. Workers run `messenger:consume webhook`.
-- Per-webhook failure isolation replaces the shared `RelatedWebhooks` blast radius.
 
 ### Future
 

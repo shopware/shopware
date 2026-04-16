@@ -99,4 +99,13 @@ class WebhookEventMessage
     {
         return $this->partitionKey ?? $this->appId ?? self::DEFAULT_PARTITION_KEY;
     }
+
+    /**
+     * Messages created by the webhook transport have a partitionKey set.
+     * Legacy messages (serialized before the transport existed) have null.
+     */
+    public function hasOutboxEntry(): bool
+    {
+        return $this->partitionKey !== null;
+    }
 }

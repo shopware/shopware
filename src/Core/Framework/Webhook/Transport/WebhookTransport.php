@@ -5,8 +5,8 @@ namespace Shopware\Core\Framework\Webhook\Transport;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
-use Shopware\Core\Framework\Webhook\Outbox\OutboxEntry;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository;
+use Shopware\Core\Framework\Webhook\Outbox\OutboxInsert;
 use Shopware\Core\Framework\Webhook\WebhookException;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Transport\TransportInterface;
@@ -17,9 +17,9 @@ use Symfony\Component\Messenger\Transport\TransportInterface;
  * Send path: persists the outbox entry (webhook_event_log + webhook_delivery),
  * then forwards to the configured async transport for worker consumption.
  *
- * Receive path (Path 2): stream-leased MySQLWebhookReceiver will replace the
- * async forwarding — the outbox becomes the queue itself and workers consume
- * directly from `messenger:consume webhook`.
+ * Receive path: will be implemented in a follow-up PR with stream-leased
+ * MySQLWebhookReceiver — the outbox becomes the queue itself and workers
+ * consume directly from `messenger:consume webhook`.
  *
  * @internal
  */
@@ -39,14 +39,14 @@ class WebhookTransport implements TransportInterface
             throw WebhookException::unsupportedMessage($message::class);
         }
 
-        $this->outboxEventRepository->ensureOutboxEntry(new OutboxEntry(
+        $this->outboxEventRepository->ensureOutboxEntry(new OutboxInsert(
             $message->getWebhookEventId(),
             $message->getWebhookId(),
             Hasher::hashBinary($message->getPartitionKey(), 'xxh128'),
             serialize($message),
         ));
 
-        // Forward to the configured async transport for worker consumption. Later, we'll add stream leasing and only support FIFO queues.
+        // Forward to the configured async transport for worker consumption.
         return $this->asyncTransport->send($envelope);
     }
 
@@ -55,7 +55,9 @@ class WebhookTransport implements TransportInterface
      */
     public function get(): iterable
     {
-        // Path 2: MySQLWebhookReceiver reads from webhook_delivery via stream leasing.
+        // TODO: Implement stream-leased MySQLWebhookReceiver in a follow-up PR.
+        // This will poll webhook_delivery for due PENDING_RETRY rows and return
+        // them as Envelopes for `messenger:consume webhook`.
         return [];
     }
 

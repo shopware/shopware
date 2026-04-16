@@ -3,17 +3,20 @@
 namespace Shopware\Core\Framework\Webhook\Handler;
 
 use GuzzleHttp\Exception\BadResponseException;
-use Psr\Clock\ClockInterface;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\DeliveryResponse;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository;
 use Shopware\Core\Framework\Webhook\Service\RelatedWebhooks;
 use Shopware\Core\Framework\Webhook\Service\WebhookClient;
+use Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService;
+use Shopware\Core\Framework\Webhook\Service\WebhookResult;
 use Shopware\Core\Framework\Webhook\WebhookException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -28,16 +31,34 @@ final readonly class WebhookEventMessageHandler
      * @internal
      */
     public function __construct(
-        private readonly WebhookClient $webhookClient,
-        private readonly AppPayloadServiceHelper $appPayloadServiceHelper,
-        private readonly ClockInterface $clock,
-        private readonly RelatedWebhooks $relatedWebhooks,
-        private readonly OutboxEventRepository $outboxEventRepository,
+        private WebhookClient $webhookClient,
+        private AppPayloadServiceHelper $appPayloadServiceHelper,
+        private RelatedWebhooks $relatedWebhooks,
+        private OutboxEventRepository $outboxEventRepository,
+        private WebhookDeliveryService $webhookDeliveryService,
+        private LoggerInterface $logger,
     ) {
     }
 
     public function __invoke(WebhookEventMessage $message): void
     {
+        // New messages (with partitionKey) must have a webhook_delivery row.
+        // Legacy messages (without partitionKey, from before the webhook transport) are allowed to proceed without one.
+        if ($message->hasOutboxEntry() && !$this->outboxEventRepository->hasDeliveryRow($message->getWebhookEventId())) {
+            $this->logger->error('Webhook delivery aborted: outbox entry missing for event {eventId}. The webhook_delivery row should have been created by the transport sender.', [
+                'eventId' => $message->getWebhookEventId(),
+                'webhookId' => $message->getWebhookId(),
+            ]);
+
+            return;
+        }
+
+        if (Feature::isActive('WEBHOOKS_REWORK')) {
+            $this->webhookDeliveryService->deliver($message);
+
+            return;
+        }
+
         $context = Context::createDefaultContext();
 
         $request = $this->appPayloadServiceHelper->createWebhookRequest(
@@ -57,18 +78,21 @@ final readonly class WebhookEventMessageHandler
         try {
             $result = $this->webhookClient->send($request);
         } catch (\Throwable $e) {
-            $response = new DeliveryResponse(
-                processingTime: $this->clock->now()->getTimestamp() - $request->timestamp,
-                requestContent: json_encode(['headers' => $request->headers, 'body' => $request->body], \JSON_THROW_ON_ERROR),
-            );
+            $response = DeliveryResponse::from($request, new WebhookResult(
+                body: [],
+                statusCode: null,
+                reasonPhrase: null,
+                headers: null,
+                errorMessage: $e->getMessage(),
+                exception: $e,
+            ));
 
             $this->outboxEventRepository->resetForRetry($message->getWebhookEventId(), $response);
 
             throw WebhookException::webhookFailedException($message->getWebhookId(), $e);
         }
 
-        $processingTime = $this->clock->now()->getTimestamp() - $request->timestamp;
-        $response = DeliveryResponse::from($request, $result, $processingTime);
+        $response = DeliveryResponse::from($request, $result);
 
         if ($result->successful()) {
             $this->outboxEventRepository->markSuccess($message->getWebhookEventId(), $response);

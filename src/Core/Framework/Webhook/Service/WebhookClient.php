@@ -26,13 +26,23 @@ final readonly class WebhookClient
 
     public function send(WebhookRequest $request): WebhookResult
     {
+        $start = microtime(true);
+
         try {
             $response = $this->guzzle->send($request->request, $request->options);
         } catch (TransferException $e) {
-            return $this->createFailureResult($e);
+            return $this->createFailureResult($e, microtime(true) - $start);
         }
 
-        return $this->createSuccessResult($response->getStatusCode(), $response->getReasonPhrase(), $response->getHeaders(), $response->getBody()->getContents());
+        $duration = microtime(true) - $start;
+
+        return $this->createSuccessResult(
+            $response->getStatusCode(),
+            $response->getReasonPhrase(),
+            $response->getHeaders(),
+            $response->getBody()->getContents(),
+            $duration,
+        );
     }
 
     /**
@@ -51,21 +61,36 @@ final readonly class WebhookClient
         }
 
         $results = [];
+        /** @var array<int, float> $startTimes */
+        $startTimes = [];
 
         $pool = new Pool($this->guzzle, array_map(
-            fn (WebhookRequest $wr) => fn () => $this->guzzle->sendAsync($wr->request, $wr->options),
+            function (WebhookRequest $wr) use (&$startTimes) {
+                return function () use ($wr, &$startTimes) {
+                    $startTimes[spl_object_id($wr)] = microtime(true);
+
+                    return $this->guzzle->sendAsync($wr->request, $wr->options);
+                };
+            },
             $requests
         ), [
-            'fulfilled' => function (ResponseInterface $response, string|int $key) use (&$results): void {
+            'fulfilled' => function (ResponseInterface $response, string|int $key) use (&$results, $requests, &$startTimes): void {
+                $wr = $requests[(string) $key];
+                $duration = microtime(true) - ($startTimes[spl_object_id($wr)] ?? microtime(true));
+
                 $results[(string) $key] = $this->createSuccessResult(
                     $response->getStatusCode(),
                     $response->getReasonPhrase(),
                     $response->getHeaders(),
-                    $response->getBody()->getContents()
+                    $response->getBody()->getContents(),
+                    $duration,
                 );
             },
-            'rejected' => function (\Throwable $reason, string|int $key) use (&$results): void {
-                $results[(string) $key] = $this->createFailureResult($reason);
+            'rejected' => function (\Throwable $reason, string|int $key) use (&$results, $requests, &$startTimes): void {
+                $wr = $requests[(string) $key];
+                $duration = microtime(true) - ($startTimes[spl_object_id($wr)] ?? microtime(true));
+
+                $results[(string) $key] = $this->createFailureResult($reason, $duration);
             },
         ]);
         $pool->promise()->wait();
@@ -76,17 +101,18 @@ final readonly class WebhookClient
     /**
      * @param array<string, string[]> $headers
      */
-    private function createSuccessResult(int $statusCode, string $reasonPhrase, array $headers, string $body): WebhookResult
+    private function createSuccessResult(int $statusCode, string $reasonPhrase, array $headers, string $body, float $durationSeconds): WebhookResult
     {
         return new WebhookResult(
             json_decode($body, true),
             $statusCode,
             $reasonPhrase,
             $headers,
+            durationSeconds: $durationSeconds,
         );
     }
 
-    private function createFailureResult(\Throwable $e): WebhookResult
+    private function createFailureResult(\Throwable $e, float $durationSeconds): WebhookResult
     {
         if ($e instanceof RequestException && $e->getResponse() !== null) {
             $response = $e->getResponse();
@@ -103,6 +129,7 @@ final readonly class WebhookClient
                 $response->getHeaders(),
                 $e->getMessage(),
                 $e,
+                $durationSeconds,
             );
         }
 
@@ -113,6 +140,7 @@ final readonly class WebhookClient
             null,
             $e->getMessage(),
             $e,
+            $durationSeconds,
         );
     }
 }

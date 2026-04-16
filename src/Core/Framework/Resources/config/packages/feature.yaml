@@ -81,3 +81,8 @@ shopware:
         major: true
         toggleable: true
         description: "Replace inline microdata (itemscope/itemprop) with JSON-LD structured data in the Storefront. When enabled, legacy microdata attributes are removed and a <script type=\"application/ld+json\"> block is injected into the <head> instead."
+      - name: WEBHOOKS_REWORK
+        default: false
+        major: true
+        toggleable: true
+        description: "Experimental! Enable outbox-owned retry scheduling for webhooks instead of Messenger retries."

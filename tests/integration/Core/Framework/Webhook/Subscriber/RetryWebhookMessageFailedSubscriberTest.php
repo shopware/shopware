@@ -17,8 +17,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogCollection;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
-use Shopware\Core\Framework\Webhook\Outbox\OutboxEntry;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository;
+use Shopware\Core\Framework\Webhook\Outbox\OutboxInsert;
 use Shopware\Core\Framework\Webhook\Service\RelatedWebhooks;
 use Shopware\Core\Framework\Webhook\Subscriber\RetryWebhookMessageFailedSubscriber;
 use Shopware\Core\Framework\Webhook\WebhookEntity;
@@ -389,6 +389,107 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
         static::assertFalse($webhook->isActive());
     }
 
+    public function testNoOpWhenOutboxRetriesEnabled(): void
+    {
+        $_SERVER['WEBHOOKS_REWORK'] = '1';
+
+        try {
+            $webhookId = Uuid::randomHex();
+            $appId = Uuid::randomHex();
+            $webhookEventId = Uuid::randomHex();
+
+            $this->createAppWithWebhook($appId, $webhookId, 0);
+            $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId);
+            $this->createOutboxEntry($webhookEventMessage, $webhookId);
+
+            $this->outboxEventRepository->markRunning($webhookEventId);
+
+            $event = new WorkerMessageFailedEvent(
+                new Envelope($webhookEventMessage),
+                'async',
+                new ClientException('test', new Request('GET', 'https://test.com'), new Response(500))
+            );
+
+            $subscriber = new RetryWebhookMessageFailedSubscriber(
+                $this->connection,
+                $this->outboxEventRepository,
+                static::getContainer()->get(RelatedWebhooks::class),
+                WebhookFailureStrategy::DisableOnThreshold->value,
+            );
+
+            $subscriber->failed($event);
+
+            // markFailed must NOT have been called — delivery row should still exist with RUNNING status
+            $delivery = $this->connection->fetchAssociative(
+                'SELECT delivery_status FROM webhook_delivery WHERE webhook_event_log_id = :id',
+                ['id' => Uuid::fromHexToBytes($webhookEventId)]
+            );
+
+            static::assertIsArray($delivery);
+            static::assertSame(WebhookEventLogDefinition::STATUS_RUNNING, $delivery['delivery_status']);
+
+            // Webhook error_count must NOT have been changed
+            $webhookRepository = static::getContainer()->get('webhook.repository');
+            $webhook = $webhookRepository->search(new Criteria([$webhookId]), $this->context)->first();
+
+            static::assertInstanceOf(WebhookEntity::class, $webhook);
+            static::assertSame(0, $webhook->getErrorCount());
+            static::assertTrue($webhook->isActive());
+        } finally {
+            unset($_SERVER['WEBHOOKS_REWORK']);
+        }
+    }
+
+    public function testExistingBehaviorPreservedWhenFlagOff(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $appId = Uuid::randomHex();
+        $webhookEventId = Uuid::randomHex();
+
+        $this->createAppWithWebhook($appId, $webhookId, 0);
+        $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId);
+        $this->createOutboxEntry($webhookEventMessage, $webhookId);
+
+        $this->outboxEventRepository->markRunning($webhookEventId);
+
+        $event = new WorkerMessageFailedEvent(
+            new Envelope($webhookEventMessage),
+            'async',
+            new ClientException('test', new Request('GET', 'https://test.com'), new Response(500))
+        );
+
+        $subscriber = new RetryWebhookMessageFailedSubscriber(
+            $this->connection,
+            $this->outboxEventRepository,
+            static::getContainer()->get(RelatedWebhooks::class),
+            WebhookFailureStrategy::DisableOnThreshold->value,
+        );
+
+        $subscriber->failed($event);
+
+        // markFailed SHOULD have been called — event log should be FAILED
+        $status = $this->connection->fetchOne(
+            'SELECT delivery_status FROM webhook_event_log WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($webhookEventId)]
+        );
+        static::assertSame(WebhookEventLogDefinition::STATUS_FAILED, $status);
+
+        // Delivery row should be cleaned up (terminal state)
+        $deliveryExists = $this->connection->fetchOne(
+            'SELECT 1 FROM webhook_delivery WHERE webhook_event_log_id = :id',
+            ['id' => Uuid::fromHexToBytes($webhookEventId)]
+        );
+        static::assertFalse($deliveryExists);
+
+        // Webhook error_count must have been incremented
+        $webhookRepository = static::getContainer()->get('webhook.repository');
+        $webhook = $webhookRepository->search(new Criteria([$webhookId]), $this->context)->first();
+
+        static::assertInstanceOf(WebhookEntity::class, $webhook);
+        static::assertSame(1, $webhook->getErrorCount());
+        static::assertTrue($webhook->isActive());
+    }
+
     public function testNonWebhookEventMessageIsIgnored(): void
     {
         $nonWebhookMessage = new \stdClass();
@@ -600,7 +701,7 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
 
     private function createOutboxEntry(WebhookEventMessage $message, string $webhookId): void
     {
-        $this->outboxEventRepository->ensureOutboxEntry(new OutboxEntry(
+        $this->outboxEventRepository->ensureOutboxEntry(new OutboxInsert(
             $message->getWebhookEventId(),
             $webhookId,
             Hasher::hashBinary($message->getPartitionKey(), 'xxh128'),

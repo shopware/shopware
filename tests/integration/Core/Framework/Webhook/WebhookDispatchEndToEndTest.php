@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -17,13 +18,14 @@ use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository;
 use Shopware\Core\Framework\Webhook\Service\WebhookClient;
+use Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
-use Symfony\Component\Clock\ClockInterface;
+use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\TraceableMessageBus;
 
 /**
@@ -240,7 +242,7 @@ class WebhookDispatchEndToEndTest extends TestCase
             Kernel::SHOPWARE_FALLBACK_VERSION,
             $isAdminWorkerEnabled,
             static::getContainer()->get(OutboxEventRepository::class),
-            static::getContainer()->get(ClockInterface::class),
+            static::getContainer()->get(WebhookDeliveryService::class),
         );
     }
 

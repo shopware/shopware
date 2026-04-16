@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Webhook\Subscriber;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
@@ -21,8 +22,6 @@ use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
 #[Package('framework')]
 class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
 {
-    private const MAX_WEBHOOK_ERROR_COUNT = 10;
-
     private readonly WebhookFailureStrategy $failureStrategy;
 
     /**
@@ -46,6 +45,10 @@ class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
 
     public function failed(WorkerMessageFailedEvent $event): void
     {
+        if (Feature::isActive('WEBHOOKS_REWORK')) {
+            return; // Handler owns retry lifecycle when outbox retries are enabled
+        }
+
         $message = $event->getEnvelope()->getMessage();
         if (!$message instanceof WebhookEventMessage) {
             return;
@@ -90,7 +93,7 @@ class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
     {
         $errorCount = $webhook['error_count'] + 1;
 
-        if ($errorCount >= self::MAX_WEBHOOK_ERROR_COUNT) {
+        if ($errorCount >= WebhookFailureStrategy::MAX_ERROR_COUNT) {
             return ['error_count' => 0, 'active' => 0];
         }
 

@@ -23,20 +23,22 @@ use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\Payload\Source;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
+use Shopware\Core\Framework\Webhook\Outbox\OutboxEntry;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository;
 use Shopware\Core\Framework\Webhook\Service\WebhookClient;
+use Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
 use Shopware\Core\Framework\Webhook\Service\WebhookRequest;
 use Shopware\Core\Framework\Webhook\Webhook;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
-use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Contracts\EventDispatcher\Event;
 
@@ -60,6 +62,10 @@ class WebhookManagerTest extends TestCase
 
     protected function setUp(): void
     {
+        // Ensure the feature flag is registered and inactive for legacy path tests
+        Feature::registerFeature('WEBHOOKS_REWORK', ['default' => false, 'major' => true, 'toggleable' => true]);
+        unset($_SERVER['WEBHOOKS_REWORK']);
+
         $this->webhookLoader = $this->createMock(WebhookLoader::class);
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $this->clientMock = new MockHandler([new Response(200, [], '{}')]);
@@ -69,6 +75,12 @@ class WebhookManagerTest extends TestCase
         $this->webhookClient = new WebhookClient($guzzle);
         $this->eventFactory = $this->createMock(HookableEventFactory::class);
         $this->bus = new CollectingMessageBus();
+    }
+
+    protected function tearDown(): void
+    {
+        unset($_SERVER['WEBHOOKS_REWORK']);
+        Feature::resetRegisteredFeatures();
     }
 
     public function testDispatchesTwoConsecutiveEventsCorrectly(): void
@@ -421,6 +433,9 @@ class WebhookManagerTest extends TestCase
         $appPayloadServiceHelper->method('buildSource')->willReturn(new Source('https://example.com', 'foobar', '0.0.0'));
         $appPayloadServiceHelper->method('createWebhookRequest')->willReturnCallback($this->buildWebhookRequest(...));
 
+        $outboxRepository = $this->createMock(OutboxEventRepository::class);
+        $outboxRepository->method('markRunning')->willReturn(new OutboxEntry(executionCount: 1, sequence: 1));
+
         return new WebhookManager(
             $this->webhookLoader,
             $this->eventDispatcher,
@@ -432,8 +447,8 @@ class WebhookManagerTest extends TestCase
             'https://example.com',
             '0.0.0',
             $isAdminWorkerEnabled,
-            $this->createMock(OutboxEventRepository::class),
-            new MockClock(),
+            $outboxRepository,
+            $this->createMock(WebhookDeliveryService::class),
         );
     }
 

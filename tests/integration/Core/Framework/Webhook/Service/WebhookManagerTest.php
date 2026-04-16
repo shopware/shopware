@@ -40,6 +40,7 @@ use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository;
 use Shopware\Core\Framework\Webhook\Service\WebhookClient;
+use Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
 use Shopware\Core\Kernel;
@@ -48,7 +49,6 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Integration\App\GuzzleHistoryCollector;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
-use Symfony\Component\Clock\ClockInterface;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -87,6 +87,12 @@ class WebhookManagerTest extends TestCase
         $this->guzzleHistory = $guzzleHistory;
 
         $this->appRepository = static::getContainer()->get('app.repository');
+    }
+
+    protected function tearDown(): void
+    {
+        unset($_SERVER['WEBHOOKS_REWORK']);
+        parent::tearDown();
     }
 
     public function testDoesNotDispatchBusinessEventIfAppIsInactive(): void
@@ -1289,6 +1295,136 @@ class WebhookManagerTest extends TestCase
         static::assertSame('POST', $request->getMethod());
     }
 
+    public function testSyncPathMarksPendingRetryWhenFlagOn(): void
+    {
+        $appId = Uuid::randomHex();
+        $aclRoleId = Uuid::randomHex();
+        $webhookId = Uuid::randomHex();
+        $this->createApp(
+            appId: $appId,
+            aclRoleId: $aclRoleId,
+            webhooks: [
+                [
+                    'id' => $webhookId,
+                    'name' => 'hook1',
+                    'event_name' => CustomerBeforeLoginEvent::EVENT_NAME,
+                    'url' => 'https://test.com',
+                ],
+            ],
+        );
+
+        $this->appendNewResponse(new Response(500, [], 'server error'));
+
+        $event = new CustomerBeforeLoginEvent(
+            static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
+            'test@example.com'
+        );
+
+        $this->getManager(adminWorkerEnabled: true, outboxRetriesEnabled: true)->dispatch($event);
+
+        // Event log should be pending_retry, not failed
+        $eventLog = $this->connection->fetchAssociative(
+            'SELECT id, delivery_status FROM webhook_event_log WHERE webhook_name = :name ORDER BY created_at DESC LIMIT 1',
+            ['name' => 'hook1']
+        );
+
+        static::assertIsArray($eventLog);
+        static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $eventLog['delivery_status']);
+
+        // Delivery row must still exist with next_retry_at set
+        $delivery = $this->connection->fetchAssociative(
+            'SELECT delivery_status, next_retry_at FROM webhook_delivery WHERE webhook_event_log_id = :id',
+            ['id' => $eventLog['id']]
+        );
+
+        static::assertIsArray($delivery);
+        static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $delivery['delivery_status']);
+        static::assertNotNull($delivery['next_retry_at']);
+    }
+
+    public function testSyncPathMarksPendingRetryForAppLifecycleEventsWithFlagOn(): void
+    {
+        $aclRoleId = Uuid::randomHex();
+        $appId = Uuid::randomHex();
+        $this->createApp(appId: $appId, aclRoleId: $aclRoleId, webhooks: [
+            [
+                'name' => 'hook1',
+                'event_name' => AppDeletedEvent::NAME,
+                'url' => 'https://test.com',
+            ],
+        ]);
+
+        $this->appendNewResponse(new Response(500, [], 'server error'));
+
+        $event = new AppDeletedEvent($appId, Context::createDefaultContext());
+
+        $this->getManager(adminWorkerEnabled: true, outboxRetriesEnabled: true)->dispatch($event);
+
+        // All deliveries are retryable — lifecycle events included
+        $eventLog = $this->connection->fetchAssociative(
+            'SELECT id, delivery_status FROM webhook_event_log WHERE webhook_name = :name ORDER BY created_at DESC LIMIT 1',
+            ['name' => 'hook1']
+        );
+
+        static::assertIsArray($eventLog);
+        static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $eventLog['delivery_status']);
+
+        // Delivery row should still exist (pending retry, not terminal)
+        $delivery = $this->connection->fetchAssociative(
+            'SELECT delivery_status, next_retry_at FROM webhook_delivery WHERE webhook_event_log_id = :id',
+            ['id' => $eventLog['id']]
+        );
+
+        static::assertIsArray($delivery);
+        static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $delivery['delivery_status']);
+        static::assertNotNull($delivery['next_retry_at']);
+    }
+
+    public function testSyncPathMarksFailedWhenFlagOff(): void
+    {
+        $appId = Uuid::randomHex();
+        $aclRoleId = Uuid::randomHex();
+        $webhookId = Uuid::randomHex();
+        $this->createApp(
+            appId: $appId,
+            aclRoleId: $aclRoleId,
+            webhooks: [
+                [
+                    'id' => $webhookId,
+                    'name' => 'hook1',
+                    'event_name' => CustomerBeforeLoginEvent::EVENT_NAME,
+                    'url' => 'https://test.com',
+                ],
+            ],
+        );
+
+        $this->appendNewResponse(new Response(500, [], 'server error'));
+
+        $event = new CustomerBeforeLoginEvent(
+            static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
+            'test@example.com'
+        );
+
+        $this->getManager(adminWorkerEnabled: true, outboxRetriesEnabled: false)->dispatch($event);
+
+        // With flag OFF, should be marked failed (existing behavior)
+        $eventLog = $this->connection->fetchAssociative(
+            'SELECT id, delivery_status FROM webhook_event_log WHERE webhook_name = :name ORDER BY created_at DESC LIMIT 1',
+            ['name' => 'hook1']
+        );
+
+        static::assertIsArray($eventLog);
+        static::assertSame(WebhookEventLogDefinition::STATUS_FAILED, $eventLog['delivery_status']);
+
+        // Delivery row should be cleaned up (terminal state)
+        $deliveryCount = (int) $this->connection->fetchOne(
+            'SELECT COUNT(*) FROM webhook_delivery WHERE webhook_event_log_id = :id',
+            ['id' => $eventLog['id']]
+        );
+
+        static::assertSame(0, $deliveryCount, 'Delivery row should be removed after failed delivery (terminal state)');
+    }
+
     public function testSyncDispatchWithNonAppWebhookCreatesOutboxEntry(): void
     {
         $webhookId = Uuid::randomHex();
@@ -1435,8 +1571,15 @@ class WebhookManagerTest extends TestCase
 
     private function getManager(
         ?Client $client = null,
-        bool $adminWorkerEnabled = true
+        bool $adminWorkerEnabled = true,
+        bool $outboxRetriesEnabled = false,
     ): WebhookManager {
+        if ($outboxRetriesEnabled) {
+            $_SERVER['WEBHOOKS_REWORK'] = '1';
+        } else {
+            unset($_SERVER['WEBHOOKS_REWORK']);
+        }
+
         $guzzle = $client ?? static::getContainer()->get('shopware.webhook.guzzle');
 
         return new WebhookManager(
@@ -1451,7 +1594,7 @@ class WebhookManagerTest extends TestCase
             Kernel::SHOPWARE_FALLBACK_VERSION,
             $adminWorkerEnabled,
             static::getContainer()->get(OutboxEventRepository::class),
-            static::getContainer()->get(ClockInterface::class),
+            static::getContainer()->get(WebhookDeliveryService::class),
         );
     }
 

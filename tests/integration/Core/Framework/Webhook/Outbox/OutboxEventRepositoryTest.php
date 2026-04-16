@@ -12,8 +12,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\DeliveryResponse;
-use Shopware\Core\Framework\Webhook\Outbox\OutboxEntry;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository;
+use Shopware\Core\Framework\Webhook\Outbox\OutboxInsert;
 use Shopware\Core\Framework\Webhook\WebhookException;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
@@ -426,7 +426,7 @@ class OutboxEventRepositoryTest extends TestCase
     public function testEnsureOutboxEntryThrowsWebhookNotFoundForMissingWebhook(): void
     {
         $nonExistentWebhookId = Uuid::randomHex();
-        $entry = new OutboxEntry(
+        $entry = new OutboxInsert(
             Uuid::randomHex(),
             $nonExistentWebhookId,
             Hasher::hashBinary(WebhookEventMessage::DEFAULT_PARTITION_KEY, 'xxh128'),
@@ -453,6 +453,94 @@ class OutboxEventRepositoryTest extends TestCase
 
         static::assertNotFalse($stored);
         static::assertSame($entry->serializedMessage, $stored);
+    }
+
+    public function testMarkPendingRetrySchedulesWithGivenRetryAt(): void
+    {
+        $this->createWebhook('wh-1');
+        $message = $this->createMessage('evt-1', 'wh-1');
+        $this->repository->ensureOutboxEntry($this->toEntry($message));
+
+        $this->repository->markRunning($this->ids->get('evt-1'));
+
+        $retryAt = new \DateTimeImmutable('+5 seconds');
+        $this->repository->markPendingRetry($this->ids->get('evt-1'), $retryAt);
+
+        $delivery = $this->connection->fetchAssociative(
+            'SELECT delivery_status, next_retry_at FROM webhook_delivery WHERE webhook_event_log_id = :id',
+            ['id' => $this->ids->getBytes('evt-1')]
+        );
+        static::assertNotFalse($delivery);
+        static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $delivery['delivery_status']);
+
+        $nextRetryAt = new \DateTimeImmutable($delivery['next_retry_at']);
+        static::assertEqualsWithDelta($retryAt->getTimestamp(), $nextRetryAt->getTimestamp(), 2);
+
+        $this->assertEventLogStatus('evt-1', WebhookEventLogDefinition::STATUS_PENDING_RETRY);
+
+        // Test with a different retry time
+        $this->createWebhook('wh-2');
+        $message2 = $this->createMessage('evt-2', 'wh-2');
+        $this->repository->ensureOutboxEntry($this->toEntry($message2));
+        $this->repository->markRunning($this->ids->get('evt-2'));
+
+        $retryAt2 = new \DateTimeImmutable('+30 seconds');
+        $this->repository->markPendingRetry($this->ids->get('evt-2'), $retryAt2);
+
+        $delivery2 = $this->connection->fetchAssociative(
+            'SELECT next_retry_at FROM webhook_delivery WHERE webhook_event_log_id = :id',
+            ['id' => $this->ids->getBytes('evt-2')]
+        );
+        static::assertNotFalse($delivery2);
+        $nextRetryAt2 = new \DateTimeImmutable($delivery2['next_retry_at']);
+        static::assertEqualsWithDelta($retryAt2->getTimestamp(), $nextRetryAt2->getTimestamp(), 2);
+    }
+
+    public function testMarkPendingRetryPersistsResponseData(): void
+    {
+        $this->createWebhook('wh-1');
+        $message = $this->createMessage('evt-1', 'wh-1');
+        $this->repository->ensureOutboxEntry($this->toEntry($message));
+
+        $this->repository->markRunning($this->ids->get('evt-1'));
+
+        $retryAt = new \DateTimeImmutable('+5 seconds');
+        $response = new DeliveryResponse(
+            processingTime: 42,
+            requestContent: json_encode(['headers' => []], \JSON_THROW_ON_ERROR),
+            responseContent: json_encode(['body' => 'error'], \JSON_THROW_ON_ERROR),
+            responseStatusCode: 500,
+            responseReasonPhrase: 'Internal Server Error',
+        );
+
+        $this->repository->markPendingRetry($this->ids->get('evt-1'), $retryAt, $response);
+
+        $eventLog = $this->connection->fetchAssociative(
+            'SELECT delivery_status, processing_time, response_status_code FROM webhook_event_log WHERE id = :id',
+            ['id' => $this->ids->getBytes('evt-1')]
+        );
+        static::assertNotFalse($eventLog);
+        static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $eventLog['delivery_status']);
+        static::assertSame(42, (int) $eventLog['processing_time']);
+        static::assertSame(500, (int) $eventLog['response_status_code']);
+    }
+
+    public function testMarkRunningReturnsExecutionInfo(): void
+    {
+        $this->createWebhook('wh-1');
+        $message = $this->createMessage('evt-1', 'wh-1');
+        $this->repository->ensureOutboxEntry($this->toEntry($message));
+
+        $info = $this->repository->markRunning($this->ids->get('evt-1'));
+
+        static::assertSame(1, $info->executionCount);
+        static::assertGreaterThan(0, $info->sequence);
+
+        // Call again on the already-RUNNING row - should be idempotent
+        // The UPDATE WHERE delivery_status = 'queued' matches 0 rows
+        $info2 = $this->repository->markRunning($this->ids->get('evt-1'));
+        static::assertSame(1, $info2->executionCount, 'Execution count must remain 1 for already-RUNNING row');
+        static::assertSame($info->sequence, $info2->sequence);
     }
 
     private function assertEventLogStatus(string $eventKey, string $expectedStatus): void
@@ -538,9 +626,9 @@ class OutboxEventRepositoryTest extends TestCase
         );
     }
 
-    private function toEntry(WebhookEventMessage $message): OutboxEntry
+    private function toEntry(WebhookEventMessage $message): OutboxInsert
     {
-        return new OutboxEntry(
+        return new OutboxInsert(
             $message->getWebhookEventId(),
             $message->getWebhookId(),
             Hasher::hashBinary($message->getPartitionKey(), 'xxh128'),

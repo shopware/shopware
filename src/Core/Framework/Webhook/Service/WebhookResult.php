@@ -22,6 +22,10 @@ final readonly class WebhookResult
         public ?array $headers,
         public ?string $errorMessage = null,
         public ?\Throwable $exception = null,
+        /**
+         * HTTP round-trip duration in seconds (null if not measured, e.g. connection failure)
+         */
+        public ?float $durationSeconds = null,
     ) {
     }
 

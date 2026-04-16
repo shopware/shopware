@@ -425,6 +425,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         await flushPromises();
 
         expect(wrapper.vm.flyoutStyle.top).toBe('80px');
+        expect(wrapper.vm.flyoutStyle['max-height']).toBe(`${window.innerHeight - 100}px`);
     });
 
     it('should call logoutSso and clear stores on logout', async () => {

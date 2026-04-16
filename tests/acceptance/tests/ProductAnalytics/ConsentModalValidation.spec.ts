@@ -2,6 +2,7 @@ import { test, expect, Page, AdminPageObjects, createNewAdminPageContext, loginT
 import { parseCapturedRequests, removeSymfonyToolbar, setupConsentRevokeInterceptor,
     setupConsentInterceptor, setupProductAnalyticsInterceptor, waitForEventCount,
 } from '@helpers/productanalytics-helpers';
+import { satisfies } from 'compare-versions';
 const TRACKING_EVENT_ENDPOINT = 'event';
 const CONSENTS_ENDPOINT = 'consents';
 
@@ -14,6 +15,8 @@ test(
         TestDataService,
         InstanceMeta,
     }) => {
+
+        test.skip(satisfies(InstanceMeta.version, '<6.7.9.0'), 'Data sharing consent modal only available since version 6.7.9.0');
 
         const { capturedTrackingEventRequests, trackingEventHandler } = setupProductAnalyticsInterceptor();
 

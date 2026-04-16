@@ -1,7 +1,7 @@
 import { test, assertScreenshot, setViewport } from '@fixtures/AcceptanceTest';
 import { satisfies } from 'compare-versions';
 
-test('Visual: Administration your profile page', { tag: '@Visual' }, async ({
+test('Visual: Administration settings privacy page.', { tag: '@Visual' }, async ({
     ShopAdmin,
     AdminDataSharing,
     InstanceMeta,

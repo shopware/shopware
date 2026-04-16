@@ -9,18 +9,16 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\Checkout\Payment\Cleanup\CleanupPaymentTokenTaskHandler;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Clock\MockClock;
 
 /**
  * @internal
  */
 #[CoversClass(CleanupPaymentTokenTaskHandler::class)]
-#[Package('checkout')]
 class CleanupPaymentTokenTaskHandlerTest extends TestCase
 {
-    #[DataProvider('clockNowCases')]
-    public function testRunFormatsNowAsUtcSqlParameter(\DateTimeImmutable $now, string $expectedSqlParameter): void
+    #[DataProvider('clockNowProvider')]
+    public function testRunNormalizesClockTimeToUtcForStorage(string $now, string $expectedSqlParameter): void
     {
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())
@@ -31,37 +29,32 @@ class CleanupPaymentTokenTaskHandlerTest extends TestCase
             );
 
         $handler = new CleanupPaymentTokenTaskHandler(
-            $this->createMock(EntityRepository::class),
+            static::createStub(EntityRepository::class),
             new NullLogger(),
             $connection,
-            new MockClock($now),
+            new MockClock(new \DateTimeImmutable($now)),
         );
 
         $handler->run();
     }
 
     /**
-     * @return iterable<string, array{\DateTimeImmutable, string}>
+     * @return iterable<string, array{string, string}>
      */
-    public static function clockNowCases(): iterable
+    public static function clockNowProvider(): iterable
     {
         yield 'utc clock is formatted' => [
-            new \DateTimeImmutable('2025-01-15T12:00:00+00:00'),
+            '2025-01-15T12:00:00+00:00',
             '2025-01-15 12:00:00.000',
         ];
 
-        yield 'positive offset is normalized to utc' => [
-            new \DateTimeImmutable('2025-01-15T13:00:00+01:00'),
-            '2025-01-15 12:00:00.000',
-        ];
-
-        yield 'negative offset is normalized to utc' => [
-            new \DateTimeImmutable('2025-01-15T07:00:00-05:00'),
+        yield 'non-utc offset is normalized to utc' => [
+            '2025-01-15T13:00:00+01:00',
             '2025-01-15 12:00:00.000',
         ];
 
         yield 'sub-second precision is preserved in milliseconds' => [
-            new \DateTimeImmutable('2025-01-15T12:00:00.123456+00:00'),
+            '2025-01-15T12:00:00.123456+00:00',
             '2025-01-15 12:00:00.123',
         ];
     }

@@ -167,17 +167,28 @@ export default {
             const language = Shopware.Store.get('context')?.api?.language;
             const parentLanguageId = language?.parentId;
 
-            if (!parentLanguageId || Shopware.Context.api.languageId === Shopware.Context.api.systemLanguageId) {
+            if (parentLanguageId) {
+                return parentLanguageId;
+            }
+
+            if (Shopware.Context.api.languageId === Shopware.Context.api.systemLanguageId) {
                 return null;
             }
 
-            return parentLanguageId;
+            return Shopware.Context.api.systemLanguageId;
         },
     },
 
     watch: {
         translatedInheritanceLanguageId() {
             this.loadInheritedCustomFields();
+        },
+
+        sets: {
+            handler() {
+                this.loadInheritedCustomFields();
+            },
+            deep: true,
         },
 
         'entity.customFieldSetSelectionActive': {
@@ -239,6 +250,20 @@ export default {
 
         hasOverriddenTranslatedCustomFields() {
             return Object.values(this.customFields ?? {}).some((value) => value !== null && value !== undefined);
+        },
+
+        hasInheritedTranslatedCustomFieldsWithoutFallback() {
+            return this.sets.some((set) => {
+                return set.customFields?.some((customField) => {
+                    if (!this.isInheritedTranslatedCustomField(customField.name)) {
+                        return false;
+                    }
+
+                    const translatedValue = this.entity?.translated?.customFields?.[customField.name];
+
+                    return translatedValue === null || translatedValue === undefined;
+                });
+            });
         },
 
         resetTranslatedInheritanceState() {
@@ -321,7 +346,10 @@ export default {
 
             const loadKey = this.getTranslatedInheritanceLoadKey();
 
-            if (!this.hasOverriddenTranslatedCustomFields()) {
+            if (
+                !this.hasOverriddenTranslatedCustomFields()
+                && !this.hasInheritedTranslatedCustomFieldsWithoutFallback()
+            ) {
                 if (this.translatedInheritanceLoadKey !== loadKey) {
                     this.resetTranslatedInheritanceState();
                 }
@@ -425,6 +453,7 @@ export default {
             const customFieldClone = Shopware.Utils.object.cloneDeep(customField);
 
             const isMeteorComponent = this.isMeteorComponent(customField);
+            const inheritedCustomFieldValue = props.isInheritField ? this.getInheritedCustomField(customField.name) : null;
 
             if (customFieldClone.type === 'bool') {
                 customFieldClone.config.bordered = true;
@@ -439,7 +468,8 @@ export default {
                     customFieldClone.isInherited = props.isInherited;
                     customFieldClone.inheritanceRemove = props.removeInheritance;
                     customFieldClone.inheritanceRestore = props.restoreInheritance;
-                    customFieldClone.inheritedValue = props.currentValue;
+                    customFieldClone.inheritedValue = inheritedCustomFieldValue;
+                    customFieldClone.disabled = this.disabled || props.isInherited;
                 }
 
                 return customFieldClone;

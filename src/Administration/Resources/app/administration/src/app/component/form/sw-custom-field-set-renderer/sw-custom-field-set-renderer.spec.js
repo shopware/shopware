@@ -846,7 +846,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         });
     });
 
-    it('should not enable translated inheritance for a non-system root language', async () => {
+    it('should enable translated inheritance for a non-system root language', async () => {
         const productRepositoryGet = jest.fn();
 
         await withTranslatedLanguageContext({ parentId: null }, async () => {
@@ -869,10 +869,11 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                 '.sw-form-field-renderer-field__translatedTextField .mt-inheritance-switch',
             );
 
-            expect(wrapper.vm.hasParent).toBe(false);
+            expect(wrapper.vm.hasParent).toBe(true);
             expect(productRepositoryGet).not.toHaveBeenCalled();
-            expect(inheritanceSwitch.exists()).toBe(false);
-            expect(textField.element.value).toBe('');
+            expect(inheritanceSwitch.exists()).toBe(true);
+            expect(inheritanceSwitch.attributes('aria-label')).toBe('Unlink inheritance');
+            expect(textField.element.value).toBe('root language value');
         });
     });
 

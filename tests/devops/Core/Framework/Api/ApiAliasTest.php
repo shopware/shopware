@@ -20,11 +20,9 @@ class ApiAliasTest extends TestCase
 
     public function testUniqueAliases(): void
     {
-        $classLoader = KernelLifecycleManager::getClassLoader();
-        /** @var list<class-string> $classes */
-        $classes = array_keys($classLoader->getClassMap());
+        $classMap = KernelLifecycleManager::getClassLoader()->getClassMap();
 
-        if (!\array_key_exists(Kernel::class, $classes)) {
+        if (!isset($classMap[Kernel::class])) {
             static::markTestSkipped('This test does not work if the root package is shopware/platform');
         }
 
@@ -36,37 +34,31 @@ class ApiAliasTest extends TestCase
 
         $count = \count($aliases);
 
-        foreach ($classes as $class) {
+        foreach (array_keys($classMap) as $class) {
             $parts = explode('\\', $class);
             if ($parts[0] !== 'Shopware') {
                 continue;
             }
 
-            /** @phpstan-ignore argument.unresolvableType (class-string could not be resolved at this point) */
+            if (!is_subclass_of($class, Struct::class)) {
+                continue;
+            }
+
+            if (is_subclass_of($class, AggregationResult::class)) {
+                continue;
+            }
+
+            if (is_subclass_of($class, Entity::class)) {
+                continue;
+            }
+
             $reflector = new \ReflectionClass($class);
 
-            if (!$reflector->isSubclassOf(Struct::class)) {
-                continue;
-            }
-
-            if ($reflector->isAbstract() || $reflector->isInterface() || $reflector->isTrait()) {
-                continue;
-            }
-
-            /** @phpstan-ignore method.alreadyNarrowedType (PHPStan could not detect the condition correctly, due to the ignored error above) */
-            if ($reflector->isSubclassOf(AggregationResult::class)) {
+            if ($reflector->isAbstract()) {
                 continue;
             }
 
             $instance = $reflector->newInstanceWithoutConstructor();
-
-            if ($instance instanceof Entity) {
-                continue;
-            }
-
-            if (!$instance instanceof Struct) {
-                continue;
-            }
 
             $alias = $instance->getApiAlias();
 

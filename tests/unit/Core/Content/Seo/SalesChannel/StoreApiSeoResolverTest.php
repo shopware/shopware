@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Seo\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
@@ -194,6 +195,7 @@ class StoreApiSeoResolverTest extends TestCase
         static::assertNotEmpty($product->getSeoUrls());
     }
 
+    #[DoesNotPerformAssertions]
     public function testResponseIsNotStoreApiResponse(): void
     {
         $event = new ResponseEvent(
@@ -205,14 +207,13 @@ class StoreApiSeoResolverTest extends TestCase
 
         $storeApiSeoResolver = $this->createStoreApiSeoResolver();
         $storeApiSeoResolver->addSeoInformation($event);
-
-        // Implicitly asserts that no exception is thrown, since `getObject` does not exist here
     }
 
     public function testRequestHeaderDoesNotIncludeSeoUrls(): void
     {
         $productEntity = $this->createProductEntity();
         $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $this->createMock(SalesChannelContext::class));
 
         $event = new ResponseEvent(
             $this->createMock(HttpKernelInterface::class),
@@ -236,10 +237,12 @@ class StoreApiSeoResolverTest extends TestCase
 
     public function testContextIsNoSalesChannelContext(): void
     {
+        $productEntity = $this->createProductEntity();
+
         $response = new ProductListResponse(new EntitySearchResult(
-            'willneverbecalled',
-            0,
-            new ProductCollection([]),
+            'product',
+            1,
+            new ProductCollection([$productEntity]),
             null,
             new Criteria(),
             Context::createDefaultContext(),
@@ -261,6 +264,8 @@ class StoreApiSeoResolverTest extends TestCase
 
         $storeApiSeoResolver = $this->createStoreApiSeoResolver();
         $storeApiSeoResolver->addSeoInformation($event);
+
+        static::assertNull($productEntity->getSeoUrls());
     }
 
     private function createProductEntity(string $identifier = 'random'): SalesChannelProductEntity
@@ -299,7 +304,7 @@ class StoreApiSeoResolverTest extends TestCase
 
         $productDefinition = $definitionInstanceRegistry->getByClassOrEntityName('product');
 
-        static::assertInstanceOf(ProductDefinition::class, $productDefinition);
+        \assert($productDefinition instanceof ProductDefinition);
 
         $salesChannelRepository = $this->createMock(SalesChannelRepository::class);
         $salesChannelRepository

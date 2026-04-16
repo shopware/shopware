@@ -39,6 +39,8 @@ class CaptchaCookieCollectListenerTest extends TestCase
         $this->systemConfigService->set(self::CONFIG_KEY, false);
 
         $cookieGroup = new CookieGroup(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED);
+        $cookieGroup->isRequired = true;
+
         $event = new CookieGroupCollectEvent(
             new CookieGroupCollection([$cookieGroup]),
             new Request(),

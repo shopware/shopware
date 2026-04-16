@@ -50,6 +50,27 @@ class SortingListingProcessor extends AbstractListingProcessor
         $sortings = $criteria->getExtension('sortings') ?? new ProductSortingCollection();
         $sortings->merge($this->getAvailableSortings($request, $context->getContext()));
 
+        $criteria->addExtension('sortings', $sortings);
+
+        // Sorting resolution is deferred to resolveSorting() so that
+        // ProductListingCriteriaEvent listeners can modify sortings first.
+        $this->resolveSorting($request, $criteria, $context);
+    }
+
+    /**
+     * Resolves the current sorting from the criteria's sortings extension and
+     * applies DAL FieldSorting objects to the criteria. Called after event
+     * listeners have had a chance to modify the sortings extension.
+     */
+    public function resolveSorting(Request $request, Criteria $criteria, SalesChannelContext $context): void
+    {
+        /** @var ProductSortingCollection|null $sortings */
+        $sortings = $criteria->getExtension('sortings');
+
+        if ($sortings === null) {
+            return;
+        }
+
         $currentSorting = $this->getCurrentSorting($sortings, $request, $context->getSalesChannelId());
 
         if ($currentSorting !== null) {
@@ -58,12 +79,13 @@ class SortingListingProcessor extends AbstractListingProcessor
                 $fallbackSorting = new FieldSorting(Criteria::SCORE_FIELD, FieldSorting::DESCENDING);
             }
 
+            // Clear any previously applied sortings so runtime changes take effect
+            $criteria->resetSorting();
+
             $criteria->addSorting(
                 ...$currentSorting->createDalSorting($fallbackSorting)
             );
         }
-
-        $criteria->addExtension('sortings', $sortings);
     }
 
     public function process(Request $request, ProductListingResult $result, SalesChannelContext $context): void

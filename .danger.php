@@ -346,9 +346,8 @@ return (new Config())
                 continue;
             }
 
-            // DependencyInjection config files only wire services; no unit tests required.
-            // Compiler passes and extensions within DI directories still need tests.
-            if (str_contains($file->name, '/DependencyInjection/') && !str_contains($file->name, 'CompilerPass') && !str_contains($file->name, 'Extension')) {
+            // DependencyInjection service-wiring files (PHP closures using ContainerConfigurator) need no unit tests.
+            if (str_contains($file->name, '/DependencyInjection/') && str_contains($content, 'ContainerConfigurator')) {
                 continue;
             }
 

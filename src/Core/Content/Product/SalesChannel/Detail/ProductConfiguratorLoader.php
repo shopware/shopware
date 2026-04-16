@@ -192,9 +192,43 @@ class ProductConfiguratorLoader
         $config = $product->getVariantListingConfig()?->getConfiguratorGroupConfig();
 
         if (!$config) {
-            $collection->sortByPositions();
+            // For migrated products without explicit configuratorGroupConfig,
+            // derive the group order from the minimum configurator setting
+            // position within each group. This matches the admin's natural
+            // display order and avoids mismatches with property_group.position.
+            $groupMinPosition = [];
+            foreach ($collection as $group) {
+                $minPos = \PHP_INT_MAX;
+                if ($group->getOptions() !== null) {
+                    foreach ($group->getOptions() as $option) {
+                        $setting = $option->getConfiguratorSetting();
+                        if ($setting !== null && $setting->getPosition() < $minPos) {
+                            $minPos = $setting->getPosition();
+                        }
+                    }
+                }
+                $groupMinPosition[$group->getId()] = $minPos;
+            }
 
-            return $collection;
+            $elements = $collection->getElements();
+            uasort($elements, static function (PropertyGroupEntity $a, PropertyGroupEntity $b) use ($groupMinPosition) {
+                $posA = $groupMinPosition[$a->getId()] ?? \PHP_INT_MAX;
+                $posB = $groupMinPosition[$b->getId()] ?? \PHP_INT_MAX;
+                if ($posA !== $posB) {
+                    return $posA <=> $posB;
+                }
+
+                // Fallback to property group position, then name
+                $groupPosA = $a->getTranslation('position') ?? $a->getPosition() ?? 0;
+                $groupPosB = $b->getTranslation('position') ?? $b->getPosition() ?? 0;
+                if ($groupPosA !== $groupPosB) {
+                    return $groupPosA <=> $groupPosB;
+                }
+
+                return strnatcmp((string) $a->getTranslation('name'), (string) $b->getTranslation('name'));
+            });
+
+            return new PropertyGroupCollection($elements);
         }
 
         $sortedGroupIds = array_column($config, 'id');

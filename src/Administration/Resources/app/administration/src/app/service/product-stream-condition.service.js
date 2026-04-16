@@ -259,6 +259,15 @@ export default function conditionService() {
             productFilterTypes.range,
         ],
 
+        text: [
+            productFilterTypes.equals,
+            productFilterTypes.notEquals,
+            productFilterTypes.equalsAny,
+            productFilterTypes.notEqualsAny,
+            productFilterTypes.contains,
+            productFilterTypes.notContains,
+        ],
+
         default: [
             productFilterTypes.equals,
             productFilterTypes.notEquals,

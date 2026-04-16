@@ -72,6 +72,14 @@ export default {
             return this.repositoryFactory.create('media');
         },
 
+        downloadUrl() {
+            if (this.item?.private || !this.item?.url) {
+                return `${Context.api.apiPath}/_action/media/${this.item.id}/download`;
+            }
+
+            return this.item.url;
+        },
+
         isMediaObject() {
             return this.item.type === 'media';
         },
@@ -250,7 +258,7 @@ export default {
         async copyLinkToClipboard() {
             if (this.item) {
                 try {
-                    await dom.copyStringToClipboard(this.item.url);
+                    await dom.copyStringToClipboard(this.downloadUrl);
                     this.createNotificationSuccess({
                         message: this.$t('sw-media.general.notification.urlCopied.message'),
                     });

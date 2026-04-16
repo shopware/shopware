@@ -3,20 +3,26 @@
 namespace Shopware\Core\Content\Media\Api;
 
 use Shopware\Core\Content\Media\Event\MediaUploadedEvent;
+use Shopware\Core\Content\Media\File\FileLoader;
 use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\FileSaver;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -27,12 +33,17 @@ class MediaUploadController extends AbstractController
     /**
      * @internal
      */
+    /**
+     * @param EntityRepository<MediaCollection> $mediaRepository
+     */
     public function __construct(
         private readonly MediaService $mediaService,
         private readonly FileSaver $fileSaver,
         private readonly FileNameProvider $fileNameProvider,
         private readonly MediaDefinition $mediaDefinition,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly FileLoader $fileLoader,
+        private readonly EntityRepository $mediaRepository,
     ) {
     }
 
@@ -86,6 +97,43 @@ class MediaUploadController extends AbstractController
         $this->fileSaver->renameMedia($mediaId, $destination, $context);
 
         return $responseFactory->createRedirectResponse($this->mediaDefinition, $mediaId, $request, $context);
+    }
+
+    #[Route(path: '/api/_action/media/{mediaId}/download', name: 'api.action.media.download', methods: ['GET'])]
+    public function download(string $mediaId, Context $context): Response
+    {
+        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $context)->getEntities()->first();
+
+        if ($media === null) {
+            throw MediaException::mediaNotFound($mediaId);
+        }
+
+        $stream = $this->fileLoader->loadMediaFileStream($mediaId, $context);
+
+        $fileName = $media->getFileName() . '.' . $media->getFileExtension();
+        $contentType = $media->getMimeType() ?? 'application/octet-stream';
+
+        $disposition = HeaderUtils::makeDisposition(
+            HeaderUtils::DISPOSITION_ATTACHMENT,
+            $fileName,
+            $media->getFileName() . '.' . $media->getFileExtension()
+        );
+
+        return new StreamedResponse(function () use ($stream): void {
+            $resource = $stream->detach();
+            if (!\is_resource($resource)) {
+                return;
+            }
+            $outputStream = fopen('php://output', 'wb');
+            if ($outputStream === false) {
+                return;
+            }
+            stream_copy_to_stream($resource, $outputStream);
+            fclose($outputStream);
+        }, Response::HTTP_OK, [
+            'Content-Type' => $contentType,
+            'Content-Disposition' => $disposition,
+        ]);
     }
 
     #[Route(path: '/api/_action/media/provide-name', name: 'api.action.media.provide-name', methods: ['GET'])]

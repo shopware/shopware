@@ -6,14 +6,17 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Api\MediaUploadController;
+use Shopware\Core\Content\Media\File\FileLoader;
 use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -81,7 +84,9 @@ class MediaUploadControllerTest extends TestCase
             $this->fileSaver,
             $this->fileNameProvider,
             new MediaDefinition(),
-            new EventDispatcher()
+            new EventDispatcher(),
+            $this->createMock(FileLoader::class),
+            $this->createMock(EntityRepository::class),
         );
 
         $mediaUploadController->upload($request, $mediaId, $context, $this->responseFactory);
@@ -104,7 +109,9 @@ class MediaUploadControllerTest extends TestCase
             $this->fileSaver,
             $this->fileNameProvider,
             new MediaDefinition(),
-            new EventDispatcher()
+            new EventDispatcher(),
+            $this->createMock(FileLoader::class),
+            $this->createMock(EntityRepository::class),
         );
 
         $mediaUploadController->renameMediaFile($request, $mediaId, $context, $this->responseFactory);
@@ -131,7 +138,9 @@ class MediaUploadControllerTest extends TestCase
             $this->fileSaver,
             $this->fileNameProvider,
             new MediaDefinition(),
-            new EventDispatcher()
+            new EventDispatcher(),
+            $this->createMock(FileLoader::class),
+            $this->createMock(EntityRepository::class),
         );
 
         $mediaUploadController->provideName($request, $context);
@@ -151,7 +160,9 @@ class MediaUploadControllerTest extends TestCase
             $this->fileSaver,
             $this->fileNameProvider,
             new MediaDefinition(),
-            new EventDispatcher()
+            new EventDispatcher(),
+            $this->createMock(FileLoader::class),
+            $this->createMock(EntityRepository::class),
         );
 
         $controller->renameMediaFile($request, $mediaId, $context, $this->responseFactory);
@@ -170,7 +181,9 @@ class MediaUploadControllerTest extends TestCase
             $this->fileSaver,
             $this->fileNameProvider,
             new MediaDefinition(),
-            new EventDispatcher()
+            new EventDispatcher(),
+            $this->createMock(FileLoader::class),
+            $this->createMock(EntityRepository::class),
         );
 
         $controller->provideName($request, $context);
@@ -189,7 +202,9 @@ class MediaUploadControllerTest extends TestCase
             $this->fileSaver,
             $this->fileNameProvider,
             new MediaDefinition(),
-            new EventDispatcher()
+            new EventDispatcher(),
+            $this->createMock(FileLoader::class),
+            $this->createMock(EntityRepository::class),
         );
 
         $controller->provideName($request, $context);
@@ -207,7 +222,9 @@ class MediaUploadControllerTest extends TestCase
             $this->fileSaver,
             $this->fileNameProvider,
             new MediaDefinition(),
-            new EventDispatcher()
+            new EventDispatcher(),
+            $this->createMock(FileLoader::class),
+            $this->createMock(EntityRepository::class),
         );
 
         $controller->upload(new Request(), Uuid::randomHex(), Context::createDefaultContext(), $this->responseFactory);
@@ -225,7 +242,9 @@ class MediaUploadControllerTest extends TestCase
             $this->fileSaver,
             $this->fileNameProvider,
             new MediaDefinition(),
-            new EventDispatcher()
+            new EventDispatcher(),
+            $this->createMock(FileLoader::class),
+            $this->createMock(EntityRepository::class),
         );
 
         $controller->upload(new Request(['fileName' => 'test.png']), Uuid::randomHex(), Context::createDefaultContext(), $this->responseFactory);
@@ -243,7 +262,9 @@ class MediaUploadControllerTest extends TestCase
             $this->fileSaver,
             $this->fileNameProvider,
             new MediaDefinition(),
-            new EventDispatcher()
+            new EventDispatcher(),
+            $this->createMock(FileLoader::class),
+            $this->createMock(EntityRepository::class),
         );
 
         $controller->renameMediaFile(new Request([], ['fileName' => 'test.png']), Uuid::randomHex(), Context::createDefaultContext(), $this->responseFactory);
@@ -261,7 +282,9 @@ class MediaUploadControllerTest extends TestCase
             $this->fileSaver,
             $this->fileNameProvider,
             new MediaDefinition(),
-            new EventDispatcher()
+            new EventDispatcher(),
+            $this->createMock(FileLoader::class),
+            $this->createMock(EntityRepository::class),
         );
 
         $controller->provideName(new Request(['fileName' => 'test.png', 'extension' => 'png']), Context::createDefaultContext());

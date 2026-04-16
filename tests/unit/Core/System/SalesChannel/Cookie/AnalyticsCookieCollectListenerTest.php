@@ -10,7 +10,6 @@ use Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent;
 use Shopware\Core\Content\Cookie\Service\CookieProvider;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics\SalesChannelAnalyticsCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics\SalesChannelAnalyticsEntity;
 use Shopware\Core\System\SalesChannel\Cookie\AnalyticsCookieCollectListener;
@@ -42,7 +41,7 @@ class AnalyticsCookieCollectListenerTest extends TestCase
     public function testSalesChannelHasNoAnalyticsId(): void
     {
         $salesChannel = new SalesChannelEntity();
-        $salesChannel->setId(Uuid::randomHex());
+        $salesChannel->setId('test-id');
 
         $context = Generator::generateSalesChannelContext(salesChannel: $salesChannel);
 
@@ -59,8 +58,8 @@ class AnalyticsCookieCollectListenerTest extends TestCase
     public function testSalesChannelNeedsToLoadAnalyticsButIsNotActive(): void
     {
         $salesChannel = new SalesChannelEntity();
-        $salesChannel->setId(Uuid::randomHex());
-        $salesChannel->setAnalyticsId(Uuid::randomHex());
+        $salesChannel->setId('sales-channel-id');
+        $salesChannel->setAnalyticsId('analytics-id');
         $context = Generator::generateSalesChannelContext(salesChannel: $salesChannel);
 
         $statisticalGroup = new CookieGroup(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_STATISTICAL);
@@ -111,7 +110,7 @@ class AnalyticsCookieCollectListenerTest extends TestCase
     private function createChannelAnalyticsEntity(bool $active = true): SalesChannelAnalyticsEntity
     {
         $analyticsEntity = new SalesChannelAnalyticsEntity();
-        $analyticsEntity->setId(Uuid::randomHex());
+        $analyticsEntity->setId('analytics-id');
         $analyticsEntity->setActive($active);
 
         return $analyticsEntity;
@@ -122,7 +121,7 @@ class AnalyticsCookieCollectListenerTest extends TestCase
         $analyticsEntity = $this->createChannelAnalyticsEntity();
 
         $salesChannel = new SalesChannelEntity();
-        $salesChannel->setId(Uuid::randomHex());
+        $salesChannel->setId('sales-channel-id');
         $salesChannel->setAnalyticsId($analyticsEntity->getId());
         $salesChannel->setAnalytics($analyticsEntity);
 

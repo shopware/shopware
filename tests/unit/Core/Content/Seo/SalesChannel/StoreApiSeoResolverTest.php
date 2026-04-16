@@ -61,7 +61,7 @@ class StoreApiSeoResolverTest extends TestCase
         $request->headers->set(PlatformRequest::HEADER_INCLUDE_SEO_URLS, 'true');
         $request->attributes->set(
             PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT,
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
         );
 
         $productEntity = $this->createProductEntity();
@@ -75,7 +75,7 @@ class StoreApiSeoResolverTest extends TestCase
         ));
 
         $event = new ResponseEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             $request,
             HttpKernelInterface::MAIN_REQUEST,
             $response
@@ -95,7 +95,7 @@ class StoreApiSeoResolverTest extends TestCase
         $request->headers->set(PlatformRequest::HEADER_INCLUDE_SEO_URLS, 'true');
         $request->attributes->set(
             PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT,
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
         );
 
         $productEntity = $this->createProductEntity();
@@ -126,7 +126,7 @@ class StoreApiSeoResolverTest extends TestCase
         ));
 
         $event = new ResponseEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             $request,
             HttpKernelInterface::MAIN_REQUEST,
             $response
@@ -160,7 +160,7 @@ class StoreApiSeoResolverTest extends TestCase
         $request->headers->set(PlatformRequest::HEADER_INCLUDE_SEO_URLS, 'true');
         $request->attributes->set(
             PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT,
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
         );
 
         $searchResult = new EntitySearchResult(
@@ -181,7 +181,7 @@ class StoreApiSeoResolverTest extends TestCase
         $response = new ProductListResponse($searchResult);
 
         $event = new ResponseEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             $request,
             HttpKernelInterface::MAIN_REQUEST,
             $response
@@ -199,7 +199,7 @@ class StoreApiSeoResolverTest extends TestCase
     public function testResponseIsNotStoreApiResponse(): void
     {
         $event = new ResponseEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             new Request(),
             HttpKernelInterface::MAIN_REQUEST,
             new Response(),
@@ -213,10 +213,10 @@ class StoreApiSeoResolverTest extends TestCase
     {
         $productEntity = $this->createProductEntity();
         $request = new Request();
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $this->createMock(SalesChannelContext::class));
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, static::createStub(SalesChannelContext::class));
 
         $event = new ResponseEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             $request,
             HttpKernelInterface::MAIN_REQUEST,
             new ProductListResponse(new EntitySearchResult(
@@ -256,7 +256,7 @@ class StoreApiSeoResolverTest extends TestCase
         );
 
         $event = new ResponseEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             $request,
             HttpKernelInterface::MAIN_REQUEST,
             $response,
@@ -306,7 +306,7 @@ class StoreApiSeoResolverTest extends TestCase
 
         \assert($productDefinition instanceof ProductDefinition);
 
-        $salesChannelRepository = $this->createMock(SalesChannelRepository::class);
+        $salesChannelRepository = static::createStub(SalesChannelRepository::class);
         $salesChannelRepository
             ->method('search')
             ->willReturn($entitySearchResult);
@@ -314,7 +314,7 @@ class StoreApiSeoResolverTest extends TestCase
         return new StoreApiSeoResolver(
             $salesChannelRepository,
             $definitionInstanceRegistry,
-            $this->createMock(SalesChannelDefinitionInstanceRegistry::class),
+            static::createStub(SalesChannelDefinitionInstanceRegistry::class),
             new SeoUrlRouteRegistry([new TestProductSeoUrlRoute($productDefinition)]),
         );
     }
@@ -329,8 +329,8 @@ class StoreApiSeoResolverTest extends TestCase
                 ProductCrossSellingDefinition::class,
                 ProductTranslationDefinition::class,
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
     }
 }

@@ -231,7 +231,7 @@ class MatchAllLineItemsRuleTest extends TestCase
         ];
     }
 
-    public function testShouldReturnFalseIfNoLineItemsArePresent(): void
+    public function testReturnsFalseIfNoLineItemsArePresent(): void
     {
         $rule = new MatchAllLineItemsRule();
 
@@ -243,7 +243,7 @@ class MatchAllLineItemsRuleTest extends TestCase
         static::assertFalse($match);
     }
 
-    public function testShouldReturnFalseWhenScopeIsNotCartOrLineItemScope(): void
+    public function testReturnsFalseWhenScopeIsNotCartOrLineItemScope(): void
     {
         $rule = new MatchAllLineItemsRule();
 
@@ -252,7 +252,7 @@ class MatchAllLineItemsRuleTest extends TestCase
         static::assertFalse($match);
     }
 
-    public function testShouldReturnTrueWhenNoLineItemsOfFilteredTypeExist(): void
+    public function testReturnsTrueWhenNoLineItemsOfFilteredTypeExist(): void
     {
         $rule = new MatchAllLineItemsRule([], null, ['product']);
 
@@ -266,7 +266,7 @@ class MatchAllLineItemsRuleTest extends TestCase
         static::assertTrue($match);
     }
 
-    public function testShouldEvaluateGivenItemsIfTypesAreNotSet(): void
+    public function testEvaluatesAllItemsWhenNoTypesSet(): void
     {
         $condition = new CountingTrueRule();
 
@@ -288,7 +288,7 @@ class MatchAllLineItemsRuleTest extends TestCase
         static::assertSame(4, $condition->matchCount);
     }
 
-    public function testShouldEvaluateGivenItemsAndFilterByGivenTypes(): void
+    public function testFiltersItemsByGivenTypes(): void
     {
         $condition = new CountingTrueRule();
 

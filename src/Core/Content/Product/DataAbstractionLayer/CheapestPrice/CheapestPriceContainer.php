@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Util\FloatComparator;
 
 #[Package('framework')]
 class CheapestPriceContainer extends Struct
@@ -80,6 +81,7 @@ class CheapestPriceContainer extends Struct
         $cheapest = array_shift($prices);
 
         $reference = $this->getPriceValue($cheapest, $context);
+        $referenceListPrice = $this->getListPriceValue($cheapest, $context);
 
         $hasRange = (bool) $cheapest['is_ranged'];
 
@@ -92,6 +94,11 @@ class CheapestPriceContainer extends Struct
             }
 
             if ($current !== $reference || $price['is_ranged']) {
+                $hasRange = true;
+            }
+
+            $currentListPrice = $this->getListPriceValue($price, $context);
+            if ($referenceListPrice !== null && $currentListPrice !== null && !FloatComparator::equals($referenceListPrice, $currentListPrice)) {
                 $hasRange = true;
             }
 
@@ -289,6 +296,26 @@ class CheapestPriceContainer extends Struct
     /**
      * @param array<mixed> $price
      */
+    /**
+     * @param array<mixed> $price
+     */
+    private function getListPriceValue(array $price, Context $context): ?float
+    {
+        $currency = $this->getCurrencyPrice($price['price'], $context->getCurrencyId());
+
+        if (!$currency || !isset($currency['listPrice'])) {
+            return null;
+        }
+
+        $value = $context->getTaxState() === CartPrice::TAX_STATE_GROSS ? $currency['listPrice']['gross'] : $currency['listPrice']['net'];
+
+        if ($currency['currencyId'] !== $context->getCurrencyId()) {
+            $value *= $context->getCurrencyFactor();
+        }
+
+        return (float) $value;
+    }
+
     private function isVariantPriceAvailableInSalesChannel(array $price, string $salesChannelId): bool
     {
         // If no sales channel IDs are stored, assume it's available everywhere

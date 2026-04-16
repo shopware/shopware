@@ -844,7 +844,7 @@
           "false": "No"
         }
       },
-        "quantitySelect": {
+      "quantitySelect": {
         "legend": "Product Quantity: Enter the desired amount or use the buttons to increase or decrease the quantity.",
         "areaLiveText": "Quantity of %product% set to %quantity%.",
         "label": "Quantity",

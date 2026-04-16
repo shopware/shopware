@@ -186,6 +186,11 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Content\Product\Subscriber\ProductCategoryWrittenSubscriber">
+            <argument type="service" id="messenger.default_bus"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Content\Product\Stock\OrderStockSubscriber">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Content\Product\Stock\StockStorage"/>

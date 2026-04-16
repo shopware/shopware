@@ -97,7 +97,7 @@ class DeleteNotUsedMediaCommand extends Command
             public function start(UnusedMediaSearchStartEvent $event): void
             {
                 $this->totalMediaDeletionCandidates = $event->totalMediaDeletionCandidates;
-                $this->io->note(\sprintf('Out of a total of %d media items there are %d candidates for removal', $event->totalMedia, $event->totalMediaDeletionCandidates));
+                $this->io->note(\sprintf('Out of a total of %d media items, %d will be scanned for removal', $event->totalMedia, $event->totalMediaDeletionCandidates));
                 $this->progressBar = $this->io->createProgressBar($event->totalMediaDeletionCandidates);
                 $this->progressBar->setFormat('debug');
                 $this->progressBar->start();

@@ -44,10 +44,6 @@ class NoNativeTimeClassRule implements Rule
 
     public function processNode(Node $node, Scope $scope): array
     {
-        if ($this->isPathExempt($scope)) {
-            return [];
-        }
-
         if (!$node instanceof New_ || !$node->class instanceof Name) {
             return [];
         }
@@ -55,6 +51,10 @@ class NoNativeTimeClassRule implements Rule
         $className = strtolower(ltrim($scope->resolveName($node->class), '\\'));
 
         if (!\in_array($className, self::NOT_ALLOWED_CLASSES, true)) {
+            return [];
+        }
+
+        if ($this->isPathExempt($scope)) {
             return [];
         }
 

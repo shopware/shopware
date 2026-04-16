@@ -53,11 +53,11 @@ class NoNativeTimeFunctionRule implements Rule
 
     public function processNode(Node $node, Scope $scope): array
     {
-        if ($this->isPathExempt($scope)) {
+        if (!$node instanceof FuncCall || !$node->name instanceof Name) {
             return [];
         }
 
-        if (!$node instanceof FuncCall || !$node->name instanceof Name) {
+        if (!\in_array(strtolower($node->name->toString()), self::NOT_ALLOWED_FUNCTIONS, true)) {
             return [];
         }
 
@@ -70,10 +70,11 @@ class NoNativeTimeFunctionRule implements Rule
             return [];
         }
 
-        $functionName = strtolower($function->getName());
-        if (!\in_array($functionName, self::NOT_ALLOWED_FUNCTIONS, true)) {
+        if ($this->isPathExempt($scope)) {
             return [];
         }
+
+        $functionName = strtolower($function->getName());
 
         // time() / microtime() / hrtime() always read wall-clock. strtotime() is
         // conditional on its arguments, and date_create() / date_create_immutable()

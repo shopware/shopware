@@ -1,9 +1,8 @@
 import type { Route, Page } from '@playwright/test';
 import { expect } from '@playwright/test';
-import {Request} from "@shopware-ag/acceptance-test-suite";
 
 export interface CapturedRequest {
-    postData: string;
+    postData: string | null;
 }
 
 export interface ProductAnalyticsContext {
@@ -62,24 +61,29 @@ export function parseCapturedRequests(captured: CapturedRequest[]): ProductAnaly
     for (const c of captured) {
         if (!c.postData) continue;
         try {
-            const parsed: ProductAnalyticsRequestPayload = JSON.parse(c.postData);
-            if (parsed && typeof parsed.context === 'object' && Array.isArray(parsed.events)) {
-                requests.push(parsed);
+            const parsed = JSON.parse(c.postData) as unknown;
+            if (
+                parsed &&
+                typeof parsed === 'object' &&
+                'context' in parsed &&
+                'events' in parsed &&
+                Array.isArray((parsed as ProductAnalyticsRequestPayload).events)
+            ) {
+                requests.push(parsed as ProductAnalyticsRequestPayload);
             }
         } catch {
             // If not JSON, ignore for now
         }
     }
-
     return requests;
 }
 
 export function setupProductAnalyticsInterceptor(){
-    const capturedRequests: CapturedRequest[] = [];
-    const handler = async (route: Route) => {
+    const capturedTrackingEventRequests: CapturedRequest[] = [];
+    const trackingEventHandler = async (route: Route) => {
         const req = route.request();
 
-        capturedRequests.push({
+        capturedTrackingEventRequests.push({
             postData: req.postData(),
         });
 
@@ -95,8 +99,8 @@ export function setupProductAnalyticsInterceptor(){
     };
 
     return {
-        capturedRequests,
-        handler,
+        capturedTrackingEventRequests,
+        trackingEventHandler,
     };
 }
 
@@ -215,14 +219,66 @@ export function setupConsentRevokeInterceptor(){
     };
 }
 
-export async function waitForCapturedRequests(
-    capturedRequests: CapturedRequest[],
-    expectedCount: number
-) {
-    await expect.poll(() => capturedRequests.length, { timeout: 10_000 }).toBe(expectedCount);
+export function setupConsentAcceptInterceptor(){
+    const capturedConsentRevokeRequests: CapturedRequest[] = [];
+    const consentRevokeHandler = async (route: Route) => {
+        const req = route.request();
+
+        const requestBody = JSON.parse(req.postData());
+        if (requestBody.consent === 'backend_data') {
+            await route.fulfill({
+                status: 200,
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Credentials': 'true',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    'acceptedUntil': null,
+                    'acceptedRevision': null,
+                    'name': 'backend_data',
+                    'scopeName': 'admin_user',
+                    'identifier': '019d75c08b6673fa90c44923e2254f0a',
+                    'status': 'declined',
+                    'actor': null,
+                    'updatedAt': null,
+                    'latestRevision': null,
+                }),
+            });
+        } else if (requestBody.consent === 'product_analytics') {
+            await route.fulfill({
+                status: 200,
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Credentials': 'true',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    'acceptedUntil': null,
+                    'acceptedRevision': null,
+                    'name': 'product_analytics',
+                    'scopeName': 'admin_user',
+                    'identifier': '019d75c08b6673fa90c44923e2254f0a',
+                    'status': 'declined',
+                    'actor': null,
+                    'updatedAt': null,
+                    'latestRevision': null,
+                }),
+            });
+        }
+
+        capturedConsentRevokeRequests.push({
+            postData: req.postData(),
+        });
+    };
+
+    return {
+        capturedConsentRevokeRequests,
+        consentRevokeHandler,
+    };
 }
 
-export async function removeSymfonyToolbar(page: Page): Promise<boolean>{
+export async function removeSymfonyToolbar(page: Page): Promise<void>{
 
     await page.addStyleTag({
         content: `
@@ -234,7 +290,6 @@ export async function removeSymfonyToolbar(page: Page): Promise<boolean>{
                 }
                 `.trim(),
     });
-    return true;
 }
 
 function mergeConsentResponse(
@@ -250,4 +305,23 @@ function mergeConsentResponse(
             },
         ])
     );
+}
+
+export async function waitForEventCount(
+    getEvents: () => unknown[],
+    expectedCount: number,
+    options?: {
+        timeout?: number;
+        intervals?: number[];
+    }
+) {
+    await expect
+        .poll(
+            () => getEvents().length,
+            {
+                timeout: options?.timeout ?? 10_000,
+                intervals: options?.intervals ?? [1000, 2000, 3000],
+            }
+        )
+        .toBe(expectedCount);
 }

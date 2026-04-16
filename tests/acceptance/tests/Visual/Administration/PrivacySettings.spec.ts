@@ -1,8 +1,4 @@
-import { test, assertScreenshot, setViewport, Page, replaceElements} from '@fixtures/AcceptanceTest';
-import {
-    removeSymfonyToolbar, setupConsentInterceptor, setupProductAnalyticsInterceptor,
-} from '@helpers/productanalytics-helpers';
-import { AdminPageObjects, createNewAdminPageContext, loginToAdministration, User } from '@shopware-ag/acceptance-test-suite';
+import { test, assertScreenshot, setViewport } from '@fixtures/AcceptanceTest';
 import { satisfies } from 'compare-versions';
 
 test('Visual: Administration your profile page', { tag: '@Visual' }, async ({

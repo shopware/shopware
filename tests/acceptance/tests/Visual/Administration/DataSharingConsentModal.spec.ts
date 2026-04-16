@@ -5,7 +5,7 @@ import {
 import { AdminPageObjects, createNewAdminPageContext, loginToAdministration, User } from '@shopware-ag/acceptance-test-suite';
 import { satisfies } from 'compare-versions';
 
-const PRODUCT_ANALYTICS_ENDPOINT = 'event';
+const TRACKING_EVENT_ENDPOINT = 'event';
 const CONSENTS_ENDPOINT = 'consents';
 
 test('Visual: Administration data sharing consent modal', { tag: '@Visual' }, async ({
@@ -15,7 +15,7 @@ test('Visual: Administration data sharing consent modal', { tag: '@Visual' }, as
     InstanceMeta,
 }) => {
 
-    test.skip(satisfies(InstanceMeta.version, '>=6.7.9.0'), 'Data sharing consent modal only available since version 6.7.9.0');
+    test.skip(satisfies(InstanceMeta.version, '<6.7.9.0'), 'Data sharing consent modal only available since version 6.7.9.0');
 
     const { handler } = setupProductAnalyticsInterceptor();
     const { consentHandler } = setupConsentInterceptor();
@@ -26,7 +26,7 @@ test('Visual: Administration data sharing consent modal', { tag: '@Visual' }, as
 
     await test.step('Modify product analytics API and consent API requests.', async () => {
 
-        await page.route(`**/${PRODUCT_ANALYTICS_ENDPOINT}**`, handler);
+        await page.route(`**/${TRACKING_EVENT_ENDPOINT}**`, handler);
         await page.route(`**/${CONSENTS_ENDPOINT}`, consentHandler);
     });
 

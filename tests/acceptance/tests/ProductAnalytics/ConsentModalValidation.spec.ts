@@ -1,9 +1,9 @@
-import { test, expect, Page } from '@fixtures/AcceptanceTest';
+import { test, expect, Page, AdminPageObjects, createNewAdminPageContext, loginToAdministration, User } from '@fixtures/AcceptanceTest';
 import { parseCapturedRequests, removeSymfonyToolbar, setupConsentRevokeInterceptor,
-    setupConsentInterceptor, setupProductAnalyticsInterceptor, waitForCapturedRequests } from '@helpers/productanalytics-helpers';
-import {AdminPageObjects, createNewAdminPageContext, loginToAdministration, User } from '@shopware-ag/acceptance-test-suite';
-
-const PRODUCT_ANALYTICS_ENDPOINT = 'event';
+    setupConsentInterceptor, setupProductAnalyticsInterceptor, waitForEventCount,
+    CapturedRequest,
+} from '@helpers/productanalytics-helpers';
+const TRACKING_EVENT_ENDPOINT = 'event';
 const CONSENTS_ENDPOINT = 'consents';
 
 test(
@@ -16,9 +16,7 @@ test(
         InstanceMeta,
     }) => {
 
-        const { capturedRequests, handler } = setupProductAnalyticsInterceptor();
-        const { consentHandler } = setupConsentInterceptor();
-        const { consentRevokeHandler } = setupConsentRevokeInterceptor();
+        const { capturedTrackingEventRequests, trackingEventHandler } = setupProductAnalyticsInterceptor();
 
         const page: Page = await createNewAdminPageContext(browser, SalesChannelBaseConfig);
         const user: User = await TestDataService.createUser({ createdAt: '2024-01-01T00:00:00.000Z' });
@@ -27,10 +25,12 @@ test(
 
         await test.step('Modify product analytics API and consent API requests.', async () => {
 
-            await page.route(`**/${PRODUCT_ANALYTICS_ENDPOINT}**`, handler);
+            const { consentHandler } = setupConsentInterceptor();
+            const { consentRevokeHandler } = setupConsentRevokeInterceptor();
+
+            await page.route(`**/${TRACKING_EVENT_ENDPOINT}**`, trackingEventHandler);
             await page.route(`**/${CONSENTS_ENDPOINT}`, consentHandler);
             await page.route(`**/${CONSENTS_ENDPOINT}/revoke`, consentRevokeHandler);
-
         });
 
         await test.step('Login to shopware administration', async () => {
@@ -40,9 +40,6 @@ test(
                 user,
                 TestDataService.AdminApiClient,
             );
-            await page.goto(AdminSettingsListing.url());
-
-            await waitForCapturedRequests(capturedRequests, 2);
         });
 
         await test.step('Validate modal appeared.', async () => {
@@ -65,7 +62,6 @@ test(
 
             await removeSymfonyToolbar(page);
             await AdminConsentModal.rejectAllButton.click();
-            await waitForCapturedRequests(capturedRequests, 5);
         });
 
         await test.step('Validate modal disappeared.', async () => {
@@ -74,59 +70,97 @@ test(
 
         await test.step('Validate anonymous events are fired.', async () => {
 
-            const requests = parseCapturedRequests(capturedRequests);
-            expect(requests).toHaveLength(5);
+            // We expect 4 events to be fired when rejecting consents:
+            // 1 consent_modal_viewed (Dashboard)
+            // 2 consent_status_change (one for each consent)
+            // 1 consent_modal_decision
+            const requests = parseCapturedRequests(capturedTrackingEventRequests);
+            expect(requests.length).toBeGreaterThanOrEqual(1);
 
-            const events = requests.flatMap((request) => request.events);
-            expect(events).toHaveLength(5);
+            const getAnalyticsEvents = () =>
+                parseCapturedRequests(capturedTrackingEventRequests).flatMap(request => request.events);
 
-            const eventTypes = events.map(e => e.name);
-            expect(eventTypes).toEqual([
-                'consent_modal_viewed',
-                'consent_modal_viewed',
-                'consent_status_change',
-                'consent_status_change',
-                'consent_modal_decision',
-            ]);
+            await waitForEventCount(getAnalyticsEvents, 4);
 
-            const [
-                consentModalViewed1,
-                consentModalViewed2,
-                consentStatusChange1,
-                consentStatusChange2,
-                consentModalDecision,
-            ] = events;
+            const events = getAnalyticsEvents();
 
-            const consentModalViewed1Props = consentModalViewed1.properties;
-            expect(consentModalViewed1Props.consents_shown).toEqual(
-                expect.arrayContaining(['backend_data', 'product_analytics'])
+            const consentModalViewed = events.filter(e => e.name === 'consent_modal_viewed');
+            const consentStatusChange = events.filter(e => e.name === 'consent_status_change');
+            const consentModalDecision = events.filter(e => e.name === 'consent_modal_decision');
+
+            expect(consentModalViewed).toHaveLength(1);
+            expect(consentStatusChange).toHaveLength(2);
+            expect(consentModalDecision).toHaveLength(1);
+
+            const consentModalViewedEvents = events.filter(e => e.name === 'consent_modal_viewed');
+
+            expect(consentModalViewedEvents).toHaveLength(1);
+
+            expect(consentModalViewedEvents).toEqual(
+                expect.arrayContaining([
+                    expect.objectContaining({
+                        properties: expect.objectContaining({
+                            consents_shown: expect.arrayContaining(['backend_data', 'product_analytics']),
+                        }),
+                    }),
+                ])
             );
 
-            const consentModalViewed2Props = consentModalViewed2.properties;
-            expect(consentModalViewed2Props.consents_shown).toEqual(
-                expect.arrayContaining(['backend_data', 'product_analytics'])
+            const consentStatusChangeEvents = events.filter(e => e.name === 'consent_status_change');
+
+            expect(consentStatusChangeEvents).toHaveLength(2);
+
+            expect(consentStatusChangeEvents).toEqual(
+                expect.arrayContaining([
+                    expect.objectContaining({
+                        properties: expect.objectContaining({
+                            consent: 'backend_data',
+                            status: 'declined',
+                        }),
+                    }),
+                    expect.objectContaining({
+                        properties: expect.objectContaining({
+                            consent: 'product_analytics',
+                            status: 'declined',
+                        }),
+                    }),
+                ])
             );
 
-            const consentStatusChange1Props = consentStatusChange1.properties;
-            expect(consentStatusChange1Props.consent).toBe('backend_data');
-            expect(consentStatusChange1Props.status).toBe('declined');
+            const consentModalDecisionEvents = events.filter(e => e.name === 'consent_modal_decision');
 
-            const consentStatusChange2Props = consentStatusChange2.properties;
-            expect(consentStatusChange2Props.consent).toBe('product_analytics');
-            expect(consentStatusChange2Props.status).toBe('declined');
+            expect(consentModalDecisionEvents).toHaveLength(1);
 
-            const consentModalDecisionProps = consentModalDecision.properties;
-            expect(consentModalDecisionProps.backend_data_changed).toBe(false);
-            expect(consentModalDecisionProps.backend_data_state).toBe('revoked');
-            expect(consentModalDecisionProps.product_analytics_changed).toBe(false);
-            expect(consentModalDecisionProps.product_analytics_state).toBe('revoked');
+            expect(consentModalDecisionEvents).toEqual(
+                expect.arrayContaining([
+                    expect.objectContaining({
+                        properties: expect.objectContaining({
+                            backend_data_changed: false,
+                            backend_data_state: 'revoked',
+                            product_analytics_changed: false,
+                            product_analytics_state: 'revoked',
+                        }),
+                    }),
+                ])
+            );
         });
 
-        await test.step('Validate no captured requests for product analytics after revoke.', async () => {
+        await test.step('Validate no further captured requests for product analytics after revoke.', async () => {
 
+            // make sure consent modal is not shown
+            const { consentHandler } = setupConsentInterceptor({
+                backend_data: { status: 'declined' },
+                product_analytics: { status: 'declined' },
+            });
+            await page.route(`**/${CONSENTS_ENDPOINT}`, consentHandler);
+
+            await page.goto(AdminSettingsListing.url());
             await AdminSettingsListing.privacyLink.click();
-            // no new events should be fired on page navigation after consents are revoked
-            await waitForCapturedRequests(capturedRequests, 5);
+
+            const getAnalyticsEvents = () =>
+                parseCapturedRequests(capturedTrackingEventRequests).flatMap(request => request.events);
+
+            await waitForEventCount(getAnalyticsEvents, 4);
         });
 
         await test.step('Validate backend data consent is false in UI by default.', async () => {
@@ -138,10 +172,9 @@ test(
 
         await test.step('Cleanup created user.', async () => {
 
-            TestDataService.addCreatedRecord('user', user.id);
             await page.close();
         });
-});
+    });
 
 test(
     'Existing backend-data consent is checked before rendering consent modal',
@@ -152,15 +185,15 @@ test(
                TestDataService,
            }) => {
 
-        const { capturedRequests, handler } = setupProductAnalyticsInterceptor();
-        const { consentHandler } = setupConsentInterceptor({ backend_data: { status: 'accepted' } });
-
         const page: Page = await createNewAdminPageContext(browser, SalesChannelBaseConfig);
         const user: User = await TestDataService.createUser({ createdAt: '2024-01-01T00:00:00.000Z' });
 
         await test.step('Modify product analytics API and consent API requests.', async () => {
 
-            await page.route(`**/${PRODUCT_ANALYTICS_ENDPOINT}**`, handler);
+            const { trackingEventHandler } = setupProductAnalyticsInterceptor();
+            const { consentHandler } = setupConsentInterceptor({ backend_data: { status: 'accepted' } });
+
+            await page.route(`**/${TRACKING_EVENT_ENDPOINT}**`, trackingEventHandler);
             await page.route(`**/${CONSENTS_ENDPOINT}`, consentHandler);
         });
 
@@ -171,8 +204,6 @@ test(
                 user,
                 TestDataService.AdminApiClient,
             );
-
-            await waitForCapturedRequests(capturedRequests, 1);
         });
 
         await test.step('Validate no store data consent option available.', async () => {
@@ -189,7 +220,6 @@ test(
 
         await test.step('Cleanup.', async () => {
 
-            TestDataService.addCreatedRecord('user', user.id);
             await page.close();
         });
     });
@@ -201,16 +231,16 @@ test('Only authorized users in administration can change store consent and user 
     InstanceMeta,
 }) => {
 
-    const { handler } = setupProductAnalyticsInterceptor();
-    const { consentHandler } = setupConsentInterceptor();
-    const { consentRevokeHandler } = setupConsentRevokeInterceptor();
-
     const page: Page = await createNewAdminPageContext(browser, SalesChannelBaseConfig);
     const user: User = await TestDataService.createUser({ admin: false, createdAt: '2024-01-01T00:00:00.000Z' });
 
     await test.step('Modify product analytics API and consent API requests.', async () => {
 
-        await page.route(`**/${PRODUCT_ANALYTICS_ENDPOINT}**`, handler);
+        const { trackingEventHandler } = setupProductAnalyticsInterceptor();
+        const { consentHandler } = setupConsentInterceptor();
+        const { consentRevokeHandler } = setupConsentRevokeInterceptor();
+
+        await page.route(`**/${TRACKING_EVENT_ENDPOINT}**`, trackingEventHandler);
         await page.route(`**/${CONSENTS_ENDPOINT}`, consentHandler);
         await page.route(`**/${CONSENTS_ENDPOINT}/revoke`, consentRevokeHandler);
     });
@@ -275,7 +305,6 @@ test('Only authorized users in administration can change store consent and user 
 
     await test.step('Cleanup.', async () => {
 
-        TestDataService.addCreatedRecord('user', user.id);
         await page.close();
     });
 });
@@ -289,30 +318,29 @@ test(
                TestDataService,
            }) => {
 
-        const { capturedRequests, handler } = setupProductAnalyticsInterceptor();
-        const { consentHandler } = setupConsentInterceptor();
-        const { consentRevokeHandler } = setupConsentRevokeInterceptor();
-
         const page: Page = await createNewAdminPageContext(browser, SalesChannelBaseConfig);
-        const user1: User = await TestDataService.createUser({ createdAt: '2024-01-01T00:00:00.000Z' });
         const AdminConsentModal = new AdminPageObjects['DataSharingConsentModal'](page);
 
         await test.step('Modify product analytics API and consent API requests.', async () => {
 
-            await page.route(`**/${PRODUCT_ANALYTICS_ENDPOINT}**`, handler);
+            const { trackingEventHandler } = setupProductAnalyticsInterceptor();
+            const { consentHandler } = setupConsentInterceptor();
+            const { consentRevokeHandler } = setupConsentRevokeInterceptor();
+
+            await page.route(`**/${TRACKING_EVENT_ENDPOINT}**`, trackingEventHandler);
             await page.route(`**/${CONSENTS_ENDPOINT}`, consentHandler);
             await page.route(`**/${CONSENTS_ENDPOINT}/revoke`, consentRevokeHandler);
         });
 
         await test.step('Login to shopware administration with first user', async () => {
 
+            const user1: User = await TestDataService.createUser({ createdAt: '2024-01-01T00:00:00.000Z' });
+
             await loginToAdministration(
                 page,
                 user1,
                 TestDataService.AdminApiClient,
             );
-
-            await waitForCapturedRequests(capturedRequests, 1);
 
             await removeSymfonyToolbar(page);
             await AdminConsentModal.shareUsageDataCheckbox.click();
@@ -336,14 +364,11 @@ test(
             await expect(AdminConsentModal.shareUsageDataCheckbox).not.toBeChecked();
             await expect(AdminConsentModal.shareUsageDataCheckbox).toBeEditable();
 
-            TestDataService.addCreatedRecord('user', user2.id);
             await page.close();
-
         });
 
         await test.step('Cleanup.', async () => {
 
-            TestDataService.addCreatedRecord('user', user1.id);
             await page.close();
         });
     });

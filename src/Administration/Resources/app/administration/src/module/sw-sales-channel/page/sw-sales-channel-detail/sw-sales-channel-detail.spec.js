@@ -539,7 +539,9 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
 
         expect(result).toBe(false);
         expect(wrapper.vm.agenticCommerceExportConfig[0].errors['core.openAiProductExport.returnPolicyUrl']).toBeDefined();
-        expect(wrapper.vm.agenticCommerceExportConfig[0].errors['core.openAiProductExport.returnPolicyUrl'].code).toBe('c1051bb4-d103-4f74-8988-acbcafc7fdc3');
+        expect(wrapper.vm.agenticCommerceExportConfig[0].errors['core.openAiProductExport.returnPolicyUrl'].code).toBe(
+            'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+        );
     });
 
     it('should not call save when a required agentic commerce field is empty', async () => {

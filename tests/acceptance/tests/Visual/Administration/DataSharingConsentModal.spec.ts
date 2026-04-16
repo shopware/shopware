@@ -1,4 +1,4 @@
-import { test, assertScreenshot, setViewport, Page} from '@fixtures/AcceptanceTest';
+import { test, assertScreenshot, setViewport, Page } from '@fixtures/AcceptanceTest';
 import {
     removeSymfonyToolbar, setupConsentInterceptor, setupProductAnalyticsInterceptor,
 } from '@helpers/productanalytics-helpers';
@@ -17,20 +17,21 @@ test('Visual: Administration data sharing consent modal', { tag: '@Visual' }, as
 
     test.skip(satisfies(InstanceMeta.version, '<6.7.9.0'), 'Data sharing consent modal only available since version 6.7.9.0');
 
-    const { handler } = setupProductAnalyticsInterceptor();
-    const { consentHandler } = setupConsentInterceptor();
-
     const page: Page = await createNewAdminPageContext(browser, SalesChannelBaseConfig);
-    const user: User = await TestDataService.createUser({ createdAt: '2024-01-01T00:00:00.000Z' });
     const AdminDataSharingConsentModal = new AdminPageObjects['DataSharingConsentModal'](page);
 
     await test.step('Modify product analytics API and consent API requests.', async () => {
 
-        await page.route(`**/${TRACKING_EVENT_ENDPOINT}**`, handler);
+        const { trackingEventHandler } = setupProductAnalyticsInterceptor();
+        const { consentHandler } = setupConsentInterceptor();
+
+        await page.route(`**/${TRACKING_EVENT_ENDPOINT}**`, trackingEventHandler);
         await page.route(`**/${CONSENTS_ENDPOINT}`, consentHandler);
     });
 
     await test.step('Login to shopware administration.', async () => {
+
+        const user: User = await TestDataService.createUser({ createdAt: '2024-01-01T00:00:00.000Z' });
 
         await loginToAdministration(
             page,

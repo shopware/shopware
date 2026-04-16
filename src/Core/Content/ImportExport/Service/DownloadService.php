@@ -3,14 +3,18 @@
 namespace Shopware\Core\Content\ImportExport\Service;
 
 use League\Flysystem\FilesystemOperator;
+use League\Flysystem\UnableToGenerateTemporaryUrl;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\ImportExportException;
+use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\HeaderUtils;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -20,6 +24,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 #[Package('fundamentals@after-sales')]
 class DownloadService
 {
+    private const EXPIRATION_TIME = '+120 minutes';
+
     /**
      * @internal
      *
@@ -27,7 +33,10 @@ class DownloadService
      */
     public function __construct(
         private readonly FilesystemOperator $filesystem,
-        private readonly EntityRepository $fileRepository
+        private readonly EntityRepository $fileRepository,
+        private readonly LoggerInterface $logger,
+        private readonly string $localDownloadStrategy,
+        private readonly string $localPathPrefix = ''
     ) {
     }
 
@@ -58,9 +67,72 @@ class DownloadService
             $context
         );
 
+        try {
+            $url = $this->filesystem->temporaryUrl($entity->getPath(), (new \DateTimeImmutable())->modify(self::EXPIRATION_TIME));
+
+            return new RedirectResponse($url);
+        } catch (UnableToGenerateTemporaryUrl $exception) {
+            $this->logger->warning($exception->getMessage(), ['exception' => $exception]);
+        } catch (\Exception $exception) {
+            $this->logger->critical($exception->getMessage(), ['exception' => $exception]);
+        }
+
+        return $this->createResponse($entity, $fileId);
+    }
+
+    private function createResponse(ImportExportFileEntity $entity, string $fileId): Response
+    {
+        switch ($this->localDownloadStrategy) {
+            case DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGY:
+                $location = $entity->getPath();
+
+                $stream = $this->filesystem->readStream($location);
+                if (!\is_resource($stream)) {
+                    throw ImportExportException::fileNotFound($fileId);
+                }
+
+                $location = stream_get_meta_data($stream)['uri'] ?? $location;
+
+                $response = new Response(null, Response::HTTP_OK, $this->getStreamHeaders($entity));
+                $response->headers->set(DownloadResponseGenerator::X_SENDFILE_DOWNLOAD_STRATEGY, $location);
+
+                return $response;
+            case DownloadResponseGenerator::X_ACCEL_DOWNLOAD_STRATEGY:
+                $location = $entity->getPath();
+
+                if ($this->localPathPrefix !== '') {
+                    $location = $this->localPathPrefix . '/' . ltrim($location, '/');
+                }
+
+                $response = new Response(null, Response::HTTP_OK, $this->getStreamHeaders($entity));
+                $response->headers->set(DownloadResponseGenerator::X_ACCEL_REDIRECT, $location);
+
+                return $response;
+            default:
+                return $this->createStreamedResponse($entity, $fileId);
+        }
+    }
+
+    private function createStreamedResponse(ImportExportFileEntity $entity, string $fileId): StreamedResponse
+    {
+        $stream = $this->filesystem->readStream($entity->getPath());
+        if (!\is_resource($stream)) {
+            throw ImportExportException::fileNotFound($fileId);
+        }
+
+        return new StreamedResponse(static function () use ($stream): void {
+            fpassthru($stream);
+        }, Response::HTTP_OK, $this->getStreamHeaders($entity));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getStreamHeaders(ImportExportFileEntity $entity): array
+    {
         $originalName = (string) preg_replace('/[\/\\\]/', '', $entity->getOriginalName());
 
-        $headers = [
+        return [
             'Content-Disposition' => HeaderUtils::makeDisposition(
                 'attachment',
                 $originalName,
@@ -70,15 +142,6 @@ class DownloadService
             'Content-Length' => $this->filesystem->fileSize($entity->getPath()),
             'Content-Type' => $this->resolveContentType($originalName),
         ];
-
-        $stream = $this->filesystem->readStream($entity->getPath());
-        if (!\is_resource($stream)) {
-            throw ImportExportException::fileNotFound($fileId);
-        }
-
-        return new StreamedResponse(static function () use ($stream): void {
-            fpassthru($stream);
-        }, Response::HTTP_OK, $headers);
     }
 
     private function findFile(Context $context, string $fileId): ImportExportFileEntity

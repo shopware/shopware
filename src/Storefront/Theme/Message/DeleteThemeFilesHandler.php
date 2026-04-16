@@ -6,14 +6,16 @@ use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\AbstractThemePathBuilder;
+use Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTask;
+use Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTaskHandler;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * @internal
  *
  * @deprecated tag:v6.8.0 - Will be removed. Unused theme files are now deleted with a scheduled task.
- * @see \Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTask
- * @see \Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTaskHandler
+ * @see DeleteThemeFilesTask
+ * @see DeleteThemeFilesTaskHandler
  */
 #[AsMessageHandler]
 #[Package('framework')]

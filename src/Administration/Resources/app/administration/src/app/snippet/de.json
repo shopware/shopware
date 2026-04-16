@@ -1751,5 +1751,13 @@
           }
         }
       }
-    }
+    },
+  "sw-request-consent-modal": {
+    "title": "Zustimmung erforderlich",
+    "message": "Die Erweiterung {appName} bittet um Ihre Zustimmung für das folgende Thema: {consentName}",
+    "readMore": "Weitere Informationen finden Sie hier:",
+    "acceptButton": "Zustimmen",
+    "declineButton": "Ablehnen",
+    "updateFailed": "Beim Aktualisieren Deiner Zustimmung ist ein Fehler aufgetreten. Es wird deine vorherige Entscheidung, falls vorhanden, beibehalten."
+  }
 }

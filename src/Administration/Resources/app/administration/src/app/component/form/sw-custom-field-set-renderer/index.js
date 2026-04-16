@@ -102,7 +102,7 @@ export default {
     data() {
         return {
             customFields: {},
-            inheritedCustomFields: null,
+            indirectInheritedCustomFields: null,
             loadingFields: [],
             tabWaitMaxAttempts: 10,
             tabWaitsAttempts: 0,
@@ -113,7 +113,20 @@ export default {
 
     computed: {
         hasParent() {
-            return !!this.parentEntity?.id || this.isTranslatedCustomFieldInheritanceContext();
+            return this.hasExplicitParentEntity || this.usesTranslatedInheritance;
+        },
+
+        hasExplicitParentEntity() {
+            return !!this.parentEntity?.id;
+        },
+
+        usesTranslatedInheritance() {
+            return (
+                !this.hasExplicitParentEntity &&
+                !!this.entity?.id &&
+                typeof this.entity?.getEntityName === 'function' &&
+                !!this.translatedInheritanceSourceLanguageId
+            );
         },
 
         visibleCustomFieldSets() {
@@ -163,7 +176,7 @@ export default {
             ];
         },
 
-        translatedInheritanceLanguageId() {
+        translatedInheritanceSourceLanguageId() {
             const language = Shopware.Store.get('context')?.api?.language;
             const parentLanguageId = language?.parentId;
 
@@ -180,7 +193,7 @@ export default {
     },
 
     watch: {
-        translatedInheritanceLanguageId() {
+        translatedInheritanceSourceLanguageId() {
             this.loadInheritedCustomFields();
         },
 
@@ -239,15 +252,6 @@ export default {
             this.customFields = this.entity.customFields;
         },
 
-        isTranslatedCustomFieldInheritanceContext() {
-            return (
-                !this.parentEntity?.id &&
-                !!this.entity?.id &&
-                typeof this.entity?.getEntityName === 'function' &&
-                !!this.translatedInheritanceLanguageId
-            );
-        },
-
         hasOverriddenTranslatedCustomFields() {
             return Object.values(this.customFields ?? {}).some((value) => value !== null && value !== undefined);
         },
@@ -267,7 +271,7 @@ export default {
         },
 
         resetTranslatedInheritanceState() {
-            this.inheritedCustomFields = null;
+            this.indirectInheritedCustomFields = null;
             this.translatedInheritanceLoadKey = null;
         },
 
@@ -275,14 +279,14 @@ export default {
             return [
                 this.entity.getEntityName(),
                 this.entity.id,
-                this.translatedInheritanceLanguageId,
+                this.translatedInheritanceSourceLanguageId,
             ].join(':');
         },
 
         getTranslatedInheritanceContext() {
             return {
                 ...Shopware.Context.api,
-                languageId: this.translatedInheritanceLanguageId,
+                languageId: this.translatedInheritanceSourceLanguageId,
             };
         },
 
@@ -294,17 +298,18 @@ export default {
             const parentCustomFields = this.parentEntity?.translated?.customFields;
 
             if (parentCustomFields) {
-                return parentCustomFields;
+                return parentCustomFields?.[customFieldName];
             }
 
-            if (
-                !this.isTranslatedCustomFieldInheritanceContext() ||
-                !this.isInheritedTranslatedCustomField(customFieldName)
-            ) {
-                return this.inheritedCustomFields;
+            if (!this.usesTranslatedInheritance || !this.isInheritedTranslatedCustomField(customFieldName)) {
+                return this.indirectInheritedCustomFields?.[customFieldName];
             }
 
-            return this.inheritedCustomFields ?? this.entity?.translated?.customFields;
+            if (Object.hasOwn(this.indirectInheritedCustomFields ?? {}, customFieldName)) {
+                return this.indirectInheritedCustomFields?.[customFieldName];
+            }
+
+            return this.entity?.translated?.customFields?.[customFieldName];
         },
 
         getDefaultInheritedCustomFieldValue(customFieldName) {
@@ -338,7 +343,7 @@ export default {
         },
 
         async loadInheritedCustomFields() {
-            if (!this.isTranslatedCustomFieldInheritanceContext()) {
+            if (!this.usesTranslatedInheritance) {
                 this.resetTranslatedInheritanceState();
 
                 return;
@@ -346,10 +351,7 @@ export default {
 
             const loadKey = this.getTranslatedInheritanceLoadKey();
 
-            if (
-                !this.hasOverriddenTranslatedCustomFields()
-                && !this.hasInheritedTranslatedCustomFieldsWithoutFallback()
-            ) {
+            if (!this.hasOverriddenTranslatedCustomFields() && !this.hasInheritedTranslatedCustomFieldsWithoutFallback()) {
                 if (this.translatedInheritanceLoadKey !== loadKey) {
                     this.resetTranslatedInheritanceState();
                 }
@@ -372,7 +374,7 @@ export default {
                     return;
                 }
 
-                this.inheritedCustomFields = inheritedEntity?.customFields ?? null;
+                this.indirectInheritedCustomFields = inheritedEntity?.customFields ?? null;
             } catch (error) {
                 console.error(error);
 
@@ -383,7 +385,7 @@ export default {
         },
 
         getInheritedCustomField(customFieldName) {
-            const value = this.getInheritedCustomFields(customFieldName)?.[customFieldName];
+            const value = this.getInheritedCustomFields(customFieldName);
 
             if (value !== null && value !== undefined) {
                 return value;

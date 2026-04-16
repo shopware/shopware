@@ -1,7 +1,6 @@
 import { test, expect, Page, AdminPageObjects, createNewAdminPageContext, loginToAdministration, User } from '@fixtures/AcceptanceTest';
 import { parseCapturedRequests, removeSymfonyToolbar, setupConsentRevokeInterceptor,
     setupConsentInterceptor, setupProductAnalyticsInterceptor, waitForEventCount,
-    CapturedRequest,
 } from '@helpers/productanalytics-helpers';
 const TRACKING_EVENT_ENDPOINT = 'event';
 const CONSENTS_ENDPOINT = 'consents';

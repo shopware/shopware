@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Product\Stock;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
@@ -58,6 +59,7 @@ class OrderStockSubscriberTest extends TestCase
         );
     }
 
+    #[TestDox('subscribes to state machine transitions and entity write events')]
     public function testGetSubscribedEvents(): void
     {
         $events = OrderStockSubscriber::getSubscribedEvents();
@@ -66,6 +68,7 @@ class OrderStockSubscriberTest extends TestCase
         static::assertArrayHasKey(EntityWriteEvent::class, $events);
     }
 
+    #[TestDox('does not alter stock when stock management is disabled')]
     public function testBeforeWriteCanBeDisabled(): void
     {
         $context = Context::createDefaultContext()->createWithVersionId($this->ids->create('version'));
@@ -79,6 +82,7 @@ class OrderStockSubscriberTest extends TestCase
         $event->success();
     }
 
+    #[TestDox('ignores order line item writes on non-live versions')]
     public function testBeforeWriteOnlyReactsToLiveVersions(): void
     {
         $context = Context::createDefaultContext()->createWithVersionId($this->ids->create('version'));
@@ -92,6 +96,7 @@ class OrderStockSubscriberTest extends TestCase
         $event->success();
     }
 
+    #[TestDox('ignores writes to entities other than order line items')]
     public function testBeforeWriteOnlyReactsToOrderLineItems(): void
     {
         $context = Context::createDefaultContext();
@@ -113,6 +118,7 @@ class OrderStockSubscriberTest extends TestCase
         $event->success();
     }
 
+    #[TestDox('ignores updates that do not change product or quantity')]
     public function testBeforeWriteOnlyReactsToProductAndQuantityChanges(): void
     {
         $context = Context::createDefaultContext();
@@ -128,6 +134,7 @@ class OrderStockSubscriberTest extends TestCase
         $event->success();
     }
 
+    #[TestDox('increases stock when new order line items are inserted')]
     public function testInsertedOrderItemsUpdateStock(): void
     {
         $item1 = $this->ids->get('item-1');
@@ -152,6 +159,7 @@ class OrderStockSubscriberTest extends TestCase
         );
     }
 
+    #[TestDox('decreases stock when order line items are deleted')]
     public function testDeletedOrderItemsUpdateStock(): void
     {
         $item1 = $this->ids->get('item-1');
@@ -176,6 +184,7 @@ class OrderStockSubscriberTest extends TestCase
         );
     }
 
+    #[TestDox('handles mixed insert and delete of order line items in a single write')]
     public function testInsertAndDeleteOrderItemsUpdateStock(): void
     {
         $item1 = $this->ids->get('item-1');
@@ -201,6 +210,7 @@ class OrderStockSubscriberTest extends TestCase
         );
     }
 
+    #[TestDox('adjusts stock when order line item quantity is updated')]
     public function testUpdatedQuantityUpdatesStock(): void
     {
         $item1 = $this->ids->get('item-1');
@@ -228,6 +238,7 @@ class OrderStockSubscriberTest extends TestCase
         );
     }
 
+    #[TestDox('adjusts stock when order line item product is changed')]
     public function testUpdatedProductUpdatesStock(): void
     {
         $item1 = $this->ids->get('item-1');
@@ -251,6 +262,7 @@ class OrderStockSubscriberTest extends TestCase
         );
     }
 
+    #[TestDox('adjusts stock when both product and quantity are changed')]
     public function testUpdatedProductAndQuantityUpdatesStock(): void
     {
         $item1 = $this->ids->get('item-1');
@@ -274,6 +286,7 @@ class OrderStockSubscriberTest extends TestCase
         );
     }
 
+    #[TestDox('does not alter stock on state change when stock management is disabled')]
     public function testStateChangeCanBeDisabled(): void
     {
         $context = Context::createDefaultContext()->createWithVersionId($this->ids->create('version'));
@@ -293,6 +306,7 @@ class OrderStockSubscriberTest extends TestCase
         $stockSubscriber->stateChanged($event);
     }
 
+    #[TestDox('ignores state changes on non-live versions')]
     public function testStateChangeOnlyReactsToLiveVersions(): void
     {
         $context = Context::createDefaultContext()->createWithVersionId($this->ids->create('version'));
@@ -312,6 +326,7 @@ class OrderStockSubscriberTest extends TestCase
         $stockSubscriber->stateChanged($event);
     }
 
+    #[TestDox('ignores state changes on entities other than orders')]
     public function testStateChangeOnlyReactsToOrderEntities(): void
     {
         $context = Context::createDefaultContext();
@@ -331,6 +346,7 @@ class OrderStockSubscriberTest extends TestCase
     }
 
     #[DataProvider('orderStateTransitionProvider')]
+    #[TestDox('adjusts stock when order transitions between open and cancelled states')]
     public function testStocksAreUpdatedWhenOrdersTransitionThroughStates(
         string $fromStateName,
         string $toStateName,

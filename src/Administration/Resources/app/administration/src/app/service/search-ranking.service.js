@@ -343,9 +343,10 @@ export default function createSearchRankingService() {
             }
 
             if (field.startsWith('_')) {
-                accumulator[field] = typeof searchFields[field] === typeof defaultSearchFields[field]
-                    ? searchFields[field]
-                    : defaultSearchFields[field];
+                accumulator[field] =
+                    typeof searchFields[field] === typeof defaultSearchFields[field]
+                        ? searchFields[field]
+                        : defaultSearchFields[field];
 
                 return accumulator;
             }
@@ -359,21 +360,20 @@ export default function createSearchRankingService() {
 
             if (defaultNestedSearchFields.hasOwnProperty('_searchable')) {
                 accumulator[field] = {
-                    _searchable: typeof nestedSearchFields._searchable === 'boolean'
-                        ? nestedSearchFields._searchable
-                        : defaultNestedSearchFields._searchable,
-                    _score: typeof nestedSearchFields._score === 'number'
-                        ? nestedSearchFields._score
-                        : defaultNestedSearchFields._score,
+                    _searchable:
+                        typeof nestedSearchFields._searchable === 'boolean'
+                            ? nestedSearchFields._searchable
+                            : defaultNestedSearchFields._searchable,
+                    _score:
+                        typeof nestedSearchFields._score === 'number'
+                            ? nestedSearchFields._score
+                            : defaultNestedSearchFields._score,
                 };
 
                 return accumulator;
             }
 
-            const sanitizedNestedSearchFields = _sanitizeSearchFields(
-                nestedSearchFields,
-                defaultNestedSearchFields,
-            );
+            const sanitizedNestedSearchFields = _sanitizeSearchFields(nestedSearchFields, defaultNestedSearchFields);
 
             if (!_isEmptyObject(sanitizedNestedSearchFields)) {
                 accumulator[field] = sanitizedNestedSearchFields;

@@ -65,6 +65,7 @@ my-component/
 | `this.$nextTick` | `nextTick(…)` |
 | `this.$tc` / `this.$t` | `useI18n().tc` / `.t` |
 | `this.$refs.name` | `const name = ref(null)` |
+| Twig `{% extends '…' %}` | removed from the generated Vue template |
 | Twig `{# comments #}` | `<!-- HTML comments -->` |
 
 ## Migration outcomes
@@ -191,4 +192,4 @@ search your codebase for the `TODO:` comments the codemod inserts, and resolve e
 | `this.$store` | Inserts TODO comment | Migrate Vuex access to a composable |
 | `this.$parent` / `this.$root` | Inserts TODO comment | Refactor to avoid parent traversal |
 | `data` as arrow function | Now supported | — |
-| Nested watch path `'a.b'` | Silently dropped | Write watcher manually |
+| Nested watch path `'a.b'` | Leaves a TODO comment and skips the watcher | Write watcher manually |

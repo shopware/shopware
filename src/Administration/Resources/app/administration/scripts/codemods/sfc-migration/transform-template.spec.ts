@@ -168,4 +168,68 @@ describe('scripts/codemods/sfc-migration/transform-template', () => {
             expect(result).toMatchSnapshot();
         });
     });
+
+    describe('extends-without-blocks: {% extends %} is stripped without introducing sw-block wrappers', () => {
+        let result: string;
+
+        beforeAll(() => {
+            result = transformTemplate(readFixture('extends-without-blocks.html.twig')).template;
+        });
+
+        it('removes the {% extends %} line and adjacent eslint-disable comment', () => {
+            expect(result).not.toContain('{% extends');
+            expect(result).not.toContain('eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks');
+            expect(result).not.toContain('@Administration/administration/src/module/sw-foo');
+        });
+
+        it('preserves the plain template content without adding sw-block wrappers', () => {
+            expect(result).toContain('<div class="sw-foo">{{ title }}</div>');
+            expect(result).not.toContain('<sw-block');
+            expect(result).not.toContain('</sw-block>');
+        });
+
+        it('matches the complete transformed template snapshot', () => {
+            expect(result).toMatchSnapshot();
+        });
+    });
+
+    it('removes obsolete twig eslint-disable comments adjacent to block migration lines', () => {
+        const result = transformTemplate(`
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% block sw_example %}
+    <div>content</div>
+{% endblock %}
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        `).template;
+
+        expect(result).toContain('<sw-block name="sw_example" :data="$dataScope">');
+        expect(result).toContain('</sw-block>');
+        expect(result).not.toContain('eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks');
+    });
+
+    it('removes obsolete twig eslint-disable comments adjacent to parent() migration lines', () => {
+        const result = transformTemplate(`
+{% block sw_example %}
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{{ parent() }}
+{% endblock %}
+        `).template;
+
+        expect(result).toContain('<sw-block-parent/>');
+        expect(result).not.toContain('{{ parent() }}');
+        expect(result).not.toContain('eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks');
+    });
+
+    it('removes double-quoted twig extends lines too', () => {
+        const result = transformTemplate(`
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+{% extends "@Administration/administration/src/module/sw-foo/page/sw-foo-index/sw-foo-index.html.twig" %}
+<div class="sw-foo">{{ title }}</div>
+        `).template;
+
+        expect(result).not.toContain('{% extends');
+        expect(result).not.toContain('@Administration/administration/src/module/sw-foo');
+        expect(result).not.toContain('eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks');
+        expect(result).toContain('<div class="sw-foo">{{ title }}</div>');
+    });
 });

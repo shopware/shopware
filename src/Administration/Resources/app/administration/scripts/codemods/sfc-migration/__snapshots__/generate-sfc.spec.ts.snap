@@ -80,17 +80,6 @@ const {
             },
         });
 
-        watch(() => count.value, (newVal) => {
-            if (newVal > 10) {
-                title.value = 'Limit reached';
-            }
-        });
-        watch(() => props.readOnly, (newVal) => {
-            if (newVal) {
-                title.value = 'Read-only mode';
-            }
-        });
-
         const onAction = () => {
             count.value += 1;
             emit('action', count.value);
@@ -101,6 +90,17 @@ const {
             cardWrapper.value.focus();
             emit('reset');
         };
+
+        watch(() => count.value, (newVal) => {
+            if (newVal > 10) {
+                title.value = 'Limit reached';
+            }
+        });
+        watch(() => props.readOnly, (newVal) => {
+            if (newVal) {
+                title.value = 'Read-only mode';
+            }
+        });
 
         onMounted(() => {
             count.value = props.initialCount;
@@ -134,8 +134,6 @@ exports[`scripts/codemods/sfc-migration/generate-sfc mixin-component: partially 
 import listingMixin from 'src/app/mixin/listing.mixin';
 
 Shopware.Component.register('sw-mixin-list', {
-    template,
-
     mixins: [
         Shopware.Mixin.getByName('notification'),
         listingMixin,

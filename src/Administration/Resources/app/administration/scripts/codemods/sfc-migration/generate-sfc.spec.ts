@@ -182,6 +182,27 @@ describe('scripts/codemods/sfc-migration/generate-sfc', () => {
         });
     });
 
+    describe('manual-follow-up partials: generated setup scripts stay wrapped in <script setup>', () => {
+        it('keeps <script setup> for partially-migratable setup output', () => {
+            const result = mergeComponentFiles(
+                '<div>{{ count }}</div>',
+                `Shopware.Component.register('sw-partial-setup', {
+                    template,
+                    data() { return { count: 0 }; },
+                    watch: {
+                        'settings.count'(newVal) { this.count = newVal; },
+                    },
+                });`,
+            );
+
+            expect(result.status).toBe('partially-migrated');
+            expect(result.blockers).toContain('watch: settings.count: nested watch paths are not supported');
+            expect(result.sfc).toContain('<script setup>');
+            expect(result.sfc).not.toContain('<script>');
+            expect(result.sfc).toContain('TODO: migrate watch entry manually: settings.count: nested watch paths are not supported');
+        });
+    });
+
     describe('composables-component: warnings field reports $el usage', () => {
         let result: ReturnType<typeof mergeComponentFiles>;
 

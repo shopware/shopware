@@ -26,9 +26,9 @@ export interface MergeResult {
  *
  * - **fully-migrated** — `<script setup>` with `createExtendableSetup` so the
  *   component stays extensible via `overrideComponentSetup` after migration.
- * - **partially-migrated** — plain `<script>` preserving the original Options
- *   API for components with soft blockers (mixins, extends).  Manual follow-up
- *   required.
+ * - **partially-migrated** — either plain `<script>` for Options API backoff
+ *   components, or `<script setup>` when the generated setup script contains
+ *   TODO follow-up comments. Manual follow-up required.
  * - **not-migratable** — returns an empty SFC; nothing is written to disk.
  *   Hard blockers (`render()`) fall into this category.
  *
@@ -45,12 +45,14 @@ export function mergeComponentFiles(twigContent: string, jsContent: string): Mer
         return { sfc: '', status: 'not-migratable', blockers: scriptResult.blockers, warnings: [] };
     }
 
+    const scriptWrapper = scriptResult.scriptType === 'setup' ? '<script setup>' : '<script>';
+
     if (scriptResult.status === 'partially-migratable') {
-        const sfc = [templateSection, '', `<script>\n${scriptResult.script}\n</script>`].join('\n');
+        const sfc = [templateSection, '', `${scriptWrapper}\n${scriptResult.script}\n</script>`].join('\n');
         return { sfc, status: 'partially-migrated', blockers: scriptResult.blockers, warnings: [] };
     }
 
-    const sfc = [templateSection, '', `<script setup>\n${scriptResult.script}\n</script>`].join('\n');
+    const sfc = [templateSection, '', `${scriptWrapper}\n${scriptResult.script}\n</script>`].join('\n');
     const warnings = sfc.includes('TODO: $el')
         ? ['$el usage detected — replace with a template ref or verify getCurrentInstance() call context']
         : [];

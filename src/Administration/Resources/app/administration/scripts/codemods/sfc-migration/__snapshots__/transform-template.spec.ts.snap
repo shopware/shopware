@@ -40,6 +40,14 @@ exports[`scripts/codemods/sfc-migration/transform-template extends-template: {% 
 </template>"
 `;
 
+exports[`scripts/codemods/sfc-migration/transform-template extends-without-blocks: {% extends %} is stripped without introducing sw-block wrappers matches the complete transformed template snapshot 1`] = `
+"<template>
+
+<div class="sw-foo">{{ title }}</div>
+
+</template>"
+`;
+
 exports[`scripts/codemods/sfc-migration/transform-template simple-component: plain HTML without twig blocks is wrapped without modification matches the complete wrapped template snapshot 1`] = `
 "<template>
 <div class="sw-simple-card">

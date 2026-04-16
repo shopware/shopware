@@ -1,4 +1,6 @@
 import {
+    MethodDeclaration,
+    Node,
     ObjectLiteralExpression,
     Project,
     ScriptKind,
@@ -56,6 +58,18 @@ interface DataProp {
     valueText: string;
 }
 
+interface InjectProp {
+    localName: string;
+    sourceKey: string;
+    defaultValueText?: string;
+    treatDefaultAsFactory?: boolean;
+}
+
+interface ExtractInjectPropsResult {
+    injectProps: InjectProp[];
+    unsupportedEntries: string[];
+}
+
 type ComputedProp =
     | { name: string; kind: 'getter'; bodyText: string }
     | { name: string; kind: 'getter-setter'; getterBodyText: string; setterParam: string; setterBodyText: string };
@@ -63,9 +77,16 @@ type ComputedProp =
 interface WatchProp {
     name: string;
     paramsText: string;
-    bodyText: string;
+    bodyText?: string;
+    handlerName?: string;
+    isAsync?: boolean;
     deep?: boolean;
     immediate?: boolean;
+}
+
+interface ExtractWatchPropsResult {
+    watchProps: WatchProp[];
+    unsupportedEntries: string[];
 }
 
 interface MethodProp {
@@ -107,16 +128,113 @@ interface UsedComposables {
     needsAttrs: boolean;
 }
 
-function buildWatchSource(name: string, propNames: Set<string>): string {
+interface UnsupportedInjectAnalysis {
+    reasons: string[];
+}
+
+function isDefined<T>(value: T | undefined): value is T {
+    return value !== undefined;
+}
+
+const RESERVED_IDENTIFIERS = new Set([
+    'await',
+    'break',
+    'case',
+    'catch',
+    'class',
+    'const',
+    'continue',
+    'debugger',
+    'default',
+    'delete',
+    'do',
+    'else',
+    'enum',
+    'export',
+    'extends',
+    'false',
+    'finally',
+    'for',
+    'function',
+    'if',
+    'implements',
+    'import',
+    'in',
+    'instanceof',
+    'interface',
+    'let',
+    'new',
+    'null',
+    'package',
+    'private',
+    'protected',
+    'public',
+    'return',
+    'static',
+    'super',
+    'switch',
+    'this',
+    'throw',
+    'true',
+    'try',
+    'typeof',
+    'var',
+    'void',
+    'while',
+    'with',
+    'yield',
+]);
+
+function isSafeIdentifier(name: string): boolean {
+    return /^[$A-Z_a-z][$\w]*$/u.test(name) && !RESERVED_IDENTIFIERS.has(name);
+}
+
+function sanitizeTodoCommentText(value: string): string {
+    return value.replace(/\r\n?|\n/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+function buildPropertyAccess(target: string, name: string): string {
+    return isSafeIdentifier(name) ? `${target}.${name}` : `${target}[${quoteString(name)}]`;
+}
+
+function buildWatchSource(name: string, propNames: Set<string>, injectNames: Set<string>): string {
     if (propNames.has(name)) {
-        return `props.${name}`;
+        return buildPropertyAccess('props', name);
     }
 
     if (name === '$route') {
         return `({ ...route, params: { ...route.params }, query: { ...route.query } })`;
     }
 
+    if (injectNames.has(name)) {
+        return `unref(${name})`;
+    }
+
     return `${name}.value`;
+}
+
+function quoteString(value: string): string {
+    return `'${value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
+}
+
+function serializeMethodLikeFunction(method: MethodDeclaration): string {
+    const asyncPrefix = method.isAsync() ? 'async ' : '';
+    const paramsText = method.getParameters().map((param) => param.getText()).join(', ');
+    const bodyText = method.getBodyText() ?? '';
+
+    return `${asyncPrefix}function(${paramsText}) {${bodyText ? `\n${bodyText}\n` : ''}}`;
+}
+
+function getPropertyName(
+    prop: import('ts-morph').PropertyAssignment | import('ts-morph').MethodDeclaration | import('ts-morph').ShorthandPropertyAssignment,
+): string {
+    const nameNode = prop.getNameNode();
+
+    if (Node.isStringLiteral(nameNode) || Node.isNumericLiteral(nameNode)) {
+        return nameNode.getLiteralText();
+    }
+
+    return prop.getName();
 }
 
 // ---------------------------------------------------------------------------
@@ -177,39 +295,170 @@ function extractComponentName(sourceFile: SourceFile): string {
 // ---------------------------------------------------------------------------
 
 /**
- * `inject: ['key1', 'key2']`
- * Returns the string values of the array elements.
+ * Extracts `inject` entries while preserving aliases and defaults.
  */
-function extractInjectKeys(optionsObj: ObjectLiteralExpression): string[] {
+function extractInjectProps(optionsObj: ObjectLiteralExpression): ExtractInjectPropsResult {
     const prop = optionsObj.getProperty('inject');
-    if (!prop?.isKind(SyntaxKind.PropertyAssignment)) return [];
+    if (!prop?.isKind(SyntaxKind.PropertyAssignment)) return { injectProps: [], unsupportedEntries: [] };
 
     const pa = prop.asKindOrThrow(SyntaxKind.PropertyAssignment);
 
     // Array form: inject: ['acl', 'repositoryFactory']
     const arrayInit = pa.getInitializerIfKind(SyntaxKind.ArrayLiteralExpression);
     if (arrayInit) {
-        return arrayInit
-            .getElements()
-            .filter((el) => el.isKind(SyntaxKind.StringLiteral))
-            .map((el) => el.asKindOrThrow(SyntaxKind.StringLiteral).getLiteralValue());
+        const injectProps: InjectProp[] = [];
+        const unsupportedEntries: string[] = [];
+
+        arrayInit.getElements().forEach((el) => {
+            if (!el.isKind(SyntaxKind.StringLiteral)) {
+                unsupportedEntries.push(`${el.getText()}: unsupported inject entry`);
+                return;
+            }
+
+            const key = el.asKindOrThrow(SyntaxKind.StringLiteral).getLiteralValue();
+            injectProps.push({
+                localName: key,
+                sourceKey: key,
+            });
+        });
+
+        return {
+            injectProps,
+            unsupportedEntries,
+        };
     }
 
     // Object form: inject: { acl: 'acl', repositoryFactory: { from: 'repositoryFactory' } }
     const objInit = pa.getInitializerIfKind(SyntaxKind.ObjectLiteralExpression);
     if (objInit) {
-        return objInit
+        const injectProps: InjectProp[] = [];
+        const unsupportedEntries: string[] = [];
+
+        objInit
             .getProperties()
-            .filter((p) => p.isKind(SyntaxKind.PropertyAssignment) || p.isKind(SyntaxKind.ShorthandPropertyAssignment))
-            .map((p) => {
+            .forEach((p) => {
                 if (p.isKind(SyntaxKind.ShorthandPropertyAssignment)) {
-                    return p.asKindOrThrow(SyntaxKind.ShorthandPropertyAssignment).getName();
+                    unsupportedEntries.push(`${getPropertyName(p)}: shorthand inject entries must be migrated manually`);
+                    return;
                 }
-                return p.asKindOrThrow(SyntaxKind.PropertyAssignment).getName();
+
+                if (!p.isKind(SyntaxKind.PropertyAssignment)) {
+                    unsupportedEntries.push(`${p.getText()}: unsupported inject entry`);
+                    return;
+                }
+
+                const assignment = p.asKindOrThrow(SyntaxKind.PropertyAssignment);
+                const localName = getPropertyName(assignment);
+                const stringInit = assignment.getInitializerIfKind(SyntaxKind.StringLiteral);
+
+                if (stringInit) {
+                    injectProps.push({
+                        localName,
+                        sourceKey: stringInit.getLiteralValue(),
+                    });
+                    return;
+                }
+
+                const objectInit = assignment.getInitializerIfKind(SyntaxKind.ObjectLiteralExpression);
+
+                if (!objectInit) {
+                    unsupportedEntries.push(`${localName}: unsupported inject definition`);
+                    return;
+                }
+
+                const hasUnsupportedObjectMembers = objectInit.getProperties().some((member) => {
+                    if (member.isKind(SyntaxKind.PropertyAssignment)) {
+                        const memberName = getPropertyName(member);
+
+                        return memberName !== 'from' && memberName !== 'default';
+                    }
+
+                    return !(member.isKind(SyntaxKind.MethodDeclaration) && member.getName() === 'default');
+                });
+
+                if (hasUnsupportedObjectMembers) {
+                    unsupportedEntries.push(`${localName}: unsupported inject definition`);
+                    return;
+                }
+
+                const fromProp = objectInit.getProperty('from');
+                if (fromProp && !fromProp.isKind(SyntaxKind.PropertyAssignment)) {
+                    unsupportedEntries.push(`${localName}: unsupported inject definition`);
+                    return;
+                }
+
+                const fromValue = fromProp?.isKind(SyntaxKind.PropertyAssignment)
+                    ? fromProp.asKindOrThrow(SyntaxKind.PropertyAssignment).getInitializerIfKind(SyntaxKind.StringLiteral)?.getLiteralValue()
+                    : undefined;
+
+                if (fromProp && fromValue === undefined) {
+                    unsupportedEntries.push(`${localName}: unsupported inject definition`);
+                    return;
+                }
+
+                const defaultProp = objectInit.getProperty('default');
+                const defaultInitializer = defaultProp?.isKind(SyntaxKind.PropertyAssignment)
+                    ? defaultProp.asKindOrThrow(SyntaxKind.PropertyAssignment).getInitializer()
+                    : undefined;
+                const defaultMethod = defaultProp?.isKind(SyntaxKind.MethodDeclaration)
+                    ? defaultProp.asKindOrThrow(SyntaxKind.MethodDeclaration)
+                    : undefined;
+
+                injectProps.push({
+                    localName,
+                    sourceKey: fromValue ?? localName,
+                    defaultValueText: defaultMethod
+                        ? serializeMethodLikeFunction(defaultMethod)
+                        : defaultInitializer?.getText(),
+                    treatDefaultAsFactory: defaultInitializer?.isKind(SyntaxKind.ArrowFunction)
+                        || defaultInitializer?.isKind(SyntaxKind.FunctionExpression)
+                        || defaultMethod !== undefined,
+                });
             });
+
+        return { injectProps, unsupportedEntries };
     }
 
-    return [];
+    return { injectProps: [], unsupportedEntries: ['inject must be an array or object literal'] };
+}
+
+function extractInlineFunctionHandler(
+    handler: import('ts-morph').ArrowFunction | import('ts-morph').FunctionExpression,
+): Pick<WatchProp, 'paramsText' | 'bodyText' | 'isAsync'> {
+    const body = handler.getBody();
+
+    return {
+        isAsync: handler.isAsync(),
+        paramsText: handler.getParameters().map((param) => param.getText()).join(', '),
+        bodyText: body.isKind(SyntaxKind.Block)
+            ? body.getStatements().map((statement) => statement.getText()).join('\n')
+            : `return ${body.getText()};`,
+    };
+}
+
+function parseWatchBooleanOption(
+    optionName: 'deep' | 'immediate',
+    optionProp: import('ts-morph').ObjectLiteralElementLike | undefined,
+): { value?: boolean; unsupportedReason?: string } {
+    if (!optionProp) {
+        return {};
+    }
+
+    if (!optionProp.isKind(SyntaxKind.PropertyAssignment)) {
+        return { unsupportedReason: `${optionName} must be a boolean literal` };
+    }
+
+    const initializerText = optionProp.asKindOrThrow(SyntaxKind.PropertyAssignment).getInitializer()?.getText();
+
+    if (initializerText === 'true') {
+        return { value: true };
+    }
+
+    if (initializerText === 'false') {
+        return { value: false };
+    }
+
+    return { unsupportedReason: `${optionName} must be a boolean literal` };
 }
 
 /**
@@ -332,47 +581,110 @@ function extractComputedProps(optionsObj: ObjectLiteralExpression): ComputedProp
  * `watch: { propName(newVal) {…} }`
  * Each watcher is a shorthand method declaration.
  */
-function extractWatchProps(optionsObj: ObjectLiteralExpression): WatchProp[] {
+function extractWatchProps(optionsObj: ObjectLiteralExpression): ExtractWatchPropsResult {
     const watchProp = optionsObj.getProperty('watch');
-    if (!watchProp?.isKind(SyntaxKind.PropertyAssignment)) return [];
+    if (!watchProp?.isKind(SyntaxKind.PropertyAssignment)) {
+        return { watchProps: [], unsupportedEntries: [] };
+    }
 
     const watchObj = watchProp
         .asKindOrThrow(SyntaxKind.PropertyAssignment)
         .getInitializerIfKind(SyntaxKind.ObjectLiteralExpression);
-    if (!watchObj) return [];
+    if (!watchObj) {
+        return { watchProps: [], unsupportedEntries: ['watch must be an object literal'] };
+    }
 
     const result: WatchProp[] = [];
+    const unsupportedEntries: string[] = [];
     for (const p of watchObj.getProperties()) {
         if (p.isKind(SyntaxKind.MethodDeclaration)) {
             const method = p.asKindOrThrow(SyntaxKind.MethodDeclaration);
             result.push({
-                name: method.getName(),
+                name: getPropertyName(method),
                 paramsText: method.getParameters().map((param) => param.getName()).join(', '),
                 bodyText: method.getBodyText() ?? '',
             });
         } else if (p.isKind(SyntaxKind.PropertyAssignment)) {
             const pa = p.asKindOrThrow(SyntaxKind.PropertyAssignment);
+            const name = getPropertyName(pa);
+            const stringHandler = pa.getInitializerIfKind(SyntaxKind.StringLiteral);
+
+            if (stringHandler) {
+                result.push({
+                    name,
+                    paramsText: '',
+                    handlerName: stringHandler.getLiteralValue(),
+                });
+                continue;
+            }
+
             const innerObj = pa.getInitializerIfKind(SyntaxKind.ObjectLiteralExpression);
-            if (!innerObj) continue;
+            if (!innerObj) {
+                unsupportedEntries.push(`${name}: unsupported watcher definition`);
+                continue;
+            }
+
             const handlerProp = innerObj.getProperty('handler');
-            if (!handlerProp?.isKind(SyntaxKind.MethodDeclaration)) continue;
-            const handler = handlerProp.asKindOrThrow(SyntaxKind.MethodDeclaration);
+            if (!handlerProp) {
+                unsupportedEntries.push(`${name}: missing watcher handler`);
+                continue;
+            }
+
             const deepProp = innerObj.getProperty('deep');
             const immediProp = innerObj.getProperty('immediate');
-            result.push({
-                name: pa.getName(),
-                paramsText: handler.getParameters().map((param) => param.getName()).join(', '),
-                bodyText: handler.getBodyText() ?? '',
-                deep: deepProp?.isKind(SyntaxKind.PropertyAssignment)
-                    ? deepProp.asKindOrThrow(SyntaxKind.PropertyAssignment).getInitializer()?.getText() === 'true'
-                    : undefined,
-                immediate: immediProp?.isKind(SyntaxKind.PropertyAssignment)
-                    ? immediProp.asKindOrThrow(SyntaxKind.PropertyAssignment).getInitializer()?.getText() === 'true'
-                    : undefined,
-            });
+            const deepOption = parseWatchBooleanOption('deep', deepProp);
+            const immediateOption = parseWatchBooleanOption('immediate', immediProp);
+            const unsupportedOptionReasons = [deepOption.unsupportedReason, immediateOption.unsupportedReason].filter(isDefined);
+
+            if (unsupportedOptionReasons.length > 0) {
+                unsupportedOptionReasons.forEach((reason) => {
+                    unsupportedEntries.push(`${name}: ${reason}`);
+                });
+                continue;
+            }
+
+            const watchEntry: WatchProp = {
+                name,
+                paramsText: '',
+                deep: deepOption.value,
+                immediate: immediateOption.value,
+            };
+
+            if (handlerProp.isKind(SyntaxKind.MethodDeclaration)) {
+                const handler = handlerProp.asKindOrThrow(SyntaxKind.MethodDeclaration);
+                watchEntry.paramsText = handler.getParameters().map((param) => param.getName()).join(', ');
+                watchEntry.bodyText = handler.getBodyText() ?? '';
+                watchEntry.isAsync = handler.isAsync();
+                result.push(watchEntry);
+                continue;
+            }
+
+            if (handlerProp.isKind(SyntaxKind.PropertyAssignment)) {
+                const handlerAssignment = handlerProp.asKindOrThrow(SyntaxKind.PropertyAssignment);
+                const handlerValue = handlerAssignment.getInitializerIfKind(SyntaxKind.StringLiteral);
+
+                if (handlerValue) {
+                    watchEntry.handlerName = handlerValue.getLiteralValue();
+                    result.push(watchEntry);
+                    continue;
+                }
+
+                const inlineHandler = handlerAssignment.getInitializer();
+
+                if (inlineHandler?.isKind(SyntaxKind.FunctionExpression) || inlineHandler?.isKind(SyntaxKind.ArrowFunction)) {
+                    Object.assign(watchEntry, extractInlineFunctionHandler(inlineHandler));
+                    result.push(watchEntry);
+                    continue;
+                }
+            }
+
+            unsupportedEntries.push(`${name}: unsupported watcher handler shape`);
+        } else {
+            unsupportedEntries.push(`${p.getText()}: unsupported watcher entry`);
+            continue;
         }
     }
-    return result;
+    return { watchProps: result, unsupportedEntries };
 }
 
 /**
@@ -629,7 +941,7 @@ function rewriteThisInBody(bodyText: string, ctx: RewriteContext): string {
 
     // Named props → `props.NAME`
     for (const name of ctx.propNames) {
-        result = result.replace(new RegExp(`\\bthis\\.${escapeRegExp(name)}\\b`, 'g'), `props.${name}`);
+        result = result.replace(new RegExp(`\\bthis\\.${escapeRegExp(name)}\\b`, 'g'), buildPropertyAccess('props', name));
     }
 
     // Named data refs → `NAME.value`
@@ -682,40 +994,104 @@ function detectBlockers(optionsObj: ObjectLiteralExpression, sourceFile: SourceF
     return blockers;
 }
 
+function analyzeUnsupportedInjectEntries(optionsObj: ObjectLiteralExpression): UnsupportedInjectAnalysis {
+    const { injectProps, unsupportedEntries } = extractInjectProps(optionsObj);
+    const reasons = [
+        ...unsupportedEntries.map((entry) => `inject: ${sanitizeTodoCommentText(entry)}`),
+        ...injectProps
+            .filter(({ localName }) => !isSafeIdentifier(localName))
+            .map(({ localName }) => `inject: ${localName} is not a valid JavaScript identifier`),
+    ];
+
+    return { reasons: [...new Set(reasons)] };
+}
+
 // ---------------------------------------------------------------------------
 // Code generators
 // ---------------------------------------------------------------------------
 
-function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componentName: string, sourceFile: SourceFile, useDataScope: boolean): { script: string; publicNames: string[] } {
-    const injectKeys = extractInjectKeys(optionsObj);
+function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componentName: string, sourceFile: SourceFile, useDataScope: boolean): { script: string; publicNames: string[]; manualMigrationReasons: string[] } {
+    const { injectProps, unsupportedEntries: unsupportedInjectEntries } = extractInjectProps(optionsObj);
     const dataProps = extractDataProps(optionsObj);
     const computedProps = extractComputedProps(optionsObj);
-    const watchProps = extractWatchProps(optionsObj);
+    const { watchProps, unsupportedEntries: unsupportedWatchEntries } = extractWatchProps(optionsObj);
     const methodProps = extractMethodProps(optionsObj);
     const lifecycleHooks = extractLifecycleHooks(optionsObj);
     const propsText = extractPropsText(optionsObj);
     const emitsKeys = extractEmitsKeys(optionsObj);
     const inheritAttrs = extractInheritAttrs(optionsObj);
     const moduleLevelCode = extractModuleLevelCode(sourceFile);
+    const manualMigrationReasons: string[] = [];
+    const todoComments: string[] = [];
 
+    const supportedInjectProps = injectProps.filter(({ localName }) => {
+        if (isSafeIdentifier(localName)) {
+            return true;
+        }
+
+        const reason = `inject: ${localName} is not a valid JavaScript identifier`;
+        manualMigrationReasons.push(reason);
+        todoComments.push(`// TODO: migrate inject entry manually: ${sanitizeTodoCommentText(reason)}`);
+        return false;
+    });
+
+    unsupportedInjectEntries.forEach((entry) => {
+        const reason = `inject: ${sanitizeTodoCommentText(entry)}`;
+        manualMigrationReasons.push(reason);
+        todoComments.push(`// TODO: migrate inject entry manually: ${sanitizeTodoCommentText(reason)}`);
+    });
+
+    const supportedDataProps = dataProps.filter(({ name }) => {
+        if (isSafeIdentifier(name)) {
+            return true;
+        }
+
+        const reason = `data: ${name} is not a valid JavaScript identifier`;
+        manualMigrationReasons.push(reason);
+        todoComments.push(`// TODO: migrate data entry manually: ${sanitizeTodoCommentText(reason)}`);
+        return false;
+    });
+
+    const supportedComputedProps = computedProps.filter((prop) => {
+        if (isSafeIdentifier(prop.name)) {
+            return true;
+        }
+
+        const reason = `computed: ${prop.name} is not a valid JavaScript identifier`;
+        manualMigrationReasons.push(reason);
+        todoComments.push(`// TODO: migrate computed entry manually: ${sanitizeTodoCommentText(reason)}`);
+        return false;
+    });
+
+    const supportedMethodProps = methodProps.filter(({ name }) => {
+        if (isSafeIdentifier(name)) {
+            return true;
+        }
+
+        const reason = `methods: ${name} is not a valid JavaScript identifier`;
+        manualMigrationReasons.push(reason);
+        todoComments.push(`// TODO: migrate method manually: ${sanitizeTodoCommentText(reason)}`);
+        return false;
+    });
+
+    const injectNames = new Set(supportedInjectProps.map((p) => p.localName));
     const propNames = new Set(propsText ? extractPropNamesFromText(optionsObj) : []);
-    const dataNames = new Set(dataProps.map((p) => p.name));
-    const computedNames = new Set(computedProps.map((p) => p.name));
-    const methodNames = new Set(methodProps.map((p) => p.name));
-    const injectNames = new Set(injectKeys);
+    const dataNames = new Set(supportedDataProps.map((p) => p.name));
+    const computedNames = new Set(supportedComputedProps.map((p) => p.name));
+    const methodNames = new Set(supportedMethodProps.map((p) => p.name));
 
     const ctx: RewriteContext = { propNames, dataNames, computedNames, methodNames, injectNames };
 
     // Collect all body texts to scan for composable usage and template refs
     const allBodies = [
-        ...dataProps.map((p) => p.valueText),
-        ...computedProps.map((p) =>
+        ...supportedDataProps.map((p) => p.valueText),
+        ...supportedComputedProps.map((p) =>
             p.kind === 'getter' ? p.bodyText : p.getterBodyText + '\n' + p.setterBodyText,
         ),
         ...watchProps.map((p) => p.bodyText),
-        ...methodProps.map((p) => p.bodyText),
+        ...supportedMethodProps.map((p) => p.bodyText),
         ...lifecycleHooks.map((h) => h.bodyText),
-    ];
+    ].filter(isDefined);
 
     const usedComposables = detectUsedComposables(allBodies, watchProps);
     const templateRefNames = collectThisRefNames(allBodies);
@@ -725,12 +1101,32 @@ function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componen
     const effectiveEmitsKeys =
         emitsKeys.length > 0 ? emitsKeys : collectEmittedEventNames(allBodies);
 
+    const supportedWatchProps = watchProps.filter((watchProp) => {
+        if (watchProp.name.includes('.')) {
+            unsupportedWatchEntries.push(`${watchProp.name}: nested watch paths are not supported`);
+            return false;
+        }
+
+        if (watchProp.name !== '$route' && !propNames.has(watchProp.name) && !injectNames.has(watchProp.name) && !isSafeIdentifier(watchProp.name)) {
+            unsupportedWatchEntries.push(`${watchProp.name}: watch targets that are not valid identifiers must be migrated manually`);
+            return false;
+        }
+
+        if (watchProp.handlerName && !methodNames.has(watchProp.handlerName)) {
+            unsupportedWatchEntries.push(`${watchProp.name}: string handler '${watchProp.handlerName}' was not found in methods`);
+            return false;
+        }
+
+        return true;
+    });
+
     // Determine which Vue composables are actually needed
     const vueImports: string[] = [];
-    if (dataProps.length > 0 || templateRefNames.length > 0) vueImports.push('ref');
-    if (computedProps.length > 0) vueImports.push('computed');
-    if (injectKeys.length > 0) vueImports.push('inject');
-    if (watchProps.length > 0) vueImports.push('watch');
+    if (supportedDataProps.length > 0 || templateRefNames.length > 0) vueImports.push('ref');
+    if (supportedComputedProps.length > 0) vueImports.push('computed');
+    if (supportedInjectProps.length > 0) vueImports.push('inject');
+    if (supportedWatchProps.length > 0) vueImports.push('watch');
+    if (supportedWatchProps.some(({ name }) => injectNames.has(name))) vueImports.push('unref');
     if (usedComposables.needsNextTick) vueImports.push('nextTick');
     if (usedComposables.needsSlots) vueImports.push('useSlots');
     if (usedComposables.needsAttrs) vueImports.push('useAttrs');
@@ -746,13 +1142,11 @@ function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componen
     // Template refs are declared outside createExtendableSetup as module-level refs so they
     // do not need to be in publicNames — the template can access them directly.
     const publicNames = [
-        ...injectKeys,
-        ...dataProps.map((p) => p.name),
-        ...computedProps.map((p) => p.name),
-        ...methodProps.map((p) => p.name),
+        ...supportedInjectProps.map((p) => p.localName),
+        ...supportedDataProps.map((p) => p.name),
+        ...supportedComputedProps.map((p) => p.name),
+        ...supportedMethodProps.map((p) => p.name),
     ];
-
-    const todoComments: string[] = [];
 
     if (optionsObj.getProperty('provide')) {
         todoComments.push('// TODO: migrate `provide` manually — map each key to provide(key, value) calls');
@@ -867,21 +1261,31 @@ function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componen
     lines.push('    () => {');
 
     // ── inject ────────────────────────────────────────────────────────────────
-    injectKeys.forEach((key) => {
-        lines.push(`        const ${key} = inject('${key}');`);
+    supportedInjectProps.forEach(({ localName, sourceKey, defaultValueText, treatDefaultAsFactory }) => {
+        const args = [quoteString(sourceKey)];
+
+        if (defaultValueText !== undefined) {
+            args.push(defaultValueText);
+
+            if (treatDefaultAsFactory) {
+                args.push('true');
+            }
+        }
+
+        lines.push(`        const ${localName} = inject(${args.join(', ')});`);
     });
-    if (injectKeys.length > 0) lines.push('');
+    if (supportedInjectProps.length > 0) lines.push('');
 
     // ── data → ref() ─────────────────────────────────────────────────────────
-    dataProps.forEach(({ name, valueText }) => {
+    supportedDataProps.forEach(({ name, valueText }) => {
         // Data initializers may reference props via `this.propName` — rewrite those
         const rewrittenValue = rewriteThisInBody(valueText, ctx);
         lines.push(`        const ${name} = ref(${rewrittenValue});`);
     });
-    if (dataProps.length > 0) lines.push('');
+    if (supportedDataProps.length > 0) lines.push('');
 
     // ── computed ──────────────────────────────────────────────────────────────
-    computedProps.forEach((prop) => {
+    supportedComputedProps.forEach((prop) => {
         if (prop.kind === 'getter') {
             const body = rewriteThisInBody(prop.bodyText, ctx);
             lines.push(`        const ${prop.name} = computed(() => {`);
@@ -900,23 +1304,10 @@ function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componen
             lines.push(`        });`);
         }
     });
-    if (computedProps.length > 0) lines.push('');
-
-    // ── watch ─────────────────────────────────────────────────────────────────
-    watchProps.forEach(({ name, paramsText, bodyText, deep, immediate }) => {
-        const source = buildWatchSource(name, propNames);
-        const body = rewriteThisInBody(bodyText, ctx);
-        const paramPart = paramsText ? `(${paramsText}) => {` : `() => {`;
-        const hasOptions = deep || immediate;
-        const optionsParts = [deep ? 'deep: true' : '', immediate ? 'immediate: true' : ''].filter(Boolean);
-        lines.push(`        watch(() => ${source}, ${paramPart}`);
-        lines.push(indentBlock(body, 12));
-        lines.push(hasOptions ? `        }, { ${optionsParts.join(', ')} });` : `        });`);
-    });
-    if (watchProps.length > 0) lines.push('');
+    if (supportedComputedProps.length > 0) lines.push('');
 
     // ── methods ───────────────────────────────────────────────────────────────
-    methodProps.forEach(({ name, paramsText, bodyText, isAsync, rawText }) => {
+    supportedMethodProps.forEach(({ name, paramsText, bodyText, isAsync, rawText }) => {
         if (rawText !== undefined) {
             // Property-assignment method (e.g. `debounce(...)`): emit verbatim after this-rewriting.
             let rewritten = rewriteThisInBody(rawText, ctx);
@@ -930,7 +1321,34 @@ function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componen
             lines.push(`        };`);
         }
     });
-    if (methodProps.length > 0) lines.push('');
+    if (supportedMethodProps.length > 0) lines.push('');
+
+    // ── watch ─────────────────────────────────────────────────────────────────
+    unsupportedWatchEntries.forEach((entry) => {
+        lines.push(`        // TODO: migrate watch entry manually: ${sanitizeTodoCommentText(entry)}`);
+    });
+    if (unsupportedWatchEntries.length > 0) lines.push('');
+
+    supportedWatchProps.forEach(({ name, paramsText, bodyText, handlerName, isAsync, deep, immediate }) => {
+        const source = buildWatchSource(name, propNames, injectNames);
+        const hasOptions = deep || immediate;
+        const optionsParts = [deep ? 'deep: true' : '', immediate ? 'immediate: true' : ''].filter(Boolean);
+
+        if (handlerName) {
+            lines.push(`        watch(() => ${source}, (...args) => ${handlerName}(...args)${hasOptions ? `, { ${optionsParts.join(', ')} }` : ''});`);
+            return;
+        }
+
+        const body = rewriteThisInBody(bodyText ?? '', ctx);
+        const asyncPrefix = isAsync ? 'async ' : '';
+        const paramPart = paramsText ? `${asyncPrefix}(${paramsText}) => {` : `${asyncPrefix}() => {`;
+        lines.push(`        watch(() => ${source}, ${paramPart}`);
+        lines.push(indentBlock(body, 12));
+        lines.push(hasOptions ? `        }, { ${optionsParts.join(', ')} });` : `        });`);
+    });
+    if (supportedWatchProps.length > 0) lines.push('');
+
+    manualMigrationReasons.push(...unsupportedWatchEntries.map((entry) => `watch: ${sanitizeTodoCommentText(entry)}`));
 
     // ── created() body runs synchronously inside setup, giving it access to
     //    inject values. This is the Composition API equivalent of created().
@@ -966,7 +1384,7 @@ function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componen
         lines.push(`const $dataScope = reactive({ ${publicNames.join(', ')} });`);
     }
 
-    return { script: lines.join('\n'), publicNames };
+    return { script: lines.join('\n'), publicNames, manualMigrationReasons: [...new Set(manualMigrationReasons)] };
 }
 
 /**
@@ -1009,12 +1427,11 @@ function extractPropNamesFromText(optionsObj: ObjectLiteralExpression): string[]
                 (p) =>
                     p.isKind(SyntaxKind.PropertyAssignment) || p.isKind(SyntaxKind.MethodDeclaration),
             )
-            .map((p) => {
-                if (p.isKind(SyntaxKind.PropertyAssignment)) {
-                    return p.asKindOrThrow(SyntaxKind.PropertyAssignment).getName();
-                }
-                return p.asKindOrThrow(SyntaxKind.MethodDeclaration).getName();
-            }) ?? []
+            .map((p) => getPropertyName(
+                p.isKind(SyntaxKind.PropertyAssignment)
+                    ? p.asKindOrThrow(SyntaxKind.PropertyAssignment)
+                    : p.asKindOrThrow(SyntaxKind.MethodDeclaration),
+            )) ?? []
     );
 }
 
@@ -1070,27 +1487,28 @@ export function transformScript(jsContent: string, useDataScope = false): Transf
     }
 
     const blockers = detectBlockers(optionsObj, sourceFile);
+    const unsupportedInjectAnalysis = analyzeUnsupportedInjectEntries(optionsObj);
 
     if (blockers.includes('render function')) {
         return { script: '', scriptType: 'options', status: 'not-migratable', blockers, publicNames: [] };
     }
 
-    if (blockers.length > 0) {
+    if (blockers.length > 0 || unsupportedInjectAnalysis.reasons.length > 0) {
         return {
             script: buildOptionsApiBackoff(sourceFile),
             scriptType: 'options',
             status: 'partially-migratable',
-            blockers,
+            blockers: [...blockers, ...unsupportedInjectAnalysis.reasons],
             publicNames: [],
         };
     }
 
-    const { script, publicNames } = buildCompositionApiScript(optionsObj, componentName, sourceFile, useDataScope);
+    const { script, publicNames, manualMigrationReasons } = buildCompositionApiScript(optionsObj, componentName, sourceFile, useDataScope);
     return {
         script,
         scriptType: 'setup',
-        status: 'fully-migratable',
-        blockers: [],
+        status: manualMigrationReasons.length > 0 ? 'partially-migratable' : 'fully-migratable',
+        blockers: manualMigrationReasons,
         publicNames,
     };
 }

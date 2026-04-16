@@ -546,6 +546,284 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     });
 
     // -------------------------------------------------------------------------
+    describe('watch object form with string handler', () => {
+        let result: ReturnType<typeof transformScript>;
+
+        beforeAll(() => {
+            const js = `Shopware.Component.register('sw-test', {
+                template,
+                data() { return { items: [], count: 0 }; },
+                watch: {
+                    items: {
+                        handler: 'updateCount',
+                        deep: true,
+                        immediate: true,
+                    }
+                },
+                methods: {
+                    updateCount(newItems) { this.count = newItems.length; }
+                },
+            });`;
+            result = transformScript(js);
+        });
+
+        it('generates the delegated method and watch registration without a manual TODO fallback', () => {
+            expect(result.script).toContain('const updateCount = (newItems) => {');
+            expect(result.script).toContain('watch(() => items.value, (...args) => updateCount(...args), { deep: true, immediate: true });');
+            expect(result.script).not.toContain('TODO: migrate watch entry manually');
+        });
+
+        it('generates a delegated watch() call preserving deep/immediate', () => {
+            expect(result.script).toContain('watch(() => items.value, (...args) => updateCount(...args), { deep: true, immediate: true });');
+        });
+
+        it('rewrites this.count inside the generated method', () => {
+            expect(result.script).toContain('count.value = newItems.length');
+            expect(result.script).not.toContain('this.count');
+        });
+    });
+
+    // -------------------------------------------------------------------------
+    describe('watch direct string handler form', () => {
+        let result: ReturnType<typeof transformScript>;
+
+        beforeAll(() => {
+            const js = `Shopware.Component.register('sw-test', {
+                template,
+                data() { return { items: [], count: 0 }; },
+                watch: {
+                    items: 'updateCount'
+                },
+                methods: {
+                    updateCount(newItems) { this.count = newItems.length; }
+                },
+            });`;
+            result = transformScript(js);
+        });
+
+        it('delegates the direct string handler to the converted method', () => {
+            expect(result.script).toContain('watch(() => items.value, (...args) => updateCount(...args));');
+            expect(result.script).toContain('const updateCount = (newItems) => {');
+        });
+
+        it('rewrites method body references used by the delegated string handler', () => {
+            expect(result.script).toContain('count.value = newItems.length');
+            expect(result.script).not.toContain('this.count');
+        });
+    });
+
+    // -------------------------------------------------------------------------
+    it('surfaces unsupported watch entries with a TODO comment instead of silently dropping them', () => {
+        const js = `Shopware.Component.register('sw-test', {
+            template,
+            watch: {
+                items: {
+                    handler: externalHandler,
+                }
+            },
+        });`;
+        const result = transformScript(js);
+
+        expect(result.status).toBe('partially-migratable');
+        expect(result.blockers).toContain('watch: items: unsupported watcher handler shape');
+        expect(result.script).toContain('TODO: migrate watch entry manually: items: unsupported watcher handler shape');
+    });
+
+    // -------------------------------------------------------------------------
+    it('marks top-level non-object watch definitions as partially migratable', () => {
+        const js = `Shopware.Component.register('sw-test', {
+            template,
+            watch: externalWatchers,
+        });`;
+        const result = transformScript(js);
+
+        expect(result.status).toBe('partially-migratable');
+        expect(result.blockers).toContain('watch: watch must be an object literal');
+        expect(result.script).toContain('TODO: migrate watch entry manually: watch must be an object literal');
+        expect(result.script).not.toContain('import { watch } from \'vue\';');
+    });
+
+    // -------------------------------------------------------------------------
+    it('surfaces unsupported non-object watcher definitions with a TODO comment', () => {
+        const js = `Shopware.Component.register('sw-test', {
+            template,
+            watch: {
+                items: externalHandler,
+            },
+        });`;
+        const result = transformScript(js);
+
+        expect(result.script).toContain('TODO: migrate watch entry manually: items: unsupported watcher definition');
+        expect(result.script).not.toContain('import { watch } from \'vue\';');
+    });
+
+    // -------------------------------------------------------------------------
+    it('surfaces unsupported watch spread entries with a TODO comment', () => {
+        const js = `Shopware.Component.register('sw-test', {
+            template,
+            watch: {
+                ...externalWatchers,
+            },
+        });`;
+        const result = transformScript(js);
+
+        expect(result.script).toContain('TODO: migrate watch entry manually: ...externalWatchers: unsupported watcher entry');
+        expect(result.script).not.toContain('import { watch } from \'vue\';');
+    });
+
+    // -------------------------------------------------------------------------
+    it('sanitizes multiline unsupported watcher entries before emitting TODO comments', () => {
+        const js = `Shopware.Component.register('sw-test', {
+            template,
+            watch: {
+                ...buildWatchers(
+                    foo,
+                    bar,
+                ),
+            },
+        });`;
+        const result = transformScript(js);
+
+        expect(result.script).toMatch(/TODO: migrate watch entry manually: \.{3}buildWatchers\( foo, bar, \): unsupported watcher entry/);
+        expect(result.script).not.toMatch(/TODO: migrate watch entry manually:[^\n]*\n\s*foo/);
+    });
+
+    // -------------------------------------------------------------------------
+    it('surfaces nested watch paths with a TODO comment instead of generating an invalid source', () => {
+        const js = `Shopware.Component.register('sw-test', {
+            template,
+            watch: {
+                'items.length': 'updateCount'
+            },
+            methods: {
+                updateCount() {},
+            },
+        });`;
+        const result = transformScript(js);
+
+        expect(result.script).toContain("TODO: migrate watch entry manually: items.length: nested watch paths are not supported");
+        expect(result.script).not.toContain('watch(() => items.length.value');
+    });
+
+    // -------------------------------------------------------------------------
+    it('falls back to a manual TODO when watch targets are not valid identifiers', () => {
+        const js = `Shopware.Component.register('sw-test', {
+            template,
+            watch: {
+                'item-count': 'updateCount'
+            },
+            methods: {
+                updateCount() {},
+            },
+        });`;
+        const result = transformScript(js);
+
+        expect(result.status).toBe('partially-migratable');
+        expect(result.blockers).toContain('watch: item-count: watch targets that are not valid identifiers must be migrated manually');
+        expect(result.script).toContain('TODO: migrate watch entry manually: item-count: watch targets that are not valid identifiers must be migrated manually');
+        expect(result.script).not.toContain('watch(() => item-count.value');
+    });
+
+    // -------------------------------------------------------------------------
+    it('uses bracket access for quoted prop watch targets', () => {
+        const js = `Shopware.Component.register('sw-test', {
+            template,
+            props: {
+                'item-count': {
+                    type: Number,
+                    required: false,
+                },
+            },
+            watch: {
+                'item-count': 'updateCount'
+            },
+            methods: {
+                updateCount() {},
+            },
+        });`;
+        const result = transformScript(js);
+
+        expect(result.status).toBe('fully-migratable');
+        expect(result.blockers).not.toContain('watch: item-count: watch targets that are not valid identifiers must be migrated manually');
+        expect(result.script).toContain("watch(() => props['item-count'], (...args) => updateCount(...args));");
+    });
+
+    // -------------------------------------------------------------------------
+    it('surfaces missing string handler methods with a TODO comment', () => {
+        const js = `Shopware.Component.register('sw-test', {
+            template,
+            watch: {
+                items: 'updateCount'
+            },
+        });`;
+        const result = transformScript(js);
+
+        expect(result.script).toContain("TODO: migrate watch entry manually: items: string handler 'updateCount' was not found in methods");
+        expect(result.script).not.toContain('import { watch } from \'vue\';');
+    });
+
+    // -------------------------------------------------------------------------
+    it('surfaces object-form watchers without a handler with a TODO comment', () => {
+        const js = `Shopware.Component.register('sw-test', {
+            template,
+            watch: {
+                items: {
+                    deep: true,
+                }
+            },
+        });`;
+        const result = transformScript(js);
+
+        expect(result.script).toContain('TODO: migrate watch entry manually: items: missing watcher handler');
+    });
+
+    // -------------------------------------------------------------------------
+    it('preserves async object-form inline watcher handlers', () => {
+        const js = `Shopware.Component.register('sw-test', {
+            template,
+            data() { return { count: 0 }; },
+            watch: {
+                items: {
+                    async handler(newItems) {
+                        this.count = await Promise.resolve(newItems.length);
+                    },
+                    immediate: true,
+                }
+            },
+        });`;
+        const result = transformScript(js);
+
+        expect(result.blockers).not.toContain('watch: items: unsupported watcher handler shape');
+        expect(result.script).toContain('watch(() => items.value, async (newItems) => {');
+        expect(result.script).toContain('count.value = await Promise.resolve(newItems.length);');
+        expect(result.script).toContain('immediate: true');
+    });
+
+    // -------------------------------------------------------------------------
+    it('surfaces non-literal deep/immediate watcher options for manual follow-up instead of erasing them', () => {
+        const js = `Shopware.Component.register('sw-test', {
+            template,
+            watch: {
+                items: {
+                    handler(newItems) {
+                        return newItems;
+                    },
+                    deep: shouldTrackDeep,
+                    immediate: getImmediate(),
+                }
+            },
+        });`;
+        const result = transformScript(js);
+
+        expect(result.status).toBe('partially-migratable');
+        expect(result.blockers).toContain('watch: items: deep must be a boolean literal');
+        expect(result.blockers).toContain('watch: items: immediate must be a boolean literal');
+        expect(result.script).toContain('TODO: migrate watch entry manually: items: deep must be a boolean literal');
+        expect(result.script).toContain('TODO: migrate watch entry manually: items: immediate must be a boolean literal');
+        expect(result.script).not.toContain('watch(() => items.value');
+    });
+
+    // -------------------------------------------------------------------------
     describe('route watcher source generation', () => {
         let result: ReturnType<typeof transformScript>;
 
@@ -627,13 +905,252 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         });
 
         it('generates inject() call for object-form inject key', () => {
-            expect(result.script).toContain("inject('repositoryFactory')");
+            expect(result.script).toContain("inject('repositoryFactory', null)");
         });
 
         it('rewrites this.repositoryFactory in methods', () => {
             expect(result.script).not.toContain('this.repositoryFactory');
             expect(result.script).toContain('repositoryFactory.create()');
         });
+    });
+
+    // -------------------------------------------------------------------------
+    describe('inject object form preserves aliases and defaults', () => {
+        let result: ReturnType<typeof transformScript>;
+
+        beforeAll(() => {
+            const js = `Shopware.Component.register('sw-test', {
+                template,
+                inject: {
+                    localFactory: 'repositoryFactory',
+                    nullableService: { from: 'service', default: null },
+                    filters: { from: 'filters', default: () => [] },
+                },
+                methods: {
+                    getFactory() { return this.localFactory; },
+                    getNullableService() { return this.nullableService; },
+                    getFilters() { return this.filters; },
+                },
+            });`;
+            result = transformScript(js);
+        });
+
+        it('uses the source inject key for aliased object-form inject entries', () => {
+            expect(result.script).toContain("const localFactory = inject('repositoryFactory');");
+        });
+
+        it('preserves non-factory default values', () => {
+            expect(result.script).toContain("const nullableService = inject('service', null);");
+        });
+
+        it('preserves factory defaults with treatDefaultAsFactory=true', () => {
+            expect(result.script).toContain("const filters = inject('filters', () => [], true);");
+        });
+
+        it('still rewrites this.* references against the local injected names', () => {
+            expect(result.script).toContain('return localFactory;');
+            expect(result.script).toContain('return nullableService;');
+            expect(result.script).toContain('return filters;');
+            expect(result.script).not.toContain('this.localFactory');
+            expect(result.script).not.toContain('this.nullableService');
+            expect(result.script).not.toContain('this.filters');
+        });
+    });
+
+    // -------------------------------------------------------------------------
+    it('preserves inject object-form method shorthand defaults as factory inject defaults', () => {
+        const js = `Shopware.Component.register('sw-test', {
+            template,
+            inject: {
+                filters: { from: 'filters', default() { return []; } },
+            },
+        });`;
+        const result = transformScript(js);
+
+        expect(result.script).toContain("const filters = inject('filters', function() {");
+        expect(result.script).toContain('return [];');
+        expect(result.script).toContain('}, true);');
+    });
+
+    // -------------------------------------------------------------------------
+    it('treats function-expression inject defaults as factory defaults', () => {
+        const js = `Shopware.Component.register('sw-test', {
+            template,
+            inject: {
+                filters: { from: 'filters', default: function() { return []; } },
+            },
+        });`;
+        const result = transformScript(js);
+
+        expect(result.script).toContain("const filters = inject('filters', function() { return []; }, true);");
+    });
+
+    // -------------------------------------------------------------------------
+    it('falls back to the Options API when a method depends on an unsupported inject initializer', () => {
+        const js = `Shopware.Component.register('sw-test', {
+            template,
+            inject: {
+                repositoryFactory: createRepositoryFactory,
+            },
+            methods: {
+                create() { return this.repositoryFactory.create(); }
+            },
+        });`;
+        const result = transformScript(js);
+
+        expect(result.status).toBe('partially-migratable');
+        expect(result.scriptType).toBe('options');
+        expect(result.blockers).toContain('inject: repositoryFactory: unsupported inject definition');
+        expect(result.script).not.toContain('createExtendableSetup(');
+        expect(result.script).toContain('create() { return this.repositoryFactory.create(); }');
+        expect(result.script).not.toContain("const repositoryFactory = inject('repositoryFactory');");
+    });
+
+    // -------------------------------------------------------------------------
+    it('falls back to the Options API when inject aliases are not valid identifiers', () => {
+        const js = `Shopware.Component.register('sw-test', {
+            template,
+            inject: {
+                'repository-factory': 'repositoryFactory',
+            },
+        });`;
+        const result = transformScript(js);
+
+        expect(result.status).toBe('partially-migratable');
+        expect(result.scriptType).toBe('options');
+        expect(result.blockers).toContain('inject: repository-factory is not a valid JavaScript identifier');
+        expect(result.script).not.toContain('createExtendableSetup(');
+        expect(result.script).not.toContain("const repository-factory = inject('repositoryFactory');");
+    });
+
+    // -------------------------------------------------------------------------
+    it('falls back to the Options API for shorthand inject object entries', () => {
+        const js = `Shopware.Component.register('sw-test', {
+            template,
+            inject: {
+                repositoryFactory,
+            },
+        });`;
+        const result = transformScript(js);
+
+        expect(result.status).toBe('partially-migratable');
+        expect(result.scriptType).toBe('options');
+        expect(result.blockers).toContain('inject: repositoryFactory: shorthand inject entries must be migrated manually');
+        expect(result.script).not.toContain('createExtendableSetup(');
+        expect(result.script).not.toContain("const repositoryFactory = inject('repositoryFactory');");
+    });
+
+    // -------------------------------------------------------------------------
+    it('falls back to the Options API for unsupported inject object members', () => {
+        const js = `Shopware.Component.register('sw-test', {
+            template,
+            inject: {
+                ...sharedInject,
+            },
+        });`;
+        const result = transformScript(js);
+
+        expect(result.status).toBe('partially-migratable');
+        expect(result.scriptType).toBe('options');
+        expect(result.blockers).toContain('inject: ...sharedInject: unsupported inject entry');
+        expect(result.script).not.toContain('createExtendableSetup(');
+    });
+
+    // -------------------------------------------------------------------------
+    it('falls back to the Options API for unsupported array-form inject entries', () => {
+        const js = `Shopware.Component.register('sw-test', {
+            template,
+            inject: ['repositoryFactory', ...sharedInject],
+        });`;
+        const result = transformScript(js);
+
+        expect(result.status).toBe('partially-migratable');
+        expect(result.scriptType).toBe('options');
+        expect(result.blockers).toContain('inject: ...sharedInject: unsupported inject entry');
+        expect(result.script).not.toContain('createExtendableSetup(');
+    });
+
+    // -------------------------------------------------------------------------
+    it('falls back to the Options API for unsupported inject root shapes', () => {
+        const js = `Shopware.Component.register('sw-test', {
+            template,
+            inject: createInjectConfig(),
+        });`;
+        const result = transformScript(js);
+
+        expect(result.status).toBe('partially-migratable');
+        expect(result.scriptType).toBe('options');
+        expect(result.blockers).toContain('inject: inject must be an array or object literal');
+        expect(result.script).not.toContain('createExtendableSetup(');
+        expect(result.script).not.toContain('const createInjectConfig = inject(');
+    });
+
+    // -------------------------------------------------------------------------
+    it('uses unref() for watch sources targeting injected dependencies emitted as plain constants', () => {
+        const js = `Shopware.Component.register('sw-test', {
+            template,
+            inject: ['repositoryFactory'],
+            watch: {
+                repositoryFactory(newFactory) {
+                    this.handleFactoryChange(newFactory);
+                },
+            },
+            methods: {
+                handleFactoryChange(newFactory) {
+                    return newFactory;
+                },
+            },
+        });`;
+        const result = transformScript(js);
+
+        expect(result.status).toBe('fully-migratable');
+        expect(result.script).toMatch(/import\s*\{[^}]*watch[^}]*unref[^}]*\}\s*from\s*'vue';/);
+        expect(result.script).toContain('watch(() => unref(repositoryFactory), (newFactory) => {');
+        expect(result.script).not.toContain('watch(() => repositoryFactory.value');
+    });
+
+    // -------------------------------------------------------------------------
+    it('supports object-form watcher handlers declared as function expressions', () => {
+        const js = `Shopware.Component.register('sw-test', {
+            template,
+            data() { return { count: 0 }; },
+            watch: {
+                externalCount: {
+                    handler: function(newVal, oldVal) {
+                        this.count = newVal + oldVal;
+                    },
+                    immediate: true,
+                },
+            },
+        });`;
+        const result = transformScript(js);
+
+        expect(result.blockers).not.toContain("watch: externalCount: unsupported watcher handler shape");
+        expect(result.script).toContain('watch(() => externalCount.value, (newVal, oldVal) => {');
+        expect(result.script).toContain('count.value = newVal + oldVal;');
+        expect(result.script).toContain('immediate: true');
+    });
+
+    // -------------------------------------------------------------------------
+    it('supports object-form watcher handlers declared as arrow functions', () => {
+        const js = `Shopware.Component.register('sw-test', {
+            template,
+            data() { return { count: 0 }; },
+            watch: {
+                externalCount: {
+                    handler: (newVal) => {
+                        this.count = newVal;
+                    },
+                    deep: true,
+                },
+            },
+        });`;
+        const result = transformScript(js);
+
+        expect(result.blockers).not.toContain("watch: externalCount: unsupported watcher handler shape");
+        expect(result.script).toContain('watch(() => externalCount.value, (newVal) => {');
+        expect(result.script).toContain('count.value = newVal;');
+        expect(result.script).toContain('deep: true');
     });
 
     // -------------------------------------------------------------------------

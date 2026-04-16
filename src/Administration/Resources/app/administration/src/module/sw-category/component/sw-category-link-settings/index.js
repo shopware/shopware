@@ -46,6 +46,10 @@ export default {
                     value: 'internal',
                     label: this.$t('sw-category.base.link.type.internal'),
                 },
+                {
+                    value: 'media',
+                    label: this.$t('sw-category.base.link.type.media'),
+                },
             ];
         },
 
@@ -68,7 +72,7 @@ export default {
 
         mainType: {
             get() {
-                if (this.isExternal || !this.category.linkType) {
+                if (!this.category.linkType || this.isExternal || this.isMedia) {
                     return this.category.linkType;
                 }
 
@@ -78,8 +82,14 @@ export default {
             set(value) {
                 if (value === 'external') {
                     this.category.internalLink = null;
-                } else {
+                    this.category.linkMediaId = null;
+                } else if (value === 'media') {
+                    this.category.internalLink = null;
                     this.category.externalLink = null;
+                } else {
+                    // internal
+                    this.category.externalLink = null;
+                    this.category.linkMediaId = null;
                 }
 
                 this.category.linkType = value;
@@ -90,8 +100,14 @@ export default {
             return this.category.linkType === 'external';
         },
 
+        isMedia() {
+            return this.category.linkType === 'media';
+        },
+
         isInternal() {
-            return !!this.category.linkType && this.category.linkType !== 'external';
+            return !!this.category.linkType
+                && this.category.linkType !== 'external'
+                && this.category.linkType !== 'media';
         },
 
         productCriteria() {

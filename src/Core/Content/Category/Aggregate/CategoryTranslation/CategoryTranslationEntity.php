@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Category\Aggregate\CategoryTranslation;
 
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
@@ -40,6 +41,10 @@ class CategoryTranslationEntity extends TranslationEntity
     protected ?string $internalLink = null;
 
     protected ?string $externalLink = null;
+
+    protected ?string $linkMediaId = null;
+
+    protected ?MediaEntity $linkMedia = null;
 
     protected ?string $description = null;
 
@@ -133,6 +138,26 @@ class CategoryTranslationEntity extends TranslationEntity
     public function setExternalLink(string $externalLink): void
     {
         $this->externalLink = $externalLink;
+    }
+
+    public function getLinkMediaId(): ?string
+    {
+        return $this->linkMediaId;
+    }
+
+    public function setLinkMediaId(?string $linkMediaId): void
+    {
+        $this->linkMediaId = $linkMediaId;
+    }
+
+    public function getLinkMedia(): ?MediaEntity
+    {
+        return $this->linkMedia;
+    }
+
+    public function setLinkMedia(?MediaEntity $linkMedia): void
+    {
+        $this->linkMedia = $linkMedia;
     }
 
     public function getDescription(): ?string

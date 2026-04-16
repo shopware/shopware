@@ -68,6 +68,8 @@ class CategoryDefinition extends EntityDefinition
 
     final public const LINK_TYPE_LANDING_PAGE = 'landing_page';
 
+    final public const LINK_TYPE_MEDIA = 'media';
+
     final public const PRODUCT_ASSIGNMENT_TYPE_PRODUCT = 'product';
 
     final public const PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM = 'product_stream';
@@ -147,6 +149,7 @@ class CategoryDefinition extends EntityDefinition
             (new TranslatedField('linkType'))->addFlags(new ApiAware()),
             (new TranslatedField('internalLink'))->addFlags(new ApiAware()),
             (new TranslatedField('externalLink'))->addFlags(new ApiAware()),
+            (new TranslatedField('linkMediaId'))->addFlags(new ApiAware()),
             (new TranslatedField('linkNewTab'))->addFlags(new ApiAware()),
             (new TranslatedField('description'))->addFlags(new ApiAware()),
             (new TranslatedField('metaTitle'))->addFlags(new ApiAware()),

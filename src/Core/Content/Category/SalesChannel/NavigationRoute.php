@@ -141,6 +141,7 @@ class NavigationRoute extends AbstractNavigationRoute
         $criteria->addFilter(new EqualsAnyFilter('path', $additionalPaths));
 
         $criteria->addAssociation('media');
+        $criteria->addAssociation('translations.linkMedia');
 
         $criteria->setLimit(null);
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);

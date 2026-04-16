@@ -96,6 +96,8 @@ class CategoryEntity extends Entity
 
     protected ?string $externalLink = null;
 
+    protected ?string $linkMediaId = null;
+
     protected bool $visible;
 
     protected string $type;
@@ -408,6 +410,25 @@ class CategoryEntity extends Entity
         $this->serviceSalesChannels = $serviceSalesChannels;
     }
 
+    public function getLinkMedia(): ?MediaEntity
+    {
+        if ($this->linkMediaId === null) {
+            return null;
+        }
+
+        if ($this->translations === null) {
+            return null;
+        }
+
+        foreach ($this->translations as $translation) {
+            if ($translation->getLinkMediaId() === $this->linkMediaId) {
+                return $translation->getLinkMedia();
+            }
+        }
+
+        return null;
+    }
+
     public function getLinkType(): ?string
     {
         return $this->linkType;
@@ -451,6 +472,16 @@ class CategoryEntity extends Entity
     public function setExternalLink(string $externalLink): void
     {
         $this->externalLink = $externalLink;
+    }
+
+    public function getLinkMediaId(): ?string
+    {
+        return $this->linkMediaId;
+    }
+
+    public function setLinkMediaId(?string $linkMediaId): void
+    {
+        $this->linkMediaId = $linkMediaId;
     }
 
     public function getVisible(): bool

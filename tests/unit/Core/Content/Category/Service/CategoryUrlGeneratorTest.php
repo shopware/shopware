@@ -6,9 +6,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationCollection;
+use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationEntity;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Service\CategoryUrlGenerator;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -99,5 +102,38 @@ class CategoryUrlGeneratorTest extends TestCase
             [CategoryDefinition::LINK_TYPE_EXTERNAL, self::EXTERNAL_URL],
             [null, self::EXTERNAL_URL],
         ];
+    }
+
+    public function testLinkTypeMediaReturnsNullWhenNoMediaSet(): void
+    {
+        $category = new CategoryEntity();
+        $category->setType(CategoryDefinition::TYPE_LINK);
+        $category->addTranslated('linkType', CategoryDefinition::LINK_TYPE_MEDIA);
+
+        static::assertNull($this->urlGenerator->generate($category, $this->salesChannel));
+    }
+
+    public function testLinkTypeMediaReturnsAbsoluteUrl(): void
+    {
+        $mediaUrl = 'https://shop.example.com/media/pdf/katalog.pdf';
+
+        $media = new MediaEntity();
+        $media->setId(Uuid::randomHex());
+        $media->setUrl($mediaUrl);
+
+        $mediaId = $media->getId();
+
+        $translation = new CategoryTranslationEntity();
+        $translation->setUniqueIdentifier(Uuid::randomHex());
+        $translation->setLinkMediaId($mediaId);
+        $translation->setLinkMedia($media);
+
+        $category = new CategoryEntity();
+        $category->setType(CategoryDefinition::TYPE_LINK);
+        $category->addTranslated('linkType', CategoryDefinition::LINK_TYPE_MEDIA);
+        $category->setLinkMediaId($mediaId);
+        $category->setTranslations(new CategoryTranslationCollection([$translation]));
+
+        static::assertSame($mediaUrl, $this->urlGenerator->generate($category, $this->salesChannel));
     }
 }

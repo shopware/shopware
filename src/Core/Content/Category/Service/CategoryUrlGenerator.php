@@ -38,11 +38,19 @@ class CategoryUrlGenerator extends AbstractCategoryUrlGenerator
         $linkType = $category->getTranslation('linkType');
         $internalLink = $category->getTranslation('internalLink');
 
-        if (!$internalLink && $linkType && $linkType !== CategoryDefinition::LINK_TYPE_EXTERNAL) {
+        if (!$internalLink && $linkType && $linkType !== CategoryDefinition::LINK_TYPE_EXTERNAL && $linkType !== CategoryDefinition::LINK_TYPE_MEDIA) {
             return null;
         }
 
         switch ($linkType) {
+            case CategoryDefinition::LINK_TYPE_MEDIA:
+                $media = $category->getLinkMedia();
+                if ($media === null) {
+                    return null;
+                }
+
+                return $media->getUrl();
+
             case CategoryDefinition::LINK_TYPE_PRODUCT:
                 /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */
                 return $this->seoUrlReplacer->generate('frontend.detail.page', ['productId' => $internalLink]);

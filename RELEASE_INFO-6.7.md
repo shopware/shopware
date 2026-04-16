@@ -29,6 +29,17 @@ Users can now control which representative of variant products is shown in filte
 The `permisionsLocked` property of the `SalesChannelContext` is deprecated.
 Use `permissionsLocked` property or the new `SalesChannelContext::isPermissionsLocked()` getter method instead.
 
+### Category link type "Media"
+
+Categories of type **Link** now support a third link type: **Media**.
+Editors can pick any file from the Shopware media library as the link destination; the storefront opens the file's absolute URL directly (or in a new tab when "open in new tab" is enabled).
+Deleting the referenced media file sets the reference to `null`; the storefront falls back gracefully and renders no link.
+
+For developers: a new `link_media_id BINARY(16)` column (FK to `media`, `ON DELETE SET NULL`) is added to `category_translation` via migration `Migration1776384001AddCategoryTranslationLinkMediaId`.
+The new constant `CategoryDefinition::LINK_TYPE_MEDIA = 'media'` identifies the type.
+`CategoryTranslationDefinition` exposes `linkMedia` as an eager-loadable association.
+When loading categories for URL generation outside the core navigation routes, add `$criteria->addAssociation('translations.linkMedia')` to avoid N+1 queries.
+
 ## Administration
 
 ### Re-render iframe integrations when location changes

@@ -76,6 +76,16 @@
     />
     {% endblock %}
 
+    {% block sw_category_detail_link_type_select_media %}
+    <sw-media-field
+        v-if="isMedia"
+        v-model:value="category.linkMediaId"
+        class="sw-category-link-settings__selection-media"
+        :disabled="!acl.can('category.editor') || undefined"
+        :label="$t('sw-category.base.link.labelLinkMedia')"
+    />
+    {% endblock %}
+
     {% block sw_category_detail_link_field %}
     <component
         :is="linkHasProtocol ? 'mt-url-field' : 'mt-text-field'"

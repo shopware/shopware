@@ -144,10 +144,12 @@
         "internalDesc": "If you want to create an internal link, just add the path that follows the domain:",
         "linkLabel": "Link destination",
         "linkNewTabLabel": "Open in new tab",
+        "labelLinkMedia": "Select media file",
         "categoryHelpText": "Internal links to categories support the following category types: {types}.",
         "type": {
           "internal": "Internal",
-          "external": "External"
+          "external": "External",
+          "media": "Media"
         },
         "linkHasProtocol": "Use protocol"
       },

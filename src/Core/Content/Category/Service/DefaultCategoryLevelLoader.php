@@ -52,6 +52,7 @@ class DefaultCategoryLevelLoader implements DefaultCategoryLevelLoaderInterface
         ));
 
         $criteria->addAssociation('media');
+        $criteria->addAssociation('translations.linkMedia');
 
         $criteria->setLimit(null);
 

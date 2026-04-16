@@ -34,6 +34,7 @@ async function createWrapper(category = {}) {
                 'sw-single-select': true,
                 'sw-entity-single-select': true,
                 'sw-category-tree-field': true,
+                'sw-media-field': true,
             },
         },
         props: {
@@ -57,7 +58,7 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
         const linkTypeField = wrapper.find('sw-single-select-stub');
         expect(linkTypeField.attributes('disabled')).toBeFalsy();
         expect(linkTypeField.attributes('options')).toBeTruthy();
-        expect(wrapper.vm.linkTypeValues).toHaveLength(2);
+        expect(wrapper.vm.linkTypeValues).toHaveLength(3);
 
         const urlField = wrapper.findComponent('.sw-category-link-settings__external-link');
         expect(urlField.attributes('disabled')).toBeUndefined();
@@ -76,7 +77,7 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
         const linkTypeField = wrapper.find('sw-single-select-stub');
         expect(linkTypeField.attributes('disabled')).toBeFalsy();
         expect(linkTypeField.attributes('options')).toBeTruthy();
-        expect(wrapper.vm.linkTypeValues).toHaveLength(2);
+        expect(wrapper.vm.linkTypeValues).toHaveLength(3);
 
         const urlField = wrapper.findComponent('.sw-category-link-settings__external-link');
         expect(urlField.attributes('disabled')).toBeUndefined();
@@ -98,7 +99,7 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
         const linkTypeField = selects.at(0);
         expect(linkTypeField.attributes('disabled')).toBeFalsy();
         expect(linkTypeField.attributes('options')).toBeTruthy();
-        expect(wrapper.vm.linkTypeValues).toHaveLength(2);
+        expect(wrapper.vm.linkTypeValues).toHaveLength(3);
 
         const internalTypeField = selects.at(1);
         expect(internalTypeField.attributes('disabled')).toBeFalsy();
@@ -181,5 +182,42 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
 
         wrapper.find('sw-category-tree-field-stub');
         expect(wrapper.vm.category.internalLink).toBe('someUuid');
+    });
+
+    it('shows sw-media-field when linkType is media', async () => {
+        global.activeAclRoles = ['category.editor'];
+
+        const wrapper = await createWrapper({
+            linkType: 'media',
+            linkMediaId: null,
+            externalLink: null,
+            internalLink: null,
+            linkNewTab: false,
+        });
+
+        const mediaField = wrapper.find('sw-media-field-stub');
+        expect(mediaField.exists()).toBe(true);
+
+        const entitySelect = wrapper.find('.sw-category-link-settings__entity');
+        expect(entitySelect.exists()).toBe(false);
+
+        const externalField = wrapper.findComponent('.sw-category-link-settings__external-link');
+        expect(externalField.exists()).toBe(false);
+    });
+
+    it('resets linkMediaId when switching away from media type', async () => {
+        global.activeAclRoles = ['category.editor'];
+
+        const wrapper = await createWrapper({
+            linkType: 'media',
+            linkMediaId: 'some-media-id',
+            externalLink: null,
+            internalLink: null,
+            linkNewTab: false,
+        });
+
+        await wrapper.getComponent('.sw-category-link-settings__type').vm.$emit('update:value', 'external');
+
+        expect(wrapper.vm.category.linkMediaId).toBeNull();
     });
 });

@@ -181,11 +181,13 @@ final class DocumentRoute extends AbstractDocumentRoute
             ->addAssociations(['order.orderCustomer.customer', 'order.billingAddress']);
 
         $document = $this->documentRepository->search($criteria, $context->getContext())->getEntities()->first();
+
         if (!$document) {
             throw DocumentException::documentNotFound($documentId);
         }
 
         $order = $document->getOrder();
+
         if (!$order) {
             throw DocumentException::orderNotFound($document->getOrderId());
         }
@@ -197,22 +199,23 @@ final class DocumentRoute extends AbstractDocumentRoute
             throw DocumentException::customerNotLoggedIn();
         }
 
-        if ($deepLinkCode === '') {
+        $isGuestContext = $contextCustomer === null || $contextCustomer->getGuest();
+        $isOwner = $orderCustomer->getCustomerId() === $contextCustomer?->getId();
+
+        if ($isGuestContext && $deepLinkCode === '') {
+            throw DocumentException::customerNotLoggedIn();
+        }
+
+        if ($isOwner) {
+            return;
+        }
+
+        if (!$orderCustomer->getCustomer()?->getGuest()) {
             throw DocumentException::customerNotLoggedIn();
         }
 
         if ($document->getDeepLinkCode() !== $deepLinkCode) {
             throw DocumentException::documentNotFound($documentId);
-        }
-
-        if ($orderCustomer->getCustomerId() === $contextCustomer?->getId()) {
-            return;
-        }
-
-        $isGuest = $orderCustomer->getCustomer()?->getGuest() ?? false;
-
-        if (!$isGuest) {
-            throw DocumentException::customerNotLoggedIn();
         }
 
         $cacheKey = mb_strtolower($document->getDeepLinkCode()) . '-' . ($request->getClientIp() ?? '');

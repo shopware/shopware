@@ -281,7 +281,6 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
             || $definition->getUnitId() === null
             || $definition->getReference() === null
             || $definition->getReference() <= 0
-            || $definition->getPurchase() === $definition->getReference()
         ) {
             return null;
         }

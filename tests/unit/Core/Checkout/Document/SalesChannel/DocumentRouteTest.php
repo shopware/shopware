@@ -319,6 +319,62 @@ class DocumentRouteTest extends TestCase
             PdfRenderer::FILE_EXTENSION => $this->createMock(AbstractDocumentTypeRenderer::class),
         ]);
 
+        $route = $this->createRoute($this->createMock(DocumentGenerator::class), $documentRepository, $fileRenderersMock);
+
+        $request = new Request([
+            'email' => 'email',
+            'zipcode' => 'zipcode',
+        ]);
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn($customer);
+
+        if (Feature::isActive('v6.8.0.0')) {
+            $this->expectExceptionObject(
+                DocumentException::documentFileTypeUnavailable(
+                    self::DUMMY_DOCUMENT_ID,
+                    [PdfRenderer::FILE_EXTENSION],
+                )
+            );
+        }
+
+        $response = $route->download(self::DUMMY_DOCUMENT_ID, $request, $context, 'deepLinkCode');
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+        }
+    }
+
+    public function testAnonymousGuestCanDownload(): void
+    {
+        $billingAddress = new OrderAddressEntity();
+        $billingAddress->setId(Uuid::randomHex());
+        $billingAddress->setZipcode('zipcode');
+
+        $customer = $this->createCustomer(Uuid::randomHex(), true);
+
+        $orderCustomer = new OrderCustomerEntity();
+        $orderCustomer->setId(Uuid::randomHex());
+        $orderCustomer->setCustomer($customer);
+        $orderCustomer->setCustomerId($customer->getId());
+        $orderCustomer->setEmail('email');
+
+        $order = new OrderEntity();
+        $order->setId(Uuid::randomHex());
+        $order->setOrderCustomer($orderCustomer);
+        $order->setBillingAddress($billingAddress);
+
+        $document = $this->createDocument($order);
+
+        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
+        $documentRepository = new StaticEntityRepository([
+            new DocumentCollection([$document]),
+        ]);
+
+        $fileRenderersMock = new \ArrayIterator([
+            PdfRenderer::FILE_EXTENSION => $this->createMock(AbstractDocumentTypeRenderer::class),
+        ]);
+
         $rateLimiter = $this->createMock(RateLimiter::class);
         $rateLimiter->expects($this->once())
             ->method('ensureAccepted')

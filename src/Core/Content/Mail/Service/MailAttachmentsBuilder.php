@@ -157,11 +157,11 @@ class MailAttachmentsBuilder
 
         foreach ($attachments as $attachment) {
             $key = $attachment['id'] ?? Hasher::hash(
-                $attachment['fileName']
-                . '|'
-                . ($attachment['mimeType'] ?? '')
-                . '|'
-                . $attachment['content'],
+                json_encode([
+                    $attachment['fileName'],
+                    $attachment['mimeType'] ?? '',
+                    $attachment['content'],
+                ], \JSON_THROW_ON_ERROR),
                 'sha1'
             );
 

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\MailTemplate;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -65,18 +64,6 @@ class MailTemplateException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::MAIL_TEMPLATE_UNKNOWN_EVENT_DATA_TYPE,
             'Unknown event data type: ' . $dataType,
-        );
-    }
-
-    /**
-     * @param class-string<Field> $fieldTypeClass
-     */
-    public static function unknownFieldDataType(string $fieldTypeClass): self
-    {
-        return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::MAIL_TEMPLATE_UNKNOWN_FIELD_TYPE,
-            'Unknown field type: ' . $fieldTypeClass,
         );
     }
 }

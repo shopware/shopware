@@ -1,6 +1,6 @@
 import { test, expect, Page, AdminPageObjects, createNewAdminPageContext, loginToAdministration, User } from '@fixtures/AcceptanceTest';
 import { parseCapturedRequests, removeSymfonyToolbar, setupConsentRevokeInterceptor,
-    setupConsentInterceptor, setupProductAnalyticsInterceptor, waitForEventCount,
+    setupConsentInterceptor, setupProductAnalyticsInterceptor, waitForEventCount, setupConsentAcceptInterceptor,
 } from '@helpers/productanalytics-helpers';
 import { satisfies } from 'compare-versions';
 const TRACKING_EVENT_ENDPOINT = 'event';
@@ -325,10 +325,12 @@ test(
 
             const { trackingEventHandler } = setupProductAnalyticsInterceptor();
             const { consentHandler } = setupConsentInterceptor();
+            const { consentAcceptHandler } = setupConsentAcceptInterceptor();
             const { consentRevokeHandler } = setupConsentRevokeInterceptor();
 
             await page.route(`**/${TRACKING_EVENT_ENDPOINT}**`, trackingEventHandler);
             await page.route(`**/${CONSENTS_ENDPOINT}`, consentHandler);
+            await page.route(`**/${CONSENTS_ENDPOINT}/accept`, consentAcceptHandler);
             await page.route(`**/${CONSENTS_ENDPOINT}/revoke`, consentRevokeHandler);
         });
 

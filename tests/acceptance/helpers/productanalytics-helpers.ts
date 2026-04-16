@@ -263,11 +263,44 @@ export function setupConsentRevokeInterceptor(){
 }
 
 export function setupConsentAcceptInterceptor(){
-    const capturedConsentRevokeRequests: CapturedRequest[] = [];
-    const consentRevokeHandler = async (route: Route) => {
+    const capturedConsentAcceptRequests: CapturedRequest[] = [];
+    const consentAcceptHandler = async (route: Route) => {
         const req = route.request();
+        const postData = req.postData();
 
-        const requestBody = JSON.parse(req.postData());
+        capturedConsentAcceptRequests.push({
+            postData,
+        });
+
+        if (!postData) {
+            await route.fulfill({
+                status: 400,
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Credentials': 'true',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ errors: [{ detail: 'Missing request body' }] }),
+            });
+            return;
+        }
+
+        let requestBody: { consent?: unknown };
+        try {
+            requestBody = JSON.parse(postData) as { consent?: unknown };
+        } catch {
+            await route.fulfill({
+                status: 400,
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Credentials': 'true',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ errors: [{ detail: 'Invalid JSON body' }] }),
+            });
+            return;
+        }
+
         if (requestBody.consent === 'backend_data') {
             await route.fulfill({
                 status: 200,
@@ -288,7 +321,10 @@ export function setupConsentAcceptInterceptor(){
                     'latestRevision': null,
                 }),
             });
-        } else if (requestBody.consent === 'product_analytics') {
+            return;
+        }
+
+        if (requestBody.consent === 'product_analytics') {
             await route.fulfill({
                 status: 200,
                 headers: {
@@ -308,16 +344,23 @@ export function setupConsentAcceptInterceptor(){
                     'latestRevision': null,
                 }),
             });
+            return;
         }
 
-        capturedConsentRevokeRequests.push({
-            postData: req.postData(),
+        await route.fulfill({
+            status: 400,
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Credentials': 'true',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ errors: [{ detail: 'Unknown consent' }] }),
         });
     };
 
     return {
-        capturedConsentRevokeRequests,
-        consentRevokeHandler,
+        capturedConsentAcceptRequests,
+        consentAcceptHandler,
     };
 }
 

@@ -78,7 +78,7 @@ export function parseCapturedRequests(captured: CapturedRequest[]): ProductAnaly
     return requests;
 }
 
-export function setupProductAnalyticsInterceptor(){
+export function setupProductAnalyticsInterceptor() {
     const capturedTrackingEventRequests: CapturedRequest[] = [];
     const trackingEventHandler = async (route: Route) => {
         const req = route.request();
@@ -160,7 +160,7 @@ export function setupConsentInterceptor(
     };
 }
 
-export function setupConsentRevokeInterceptor(){
+export function setupConsentRevokeInterceptor() {
     const capturedConsentRevokeRequests: CapturedRequest[] = [];
     const consentRevokeHandler = async (route: Route) => {
         const req = route.request();
@@ -262,7 +262,7 @@ export function setupConsentRevokeInterceptor(){
     };
 }
 
-export function setupConsentAcceptInterceptor(){
+export function setupConsentAcceptInterceptor() {
     const capturedConsentAcceptRequests: CapturedRequest[] = [];
     const consentAcceptHandler = async (route: Route) => {
         const req = route.request();
@@ -315,7 +315,7 @@ export function setupConsentAcceptInterceptor(){
                     'name': 'backend_data',
                     'scopeName': 'admin_user',
                     'identifier': '019d75c08b6673fa90c44923e2254f0a',
-                    'status': 'declined',
+                    'status': 'accepted',
                     'actor': null,
                     'updatedAt': null,
                     'latestRevision': null,
@@ -338,7 +338,7 @@ export function setupConsentAcceptInterceptor(){
                     'name': 'product_analytics',
                     'scopeName': 'admin_user',
                     'identifier': '019d75c08b6673fa90c44923e2254f0a',
-                    'status': 'declined',
+                    'status': 'accepted',
                     'actor': null,
                     'updatedAt': null,
                     'latestRevision': null,
@@ -364,7 +364,7 @@ export function setupConsentAcceptInterceptor(){
     };
 }
 
-export async function removeSymfonyToolbar(page: Page): Promise<void>{
+export async function removeSymfonyToolbar(page: Page): Promise<void> {
 
     await page.addStyleTag({
         content: `

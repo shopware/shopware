@@ -83,15 +83,13 @@ test(
 
             const events = getAnalyticsEvents();
 
-            const consentModalViewed = events.filter(e => e.name === 'consent_modal_viewed');
-            const consentStatusChange = events.filter(e => e.name === 'consent_status_change');
-            const consentModalDecision = events.filter(e => e.name === 'consent_modal_decision');
-
-            expect(consentModalViewed).toHaveLength(1);
-            expect(consentStatusChange).toHaveLength(2);
-            expect(consentModalDecision).toHaveLength(1);
-
             const consentModalViewedEvents = events.filter(e => e.name === 'consent_modal_viewed');
+            const consentStatusChangeEvents = events.filter(e => e.name === 'consent_status_change');
+            const consentModalDecisionEvents = events.filter(e => e.name === 'consent_modal_decision');
+
+            expect(consentModalViewedEvents).toHaveLength(1);
+            expect(consentStatusChangeEvents).toHaveLength(2);
+            expect(consentModalDecisionEvents).toHaveLength(1);
 
             expect(consentModalViewedEvents).toHaveLength(1);
 
@@ -104,8 +102,6 @@ test(
                     }),
                 ])
             );
-
-            const consentStatusChangeEvents = events.filter(e => e.name === 'consent_status_change');
 
             expect(consentStatusChangeEvents).toHaveLength(2);
 
@@ -125,8 +121,6 @@ test(
                     }),
                 ])
             );
-
-            const consentModalDecisionEvents = events.filter(e => e.name === 'consent_modal_decision');
 
             expect(consentModalDecisionEvents).toHaveLength(1);
 

@@ -161,8 +161,8 @@
                                     </span>
                                 {% endblock %}
 
-                                {% if product.calculatedPrices|length == 0 %}
-                                    {% set price = product.calculatedPrice %}
+                                {% if product.calculatedPrices|length <= 1 %}
+                                    {% set price = product.calculatedPrices.first ?? product.calculatedPrice %}
 
                                     {% if price.referencePrice is not null %}
                                         {% block buy_widget_price_unit_reference_content %}

@@ -31,6 +31,69 @@ class HtmlSanitizerTest extends TestCase
         static::assertSame('Lorem Ipsum dolor sit amet', $filteredString);
     }
 
+    public function testAllowCustomHtmlElementsUsingHtmlSanitizer(): void
+    {
+        $sets = $this->getDefaultSets();
+        $fieldSets = $this->getDefaultFieldsSets();
+
+        $unfilteredString = '<custom-element>Lorem Ipsum dolor sit amet</custom-element>';
+        $sanitizer = new HtmlSanitizer(null, false, $sets, $fieldSets, true);
+        $filteredString = $sanitizer->sanitize($unfilteredString, null);
+
+        static::assertSame('Lorem Ipsum dolor sit amet', $filteredString);
+
+        $sets['basic']['custom_tags'] = [
+            [
+                'tag' => 'custom-element',
+                'type' => 'Block',
+                'contents' => 'Flow',
+                'attr_collections' => ['Common'],
+                'attributes' => [],
+            ],
+        ];
+        $sanitizer = new HtmlSanitizer(null, false, $sets, $fieldSets, true);
+        $filteredString = $sanitizer->sanitize($unfilteredString, null);
+
+        static::assertSame($unfilteredString, $filteredString);
+    }
+
+    public function testAllowCustomHtmlElementsAttributesUsingHtmlSanitizer(): void
+    {
+        $sets = $this->getDefaultSets();
+        $fieldSets = $this->getDefaultFieldsSets();
+
+        $unfilteredString = '<custom-element testtribute="test1234">Lorem Ipsum dolor sit amet</custom-element>';
+        $sets['basic']['custom_tags'] = [
+            [
+                'tag' => 'custom-element',
+                'type' => 'Block',
+                'contents' => 'Flow',
+                'attr_collections' => ['Common'],
+                'attributes' => [],
+            ],
+        ];
+
+        $sanitizer = new HtmlSanitizer(null, false, $sets, $fieldSets, true);
+        $filteredString = $sanitizer->sanitize($unfilteredString, null);
+        static::assertSame('<custom-element>Lorem Ipsum dolor sit amet</custom-element>', $filteredString);
+
+        $sets['basic']['custom_tags'] = [
+            [
+                'tag' => 'custom-element',
+                'type' => 'Block',
+                'contents' => 'Flow',
+                'attr_collections' => ['Common'],
+                'attributes' => [
+                    'testtribute',
+                ],
+            ],
+        ];
+        $sanitizer = new HtmlSanitizer(null, false, $sets, $fieldSets, true);
+        $filteredString = $sanitizer->sanitize($unfilteredString, null);
+
+        static::assertSame($unfilteredString, $filteredString);
+    }
+
     public function testAllowedByFieldSetConfig(): void
     {
         $sets = $this->getDefaultSets();

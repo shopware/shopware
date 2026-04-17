@@ -186,6 +186,7 @@ class WebhookClientTest extends TestCase
 
         static::assertIsArray($history);
         static::assertCount(2, $history);
+        static::assertIsArray($history);
         static::assertCount(2, $results);
         static::assertFalse($results['hook1']->successful());
         static::assertNull($results['hook1']->statusCode);

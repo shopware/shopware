@@ -34,13 +34,10 @@ class BuildBreadcrumbExtension extends AbstractExtension
         private readonly SalesChannelRepository $salesChannelCategoryRepository,
         private readonly EntityRepository $categoryRepository,
     ) {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'));
     }
 
     public function getFunctions(): array
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'));
-
         return [
             new TwigFunction('sw_breadcrumb_full', $this->getFullBreadcrumb(...), ['needs_context' => true]),
             new TwigFunction('sw_breadcrumb_full_by_id', $this->getFullBreadcrumbById(...), ['needs_context' => true]),

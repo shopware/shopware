@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Exception\AppRegistrationException;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\InAppPurchases\Payload\InAppPurchasesPayload;
 use Shopware\Core\Framework\App\InAppPurchases\Payload\InAppPurchasesPayloadService;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
@@ -43,15 +43,8 @@ class InAppPurchasesPayloadServiceTest extends TestCase
 
     public function testRequest(): void
     {
-        $shopId = ShopId::v2($this->ids->get('shop-id'));
-        $shopIdProvider = $this->createMock(ShopIdProvider::class);
-        $shopIdProvider
-            ->method('getShopId')
-            ->willReturn($shopId);
-
-        $appPayloadServiceHelper = $this->createMock(AppPayloadServiceHelper::class);
-        $appPayloadServiceHelper->expects($this->once())
-            ->method('createRequestOptions')
+        $appPayloadServiceHelper = static::createStub(AppPayloadServiceHelper::class);
+        $appPayloadServiceHelper->method('createRequestOptions')
             ->willReturn(new AppPayloadStruct([
                 'app_request_context' => Context::createDefaultContext(),
                 'request_type' => [
@@ -71,8 +64,6 @@ class InAppPurchasesPayloadServiceTest extends TestCase
                 'purchase-2',
             ],
         ], \JSON_THROW_ON_ERROR);
-
-        static::assertNotFalse($responseContent);
 
         $filterPayloadService = new InAppPurchasesPayloadService(
             $appPayloadServiceHelper,
@@ -105,15 +96,8 @@ class InAppPurchasesPayloadServiceTest extends TestCase
 
     public function testRequestReceiveFilteredResponse(): void
     {
-        $shopId = ShopId::v2($this->ids->get('shop-id'));
-        $shopIdProvider = $this->createMock(ShopIdProvider::class);
-        $shopIdProvider
-            ->method('getShopId')
-            ->willReturn($shopId);
-
-        $appPayloadServiceHelper = $this->createMock(AppPayloadServiceHelper::class);
-        $appPayloadServiceHelper->expects($this->once())
-            ->method('createRequestOptions')
+        $appPayloadServiceHelper = static::createStub(AppPayloadServiceHelper::class);
+        $appPayloadServiceHelper->method('createRequestOptions')
             ->willReturn(new AppPayloadStruct([
                 'app_request_context' => Context::createDefaultContext(),
                 'request_type' => [
@@ -132,8 +116,6 @@ class InAppPurchasesPayloadServiceTest extends TestCase
                 'purchase-2',
             ],
         ], \JSON_THROW_ON_ERROR);
-
-        static::assertNotFalse($responseContent);
 
         $filterPayloadService = new InAppPurchasesPayloadService(
             $appPayloadServiceHelper,
@@ -165,17 +147,14 @@ class InAppPurchasesPayloadServiceTest extends TestCase
 
     public function testAppSecretMissing(): void
     {
-        $shopId = ShopId::v2($this->ids->get('shop-id'));
-        $definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
-
-        $shopIdProvider = $this->createMock(ShopIdProvider::class);
+        $shopIdProvider = static::createStub(ShopIdProvider::class);
         $shopIdProvider
             ->method('getShopId')
-            ->willReturn($shopId);
+            ->willReturn(ShopId::v2($this->ids->get('shop-id')));
 
         $appPayloadServiceHelper = new AppPayloadServiceHelper(
-            $definitionInstanceRegistry,
-            $this->createMock(JsonEntityEncoder::class),
+            static::createStub(DefinitionInstanceRegistry::class),
+            static::createStub(JsonEntityEncoder::class),
             $shopIdProvider,
             StaticInAppPurchaseFactory::createWithFeatures(),
             'https://test-shop.com',
@@ -194,14 +173,11 @@ class InAppPurchasesPayloadServiceTest extends TestCase
             new Client(),
         );
 
-        $payload = $this->createMock(InAppPurchasesPayload::class);
-
-        $this->expectException(AppRegistrationException::class);
-        $this->expectExceptionMessage('App secret is missing');
+        $this->expectExceptionObject(AppException::registrationFailed('Test app', 'App secret is missing'));
 
         $filterPayloadService->request(
             'https://example.com/filter-mah-features',
-            $payload,
+            static::createStub(InAppPurchasesPayload::class),
             $app,
             Context::createDefaultContext()
         );
@@ -209,9 +185,8 @@ class InAppPurchasesPayloadServiceTest extends TestCase
 
     public function testClientIsUsingPostMethod(): void
     {
-        $appPayloadServiceHelper = $this->createMock(AppPayloadServiceHelper::class);
-        $appPayloadServiceHelper->expects($this->once())
-            ->method('createRequestOptions')
+        $appPayloadServiceHelper = static::createStub(AppPayloadServiceHelper::class);
+        $appPayloadServiceHelper->method('createRequestOptions')
             ->willReturn(new AppPayloadStruct([
                 'app_request_context' => Context::createDefaultContext(),
                 'request_type' => [

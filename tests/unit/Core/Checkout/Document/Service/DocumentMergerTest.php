@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Document\DocumentGenerationResult;
 use Shopware\Core\Checkout\Document\DocumentIdStruct;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\DocumentMerger;
+use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
@@ -300,7 +301,8 @@ class DocumentMergerTest extends TestCase
         $documentGenerator->expects($this->once())
             ->method('generate')
             ->willReturnCallback(static function (string $documentType, array $operations) {
-                $operation = array_values($operations)[0];
+                $operation = reset($operations);
+                static::assertInstanceOf(DocumentGenerateOperation::class, $operation);
                 static::assertSame('invoice', $documentType);
                 static::assertSame('xml', $operation->getFileType());
 

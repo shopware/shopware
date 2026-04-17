@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\BundleWithPredeclaredSwLanguageId\BundleWithPredeclaredSwLanguageId;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\CustomBundleWithApiSchema\ShopwareBundleWithName;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\DefinitionWithAssociations;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\SimpleDefinition;
@@ -1076,66 +1077,52 @@ class StoreApiGeneratorTest extends TestCase
         static::assertGreaterThanOrEqual(4, $associationCount);
     }
 
-    public function testInjectLanguageIdHeaderSkipsWhenNoPathsDefined(): void
+    public function testSwLanguageIdHeaderIsInjectedOrKeptWithoutDuplicationPerOperation(): void
     {
-        $reflection = new \ReflectionClass($this->generator);
-        $method = $reflection->getMethod('injectLanguageIdHeader');
-
-        /** @var array<string, mixed> $specs */
-        $specs = [];
-        $method->invokeArgs($this->generator, [&$specs]);
-        static::assertArrayNotHasKey('paths', $specs);
-
-        /** @var array<string, mixed> $specs */
-        $specs = ['paths' => 'not-an-array'];
-        $method->invokeArgs($this->generator, [&$specs]);
-        static::assertIsString($specs['paths']);
-    }
-
-    public function testInjectLanguageIdHeaderInitializesParametersAndSkipsDuplicates(): void
-    {
-        $reflection = new \ReflectionClass($this->generator);
-        $method = $reflection->getMethod('injectLanguageIdHeader');
-
-        /** @var array<string, mixed> $specs */
-        $specs = [
-            'paths' => [
-                '/no-params' => [
-                    'get' => [
-                        'operationId' => 'readNoParams',
-                    ],
-                ],
-                '/already-named' => [
-                    'post' => [
-                        'operationId' => 'readAlreadyNamed',
-                        'parameters' => [
-                            ['name' => 'sw-language-id', 'in' => 'header'],
-                        ],
-                    ],
-                ],
-                '/already-ref' => [
-                    'get' => [
-                        'operationId' => 'readAlreadyRef',
-                        'parameters' => [
-                            ['$ref' => '#/components/parameters/swLanguageId'],
-                        ],
-                    ],
-                ],
+        $bundle = new BundleWithPredeclaredSwLanguageId();
+        $generator = new StoreApiGenerator(
+            new OpenApiSchemaBuilder('0.1.0'),
+            new OpenApiDefinitionSchemaBuilder(),
+            [
+                'Framework' => ['path' => __DIR__ . '/_fixtures'],
             ],
-        ];
+            new BundleSchemaPathCollection([$bundle]),
+        );
 
-        $method->invokeArgs($this->generator, [&$specs]);
+        $schema = $generator->generate(
+            $this->definitionRegistry->getDefinitions(),
+            DefinitionService::STORE_API,
+            DefinitionService::TYPE_JSON_API,
+            $bundle->getName(),
+        );
 
-        $noParams = $specs['paths']['/no-params']['get'];
-        static::assertIsArray($noParams['parameters']);
-        static::assertCount(1, $noParams['parameters']);
-        static::assertSame('#/components/parameters/swLanguageId', $noParams['parameters'][0]['$ref']);
+        static::assertArrayHasKey('swLanguageId', $schema['components']['parameters']);
 
-        // /already-named: already has sw-language-id by name, should not be duplicated
-        static::assertCount(1, $specs['paths']['/already-named']['post']['parameters']);
+        $noHeader = $schema['paths']['/no-header']['get'];
+        $noHeaderRefs = array_filter(
+            array_column($noHeader['parameters'], '$ref'),
+            static fn (string $ref): bool => $ref === '#/components/parameters/swLanguageId'
+        );
+        static::assertCount(1, $noHeaderRefs, 'sw-language-id should be injected exactly once into operations without it');
 
-        // /already-ref: already has sw-language-id by $ref, should not be duplicated
-        static::assertCount(1, $specs['paths']['/already-ref']['get']['parameters']);
+        $inline = $schema['paths']['/predeclared-by-name']['get'];
+        $inlineNames = array_filter(
+            $inline['parameters'],
+            static fn (array $param): bool => ($param['name'] ?? null) === 'sw-language-id'
+        );
+        $inlineRefs = array_filter(
+            $inline['parameters'],
+            static fn (array $param): bool => ($param['$ref'] ?? null) === '#/components/parameters/swLanguageId'
+        );
+        static::assertCount(1, $inlineNames, 'Inline sw-language-id declaration should remain');
+        static::assertCount(0, $inlineRefs, 'No $ref should be injected next to an existing inline sw-language-id');
+
+        $byRef = $schema['paths']['/predeclared-by-ref']['get'];
+        $byRefMatches = array_filter(
+            array_column($byRef['parameters'], '$ref'),
+            static fn (string $ref): bool => $ref === '#/components/parameters/swLanguageId'
+        );
+        static::assertCount(1, $byRefMatches, 'sw-language-id $ref should not be duplicated when already present');
     }
 
     public function testGetAssociationsDocumentationSupportsOptionalDescription(): void

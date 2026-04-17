@@ -1,0 +1,59 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": {
+        "/predeclared-by-name": {
+            "get": {
+                "tags": ["Predeclared"],
+                "summary": "Operation that already declares sw-language-id inline by name",
+                "operationId": "readPredeclaredByName",
+                "parameters": [
+                    {
+                        "name": "sw-language-id",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/predeclared-by-ref": {
+            "get": {
+                "tags": ["Predeclared"],
+                "summary": "Operation that already references sw-language-id by $ref",
+                "operationId": "readPredeclaredByRef",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/no-header": {
+            "get": {
+                "tags": ["Predeclared"],
+                "summary": "Operation that does not declare sw-language-id",
+                "operationId": "readNoHeader",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        }
+    }
+}

@@ -52,7 +52,7 @@
   ],
   "dependencies": {
     "@shopware-ag/dive": "2.3.4",
-    "@shopware-ag/meteor-admin-sdk": "6.4.0",
+    "@shopware-ag/meteor-admin-sdk": "6.8.0",
     "@shopware-ag/meteor-component-library": "4.24.0",
     "@shopware-ag/meteor-icon-kit": "5.4.0",
     "@swc/core": "1.10.7",
@@ -68,8 +68,8 @@
     "apexcharts": "4.4.0",
     "app-module-path": "2.2.0",
     "autoprefixer": "10.4.20",
-    "axios": "0.30.3",
-    "axios-v1": "npm:axios@1.13.5",
+    "axios": "0.31.0",
+    "axios-v1": "npm:axios@1.15.0",
     "bottlejs": "2.0.1",
     "cli-progress": "3.12.0",
     "command-line-args": "6.0.1",
@@ -252,6 +252,7 @@
       "babel-jest": "$babel-jest",
       "jest": "$jest"
     },
-    "tmp": "0.2.5"
+    "tmp": "0.2.5",
+    "follow-redirects": "1.16.0"
   }
 }

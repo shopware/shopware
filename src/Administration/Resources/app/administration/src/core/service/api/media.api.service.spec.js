@@ -167,6 +167,175 @@ describe('storeService', () => {
         spyRepository.mockRestore();
     });
 
+    it('limits concurrent uploads to maxConcurrentUploads', async () => {
+        const mediaApiService = getMediaApiService();
+        mediaApiService.maxConcurrentUploads = 2;
+
+        let concurrent = 0;
+        let maxConcurrent = 0;
+        const resolvers = [];
+
+        jest.spyOn(mediaApiService, '_startUpload').mockImplementation(() => {
+            concurrent += 1;
+            maxConcurrent = Math.max(maxConcurrent, concurrent);
+
+            return new Promise((resolve) => {
+                resolvers.push(() => {
+                    concurrent -= 1;
+                    resolve();
+                });
+            });
+        });
+
+        const tag = 'test-concurrency';
+        for (let i = 0; i < 6; i++) {
+            mediaApiService.addUpload(tag, {
+                src: new File([''], `file-${i}.jpg`),
+                targetId: `id-${i}`,
+                fileName: `file-${i}`,
+                extension: 'jpg',
+            });
+        }
+
+        const uploadPromise = mediaApiService.runUploads(tag);
+
+        // Wait for the initial workers to start
+        await new Promise(process.nextTick);
+
+        // Only 2 should be running concurrently
+        expect(concurrent).toBe(2);
+        expect(maxConcurrent).toBe(2);
+
+        // Resolve first two uploads
+        resolvers.shift()();
+        resolvers.shift()();
+        await new Promise(process.nextTick);
+
+        // Next two should have started
+        expect(concurrent).toBe(2);
+        expect(maxConcurrent).toBe(2);
+
+        // Resolve remaining uploads
+        while (resolvers.length > 0) {
+            resolvers.shift()();
+            await new Promise(process.nextTick);
+        }
+
+        await uploadPromise;
+        expect(maxConcurrent).toBe(2);
+    });
+
+    it('completes all uploads even with concurrency limit', async () => {
+        const mediaApiService = getMediaApiService();
+        mediaApiService.maxConcurrentUploads = 3;
+
+        const completed = [];
+        jest.spyOn(mediaApiService, '_startUpload').mockImplementation((task) => {
+            completed.push(task.targetId);
+            return Promise.resolve();
+        });
+
+        const tag = 'test-complete-all';
+        const totalFiles = 10;
+        for (let i = 0; i < totalFiles; i++) {
+            mediaApiService.addUpload(tag, {
+                src: new File([''], `file-${i}.jpg`),
+                targetId: `id-${i}`,
+                fileName: `file-${i}`,
+                extension: 'jpg',
+            });
+        }
+
+        await mediaApiService.runUploads(tag);
+        expect(completed).toHaveLength(totalFiles);
+    });
+
+    it('fires UPLOAD_FINISHED events with correct counts during concurrent uploads', async () => {
+        const mediaApiService = getMediaApiService();
+        mediaApiService.maxConcurrentUploads = 2;
+
+        jest.spyOn(mediaApiService, '_startUpload').mockResolvedValue();
+
+        const events = [];
+        const tag = 'test-events';
+        mediaApiService.addListener(tag, (event) => {
+            if (event.action === UploadEvents.UPLOAD_FINISHED) {
+                events.push(event.payload);
+            }
+        });
+
+        for (let i = 0; i < 4; i++) {
+            mediaApiService.addUpload(tag, {
+                src: new File([''], `file-${i}.jpg`),
+                targetId: `id-${i}`,
+                fileName: `file-${i}`,
+                extension: 'jpg',
+            });
+        }
+
+        await mediaApiService.runUploads(tag);
+
+        expect(events).toHaveLength(4);
+        events.forEach((payload) => {
+            expect(payload.totalAmount).toBe(4);
+        });
+        // Last event should have all uploads as successful
+        expect(events[events.length - 1].successAmount).toBe(4);
+        expect(events[events.length - 1].failureAmount).toBe(0);
+    });
+
+    it('continues processing after a failed upload', async () => {
+        const mediaApiService = getMediaApiService();
+        mediaApiService.maxConcurrentUploads = 2;
+
+        jest.spyOn(mediaApiService, '_startUpload').mockImplementation((task) => {
+            if (task.targetId === 'id-1') {
+                return Promise.reject(new Error('upload failed'));
+            }
+            return Promise.resolve();
+        });
+
+        const finishedIds = [];
+        const failedIds = [];
+        const tag = 'test-errors';
+        mediaApiService.addListener(tag, (event) => {
+            if (event.action === UploadEvents.UPLOAD_FINISHED) {
+                finishedIds.push(event.payload.targetId);
+            }
+            if (event.action === UploadEvents.UPLOAD_FAILED) {
+                failedIds.push(event.payload.targetId);
+            }
+        });
+
+        for (let i = 0; i < 4; i++) {
+            mediaApiService.addUpload(tag, {
+                src: new File([''], `file-${i}.jpg`),
+                targetId: `id-${i}`,
+                fileName: `file-${i}`,
+                extension: 'jpg',
+            });
+        }
+
+        await mediaApiService.runUploads(tag);
+
+        expect(failedIds).toEqual(['id-1']);
+        expect(finishedIds).toHaveLength(3);
+        expect(finishedIds).toContain('id-0');
+        expect(finishedIds).toContain('id-2');
+        expect(finishedIds).toContain('id-3');
+    });
+
+    it('resolves immediately when no uploads are queued', async () => {
+        const mediaApiService = getMediaApiService();
+        const result = await mediaApiService.runUploads('non-existent-tag');
+        expect(result).toBeUndefined();
+    });
+
+    it('uses default maxConcurrentUploads of 10', () => {
+        const mediaApiService = getMediaApiService();
+        expect(mediaApiService.maxConcurrentUploads).toBe(10);
+    });
+
     it('assigns video cover via API route', async () => {
         const mediaApiService = getMediaApiService();
         const httpClientPostSpy = jest.spyOn(mediaApiService.httpClient, 'post').mockResolvedValue({

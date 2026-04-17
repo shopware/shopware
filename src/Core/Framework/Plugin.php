@@ -125,7 +125,7 @@ abstract class Plugin extends Bundle
         if ($canonicalizedPluginPath !== false && mb_strpos($canonicalizedPluginClassPath, $canonicalizedPluginPath) === 0) {
             $relativePluginClassPath = mb_substr($canonicalizedPluginClassPath, mb_strlen($canonicalizedPluginPath));
 
-            return $this->basePath . $relativePluginClassPath;
+            return rtrim($this->basePath, '/') . $relativePluginClassPath;
         }
 
         return $canonicalizedPluginClassPath;

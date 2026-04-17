@@ -19,7 +19,7 @@ class PluginTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         $pluginsDir = __DIR__ . '/../../../../../src/Core/Framework/Test/Plugin/_fixture/plugins/';
-        self::$swagTestPluginPath = $pluginsDir . '/SwagTestPlugin';
+        self::$swagTestPluginPath = realpath($pluginsDir . '/SwagTestPlugin');
 
         self::$symlinkedSwagTestPluginPath = sys_get_temp_dir() . '/SymlinkedSwagTest_' . uniqid();
         symlink(self::$swagTestPluginPath, self::$symlinkedSwagTestPluginPath);

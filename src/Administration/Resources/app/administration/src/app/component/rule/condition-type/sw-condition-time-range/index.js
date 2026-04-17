@@ -26,7 +26,6 @@ export default {
             get() {
                 this.ensureValueExist();
                 if (!this.condition.value.fromTime) {
-                    // eslint-disable-next-line vue/no-side-effects-in-computed-properties
                     this.condition.value.fromTime = defaultTimeValue;
                 }
 
@@ -41,7 +40,6 @@ export default {
             get() {
                 this.ensureValueExist();
                 if (!this.condition.value.toTime) {
-                    // eslint-disable-next-line vue/no-side-effects-in-computed-properties
                     this.condition.value.toTime = defaultTimeValue;
                 }
 

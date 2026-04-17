@@ -4,7 +4,7 @@ import './store/flow.store';
 
 const { Module } = Shopware;
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-flow-index', () => import('./page/sw-flow-index'));
 Shopware.Component.register('sw-flow-detail', () => import('./page/sw-flow-detail'));
 Shopware.Component.register('sw-flow-detail-flow', () => import('./view/detail/sw-flow-detail-flow'));
@@ -59,7 +59,7 @@ Shopware.Component.register(
 );
 Shopware.Component.register('sw-flow-app-action-modal', () => import('./component/modals/sw-flow-app-action-modal'));
 Shopware.Component.register('sw-flow-leave-page-modal', () => import('./component/modals/sw-flow-leave-page-modal'));
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 /**
  * @private

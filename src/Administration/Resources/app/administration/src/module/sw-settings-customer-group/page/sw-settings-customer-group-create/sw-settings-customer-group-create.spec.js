@@ -157,7 +157,6 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
         wrapper.vm.$router.push = jest.fn();
         wrapper.vm.createNotificationError = jest.fn();
         wrapper.vm.customerGroupRepository.save = jest.fn(() =>
-            // eslint-disable-next-line prefer-promise-reject-errors
             Promise.reject({
                 response: {
                     data: {

@@ -21,7 +21,6 @@ export default function initializeUserContext() {
         userService
             .getUser()
             .then((response) => {
-                // eslint-disable-next-line max-len
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
                 const data = response?.data;
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access

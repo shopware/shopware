@@ -26,7 +26,10 @@ export default {
     props: {
         // need to be "value" instead of "modelValue" because of the compat build
         value: {
-            type: String,
+            type: [
+                String,
+                null,
+            ],
             required: false,
             default: null,
         },

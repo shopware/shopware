@@ -364,7 +364,6 @@ export default Component.wrapComponentConfig({
                             name: this.getLabelProperty(snippet),
                         };
                     });
-                    // eslint-disable-next-line @typescript-eslint/no-empty-function
                 })
                 .catch(() => {});
         },

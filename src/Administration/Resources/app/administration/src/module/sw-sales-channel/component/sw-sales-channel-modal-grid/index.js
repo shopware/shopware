@@ -23,7 +23,6 @@ export default {
         productStreamsExist: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -78,6 +77,10 @@ export default {
         onOpenDetail(id) {
             const detailType = this.salesChannelTypes.find((salesChannelType) => salesChannelType.id === id);
             this.$emit('grid-detail-open', detailType);
+        },
+
+        isAgenticCommerceSalesChannelType(salesChannelTypeId) {
+            return salesChannelTypeId === Defaults.agenticCommerceTypeId;
         },
 
         isProductComparisonSalesChannelType(salesChannelTypeId) {

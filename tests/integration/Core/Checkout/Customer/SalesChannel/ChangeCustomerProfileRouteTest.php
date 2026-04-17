@@ -391,18 +391,18 @@ class ChangeCustomerProfileRouteTest extends TestCase
     }
 
     /**
+     * @param list<string|true|null>|null $vatIds
      * @param array<string, bool> $constraint
-     * @param array<string|null>|null $vatIds
      * @param array<string>|null $expectedVatIds
      */
     #[DataProvider('dataProviderVatIds')]
     public function testChangeVatIdsOfCommercialAccount(?array $vatIds, array $constraint, bool $shouldBeValid, ?array $expectedVatIds): void
     {
-        if (isset($constraint['required']) && $constraint['required']) {
+        if (($constraint['required'] ?? false) === true) {
             $this->setVatIdOfTheCountryToBeRequired();
         }
 
-        if (isset($constraint['validateFormat']) && $constraint['validateFormat']) {
+        if (($constraint['validateFormat'] ?? false) === true) {
             $this->setVatIdOfTheCountryToValidateFormat();
         }
 

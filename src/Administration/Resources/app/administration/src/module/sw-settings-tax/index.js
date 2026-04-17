@@ -4,7 +4,7 @@ import './acl';
  * @sw-package checkout
  */
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-settings-tax-list', () => import('./page/sw-settings-tax-list'));
 Shopware.Component.register('sw-settings-tax-detail', () => import('./page/sw-settings-tax-detail'));
 Shopware.Component.register('sw-settings-tax-provider-detail', () => import('./page/sw-settings-tax-provider-detail'));
@@ -38,7 +38,7 @@ Shopware.Component.register(
     'sw-settings-tax-rule-type-zip-code-range-cell',
     () => import('./component/sw-settings-tax-rule-type-zip-code-range-cell'),
 );
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 const { Module } = Shopware;
 

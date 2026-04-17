@@ -80,7 +80,6 @@ export default {
         allowMultiSelect: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -90,7 +89,6 @@ export default {
             default: false,
         },
 
-        // eslint-disable-next-line vue/require-default-prop
         label: {
             type: String,
             required: false,
@@ -419,7 +417,7 @@ export default {
 
             try {
                 fileInfo = fileReader.getNameAndExtensionFromUrl(url);
-            } catch (error) {
+            } catch (_error) {
                 this.createNotificationError({
                     title: this.$tc('global.default.error'),
                     message: this.$tc('global.sw-media-upload-v2.notification.invalidUrl.message'),
@@ -496,7 +494,8 @@ export default {
                 };
             });
 
-            await this.mediaRepository.saveAll(syncEntities, Context.api);
+            await this.mediaRepository.sync(syncEntities, Context.api);
+
             await this.mediaService.addUploads(this.uploadTag, uploadData);
         },
 

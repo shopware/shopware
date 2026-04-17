@@ -10,7 +10,7 @@ import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-order-list', () => import('./page/sw-order-list'));
 Shopware.Component.register('sw-order-detail', () => import('./page/sw-order-detail'));
 Shopware.Component.register('sw-order-create', () => import('./page/sw-order-create'));
@@ -116,7 +116,7 @@ Shopware.Component.register(
     'sw-order-customer-address-select',
     () => import('./component/sw-order-customer-address-select'),
 );
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-order', {

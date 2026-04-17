@@ -9,9 +9,7 @@ interface DropConfig<DATA = unknown> {
     droppableCls: string;
     validDropCls: string;
     invalidDropCls: string;
-    // eslint-disable-next-line no-use-before-define
     validateDrop: null | ((dragConfigData: DragConfig<DATA>['data'], dropConfigData: DropConfig<DATA>['data']) => boolean);
-    // eslint-disable-next-line no-use-before-define
     onDrop: null | ((dragConfigData: DragConfig<DATA>['data'], dropConfigData: DropConfig<DATA>['data']) => void);
     data: null | DATA;
 }

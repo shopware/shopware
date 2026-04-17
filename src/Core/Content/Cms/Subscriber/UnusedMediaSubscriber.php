@@ -125,7 +125,7 @@ class UnusedMediaSubscriber implements EventSubscriberInterface
 
         // json_decode each row and flatten the result to an array of ids
         return array_merge(
-            ...array_map(static fn (string $ids) => json_decode($ids, true, \JSON_THROW_ON_ERROR), $result)
+            ...array_map(static fn (string $ids) => json_decode($ids, true, flags: \JSON_THROW_ON_ERROR), $result)
         );
     }
 }

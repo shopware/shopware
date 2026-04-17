@@ -37,7 +37,6 @@ export default {
             },
         },
 
-        // eslint-disable-next-line vue/require-prop-types
         label: {
             required: false,
             default: true,
@@ -59,7 +58,6 @@ export default {
             },
         },
 
-        // eslint-disable-next-line vue/require-prop-types
         compact: {
             required: false,
             default: false,
@@ -71,7 +69,6 @@ export default {
             default: null,
         },
 
-        // eslint-disable-next-line vue/require-prop-types
         disabled: {
             required: false,
             default: false,
@@ -116,7 +113,6 @@ export default {
         showSettingPrice: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },
@@ -171,7 +167,6 @@ export default {
                 const price = this.priceForCurrency;
 
                 if (price) {
-                    // eslint-disable-next-line vue/no-mutating-props
                     price.listPrice = newValue;
                 }
             },

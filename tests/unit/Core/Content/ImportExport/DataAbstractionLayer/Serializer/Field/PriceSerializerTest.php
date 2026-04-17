@@ -24,7 +24,7 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 class PriceSerializerTest extends TestCase
 {
     /**
-     * @param Price|array<string, array<string, mixed>>|null $prices
+     * @param Price|list<Price>|array<array-key, array<string, mixed>>|null $prices
      * @param array<string, array<string, mixed>>|null $expected
      */
     #[DataProvider('unserializedPrices')]

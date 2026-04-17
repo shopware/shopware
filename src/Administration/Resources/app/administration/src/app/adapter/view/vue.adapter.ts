@@ -44,6 +44,7 @@ import MtLink from '@shopware-ag/meteor-component-library/dist/esm/MtLink';
 import MtUnitField from '@shopware-ag/meteor-component-library/dist/esm/MtUnitField';
 import MtSnackbar from '@shopware-ag/meteor-component-library/dist/esm/MtSnackbar';
 import MtBadge from '@shopware-ag/meteor-component-library/dist/esm/MtBadge';
+import MtPromoBadge from '@shopware-ag/meteor-component-library/dist/esm/MtPromoBadge';
 
 import getBlockDataScope from '../../component/structure/sw-block-override/sw-block/get-block-data-scope';
 import useSystem from '../../composables/use-system';
@@ -76,20 +77,7 @@ export default class VueAdapter extends ViewAdapter {
         this.app = createApp({
             name: 'ShopwareAdministration',
             template: '<sw-admin />',
-            mounted() {
-                // `DELAY` matches animation-delay that is used in `administration/index.html`
-                const DELAY = 2000;
-                const MIN_VISIBLE_TIME = 300;
-
-                const startTime = window._pageLoadTime_;
-                const elapsedTime = Date.now() - startTime;
-                // prevent flickering, show loading indicator longer than necessary:
-                const buffer = elapsedTime < DELAY ? 0 : Math.max(DELAY + MIN_VISIBLE_TIME - elapsedTime, 0);
-
-                setTimeout(() => {
-                    document.getElementById('page-loading-screen')?.remove();
-                }, buffer);
-            },
+            mounted: () => window.removePageLoadingIndicator(),
         });
     }
 
@@ -106,7 +94,6 @@ export default class VueAdapter extends ViewAdapter {
         this.initDirectives();
 
         const vuexRoot = State._store;
-        // eslint-disable-next-line @typescript-eslint/no-empty-object-type
         const i18n = this.initLocales();
 
         // add router to View
@@ -123,7 +110,6 @@ export default class VueAdapter extends ViewAdapter {
                 console.warn(
                     'the order of the parameters for $t has changed in the latest version.',
                     'Please, check Vue I18n documentation for more details:',
-                    // eslint-disable-next-line max-len
                     'https://vue-i18n.intlify.dev/guide/migration/breaking10#tc-key-key-resourcekeys-choice-number-named-record-string-unknown-translateresult',
                 );
                 // This is a workaround to avoid breaking changes for the $tc function which that swap the second and
@@ -190,12 +176,10 @@ export default class VueAdapter extends ViewAdapter {
          * So we should convert from provide/inject to Shopware.Service
          */
         Object.keys(providers).forEach((provideKey) => {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             Object.defineProperty(this.app._context.provides, provideKey, {
                 get: () => providers[provideKey],
                 enumerable: true,
                 configurable: true,
-                // eslint-disable-next-line @typescript-eslint/no-empty-function
                 set() {},
             });
         });
@@ -215,15 +199,11 @@ export default class VueAdapter extends ViewAdapter {
         });
 
         // Add global properties to root view instance
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
         this.app.$tc = i18n.global.t;
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
         this.app.$t = i18n.global.t;
 
         this.initTitle(this.app);
-        /* eslint-enable max-len */
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         this.app.mount(renderElement);
 
         if (process.env.NODE_ENV === 'development') {
@@ -386,6 +366,7 @@ export default class VueAdapter extends ViewAdapter {
             MtUnitField,
             MtSnackbar,
             MtBadge,
+            MtPromoBadge,
         } as const;
 
         const lazyMeteorComponents = {
@@ -455,7 +436,6 @@ export default class VueAdapter extends ViewAdapter {
                     let vueComponent;
 
                     if (typeof component !== 'boolean') {
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                         this.app?.component(componentName, component);
                         vueComponent = this.app?.component(componentName);
                     }
@@ -474,7 +454,6 @@ export default class VueAdapter extends ViewAdapter {
                 () => this.componentResolver(componentName),
             );
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call
             const vueComponent = this.app?.component(componentName);
 
             // @ts-expect-error - resolved config does not match completely a standard vue component
@@ -516,7 +495,6 @@ export default class VueAdapter extends ViewAdapter {
         const componentName = componentConfig.name;
         this.resolveMixins(componentConfig);
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         this.app?.component(componentName, componentConfig);
         const vueComponent = this.app?.component(componentName);
 
@@ -604,7 +582,7 @@ export default class VueAdapter extends ViewAdapter {
                 return;
             }
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-argument
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             this.app?.use(plugin);
         });
 
@@ -659,7 +637,6 @@ export default class VueAdapter extends ViewAdapter {
             allowComposition: true,
         } as const;
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         const i18n = createI18n(options);
 
         Shopware.Vue.watch(
@@ -725,14 +702,12 @@ export default class VueAdapter extends ViewAdapter {
             const moduleTitle = this.$route.meta.$module?.title as string;
             const pageTitle = this.$root.$tc(moduleTitle);
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const params = [
                 baseTitle,
                 pageTitle,
                 identifier,
                 ...additionalParams,
             ].filter((item) => {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
                 return item !== null && item.trim() !== '';
             });
 
@@ -747,10 +722,7 @@ export default class VueAdapter extends ViewAdapter {
      */
     resolveMixins(componentConfig: ComponentConfig) {
         // If the mixin is a string, use our mixin registry
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         if (componentConfig.mixins?.length) {
-            // eslint-disable-next-line max-len
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
             componentConfig.mixins = componentConfig.mixins.map((mixin) => {
                 if (typeof mixin === 'string') {
                     // @ts-expect-error

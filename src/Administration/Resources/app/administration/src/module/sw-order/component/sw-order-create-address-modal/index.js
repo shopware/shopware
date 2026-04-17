@@ -108,7 +108,8 @@ export default {
 
             // Get the latest addresses from customer's db
             try {
-                this.addresses = await this.addressRepository.search(this.addressCriteria);
+                const addresses = await this.addressRepository.search(this.addressCriteria);
+                this.addresses = Array.isArray(addresses) ? addresses : [];
 
                 this.selectedAddressId =
                     this.activeCustomer[this.address.contextId] || this.activeCustomer[this.address.contextDataDefaultId];

@@ -9,6 +9,7 @@
         {% for capchaKey, captcha in captchas %}
             {% if captcha.isActive %}
                 {% sw_include '@Storefront/storefront/component/captcha/%s.html.twig'|format(capchaKey)
+                    ignore missing
                     with {
                         additionalClass: additionalClass,
                         formId: 'form-%s'|format(formId)

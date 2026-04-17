@@ -2,7 +2,9 @@ const { RuleTester } = require('eslint');
 const rule = require('./private-feature-declarations');
 
 const ruleTester = new RuleTester({
-    parser: require.resolve('@typescript-eslint/parser'),
+    languageOptions: {
+        parser: require('@typescript-eslint/parser'),
+    },
 });
 
 ruleTester.run('private-feature-declarations', rule, {

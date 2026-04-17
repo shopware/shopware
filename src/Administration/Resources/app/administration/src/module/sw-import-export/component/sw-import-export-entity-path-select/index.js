@@ -27,7 +27,6 @@ export default {
     ],
 
     props: {
-        // eslint-disable-next-line vue/require-prop-types
         value: {
             required: true,
         },
@@ -43,7 +42,6 @@ export default {
         highlightSearchTerm: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         placeholder: {

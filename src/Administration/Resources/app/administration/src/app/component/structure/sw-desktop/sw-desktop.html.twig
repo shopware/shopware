@@ -27,9 +27,10 @@
         :shop-id-check="shopIdCheck"
         @modal-close="closeModal"
     />
+    <sw-request-consent-modal />
     <sw-settings-services-grant-permissions-modal />
     <sw-settings-usage-data-consent-modal-data-provider
-        v-if="feature.isActive('PRODUCT_ANALYTICS') && showUsageDataConsentModalDataProvider"
+        v-if="showUsageDataConsentModalDataProvider"
     />
     {% endblock %}
 

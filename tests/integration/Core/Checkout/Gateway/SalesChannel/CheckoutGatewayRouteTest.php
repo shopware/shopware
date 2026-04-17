@@ -4,10 +4,8 @@ namespace Shopware\Tests\Integration\Core\Checkout\Gateway\SalesChannel;
 
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Response;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute;
 use Shopware\Core\Framework\App\Hmac\RequestSigner;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -23,7 +21,6 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 /**
  * @internal
  */
-#[CoversClass(CheckoutGatewayRoute::class)]
 #[Group('store-api')]
 #[Package('checkout')]
 class CheckoutGatewayRouteTest extends TestCase

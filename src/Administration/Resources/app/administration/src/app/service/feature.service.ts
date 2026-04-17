@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/no-named-default
 import type { default as FeatureType } from 'src/core/feature';
 
 /**

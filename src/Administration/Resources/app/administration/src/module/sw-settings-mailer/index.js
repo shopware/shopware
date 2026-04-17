@@ -1,10 +1,10 @@
 /**
  * @sw-package after-sales
  */
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-settings-mailer-smtp', () => import('./component/sw-settings-mailer-smtp'));
 Shopware.Component.register('sw-settings-mailer', () => import('./page/sw-settings-mailer'));
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Module.register('sw-settings-mailer', {

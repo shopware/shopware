@@ -505,7 +505,6 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         expect(header.text()).toContain('sw-order.detailBase.columnPriceTaxFree');
     });
 
-    // eslint-disable-next-line max-len
     it('should automatically set price definition quantity value of custom item when the user enters a change quantity value', async () => {
         global.activeAclRoles = [];
         const wrapper = await createWrapper();

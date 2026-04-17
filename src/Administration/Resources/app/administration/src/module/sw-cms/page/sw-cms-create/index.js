@@ -120,7 +120,7 @@ export default {
                         page.extensions[`${utils.string.camelCase(type)}SwCmsPage`].push(entity);
                     }
                 }
-            } catch (e) {
+            } catch (_e) {
                 this.createNotificationError({
                     message: this.$tc('sw-cms.create.notification.assignToEntityError'),
                 });

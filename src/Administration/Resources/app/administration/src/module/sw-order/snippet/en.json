@@ -33,7 +33,9 @@
       "titleSidebarItemFilterCampaignCode": "Campaign code",
       "buttonDelete": "Delete",
       "textDeleteConfirm": "Do you really want to delete this order ({orderNumber})?",
-      "labelManualOrder": "Created by admin"
+      "labelManualOrder": "Created by admin",
+      "tooltipCustomerComment": "Additional information: {comment}",
+      "tooltipInternalComment": "Internal comment: {comment}"
     },
     "detail": {
       "buttonCancel": "Discard changes",
@@ -628,8 +630,11 @@
         "showZugferd": "Show ZUGFeRD variants",
         "helpText": {
           "storno": "A cancellation invoice can't be created without an invoice.",
-          "credit_note": "To create a credit note, add a credit item first.",
-          "zugferd_cancellation_invoice": "A ZUGFeRD cancellation invoice can't be created without an invoice."
+          "credit_note": "To create a credit note, an invoice and at least one credit item are required.",
+          "zugferd_cancellation_invoice": "A ZUGFeRD cancellation invoice can't be created without an invoice.",
+          "zugferd_embedded_cancellation_invoice": "An embedded ZUGFeRD cancellation invoice can't be created without an invoice.",
+          "zugferd_credit_note": "To create a ZUGFeRD credit note, an invoice and at least one credit item are required.",
+          "zugferd_embedded_credit_note": "To create an embedded ZUGFeRD credit note, an invoice and at least one credit item are required."
         }
       }
     }

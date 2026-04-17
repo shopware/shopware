@@ -113,6 +113,9 @@ export default Shopware.Component.wrapComponentConfig({
         fullPath() {
             return this.field.concat('.', this.fieldPath);
         },
+        inheritedFieldConfig() {
+            return get(this.inheritedSlotConfig?.[this.element.id], this.field);
+        },
         fieldDefaultValue() {
             return get(this.cmsElements[this.element.type]?.defaultConfig, this.fullPath, BASE_FIELD_FALLBACK.value);
         },
@@ -120,8 +123,6 @@ export default Shopware.Component.wrapComponentConfig({
     methods: {
         async onInheritanceRestore() {
             this.showModal = false;
-
-            set(this.runtimeConfig, this.field, cloneDeep(get(this.baseConfig, this.field, BASE_FIELD_FALLBACK)));
 
             /**
              * Run watchers before removing the slotConfig to ensure sw-cms-form-sync won't
@@ -134,6 +135,9 @@ export default Shopware.Component.wrapComponentConfig({
             if (isEmpty(this.childConfig)) {
                 set(this.contentEntity!, 'slotConfig', null);
             }
+
+            const inheritedField = this.inheritedFieldConfig ?? get(this.baseConfig, this.field, BASE_FIELD_FALLBACK);
+            set(this.runtimeConfig, this.field, cloneDeep(inheritedField));
 
             this.$emit(EVENTS.RESTORE);
         },

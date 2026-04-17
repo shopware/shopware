@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Checkout\Document;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -16,7 +15,6 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentException;
-use Shopware\Core\Checkout\Document\DocumentGeneratorController;
 use Shopware\Core\Checkout\Document\DocumentIdCollection;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
@@ -45,7 +43,6 @@ use Shopware\Core\Test\TestDefaults;
  * @internal
  */
 #[Package('after-sales')]
-#[CoversClass(DocumentGeneratorController::class)]
 class DocumentGeneratorControllerTest extends TestCase
 {
     use AdminApiTestBehaviour;

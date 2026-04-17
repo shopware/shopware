@@ -92,7 +92,6 @@ describe('components/media/sw-media-media-item', () => {
 
         const wrapper = await createWrapper({
             renameMedia: () =>
-                // eslint-disable-next-line prefer-promise-reject-errors
                 Promise.reject({
                     response: {
                         data: {
@@ -129,7 +128,6 @@ describe('components/media/sw-media-media-item', () => {
 
         const wrapper = await createWrapper({
             renameMedia: () =>
-                // eslint-disable-next-line prefer-promise-reject-errors
                 Promise.reject({
                     response: {
                         data: {

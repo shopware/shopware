@@ -213,7 +213,6 @@ export default {
             if (this.needsRootOrContainer(rootConditions)) {
                 const newRoot = this.applyRoot(rootConditions);
 
-                // eslint-disable-next-line vue/no-mutating-props
                 this.initialConditions.push(newRoot);
                 rootConditions = [newRoot];
             }

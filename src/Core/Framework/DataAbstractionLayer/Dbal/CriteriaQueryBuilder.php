@@ -108,7 +108,7 @@ class CriteriaQueryBuilder
         foreach ($sortings as $sorting) {
             $this->validateSortingDirection($sorting->getDirection());
 
-            if ($sorting->getField() === '_score') {
+            if ($sorting->getField() === Criteria::SCORE_FIELD) {
                 if (!$this->hasQueriesOrTerm($criteria)) {
                     continue;
                 }
@@ -116,8 +116,8 @@ class CriteriaQueryBuilder
                 // Only add manual _score sorting if the query contains a _score calculation and selection (i.e. the
                 // criteria has a term or queries). Otherwise the SQL selection would fail because no _score field
                 // exists in any entity.
-                $query->addOrderBy('_score', $sorting->getDirection());
-                $query->addState('_score');
+                $query->addOrderBy(Criteria::SCORE_FIELD, $sorting->getDirection());
+                $query->addState(Criteria::SCORE_FIELD);
 
                 continue;
             }
@@ -211,7 +211,7 @@ class CriteriaQueryBuilder
 
         // Sort by _score primarily if the criteria has a score query or search term
         if (!$this->hasScoreSorting($criteria)) {
-            $criteria->addSorting(new FieldSorting('_score', FieldSorting::DESCENDING));
+            $criteria->addSorting(new FieldSorting(Criteria::SCORE_FIELD, FieldSorting::DESCENDING));
         }
 
         $minScore = array_map(static fn (ScoreQuery $query) => $query->getScore(), $criteria->getQueries());
@@ -221,7 +221,7 @@ class CriteriaQueryBuilder
 
         $query->andHaving('_score >= :_minScore');
         $query->setParameter('_minScore', $minScore);
-        $query->addState('_score');
+        $query->addState(Criteria::SCORE_FIELD);
 
         foreach ($queries->getParameters() as $key => $value) {
             $query->setParameter($key, $value, $queries->getType($key));
@@ -290,7 +290,7 @@ class CriteriaQueryBuilder
     private function hasScoreSorting(Criteria $criteria): bool
     {
         foreach ($criteria->getSorting() as $sorting) {
-            if ($sorting->getField() === '_score') {
+            if ($sorting->getField() === Criteria::SCORE_FIELD) {
                 return true;
             }
         }

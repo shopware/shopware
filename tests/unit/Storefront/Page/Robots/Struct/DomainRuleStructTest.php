@@ -6,8 +6,11 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Shopware\Storefront\Page\Robots\Parser\ParsedRobots;
 use Shopware\Storefront\Page\Robots\Struct\DomainRuleStruct;
 use Shopware\Storefront\Page\Robots\Struct\RobotsDirective;
+use Shopware\Storefront\Page\Robots\Struct\RobotsDirectiveType;
+use Shopware\Storefront\Page\Robots\Struct\RobotsUserAgentBlock;
 
 /**
  * @internal
@@ -142,5 +145,19 @@ class DomainRuleStructTest extends TestCase
 
         static::assertCount(2, $directives);
         static::assertContainsOnlyInstancesOf(RobotsDirective::class, $directives);
+    }
+
+    public function testParsedUserAgentBlockDirectivesAreNotExposedAsDomainRules(): void
+    {
+        $parsed = new ParsedRobots([
+            new RobotsUserAgentBlock('Googlebot', [
+                new RobotsDirective(RobotsDirectiveType::DISALLOW, '/account/'),
+                new RobotsDirective(RobotsDirectiveType::ALLOW, '/widgets/'),
+            ]),
+        ], []);
+
+        $domainRuleStruct = new DomainRuleStruct($parsed, '');
+
+        static::assertSame([], $domainRuleStruct->getDirectives());
     }
 }

@@ -8,6 +8,16 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\Unit\Core\Framework\Util\HtmlSanitizerTest;
 use Symfony\Contracts\Service\ResetInterface;
 
+/**
+ * @phpstan-type SetsArray array<string, array{
+ *     name?: string,
+ *     tags?: list<string>,
+ *     attributes?: list<string>,
+ *     options?: array<string, array{value?: mixed, values?: list<mixed>}>,
+ *     custom_attributes?: list<array{tags: list<string>, attributes: list<string>}>,
+ *     custom_tags?: list<array{tag: string, type: string, contents: string, attr_collections: list<string>, attributes: list<string>}>
+ * }>
+ */
 #[Package('framework')]
 class HtmlSanitizer implements ResetInterface
 {
@@ -21,7 +31,7 @@ class HtmlSanitizer implements ResetInterface
     /**
      * @internal
      *
-     * @param array<string, array{name?: string, tags?: list<string>, attributes?: list<string>, options?: array<string, mixed>, custom_attributes?: array<string, array<string, list<string>>>}> $sets
+     * @param SetsArray $sets
      * @param array<string, array{sets?: list<string>|null}> $fieldSets
      */
     public function __construct(
@@ -107,7 +117,7 @@ class HtmlSanitizer implements ResetInterface
             }
 
             foreach ($attributes as $attr) {
-                $allowedAttributes[] = $element === '*' ? $attr : "{$element}.{$attr}";
+                $allowedAttributes[] = $element === '*' ? $attr : \sprintf('%s.%s', $element, $attr);
             }
         }
 
@@ -119,14 +129,12 @@ class HtmlSanitizer implements ResetInterface
                     $allowedElements = array_merge($allowedElements, $this->sets[$set]['tags']);
                 }
                 if (isset($this->sets[$set]['custom_tags'])) {
-                    $allowedTags = array_map(fn ($customElement) => $customElement['tag'], $this->sets[$set]['custom_tags']);
+                    $allowedTags = array_map(static fn ($customElement) => $customElement['tag'], $this->sets[$set]['custom_tags']);
                     $allowedElements = array_merge($allowedElements, $allowedTags);
-                    foreach ($this->sets[$set]['custom_tags'] as $custom_tag) {
-                        $allowedAttributes = array_merge($allowedAttributes, $custom_tag['attributes']);
+                    foreach ($this->sets[$set]['custom_tags'] as $customTag) {
+                        $allowedAttributes = array_merge($allowedAttributes, $customTag['attributes']);
 
-                        foreach ($custom_tag['attributes'] as $attribute) {
-                            $customAttributes[$custom_tag['tag']][] = $attribute;
-                        }
+                        $customAttributes[$customTag['tag']] = array_values($customTag['attributes']);
                     }
                     $customTags = array_merge($customTags, $this->sets[$set]['custom_tags']);
                 }
@@ -189,7 +197,7 @@ class HtmlSanitizer implements ResetInterface
         return $config;
     }
 
-    private function addHTML5Tags(\HTMLPurifier_HTMLDefinition $definition): \HTMLPurifier_HTMLDefinition
+    private function addHTML5Tags(\HTMLPurifier_HTMLDefinition $definition): void
     {
         $definition->addElement('section', 'Block', 'Flow', 'Common');
         $definition->addElement('nav', 'Block', 'Flow', 'Common');
@@ -335,7 +343,5 @@ class HtmlSanitizer implements ResetInterface
                 'width' => 'Length',
             ]
         );
-
-        return $definition;
     }
 }

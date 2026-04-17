@@ -5,8 +5,11 @@ namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Detail;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Rule\InvokedCount;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Cms\CmsPageCollection;
 use Shopware\Core\Content\Cms\CmsPageEntity;
@@ -71,6 +74,8 @@ class ProductDetailRouteTest extends TestCase
 
     private IdsCollection $idsCollection;
 
+    private MockObject&CategoryBreadcrumbBuilder $breadcrumbBuilder;
+
     private MockObject&SalesChannelCmsPageLoader $cmsPageLoader;
 
     private AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory;
@@ -87,7 +92,7 @@ class ProductDetailRouteTest extends TestCase
         $this->systemConfig = $this->createMock(SystemConfigService::class);
         $this->connection = $this->createMock(Connection::class);
         $configuratorLoader = $this->createMock(ProductConfiguratorLoader::class);
-        $breadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
+        $this->breadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
         $this->cmsPageLoader = $this->createMock(SalesChannelCmsPageLoader::class);
         $this->productCloseoutFilterFactory = new ProductCloseoutFilterFactory();
         $this->eventDispatcher = new EventDispatcher();
@@ -99,7 +104,7 @@ class ProductDetailRouteTest extends TestCase
             $this->systemConfig,
             $this->connection,
             $configuratorLoader,
-            $breadcrumbBuilder,
+            $this->breadcrumbBuilder,
             $this->cmsPageLoader,
             $this->createMock(EntityCmsSlotConfigInheritanceBuilder::class),
             new SalesChannelProductDefinition(),
@@ -516,5 +521,107 @@ class ProductDetailRouteTest extends TestCase
     {
         $this->expectException(DecorationPatternException::class);
         $this->route->getDecorated();
+    }
+
+    #[DataProvider('breadcrumbCategoryDataProvider')]
+    public function testLoadBreadcrumbCategory(
+        SalesChannelProductEntity $product,
+        bool $buildBreadcrumbByReferrerCategory,
+        ?string $referrerCategoryId,
+        InvokedCount $getProductSeoCategoryCount,
+        InvokedCount $loadCategoryCount,
+        ?CategoryEntity $breadcrumbCategory
+    ): void {
+        $this->productRepository->expects($this->exactly(1))
+            ->method('search')
+            ->willReturn(
+                new EntitySearchResult(
+                    'product',
+                    1,
+                    new ProductCollection([$product]),
+                    null,
+                    new Criteria(),
+                    $this->context->getContext()
+                )
+            );
+        $this->systemConfig->method('getBool')->willReturn($buildBreadcrumbByReferrerCategory);
+        $this->breadcrumbBuilder->expects($getProductSeoCategoryCount)
+            ->method('getProductSeoCategory')
+            ->willReturn($breadcrumbCategory);
+        $this->breadcrumbBuilder->expects($loadCategoryCount)
+            ->method('loadCategory')
+            ->willReturn($breadcrumbCategory);
+
+        $request = new Request();
+
+        if ($referrerCategoryId) {
+            $request->query->set('referrerCategoryId', $referrerCategoryId);
+        }
+
+        $result = $this->route->load('1', $request, $this->context, new Criteria());
+
+        static::assertSame($breadcrumbCategory, $result->getProduct()->getSeoCategory());
+    }
+
+    public static function breadcrumbCategoryDataProvider(): \Generator
+    {
+        $defaultBreadcrumbCategory = new CategoryEntity();
+        $defaultBreadcrumbCategory->setId(Uuid::randomHex());
+        $secondCategory = new CategoryEntity();
+        $secondCategory->setId(Uuid::randomHex());
+        $thirdCategory = new CategoryEntity();
+        $thirdCategory->setId(Uuid::randomHex());
+
+        $product = new SalesChannelProductEntity();
+        $product->setId(Uuid::randomHex());
+        $product->setCategoryIds([$defaultBreadcrumbCategory->getId(), $secondCategory->getId()]);
+
+        $productWithoutCategories = new SalesChannelProductEntity();
+        $productWithoutCategories->setId(Uuid::randomHex());
+
+        yield 'Load default breadcrumb category with disabled referrer feature' => [
+            $product,
+            false,
+            null,
+            new InvokedCount(1),
+            new InvokedCount(0),
+            $defaultBreadcrumbCategory,
+        ];
+
+        yield 'Load no breadcrumb category when product has no categories assigned' => [
+            $productWithoutCategories,
+            false,
+            null,
+            new InvokedCount(1),
+            new InvokedCount(0),
+            null,
+        ];
+
+        yield 'Load default breadcrumb category with enabled referrer feature and no referrerCategoryId' => [
+            $product,
+            true,
+            null,
+            new InvokedCount(1),
+            new InvokedCount(0),
+            $defaultBreadcrumbCategory,
+        ];
+
+        yield 'Load breadcrumb category by referrerCategoryId with enabled referrer feature' => [
+            $product,
+            true,
+            $secondCategory->getId(),
+            new InvokedCount(0),
+            new InvokedCount(1),
+            $secondCategory,
+        ];
+
+        yield 'Load default breadcrumb category with enabled referrer feature and unassigned referrerCategoryId' => [
+            $product,
+            true,
+            $thirdCategory->getId(),
+            new InvokedCount(1),
+            new InvokedCount(0),
+            $defaultBreadcrumbCategory,
+        ];
     }
 }

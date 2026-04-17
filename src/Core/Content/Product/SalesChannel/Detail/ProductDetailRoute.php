@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Product\SalesChannel\Detail;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
@@ -10,6 +11,7 @@ use Shopware\Core\Content\Cms\Service\EntityCmsSlotConfigInheritanceBuilder;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\Detail\Event\ResolveVariantIdEvent;
@@ -26,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -124,7 +127,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             $this->cacheTagCollector->addTag(EntityCacheKeyGenerator::buildProductTag($parent));
 
             $product->setSeoCategory(
-                $this->breadcrumbBuilder->getProductSeoCategory($product, $context)
+                $this->getBreadcrumbCategory($request, $product, $context)
             );
 
             $loadConfigurator = !$request->query->getBoolean(self::SKIP_CONFIGURATOR);
@@ -308,5 +311,20 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         }
 
         return $criteria;
+    }
+
+    private function getBreadcrumbCategory(Request $request, ProductEntity $product, SalesChannelContext $context): ?CategoryEntity
+    {
+        if (Feature::isActive('BREADCRUMB_REWORK') || Feature::isActive('v6.8.0.0')) {
+            if ($this->config->getBool('core.listing.buildBreadcrumbByReferrerCategory', $context->getSalesChannelId())) {
+                $referrerCategoryId = $request->query->get('referrerCategoryId');
+
+                if ($referrerCategoryId !== null && \in_array($referrerCategoryId, $product->getCategoryIds() ?? [], true)) {
+                    return $this->breadcrumbBuilder->loadCategory($referrerCategoryId, $context->getContext());
+                }
+            }
+        }
+
+        return $this->breadcrumbBuilder->getProductSeoCategory($product, $context);
     }
 }

@@ -93,15 +93,15 @@ export default {
             return [
                 {
                     value: 'upsert',
-                    label: `${this.$tc('sw-flow.modals.setEntityCustomField.options.overwrite')}`,
+                    label: `${this.$t('sw-flow.modals.setEntityCustomField.options.overwrite')}`,
                 },
                 {
                     value: 'create',
-                    label: `${this.$tc('sw-flow.modals.setEntityCustomField.options.notOverwrite')}`,
+                    label: `${this.$t('sw-flow.modals.setEntityCustomField.options.notOverwrite')}`,
                 },
                 {
                     value: 'clear',
-                    label: `${this.$tc('sw-flow.modals.setEntityCustomField.options.clear')}`,
+                    label: `${this.$t('sw-flow.modals.setEntityCustomField.options.clear')}`,
                 },
             ];
         },
@@ -111,11 +111,11 @@ export default {
                 ...this.defaultFieldOptions,
                 {
                     value: 'add',
-                    label: `${this.$tc('global.default.add')}`,
+                    label: `${this.$t('global.default.add')}`,
                 },
                 {
                     value: 'remove',
-                    label: `${this.$tc('global.default.remove')}`,
+                    label: `${this.$t('global.default.remove')}`,
                 },
             ];
         },
@@ -195,7 +195,7 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                        message: this.$t('global.notification.unspecifiedSaveErrorMessage'),
                     });
                 })
                 .finally(() => {

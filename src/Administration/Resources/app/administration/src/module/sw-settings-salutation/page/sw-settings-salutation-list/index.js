@@ -47,7 +47,7 @@ export default {
 
         tooltipAdd() {
             return {
-                message: this.$tc('sw-privileges.tooltip.warning'),
+                message: this.$t('sw-privileges.tooltip.warning'),
                 disabled: this.acl.can('salutation.creator'),
                 showOnDisabledElements: true,
             };

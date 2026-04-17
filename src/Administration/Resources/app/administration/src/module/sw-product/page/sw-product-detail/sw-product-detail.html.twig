@@ -24,13 +24,13 @@
             size="default"
             @click="onCancel"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
         <sw-button-group
             v-tooltip.bottom="{
-                message: $tc('sw-privileges.tooltip.warning'),
+                message: $t('sw-privileges.tooltip.warning'),
                 disabled: acl.can('product.editor'),
                 showOnDisabledElements: true
             }"
@@ -49,7 +49,7 @@
                 @update:process-success="saveFinish"
                 @click.prevent="onSave"
             >
-                {{ $tc('sw-product.detail.buttonSave') }}
+                {{ $t('sw-product.detail.buttonSave') }}
             </sw-button-process>
             {% endblock %}
 
@@ -77,7 +77,7 @@
                     :disabled="!acl.can('product.creator') || !acl.can('product.editor') || product.parentId != null"
                     @click="onDuplicate"
                 >
-                    {{ $tc('sw-product.detail.buttonSaveDuplicate') }}
+                    {{ $t('sw-product.detail.buttonSaveDuplicate') }}
                 </sw-context-menu-item>
                 {% endblock %}
                 {% endblock %}
@@ -113,7 +113,7 @@
                         name="regular-long-arrow-left"
                         size="var(--scale-size-16)"
                     />
-                    {{ $tc('sw-product.general.backToParent') }}
+                    {{ $t('sw-product.general.backToParent') }}
                 </router-link>
 
                 <router-link
@@ -125,14 +125,14 @@
                         name="regular-long-arrow-left"
                         size="var(--scale-size-16)"
                     />
-                    {{ $tc('sw-product.general.backToGeneralOverview') }}
+                    {{ $t('sw-product.general.backToGeneralOverview') }}
                 </router-link>
             </template>
             {% endblock %}
 
             {% block sw_product_detail_content_language_info %}
             <sw-language-info
-                :entity-description="placeholder(product, 'name', $tc('sw-product.detail.textHeadline'))"
+                :entity-description="placeholder(product, 'name', $t('sw-product.detail.textHeadline'))"
                 :is-new-entity="!productId"
             />
             {% endblock %}
@@ -140,7 +140,7 @@
             {% block sw_product_detail_inheritance_warning %}
             <sw-inheritance-warning
                 v-if="isChild"
-                :name="$tc('sw-product.general.inheritanceModuleName')"
+                :name="$t('sw-product.general.inheritanceModuleName')"
             />
             {% endblock %}
 
@@ -155,9 +155,9 @@
                     class="sw-product-detail__tab-general"
                     :route="{ name: 'sw.product.detail.base', params: { id: $route.params.id } }"
                     :has-error="swProductDetailBaseError"
-                    :title="$tc('sw-product.detail.tabGeneral')"
+                    :title="$t('sw-product.detail.tabGeneral')"
                 >
-                    {{ $tc('sw-product.detail.tabGeneral') }}
+                    {{ $t('sw-product.detail.tabGeneral') }}
                 </sw-tabs-item>
                 {% endblock %}
 
@@ -165,9 +165,9 @@
                 <sw-tabs-item
                     class="sw-product-detail__tab-specifications"
                     :route="{ name: 'sw.product.detail.specifications', params: { id: $route.params.id } }"
-                    :title="$tc('sw-product.detail.tabSpecifications')"
+                    :title="$t('sw-product.detail.tabSpecifications')"
                 >
-                    {{ $tc('sw-product.detail.tabSpecifications') }}
+                    {{ $t('sw-product.detail.tabSpecifications') }}
                 </sw-tabs-item>
                 {% endblock %}
 
@@ -176,9 +176,9 @@
                     v-show="showModeSetting"
                     class="sw-product-detail__tab-advanced-prices"
                     :route="{ name: 'sw.product.detail.prices', params: { id: $route.params.id } }"
-                    :title="$tc('sw-product.detail.tabAdvancedPrices')"
+                    :title="$t('sw-product.detail.tabAdvancedPrices')"
                 >
-                    {{ $tc('sw-product.detail.tabAdvancedPrices') }}
+                    {{ $t('sw-product.detail.tabAdvancedPrices') }}
                 </sw-tabs-item>
                 {% endblock %}
 
@@ -187,9 +187,9 @@
                     v-show="!isChild && showModeSetting"
                     class="sw-product-detail__tab-variants"
                     :route="{ name: 'sw.product.detail.variants', params: { id: $route.params.id } }"
-                    :title="$tc('sw-product.detail.tabVariation')"
+                    :title="$t('sw-product.detail.tabVariation')"
                 >
-                    {{ $tc('sw-product.detail.tabVariation') }}
+                    {{ $t('sw-product.detail.tabVariation') }}
                 </sw-tabs-item>
                 {% endblock %}
 
@@ -198,9 +198,9 @@
                     v-show="!isChild && showModeSetting"
                     class="sw-product-detail__tab-layout"
                     :route="{ name: 'sw.product.detail.layout', params: { id: $route.params.id } }"
-                    :title="$tc('sw-product.detail.tabLayout')"
+                    :title="$t('sw-product.detail.tabLayout')"
                 >
-                    {{ $tc('sw-product.detail.tabLayout') }}
+                    {{ $t('sw-product.detail.tabLayout') }}
                 </sw-tabs-item>
                 {% endblock %}
 
@@ -209,9 +209,9 @@
                     v-show="showModeSetting"
                     class="sw-product-detail__tab-seo"
                     :route="{ name: 'sw.product.detail.seo', params: { id: $route.params.id } }"
-                    :title="$tc('sw-product.detail.tabSeo')"
+                    :title="$t('sw-product.detail.tabSeo')"
                 >
-                    {{ $tc('sw-product.detail.tabSeo') }}
+                    {{ $t('sw-product.detail.tabSeo') }}
                 </sw-tabs-item>
                 {% endblock %}
 
@@ -221,9 +221,9 @@
                     class="sw-product-detail__tab-cross-selling"
                     :route="{ name: 'sw.product.detail.crossSelling', params: { id: $route.params.id } }"
                     :has-error="swProductDetailCrossSellingError"
-                    :title="$tc('sw-product.detail.tabCrossSelling')"
+                    :title="$t('sw-product.detail.tabCrossSelling')"
                 >
-                    {{ $tc('sw-product.detail.tabCrossSelling') }}
+                    {{ $t('sw-product.detail.tabCrossSelling') }}
                 </sw-tabs-item>
                 {% endblock %}
 
@@ -232,9 +232,9 @@
                     v-show="showModeSetting"
                     class="sw-product-detail__tab-reviews"
                     :route="{ name: 'sw.product.detail.reviews', params: { id: $route.params.id } }"
-                    :title="$tc('sw-product.detail.tabReviews')"
+                    :title="$t('sw-product.detail.tabReviews')"
                 >
-                    {{ $tc('sw-product.detail.tabReviews') }}
+                    {{ $t('sw-product.detail.tabReviews') }}
                 </sw-tabs-item>
                 {% endblock %}
 

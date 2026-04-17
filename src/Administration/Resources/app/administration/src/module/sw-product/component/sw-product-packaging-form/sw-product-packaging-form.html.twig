@@ -1,7 +1,7 @@
 {% block sw_product_packaging_form %}
 <div class="sw-product-packaging-form">
     <p class="sw-product-packaging-form__description">
-        {{ $tc('sw-product.packagingForm.description') }}
+        {{ $t('sw-product.packagingForm.description') }}
     </p>
 
     <!-- @deprecated tag:v6.8.0 - <sw-container> will be removed -->
@@ -49,10 +49,10 @@
                     :min="0"
                     :digits="3"
                     :error="productPurchaseUnitError"
-                    :label="$tc('sw-product.priceForm.labelPurchaseUnit')"
+                    :label="$t('sw-product.priceForm.labelPurchaseUnit')"
                     :disabled="props.isInherited || !allowEdit"
-                    :placeholder="$tc('sw-product.packagingForm.placeholderSellingUnit')"
-                    :help-text="$tc('sw-product.packagingForm.helpTextSellingUnit')"
+                    :placeholder="$t('sw-product.packagingForm.placeholderSellingUnit')"
+                    :help-text="$t('sw-product.packagingForm.helpTextSellingUnit')"
                     :model-value="props.currentValue"
                     @update:model-value="props.updateCurrentValue"
                     @inheritance-restore="props.restoreInheritance"
@@ -68,7 +68,7 @@
             v-show="showSettingPackaging"
             v-model:value="product.unitId"
             :has-parent="!!parentProduct.id"
-            :label="$tc('sw-product.packagingForm.labelProductUnit')"
+            :label="$t('sw-product.packagingForm.labelProductUnit')"
             :inherited-value="parentProduct.unitId"
         >
             <template #content="{ currentValue, updateCurrentValue, isInherited }">
@@ -80,7 +80,7 @@
                     :disabled="isInherited || !allowEdit"
                     class="sw-select-product__select_unit"
                     pointer="product.unit"
-                    :placeholder="$tc('sw-product.packagingForm.placeholderProductUnit')"
+                    :placeholder="$t('sw-product.packagingForm.placeholderProductUnit')"
                     show-clearable-button
                     @update:value="updateCurrentValue"
                 />
@@ -107,10 +107,10 @@
                     :digits="3"
                     :error="productReferenceUnitError"
                     :disabled="props.isInherited || !allowEdit"
-                    :placeholder="$tc('sw-product.packagingForm.placeholderBasicUnit')"
-                    :label="$tc('sw-product.priceForm.labelReferenceUnit')"
+                    :placeholder="$t('sw-product.packagingForm.placeholderBasicUnit')"
+                    :label="$t('sw-product.priceForm.labelReferenceUnit')"
                     :model-value="props.currentValue"
-                    :help-text="$tc('sw-product.packagingForm.helpTextBasicUnit')"
+                    :help-text="$t('sw-product.packagingForm.helpTextBasicUnit')"
                     @update:model-value="props.updateCurrentValue"
                 />
 
@@ -137,10 +137,10 @@
                     :is-inheritance-field="props.isInheritField"
                     :is-inherited="props.isInherited"
                     :error="productPackUnitError"
-                    :label="$tc('sw-product.priceForm.labelPackUnit')"
-                    :placeholder="$tc('sw-product.packagingForm.placeholderPackagingUnit')"
+                    :label="$t('sw-product.priceForm.labelPackUnit')"
+                    :placeholder="$t('sw-product.packagingForm.placeholderPackagingUnit')"
                     :disabled="props.isInherited || !allowEdit"
-                    :help-text="$tc('sw-product.packagingForm.helpTextPackUnit')"
+                    :help-text="$t('sw-product.packagingForm.helpTextPackUnit')"
                     :model-value="props.currentValue"
                     @update:model-value="props.updateCurrentValue"
                     @inheritance-restore="props.restoreInheritance"
@@ -165,10 +165,10 @@
                     :is-inheritance-field="props.isInheritField"
                     :is-inherited="props.isInherited"
                     :error="productPackUnitPluralError"
-                    :label="$tc('sw-product.priceForm.labelPackUnitPlural')"
-                    :placeholder="$tc('sw-product.packagingForm.placeholderPackagingUnitPlural')"
+                    :label="$t('sw-product.priceForm.labelPackUnitPlural')"
+                    :placeholder="$t('sw-product.packagingForm.placeholderPackagingUnitPlural')"
                     :disabled="props.isInherited || !allowEdit"
-                    :help-text="$tc('sw-product.packagingForm.helpTextPackUnitPlural')"
+                    :help-text="$t('sw-product.packagingForm.helpTextPackUnitPlural')"
                     :model-value="props.currentValue"
                     @update:model-value="props.updateCurrentValue"
                     @inheritance-restore="props.restoreInheritance"

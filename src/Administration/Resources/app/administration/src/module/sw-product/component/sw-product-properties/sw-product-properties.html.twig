@@ -33,7 +33,7 @@
                     {% endblock %}
 
                     {% block sw_product_properties_card_title_text %}
-                    {{ $tc('sw-product.properties.cardTitle') }}
+                    {{ $t('sw-product.properties.cardTitle') }}
                     {% endblock %}
                 </div>
                 {% endblock %}
@@ -59,7 +59,7 @@
                                 v-model:value="searchTerm"
                                 variant="form"
                                 size="small"
-                                :placeholder="$tc('sw-product.properties.placeholderSearchAddedProperties')"
+                                :placeholder="$t('sw-product.properties.placeholderSearchAddedProperties')"
                                 :disabled="isPropertiesLoading || undefined"
                                 @search-term-change="onChangeSearchTerm"
                             />
@@ -68,7 +68,7 @@
                             {% block sw_product_properties_filled_state_header_button %}
                             <mt-button
                                 v-tooltip="{
-                                    message: $tc('sw-privileges.tooltip.warning'),
+                                    message: $t('sw-privileges.tooltip.warning'),
                                     disabled: acl.can('product.editor'),
                                     showOnDisabledElements: true
                                 }"
@@ -79,7 +79,7 @@
                                 variant="secondary"
                                 @click="turnOnAddPropertiesModal"
                             >
-                                {{ $tc('sw-product.properties.buttonAddProperty') }}
+                                {{ $t('sw-product.properties.buttonAddProperty') }}
                             </mt-button>
                             {% endblock %}
                         </sw-container>
@@ -130,7 +130,7 @@
                                 size="small"
                                 @click="onDeleteProperty(item)"
                             >
-                                {{ $tc('global.default.delete') }}
+                                {{ $t('global.default.delete') }}
                             </mt-button>
                             {% endblock %}
                         </template>
@@ -142,7 +142,7 @@
                                 size="small"
                                 @click="onDeleteProperties"
                             >
-                                {{ $tc('global.default.delete') }}
+                                {{ $t('global.default.delete') }}
                             </mt-button>
                             {% endblock %}
                         </template>

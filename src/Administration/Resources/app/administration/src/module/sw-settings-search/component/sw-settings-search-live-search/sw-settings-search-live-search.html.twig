@@ -2,7 +2,7 @@
 <mt-card
     class="sw-settings-search-live-search"
     position-identifier="sw-settings-search-live-search"
-    :title="$tc('sw-settings-search.liveSearchTab.titleCard')"
+    :title="$t('sw-settings-search.liveSearchTab.titleCard')"
 >
 
     {% block sw_settings_search_view_live_search_rebuild_index_row %}
@@ -10,7 +10,7 @@
 
         {% block sw_settings_search_view_live_search_description %}
         <div class="sw-settings-search-live-search__description">
-            {{ $tc('sw-settings-search.liveSearchTab.textDescription') }}
+            {{ $t('sw-settings-search.liveSearchTab.textDescription') }}
         </div>
         {% endblock %}
 
@@ -26,7 +26,7 @@
                 tabindex="0"
                 @click="onShowExampleModal"
             >
-                {{ $tc('sw-settings-search.generalTab.linkExample') }}
+                {{ $t('sw-settings-search.generalTab.linkExample') }}
                 <mt-icon
                     name="regular-long-arrow-right"
                     size="var(--scale-size-16)"
@@ -49,8 +49,8 @@
         class="sw-settings-search-live-search__sales-channel-select"
         value-property="id"
         label-property="translated.name"
-        :placeholder="$tc('sw-settings-search.liveSearchTab.textPlaceholderSalesChannel')"
-        :label="$tc('sw-settings-search.liveSearchTab.labelSalesChannelSelect')"
+        :placeholder="$t('sw-settings-search.liveSearchTab.textPlaceholderSalesChannel')"
+        :label="$t('sw-settings-search.liveSearchTab.labelSalesChannelSelect')"
         :value="salesChannelId"
         :options="salesChannels"
         show-clearable-button
@@ -93,7 +93,7 @@
             class="sw-settings-search-live-search__sorting-select"
             value-property="key"
             label-property="translated.label"
-            :placeholder="$tc('sw-settings-search.liveSearchTab.textPlaceholderSorting')"
+            :placeholder="$t('sw-settings-search.liveSearchTab.textPlaceholderSorting')"
             :options="productSortings"
             :disabled="!isSearchEnable || undefined"
             @update:model-value="searchOnStorefront"
@@ -113,7 +113,7 @@
             v-if="products && products.length === 0"
             class="sw-settings-search-live-search__no-result"
         >
-            {{ $tc('sw-settings-search.liveSearchTab.textNoResult') }}
+            {{ $t('sw-settings-search.liveSearchTab.textNoResult') }}
         </div>
         {% endblock %}
 

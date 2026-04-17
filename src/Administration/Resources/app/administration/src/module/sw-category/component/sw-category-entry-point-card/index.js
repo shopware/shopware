@@ -42,15 +42,15 @@ export default {
             return [
                 {
                     value: 'navigationSalesChannels',
-                    label: this.$tc('sw-category.base.entry-point-card.types.labelMainNavigation'),
+                    label: this.$t('sw-category.base.entry-point-card.types.labelMainNavigation'),
                 },
                 {
                     value: 'footerSalesChannels',
-                    label: this.$tc('sw-category.base.entry-point-card.types.labelFooterNavigation'),
+                    label: this.$t('sw-category.base.entry-point-card.types.labelFooterNavigation'),
                 },
                 {
                     value: 'serviceSalesChannels',
-                    label: this.$tc('sw-category.base.entry-point-card.types.labelServiceNavigation'),
+                    label: this.$t('sw-category.base.entry-point-card.types.labelServiceNavigation'),
                 },
             ];
         },
@@ -66,11 +66,11 @@ export default {
         helpText() {
             switch (this.selectedEntryPoint) {
                 case 'navigationSalesChannels':
-                    return this.$tc('sw-category.base.entry-point-card.types.helpTextMainNavigation');
+                    return this.$t('sw-category.base.entry-point-card.types.helpTextMainNavigation');
                 case 'footerSalesChannels':
-                    return this.$tc('sw-category.base.entry-point-card.types.helpTextFooterNavigation');
+                    return this.$t('sw-category.base.entry-point-card.types.helpTextFooterNavigation');
                 case 'serviceSalesChannels':
-                    return this.$tc('sw-category.base.entry-point-card.types.helpTextServiceNavigation');
+                    return this.$t('sw-category.base.entry-point-card.types.helpTextServiceNavigation');
                 default:
                     return '';
             }
@@ -82,10 +82,10 @@ export default {
 
         salesChannelSelectionLabel() {
             if (this.hasExistingNavigation) {
-                return this.$tc('sw-category.base.entry-point-card.labelSalesChannelsAdd');
+                return this.$t('sw-category.base.entry-point-card.labelSalesChannelsAdd');
             }
 
-            return this.$tc('global.entities.sales_channel', 2);
+            return this.$t('global.entities.sales_channel', 2);
         },
 
         salesChannelCriteria() {

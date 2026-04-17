@@ -15,14 +15,14 @@
             :inherited-value="parentProduct.taxId"
             :has-parent="!!parentProduct.id"
             :help-text="taxRateHelpText"
-            :label="$tc('sw-product.priceForm.labelTaxRate')"
+            :label="$t('sw-product.priceForm.labelTaxRate')"
             class="sw-product-price-form__tax-rate"
             required
         >
             <template #content="{ currentValue, updateCurrentValue, isInherited }">
                 <mt-select
                     name="sw-field--product-taxId"
-                    :placeholder="$tc('sw-product.priceForm.placeholderTaxRate')"
+                    :placeholder="$t('sw-product.priceForm.placeholderTaxRate')"
                     validation="required"
                     :disabled="isInherited || !allowEdit || undefined"
                     :model-value="currentValue"
@@ -75,7 +75,7 @@
             :to="{ name: 'sw.product.detail.prices', params: { id: $route.params.id } }"
             class="sw-card__quick-link"
         >
-            {{ $tc('sw-product.detailBase.linkAdvancedPrices') }}
+            {{ $t('sw-product.detailBase.linkAdvancedPrices') }}
             <mt-icon
                 name="regular-long-arrow-right"
                 size="var(--scale-size-16)"
@@ -92,7 +92,7 @@
             @click.prevent="displayMaintainCurrencies = true"
             @keydown.enter.prevent="displayMaintainCurrencies = true"
         >
-            {{ $tc('sw-product.detailBase.linkMaintainCurrencyPrices') }}
+            {{ $t('sw-product.detailBase.linkMaintainCurrencyPrices') }}
             <mt-icon
                 name="regular-long-arrow-right"
                 size="var(--scale-size-16)"

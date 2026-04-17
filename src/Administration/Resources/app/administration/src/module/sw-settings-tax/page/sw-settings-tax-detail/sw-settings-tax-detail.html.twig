@@ -6,7 +6,7 @@
             {{ label }}
         </h2>
         <h2 v-else>
-            {{ $tc('sw-settings-tax.detail.textHeadline') }}
+            {{ $t('sw-settings-tax.detail.textHeadline') }}
         </h2>
     </template>
     {% endblock %}
@@ -21,7 +21,7 @@
             size="default"
             @click="onCancel"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -35,7 +35,7 @@
             :disabled="isLoading || !allowSave || undefined"
             @click.prevent="onSave"
         >
-            {{ $tc('sw-settings-tax.detail.buttonSave') }}
+            {{ $t('sw-settings-tax.detail.buttonSave') }}
         </sw-button-process>
         {% endblock %}
     </template>
@@ -60,7 +60,7 @@
             <template v-else>
                 {% block sw_settings_tax_detail_content_card %}
                 <mt-card
-                    :title="$tc('sw-settings-tax.detail.titleCard')"
+                    :title="$t('sw-settings-tax.detail.titleCard')"
                     position-identifier="sw-settings-tax-detail-content"
                 >
                     <sw-container
@@ -76,8 +76,8 @@
                             required
                             name="sw-field--tax-name"
                             :disabled="!acl.can('tax.editor') || isShopwareDefaultTax || undefined"
-                            :label="$tc('sw-settings-tax.detail.labelName')"
-                            :placeholder="$tc('sw-settings-tax.detail.placeholderName')"
+                            :label="$t('sw-settings-tax.detail.labelName')"
+                            :placeholder="$t('sw-settings-tax.detail.placeholderName')"
                             :error="taxNameError"
                             @update:model-value="changeName"
                         />
@@ -90,13 +90,13 @@
                             required
                             :digits="3"
                             :disabled="!acl.can('tax.editor') || undefined"
-                            :label="$tc('sw-settings-tax.detail.labelDefaultTaxRate')"
-                            :placeholder="$tc('sw-settings-tax.detail.placeholderDefaultTaxRate')"
+                            :label="$t('sw-settings-tax.detail.labelDefaultTaxRate')"
+                            :placeholder="$t('sw-settings-tax.detail.placeholderDefaultTaxRate')"
                             :error="taxTaxRateError"
                         >
                             <template #suffix>
                                 <span>
-                                    <span v-html="$sanitize($tc('sw-settings-tax.general.taxRateSymbol'))"></span>
+                                    <span v-html="$sanitize($t('sw-settings-tax.general.taxRateSymbol'))"></span>
                                 </span>
                             </template>
                         </mt-number-field>
@@ -108,8 +108,8 @@
                             <mt-switch
                                 :key="isDefault"
                                 class="sw-settings-tax-detail__default-tax-rate"
-                                :label="$tc('sw-settings-tax.detail.defaultTaxLabel')"
-                                :help-text="$tc('sw-settings-tax.detail.defaultTaxHelpText')"
+                                :label="$t('sw-settings-tax.detail.defaultTaxLabel')"
+                                :help-text="$t('sw-settings-tax.detail.defaultTaxHelpText')"
                                 :model-value="isDefault"
                                 name="sw-field--isDefault"
                                 @update:model-value="onChangeDefaultTaxRate"
@@ -134,7 +134,7 @@
                 <mt-card
                     v-if="showCustomFields"
                     position-identifier="sw-settings-tax-detail-custom-field-sets"
-                    :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                    :title="$t('sw-settings-custom-field.general.mainMenuItemGeneral')"
                     :is-loading="isLoading"
                 >
                     <sw-custom-field-set-renderer

@@ -10,8 +10,8 @@
             name="sw-field--product-stock"
             number-type="int"
             :disabled="!allowEdit"
-            :label="$tc('sw-product.settingsForm.labelStock')"
-            :placeholder="$tc('sw-product.settingsForm.placeholderStock')"
+            :label="$t('sw-product.settingsForm.labelStock')"
+            :placeholder="$t('sw-product.settingsForm.placeholderStock')"
             :error="productStockError"
         />
         {% endblock %}
@@ -22,7 +22,7 @@
             name="sw-field--product-available-stock"
             number-type="int"
             :disabled="true"
-            :label="$tc('sw-product.settingsForm.labelAvailableStock')"
+            :label="$t('sw-product.settingsForm.labelAvailableStock')"
         />
         {% endblock %}
 
@@ -40,8 +40,8 @@
                     :is-inheritance-field="props.isInheritField"
                     :is-inherited="props.isInherited"
                     :inherited-value="parentProduct.isCloseout"
-                    :label="$tc('sw-product.settingsForm.labelIsCloseout')"
-                    :help-text="$tc('sw-product.settingsForm.isCloseoutHelpText')"
+                    :label="$t('sw-product.settingsForm.labelIsCloseout')"
+                    :help-text="$t('sw-product.settingsForm.isCloseoutHelpText')"
                     :disabled="!allowEdit"
                     :model-value="props.currentValue"
                     bordered
@@ -65,7 +65,7 @@
             v-model:value="product.deliveryTimeId"
             :inherited-value="parentProduct.deliveryTimeId"
             :has-parent="!!parentProduct.id"
-            :label="$tc('sw-product.settingsForm.labelDeliveryTime')"
+            :label="$t('sw-product.settingsForm.labelDeliveryTime')"
         >
             <template #content="{ currentValue, updateCurrentValue, isInherited }">
 
@@ -77,7 +77,7 @@
                     :disabled="isInherited || !allowEdit"
                     class="product-deliverability-form__delivery-time"
                     :error="productDeliveryTimeIdError"
-                    :placeholder="$tc('sw-product.settingsForm.placeholderDeliveryTime')"
+                    :placeholder="$t('sw-product.settingsForm.placeholderDeliveryTime')"
                     show-clearable-button
                     @update:value="updateCurrentValue"
                 />
@@ -103,8 +103,8 @@
                     allow-empty
                     :min="0"
                     :disabled="props.isInherited || !allowEdit"
-                    :label="$tc('sw-product.settingsForm.labelRestockTime')"
-                    :placeholder="$tc('sw-product.settingsForm.placeholderRestockTime')"
+                    :label="$t('sw-product.settingsForm.labelRestockTime')"
+                    :placeholder="$t('sw-product.settingsForm.placeholderRestockTime')"
                     :model-value="props.currentValue"
                     :error="productRestockTimeError"
                     @update:model-value="props.updateCurrentValue"
@@ -131,7 +131,7 @@
                     :is-inherited="props.isInherited"
                     :inherited-value="parentProduct.shippingFree"
                     :error="productShippingFreeError"
-                    :label="$tc('sw-product.settingsForm.labelShippingFree')"
+                    :label="$t('sw-product.settingsForm.labelShippingFree')"
                     :disabled="!allowEdit"
                     :model-value="props.currentValue"
                     bordered
@@ -165,8 +165,8 @@
                     number-type="int"
                     :min="1"
                     :error="productMinPurchaseError"
-                    :label="$tc('sw-product.settingsForm.labelMinPurchase')"
-                    :placeholder="$tc('sw-product.settingsForm.placeholderMinPurchase')"
+                    :label="$t('sw-product.settingsForm.labelMinPurchase')"
+                    :placeholder="$t('sw-product.settingsForm.placeholderMinPurchase')"
                     :disabled="props.isInherited || !allowEdit"
                     :model-value="props.currentValue"
                     @update:model-value="props.updateCurrentValue"
@@ -194,8 +194,8 @@
                     number-type="int"
                     :min="1"
                     :error="productPurchaseStepsError"
-                    :label="$tc('sw-product.settingsForm.labelPurchaseSteps')"
-                    :placeholder="$tc('sw-product.settingsForm.placeholderPurchaseSteps')"
+                    :label="$t('sw-product.settingsForm.labelPurchaseSteps')"
+                    :placeholder="$t('sw-product.settingsForm.placeholderPurchaseSteps')"
                     :disabled="props.isInherited || !allowEdit"
                     :model-value="props.currentValue"
                     @update:model-value="props.updateCurrentValue"
@@ -223,8 +223,8 @@
                     :allow-empty="true"
                     :min="0"
                     :error="productMaxPurchaseError"
-                    :label="$tc('sw-product.settingsForm.labelMaxPurchase')"
-                    :placeholder="$tc('sw-product.settingsForm.placeholderMaxPurchase')"
+                    :label="$t('sw-product.settingsForm.labelMaxPurchase')"
+                    :placeholder="$t('sw-product.settingsForm.placeholderMaxPurchase')"
                     :disabled="props.isInherited || !allowEdit"
                     :model-value="props.currentValue"
                     @update:model-value="props.updateCurrentValue"

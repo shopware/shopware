@@ -97,12 +97,12 @@ export default {
             promise
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-search.notification.saveSuccess'),
+                        message: this.$t('sw-settings-search.notification.saveSuccess'),
                     });
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-search.notification.saveError'),
+                        message: this.$t('sw-settings-search.notification.saveError'),
                     });
                 })
                 .finally(() => {
@@ -121,7 +121,7 @@ export default {
         onResetRanking(currentField) {
             if (!currentField.field) {
                 this.createNotificationError({
-                    message: this.$tc('sw-settings-search.notification.saveError'),
+                    message: this.$t('sw-settings-search.notification.saveError'),
                 });
 
                 this.$emit('data-load');
@@ -131,7 +131,7 @@ export default {
             const currentItem = this.searchConfigs.find((item) => item.field === currentField.field);
             if (!currentItem) {
                 this.createNotificationError({
-                    message: this.$tc('sw-settings-search.notification.saveError'),
+                    message: this.$t('sw-settings-search.notification.saveError'),
                 });
 
                 return;

@@ -22,7 +22,7 @@
             class="context-price"
             position-identifier="sw-product-detail-context-prices-context-price"
             :class="getPriceRuleGroupClass(index)"
-            :title="priceGroup.rule ? priceGroup.rule.name : $tc('sw-product.prices.cardTitlePriceRule')"
+            :title="priceGroup.rule ? priceGroup.rule.name : $t('sw-product.prices.cardTitlePriceRule')"
             :large="true"
         >
 
@@ -39,13 +39,13 @@
                             v-if="rules.entity"
                             id="rule"
                             :rule-id="priceGroup.ruleId"
-                            :placeholder="$tc('sw-product.advancedPrices.selectRule')"
+                            :placeholder="$t('sw-product.advancedPrices.selectRule')"
                             :disabled="!acl.can('product.editor')"
                             class="sw-product-detail-context-prices__toolbar-selection"
                             size="small"
                             rule-aware-group-key="productPrices"
                             :restricted-rule-ids="Object.keys(priceRuleGroups)"
-                            :restricted-rule-ids-tooltip-label="$tc('sw-product.advancedPrices.ruleAlreadyUsed')"
+                            :restricted-rule-ids-tooltip-label="$t('sw-product.advancedPrices.ruleAlreadyUsed')"
                             @save-rule="onRuleChange($event, priceGroup.ruleId)"
                         />
                     {% endblock %}
@@ -53,7 +53,7 @@
                     {% block sw_product_detail_prices_price_card_toolbar_rule_delete %}
                         <mt-button
                             v-tooltip="{
-                                message: $tc('sw-privileges.tooltip.warning'),
+                                message: $t('sw-privileges.tooltip.warning'),
                                 disabled: acl.can('product.editor'),
                                 showOnDisabledElements: true
                             }"
@@ -62,7 +62,7 @@
                             variant="secondary"
                             @click="onPriceGroupDelete(priceGroup.ruleId)"
                         >
-                            {{ $tc('sw-product.prices.buttonPriceRuleDelete') }}
+                            {{ $t('sw-product.prices.buttonPriceRuleDelete') }}
                         </mt-button>
                     {% endblock %}
 
@@ -70,7 +70,7 @@
                         <mt-button
                             v-if="canAddPriceRule"
                             v-tooltip="{
-                                message: $tc('sw-privileges.tooltip.warning'),
+                                message: $t('sw-privileges.tooltip.warning'),
                                 disabled: acl.can('product.editor'),
                                 showOnDisabledElements: true
                             }"
@@ -80,7 +80,7 @@
                             variant="secondary"
                             @click="onPriceGroupDuplicate(priceGroup)"
                         >
-                            {{ $tc('sw-product.prices.buttonPriceRuleDuplicate') }}
+                            {{ $t('sw-product.prices.buttonPriceRuleDuplicate') }}
                         </mt-button>
                     {% endblock %}
 
@@ -104,7 +104,7 @@
                         <mt-switch
                             :model-value="showListPrices[priceGroup.ruleId] !== false"
                             remove-top-margin
-                            :label="$tc('sw-product.prices.settingShowListPrices')"
+                            :label="$t('sw-product.prices.settingShowListPrices')"
                             @update:model-value="onChangeShowListPrices($event, priceGroup.ruleId)"
                         />
                     {% endblock %}
@@ -117,14 +117,14 @@
                     >
                         <div class="sw-product-detail-context-prices__type-label">
                             <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
-                            <label>{{ $tc('sw-product.advancedPrices.advancedListPricePriceLabel') }}</label>
+                            <label>{{ $t('sw-product.advancedPrices.advancedListPricePriceLabel') }}</label>
                             <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
                             <label v-if="showListPrices[priceGroup.ruleId] !== false">
-                                {{ $tc('sw-product.advancedPrices.advancedListPriceLabel') }}
+                                {{ $t('sw-product.advancedPrices.advancedListPriceLabel') }}
                             </label>
                             <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
                             <label v-if="showListPrices[priceGroup.ruleId] !== false">
-                                {{ $tc('sw-product.advancedPrices.labelRegulationPrice') }}
+                                {{ $t('sw-product.advancedPrices.labelRegulationPrice') }}
                             </label>
                         </div>
                     </template>
@@ -245,7 +245,7 @@
                             :disabled="!acl.can('product.editor')"
                             @click="onPriceRuleDelete(item)"
                         >
-                            {{ $tc('sw-product.prices.contextMenuDelete') }}
+                            {{ $t('sw-product.prices.contextMenuDelete') }}
                         </sw-context-menu-item>
                     {% endblock %}
 
@@ -262,7 +262,7 @@
                 >
 
                 {% block sw_product_detail_prices_price_card_price_group_empty_state_warning %}
-                    <p>{{ $tc('sw-product.advancedPrices.newRuleWarning') }}</p>
+                    <p>{{ $t('sw-product.advancedPrices.newRuleWarning') }}</p>
                 {% endblock %}
 
                 </div>
@@ -280,7 +280,7 @@
             <mt-button
                 v-if="canAddPriceRule"
                 v-tooltip="{
-                    message: $tc('sw-privileges.tooltip.warning'),
+                    message: $t('sw-privileges.tooltip.warning'),
                     disabled: acl.can('product.editor'),
                     showOnDisabledElements: true
                 }"
@@ -291,7 +291,7 @@
                 variant="secondary"
                 @click="onAddNewPriceGroup(null)"
             >
-                {{ $tc('sw-product.prices.buttonAddAdditionalPriceRuleGroup') }}
+                {{ $t('sw-product.prices.buttonAddAdditionalPriceRuleGroup') }}
             </mt-button>
             {% endblock %}
         </sw-container>
@@ -319,14 +319,14 @@
                 {% block sw_product_detail_prices_price_empty_state_text_child %}
                 <template v-if="isInherited">
                     {% block sw_product_detail_prices_price_empty_state_text_inherited %}
-                    <p>{{ $tc('sw-product.advancedPrices.advancedPricesInherited') }}</p>
+                    <p>{{ $t('sw-product.advancedPrices.advancedPricesInherited') }}</p>
                     {% block sw_product_detail_prices_price_empty_state_text_link %}
                     <router-link
                         v-if="isInherited"
                         :to="{ name: 'sw.product.detail.prices', params: { id: product.parentId } }"
                         class="sw-product-detail-context-prices__parent-prices-link"
                     >
-                        {{ $tc('sw-product.advancedPrices.linkAdvancedPricesOfParent') }}
+                        {{ $t('sw-product.advancedPrices.linkAdvancedPricesOfParent') }}
                         <mt-icon
                             name="regular-long-arrow-right"
                             size="var(--scale-size-16)"
@@ -338,7 +338,7 @@
 
                 <template v-else>
                     {% block sw_product_detail_prices_price_empty_state_text_not_inherited %}
-                    <p>{{ $tc('sw-product.advancedPrices.advancedPricesNotInherited') }}</p>
+                    <p>{{ $t('sw-product.advancedPrices.advancedPricesNotInherited') }}</p>
                     {% endblock %}
                 </template>
                 {% endblock %}
@@ -346,7 +346,7 @@
 
             <template v-else>
                 {% block sw_product_detail_prices_price_empty_state_text_empty %}
-                <p>{{ $tc('sw-product.advancedPrices.advancedPricesNotExisting') }}</p>
+                <p>{{ $t('sw-product.advancedPrices.advancedPricesNotExisting') }}</p>
                 {% endblock %}
             </template>
             {% endblock %}
@@ -372,7 +372,7 @@
                     />
                     <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
                     <label class="sw-product-detail-context-prices__inheritance-label">
-                        {{ $tc('sw-product.advancedPrices.inheritSwitchLabel') }}
+                        {{ $t('sw-product.advancedPrices.inheritSwitchLabel') }}
                     </label>
                 </div>
             </template>
@@ -383,11 +383,11 @@
                 v-if="rules.entity"
                 id="rule"
                 class="sw-product-detail-context-prices__empty-state-select-rule"
-                :placeholder="$tc('sw-product.advancedPrices.selectRule')"
+                :placeholder="$t('sw-product.advancedPrices.selectRule')"
                 :disabled="isInherited || !acl.can('product.editor')"
                 rule-aware-group-key="productPrices"
                 :restricted-rule-ids="Object.keys(priceRuleGroups)"
-                :restricted-rule-ids-tooltip-label="$tc('sw-product.advancedPrices.ruleAlreadyUsed')"
+                :restricted-rule-ids-tooltip-label="$t('sw-product.advancedPrices.ruleAlreadyUsed')"
                 @save-rule="onAddNewPriceGroup($event)"
             />
             {% endblock %}

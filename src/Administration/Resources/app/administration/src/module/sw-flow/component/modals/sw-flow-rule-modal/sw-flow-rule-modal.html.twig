@@ -22,7 +22,7 @@
                 name="detail"
                 :active-tab="active"
             >
-                {{ $tc('sw-flow.modals.rule.tabDetail') }}
+                {{ $t('sw-flow.modals.rule.tabDetail') }}
             </sw-tabs-item>
             {% endblock %}
 
@@ -33,7 +33,7 @@
                 name="rule"
                 :active-tab="active"
             >
-                {{ $tc('sw-flow.modals.rule.tabRule') }}
+                {{ $t('sw-flow.modals.rule.tabRule') }}
             </sw-tabs-item>
             {% endblock %}
         </template>
@@ -54,8 +54,8 @@
                             name="sw-field--rule-name"
                             class="sw-flow-rule-modal__name"
                             required
-                            :label="$tc('sw-flow.modals.rule.labelName')"
-                            :placeholder="$tc('sw-flow.modals.rule.placeholderName')"
+                            :label="$t('sw-flow.modals.rule.labelName')"
+                            :placeholder="$t('sw-flow.modals.rule.placeholderName')"
                             :error="ruleNameError"
                         />
                         {% endblock %}
@@ -67,8 +67,8 @@
                             name="sw-field--rule-priority"
                             required
                             number-type="int"
-                            :label="$tc('sw-flow.modals.rule.labelPriority')"
-                            :placeholder="$tc('sw-flow.modals.rule.placeholderPriority')"
+                            :label="$t('sw-flow.modals.rule.labelPriority')"
+                            :placeholder="$t('sw-flow.modals.rule.placeholderPriority')"
                             :error="rulePriorityError"
                             :step="1"
                             :min="0"
@@ -81,8 +81,8 @@
                         v-model="rule.description"
                         name="sw-field--rule-description"
                         class="sw-flow-rule-modal__description"
-                        :label="$tc('sw-flow.modals.rule.labelDescription')"
-                        :placeholder="$tc('sw-flow.modals.rule.placeholderDescription')"
+                        :label="$t('sw-flow.modals.rule.labelDescription')"
+                        :placeholder="$t('sw-flow.modals.rule.placeholderDescription')"
                     />
                     {% endblock %}
 
@@ -93,16 +93,16 @@
                         class="sw-flow-rule-modal__type"
                         value-property="id"
                         label-property="name"
-                        :label="$tc('sw-flow.modals.rule.labelType')"
-                        :placeholder="$tc('sw-flow.modals.rule.placeholderType')"
+                        :label="$t('sw-flow.modals.rule.labelType')"
+                        :placeholder="$t('sw-flow.modals.rule.placeholderType')"
                         :options="availableModuleTypes"
                     >
                         <template #selection-label-property="{ item }">
-                            {{ $tc(item.name) }}
+                            {{ $t(item.name) }}
                         </template>
 
                         <template #result-label-property="{ item }">
-                            {{ $tc(item.name) }}
+                            {{ $t(item.name) }}
                         </template>
                     </sw-multi-select>
                     {% endblock %}
@@ -149,7 +149,7 @@
             variant="secondary"
             @click="onClose"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -162,7 +162,7 @@
             :process-success="isSaveSuccessful"
             @click="onSaveRule"
         >
-            {{ $tc('sw-flow.modals.rule.buttonAddRule') }}
+            {{ $t('sw-flow.modals.rule.buttonAddRule') }}
         </sw-button-process>
         {% endblock %}
     </template>

@@ -1,6 +1,6 @@
 {% block sw_product_feature_set_card %}
 <mt-card
-    :title="$tc('sw-settings-product-feature-sets.valuesCard.cardTitle')"
+    :title="$t('sw-settings-product-feature-sets.valuesCard.cardTitle')"
     class="sw-settings-product-feature-sets-values-card"
     position-identifier="sw-settings-product-feature-sets-values-card"
     :class="valuesCardClasses"
@@ -54,7 +54,7 @@
                             variant="secondary"
                             @click="onAddField"
                         >
-                            {{ $tc('sw-settings-product-feature-sets.valuesCard.labelCreateNew') }}
+                            {{ $t('sw-settings-product-feature-sets.valuesCard.labelCreateNew') }}
                         </mt-button>
                     </sw-container>
                     {% endblock %}
@@ -121,10 +121,10 @@
             {% block sw_product_feature_set_card_empty_state_label %}
             <div class="sw-settings-product-feature-set-card__empty-state--label">
                 <p v-if="disabled">
-                    {{ $tc('sw-settings-product-feature-sets.valuesCard.createStateDescription') }}
+                    {{ $t('sw-settings-product-feature-sets.valuesCard.createStateDescription') }}
                 </p>
                 <p v-else>
-                    {{ $tc('sw-settings-product-feature-sets.valuesCard.emptyStateDescription') }}
+                    {{ $t('sw-settings-product-feature-sets.valuesCard.emptyStateDescription') }}
                 </p>
             </div>
             {% endblock %}
@@ -137,7 +137,7 @@
                 variant="secondary"
                 @click="showModal = true"
             >
-                {{ $tc('sw-settings-product-feature-sets.valuesCard.labelCreateNew') }}
+                {{ $t('sw-settings-product-feature-sets.valuesCard.labelCreateNew') }}
             </mt-button>
             {% endblock %}
         </div>

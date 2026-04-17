@@ -692,7 +692,7 @@ export default class VueAdapter extends ViewAdapter {
                 return '';
             }
 
-            const baseTitle = this.$root.$tc('global.sw-admin-menu.textShopwareAdmin');
+            const baseTitle = this.$root.$t('global.sw-admin-menu.textShopwareAdmin');
 
             if (!this.$route.meta || !this.$route.meta.$module) {
                 return '';
@@ -700,7 +700,7 @@ export default class VueAdapter extends ViewAdapter {
 
             // @ts-expect-error - $module is not typed correctly
             const moduleTitle = this.$route.meta.$module?.title as string;
-            const pageTitle = this.$root.$tc(moduleTitle);
+            const pageTitle = this.$root.$t(moduleTitle);
 
             const params = [
                 baseTitle,

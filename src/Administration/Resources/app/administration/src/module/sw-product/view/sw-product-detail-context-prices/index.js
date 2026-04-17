@@ -377,7 +377,7 @@ export default {
             // if it is the only item in the priceRuleGroup
             if (matchingPriceRuleGroup.prices.length <= 1) {
                 this.createNotificationError({
-                    message: this.$tc('sw-product.advancedPrices.deletionNotPossibleMessage'),
+                    message: this.$t('sw-product.advancedPrices.deletionNotPossibleMessage'),
                 });
 
                 return;
@@ -551,7 +551,7 @@ export default {
 
         getStartQuantityTooltip(itemIndex, quantity) {
             return {
-                message: this.$tc('sw-product.advancedPrices.advancedPriceDisabledTooltip'),
+                message: this.$t('sw-product.advancedPrices.advancedPriceDisabledTooltip'),
                 width: 275,
                 showDelay: 200,
                 disabled: itemIndex !== 0 || quantity !== 1,

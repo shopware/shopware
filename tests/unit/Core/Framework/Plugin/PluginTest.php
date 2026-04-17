@@ -61,4 +61,12 @@ class PluginTest extends TestCase
 
         static::assertSame('/www/somePlugin', $plugin->getBasePath());
     }
+
+    public function testGetPathWithTrailingSlashBasePath(): void
+    {
+        $plugin = new SwagTestPlugin(true, self::$swagTestPluginPath . '/');
+
+        static::assertSame(self::$swagTestPluginPath . '/src', $plugin->getPath());
+        static::assertStringNotContainsString('//', $plugin->getPath());
+    }
 }

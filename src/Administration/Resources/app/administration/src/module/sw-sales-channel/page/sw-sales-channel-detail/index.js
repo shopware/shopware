@@ -7,6 +7,7 @@ import template from './sw-sales-channel-detail.html.twig';
 const { Mixin, Context, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
 const objectHelper = Shopware.Utils.object;
+const ShopwareError = Shopware.Classes.ShopwareError;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -412,6 +413,11 @@ export default {
         },
 
         async onSave() {
+            if (!this.validateAgenticCommerceExportConfig()) {
+                this.isLoading = false;
+                return;
+            }
+
             const saveSuccessful = await this.saveSalesChannel();
 
             if (!saveSuccessful) {
@@ -427,12 +433,27 @@ export default {
             this.loadEntityData();
         },
 
+        validateAgenticCommerceExportConfig() {
+            const requiredError = new ShopwareError({ code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3' });
+            let isValid = true;
+
+            for (const entry of this.agenticCommerceExportConfig.filter((e) => e.isLoaded)) {
+                for (const el of entry.elements.filter((el) => el.config?.required && !entry.values[el.name])) {
+                    entry.errors[el.name] = requiredError;
+                    isValid = false;
+                }
+            }
+
+            return isValid;
+        },
+
         async loadAgenticCommerceExportConfig() {
             this.agenticCommerceExportConfig = this.defaultAgenticCommerceExportConfig.map((configEntry) => {
                 return {
                     ...configEntry,
                     elements: [],
                     values: {},
+                    errors: {},
                     isLoading: false,
                     isLoaded: false,
                 };

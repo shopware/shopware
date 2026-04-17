@@ -6,6 +6,7 @@ use Shopware\Core\Content\Mail\Payload\MailPayloadFactory;
 use Shopware\Core\Content\MailTemplate\MailTemplateException;
 use Shopware\Core\Content\MailTemplate\Request\GetDataAndSendRequestFactory;
 use Shopware\Core\Content\MailTemplate\Request\PreviewRequestFactory;
+use Shopware\Core\Content\MailTemplate\Request\SimulateRequestFactory;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
@@ -34,6 +35,7 @@ class MailActionController extends AbstractController
         private readonly MailPayloadFactory $mailPayloadFactory,
         private readonly PreviewRequestFactory $previewRequestFactory,
         private readonly GetDataAndSendRequestFactory $getDataAndSendRequestFactory,
+        private readonly SimulateRequestFactory $simulateRequestFactory,
     ) {
     }
 
@@ -139,28 +141,9 @@ class MailActionController extends AbstractController
     )]
     public function simulate(RequestDataBag $post, Context $context): JsonResponse
     {
-        $mailTemplateContent = $post->get('mailTemplateContent');
-        if ($mailTemplateContent instanceof DataBag) {
-            $mailTemplateContent = $mailTemplateContent->all();
-        } elseif (!\is_array($mailTemplateContent)) {
-            throw MailTemplateException::invalidRequestParameterType(
-                'mailTemplateContent',
-                'array|object',
-                get_debug_type($mailTemplateContent)
-            );
-        }
+        $simulateRequest = $this->simulateRequestFactory->make($post, $context);
 
-        $eventName = $post->get('eventName');
-        if (!\is_string($eventName)) {
-            throw MailTemplateException::invalidRequestParameterType('eventName', 'string', get_debug_type($eventName));
-        }
-
-        $strict = $post->get('strict', true);
-        if (!\is_bool($strict)) {
-            throw MailTemplateException::invalidRequestParameterType('strict', 'bool', get_debug_type($strict));
-        }
-
-        $renderedTemplate = $this->mailTemplateService->simulate($mailTemplateContent, $eventName, $context, $strict);
+        $renderedTemplate = $this->mailTemplateService->simulate($simulateRequest, $context);
 
         return new JsonResponse($renderedTemplate);
     }
@@ -179,12 +162,7 @@ class MailActionController extends AbstractController
     {
         $previewRequest = $this->previewRequestFactory->make($post, $context);
 
-        $strict = $post->get('strict', false);
-        if (!\is_bool($strict)) {
-            throw MailTemplateException::invalidRequestParameterType('strict', 'bool', get_debug_type($strict));
-        }
-
-        $renderedTemplate = $this->mailTemplateService->preview($previewRequest, $context, $strict);
+        $renderedTemplate = $this->mailTemplateService->preview($previewRequest, $context);
 
         return new JsonResponse($renderedTemplate);
     }

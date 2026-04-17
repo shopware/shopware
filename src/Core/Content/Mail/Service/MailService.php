@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Mail\Service;
 
 use Monolog\Level;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Content\MailTemplate\Service\MailTemplateContentBuilder;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailErrorEvent;
@@ -51,6 +52,7 @@ class MailService extends AbstractMailService
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly LoggerInterface $logger,
         private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
+        private readonly MailTemplateContentBuilder $mailTemplateContentBuilder,
     ) {
     }
 
@@ -309,26 +311,14 @@ class MailService extends AbstractMailService
      */
     private function buildContents(array $data, ?SalesChannelEntity $salesChannel): array
     {
-        $mailHeaderFooter = $salesChannel?->getMailHeaderFooter();
-        if ($mailHeaderFooter === null) {
-            return [
-                'text/plain' => $data['contentPlain'],
-                'text/html' => $data['contentHtml'],
-            ];
-        }
-
-        $headerPlain = $mailHeaderFooter->getTranslation('headerPlain') ?? '';
-        \assert(\is_string($headerPlain));
-        $footerPlain = $mailHeaderFooter->getTranslation('footerPlain') ?? '';
-        \assert(\is_string($footerPlain));
-        $headerHtml = $mailHeaderFooter->getTranslation('headerHtml') ?? '';
-        \assert(\is_string($headerHtml));
-        $footerHtml = $mailHeaderFooter->getTranslation('footerHtml') ?? '';
-        \assert(\is_string($footerHtml));
+        $content = $this->mailTemplateContentBuilder->build([
+            'contentPlain' => $data['contentPlain'],
+            'contentHtml' => $data['contentHtml'],
+        ], $salesChannel);
 
         return [
-            'text/plain' => \sprintf('%s%s%s', $headerPlain, $data['contentPlain'], $footerPlain),
-            'text/html' => \sprintf('%s%s%s', $headerHtml, $data['contentHtml'], $footerHtml),
+            'text/plain' => $content['contentPlain'],
+            'text/html' => $content['contentHtml'],
         ];
     }
 

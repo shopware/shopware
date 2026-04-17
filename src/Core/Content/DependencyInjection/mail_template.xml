@@ -41,6 +41,7 @@
             <argument type="service" id="Shopware\Core\Content\Mail\Payload\MailPayloadFactory"/>
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Request\PreviewRequestFactory"/>
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Request\GetDataAndSendRequestFactory"/>
+            <argument type="service" id="Shopware\Core\Content\MailTemplate\Request\SimulateRequestFactory"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -56,7 +57,10 @@
             <argument type="service" id="mail_template.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer"/>
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailDataSimulator"/>
+            <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailTemplateContentBuilder"/>
         </service>
+
+        <service id="Shopware\Core\Content\MailTemplate\Service\MailTemplateContentBuilder"/>
 
         <service id="Shopware\Core\Content\MailTemplate\Service\MailDataSimulator">
             <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventCollector"/>
@@ -68,11 +72,16 @@
 
         <service id="Shopware\Core\Content\MailTemplate\Request\PreviewRequestFactory">
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailTemplateService"/>
+            <argument type="service" id="Shopware\Core\Content\Shared\MailFlow\DataProvider\SalesChannelProvider"/>
         </service>
 
         <service id="Shopware\Core\Content\MailTemplate\Request\GetDataAndSendRequestFactory">
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailTemplateService"/>
             <argument type="service" id="Shopware\Core\Content\Mail\Payload\MailPayloadFactory"/>
+        </service>
+
+        <service id="Shopware\Core\Content\MailTemplate\Request\SimulateRequestFactory">
+            <argument type="service" id="Shopware\Core\Content\Shared\MailFlow\DataProvider\SalesChannelProvider"/>
         </service>
     </services>
 </container>

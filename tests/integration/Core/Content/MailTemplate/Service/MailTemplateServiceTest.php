@@ -11,6 +11,7 @@ use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateException;
 use Shopware\Core\Content\MailTemplate\Request\GetDataAndSendRequest;
 use Shopware\Core\Content\MailTemplate\Request\PreviewRequest;
+use Shopware\Core\Content\MailTemplate\Request\SimulateRequest;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
 use Shopware\Core\Content\MailTemplate\Validation\MailTemplateRenderResult;
 use Shopware\Core\Framework\Context;
@@ -70,7 +71,11 @@ class MailTemplateServiceTest extends TestCase
         $mailTemplate = $this->createSimpleMailTemplate();
 
         $rendered = $this->mailTemplateService->preview(
-            new PreviewRequest($mailTemplate, [], ['customName' => 'Shopware']),
+            new PreviewRequest(
+                mailTemplate: $mailTemplate,
+                entityMapping: [],
+                templateData: ['customName' => 'Shopware'],
+            ),
             $this->context
         );
 
@@ -112,8 +117,10 @@ class MailTemplateServiceTest extends TestCase
     public function testSimulate(): void
     {
         $rendered = $this->mailTemplateService->simulate(
-            ['contentHtml' => '<p>{{ order.id }}</p>'],
-            'checkout.order.placed',
+            new SimulateRequest(
+                templateParts: ['contentHtml' => '<p>{{ order.id }}</p>'],
+                eventName: 'checkout.order.placed',
+            ),
             $this->context
         );
 

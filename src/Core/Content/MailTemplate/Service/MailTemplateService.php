@@ -11,6 +11,7 @@ use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateException;
 use Shopware\Core\Content\MailTemplate\Request\GetDataAndSendRequest;
 use Shopware\Core\Content\MailTemplate\Request\PreviewRequest;
+use Shopware\Core\Content\MailTemplate\Request\SimulateRequest;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Content\MailTemplate\Validation\MailTemplateRenderResult;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
@@ -37,6 +38,7 @@ class MailTemplateService
         private readonly EntityRepository $mailTemplateRepository,
         private readonly StringTemplateRenderer $templateRenderer,
         private readonly MailDataSimulator $mailDataSimulator,
+        private readonly MailTemplateContentBuilder $mailTemplateContentBuilder,
     ) {
     }
 
@@ -57,25 +59,21 @@ class MailTemplateService
     }
 
     /**
-     * @param array<int|string,string> $templateContent
-     *
      * @return array<int|string, MailTemplateRenderResult>
      */
     public function simulate(
-        array $templateContent,
-        string $flowEvent,
+        SimulateRequest $simulateRequest,
         Context $context,
-        bool $strict = true
     ): array {
         $renderedResult = [];
 
-        $templateData = $this->mailDataSimulator->getTemplateData($flowEvent, $context);
+        $templateData = $this->mailDataSimulator->getTemplateData($simulateRequest->eventName, $context, $simulateRequest->salesChannel);
 
-        if (!$strict) {
+        if (!$simulateRequest->strictRendering) {
             $this->templateRenderer->enableTestMode();
         }
 
-        foreach ($templateContent as $key => $content) {
+        foreach ($simulateRequest->templateParts as $key => $content) {
             try {
                 $rendered = $this->templateRenderer->render($content, $templateData, $context, false);
 
@@ -85,7 +83,7 @@ class MailTemplateService
             }
         }
 
-        if (!$strict) {
+        if (!$simulateRequest->strictRendering) {
             $this->templateRenderer->disableTestMode();
         }
 
@@ -98,7 +96,6 @@ class MailTemplateService
     public function preview(
         PreviewRequest $request,
         Context $context,
-        bool $strict = false
     ): array {
         $renderedResult = [];
 
@@ -109,11 +106,23 @@ class MailTemplateService
             $request->templateData
         );
 
-        if (!$strict) {
+        if (!$request->strictRendering) {
             $this->templateRenderer->enableTestMode();
         }
 
-        foreach ($this->getTemplateContent($request->mailTemplate) as $key => $value) {
+        $templateContent = $this->getTemplateContent($request->mailTemplate);
+
+        if ($request->includeHeaderFooter) {
+            $templateContent = array_replace(
+                $templateContent,
+                $this->mailTemplateContentBuilder->build([
+                    'contentPlain' => $templateContent['contentPlain'],
+                    'contentHtml' => $templateContent['contentHtml'],
+                ], $request->salesChannel)
+            );
+        }
+
+        foreach ($templateContent as $key => $value) {
             try {
                 $rendered = $this->templateRenderer->render($value, $templateData, $context, false);
 
@@ -123,7 +132,7 @@ class MailTemplateService
             }
         }
 
-        if (!$strict) {
+        if (!$request->strictRendering) {
             $this->templateRenderer->disableTestMode();
         }
 

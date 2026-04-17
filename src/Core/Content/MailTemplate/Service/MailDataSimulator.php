@@ -97,6 +97,7 @@ use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\HttpFoundation\IpUtils;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -128,8 +129,12 @@ class MailDataSimulator
     /**
      * @return array<string, mixed>
      */
-    public function getTemplateData(string $flowEvent, Context $context, ?int $seed = null): array
-    {
+    public function getTemplateData(
+        string $flowEvent,
+        Context $context,
+        ?SalesChannelEntity $salesChannel = null,
+        ?int $seed = null
+    ): array {
         $faker = $this->createFaker($context, $seed);
 
         $definition = $this->businessEventCollector->collect($context)->get($flowEvent);
@@ -151,11 +156,9 @@ class MailDataSimulator
         $templateData = [];
         $entityCache = [];
 
-        $templateData['salesChannel'] = $this->getEntityData(
+        $templateData['salesChannel'] = $salesChannel ?? $this->getEntityData(
             SalesChannelDefinition::class,
-            (new Criteria())
-                ->addAssociation('mailHeaderFooter')
-                ->addAssociation('domains'),
+            $this->dataProviders[SalesChannelDefinition::ENTITY_NAME]->getCriteria('mail template test id', $context),
             $entityCache,
             $faker,
             $context

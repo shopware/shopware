@@ -72,6 +72,7 @@
         "titleShowAvailableVariables": "Variables",
         "copyTooltip": "Copy to clipboard.",
         "languageNotAssignedToSalesChannel": "The current language is not assigned to the selected sales channel.",
+        "previewSalesChannelHint": "Used to determine the sales-channel-specific header and footer.",
         "selectTriggerEventLabel": "Trigger event",
         "selectTriggerEventHint": "Used to determine available data."
       },

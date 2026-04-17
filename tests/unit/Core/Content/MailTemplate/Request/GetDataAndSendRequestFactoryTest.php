@@ -9,6 +9,7 @@ use Shopware\Core\Content\Mail\Payload\MailPayload;
 use Shopware\Core\Content\Mail\Payload\MailPayloadFactory;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
+use Shopware\Core\Content\MailTemplate\MailTemplateException;
 use Shopware\Core\Content\MailTemplate\Request\GetDataAndSendRequestFactory;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
 use Shopware\Core\Framework\Context;
@@ -77,6 +78,55 @@ class GetDataAndSendRequestFactoryTest extends TestCase
         static::assertSame(['order' => 'order-id'], $result->entityMapping);
         static::assertSame(['foo' => 'bar'], $result->templateData);
         static::assertSame($mailPayload, $result->mailPayload);
+    }
+
+    public function testMakeThrowsForInvalidEntities(): void
+    {
+        $context = Context::createDefaultContext();
+        $mailTemplate = $this->createMailTemplate();
+        $mailPayload = new MailPayload();
+        $request = new RequestDataBag([
+            'mailTemplateId' => 'template-id',
+            'entities' => 'invalid',
+        ]);
+
+        $this->mailTemplateService->expects($this->once())
+            ->method('loadTemplate')
+            ->with('template-id', $context)
+            ->willReturn($mailTemplate);
+
+        $this->mailPayloadFactory->expects($this->never())
+            ->method('make');
+
+        $this->expectExceptionObject(
+            MailTemplateException::invalidRequestParameterType('entities', 'array|object', 'string')
+        );
+
+        (new GetDataAndSendRequestFactory($this->mailTemplateService, $this->mailPayloadFactory))->make($request, $context);
+    }
+
+    public function testMakeThrowsForInvalidTemplateData(): void
+    {
+        $context = Context::createDefaultContext();
+        $mailTemplate = $this->createMailTemplate();
+        $request = new RequestDataBag([
+            'mailTemplateId' => 'template-id',
+            'templateData' => 'invalid',
+        ]);
+
+        $this->mailTemplateService->expects($this->once())
+            ->method('loadTemplate')
+            ->with('template-id', $context)
+            ->willReturn($mailTemplate);
+
+        $this->mailPayloadFactory->expects($this->never())
+            ->method('make');
+
+        $this->expectExceptionObject(
+            MailTemplateException::invalidRequestParameterType('templateData', 'array|object', 'string')
+        );
+
+        (new GetDataAndSendRequestFactory($this->mailTemplateService, $this->mailPayloadFactory))->make($request, $context);
     }
 
     public function testMakeKeepsEntitiesWhenMailTemplateTypeIsMissing(): void

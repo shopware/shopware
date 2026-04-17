@@ -119,7 +119,15 @@ class MailApiService extends ApiService {
             });
     }
 
-    previewMailTemplate(mailTemplateId, entities = {}, templateData = {}, additionalHeaders = {}) {
+    previewMailTemplate(
+        mailTemplateId,
+        entities = {},
+        templateData = {},
+        salesChannelId = null,
+        includeHeaderFooter = false,
+        strictRendering = false,
+        additionalHeaders = {},
+    ) {
         const apiRoute = `/_action/${this.getApiBasePath()}/preview`;
 
         return this.httpClient
@@ -129,6 +137,9 @@ class MailApiService extends ApiService {
                     mailTemplateId,
                     entities,
                     templateData,
+                    salesChannelId,
+                    includeHeaderFooter,
+                    strictRendering,
                 },
                 {
                     headers: this.getBasicHeaders(additionalHeaders),
@@ -151,16 +162,17 @@ class MailApiService extends ApiService {
             });
     }
 
-    simulateMailTemplate(mailTemplateContent, eventName, strict = true) {
+    simulateMailTemplate(templateParts, eventName, salesChannelId = null, strictRendering = true) {
         const apiRoute = `/_action/${this.getApiBasePath()}/simulate`;
 
         return this.httpClient
             .post(
                 apiRoute,
                 {
-                    mailTemplateContent,
+                    templateParts,
                     eventName,
-                    strict,
+                    salesChannelId,
+                    strictRendering,
                 },
                 {
                     headers: this.getBasicHeaders(),

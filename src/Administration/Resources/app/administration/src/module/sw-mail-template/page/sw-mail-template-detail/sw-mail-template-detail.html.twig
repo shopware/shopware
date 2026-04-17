@@ -330,10 +330,22 @@
                                 {{ $t('sw-mail-template.detail.mailText.labelContentPlain') }}
                             </div>
                             <mt-banner
+                                v-if="mailPreview.headerPlain.type === 'error'"
+                                class="sw-mail-template-preview-modal__plain-text-error"
+                                variant="critical"
+                                :title="`Mail header (Plain text): ${mailPreview.headerPlain.errorTitle}`"
+                            >
+                                {{ mailPreview.headerPlain.errorMessage }}
+                            </mt-banner>
+                            <pre
+                                v-else
+                                class="sw-mail-template-preview-modal__plain-text-content"
+                            >{{ mailPreview.headerPlain.content }}</pre>
+                            <mt-banner
                                 v-if="mailPreview.contentPlain.type === 'error'"
                                 class="sw-mail-template-preview-modal__plain-text-error"
                                 variant="critical"
-                                :title="mailPreview.contentPlain.errorTitle"
+                                :title="`Mail content (Plain text): ${mailPreview.contentPlain.errorTitle}`"
                             >
                                 {{ mailPreview.contentPlain.errorMessage }}
                             </mt-banner>
@@ -341,6 +353,18 @@
                                 v-else
                                 class="sw-mail-template-preview-modal__plain-text-content"
                             >{{ mailPreview.contentPlain.content }}</pre>
+                            <mt-banner
+                                v-if="mailPreview.footerPlain.type === 'error'"
+                                class="sw-mail-template-preview-modal__plain-text-error"
+                                variant="critical"
+                                :title="`Mail footer (Plain text): ${mailPreview.footerPlain.errorTitle}`"
+                            >
+                                {{ mailPreview.footerPlain.errorMessage }}
+                            </mt-banner>
+                            <pre
+                                v-else
+                                class="sw-mail-template-preview-modal__plain-text-content"
+                            >{{ mailPreview.footerPlain.content }}</pre>
                         </div>
                         <div
                             class="sw-mail-template-preview-modal__html"
@@ -351,10 +375,23 @@
                                 {{ $t('sw-mail-template.detail.mailText.labelContentHtml') }}
                             </div>
                             <mt-banner
+                                v-if="mailPreview.headerHtml.type === 'error'"
+                                class="sw-mail-template-preview-modal__html-error"
+                                variant="critical"
+                                :title="`Mail header (HTML): ${mailPreview.headerHtml.errorTitle}`"
+                            >
+                                {{ mailPreview.headerHtml.errorMessage }}
+                            </mt-banner>
+                            <div
+                                v-else
+                                class="sw-mail-template-preview-modal__html-content"
+                                v-html="mailPreview.headerHtml.content"
+                            ></div>
+                            <mt-banner
                                 v-if="mailPreview.contentHtml.type === 'error'"
                                 class="sw-mail-template-preview-modal__html-error"
                                 variant="critical"
-                                :title="mailPreview.contentHtml.errorTitle"
+                                :title="`Mail content (HTML): ${mailPreview.contentHtml.errorTitle}`"
                             >
                                 {{ mailPreview.contentHtml.errorMessage }}
                             </mt-banner>
@@ -362,6 +399,19 @@
                                 v-else
                                 class="sw-mail-template-preview-modal__html-content"
                                 v-html="mailPreview.contentHtml.content"
+                            ></div>
+                            <mt-banner
+                                v-if="mailPreview.footerHtml.type === 'error'"
+                                class="sw-mail-template-preview-modal__html-error"
+                                variant="critical"
+                                :title="`Mail footer (HTML): ${mailPreview.footerHtml.errorTitle}`"
+                            >
+                                {{ mailPreview.footerHtml.errorMessage }}
+                            </mt-banner>
+                            <div
+                                v-else
+                                class="sw-mail-template-preview-modal__html-content"
+                                v-html="mailPreview.footerHtml.content"
                             ></div>
                         </div>
                     </template>
@@ -419,7 +469,7 @@
 
                     {% block sw_mail_template_mail_text_form_test_sales_channel_field %}
                     <sw-entity-single-select
-                        v-model:value="testMailSalesChannelId"
+                        v-model:value="salesChannelId"
                         name="sw-field--testMailSalesChannelId"
                         entity="sales_channel"
                         :label="$t('sw-mail-template.detail.basic.labelSalesChannels')"
@@ -555,6 +605,23 @@
                 class="sw-mail-template-detail__show-preview-sidebar"
             >
                 <div class="sw-mail-template-detail__show-preview-sidebar-container">
+                    <sw-entity-single-select
+                        v-model:value="salesChannelId"
+                        name="sw-field--previewSalesChannelId"
+                        entity="sales_channel"
+                        :label="$t('sw-mail-template.detail.basic.labelSalesChannels')"
+                        :placeholder="$t('sw-mail-template.detail.basic.placeholderSalesChannels')"
+                        show-clearable-button
+                    >
+                        <template #hint>
+                            <mt-icon
+                                    size="12"
+                                    name="solid-info-circle"
+                            />
+                            {{ $t('sw-mail-template.detail.sidebar.previewSalesChannelHint') }}
+                        </template>
+                    </sw-entity-single-select>
+
                     <mt-select
                         value-property="name"
                         :label="$t('sw-mail-template.detail.sidebar.selectTriggerEventLabel')"

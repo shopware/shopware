@@ -134,6 +134,8 @@ class MailActionControllerTest extends TestCase
             '/api/_action/mail-template/preview',
             [
                 'mailTemplateId' => $mailTemplate->getId(),
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                'includeHeaderFooter' => true,
                 'templateData' => [
                     'customName' => 'Shopware',
                 ],
@@ -185,10 +187,11 @@ class MailActionControllerTest extends TestCase
             'POST',
             '/api/_action/mail-template/simulate',
             [
-                'mailTemplateContent' => [
+                'templateParts' => [
                     'contentHtml' => '<p>{{ order.id }}</p>',
                 ],
                 'eventName' => 'checkout.order.placed',
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
             ],
         );
 

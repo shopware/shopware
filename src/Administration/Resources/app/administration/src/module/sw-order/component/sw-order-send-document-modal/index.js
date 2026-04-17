@@ -167,7 +167,12 @@ export default {
                         order: this.order.id,
                         salesChannel: this.order.salesChannelId,
                     },
-                    {},
+                    {
+                        a11yDocuments: this.a11yDocuments,
+                    },
+                    this.order.salesChannelId,
+                    true,
+                    false,
                     apiContext,
                 )
                 .then((preview) => {

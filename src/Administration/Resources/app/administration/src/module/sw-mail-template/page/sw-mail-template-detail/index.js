@@ -54,7 +54,7 @@ export default {
             mailTemplateMedia: null,
             mailTemplateMediaSelected: {},
             fileAccept: 'application/pdf, image/*',
-            testMailSalesChannelId: null,
+            salesChannelId: null,
             availableVariables: {},
             entitySchema: Object.fromEntries(Shopware.EntityDefinition.getDefinitionRegistry()),
             showLanguageNotAssignedToSalesChannelWarning: false,
@@ -228,7 +228,12 @@ export default {
             });
             Shopware.ExtensionAPI.publishData({
                 id: 'sw-mail-template-detail__testMailSalesChannelId',
-                path: 'testMailSalesChannelId',
+                path: 'salesChannelId',
+                scope: this,
+            });
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-mail-template-detail__previewSalesChannelId',
+                path: 'salesChannelId',
                 scope: this,
             });
             Shopware.ExtensionAPI.publishData({
@@ -393,7 +398,7 @@ export default {
                 message: this.$t('sw-mail-template.general.notificationTestMailSalesChannelErrorMessage'),
             };
 
-            if (!this.testMailSalesChannelId) {
+            if (!this.salesChannelId) {
                 this.createNotificationError(notificationTestMailErrorSalesChannel);
                 return;
             }
@@ -401,7 +406,7 @@ export default {
             const criteria = new Criteria();
             criteria.addAssociation('languages');
 
-            const salesChannel = await this.salesChannelRepository.get(this.testMailSalesChannelId, Context.api, criteria);
+            const salesChannel = await this.salesChannelRepository.get(this.salesChannelId, Context.api, criteria);
 
             if (!salesChannel.languages.has(Shopware.Context.api.languageId)) {
                 this.showLanguageNotAssignedToSalesChannelWarning = true;
@@ -432,11 +437,11 @@ export default {
                     {
                         subject: simulatedMailPreview.subject.content,
                         senderName: simulatedMailPreview.senderName.content,
-                        contentHtml: simulatedMailPreview.contentHtml.content,
-                        contentPlain: simulatedMailPreview.contentPlain.content,
+                        contentHtml: `${simulatedMailPreview.headerHtml.content}${simulatedMailPreview.contentHtml.content}${simulatedMailPreview.footerHtml.content}`,
+                        contentPlain: `${simulatedMailPreview.headerPlain.content}${simulatedMailPreview.contentPlain.content}${simulatedMailPreview.footerPlain.content}`,
                     },
                     this.mailTemplateMedia,
-                    this.testMailSalesChannelId,
+                    this.salesChannelId,
                     true,
                     [],
                     {},
@@ -465,8 +470,12 @@ export default {
             return [
                 'subject',
                 'senderName',
+                'headerHtml',
                 'contentHtml',
+                'footerHtml',
+                'headerPlain',
                 'contentPlain',
+                'footerPlain',
             ].some((key) => mailPreview?.[key]?.type === 'error');
         },
 
@@ -489,6 +498,8 @@ export default {
                 return;
             }
 
+            const headerFooterParts = await this.getPreviewMailHeaderFooterParts();
+
             return this.mailService
                 .simulateMailTemplate(
                     {
@@ -496,16 +507,29 @@ export default {
                         senderName: this.mailTemplate.senderName ?? this.mailTemplate.translated?.senderName,
                         contentHtml: this.mailTemplate.contentHtml ?? this.mailTemplate.translated?.contentHtml,
                         contentPlain: this.mailTemplate.contentPlain ?? this.mailTemplate.translated?.contentPlain,
+                        headerHtml: headerFooterParts.headerHtml,
+                        footerHtml: headerFooterParts.footerHtml,
+                        headerPlain: headerFooterParts.headerPlain,
+                        footerPlain: headerFooterParts.footerPlain,
                     },
                     this.triggerEvent.name,
+                    this.salesChannelId,
                 )
                 .then((response) => {
                     Object.keys(response).forEach((key) => {
                         const entry = response[key];
 
                         if (entry.type === 'error') {
-                            entry.errorTitle = entry.content.substring(0, entry.content.search(': '));
-                            entry.errorMessage = entry.content.substring(entry.content.search(': ') + 2);
+                            const separatorIndex = entry.content.search(': ');
+
+                            if (separatorIndex === -1) {
+                                entry.errorTitle = 'Error';
+                                entry.errorMessage = entry.content;
+                            } else {
+                                entry.errorTitle = entry.content.substring(0, separatorIndex);
+                                entry.errorMessage = entry.content.substring(separatorIndex + 2);
+                            }
+
                             entry.content = undefined;
                         }
                     });
@@ -516,6 +540,30 @@ export default {
                 .finally(() => {
                     this.isLoading = false;
                 });
+        },
+
+        async getPreviewMailHeaderFooterParts() {
+            if (!this.salesChannelId) {
+                return {
+                    headerHtml: '',
+                    footerHtml: '',
+                    headerPlain: '',
+                    footerPlain: '',
+                };
+            }
+
+            const criteria = new Criteria();
+            criteria.addAssociation('mailHeaderFooter');
+
+            const salesChannel = await this.salesChannelRepository.get(this.salesChannelId, Context.api, criteria);
+            const mailHeaderFooter = salesChannel?.mailHeaderFooter;
+
+            return {
+                headerHtml: mailHeaderFooter?.translated?.headerHtml ?? mailHeaderFooter?.headerHtml ?? '',
+                footerHtml: mailHeaderFooter?.translated?.footerHtml ?? mailHeaderFooter?.footerHtml ?? '',
+                headerPlain: mailHeaderFooter?.translated?.headerPlain ?? mailHeaderFooter?.headerPlain ?? '',
+                footerPlain: mailHeaderFooter?.translated?.footerPlain ?? mailHeaderFooter?.footerPlain ?? '',
+            };
         },
 
         async setMailPreview() {

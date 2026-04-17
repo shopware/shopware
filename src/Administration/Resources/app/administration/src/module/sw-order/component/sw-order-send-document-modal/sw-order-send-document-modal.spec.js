@@ -305,7 +305,18 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
                 order: mockOrderWithMailHeaderFooter.id,
                 salesChannel: mockOrderWithMailHeaderFooter.salesChannelId,
             },
-            {},
+            {
+                a11yDocuments: [
+                    {
+                        documentId: mockDocuments[0].id,
+                        deepLinkCode: mockDocuments[0].deepLinkCode,
+                        fileExtension: 'html',
+                    },
+                ],
+            },
+            mockOrderWithMailHeaderFooter.salesChannelId,
+            true,
+            false,
             {
                 ...Shopware.Context.api,
                 languageId: mockOrderWithMailHeaderFooter.languageId,

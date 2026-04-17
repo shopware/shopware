@@ -14,6 +14,8 @@ use Shopware\Core\Content\MailTemplate\Request\GetDataAndSendRequest;
 use Shopware\Core\Content\MailTemplate\Request\GetDataAndSendRequestFactory;
 use Shopware\Core\Content\MailTemplate\Request\PreviewRequest;
 use Shopware\Core\Content\MailTemplate\Request\PreviewRequestFactory;
+use Shopware\Core\Content\MailTemplate\Request\SimulateRequest;
+use Shopware\Core\Content\MailTemplate\Request\SimulateRequestFactory;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
 use Shopware\Core\Content\MailTemplate\Validation\MailTemplateRenderResult;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
@@ -41,6 +43,8 @@ class MailActionControllerTest extends TestCase
 
     private GetDataAndSendRequestFactory&MockObject $getDataAndSendRequestFactory;
 
+    private SimulateRequestFactory&MockObject $simulateRequestFactory;
+
     protected function setUp(): void
     {
         $this->stringTemplateRenderer = $this->createMock(StringTemplateRenderer::class);
@@ -48,6 +52,7 @@ class MailActionControllerTest extends TestCase
         $this->mailPayloadFactory = $this->createMock(MailPayloadFactory::class);
         $this->previewRequestFactory = $this->createMock(PreviewRequestFactory::class);
         $this->getDataAndSendRequestFactory = $this->createMock(GetDataAndSendRequestFactory::class);
+        $this->simulateRequestFactory = $this->createMock(SimulateRequestFactory::class);
     }
 
     public function testSendSuccess(): void
@@ -163,25 +168,31 @@ class MailActionControllerTest extends TestCase
     {
         $context = Context::createDefaultContext();
         $request = new RequestDataBag([
-            'mailTemplateContent' => new DataBag([
+            'templateParts' => new DataBag([
                 'contentHtml' => 'Hello {{ email }}',
             ]),
             'eventName' => 'checkout.customer.before.login',
-            'strict' => true,
+            'strictRendering' => true,
+            'salesChannelId' => 'sales-channel-id',
         ]);
+        $simulateRequest = new SimulateRequest(
+            templateParts: ['contentHtml' => 'Hello {{ email }}'],
+            eventName: 'checkout.customer.before.login',
+            strictRendering: true,
+        );
 
         $result = [
             'contentHtml' => MailTemplateRenderResult::success('Hello test@example.com'),
         ];
 
+        $this->simulateRequestFactory->expects($this->once())
+            ->method('make')
+            ->with($request)
+            ->willReturn($simulateRequest);
+
         $this->mailTemplateService->expects($this->once())
             ->method('simulate')
-            ->with(
-                ['contentHtml' => 'Hello {{ email }}'],
-                'checkout.customer.before.login',
-                $context,
-                true
-            )
+            ->with($simulateRequest, $context)
             ->willReturn($result);
 
         $response = $this->createController()->simulate($request, $context);
@@ -195,65 +206,16 @@ class MailActionControllerTest extends TestCase
             ],
             $this->decodeResponse($response)
         );
-    }
-
-    public function testSimulateAcceptsArrayMailTemplateContent(): void
-    {
-        $context = Context::createDefaultContext();
-        $request = new RequestDataBag([
-            'mailTemplateContent' => ['contentHtml' => 'Hello {{ email }}'],
-            'eventName' => 'checkout.customer.before.login',
-            'strict' => true,
-        ]);
-
-        $result = [
-            'contentHtml' => MailTemplateRenderResult::success('Hello test@example.com'),
-        ];
-
-        $this->mailTemplateService->expects($this->once())
-            ->method('simulate')
-            ->with(
-                ['contentHtml' => 'Hello {{ email }}'],
-                'checkout.customer.before.login',
-                $context,
-                true
-            )
-            ->willReturn($result);
-
-        $response = $this->createController()->simulate($request, $context);
-
-        static::assertSame(
-            [
-                'contentHtml' => [
-                    'type' => 'success',
-                    'content' => 'Hello test@example.com',
-                ],
-            ],
-            $this->decodeResponse($response)
-        );
-    }
-
-    public function testSimulateThrowsForInvalidMailTemplateContent(): void
-    {
-        $request = new RequestDataBag([
-            'mailTemplateContent' => 'invalid',
-            'eventName' => 'checkout.customer.before.login',
-        ]);
-
-        $this->expectExceptionObject(
-            MailTemplateException::invalidRequestParameterType('mailTemplateContent', 'array|object', 'string')
-        );
-
-        $this->createController()->simulate($request, Context::createDefaultContext());
     }
 
     public function testPreview(): void
     {
         $context = Context::createDefaultContext();
         $request = new RequestDataBag([
-            'strict' => false,
+            'salesChannelId' => 'sales-channel-id',
+            'strictRendering' => false,
         ]);
-        $previewRequest = new PreviewRequest(new MailTemplateEntity());
+        $previewRequest = new PreviewRequest(new MailTemplateEntity(), strictRendering: false);
 
         $result = [
             'subject' => MailTemplateRenderResult::success('Subject'),
@@ -266,7 +228,7 @@ class MailActionControllerTest extends TestCase
 
         $this->mailTemplateService->expects($this->once())
             ->method('preview')
-            ->with($previewRequest, $context, false)
+            ->with($previewRequest, $context)
             ->willReturn($result);
 
         $response = $this->createController()->preview($request, $context);
@@ -329,6 +291,7 @@ class MailActionControllerTest extends TestCase
             $this->mailPayloadFactory,
             $this->previewRequestFactory,
             $this->getDataAndSendRequestFactory,
+            $this->simulateRequestFactory,
         );
     }
 

@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\MailTemplate\Request;
 
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 /**
  * @internal
@@ -21,8 +22,11 @@ readonly class PreviewRequest
      */
     public function __construct(
         public MailTemplateEntity $mailTemplate,
+        public ?SalesChannelEntity $salesChannel = null,
         public array $entityMapping = [],
-        public array $templateData = []
+        public array $templateData = [],
+        public bool $includeHeaderFooter = false,
+        public bool $strictRendering = false,
     ) {
     }
 }

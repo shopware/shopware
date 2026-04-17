@@ -15,6 +15,7 @@ class MailTemplateException extends HttpException
     public const MAIL_TEMPLATE_UNKNOWN_EVENT_DATA_TYPE = 'CONTENT__MAIL_TEMPLATE_UNKNOWN_EVENT_DATA_TYPE';
     public const MAIL_TEMPLATE_UNKNOWN_FIELD_TYPE = 'CONTENT__MAIL_TEMPLATE_UNKNOWN_FIELD_TYPE';
     public const INVALID_REQUEST_PARAMETER_TYPE = 'CONTENT__MAIL_TEMPLATE_INVALID_REQUEST_PARAMETER_TYPE';
+    public const INVALID_SALES_CHANNEL_ID = 'CONTENT__MAIL_TEMPLATE_INVALID_SALES_CHANNEL_ID';
 
     public static function invalidMailTemplateContent(): self
     {
@@ -55,6 +56,16 @@ class MailTemplateException extends HttpException
                 'expectedType' => $expectedType,
                 'actualType' => $actualType,
             ]
+        );
+    }
+
+    public static function invalidSalesChannelId(string $salesChannelId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_SALES_CHANNEL_ID,
+            'Sales channel with id "{{ salesChannelId }}" was not found.',
+            ['salesChannelId' => $salesChannelId],
         );
     }
 

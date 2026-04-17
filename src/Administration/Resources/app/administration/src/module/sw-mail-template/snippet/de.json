@@ -72,6 +72,7 @@
         "titleShowAvailableVariables": "Variablen",
         "copyTooltip": "In die Zwischenablage kopieren.",
         "languageNotAssignedToSalesChannel": "Die aktuelle Sprache ist nicht dem gewählten Verkaufskanal zugewiesen.",
+        "previewSalesChannelHint": "Wird zur Ermittlung der verkaufskanalspezifischen Kopf- und Fußzeile genutzt.",
         "selectTriggerEventLabel": "Trigger-Event",
         "selectTriggerEventHint": "Wird zur Ermittlung der verfügbaren Daten genutzt."
       },

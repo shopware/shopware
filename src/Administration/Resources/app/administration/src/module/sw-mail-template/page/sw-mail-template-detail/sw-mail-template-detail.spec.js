@@ -61,6 +61,14 @@ const repositoryMockFactory = (entity) => {
                 Promise.resolve({
                     id: '1a2b3c',
                     name: 'Storefront',
+                    mailHeaderFooter: {
+                        translated: {
+                            headerHtml: '<div>Header</div>',
+                            footerHtml: '<div>Footer</div>',
+                            headerPlain: 'Header plain',
+                            footerPlain: 'Footer plain',
+                        },
+                    },
                     languages: new EntityCollection(
                         '/language',
                         'language',
@@ -126,6 +134,10 @@ function createSimulationResponse(mailTemplateContent) {
 }
 
 async function createWrapper(privileges = []) {
+    const simulateMailTemplate = jest.fn((mailTemplateContent) =>
+        Promise.resolve(createSimulationResponse(mailTemplateContent)),
+    );
+
     return mount(await wrapTestComponent('sw-mail-template-detail', { sync: true }), {
         global: {
             provide: {
@@ -133,9 +145,7 @@ async function createWrapper(privileges = []) {
                     create: repositoryMockFactory,
                 },
                 mailService: {
-                    simulateMailTemplate: jest.fn((mailTemplateContent) =>
-                        Promise.resolve(createSimulationResponse(mailTemplateContent)),
-                    ),
+                    simulateMailTemplate,
                     sendMailTemplate: jest.fn(() => Promise.resolve({ size: 1 })),
                     loadAvailableVariables: jest.fn(() => Promise.resolve({})),
                 },
@@ -512,6 +522,48 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         expect(previewButton.attributes().disabled).toBeDefined();
     });
 
+    it('should render a sales channel select in the preview sidebar', async () => {
+        const wrapper = await createWrapper();
+
+        const previewSalesChannelSelect = wrapper.find('[name="sw-field--previewSalesChannelId"]');
+
+        expect(previewSalesChannelSelect.exists()).toBe(true);
+        expect(wrapper.text()).toContain('Used to determine the sales-channel-specific header and footer.');
+    });
+
+    it('should use one shared sales channel value for send and preview', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setData({
+            salesChannelId: 'sales-channel-id-1',
+        });
+
+        expect(wrapper.vm.salesChannelId).toBe('sales-channel-id-1');
+    });
+
+    it('should send the selected preview sales channel id when simulating', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.salesChannelId = 'sales-channel-id';
+        await wrapper.vm.onTriggerEventChange('checkout.order.placed');
+        await wrapper.vm.simulateMailPreview();
+
+        expect(wrapper.vm.mailService.simulateMailTemplate).toHaveBeenCalledWith(
+            expect.objectContaining({
+                subject: undefined,
+                senderName: undefined,
+                contentHtml: undefined,
+                contentPlain: undefined,
+                headerHtml: '<div>Header</div>',
+                footerHtml: '<div>Footer</div>',
+                headerPlain: 'Header plain',
+                footerPlain: 'Footer plain',
+            }),
+            'checkout.order.placed',
+            'sales-channel-id',
+        );
+    });
+
     it('should not be able to send test mails when values are missing', async () => {
         const wrapper = await createWrapper();
 
@@ -542,7 +594,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             },
             testerMail: 'foo@bar.com',
             isLoading: false,
-            testMailSalesChannelId: '1a2b3c',
+            salesChannelId: '1a2b3c',
             triggerEvent: {
                 name: 'checkout.order.placed',
             },
@@ -562,9 +614,13 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                 contentHtml:
                     '{{ order.orderCustomer.salutation.translated.letterName }} {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br/><br/>',
                 contentPlain: 'the status of your order at {{ salesChannel.translated.name }}',
+                headerHtml: '<div>Header</div>',
+                footerHtml: '<div>Footer</div>',
+                headerPlain: 'Header plain',
+                footerPlain: 'Footer plain',
             },
             'checkout.order.placed',
-            true,
+            '1a2b3c',
         );
         expect(wrapper.vm.mailService.sendMailTemplate).toHaveBeenCalledWith(
             'foo@bar.com',
@@ -573,8 +629,9 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                 subject: 'Your order with {{ salesChannel.name }} is partially paid',
                 senderName: '{{ salesChannel.name }}',
                 contentHtml:
-                    '{{ order.orderCustomer.salutation.translated.letterName }} {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br/><br/>',
-                contentPlain: 'the status of your order at {{ salesChannel.translated.name }}',
+                    '<div>Header</div>{{ order.orderCustomer.salutation.translated.letterName }} {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br/><br/><div>Footer</div>',
+                contentPlain:
+                    'Header plainthe status of your order at {{ salesChannel.translated.name }}Footer plain',
             }),
             expect.anything(),
             '1a2b3c',
@@ -607,7 +664,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             },
             testerMail: 'foo@bar.com',
             isLoading: false,
-            testMailSalesChannelId: '1a2b3c',
+            salesChannelId: '1a2b3c',
             triggerEvent: {
                 name: 'checkout.order.placed',
             },
@@ -627,8 +684,9 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                 subject: 'Your order with {{ salesChannel.name }} is partially paid',
                 senderName: '{{ salesChannel.name }}',
                 contentHtml:
-                    '{{ order.orderCustomer.salutation.translated.letterName }} {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br/><br/>',
-                contentPlain: 'the status of your order at {{ salesChannel.translated.name }}',
+                    '<div>Header</div>{{ order.orderCustomer.salutation.translated.letterName }} {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br/><br/><div>Footer</div>',
+                contentPlain:
+                    'Header plainthe status of your order at {{ salesChannel.translated.name }}Footer plain',
             }),
             expect.anything(),
             '1a2b3c',
@@ -705,7 +763,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             },
             testerMail: 'foo@bar.com',
             isLoading: false,
-            testMailSalesChannelId: '1a2b3c',
+            salesChannelId: '1a2b3c',
             triggerEvent: {
                 name: 'checkout.order.placed',
             },
@@ -722,9 +780,13 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                 contentHtml:
                     '{{ order.deliveries.first.stateMachineState.translated.name }} {{ order.deliveries.at(1).trackingCodes.0 }},<br/><br/>',
                 contentPlain: 'the status of your order at {{ salesChannel.translated.name }}',
+                headerHtml: '<div>Header</div>',
+                footerHtml: '<div>Footer</div>',
+                headerPlain: 'Header plain',
+                footerPlain: 'Footer plain',
             },
             'checkout.order.placed',
-            true,
+            '1a2b3c',
         );
     });
 
@@ -743,7 +805,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             },
             testerMail: 'foo@bar.com',
             isLoading: false,
-            testMailSalesChannelId: '1a2b3c',
+            salesChannelId: '1a2b3c',
             triggerEvent: {
                 name: 'checkout.order.placed',
             },
@@ -776,6 +838,69 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         expect(wrapper.vm.mailPreview.contentHtml.errorMessage).toBe('unexpected end of template.');
     });
 
+    it('should identify header and footer simulation errors separately in the preview', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setData({
+            mailTemplate: {
+                ...mailTemplateTypeMock,
+                subject: 'Subject',
+                contentPlain: 'Body plain',
+                contentHtml: '<div>Body html</div>',
+                senderName: 'Sender',
+                mailTemplateTypeId: 'typeId',
+            },
+            salesChannelId: '1a2b3c',
+            triggerEvent: {
+                name: 'checkout.order.placed',
+            },
+        });
+
+        wrapper.vm.mailService.simulateMailTemplate = jest.fn(() =>
+            Promise.resolve({
+                subject: {
+                    type: 'success',
+                    content: 'Rendered subject',
+                },
+                senderName: {
+                    type: 'success',
+                    content: 'Rendered sender',
+                },
+                headerPlain: {
+                    type: 'success',
+                    content: 'Rendered header plain',
+                },
+                contentPlain: {
+                    type: 'success',
+                    content: 'Rendered body plain',
+                },
+                footerPlain: {
+                    type: 'error',
+                    content: 'Twig syntax error: plain footer failed.',
+                },
+                headerHtml: {
+                    type: 'error',
+                    content: 'Twig syntax error: html header failed.',
+                },
+                contentHtml: {
+                    type: 'success',
+                    content: 'Rendered body html',
+                },
+                footerHtml: {
+                    type: 'success',
+                    content: 'Rendered footer html',
+                },
+            }),
+        );
+
+        await wrapper.vm.onClickShowPreview();
+
+        expect(wrapper.vm.mailPreview.headerHtml.errorTitle).toBe('Header (HTML)');
+        expect(wrapper.vm.mailPreview.headerHtml.errorMessage).toBe('Twig syntax error: html header failed.');
+        expect(wrapper.vm.mailPreview.footerPlain.errorTitle).toBe('Footer (plain text)');
+        expect(wrapper.vm.mailPreview.footerPlain.errorMessage).toBe('Twig syntax error: plain footer failed.');
+    });
+
     it('should reset preview when simulation request fails', async () => {
         const wrapper = await createWrapper();
 
@@ -791,7 +916,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             },
             testerMail: 'foo@bar.com',
             isLoading: false,
-            testMailSalesChannelId: '1a2b3c',
+            salesChannelId: '1a2b3c',
             triggerEvent: {
                 name: 'checkout.order.placed',
             },
@@ -817,7 +942,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             },
             testerMail: 'foo@bar.com',
             isLoading: false,
-            testMailSalesChannelId: '1a2b3c',
+            salesChannelId: '1a2b3c',
             triggerEvent: {
                 name: 'checkout.order.placed',
             },
@@ -879,7 +1004,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             },
             testerMail: 'foo@bar.com',
             isLoading: false,
-            testMailSalesChannelId: '1a2b3c',
+            salesChannelId: '1a2b3c',
             triggerEvent: {
                 name: 'checkout.order.placed',
             },
@@ -926,7 +1051,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             },
             testerMail: 'foo@bar.com',
             isLoading: false,
-            testMailSalesChannelId: '1a2b3c',
+            salesChannelId: '1a2b3c',
             triggerEvent: {
                 name: 'checkout.order.placed',
             },

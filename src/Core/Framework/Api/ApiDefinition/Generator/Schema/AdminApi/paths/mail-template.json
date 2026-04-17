@@ -346,7 +346,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "The rendered preview of the mail template.",
+                        "description": "The rendered simulation result of the mail template parts.",
                         "content": {
                             "application\/json": {
                                 "schema": {
@@ -372,11 +372,11 @@
                         "application\/json": {
                             "schema": {
                                 "required": [
-                                    "mailTemplateContent",
+                                    "templateParts",
                                     "eventName"
                                 ],
                                 "properties": {
-                                    "mailTemplateContent": {
+                                    "templateParts": {
                                         "description": "A map of mail template fields and their template content to render.",
                                         "type": "object",
                                         "additionalProperties": {
@@ -394,8 +394,14 @@
                                         "type": "string",
                                         "example": "checkout.order.placed"
                                     },
-                                    "strict": {
-                                        "description": "Enables strict checking during the mail template rendering and surfaces errors for unknown variables. Defaults to `true`.",
+                                    "salesChannelId": {
+                                        "description": "Identifier of the sales channel that should be used for the simulate request.",
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$",
+                                        "example": "b3c4d5e6f7a8b90a1b2c3d4e5f67890a"
+                                    },
+                                    "strictRendering": {
+                                        "description": "Enables strict variable rendering and surfaces errors for unknown variables. Defaults to `true`.",
                                         "type": "boolean",
                                         "default": true
                                     }
@@ -412,7 +418,7 @@
                             "application\/json": {
                                 "schema": {
                                     "type": "object",
-                                    "description": "A map of render results keyed by the same field names that were provided in the request's `mailTemplateContent` object.",
+                                    "description": "A map of render results keyed by the same field names that were provided in the request's `templateParts` object.",
                                     "additionalProperties": {
                                         "type": "object",
                                         "required": [
@@ -470,9 +476,21 @@
                                         "pattern": "^[0-9a-f]{32}$",
                                         "example": "b3c4d5e6f7a8b90a1b2c3d4e5f678906"
                                     },
-                                    "strict": {
-                                        "description": "Enables strict checking during the mail template and enables errors on e.g. unknown variables.",
-                                        "type": "boolean"
+                                    "salesChannelId": {
+                                        "description": "Identifier of the sales channel that should be used for the preview request.",
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$",
+                                        "example": "b3c4d5e6f7a8b90a1b2c3d4e5f67890a"
+                                    },
+                                    "includeHeaderFooter": {
+                                        "description": "Includes the sales channel mail header and footer in `contentHtml` and `contentPlain`. Defaults to `false`.",
+                                        "type": "boolean",
+                                        "default": false
+                                    },
+                                    "strictRendering": {
+                                        "description": "Enables strict variable rendering and enables errors on e.g. unknown variables. Defaults to `false`.",
+                                        "type": "boolean",
+                                        "default": false
                                     },
                                     "entities": {
                                         "description": "A map of entity names and corresponding identifiers that define entities which should be used additionally during rendering.",

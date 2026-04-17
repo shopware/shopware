@@ -10,11 +10,14 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Mail\Payload\MailPayload;
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
+use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateException;
 use Shopware\Core\Content\MailTemplate\Request\GetDataAndSendRequest;
 use Shopware\Core\Content\MailTemplate\Request\PreviewRequest;
+use Shopware\Core\Content\MailTemplate\Request\SimulateRequest;
+use Shopware\Core\Content\MailTemplate\Service\MailTemplateContentBuilder;
 use Shopware\Core\Content\MailTemplate\Service\MailDataProvider;
 use Shopware\Core\Content\MailTemplate\Service\MailDataSimulator;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
@@ -25,6 +28,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Mime\Email;
 
@@ -43,6 +47,8 @@ class MailTemplateServiceTest extends TestCase
 
     private MailDataSimulator&MockObject $mailDataSimulator;
 
+    private MailTemplateContentBuilder $mailTemplateContentBuilder;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -51,6 +57,7 @@ class MailTemplateServiceTest extends TestCase
         $this->mailDataProvider = $this->createMock(MailDataProvider::class);
         $this->templateRenderer = $this->createMock(StringTemplateRenderer::class);
         $this->mailDataSimulator = $this->createMock(MailDataSimulator::class);
+        $this->mailTemplateContentBuilder = new MailTemplateContentBuilder();
     }
 
     public function testLoadTemplate(): void
@@ -108,14 +115,14 @@ class MailTemplateServiceTest extends TestCase
 
         $mailTemplateService = $this->createService();
 
-        $rendered = $mailTemplateService->simulate(
-            [
+        $rendered = $mailTemplateService->simulate(new SimulateRequest(
+            templateParts: [
                 'subject' => 'hello',
                 'contentHtml' => 'broken',
             ],
-            'checkout.order.placed',
-            $context
-        );
+            eventName: 'checkout.order.placed',
+            strictRendering: false,
+        ), $context);
 
         $subject = $rendered['subject'];
         static::assertInstanceOf(MailTemplateRenderResult::class, $subject);
@@ -128,11 +135,45 @@ class MailTemplateServiceTest extends TestCase
         static::assertSame('broken template', $contentHtml->getContent());
     }
 
+    public function testSimulateUsesSelectedSalesChannelAndDoesNotUseTestModeInStrictMode(): void
+    {
+        $context = Context::createDefaultContext();
+        $salesChannel = new SalesChannelEntity();
+
+        $this->mailDataSimulator->expects($this->once())
+            ->method('getTemplateData')
+            ->with('checkout.order.placed', $context, $salesChannel)
+            ->willReturn(['order' => ['id' => 'order-id']]);
+
+        $this->templateRenderer->expects($this->never())->method('enableTestMode');
+        $this->templateRenderer->expects($this->never())->method('disableTestMode');
+        $this->templateRenderer->expects($this->once())
+            ->method('render')
+            ->with('<p>{{ order.id }}</p>', ['order' => ['id' => 'order-id']], $context, false)
+            ->willReturn('<p>order-id</p>');
+
+        $mailTemplateService = $this->createService();
+
+        $rendered = $mailTemplateService->simulate(new SimulateRequest(
+            templateParts: ['contentHtml' => '<p>{{ order.id }}</p>'],
+            eventName: 'checkout.order.placed',
+            salesChannel: $salesChannel,
+            strictRendering: true,
+        ), $context);
+
+        static::assertSame(MailTemplateRenderResult::TYPE_SUCCESS, $rendered['contentHtml']->getType());
+        static::assertSame('<p>order-id</p>', $rendered['contentHtml']->getContent());
+    }
+
     public function testPreviewUsesProviderDataAndTemplateContent(): void
     {
         $context = Context::createDefaultContext();
         $mailTemplate = $this->createMailTemplate();
-        $request = new PreviewRequest($mailTemplate, ['order' => 'order-id'], ['foo' => 'bar']);
+        $request = new PreviewRequest(
+            mailTemplate: $mailTemplate,
+            entityMapping: ['order' => 'order-id'],
+            templateData: ['foo' => 'bar'],
+        );
 
         $this->mailDataProvider->expects($this->once())
             ->method('getTemplateData')
@@ -170,9 +211,50 @@ class MailTemplateServiceTest extends TestCase
 
         $mailTemplateService = $this->createService();
 
-        $rendered = $mailTemplateService->preview(new PreviewRequest($mailTemplate), $context, true);
+        $rendered = $mailTemplateService->preview(new PreviewRequest($mailTemplate, strictRendering: true), $context);
 
         static::assertCount(4, $rendered);
+    }
+
+    public function testPreviewCanIncludeHeaderFooter(): void
+    {
+        $context = Context::createDefaultContext();
+        $mailTemplate = $this->createMailTemplate();
+        $mailHeaderFooter = new MailHeaderFooterEntity();
+        $mailHeaderFooter->setTranslated([
+            'headerHtml' => '<header>{{ foo }}</header>',
+            'footerHtml' => '<footer>{{ foo }}</footer>',
+            'headerPlain' => 'H {{ foo }} ',
+            'footerPlain' => ' F {{ foo }}',
+        ]);
+
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setMailHeaderFooter($mailHeaderFooter);
+
+        $request = new PreviewRequest(
+            mailTemplate: $mailTemplate,
+            salesChannel: $salesChannel,
+            templateData: ['foo' => 'bar'],
+            includeHeaderFooter: true,
+        );
+
+        $this->mailDataProvider->expects($this->once())
+            ->method('getTemplateData')
+            ->with($mailTemplate, [], $context, ['foo' => 'bar'])
+            ->willReturn(['foo' => 'bar']);
+
+        $this->templateRenderer->expects($this->once())->method('enableTestMode');
+        $this->templateRenderer->expects($this->once())->method('disableTestMode');
+        $this->templateRenderer->expects($this->exactly(4))
+            ->method('render')
+            ->willReturnCallback(static fn (string $value): string => 'rendered: ' . $value);
+
+        $mailTemplateService = $this->createService();
+
+        $rendered = $mailTemplateService->preview($request, $context);
+
+        static::assertSame('rendered: <header>{{ foo }}</header><p>html</p><footer>{{ foo }}</footer>', $rendered['contentHtml']->getContent());
+        static::assertSame('rendered: H {{ foo }} plain F {{ foo }}', $rendered['contentPlain']->getContent());
     }
 
     public function testGetTemplateDataAndSendUsesProviderDataAndTemplateForAttachments(): void
@@ -440,6 +522,7 @@ class MailTemplateServiceTest extends TestCase
             $mailTemplateRepository,
             $this->templateRenderer,
             $this->mailDataSimulator,
+            $this->mailTemplateContentBuilder,
         );
     }
 

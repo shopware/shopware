@@ -22,15 +22,10 @@ This prevents customers from being offered an invalid cancel action for complete
 
 ### Earlier focus for cookie bar
 
-The default cookie bar `.cookie-permission-container` is currently located at the very bottom of the page before the closing `</body>` element.
-This is an issue for keyboard and screenreader users because they don't see the cookie bar unless the entire page is skipped first.
-
-If no consent was selected yet, the cookie bar needs earlier attention and it now receives automatic focus when it is displayed.
-With this, screenreader and keyboard users start at the cookie bar region and can select a consent mode.
+To improve the accessibility of the cookie bar, it receives automatic focus when it is shown. This improves discoverability for screenreader and keyboard users.
 A new option `autoFocus` (default: `true`) was added to the `cookie-permission.html.twig` template and `CookiePermissionPlugin`.
 
 In addition to this the cookie bar will be moved to the top of the body element.
-To avoid breaking changes for those who assume the bottom position of the cookie bar, the change will happen in the upcoming major version.
 * Deprecated block position of `base_cookie_permission` Cookie permission bar will be moved to top of the body element.
 
 ### Live purchase limits for closeout products on the product detail page

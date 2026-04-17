@@ -29,7 +29,7 @@ describe("CookiePermissionPlugin tests", () => {
 		document.body.innerHTML = `
             <div class="cookie-permission-container" style="display: none;">
                 <div class="cookie-permission-content">
-                    <p>This website uses cookies.</p>
+                    <p>This website uses cookies. <a href="https://shop.example.com/data-privacy">More information...</a></p>
                     <button class="js-cookie-permission-button">Accept</button>
                 </div>
             </div>
@@ -287,6 +287,38 @@ describe("CookiePermissionPlugin tests", () => {
 		new CookiePermissionPlugin(cookieBarElement, { autoFocus: false });
 
 		expect(window.focusHandler.setFocus).not.toHaveBeenCalled();
+	});
+
+	test('does not set focus on cookie bar when data privacy page is visited', () => {
+		CookieStorage.getItem.mockReturnValue(null);
+		window.focusHandler.setFocus.mockClear();
+
+		jest.spyOn(CookiePermissionPlugin.prototype, '_getCurrentLocation').mockReturnValue('https://shop.example.com/data-privacy');
+
+		new CookiePermissionPlugin(cookieBarElement, { autoFocus: true });
+
+		expect(window.focusHandler.setFocus).not.toHaveBeenCalled();
+	});
+
+	test('sets focus on cookie bar when privacy link cannot be found in cookie bar content', () => {
+		document.body.innerHTML = `
+            <div class="cookie-permission-container" style="display: none;">
+                <div class="cookie-permission-content">
+                    <p>This website uses cookies.</p>
+                    <button class="js-cookie-permission-button">Accept</button>
+                </div>
+            </div>
+        `;
+		const barWithoutLink = document.querySelector('.cookie-permission-container');
+
+		CookieStorage.getItem.mockReturnValue(null);
+		window.focusHandler.setFocus.mockClear();
+
+		jest.spyOn(CookiePermissionPlugin.prototype, '_getCurrentLocation').mockReturnValue('https://shop.example.com/data-privacy');
+
+		new CookiePermissionPlugin(barWithoutLink, { autoFocus: true });
+
+		expect(window.focusHandler.setFocus).toHaveBeenCalledWith(barWithoutLink, { preventScroll: true });
 	});
 });
 

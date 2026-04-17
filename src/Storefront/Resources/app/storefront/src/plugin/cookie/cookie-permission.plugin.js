@@ -52,7 +52,7 @@ export default class CookiePermissionPlugin extends Plugin {
     }
 
     /**
-     * Sets a automatic focus to the cookie bar
+     * Sets an automatic focus to the cookie bar
      * @private
      * @returns {void}
      */
@@ -66,17 +66,36 @@ export default class CookiePermissionPlugin extends Plugin {
 
     /**
      * Checks if the current page is the data privacy page.
-     * When user navigates to the data privacy page from the cookie bar, 
+     * When user navigates to the data privacy page from the cookie bar,
      * the cookie bar should not be focused so the page can be read first.
      * @private
      * @returns {boolean}
      */
     _isDataPrivacyPage() {
-        const dataPrivacyLink = this.el.querySelector('.cookie-permission-content > a');
-        const dataPrivacyUrl = dataPrivacyLink?.href;
-        const currentUrl = window.location.href;
+        const dataPrivacyLink = this.el.querySelector('.cookie-permission-content a');
 
-        return currentUrl === dataPrivacyUrl;
+        if (!dataPrivacyLink?.href) {
+            return false;
+        }
+
+        const normalize = (url) => {
+            return url.origin + url.pathname.replace(/\/$/, '').toLowerCase();
+        };
+
+        const currentUrl = new URL(this._getCurrentLocation());
+        const dataPrivacyUrl = new URL(dataPrivacyLink.href);
+
+        return normalize(currentUrl) === normalize(dataPrivacyUrl);
+    }
+
+    /**
+     * Thin wrapper to ger the current location of the page.
+     * (non-configurable in JSDOM v26).
+     * @private
+     * @returns {string}
+     */
+    _getCurrentLocation() {
+        return window.location.href;
     }
 
     /**

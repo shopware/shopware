@@ -411,7 +411,7 @@ class SnippetServiceTest extends TestCase
             ],
         ];
 
-        yield 'unknown regional variant falls back to bare language' => [
+        yield 'unknown regional variant falls back to agnostic language' => [
             'iso' => 'es-EM',
             'expectedSnippets' => [
                 'title' => 'Agnostic ES',

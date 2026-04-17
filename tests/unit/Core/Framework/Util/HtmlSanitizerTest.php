@@ -19,24 +19,24 @@ class HtmlSanitizerTest extends TestCase
     /**
      * @var array<string, array<string, mixed>>
      */
-    private array $defaultSets;
+    private array $sets;
 
     /**
      * @var array<string, array<string, list<string>>>
      */
-    private array $defaultFieldSets;
+    private array $fieldSets;
 
     protected function setUp(): void
     {
-        $this->defaultSets = $this->getDefaultSets();
-        $this->defaultFieldSets = $this->getDefaultFieldsSets();
+        $this->sets = $this->getDefaultSets();
+        $this->fieldSets = $this->getDefaultFieldsSets();
     }
 
     #[TestDox('Honors the enabled flag: disabled returns input untouched, enabled strips invalid tags')]
     #[DataProvider('enabledFlagProvider')]
     public function testHonorsEnabledFlag(bool $enabled, string $expected): void
     {
-        $sanitizer = new HtmlSanitizer(cacheEnabled: false, sets: $this->defaultSets, fieldSets: $this->defaultFieldSets, enabled: $enabled);
+        $sanitizer = new HtmlSanitizer(cacheEnabled: false, sets: $this->sets, fieldSets: $this->fieldSets, enabled: $enabled);
 
         static::assertSame($expected, $sanitizer->sanitize('<invalid-tag>Lorem Ipsum dolor sit amet</invalid-tag>', null));
     }
@@ -48,15 +48,51 @@ class HtmlSanitizerTest extends TestCase
     #[DataProvider('customTagsProvider')]
     public function testRegisteredCustomElementsSurvivePurification(string $input, ?array $customTags, string $expected): void
     {
-        $sets = $this->defaultSets;
+        $sets = $this->sets;
 
         if ($customTags !== null) {
             $sets['basic']['custom_tags'] = $customTags;
         }
 
-        $sanitizer = new HtmlSanitizer(cacheEnabled: false, sets: $sets, fieldSets: $this->defaultFieldSets);
+        $sanitizer = new HtmlSanitizer(cacheEnabled: false, sets: $sets, fieldSets: $this->fieldSets);
 
         static::assertSame($expected, $sanitizer->sanitize($input, null));
+    }
+
+    #[TestDox('Applies the configured cache dir as Cache.SerializerPath on the purifier config')]
+    public function testAppliesCacheSerializerPathWhenCacheDirIsProvided(): void
+    {
+        $cacheDir = '/virtual/html-sanitizer-cache';
+        $config = \HTMLPurifier_Config::createDefault();
+
+        $sanitizer = new HtmlSanitizer(
+            cacheDir: $cacheDir,
+            cacheEnabled: false,
+            sets: $this->sets,
+            fieldSets: $this->fieldSets,
+            configProvider: new StaticHtmlPurifierConfigProvider($config),
+        );
+
+        $sanitizer->sanitize('<b>bold</b>');
+
+        static::assertSame($cacheDir, $config->get('Cache.SerializerPath'));
+    }
+
+    #[TestDox('Leaves Cache.SerializerPath at its HTMLPurifier default when no cache dir is configured')]
+    public function testDoesNotApplyCacheSerializerPathWhenCacheDirIsEmpty(): void
+    {
+        $config = \HTMLPurifier_Config::createDefault();
+
+        $sanitizer = new HtmlSanitizer(
+            cacheEnabled: false,
+            sets: $this->sets,
+            fieldSets: $this->fieldSets,
+            configProvider: new StaticHtmlPurifierConfigProvider($config),
+        );
+
+        $sanitizer->sanitize('<b>bold</b>');
+
+        static::assertNull($config->get('Cache.SerializerPath'));
     }
 
     #[TestDox('Returns the base config (input untouched) when HTMLPurifier raw HTML definition is unavailable')]
@@ -64,7 +100,12 @@ class HtmlSanitizerTest extends TestCase
     {
         $stubConfig = new NullRawDefinitionHtmlPurifierConfig();
 
-        $sanitizer = new HtmlSanitizer(cacheEnabled: false, sets: $this->defaultSets, fieldSets: $this->defaultFieldSets, configProvider: new StaticHtmlPurifierConfigProvider($stubConfig));
+        $sanitizer = new HtmlSanitizer(
+            cacheEnabled: false,
+            sets: $this->sets,
+            fieldSets: $this->fieldSets,
+            configProvider: new StaticHtmlPurifierConfigProvider($stubConfig),
+        );
 
         $result = $sanitizer->sanitize('<b>bold</b>', null);
 
@@ -76,7 +117,7 @@ class HtmlSanitizerTest extends TestCase
     #[DataProvider('fieldSetConfigProvider')]
     public function testFieldSetConfigLimitsAllowedAttributes(string $input, string $expected): void
     {
-        $sanitizer = new HtmlSanitizer(cacheEnabled: false, sets: $this->defaultSets, fieldSets: $this->defaultFieldSets);
+        $sanitizer = new HtmlSanitizer(cacheEnabled: false, sets: $this->sets, fieldSets: $this->fieldSets);
 
         static::assertSame($expected, $sanitizer->sanitize($input, null, false, 'test.bootstrap'));
     }
@@ -85,7 +126,7 @@ class HtmlSanitizerTest extends TestCase
     #[DataProvider('entityProvider')]
     public function testDecodesHtmlEntities(string $input, string $expected): void
     {
-        $sanitizer = new HtmlSanitizer(cacheEnabled: false, sets: $this->defaultSets, fieldSets: $this->defaultFieldSets);
+        $sanitizer = new HtmlSanitizer(cacheEnabled: false, sets: $this->sets, fieldSets: $this->fieldSets);
 
         static::assertSame($expected, $sanitizer->sanitize($input));
     }

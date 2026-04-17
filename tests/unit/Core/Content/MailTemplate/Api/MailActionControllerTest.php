@@ -16,6 +16,7 @@ use Shopware\Core\Content\MailTemplate\Request\PreviewRequest;
 use Shopware\Core\Content\MailTemplate\Request\PreviewRequestFactory;
 use Shopware\Core\Content\MailTemplate\Request\SimulateRequest;
 use Shopware\Core\Content\MailTemplate\Request\SimulateRequestFactory;
+use Shopware\Core\Content\MailTemplate\Service\MailTemplateSendService;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
 use Shopware\Core\Content\MailTemplate\Validation\MailTemplateRenderResult;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
@@ -37,6 +38,8 @@ class MailActionControllerTest extends TestCase
 
     private MailTemplateService&MockObject $mailTemplateService;
 
+    private MailTemplateSendService&MockObject $mailTemplateSendService;
+
     private MailPayloadFactory&MockObject $mailPayloadFactory;
 
     private PreviewRequestFactory&MockObject $previewRequestFactory;
@@ -49,6 +52,7 @@ class MailActionControllerTest extends TestCase
     {
         $this->stringTemplateRenderer = $this->createMock(StringTemplateRenderer::class);
         $this->mailTemplateService = $this->createMock(MailTemplateService::class);
+        $this->mailTemplateSendService = $this->createMock(MailTemplateSendService::class);
         $this->mailPayloadFactory = $this->createMock(MailPayloadFactory::class);
         $this->previewRequestFactory = $this->createMock(PreviewRequestFactory::class);
         $this->getDataAndSendRequestFactory = $this->createMock(GetDataAndSendRequestFactory::class);
@@ -79,7 +83,7 @@ class MailActionControllerTest extends TestCase
             ->with('template-id', $context)
             ->willReturn($mailTemplate);
 
-        $this->mailTemplateService->expects($this->once())
+        $this->mailTemplateSendService->expects($this->once())
             ->method('send')
             ->with($mailPayload, $context, ['order' => ['id' => 'order-id']], $mailTemplate)
             ->willReturn($this->createEmail());
@@ -105,7 +109,7 @@ class MailActionControllerTest extends TestCase
         $this->mailTemplateService->expects($this->never())
             ->method('loadTemplate');
 
-        $this->mailTemplateService->expects($this->once())
+        $this->mailTemplateSendService->expects($this->once())
             ->method('send')
             ->with($mailPayload, $context, [], null)
             ->willReturn(null);
@@ -187,7 +191,7 @@ class MailActionControllerTest extends TestCase
 
         $this->simulateRequestFactory->expects($this->once())
             ->method('make')
-            ->with($request)
+            ->with($request, $context)
             ->willReturn($simulateRequest);
 
         $this->mailTemplateService->expects($this->once())
@@ -255,7 +259,7 @@ class MailActionControllerTest extends TestCase
             ->with($request, $context)
             ->willReturn($sendRequest);
 
-        $this->mailTemplateService->expects($this->once())
+        $this->mailTemplateSendService->expects($this->once())
             ->method('getTemplateDataAndSend')
             ->with($sendRequest, $context)
             ->willReturn($this->createEmail());
@@ -288,6 +292,7 @@ class MailActionControllerTest extends TestCase
         return new MailActionController(
             $this->stringTemplateRenderer,
             $this->mailTemplateService,
+            $this->mailTemplateSendService,
             $this->mailPayloadFactory,
             $this->previewRequestFactory,
             $this->getDataAndSendRequestFactory,

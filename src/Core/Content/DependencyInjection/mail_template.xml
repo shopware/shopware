@@ -38,6 +38,7 @@
         <service id="Shopware\Core\Content\MailTemplate\Api\MailActionController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer"/>
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailTemplateService"/>
+            <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailTemplateSendService"/>
             <argument type="service" id="Shopware\Core\Content\Mail\Payload\MailPayloadFactory"/>
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Request\PreviewRequestFactory"/>
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Request\GetDataAndSendRequestFactory"/>
@@ -52,12 +53,16 @@
         </service>
 
         <service id="Shopware\Core\Content\MailTemplate\Service\MailTemplateService">
-            <argument type="service" id="Shopware\Core\Content\Mail\Service\MailService"/>
-            <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailDataProvider"/>
             <argument type="service" id="mail_template.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer"/>
+            <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailDataProvider"/>
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailDataSimulator"/>
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailTemplateContentBuilder"/>
+        </service>
+
+        <service id="Shopware\Core\Content\MailTemplate\Service\MailTemplateSendService">
+            <argument type="service" id="Shopware\Core\Content\Mail\Service\MailService"/>
+            <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailDataProvider"/>
         </service>
 
         <service id="Shopware\Core\Content\MailTemplate\Service\MailTemplateContentBuilder"/>

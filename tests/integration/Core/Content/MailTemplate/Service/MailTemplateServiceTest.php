@@ -3,13 +3,11 @@
 namespace Shopware\Tests\Integration\Core\Content\MailTemplate\Service;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Mail\Payload\MailPayload;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeCollection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateException;
-use Shopware\Core\Content\MailTemplate\Request\GetDataAndSendRequest;
 use Shopware\Core\Content\MailTemplate\Request\PreviewRequest;
 use Shopware\Core\Content\MailTemplate\Request\SimulateRequest;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
@@ -20,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Component\Mime\Email;
 
 /**
  * @internal
@@ -83,35 +80,6 @@ class MailTemplateServiceTest extends TestCase
         static::assertEquals(MailTemplateRenderResult::success('Shopware'), $rendered['senderName']);
         static::assertEquals(MailTemplateRenderResult::success('<p>Hello Shopware</p>'), $rendered['contentHtml']);
         static::assertEquals(MailTemplateRenderResult::success('Hello Shopware'), $rendered['contentPlain']);
-    }
-
-    public function testGetTemplateDataAndSend(): void
-    {
-        $mailTemplate = $this->createSimpleMailTemplate();
-
-        $email = $this->mailTemplateService->getTemplateDataAndSend(
-            new GetDataAndSendRequest(
-                $mailTemplate,
-                [],
-                ['customName' => 'Shopware'],
-                new MailPayload(
-                    recipients: ['test@example.com' => 'Test'],
-                    contentHtml: $mailTemplate->getContentHtml(),
-                    contentPlain: $mailTemplate->getContentPlain(),
-                    subject: $mailTemplate->getSubject(),
-                    senderName: $mailTemplate->getSenderName(),
-                )
-            ),
-            $this->context
-        );
-
-        static::assertInstanceOf(Email::class, $email);
-        static::assertSame('Hello Shopware', $email->getSubject());
-        static::assertSame('Shopware', $email->getFrom()[0]->getName());
-        static::assertSame('Test', $email->getTo()[0]->getName());
-        static::assertSame('test@example.com', $email->getTo()[0]->getAddress());
-        static::assertSame('Hello Shopware', $email->getTextBody());
-        static::assertSame('<p>Hello Shopware</p>', $email->getHtmlBody());
     }
 
     public function testSimulate(): void

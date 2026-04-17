@@ -2,17 +2,11 @@
 
 namespace Shopware\Core\Content\MailTemplate\Service;
 
-use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Content\Mail\Payload\MailPayload;
-use Shopware\Core\Content\Mail\Service\AbstractMailService;
-use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateException;
-use Shopware\Core\Content\MailTemplate\Request\GetDataAndSendRequest;
 use Shopware\Core\Content\MailTemplate\Request\PreviewRequest;
 use Shopware\Core\Content\MailTemplate\Request\SimulateRequest;
-use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Content\MailTemplate\Validation\MailTemplateRenderResult;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
@@ -21,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Struct;
-use Symfony\Component\Mime\Email;
 
 /**
  * @internal
@@ -33,10 +26,9 @@ class MailTemplateService
      * @param EntityRepository<MailTemplateCollection> $mailTemplateRepository
      */
     public function __construct(
-        private readonly AbstractMailService $mailService,
-        private readonly MailDataProvider $mailDataProvider,
         private readonly EntityRepository $mailTemplateRepository,
         private readonly StringTemplateRenderer $templateRenderer,
+        private readonly MailDataProvider $mailDataProvider,
         private readonly MailDataSimulator $mailDataSimulator,
         private readonly MailTemplateContentBuilder $mailTemplateContentBuilder,
     ) {
@@ -137,57 +129,6 @@ class MailTemplateService
         }
 
         return $renderedResult;
-    }
-
-    public function getTemplateDataAndSend(
-        GetDataAndSendRequest $request,
-        Context $context,
-    ): ?Email {
-        $templateData = $this->mailDataProvider->getTemplateData(
-            $request->mailTemplate,
-            $request->entityMapping,
-            $context,
-            $request->templateData
-        );
-
-        return $this->send($request->mailPayload, $context, $templateData, $request->mailTemplate);
-    }
-
-    /**
-     * @param array<string|int,mixed> $templateData
-     */
-    public function send(
-        MailPayload $mailPayload,
-        Context $context,
-        array $templateData,
-        ?MailTemplateEntity $mailTemplate = null,
-    ): ?Email {
-        $data = $mailPayload->toArray();
-
-        $extension = new MailSendSubscriberConfig(
-            false,
-            $mailPayload->documentIds ?? [],
-            $mailPayload->mediaIds ?? [],
-        );
-
-        $orderId = null;
-        if (\array_key_exists('order', $templateData)) {
-            if (\is_array($templateData['order'])) {
-                $orderId = $templateData['order']['id'] ?? null;
-            } elseif ($templateData['order'] instanceof OrderEntity) {
-                $orderId = $templateData['order']->getId();
-            }
-        }
-
-        $data['attachmentsConfig'] = new MailAttachmentsConfig(
-            $context,
-            $mailTemplate ?? new MailTemplateEntity(),
-            $extension,
-            [],
-            $orderId,
-        );
-
-        return $this->mailService->send($data, $context, $templateData);
     }
 
     /**

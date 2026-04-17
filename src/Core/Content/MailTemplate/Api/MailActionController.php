@@ -7,6 +7,7 @@ use Shopware\Core\Content\MailTemplate\MailTemplateException;
 use Shopware\Core\Content\MailTemplate\Request\GetDataAndSendRequestFactory;
 use Shopware\Core\Content\MailTemplate\Request\PreviewRequestFactory;
 use Shopware\Core\Content\MailTemplate\Request\SimulateRequestFactory;
+use Shopware\Core\Content\MailTemplate\Service\MailTemplateSendService;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
@@ -32,6 +33,7 @@ class MailActionController extends AbstractController
     public function __construct(
         private readonly StringTemplateRenderer $templateRenderer,
         private readonly MailTemplateService $mailTemplateService,
+        private readonly MailTemplateSendService $mailTemplateSendService,
         private readonly MailPayloadFactory $mailPayloadFactory,
         private readonly PreviewRequestFactory $previewRequestFactory,
         private readonly GetDataAndSendRequestFactory $getDataAndSendRequestFactory,
@@ -69,7 +71,7 @@ class MailActionController extends AbstractController
             $mailTemplateData = [];
         }
 
-        $message = $this->mailTemplateService->send($mailPayload, $context, $mailTemplateData, $mailTemplate);
+        $message = $this->mailTemplateSendService->send($mailPayload, $context, $mailTemplateData, $mailTemplate);
 
         return new JsonResponse(['size' => mb_strlen($message ? $message->toString() : '')]);
     }
@@ -182,7 +184,7 @@ class MailActionController extends AbstractController
     {
         $request = $this->getDataAndSendRequestFactory->make($post, $context);
 
-        $message = $this->mailTemplateService->getTemplateDataAndSend($request, $context);
+        $message = $this->mailTemplateSendService->getTemplateDataAndSend($request, $context);
 
         return new JsonResponse(['size' => mb_strlen($message ? $message->toString() : '')]);
     }

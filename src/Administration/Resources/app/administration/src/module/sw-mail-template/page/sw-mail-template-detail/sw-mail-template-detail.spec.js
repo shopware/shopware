@@ -227,6 +227,9 @@ async function createWrapper(privileges = []) {
                 'sw-entity-multi-select': true,
                 'sw-textarea-field': true,
                 'sw-modal': true,
+                'sw-mail-template-preview-modal': {
+                    template: '<div class="sw-mail-template-preview-modal-stub"></div>',
+                },
                 'sw-text-field': true,
                 'sw-context-menu-item': true,
                 'sw-code-editor': {

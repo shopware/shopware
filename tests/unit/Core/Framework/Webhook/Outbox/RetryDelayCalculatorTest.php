@@ -35,6 +35,7 @@ class RetryDelayCalculatorTest extends TestCase
         $clock = new MockClock($now);
 
         $calculator = new RetryDelayCalculator($clock);
+        \assert($executionCount >= 1);
         $result = $calculator->computeNextRetryAt($executionCount);
 
         $expected = $now->modify(\sprintf('+%d seconds', $expectedDelay));

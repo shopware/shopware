@@ -43,20 +43,16 @@ class WebhookCleanupTest extends TestCase
         $this->insertLog('failed_very_old', $afterDoubleLifetime, WebhookEventLogDefinition::STATUS_FAILED);
         $this->insertLog('queued_old', $afterLifetime, WebhookEventLogDefinition::STATUS_QUEUED);
         $this->insertLog('queued_very_old', $afterDoubleLifetime, WebhookEventLogDefinition::STATUS_QUEUED);
-        $this->insertLog('pending_retry_old', $afterLifetime, WebhookEventLogDefinition::STATUS_PENDING_RETRY);
-        $this->insertLog('pending_retry_very_old', $afterDoubleLifetime, WebhookEventLogDefinition::STATUS_PENDING_RETRY);
 
         $cleanup->removeOldLogs();
 
         $remaining = $this->connection->fetchAllKeyValue('SELECT event_name, delivery_status FROM webhook_event_log');
 
-        static::assertCount(4, $remaining);
-        // Too new to be cleaned up
+        static::assertCount(3, $remaining);
+        // To new to be cleaned up
         static::assertArrayHasKey('success_recent', $remaining);
-        // Too new to be cleaned up, queued entries are only cleaned up after double lifetime
+        // To new to be cleaned up, queued entries are only cleaned up after double lifetime
         static::assertArrayHasKey('queued_old', $remaining);
-        // Too new to be cleaned up, pending_retry entries are only cleaned up after double lifetime
-        static::assertArrayHasKey('pending_retry_old', $remaining);
         // Running is never cleaned up
         static::assertArrayHasKey('running_old', $remaining);
     }

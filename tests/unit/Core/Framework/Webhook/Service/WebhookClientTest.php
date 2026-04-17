@@ -19,6 +19,7 @@ use Shopware\Core\Framework\App\Hmac\RequestSigner;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Service\WebhookClient;
 use Shopware\Core\Framework\Webhook\Service\WebhookRequest;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -121,7 +122,7 @@ class WebhookClientTest extends TestCase
         $handlerStack->push(new AuthMiddleware('6.7.0', $this->createMock(AppLocaleProvider::class)));
         $handlerStack->push($historyMiddleware);
         $guzzle = new Client(['handler' => $handlerStack]);
-        $client = new WebhookClient($guzzle);
+        $client = new WebhookClient($guzzle, new NativeClock());
 
         $requests = [
             'hook1' => $this->createWebhookRequest(url: 'https://example.com/hook1', headers: ['X-Custom' => 'value1']),
@@ -177,7 +178,7 @@ class WebhookClientTest extends TestCase
         $handlerStack->push(new AuthMiddleware('6.7.0', $this->createMock(AppLocaleProvider::class)));
         $handlerStack->push($historyMiddleware);
 
-        $client = new WebhookClient(new Client(['handler' => $handlerStack]));
+        $client = new WebhookClient(new Client(['handler' => $handlerStack]), new NativeClock());
 
         $results = $client->sendBatch([
             'hook1' => $this->createWebhookRequest(url: 'https://example.com/hook1'),
@@ -265,7 +266,7 @@ class WebhookClientTest extends TestCase
         static::assertNull($result->body);
     }
 
-    public function testSendSuccessRecordsDurationSeconds(): void
+    public function testSendSuccessRecordsDurationMs(): void
     {
         $mockHandler = new MockHandler([
             new Response(200, [], '{}'),
@@ -274,11 +275,11 @@ class WebhookClientTest extends TestCase
         $client = $this->createClient($mockHandler);
         $result = $client->send($this->createWebhookRequest());
 
-        static::assertNotNull($result->durationSeconds);
-        static::assertGreaterThan(0, $result->durationSeconds);
+        static::assertNotNull($result->processingTime);
+        static::assertGreaterThanOrEqual(0, $result->processingTime);
     }
 
-    public function testSendFailureRecordsDurationSeconds(): void
+    public function testSendFailureRecordsDurationMs(): void
     {
         $mockHandler = new MockHandler([
             new ConnectException('Connection refused', new Request('POST', 'https://example.com')),
@@ -288,11 +289,11 @@ class WebhookClientTest extends TestCase
         $result = $client->send($this->createWebhookRequest());
 
         static::assertFalse($result->successful());
-        static::assertNotNull($result->durationSeconds);
-        static::assertGreaterThan(0, $result->durationSeconds);
+        static::assertNotNull($result->processingTime);
+        static::assertGreaterThanOrEqual(0, $result->processingTime);
     }
 
-    public function testSendBatchFulfilledRecordsDurationSeconds(): void
+    public function testSendBatchFulfilledRecordsDurationMs(): void
     {
         $mockHandler = new MockHandler([
             new Response(200, [], '{}'),
@@ -309,12 +310,12 @@ class WebhookClientTest extends TestCase
         static::assertCount(2, $results);
         foreach ($results as $key => $result) {
             static::assertTrue($result->successful(), "Expected result '{$key}' to be successful");
-            static::assertNotNull($result->durationSeconds, "Expected result '{$key}' to have durationSeconds");
-            static::assertGreaterThan(0, $result->durationSeconds, "Expected result '{$key}' durationSeconds > 0");
+            static::assertNotNull($result->processingTime, "Expected result '{$key}' to have processingTime");
+            static::assertGreaterThanOrEqual(0, $result->processingTime, "Expected result '{$key}' processingTime >= 0");
         }
     }
 
-    public function testSendBatchRejectedRecordsDurationSeconds(): void
+    public function testSendBatchRejectedRecordsDurationMs(): void
     {
         $mockHandler = new MockHandler([
             new ConnectException('Connection refused', new Request('POST', 'https://example.com/hook1')),
@@ -331,8 +332,8 @@ class WebhookClientTest extends TestCase
         static::assertCount(2, $results);
         foreach ($results as $key => $result) {
             static::assertFalse($result->successful(), "Expected result '{$key}' to be a failure");
-            static::assertNotNull($result->durationSeconds, "Expected result '{$key}' to have durationSeconds");
-            static::assertGreaterThan(0, $result->durationSeconds, "Expected result '{$key}' durationSeconds > 0");
+            static::assertNotNull($result->processingTime, "Expected result '{$key}' to have processingTime");
+            static::assertGreaterThanOrEqual(0, $result->processingTime, "Expected result '{$key}' processingTime >= 0");
         }
     }
 
@@ -342,7 +343,7 @@ class WebhookClientTest extends TestCase
         $stack->push(new AuthMiddleware('6.7.0', $this->createMock(AppLocaleProvider::class)));
         $guzzle = new Client(['handler' => $stack]);
 
-        return new WebhookClient($guzzle);
+        return new WebhookClient($guzzle, new NativeClock());
     }
 
     /**

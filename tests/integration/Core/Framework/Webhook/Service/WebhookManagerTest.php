@@ -9,6 +9,7 @@ use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
@@ -33,6 +34,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
@@ -91,7 +93,6 @@ class WebhookManagerTest extends TestCase
 
     protected function tearDown(): void
     {
-        unset($_SERVER['WEBHOOKS_REWORK']);
         parent::tearDown();
     }
 
@@ -1320,26 +1321,26 @@ class WebhookManagerTest extends TestCase
             'test@example.com'
         );
 
-        $this->getManager(adminWorkerEnabled: true, outboxRetriesEnabled: true)->dispatch($event);
+        Feature::fake(['WEBHOOKS_REWORK'], function () use ($event): void {
+            $this->getManager(adminWorkerEnabled: true)->dispatch($event);
 
-        // Event log should be pending_retry, not failed
-        $eventLog = $this->connection->fetchAssociative(
-            'SELECT id, delivery_status FROM webhook_event_log WHERE webhook_name = :name ORDER BY created_at DESC LIMIT 1',
-            ['name' => 'hook1']
-        );
+            $eventLog = $this->connection->fetchAssociative(
+                'SELECT id, delivery_status FROM webhook_event_log WHERE webhook_name = :name ORDER BY created_at DESC LIMIT 1',
+                ['name' => 'hook1']
+            );
 
-        static::assertIsArray($eventLog);
-        static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $eventLog['delivery_status']);
+            static::assertIsArray($eventLog);
+            static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $eventLog['delivery_status']);
 
-        // Delivery row must still exist with next_retry_at set
-        $delivery = $this->connection->fetchAssociative(
-            'SELECT delivery_status, next_retry_at FROM webhook_delivery WHERE webhook_event_log_id = :id',
-            ['id' => $eventLog['id']]
-        );
+            $delivery = $this->connection->fetchAssociative(
+                'SELECT delivery_status, next_retry_at FROM webhook_delivery WHERE webhook_event_log_id = :id',
+                ['id' => $eventLog['id']]
+            );
 
-        static::assertIsArray($delivery);
-        static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $delivery['delivery_status']);
-        static::assertNotNull($delivery['next_retry_at']);
+            static::assertIsArray($delivery);
+            static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $delivery['delivery_status']);
+            static::assertNotNull($delivery['next_retry_at']);
+        });
     }
 
     public function testSyncPathMarksPendingRetryForAppLifecycleEventsWithFlagOn(): void
@@ -1358,26 +1359,26 @@ class WebhookManagerTest extends TestCase
 
         $event = new AppDeletedEvent($appId, Context::createDefaultContext());
 
-        $this->getManager(adminWorkerEnabled: true, outboxRetriesEnabled: true)->dispatch($event);
+        Feature::fake(['WEBHOOKS_REWORK'], function () use ($event): void {
+            $this->getManager(adminWorkerEnabled: true)->dispatch($event);
 
-        // All deliveries are retryable — lifecycle events included
-        $eventLog = $this->connection->fetchAssociative(
-            'SELECT id, delivery_status FROM webhook_event_log WHERE webhook_name = :name ORDER BY created_at DESC LIMIT 1',
-            ['name' => 'hook1']
-        );
+            $eventLog = $this->connection->fetchAssociative(
+                'SELECT id, delivery_status FROM webhook_event_log WHERE webhook_name = :name ORDER BY created_at DESC LIMIT 1',
+                ['name' => 'hook1']
+            );
 
-        static::assertIsArray($eventLog);
-        static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $eventLog['delivery_status']);
+            static::assertIsArray($eventLog);
+            static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $eventLog['delivery_status']);
 
-        // Delivery row should still exist (pending retry, not terminal)
-        $delivery = $this->connection->fetchAssociative(
-            'SELECT delivery_status, next_retry_at FROM webhook_delivery WHERE webhook_event_log_id = :id',
-            ['id' => $eventLog['id']]
-        );
+            $delivery = $this->connection->fetchAssociative(
+                'SELECT delivery_status, next_retry_at FROM webhook_delivery WHERE webhook_event_log_id = :id',
+                ['id' => $eventLog['id']]
+            );
 
-        static::assertIsArray($delivery);
-        static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $delivery['delivery_status']);
-        static::assertNotNull($delivery['next_retry_at']);
+            static::assertIsArray($delivery);
+            static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $delivery['delivery_status']);
+            static::assertNotNull($delivery['next_retry_at']);
+        });
     }
 
     public function testSyncPathMarksFailedWhenFlagOff(): void
@@ -1405,24 +1406,24 @@ class WebhookManagerTest extends TestCase
             'test@example.com'
         );
 
-        $this->getManager(adminWorkerEnabled: true, outboxRetriesEnabled: false)->dispatch($event);
+        Feature::fake([], function () use ($event): void {
+            $this->getManager(adminWorkerEnabled: true)->dispatch($event);
 
-        // With flag OFF, should be marked failed (existing behavior)
-        $eventLog = $this->connection->fetchAssociative(
-            'SELECT id, delivery_status FROM webhook_event_log WHERE webhook_name = :name ORDER BY created_at DESC LIMIT 1',
-            ['name' => 'hook1']
-        );
+            $eventLog = $this->connection->fetchAssociative(
+                'SELECT id, delivery_status FROM webhook_event_log WHERE webhook_name = :name ORDER BY created_at DESC LIMIT 1',
+                ['name' => 'hook1']
+            );
 
-        static::assertIsArray($eventLog);
-        static::assertSame(WebhookEventLogDefinition::STATUS_FAILED, $eventLog['delivery_status']);
+            static::assertIsArray($eventLog);
+            static::assertSame(WebhookEventLogDefinition::STATUS_FAILED, $eventLog['delivery_status']);
 
-        // Delivery row should be cleaned up (terminal state)
-        $deliveryCount = (int) $this->connection->fetchOne(
-            'SELECT COUNT(*) FROM webhook_delivery WHERE webhook_event_log_id = :id',
-            ['id' => $eventLog['id']]
-        );
+            $deliveryCount = (int) $this->connection->fetchOne(
+                'SELECT COUNT(*) FROM webhook_delivery WHERE webhook_event_log_id = :id',
+                ['id' => $eventLog['id']]
+            );
 
-        static::assertSame(0, $deliveryCount, 'Delivery row should be removed after failed delivery (terminal state)');
+            static::assertSame(0, $deliveryCount, 'Delivery row should be removed after failed delivery (terminal state)');
+        });
     }
 
     public function testSyncDispatchWithNonAppWebhookCreatesOutboxEntry(): void
@@ -1572,14 +1573,7 @@ class WebhookManagerTest extends TestCase
     private function getManager(
         ?Client $client = null,
         bool $adminWorkerEnabled = true,
-        bool $outboxRetriesEnabled = false,
     ): WebhookManager {
-        if ($outboxRetriesEnabled) {
-            $_SERVER['WEBHOOKS_REWORK'] = '1';
-        } else {
-            unset($_SERVER['WEBHOOKS_REWORK']);
-        }
-
         $guzzle = $client ?? static::getContainer()->get('shopware.webhook.guzzle');
 
         return new WebhookManager(
@@ -1588,7 +1582,7 @@ class WebhookManagerTest extends TestCase
             static::getContainer()->get(HookableEventFactory::class),
             static::getContainer()->get(AppLocaleProvider::class),
             static::getContainer()->get(AppPayloadServiceHelper::class),
-            new WebhookClient($guzzle),
+            new WebhookClient($guzzle, static::getContainer()->get(ClockInterface::class)),
             $this->bus,
             $this->shopUrl,
             Kernel::SHOPWARE_FALLBACK_VERSION,

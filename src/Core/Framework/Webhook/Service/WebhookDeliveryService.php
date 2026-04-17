@@ -48,18 +48,14 @@ class WebhookDeliveryService
     }
 
     /**
-     * Batch entry point from WebhookManager.
+     * Routes a batch of messages to sync or async delivery.
      *
-     * When admin worker is enabled (or $forceSynchronous), delivers synchronously via parallel Guzzle Pool (bypasses the transport sender — persists outbox entries directly).
-     * For the admin worker: we need the behavior to guarantee that the webhooks are sent, because otherwise we cannot make sure that the webhooks will ever be sent out.
-     * For the forceSynchronous: this is added to preserve current behavior with lifecycle events - we won't support retires initially, because that would be an API
-     * change in behavior.
+     * - Sync: admin worker enabled, or $forceSynchronous (lifecycle events — preserves
+     *   trunk race-prevention semantics until v6.8.0 removes the flag).
+     * - Async: dispatched to the messenger bus.
      *
      * @param list<WebhookEventMessage> $messages
-     * @param bool $forceSynchronous @deprecated tag:v6.8.0 — will be removed. Forces synchronous
-     *                               delivery for app lifecycle events (AppDeletedEvent, AppChangedEvent, AppPermissionsUpdated)
-     *                               to preserve race-condition prevention semantics from the legacy path. Once removed,
-     *                               all deliveries go through the async path with outbox-owned retries.
+     * @param bool $forceSynchronous @deprecated tag:v6.8.0 — removed; all deliveries become async.
      */
     public function process(array $messages, bool $forceSynchronous = false): void
     {
@@ -77,20 +73,30 @@ class WebhookDeliveryService
     public function deliver(WebhookEventMessage $message): void
     {
         $entry = $this->outboxEventRepository->markRunning($message->getWebhookEventId());
-        $executionCount = $entry !== null ? $entry->executionCount : 1;
-
-        $request = $this->buildRequest($message);
-        $result = $this->webhookClient->send($request);
+        if ($entry === null) {
+            return;
+        }
 
         try {
-            $this->handleResult($message->getWebhookEventId(), $message->getWebhookId(), $executionCount, $request, $result);
+            $request = $this->buildRequest($message);
+            $result = $this->webhookClient->send($request);
+            $this->handleResult($message->getWebhookEventId(), $message->getWebhookId(), $entry->executionCount, $request, $result);
         } catch (\JsonException $e) {
-            $this->logger->error('Webhook delivery response encoding failed for event {eventId}', [
+            $this->logger->error('Webhook delivery encoding failed for event {eventId}', [
                 'eventId' => $message->getWebhookEventId(),
                 'webhookId' => $message->getWebhookId(),
                 'exception' => $e,
             ]);
-            $this->outboxEventRepository->markFailed($message->getWebhookEventId());
+            try {
+                $this->outboxEventRepository->markFailed($message->getWebhookEventId());
+            } catch (DBALException) {
+            }
+        } catch (DBALException $e) {
+            $this->logger->error('Webhook delivery persistence failed for event {eventId}', [
+                'eventId' => $message->getWebhookEventId(),
+                'webhookId' => $message->getWebhookId(),
+                'exception' => $e,
+            ]);
         }
     }
 
@@ -166,7 +172,7 @@ class WebhookDeliveryService
             return;
         }
 
-        $retryAt = $this->retryDelayCalculator->computeNextRetryAt($executionCount);
+        $retryAt = $this->retryDelayCalculator->computeNextRetryAt(max(1, $executionCount));
         $this->outboxEventRepository->markPendingRetry($eventLogId, $retryAt, $response);
     }
 

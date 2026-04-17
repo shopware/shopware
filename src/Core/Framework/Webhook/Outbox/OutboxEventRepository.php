@@ -10,12 +10,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
-use Shopware\Core\Framework\Webhook\WebhookException;
 
 /**
- * Persistence layer for outbox tables (webhook_event_log + webhook_delivery).
- * Pure data operations — no business decisions.
- *
  * @internal
  *
  * @codeCoverageIgnore Integration tested with \Shopware\Tests\Integration\Core\Framework\Webhook\Outbox\OutboxEventRepositoryTest
@@ -35,8 +31,12 @@ class OutboxEventRepository
             $eventLogId = Uuid::fromHexToBytes($insert->webhookEventId);
 
             try {
-                $this->insertEventLog($insert, $eventLogId);
+                $inserted = $this->insertEventLog($insert, $eventLogId);
             } catch (UniqueConstraintViolationException) {
+                return;
+            }
+
+            if (!$inserted) {
                 return;
             }
 
@@ -66,10 +66,13 @@ class OutboxEventRepository
     }
 
     /**
-     * Claims a QUEUED delivery row for processing (first-attempt path).
+     * Atomically marks the delivery row as RUNNING and returns the claim.
      *
-     * For retry path (row already RUNNING from a future receiver), the UPDATE
-     * matches 0 rows and the SELECT returns current values without double-increment.
+     * - A non-RUNNING row (queued or pending_retry) transitions to RUNNING,
+     *   increments execution_count, and updates event_log in the same transaction.
+     * - An already-RUNNING row is idempotent: returns the current state without incrementing.
+     * - A missing delivery row (never created, or already deleted by markSuccess/markFailed)
+     *   returns null.
      */
     public function markRunning(string $eventLogId): ?OutboxEntry
     {
@@ -78,28 +81,25 @@ class OutboxEventRepository
         $nowFormatted = $now->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         RetryableTransaction::retryable($this->connection, function () use ($id, $now, $nowFormatted): void {
-            // Only transition event_log if not already RUNNING (idempotent for retry path
-            // where a future receiver may have already claimed the row).
-            $this->connection->executeStatement(
-                'UPDATE webhook_event_log SET delivery_status = :status, timestamp = :ts WHERE id = :id AND delivery_status != :status',
-                [
-                    'status' => WebhookEventLogDefinition::STATUS_RUNNING,
-                    'ts' => $now->getTimestamp(),
-                    'id' => $id,
-                ]
-            );
-
-            // Only increment execution_count for queued rows (first-attempt).
-            // Retry rows are already RUNNING with incremented count from a future receiver.
-            $this->connection->executeStatement(
-                'UPDATE webhook_delivery SET delivery_status = :status, execution_count = execution_count + 1, last_attempt_at = :now, updated_at = :now WHERE webhook_event_log_id = :id AND delivery_status = :queued',
+            $affected = (int) $this->connection->executeStatement(
+                'UPDATE webhook_delivery SET delivery_status = :status, execution_count = execution_count + 1, last_attempt_at = :now, updated_at = :now WHERE webhook_event_log_id = :id AND delivery_status != :status',
                 [
                     'status' => WebhookEventLogDefinition::STATUS_RUNNING,
                     'now' => $nowFormatted,
                     'id' => $id,
-                    'queued' => WebhookEventLogDefinition::STATUS_QUEUED,
                 ]
             );
+
+            if ($affected > 0) {
+                $this->connection->executeStatement(
+                    'UPDATE webhook_event_log SET delivery_status = :status, timestamp = :ts WHERE id = :id',
+                    [
+                        'status' => WebhookEventLogDefinition::STATUS_RUNNING,
+                        'ts' => $now->getTimestamp(),
+                        'id' => $id,
+                    ]
+                );
+            }
         });
 
         $row = $this->connection->fetchAssociative(
@@ -194,7 +194,7 @@ class OutboxEventRepository
         );
     }
 
-    private function insertEventLog(OutboxInsert $insert, string $eventLogId): void
+    private function insertEventLog(OutboxInsert $insert, string $eventLogId): bool
     {
         $createdAt = $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
         $webhookId = Uuid::fromHexToBytes($insert->webhookId);
@@ -223,8 +223,6 @@ class OutboxEventRepository
             ]
         );
 
-        if ($affected === 0) {
-            throw WebhookException::webhookNotFound($insert->webhookId);
-        }
+        return $affected > 0;
     }
 }

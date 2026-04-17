@@ -29,6 +29,7 @@ class RetryDelayCalculator
     /**
      * Computes the next retry time based on how many attempts have been made.
      * Uses the last delay value for execution counts beyond the table size.
+     * Defensively clamps zero/negative counts to the first delay.
      */
     public function computeNextRetryAt(int $executionCount): \DateTimeImmutable
     {

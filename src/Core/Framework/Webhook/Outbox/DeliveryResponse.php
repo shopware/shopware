@@ -16,7 +16,7 @@ final readonly class DeliveryResponse
 {
     public function __construct(
         /**
-         * HTTP round-trip duration in milliseconds
+         * HTTP round-trip processing time in whole seconds.
          */
         public int $processingTime,
         public string $requestContent,
@@ -29,7 +29,7 @@ final readonly class DeliveryResponse
     public static function from(WebhookRequest $request, WebhookResult $result): self
     {
         return new self(
-            processingTime: (int) round(($result->durationSeconds ?? 0) * 1000),
+            processingTime: $result->processingTime ?? 0,
             requestContent: json_encode(['headers' => $request->headers, 'body' => $request->body], \JSON_THROW_ON_ERROR),
             responseContent: $result->hasResponse()
                 ? json_encode(['headers' => $result->headers, 'body' => $result->body], \JSON_THROW_ON_ERROR)

@@ -125,7 +125,7 @@ class WebhookManager implements ResetInterface
         if ($this->isAdminWorkerEnabled || $event instanceof AppDeletedEvent || $event instanceof AppChangedEvent || $event instanceof AppPermissionsUpdated) {
             Profiler::trace(
                 'webhook::dispatch-sync',
-                fn () => $this->callWebhooksSynchronousLegacy($webhooksForEvent, $event, $languageId, $userLocale)
+                fn () => $this->callWebhooksSynchronous($webhooksForEvent, $event, $languageId, $userLocale)
             );
 
             return;
@@ -133,7 +133,7 @@ class WebhookManager implements ResetInterface
 
         Profiler::trace(
             'webhook::dispatch-async',
-            fn () => $this->dispatchWebhooksToQueueLegacy($webhooksForEvent, $event, $languageId, $userLocale)
+            fn () => $this->dispatchWebhooksToQueue($webhooksForEvent, $event, $languageId, $userLocale)
         );
     }
 
@@ -159,9 +159,11 @@ class WebhookManager implements ResetInterface
     }
 
     /**
+     * @deprecated tag:v6.8.0 — pre-WEBHOOKS_REWORK path; will be removed.
+     *
      * @param array<Webhook> $webhooksForEvent
      */
-    private function dispatchWebhooksToQueueLegacy(
+    private function dispatchWebhooksToQueue(
         array $webhooksForEvent,
         Hookable $event,
         string $languageId,
@@ -178,11 +180,11 @@ class WebhookManager implements ResetInterface
     }
 
     /**
-     * Legacy sync path: delivers via Guzzle Pool batch with no outbox retry scheduling.
+     * @deprecated tag:v6.8.0 — pre-WEBHOOKS_REWORK path; will be removed.
      *
      * @param array<Webhook> $webhooksForEvent
      */
-    private function callWebhooksSynchronousLegacy(
+    private function callWebhooksSynchronous(
         array $webhooksForEvent,
         Hookable $event,
         string $languageId,

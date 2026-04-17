@@ -11,6 +11,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -391,53 +392,70 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
 
     public function testNoOpWhenOutboxRetriesEnabled(): void
     {
-        $_SERVER['WEBHOOKS_REWORK'] = '1';
+        $webhookId = Uuid::randomHex();
+        $appId = Uuid::randomHex();
+        $webhookEventId = Uuid::randomHex();
 
-        try {
-            $webhookId = Uuid::randomHex();
-            $appId = Uuid::randomHex();
-            $webhookEventId = Uuid::randomHex();
+        $this->createAppWithWebhook($appId, $webhookId, 0);
 
-            $this->createAppWithWebhook($appId, $webhookId, 0);
-            $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId);
-            $this->createOutboxEntry($webhookEventMessage, $webhookId);
+        // Use a message WITHOUT partitionKey (legacy message) — blanket flag-ON early-return
+        // means even legacy messages are no-ops when the flag is enabled.
+        $webhookEventMessage = new WebhookEventMessage(
+            $webhookEventId,
+            ['body' => 'payload'],
+            $appId,
+            $webhookId,
+            '6.4',
+            'http://example.com',
+            's3cr3t',
+            Defaults::LANGUAGE_SYSTEM,
+            'en-GB',
+            // no partitionKey — legacy message
+        );
 
-            $this->outboxEventRepository->markRunning($webhookEventId);
+        /** @var EntityRepository<WebhookEventLogCollection> $webhookEventLogRepository */
+        $webhookEventLogRepository = static::getContainer()->get('webhook_event_log.repository');
+        $webhookEventLogRepository->create([[
+            'id' => $webhookEventId,
+            'appName' => 'SwagApp',
+            'deliveryStatus' => WebhookEventLogDefinition::STATUS_QUEUED,
+            'webhookName' => 'hook1',
+            'eventName' => 'order',
+            'appVersion' => '0.0.1',
+            'url' => 'https://example.com/hook',
+            'serializedWebhookMessage' => serialize($webhookEventMessage),
+        ]], $this->context);
 
-            $event = new WorkerMessageFailedEvent(
-                new Envelope($webhookEventMessage),
-                'async',
-                new ClientException('test', new Request('GET', 'https://test.com'), new Response(500))
-            );
+        $event = new WorkerMessageFailedEvent(
+            new Envelope($webhookEventMessage),
+            'async',
+            new ClientException('test', new Request('GET', 'https://example.com/hook'), new Response(500))
+        );
 
-            $subscriber = new RetryWebhookMessageFailedSubscriber(
-                $this->connection,
-                $this->outboxEventRepository,
-                static::getContainer()->get(RelatedWebhooks::class),
-                WebhookFailureStrategy::DisableOnThreshold->value,
-            );
+        $subscriber = new RetryWebhookMessageFailedSubscriber(
+            $this->connection,
+            $this->outboxEventRepository,
+            static::getContainer()->get(RelatedWebhooks::class),
+            WebhookFailureStrategy::DisableOnThreshold->value,
+        );
 
+        Feature::fake(['WEBHOOKS_REWORK'], function () use ($subscriber, $event, $webhookEventId, $webhookId): void {
             $subscriber->failed($event);
 
-            // markFailed must NOT have been called — delivery row should still exist with RUNNING status
-            $delivery = $this->connection->fetchAssociative(
-                'SELECT delivery_status FROM webhook_delivery WHERE webhook_event_log_id = :id',
+            // Subscriber early-returned — event log status must still be QUEUED (no DB writes)
+            $status = $this->connection->fetchOne(
+                'SELECT delivery_status FROM webhook_event_log WHERE id = :id',
                 ['id' => Uuid::fromHexToBytes($webhookEventId)]
             );
+            static::assertSame(WebhookEventLogDefinition::STATUS_QUEUED, $status, 'Subscriber must not modify event log when flag is ON');
 
-            static::assertIsArray($delivery);
-            static::assertSame(WebhookEventLogDefinition::STATUS_RUNNING, $delivery['delivery_status']);
-
-            // Webhook error_count must NOT have been changed
             $webhookRepository = static::getContainer()->get('webhook.repository');
             $webhook = $webhookRepository->search(new Criteria([$webhookId]), $this->context)->first();
 
             static::assertInstanceOf(WebhookEntity::class, $webhook);
             static::assertSame(0, $webhook->getErrorCount());
             static::assertTrue($webhook->isActive());
-        } finally {
-            unset($_SERVER['WEBHOOKS_REWORK']);
-        }
+        });
     }
 
     public function testExistingBehaviorPreservedWhenFlagOff(): void

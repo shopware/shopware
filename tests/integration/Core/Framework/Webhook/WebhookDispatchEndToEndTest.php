@@ -5,11 +5,11 @@ namespace Shopware\Tests\Integration\Core\Framework\Webhook;
 use Doctrine\DBAL\Connection;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -25,7 +25,6 @@ use Shopware\Core\Kernel;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
-use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\TraceableMessageBus;
 
 /**
@@ -236,7 +235,7 @@ class WebhookDispatchEndToEndTest extends TestCase
             static::getContainer()->get(HookableEventFactory::class),
             static::getContainer()->get(AppLocaleProvider::class),
             static::getContainer()->get(AppPayloadServiceHelper::class),
-            new WebhookClient($guzzle),
+            new WebhookClient($guzzle, static::getContainer()->get(ClockInterface::class)),
             static::getContainer()->get('messenger.default_bus'),
             $_SERVER['APP_URL'],
             Kernel::SHOPWARE_FALLBACK_VERSION,

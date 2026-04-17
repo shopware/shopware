@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Webhook\Service;
 
+use Doctrine\DBAL\Exception as DBALException;
+use Doctrine\DBAL\Exception\InvalidArgumentException as DBALInvalidArgumentException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
@@ -17,6 +19,7 @@ use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
+use Shopware\Core\Framework\Webhook\Outbox\DeliveryResponse;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxEntry;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository;
 use Shopware\Core\Framework\Webhook\Outbox\RetryDelayCalculator;
@@ -35,6 +38,8 @@ use Symfony\Component\Clock\MockClock;
 #[CoversClass(WebhookDeliveryService::class)]
 class WebhookDeliveryServiceTest extends TestCase
 {
+    private const FIXED_TIMESTAMP = 1713182400; // 2024-04-15T12:00:00Z
+
     private MockHandler $guzzleMock;
 
     private WebhookClient $webhookClient;
@@ -55,14 +60,15 @@ class WebhookDeliveryServiceTest extends TestCase
 
     protected function setUp(): void
     {
+        $this->clock = new MockClock(new \DateTimeImmutable('2026-04-15 12:00:00'));
+
         $this->guzzleMock = new MockHandler();
         $stack = HandlerStack::create($this->guzzleMock);
         $stack->push(new AuthMiddleware('6.7.0', $this->createMock(AppLocaleProvider::class)));
-        $this->webhookClient = new WebhookClient(new Client(['handler' => $stack]));
+        $this->webhookClient = new WebhookClient(new Client(['handler' => $stack]), $this->clock);
 
         $this->appPayloadServiceHelper = $this->createMock(AppPayloadServiceHelper::class);
         $this->outboxEventRepository = $this->createMock(OutboxEventRepository::class);
-        $this->clock = new MockClock(new \DateTimeImmutable('2026-04-15 12:00:00'));
         $this->retryDelayCalculator = new RetryDelayCalculator($this->clock);
         $this->bus = new CollectingMessageBus();
         $this->webhookStateRepository = $this->createMock(WebhookStateRepository::class);
@@ -218,7 +224,7 @@ class WebhookDeliveryServiceTest extends TestCase
         $service->deliver($msg);
     }
 
-    public function testDeliverSuccessfulResultUsesDurationSeconds(): void
+    public function testDeliverSuccessfulResultPopulatesProcessingTime(): void
     {
         $msg = $this->createMessage();
         $webhookRequest = $this->createWebhookRequest();
@@ -229,12 +235,12 @@ class WebhookDeliveryServiceTest extends TestCase
 
         $this->queueGuzzleResponse(new Response(200, [], '{"ok":true}'));
 
-        // Verify markSuccess receives a DeliveryResponse with processingTime derived from durationSeconds
         $this->outboxEventRepository->expects($this->once())->method('markSuccess')
             ->with(
                 $msg->getWebhookEventId(),
                 static::callback(function ($response) {
-                    // durationSeconds is cast to int for processingTime; we just verify it's set (non-null)
+                    static::assertInstanceOf(DeliveryResponse::class, $response);
+
                     return $response->processingTime >= 0;
                 })
             );
@@ -311,6 +317,65 @@ class WebhookDeliveryServiceTest extends TestCase
         $service->deliver($msg);
     }
 
+    public function testDeliverSwallowsDBALExceptionFromMarkSuccess(): void
+    {
+        $msg = $this->createMessage();
+        $webhookRequest = $this->createWebhookRequest();
+
+        $this->appPayloadServiceHelper->method('createWebhookRequest')->willReturn($webhookRequest);
+        $this->outboxEventRepository->expects($this->once())->method('markRunning')
+            ->willReturn(new OutboxEntry(executionCount: 1, sequence: 1));
+
+        $this->queueGuzzleResponse(new Response(200, ['Content-Type' => 'application/json'], '{"status":"ok"}'));
+
+        $this->outboxEventRepository->expects($this->once())->method('markSuccess')
+            ->willThrowException(new DBALInvalidArgumentException('Connection lost'));
+
+        $this->logger->expects($this->once())->method('error')
+            ->with(
+                'Webhook delivery persistence failed for event {eventId}',
+                static::callback(function (array $context) use ($msg) {
+                    return $context['eventId'] === $msg->getWebhookEventId()
+                        && $context['webhookId'] === $msg->getWebhookId()
+                        && $context['exception'] instanceof DBALException;
+                })
+            );
+
+        $service = $this->createService();
+        // Must not throw
+        $service->deliver($msg);
+    }
+
+    public function testDeliverSwallowsDBALExceptionFromMarkPendingRetry(): void
+    {
+        $msg = $this->createMessage();
+        $webhookRequest = $this->createWebhookRequest();
+
+        $this->appPayloadServiceHelper->method('createWebhookRequest')->willReturn($webhookRequest);
+        $this->outboxEventRepository->expects($this->once())->method('markRunning')
+            ->willReturn(new OutboxEntry(executionCount: 2, sequence: 1));
+
+        // 500 response → non-terminal failure → markPendingRetry
+        $this->queueGuzzleResponse(new Response(500, [], '{"error":"fail"}'));
+
+        $this->outboxEventRepository->expects($this->once())->method('markPendingRetry')
+            ->willThrowException(new DBALInvalidArgumentException('Connection lost'));
+
+        $this->logger->expects($this->once())->method('error')
+            ->with(
+                'Webhook delivery persistence failed for event {eventId}',
+                static::callback(function (array $context) use ($msg) {
+                    return $context['eventId'] === $msg->getWebhookEventId()
+                        && $context['webhookId'] === $msg->getWebhookId()
+                        && $context['exception'] instanceof DBALException;
+                })
+            );
+
+        $service = $this->createService();
+        // Must not throw
+        $service->deliver($msg);
+    }
+
     private function queueGuzzleResponse(Response $response): void
     {
         $this->guzzleMock->append($response);
@@ -352,13 +417,13 @@ class WebhookDeliveryServiceTest extends TestCase
 
     private function createWebhookRequest(): WebhookRequest
     {
-        $body = json_encode(['data' => 'test-payload', 'timestamp' => 1713182400], \JSON_THROW_ON_ERROR);
+        $body = json_encode(['data' => 'test-payload', 'timestamp' => self::FIXED_TIMESTAMP], \JSON_THROW_ON_ERROR);
 
         return new WebhookRequest(
             request: new Request('POST', 'https://example.com/webhook', ['Content-Type' => 'application/json'], $body),
             headers: ['Content-Type' => 'application/json'],
             body: $body,
-            timestamp: 1713182400,
+            timestamp: self::FIXED_TIMESTAMP,
             options: ['connect_timeout' => 10, 'timeout' => 20],
         );
     }

@@ -14,7 +14,6 @@ use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\DeliveryResponse;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxInsert;
-use Shopware\Core\Framework\Webhook\WebhookException;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
@@ -423,20 +422,26 @@ class OutboxEventRepositoryTest extends TestCase
         static::assertSame($deliveryId, $sequence, 'webhook_event_log.sequence must equal webhook_delivery.id (auto-increment)');
     }
 
-    public function testEnsureOutboxEntryThrowsWebhookNotFoundForMissingWebhook(): void
+    public function testEnsureOutboxEntryIsNoOpForMissingWebhook(): void
     {
         $nonExistentWebhookId = Uuid::randomHex();
+        $eventLogId = Uuid::randomHex();
         $entry = new OutboxInsert(
-            Uuid::randomHex(),
+            $eventLogId,
             $nonExistentWebhookId,
             Hasher::hashBinary(WebhookEventMessage::DEFAULT_PARTITION_KEY, 'xxh128'),
             serialize('test'),
         );
 
-        $this->expectException(WebhookException::class);
-        $this->expectExceptionMessage('Webhook "' . $nonExistentWebhookId . '" not found.');
-
+        // Deleted webhook: insertEventLog returns false (SELECT finds no webhook row).
+        // ensureOutboxEntry must silently do nothing — no exception, no rows written.
         $this->repository->ensureOutboxEntry($entry);
+
+        $rowCount = (int) $this->connection->fetchOne(
+            'SELECT COUNT(*) FROM webhook_event_log WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($eventLogId)]
+        );
+        static::assertSame(0, $rowCount, 'No event_log row should be created when webhook does not exist');
     }
 
     public function testSerializedWebhookMessageIsStoredInEventLog(): void
@@ -533,14 +538,79 @@ class OutboxEventRepositoryTest extends TestCase
 
         $info = $this->repository->markRunning($this->ids->get('evt-1'));
 
+        static::assertNotNull($info);
         static::assertSame(1, $info->executionCount);
         static::assertGreaterThan(0, $info->sequence);
 
         // Call again on the already-RUNNING row - should be idempotent
         // The UPDATE WHERE delivery_status = 'queued' matches 0 rows
         $info2 = $this->repository->markRunning($this->ids->get('evt-1'));
+        static::assertNotNull($info2);
         static::assertSame(1, $info2->executionCount, 'Execution count must remain 1 for already-RUNNING row');
         static::assertSame($info->sequence, $info2->sequence);
+    }
+
+    public function testMarkRunningReturnsNullWhenDeliveryRowIsSuccess(): void
+    {
+        $this->createWebhook('wh-1');
+        $message = $this->createMessage('evt-1', 'wh-1');
+        $this->repository->ensureOutboxEntry($this->toEntry($message));
+
+        // Transition to RUNNING then to SUCCESS (delivery row deleted)
+        $this->repository->markRunning($this->ids->get('evt-1'));
+        $this->repository->markSuccess($this->ids->get('evt-1'));
+
+        // Now call markRunning — delivery row no longer exists
+        $result = $this->repository->markRunning($this->ids->get('evt-1'));
+
+        static::assertNull($result, 'markRunning must return null when delivery row is deleted (success)');
+    }
+
+    public function testMarkRunningReturnsEntryWhenAlreadyRunning(): void
+    {
+        $this->createWebhook('wh-1');
+        $message = $this->createMessage('evt-1', 'wh-1');
+        $this->repository->ensureOutboxEntry($this->toEntry($message));
+
+        $first = $this->repository->markRunning($this->ids->get('evt-1'));
+        static::assertNotNull($first);
+        static::assertSame(1, $first->executionCount);
+
+        // Call again — delivery row is RUNNING; idempotent path returns entry
+        $second = $this->repository->markRunning($this->ids->get('evt-1'));
+        static::assertNotNull($second, 'markRunning must return entry when row is already RUNNING (idempotent)');
+        static::assertSame(1, $second->executionCount, 'execution_count must not increment on idempotent call');
+    }
+
+    public function testMarkRunningTransitionsPendingRetryToRunning(): void
+    {
+        $this->createWebhook('wh-1');
+        $message = $this->createMessage('evt-1', 'wh-1');
+        $this->repository->ensureOutboxEntry($this->toEntry($message));
+
+        // First attempt: QUEUED → RUNNING → PENDING_RETRY
+        $this->repository->markRunning($this->ids->get('evt-1'));
+        $this->repository->markPendingRetry($this->ids->get('evt-1'), new \DateTimeImmutable('+5 minutes'));
+
+        $this->assertEventLogStatus('evt-1', WebhookEventLogDefinition::STATUS_PENDING_RETRY);
+
+        // Second markRunning on a PENDING_RETRY row — must transition to RUNNING and increment count
+        $result = $this->repository->markRunning($this->ids->get('evt-1'));
+
+        static::assertNotNull($result, 'markRunning must return an entry when row is pending_retry');
+        static::assertSame(2, $result->executionCount, 'execution_count must be incremented from 1 to 2');
+
+        // delivery row must now be RUNNING
+        $delivery = $this->connection->fetchAssociative(
+            'SELECT delivery_status, execution_count FROM webhook_delivery WHERE webhook_event_log_id = :id',
+            ['id' => $this->ids->getBytes('evt-1')]
+        );
+        static::assertNotFalse($delivery);
+        static::assertSame(WebhookEventLogDefinition::STATUS_RUNNING, $delivery['delivery_status']);
+        static::assertSame(2, (int) $delivery['execution_count']);
+
+        // event_log must also be RUNNING
+        $this->assertEventLogStatus('evt-1', WebhookEventLogDefinition::STATUS_RUNNING);
     }
 
     private function assertEventLogStatus(string $eventKey, string $expectedStatus): void

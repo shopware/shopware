@@ -46,7 +46,7 @@ class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
     public function failed(WorkerMessageFailedEvent $event): void
     {
         if (Feature::isActive('WEBHOOKS_REWORK')) {
-            return; // Handler owns retry lifecycle when outbox retries are enabled
+            return; // Handler owns retry lifecycle for all outbox-backed messages under the flag
         }
 
         $message = $event->getEnvelope()->getMessage();

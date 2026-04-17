@@ -10,9 +10,11 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\DeliveryResponse;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository;
+use Shopware\Core\Framework\Webhook\Outbox\OutboxInsert;
 use Shopware\Core\Framework\Webhook\Service\RelatedWebhooks;
 use Shopware\Core\Framework\Webhook\Service\WebhookClient;
 use Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService;
@@ -42,15 +44,31 @@ final readonly class WebhookEventMessageHandler
 
     public function __invoke(WebhookEventMessage $message): void
     {
-        // New messages (with partitionKey) must have a webhook_delivery row.
-        // Legacy messages (without partitionKey, from before the webhook transport) are allowed to proceed without one.
-        if ($message->hasOutboxEntry() && !$this->outboxEventRepository->hasDeliveryRow($message->getWebhookEventId())) {
-            $this->logger->error('Webhook delivery aborted: outbox entry missing for event {eventId}. The webhook_delivery row should have been created by the transport sender.', [
-                'eventId' => $message->getWebhookEventId(),
-                'webhookId' => $message->getWebhookId(),
-            ]);
+        // Ensure a delivery row exists for this message. The transport sender normally
+        // creates it before dispatch, but we repair the state here so every code path
+        // reaches the same unified outbox flow.
+        //
+        // - Legacy pre-transport messages (partitionKey === null) legitimately have no
+        //   delivery row yet — they were serialized before the transport existed. Creating
+        //   the row now is expected, so we don't log anything.
+        // - New-style messages (partitionKey !== null) should already have a delivery
+        //   row by the time they land here. Missing one indicates a problem (e.g. a brief
+        //   deployment rollout window, or an unexpected dispatch path). We still repair
+        //   it, but log the discrepancy so it surfaces in monitoring.
+        if (!$this->outboxEventRepository->hasDeliveryRow($message->getWebhookEventId())) {
+            $this->outboxEventRepository->ensureOutboxEntry(new OutboxInsert(
+                $message->getWebhookEventId(),
+                $message->getWebhookId(),
+                Hasher::hashBinary($message->getPartitionKey(), 'xxh128'),
+                serialize($message),
+            ));
 
-            return;
+            if ($message->partitionKey !== null) {
+                $this->logger->error('Expected an outbox entry for webhook event. Not an error if this is happening during a deployment rollout.', [
+                    'webhookEventId' => $message->getWebhookEventId(),
+                    'webhookId' => $message->getWebhookId(),
+                ]);
+            }
         }
 
         if (Feature::isActive('WEBHOOKS_REWORK')) {

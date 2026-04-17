@@ -32,7 +32,7 @@ class WebhookEventMessage
         /**
          * @deprecated tag:v6.8.0 - Will become non-nullable. Null only for BC with old serialized messages already in the queue.
          */
-        private readonly ?string $partitionKey = null,
+        public readonly ?string $partitionKey = null,
     ) {
     }
 
@@ -98,14 +98,5 @@ class WebhookEventMessage
     public function getPartitionKey(): string
     {
         return $this->partitionKey ?? $this->appId ?? self::DEFAULT_PARTITION_KEY;
-    }
-
-    /**
-     * Messages created by the webhook transport have a partitionKey set.
-     * Legacy messages (serialized before the transport existed) have null.
-     */
-    public function hasOutboxEntry(): bool
-    {
-        return $this->partitionKey !== null;
     }
 }

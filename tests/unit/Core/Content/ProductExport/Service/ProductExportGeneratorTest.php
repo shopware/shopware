@@ -181,7 +181,7 @@ class ProductExportGeneratorTest extends TestCase
         $this->translator->expects($this->once())->method('resetInjection');
         $this->productStreamBuilder->expects($this->once())
             ->method('enrichCriteria')
-            ->with($this->isInstanceOf(Criteria::class), 'productStreamId', $context->getContext());
+            ->with(static::isInstanceOf(Criteria::class), 'productStreamId', $context->getContext());
 
         $twigVariableParser = $this->createMock(TwigVariableParser::class);
         $twigVariableParser->expects($this->once())->method('parse')->with('{{ product.id }}')->willReturn([]);
@@ -254,7 +254,7 @@ class ProductExportGeneratorTest extends TestCase
         $this->translator->expects($this->never())->method('resetInjection');
         $this->productStreamBuilder->expects($this->once())
             ->method('enrichCriteria')
-            ->with($this->isInstanceOf(Criteria::class), 'productStreamId', $context->getContext());
+            ->with(static::isInstanceOf(Criteria::class), 'productStreamId', $context->getContext());
 
         $twigVariableParser = $this->createMock(TwigVariableParser::class);
         $twigVariableParser->expects($this->once())->method('parse')->with('{{ product.id }}')->willReturn([]);
@@ -533,7 +533,7 @@ class ProductExportGeneratorTest extends TestCase
         $this->translator->expects($this->once())->method('resetInjection');
         $this->productStreamBuilder->expects($this->once())
             ->method('enrichCriteria')
-            ->with($this->isInstanceOf(Criteria::class), 'productStreamId', $context->getContext());
+            ->with(static::isInstanceOf(Criteria::class), 'productStreamId', $context->getContext());
 
         $twigVariableParser = $this->createMock(TwigVariableParser::class);
         $twigVariableParser->expects($this->once())->method('parse')->with($bodyTemplate)->willReturn([]);

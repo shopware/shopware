@@ -52,5 +52,4 @@ readonly class PreviewRequestFactory extends AbstractMailTemplateRequestFactory
             $strictRendering,
         );
     }
-
 }

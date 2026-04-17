@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailDataSimulatorFieldEvent;
 use Shopware\Core\Content\MailTemplate\Service\MailDataSimulator;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\AbstractProvider;
+use Shopware\Core\Content\Shared\MailFlow\DataProvider\SalesChannelProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
@@ -67,7 +68,7 @@ class MailDataSimulatorTest extends TestCase
             $definition
         );
 
-        $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext(), 1234);
+        $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext());
 
         static::assertInstanceOf(ArrayEntity::class, $result['testEntity']);
         static::assertIsString($result['testEntity']->get('email'));
@@ -90,7 +91,7 @@ class MailDataSimulatorTest extends TestCase
             $definition
         );
 
-        $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext(), 1234);
+        $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext());
 
         static::assertInstanceOf(ArrayEntity::class, $result['testEntity']);
         static::assertIsString($result['testEntity']->get('numberRange'));
@@ -113,7 +114,7 @@ class MailDataSimulatorTest extends TestCase
             $definition
         );
 
-        $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext(), 1234);
+        $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext());
 
         static::assertInstanceOf(ArrayEntity::class, $result['testEntity']);
         static::assertNull($result['testEntity']->get('parentId'));
@@ -135,7 +136,7 @@ class MailDataSimulatorTest extends TestCase
             $definition
         );
 
-        $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext(), 1234);
+        $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext());
 
         static::assertInstanceOf(ArrayEntity::class, $result['testEntity']);
         static::assertNull($result['testEntity']->get('unknown'));
@@ -172,7 +173,7 @@ class MailDataSimulatorTest extends TestCase
             $dispatcher
         );
 
-        $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext(), 1234);
+        $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext());
 
         static::assertInstanceOf(ArrayEntity::class, $result['testEntity']);
         static::assertSame('event-value', $result['testEntity']->get('customString'));
@@ -187,7 +188,7 @@ class MailDataSimulatorTest extends TestCase
             'score' => ['type' => ScalarValueType::TYPE_FLOAT],
         ]);
 
-        $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext(), 1234);
+        $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext());
 
         static::assertIsFloat($result['score']);
         static::assertGreaterThanOrEqual(1, $result['score']);
@@ -228,7 +229,7 @@ class MailDataSimulatorTest extends TestCase
             [TestMailTemplateEntityDefinition::ENTITY_NAME => $provider]
         );
 
-        $simulator->getTemplateData('test.flow', Context::createDefaultContext(), 1234);
+        $simulator->getTemplateData('test.flow', Context::createDefaultContext());
 
         static::assertTrue($provider->wasCalled);
     }
@@ -295,7 +296,7 @@ class MailDataSimulatorTest extends TestCase
             [$firstAttributeDefinition, $secondAttributeDefinition]
         );
 
-        $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext(), 1234);
+        $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext());
 
         static::assertInstanceOf(ArrayEntity::class, $result['testEntity']);
         static::assertInstanceOf(Entity::class, $result['testEntity']->get('firstAttribute'));
@@ -375,12 +376,19 @@ class MailDataSimulatorTest extends TestCase
                 return $definitionMap[$definitionClassOrEntityName];
             });
 
+        $providerDispatcher = static::createStub(EventDispatcherInterface::class);
+        $providerContainer = static::createStub(ContainerInterface::class);
+        $providerMap = [
+            SalesChannelDefinition::ENTITY_NAME => new SalesChannelProvider($providerDispatcher, $providerContainer),
+            ...$dataProviders,
+        ];
+
         return new MailDataSimulator(
             $businessEventCollector,
             $definitionRegistry,
             $languageRepository,
             $dispatcher ?? static::createStub(EventDispatcherInterface::class),
-            $dataProviders
+            $providerMap
         );
     }
 }

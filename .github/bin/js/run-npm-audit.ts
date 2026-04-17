@@ -63,6 +63,11 @@ interface AuditExecutionResult {
     error?: string;
 }
 
+interface PresentIdentifiers {
+    ghsas: Set<string>;
+    cves: Set<string>;
+}
+
 function extractGHSA(url: string): string | null {
     const match = url.match(/(GHSA-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4})/);
     return match?.[1] ?? null;
@@ -112,6 +117,65 @@ function isIgnored(via: AuditVia, ignoredGHSAs: Set<string>, ignoredCVEs: Set<st
     }
 
     return false;
+}
+
+function collectPresentIdentifiers(audit: AuditResult): PresentIdentifiers {
+    const ghsas = new Set<string>();
+    const cves = new Set<string>();
+
+    for (const pkg of Object.values(audit.vulnerabilities)) {
+        if (!pkg || !Array.isArray(pkg.via)) {
+            continue;
+        }
+
+        for (const via of pkg.via) {
+            if (typeof via !== 'object') {
+                continue;
+            }
+
+            const ghsa = via.url ? extractGHSA(via.url) : null;
+            if (ghsa) {
+                ghsas.add(ghsa);
+            }
+
+            for (const cve of extractCVEs(via)) {
+                cves.add(cve);
+            }
+        }
+    }
+
+    return { ghsas, cves };
+}
+
+function printUnusedIgnores(
+    presentIdentifiers: PresentIdentifiers,
+    ignoredGHSAs: Set<string>,
+    ignoredCVEs: Set<string>,
+): void {
+    const unusedGHSAs = [...ignoredGHSAs].filter((ghsa) => !presentIdentifiers.ghsas.has(ghsa));
+    const unusedCVEs = [...ignoredCVEs].filter((cve) => !presentIdentifiers.cves.has(cve));
+
+    if (unusedGHSAs.length === 0 && unusedCVEs.length === 0) {
+        return;
+    }
+
+    console.warn('--- Cleanup suggestions ---\n');
+
+    if (unusedGHSAs.length > 0) {
+        console.warn('Ignored GHSA entries no longer present in npm audit output:');
+        for (const ghsa of unusedGHSAs) {
+            console.warn(`  - https://github.com/advisories/${ghsa}`);
+        }
+        console.warn('');
+    }
+
+    if (unusedCVEs.length > 0) {
+        console.warn('Ignored CVE entries no longer present in npm audit output:');
+        for (const cve of unusedCVEs) {
+            console.warn(`  - ${cve}`);
+        }
+        console.warn('');
+    }
 }
 
 function filterIgnored(audit: AuditResult, ignoredGHSAs: Set<string>, ignoredCVEs: Set<string>): void {
@@ -306,7 +370,9 @@ export function runNpmAudit(options: NpmAuditOptions = {}): void {
 
     try {
         const audit = fetchAuditReport();
+        const presentIdentifiers = collectPresentIdentifiers(audit);
         filterIgnored(audit, ignoredGHSAs, ignoredCVEs);
+        printUnusedIgnores(presentIdentifiers, ignoredGHSAs, ignoredCVEs);
 
         const remaining = Object.values(audit.vulnerabilities).filter(
             (pkg) => Array.isArray(pkg.via) && pkg.via.length > 0,

@@ -10,8 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Core\Framework\Util\FloatComparator;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 #[Package('framework')]
 class CheapestPriceContainer extends Struct
@@ -46,34 +44,7 @@ class CheapestPriceContainer extends Struct
 
     public function resolve(Context $context): ?CheapestPrice
     {
-        $ruleIds = $context->getRuleIds();
-        $ruleIds[] = 'default';
-
-        $prices = [];
-        $defaultWasAdded = false;
-        $source = $context->getSource();
-        $currentSalesChannelId = $source instanceof SalesChannelApiSource ? $source->getSalesChannelId() : null;
-
-        foreach ($this->value as $variantId => $group) {
-            foreach ($ruleIds as $ruleId) {
-                $price = $this->filterByRuleId($group, $ruleId, $defaultWasAdded);
-
-                if ($price === null) {
-                    continue;
-                }
-
-                // Check sales channel availability
-                if ($currentSalesChannelId && !$this->isVariantPriceAvailableInSalesChannel($price, $currentSalesChannelId)) {
-                    continue;
-                }
-
-                // overwrite the variantId in case the default price was added
-                $price['variant_id'] = $variantId;
-                $prices[] = $price;
-
-                break;
-            }
-        }
+        $prices = $this->getResolvedPrices($context);
 
         if ($prices === []) {
             return null;
@@ -97,7 +68,7 @@ class CheapestPriceContainer extends Struct
                 $hasRange = true;
             }
 
-            if ($current < $reference) {
+            if ($current < $reference || ($current === $reference && $this->shouldPreferCandidateForEqualPrice($price, $cheapest, $context))) {
                 $reference = $current;
                 $cheapest = $price;
             }
@@ -159,6 +130,41 @@ class CheapestPriceContainer extends Struct
         $object->setPrice(new PriceCollection($prices));
 
         return $object;
+    }
+
+    public function hasListPriceRange(Context $context): bool
+    {
+        $prices = $this->getResolvedPrices($context);
+        $hasReference = false;
+        $reference = null;
+
+        foreach ($prices as $price) {
+            $current = $this->getDisplayableListPriceValue($price, $context);
+
+            if (!$hasReference) {
+                $reference = $current;
+                $hasReference = true;
+
+                continue;
+            }
+
+            if ($current !== $reference) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function hasDisplayableListPrice(Context $context): bool
+    {
+        foreach ($this->getResolvedPrices($context) as $price) {
+            if ($this->getDisplayableListPriceValue($price, $context) !== null) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function getApiAlias(): string
@@ -226,58 +232,6 @@ class CheapestPriceContainer extends Struct
         return $this->ruleIds;
     }
 
-    public function hasListPriceRange(Context|SalesChannelContext $context): bool
-    {
-        if ($context instanceof SalesChannelContext) {
-            $context = $context->getContext();
-        }
-
-        $ruleIds = $context->getRuleIds();
-        $ruleIds[] = 'default';
-
-        $defaultWasAdded = false;
-        $source = $context->getSource();
-        $currentSalesChannelId = $source instanceof SalesChannelApiSource ? $source->getSalesChannelId() : null;
-
-        $reference = null;
-        $hasReference = false;
-
-        foreach ($this->value as $group) {
-            foreach ($ruleIds as $ruleId) {
-                $price = $this->filterByRuleId($group, $ruleId, $defaultWasAdded);
-
-                if ($price === null) {
-                    continue;
-                }
-
-                if ($currentSalesChannelId && !$this->isVariantPriceAvailableInSalesChannel($price, $currentSalesChannelId)) {
-                    continue;
-                }
-
-                $current = $this->getListPriceValue($price, $context);
-
-                if (!$hasReference) {
-                    $reference = $current;
-                    $hasReference = true;
-
-                    break;
-                }
-
-                if ($reference === null || $current === null) {
-                    return $reference !== $current;
-                }
-
-                if (!FloatComparator::equals($reference, $current)) {
-                    return true;
-                }
-
-                break;
-            }
-        }
-
-        return false;
-    }
-
     /**
      * @param array<mixed> $prices
      *
@@ -298,6 +252,41 @@ class CheapestPriceContainer extends Struct
         }
 
         return null;
+    }
+
+    /**
+     * @return list<array<mixed>>
+     */
+    private function getResolvedPrices(Context $context): array
+    {
+        $ruleIds = $context->getRuleIds();
+        $ruleIds[] = 'default';
+
+        $prices = [];
+        $defaultWasAdded = false;
+        $source = $context->getSource();
+        $currentSalesChannelId = $source instanceof SalesChannelApiSource ? $source->getSalesChannelId() : null;
+
+        foreach ($this->value as $variantId => $group) {
+            foreach ($ruleIds as $ruleId) {
+                $price = $this->filterByRuleId($group, $ruleId, $defaultWasAdded);
+
+                if ($price === null) {
+                    continue;
+                }
+
+                if ($currentSalesChannelId && !$this->isVariantPriceAvailableInSalesChannel($price, $currentSalesChannelId)) {
+                    continue;
+                }
+
+                $price['variant_id'] = $variantId;
+                $prices[] = $price;
+
+                break;
+            }
+        }
+
+        return $prices;
     }
 
     /**
@@ -323,22 +312,45 @@ class CheapestPriceContainer extends Struct
     /**
      * @param array<mixed> $price
      */
-    private function getListPriceValue(array $price, Context $context): ?float
+    private function getDisplayableListPriceValue(array $price, Context $context): ?float
     {
         $currency = $this->getCurrencyPrice($price['price'], $context->getCurrencyId());
-
-        if (!$currency || !isset($currency['listPrice'])) {
+        if ($currency === null || !isset($currency['listPrice'])) {
             return null;
         }
 
-        $taxKey = $context->getTaxState() === CartPrice::TAX_STATE_GROSS ? 'gross' : 'net';
-        $value = $currency['listPrice'][$taxKey];
+        $taxState = $context->getTaxState() === CartPrice::TAX_STATE_GROSS ? 'gross' : 'net';
+        if (($currency['percentage'][$taxState] ?? 0.0) <= 0) {
+            return null;
+        }
+
+        $value = (float) $currency['listPrice'][$taxState];
 
         if ($currency['currencyId'] !== $context->getCurrencyId()) {
             $value *= $context->getCurrencyFactor();
         }
 
         return $value;
+    }
+
+    /**
+     * @param array<mixed> $candidate
+     * @param array<mixed> $currentCheapest
+     */
+    private function shouldPreferCandidateForEqualPrice(array $candidate, array $currentCheapest, Context $context): bool
+    {
+        $candidateListPrice = $this->getDisplayableListPriceValue($candidate, $context);
+        $currentCheapestListPrice = $this->getDisplayableListPriceValue($currentCheapest, $context);
+
+        if ($candidateListPrice === null) {
+            return false;
+        }
+
+        if ($currentCheapestListPrice === null) {
+            return true;
+        }
+
+        return $candidateListPrice < $currentCheapestListPrice;
     }
 
     /**

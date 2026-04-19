@@ -1,7 +1,5 @@
 {% block component_product_box_price_info %}
     {% set cheapest = product.calculatedCheapestPrice %}
-    {% set displayFromVariants = false %}
-    {% set displayFromListPriceVariants = false %}
 
     {% set real = product.calculatedPrice %}
     {% if product.calculatedPrices.count > 0 %}
@@ -11,15 +9,14 @@
     {% set referencePrice = real.referencePrice %}
 
     {% set displayFrom = product.calculatedPrices.count > 1 %}
+    {% set displayFromVariants = false %}
+    {% set displayFromListPriceVariants = false %}
     {% set displayParent = product.variantListingConfig.displayParent and product.parentId === null %}
 
     {% if displayParent %}
-        {% set displayFromVariants = displayParent and real.unitPrice !== cheapest.unitPrice %}
+        {% set displayFromVariants = cheapest.hasRange %}
+        {% set displayFromListPriceVariants = product.cheapestPriceContainer and product.cheapestPriceContainer.hasListPriceRange(context.context) %}
         {% set real = cheapest %}
-        {% set totalVariants = product.cheapestPriceContainer.value %}
-        {% set hasDifferentPrice = totalVariants|filter(variant => variant.default != null)|length > 0 %}
-        {% set hasRange = product.cheapestPrice.hasRange %}
-        {% set displayFromListPriceVariants = real.listPrice is not null and product.cheapestPriceContainer.hasListPriceRange(context) %}
     {% endif %}
 
     <div class="product-price-info">
@@ -53,13 +50,15 @@
                 {% set price = real %}
                 {% set isListPrice = price.listPrice.percentage > 0 %}
                 {% set isRegulationPrice = price.regulationPrice != null %}
+                {% set showFrom = displayFrom or displayFromVariants or displayFromListPriceVariants %}
+                {% set showListPrice = isListPrice and not displayFrom %}
 
                 {#
                     Cheapest price display for variants. Used when the product is a single variant that is directly buy-able from the listing.
                     Example: "Variants from $120.00"
                 #}
                 {% block component_product_box_cheapest_price %}
-                    <div class="product-cheapest-price{% if isListPrice and isRegulationPrice and not displayFrom and not displayFromVariants and not displayFromListPriceVariants %} with-list-price{% endif %}{% if isRegulationPrice and not displayFrom and (displayFromVariants or displayFromListPriceVariants) %} with-regulation-price{% endif %}{% if (displayFrom or displayFromListPriceVariants) and isRegulationPrice %} with-from-price{% endif %}">
+                    <div class="product-cheapest-price{% if showListPrice and isRegulationPrice %} with-list-price{% endif %}{% if showFrom and isRegulationPrice %} with-from-price{% endif %}">
                         {% if cheapest.unitPrice != real.unitPrice and cheapest.variantId != product.id %}
                             {{ 'listing.cheapestPriceLabel'|trans|sw_sanitize }}<span class="product-cheapest-price-price"> {{ cheapest.unitPrice|currency }}</span>
                         {% endif %}
@@ -73,7 +72,7 @@
                 #}
                 {% block component_product_box_price_label %}
                     <span class="visually-hidden product-price-label">
-                        {% if isListPrice and not displayFrom and not displayFromVariants and not displayFromListPriceVariants %}
+                        {% if showListPrice %}
                             {{ 'listing.listPriceLabel'|trans|sw_sanitize }}
                         {% else %}
                             {{ 'listing.regularPriceLabel'|trans|sw_sanitize }}
@@ -87,7 +86,7 @@
                     Example: "From $120.00"
                 #}
                 {% block component_product_box_from_price %}
-                    {% if displayFrom or displayFromListPriceVariants or (displayParent and hasDifferentPrice and hasRange and totalVariants|length > 1) %}
+                    {% if showFrom %}
                         {{ 'listing.listingTextFrom'|trans|sw_sanitize }}
                     {% endif %}
                 {% endblock %}
@@ -98,10 +97,10 @@
                     Example with list price: €400.00 <s>€500.00</s> (20% saved)"
                 #}
                 {% block component_product_box_main_price %}
-                    <span class="product-price{% if isListPrice and not displayFrom and not displayFromVariants and not displayFromListPriceVariants %} with-list-price{% endif %}">
+                    <span class="product-price{% if showListPrice %} with-list-price{% endif %}">
                         {{ price.unitPrice|currency }}
 
-                        {% if isListPrice and not displayFrom and not displayFromVariants and not displayFromListPriceVariants %}
+                        {% if showListPrice %}
                             {# @deprecated tag:v6.8.0 - Snippets listing.beforeListPrice and listing.afterListPrice will be removed. Use twig blocks instead. #}
                             {% set afterListPriceSnippetExists = 'listing.afterListPrice'|trans|length > 0 %}
                             {% set beforeListPriceSnippetExists = 'listing.beforeListPrice'|trans|length > 0 %}
@@ -142,7 +141,7 @@
                 {% block component_product_box_regulation_price %}
                     {% if isRegulationPrice %}
                         <span class="product-price with-regulation-price">
-                            {% if isListPrice %}<br aria-hidden="true">{% endif %}<span class="regulation-price">{{ 'general.listPricePreviously'|trans({'%price%': price.regulationPrice.price|currency }) }}</span>
+                            {% if showListPrice %}<br aria-hidden="true">{% endif %}<span class="regulation-price">{{ 'general.listPricePreviously'|trans({'%price%': price.regulationPrice.price|currency }) }}</span>
                         </span>
                     {% endif %}
                 {% endblock %}

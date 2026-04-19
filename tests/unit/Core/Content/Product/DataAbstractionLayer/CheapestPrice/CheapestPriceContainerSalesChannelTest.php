@@ -33,6 +33,7 @@ class CheapestPriceContainerSalesChannelTest extends TestCase
                         'net' => 8.4,
                         'linked' => true,
                         'listPrice' => ['gross' => 20.0, 'net' => 16.8, 'linked' => true],
+                        'percentage' => ['gross' => 50.0, 'net' => 50.0],
                     ]],
                     'is_ranged' => false,
                     'rule_id' => 'default',
@@ -49,6 +50,7 @@ class CheapestPriceContainerSalesChannelTest extends TestCase
                         'net' => 8.4,
                         'linked' => true,
                         'listPrice' => ['gross' => 20.0, 'net' => 16.8, 'linked' => true],
+                        'percentage' => ['gross' => 50.0, 'net' => 50.0],
                     ]],
                     'is_ranged' => false,
                     'rule_id' => 'default',
@@ -76,6 +78,7 @@ class CheapestPriceContainerSalesChannelTest extends TestCase
                         'net' => 8.4,
                         'linked' => true,
                         'listPrice' => ['gross' => 20.0, 'net' => 16.8, 'linked' => true],
+                        'percentage' => ['gross' => 50.0, 'net' => 50.0],
                     ]],
                     'is_ranged' => false,
                     'rule_id' => 'default',
@@ -92,6 +95,7 @@ class CheapestPriceContainerSalesChannelTest extends TestCase
                         'net' => 8.4,
                         'linked' => true,
                         'listPrice' => ['gross' => 30.0, 'net' => 25.2, 'linked' => true],
+                        'percentage' => ['gross' => 66.67, 'net' => 66.67],
                     ]],
                     'is_ranged' => false,
                     'rule_id' => 'default',
@@ -165,6 +169,74 @@ class CheapestPriceContainerSalesChannelTest extends TestCase
         static::assertNull($cheapestPrice);
     }
 
+    public function testHasListPriceRangeCountsPositiveAndMissingListPrices(): void
+    {
+        $container = new CheapestPriceContainer([
+            'variant1' => ['default' => $this->createVariantPrice(10.0, 20.0)],
+            'variant2' => ['default' => $this->createVariantPrice(10.0)],
+        ]);
+
+        static::assertTrue($container->hasListPriceRange($this->createSalesChannelContext()));
+    }
+
+    public function testHasListPriceRangeIgnoresZeroPercentListPrices(): void
+    {
+        $container = new CheapestPriceContainer([
+            'variant1' => ['default' => $this->createVariantPrice(10.0, 10.0)],
+            'variant2' => ['default' => $this->createVariantPrice(10.0)],
+        ]);
+
+        static::assertFalse($container->hasListPriceRange($this->createSalesChannelContext()));
+    }
+
+    public function testHasDisplayableListPriceIgnoresZeroPercentListPrices(): void
+    {
+        $container = new CheapestPriceContainer([
+            'variant1' => ['default' => $this->createVariantPrice(10.0, 10.0)],
+            'variant2' => ['default' => $this->createVariantPrice(10.0)],
+        ]);
+
+        static::assertFalse($container->hasDisplayableListPrice($this->createSalesChannelContext()));
+    }
+
+    public function testHasDisplayableListPriceCountsPositiveListPrices(): void
+    {
+        $container = new CheapestPriceContainer([
+            'variant1' => ['default' => $this->createVariantPrice(10.0, 20.0)],
+            'variant2' => ['default' => $this->createVariantPrice(10.0)],
+        ]);
+
+        static::assertTrue($container->hasDisplayableListPrice($this->createSalesChannelContext()));
+    }
+
+    public function testResolvePrefersDisplayableListPriceWhenUnitPricesAreEqual(): void
+    {
+        $container = new CheapestPriceContainer([
+            'variant1' => ['default' => $this->createVariantPrice(12.0)],
+            'variant2' => ['default' => $this->createVariantPrice(12.0, 20.0)],
+        ]);
+
+        $cheapestPrice = $container->resolve($this->createSalesChannelContext());
+
+        static::assertNotNull($cheapestPrice);
+        static::assertSame('variant2', $cheapestPrice->getVariantId());
+        static::assertSame(20.0, $cheapestPrice->getCurrencyPrice(Defaults::CURRENCY)?->getListPrice()?->getGross());
+    }
+
+    public function testResolvePrefersLowerDisplayableListPriceWhenUnitPricesAreEqual(): void
+    {
+        $container = new CheapestPriceContainer([
+            'variant1' => ['default' => $this->createVariantPrice(12.0, 30.0)],
+            'variant2' => ['default' => $this->createVariantPrice(12.0, 20.0)],
+        ]);
+
+        $cheapestPrice = $container->resolve($this->createSalesChannelContext());
+
+        static::assertNotNull($cheapestPrice);
+        static::assertSame('variant2', $cheapestPrice->getVariantId());
+        static::assertSame(20.0, $cheapestPrice->getCurrencyPrice(Defaults::CURRENCY)?->getListPrice()?->getGross());
+    }
+
     /**
      * @param list<string>|null $salesChannelIds null omits the `sales_channel_ids` key entirely,
      *                                           which marks the price as available everywhere
@@ -191,10 +263,10 @@ class CheapestPriceContainerSalesChannelTest extends TestCase
         return $price;
     }
 
-    private function createSalesChannelContext(string $salesChannelId): Context
+    private function createSalesChannelContext(?string $salesChannelId = null): Context
     {
         return new Context(
-            new SalesChannelApiSource($salesChannelId),
+            new SalesChannelApiSource($salesChannelId ?? Uuid::randomHex()),
             [],
             Defaults::CURRENCY,
             [Defaults::LANGUAGE_SYSTEM],
@@ -203,5 +275,39 @@ class CheapestPriceContainerSalesChannelTest extends TestCase
             true,
             CartPrice::TAX_STATE_GROSS
         );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function createVariantPrice(float $gross, ?float $listPriceGross = null): array
+    {
+        $price = [
+            'currencyId' => Defaults::CURRENCY,
+            'gross' => $gross,
+            'net' => $gross,
+            'linked' => true,
+        ];
+
+        if ($listPriceGross !== null) {
+            $price['listPrice'] = [
+                'gross' => $listPriceGross,
+                'net' => $listPriceGross,
+                'linked' => true,
+            ];
+            $price['percentage'] = [
+                'gross' => round(100 - $gross / $listPriceGross * 100, 2),
+                'net' => round(100 - $gross / $listPriceGross * 100, 2),
+            ];
+        }
+
+        return [
+            'price' => [$price],
+            'is_ranged' => false,
+            'rule_id' => 'default',
+            'parent_id' => 'parent1',
+            'purchase_unit' => 1.0,
+            'reference_unit' => 1.0,
+        ];
     }
 }

@@ -1,8 +1,6 @@
 {% block component_product_badges %}
     <div class="product-badges">
         {% block component_product_badges_discount %}
-            {% set displayFromVariants = false %}
-            {% set displayFromListPriceVariants = false %}
             {% set price = product.calculatedPrice %}
             {% if product.calculatedPrices.count > 0 %}
                 {% set price = product.calculatedPrices.last %}
@@ -10,14 +8,14 @@
 
             {% set listPrice = price.listPrice.percentage > 0 %}
             {% set hasRange = product.calculatedPrices.count > 1 %}
+            {% set showDiscountBadge = listPrice and not hasRange %}
 
             {% set displayParent = product.variantListingConfig.displayParent and product.parentId === null %}
             {% if displayParent %}
-                {% set displayFromVariants = displayParent and price.unitPrice !== product.calculatedCheapestPrice.unitPrice %}
-                {% set displayFromListPriceVariants = product.calculatedCheapestPrice.listPrice is not null and product.cheapestPriceContainer.hasListPriceRange(context) %}
+                {% set showDiscountBadge = product.cheapestPriceContainer and product.cheapestPriceContainer.hasDisplayableListPrice(context.context) and not hasRange %}
             {% endif %}
 
-            {% if listPrice and not hasRange and not displayFromVariants and not displayFromListPriceVariants %}
+            {% if showDiscountBadge %}
                 <span class="badge bg-danger badge-discount">
                     <span class="visually-hidden">{{ 'listing.boxLabelDiscount'|trans|sw_sanitize }}</span>
                     <span aria-hidden="true">&#37;</span>

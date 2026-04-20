@@ -21,17 +21,18 @@
             <router-view />
         </sw-error-boundary>
         {% endblock %}
+
+        <sw-app-shop-id-change-modal
+            v-if="shopIdCheck !== null"
+            :shop-id-check="shopIdCheck"
+            @modal-close="closeModal"
+        />
+        <sw-request-consent-modal />
+        <sw-settings-services-grant-permissions-modal />
+        <sw-settings-usage-data-consent-modal-data-provider
+            v-if="showUsageDataConsentModalDataProvider"
+        />
     </div>
-    <sw-app-shop-id-change-modal
-        v-if="shopIdCheck !== null"
-        :shop-id-check="shopIdCheck"
-        @modal-close="closeModal"
-    />
-    <sw-request-consent-modal />
-    <sw-settings-services-grant-permissions-modal />
-    <sw-settings-usage-data-consent-modal-data-provider
-        v-if="showUsageDataConsentModalDataProvider"
-    />
     {% endblock %}
 
     <sw-sidebar-renderer />

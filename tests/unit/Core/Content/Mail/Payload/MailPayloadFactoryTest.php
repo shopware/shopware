@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\Payload\MailPayloadFactory;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 
 /**
@@ -68,6 +69,7 @@ class MailPayloadFactoryTest extends TestCase
         static::assertSame('bcc@example.com', $payload->recipientsBcc);
         static::assertSame(['reply@example.com' => null], $payload->replyTo);
         static::assertNull($payload->returnPath);
+        static::assertSame([], $payload->extensions);
     }
 
     public function testMakeUsesRequestValuesBeforeOverridesAndFallsBackToOverrides(): void
@@ -92,5 +94,54 @@ class MailPayloadFactoryTest extends TestCase
         static::assertSame('<p>override html</p>', $payload->contentHtml);
         static::assertSame(['document-id'], $payload->documentIds);
         static::assertSame('cc@example.com', $payload->recipientsCc);
+        static::assertSame([], $payload->extensions);
+    }
+
+    public function testMakeOnlyKeepsExplicitExtensionsByDefault(): void
+    {
+        $factory = new MailPayloadFactory();
+
+        $request = new RequestDataBag([
+            'recipients' => ['recipient@example.com' => 'Recipient'],
+            'legacyTopLevelKey' => 'legacy value',
+            'extensions' => [
+                'explicitKey' => 'explicit value',
+                1 => 'ignored',
+            ],
+        ]);
+
+        $payload = $factory->make($request);
+
+        static::assertSame(
+            [
+                'explicitKey' => 'explicit value',
+            ],
+            $payload->extensions
+        );
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testMakeCollectsExplicitAndLegacyExtensionsBeforeNextMajor(): void
+    {
+        $factory = new MailPayloadFactory();
+
+        $request = new RequestDataBag([
+            'recipients' => ['recipient@example.com' => 'Recipient'],
+            'legacyTopLevelKey' => 'legacy value',
+            'extensions' => [
+                'explicitKey' => 'explicit value',
+                1 => 'ignored',
+            ],
+        ]);
+
+        $payload = $factory->make($request);
+
+        static::assertSame(
+            [
+                'legacyTopLevelKey' => 'legacy value',
+                'explicitKey' => 'explicit value',
+            ],
+            $payload->extensions
+        );
     }
 }

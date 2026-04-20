@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\Payload\MailPayload;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -35,6 +36,7 @@ class MailPayloadTest extends TestCase
                 'documentIds' => [],
                 'mediaIds' => [],
                 'attachments' => [],
+                'extensions' => [],
             ],
             $payload->toArray()
         );
@@ -75,6 +77,7 @@ class MailPayloadTest extends TestCase
                 'documentIds' => ['document-id'],
                 'mediaIds' => ['media-id'],
                 'attachments' => ['attachment-url'],
+                'extensions' => [],
                 'senderMail' => 'sender-mail@example.com',
                 'senderEmail' => 'sender-email@example.com',
                 'salesChannelId' => 'sales-channel-id',
@@ -83,6 +86,40 @@ class MailPayloadTest extends TestCase
                 'recipientsBcc' => ['bcc@example.com' => 'BCC'],
                 'replyTo' => ['reply@example.com' => 'Reply'],
                 'returnPath' => 'return@example.com',
+            ],
+            $payload->toArray()
+        );
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testToArrayExposesExtensionsOnRootLevelForBackwardCompatibility(): void
+    {
+        $payload = new MailPayload(
+            recipients: ['recipient@example.com' => 'Recipient'],
+            subject: 'Subject',
+            senderName: 'Sender',
+            extensions: [
+                'customTopLevelKey' => 'custom value',
+                'subject' => 'ignored because known root key wins',
+            ],
+        );
+
+        static::assertSame(
+            [
+                'recipients' => ['recipient@example.com' => 'Recipient'],
+                'contentHtml' => null,
+                'contentPlain' => null,
+                'subject' => 'Subject',
+                'senderName' => 'Sender',
+                'testMode' => false,
+                'documentIds' => [],
+                'mediaIds' => [],
+                'attachments' => [],
+                'extensions' => [
+                    'customTopLevelKey' => 'custom value',
+                    'subject' => 'ignored because known root key wins',
+                ],
+                'customTopLevelKey' => 'custom value',
             ],
             $payload->toArray()
         );

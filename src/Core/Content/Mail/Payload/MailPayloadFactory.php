@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Mail\Payload;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 
@@ -11,6 +12,27 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 #[Package('after-sales')]
 readonly class MailPayloadFactory
 {
+    private const KNOWN_KEYS = [
+        'recipients',
+        'contentHtml',
+        'contentPlain',
+        'subject',
+        'senderName',
+        'senderMail',
+        'senderEmail',
+        'salesChannelId',
+        'documentIds',
+        'mediaIds',
+        'attachments',
+        'binAttachments',
+        'extensions',
+        'testMode',
+        'recipientsCc',
+        'recipientsBcc',
+        'replyTo',
+        'returnPath',
+    ];
+
     /**
      * @param array{
      *     recipients?: array<string,string|null>,
@@ -25,6 +47,7 @@ readonly class MailPayloadFactory
      *     mediaIds?: list<string>,
      *     attachments?: list<mixed>,
      *     binAttachments?: list<array{content: resource|string, fileName: string|null, mimeType: string|null}>|null,
+     *     extensions?: array<string, mixed>,
      *     testMode?: bool,
      *     recipientsCc?: string|array<string,string|null>|null,
      *     recipientsBcc?: string|array<string,string|null>|null,
@@ -51,12 +74,44 @@ readonly class MailPayloadFactory
                 ? $this->resolveValue('attachments', $data, $overRides, []) : [],
             binAttachments: \is_array($this->resolveValue('binAttachments', $data, $overRides))
                 ? $this->resolveValue('binAttachments', $data, $overRides) : null,
+            extensions: $this->getExtensions($data),
             testMode: (bool) $this->resolveValue('testMode', $data, $overRides, false),
             recipientsCc: $this->normalizeAddressValue($this->resolveValue('recipientsCc', $data, $overRides)),
             recipientsBcc: $this->normalizeAddressValue($this->resolveValue('recipientsBcc', $data, $overRides)),
             replyTo: $this->normalizeAddressValue($this->resolveValue('replyTo', $data, $overRides)),
             returnPath: $this->normalizeAddressValue($this->resolveValue('returnPath', $data, $overRides)),
         );
+    }
+
+    /**
+     * Preserve unknown top-level request keys in the extensions bag for backward compatibility,
+     * while allowing callers to opt into the forward-compatible explicit "extensions" payload.
+     *
+     * @param array<string, mixed> $data
+     *
+     * @return array<string, mixed>
+     */
+    private function getExtensions(array $data): array
+    {
+        $extensions = [];
+
+        if (isset($data['extensions']) && \is_array($data['extensions'])) {
+            foreach ($data['extensions'] as $key => $value) {
+                if (!\is_string($key)) {
+                    continue;
+                }
+
+                $extensions[$key] = $value;
+            }
+        }
+
+        if (Feature::isActive('v6.8.0.0')) {
+            return $extensions;
+        }
+
+        $legacyTopLevelData = array_diff_key($data, array_flip(self::KNOWN_KEYS));
+
+        return array_replace($legacyTopLevelData, $extensions);
     }
 
     /**

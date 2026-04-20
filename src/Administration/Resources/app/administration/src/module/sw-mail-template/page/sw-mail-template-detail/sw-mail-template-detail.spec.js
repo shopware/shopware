@@ -633,8 +633,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                 senderName: '{{ salesChannel.name }}',
                 contentHtml:
                     '<div>Header</div>{{ order.orderCustomer.salutation.translated.letterName }} {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br/><br/><div>Footer</div>',
-                contentPlain:
-                    'Header plainthe status of your order at {{ salesChannel.translated.name }}Footer plain',
+                contentPlain: 'Header plainthe status of your order at {{ salesChannel.translated.name }}Footer plain',
             }),
             expect.anything(),
             '1a2b3c',
@@ -688,8 +687,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                 senderName: '{{ salesChannel.name }}',
                 contentHtml:
                     '<div>Header</div>{{ order.orderCustomer.salutation.translated.letterName }} {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br/><br/><div>Footer</div>',
-                contentPlain:
-                    'Header plainthe status of your order at {{ salesChannel.translated.name }}Footer plain',
+                contentPlain: 'Header plainthe status of your order at {{ salesChannel.translated.name }}Footer plain',
             }),
             expect.anything(),
             '1a2b3c',

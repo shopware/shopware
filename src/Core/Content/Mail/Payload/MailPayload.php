@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Mail\Payload;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -16,6 +17,7 @@ readonly class MailPayload
      * @param list<string> $mediaIds
      * @param array<mixed> $attachments
      * @param array<int|string, array{content: resource|string, fileName: string|null, mimeType: string|null}>|null $binAttachments
+     * @param array<string, mixed> $extensions
      * @param string|array<string,string|null>|null $recipientsCc
      * @param string|array<string,string|null>|null $recipientsBcc
      * @param string|array<string,string|null>|null $replyTo
@@ -34,6 +36,7 @@ readonly class MailPayload
         public array $mediaIds = [],
         public array $attachments = [],
         public ?array $binAttachments = null,
+        public array $extensions = [],
         public bool $testMode = false,
         public string|array|null $recipientsCc = null,
         public string|array|null $recipientsBcc = null,
@@ -57,6 +60,7 @@ readonly class MailPayload
             'documentIds' => $this->documentIds,
             'mediaIds' => $this->mediaIds,
             'attachments' => $this->attachments,
+            'extensions' => $this->extensions,
         ];
 
         if ($this->senderMail !== null) {
@@ -89,6 +93,17 @@ readonly class MailPayload
 
         if ($this->returnPath !== null) {
             $data['returnPath'] = $this->returnPath;
+        }
+
+        // For backward compatibility reasons, we expose the extensions entries on the root level of the payload array.
+        if (!Feature::isActive('v6.8.0.0')) {
+            foreach ($this->extensions as $extensionKey => $extensionData) {
+                if (\array_key_exists($extensionKey, $data)) {
+                    continue;
+                }
+
+                $data[$extensionKey] = $extensionData;
+            }
         }
 
         return $data;

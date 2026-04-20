@@ -26,7 +26,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Consent\ConsentScope;
@@ -624,21 +623,10 @@ class DispatchEntityMessageHandlerTest extends TestCase
 
     public function testFormatsValueUsingFieldSerializer(): void
     {
-        $serializerMock = $this->createMock(FieldSerializerInterface::class);
-        $serializerMock->method('decode')
-            ->willReturn('decoded_value');
-
-        /** @phpstan-ignore shopware.mockingSimpleObjects (for test purpose) */
-        $idFieldMock = $this->createMock(ManyToManyIdField::class);
-        $idFieldMock->method('getSerializer')
-            ->willReturn($serializerMock);
-        $idFieldMock->method('getAssociationName')
-            ->willReturn('association_name');
-        $idFieldMock->method('getStorageName')
-            ->willReturn('storage_name');
+        $idField = new ManyToManyIdField('storage_name', 'storageName', 'association_name');
 
         $definition = new EntityEncoderEntity();
-        $definition->setExtraFields([$idFieldMock]);
+        $definition->setExtraFields([$idField]);
 
         new StaticDefinitionInstanceRegistry(
             [$definition],
@@ -651,7 +639,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             'int' => '1337',
             'created_at' => (new \DateTimeImmutable('2023-07-31'))->format(Defaults::STORAGE_DATE_FORMAT),
             'updated_at' => null,
-            'storage_name' => '1234',
+            'storage_name' => '["id-1","id-2"]',
             'blob' => 'blob',
         ]);
 
@@ -670,7 +658,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         static::assertNull($serialized['updatedAt']);
 
         static::assertArrayHasKey('association_name', $serialized);
-        static::assertSame('decoded_value', $serialized['association_name']);
+        static::assertSame(['id-1', 'id-2'], $serialized['association_name']);
 
         static::assertArrayHasKey('blob', $serialized);
         static::assertSame('blob', base64_decode($serialized['blob'], true));

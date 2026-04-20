@@ -6,7 +6,7 @@ import './sw-order-send-document-modal.scss';
  */
 
 const { Filter } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Criteria, EntityCollection } = Shopware.Data;
 
 /**
  * @sw-package checkout
@@ -82,6 +82,7 @@ export default {
         mailTemplateSendCriteria() {
             const criteria = new Criteria(1, 25);
             criteria.addAssociation('mailTemplateType');
+            criteria.addAssociation('media.media');
 
             return criteria;
         },
@@ -200,6 +201,14 @@ export default {
             this.mailTemplateRepository
                 .get(this.mailTemplateId, apiContext, this.mailTemplateSendCriteria)
                 .then((mailTemplate) => {
+                    const mediaCollection = new EntityCollection('/media', 'media', Shopware.Context.api);
+
+                    mailTemplate.media.forEach((mediaAssoc) => {
+                        if (mediaAssoc.languageId === Shopware.Context.api.languageId) {
+                            mediaCollection.push(mediaAssoc.media);
+                        }
+                    });
+
                     this.mailService
                         .sendMailTemplate(
                             this.recipient,
@@ -211,9 +220,7 @@ export default {
                                     recipient: this.recipient,
                                 },
                             },
-                            {
-                                getIds: () => {},
-                            },
+                            mediaCollection,
                             this.order.salesChannelId,
                             false,
                             [this.document.id],
@@ -229,7 +236,7 @@ export default {
                         )
                         .catch(() => {
                             this.createNotificationError({
-                                message: this.$tc('sw-order.documentSendModal.errorMessage'),
+                                message: this.$t('sw-order.documentSendModal.errorMessage'),
                             });
                             this.$emit('modal-close');
                         })

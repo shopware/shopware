@@ -90,7 +90,27 @@
                         :allow-delete="acl.can('salutation.deleter') || undefined"
                         @column-sort="onSortColumn"
                         @page-change="onPageChange"
-                    />
+                    >
+                        {% block sw_settings_salutation_list_grid_columns_position %}
+                        <template #column-position="{ item, isInlineEdit, compact }">
+                            {% block sw_settings_salutation_list_grid_columns_position_inline_edit %}
+                            <template v-if="isInlineEdit">
+                                <mt-number-field
+                                    v-model="item.position"
+                                    number-type="int"
+                                    :size="compact ? 'small' : 'default'"
+                                />
+                            </template>
+                            {% endblock %}
+
+                            {% block sw_settings_salutation_list_grid_columns_position_display %}
+                            <template v-else>
+                                {{ item.position }}
+                            </template>
+                            {% endblock %}
+                        </template>
+                        {% endblock %}
+                    </sw-entity-listing>
                 </template>
                 {% endblock %}
 

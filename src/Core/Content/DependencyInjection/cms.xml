@@ -49,6 +49,7 @@
         <service id="Shopware\Core\Content\Cms\DataResolver\Element\FormCmsElementResolver">
             <tag name="shopware.cms.data_resolver"/>
             <argument type="service" id="Shopware\Core\System\Salutation\SalesChannel\SalutationRoute"/>
+            <argument type="service" id="Shopware\Core\System\Salutation\AbstractSalutationsSorter"/>
         </service>
 
         <service id="Shopware\Core\Content\Cms\DataAbstractionLayer\FieldSerializer\SlotConfigFieldSerializer">
@@ -62,6 +63,10 @@
             <argument type="service" id="Shopware\Core\Content\Cms\DataResolver\CmsSlotsDataResolver"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Cms\Service\EntityCmsSlotConfigInheritanceBuilder">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\Content\Cms\SalesChannel\CmsRoute" public="true">

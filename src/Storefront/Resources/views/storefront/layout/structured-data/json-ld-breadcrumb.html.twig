@@ -1,20 +1,31 @@
 {% block layout_structured_data_breadcrumb %}
-    {% if category is defined and category %}
-        {% set breadcrumbItems = sw_breadcrumb_full(category, context) %}
-    {% elseif categoryId is defined and categoryId %}
-        {% set breadcrumbItems = sw_breadcrumb_full_by_id(categoryId, context) %}
+    {% if not (feature('v6.8.0.0') or feature('BREADCRUMB_REWORK')) %}
+        {% if category is defined and category %}
+            {% set breadcrumbItems = sw_breadcrumb_full(category, context) %}
+        {% elseif categoryId is defined and categoryId %}
+            {% set breadcrumbItems = sw_breadcrumb_full_by_id(categoryId, context) %}
+        {% endif %}
     {% endif %}
 
     {% if breadcrumbItems is defined and breadcrumbItems|length > 0 %}
         {% set itemListElement = [] %}
         {% for breadcrumbCategory in breadcrumbItems %}
-            {% set listItem = {
-                '@type': 'ListItem',
-                position: loop.index,
-                name: breadcrumbCategory.translated.name
-            } %}
-            {% if breadcrumbCategory.seoUrl %}
-                {% set listItem = listItem|merge({item: breadcrumbCategory.seoUrl}) %}
+            {% if feature('v6.8.0.0') or feature('BREADCRUMB_REWORK') %}
+                {% set listItem = {
+                    '@type': 'ListItem',
+                    position: loop.index,
+                    name: breadcrumbCategory.name,
+                    item: seoUrl('frontend.navigation.page', { navigationId: breadcrumbCategory.categoryId })
+                } %}
+            {% else %}
+                {% set listItem = {
+                    '@type': 'ListItem',
+                    position: loop.index,
+                    name: breadcrumbCategory.translated.name
+                } %}
+                {% if breadcrumbCategory.seoUrl %}
+                    {% set listItem = listItem|merge({item: breadcrumbCategory.seoUrl}) %}
+                {% endif %}
             {% endif %}
             {% set itemListElement = itemListElement|merge([listItem]) %}
         {% endfor %}

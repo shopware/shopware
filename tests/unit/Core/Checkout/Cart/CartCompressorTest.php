@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\CartCompressor;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
+use Shopware\Core\Test\Assert\Serialization;
 
 /**
  * @internal
@@ -28,8 +29,7 @@ class CartCompressorTest extends TestCase
 
         static::assertSame('test', $back);
 
-        /** @phpstan-ignore shopware.unserializeUsage */
-        static::assertSame('test', \unserialize($result));
+        Serialization::assertUnserializedSame('test', $result);
     }
 
     public function testSerializeGzip(): void

@@ -75,6 +75,19 @@
                 >
 
                     <template v-if="salutation">
+                        {% block sw_settings_salutation_detail_content_card_position %}
+                        <mt-number-field
+                            v-model="salutation.position"
+                            number-type="int"
+                            class="sw-settings-salutation-detail__position"
+                            :label="$tc('sw-settings-salutation.detail.fieldPositionLabel')"
+                            :help-text="$tc('sw-settings-salutation.detail.fieldPositionTooltip')"
+                            :error="salutationPositionError"
+                            :disabled="!acl.can('salutation.editor') || undefined"
+                            :placeholder="placeholder(salutation, 'position', $tc('sw-settings-salutation.detail.fieldPositionPlaceholder'))"
+                        />
+                        {% endblock %}
+
                         {% block sw_settings_salutation_detail_content_card_salutation_key %}
 
                         <mt-text-field

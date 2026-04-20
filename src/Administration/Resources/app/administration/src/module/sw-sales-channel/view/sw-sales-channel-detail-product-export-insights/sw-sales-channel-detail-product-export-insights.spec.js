@@ -24,8 +24,7 @@ const userTimezoneMilliseconds = {
 
 async function createWrapper(aclPermissions = {}) {
     const defaultPermissions = {
-        'order.viewer': true,
-        'customer.viewer': true,
+        'sales_channel.viewer': true,
     };
 
     const mergedPermissions = { ...defaultPermissions, ...aclPermissions };
@@ -184,20 +183,12 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-product-expor
         expect(cards).toHaveLength(3);
     });
 
-    it('renders only customer card when order viewer permission is missing', async () => {
-        const noOrderWrapper = await createWrapper({ 'order.viewer': false });
+    it('renders no insight cards when sales channel viewer permission is missing', async () => {
+        const noViewerWrapper = await createWrapper({ 'sales_channel.viewer': false });
 
-        expect(noOrderWrapper.findAll('.sw-chart-card')).toHaveLength(1);
+        expect(noViewerWrapper.findAll('.sw-chart-card')).toHaveLength(0);
 
-        noOrderWrapper.unmount();
-    });
-
-    it('renders only order cards when customer viewer permission is missing', async () => {
-        const noCustomerWrapper = await createWrapper({ 'customer.viewer': false });
-
-        expect(noCustomerWrapper.findAll('.sw-chart-card')).toHaveLength(2);
-
-        noCustomerWrapper.unmount();
+        noViewerWrapper.unmount();
     });
 
     it('includes 180 days in available date ranges', () => {
@@ -296,18 +287,18 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-product-expor
         );
     });
 
-    it('fetchData skips order requests when order viewer permission is missing', async () => {
-        const noOrderWrapper = await createWrapper({ 'order.viewer': false });
+    it('fetchData skips all requests when sales channel viewer permission is missing', async () => {
+        const noViewerWrapper = await createWrapper({ 'sales_channel.viewer': false });
 
-        noOrderWrapper.vm.orderTrackingRepository.search.mockClear();
-        noOrderWrapper.vm.customerTrackingRepository.search.mockClear();
+        noViewerWrapper.vm.orderTrackingRepository.search.mockClear();
+        noViewerWrapper.vm.customerTrackingRepository.search.mockClear();
 
-        await noOrderWrapper.vm.fetchData();
+        await noViewerWrapper.vm.fetchData();
 
-        expect(noOrderWrapper.vm.orderTrackingRepository.search).not.toHaveBeenCalled();
-        expect(noOrderWrapper.vm.customerTrackingRepository.search).toHaveBeenCalledTimes(1);
+        expect(noViewerWrapper.vm.orderTrackingRepository.search).not.toHaveBeenCalled();
+        expect(noViewerWrapper.vm.customerTrackingRepository.search).not.toHaveBeenCalled();
 
-        noOrderWrapper.unmount();
+        noViewerWrapper.unmount();
     });
 
     it('updates date ranges and refetches data on range updates', async () => {

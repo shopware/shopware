@@ -13,9 +13,10 @@ use Doctrine\DBAL\Schema\Index as DbalIndex;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\UtilException;
+use Shopware\Tests\Integration\Core\Framework\Util\Database\TableHelperTest;
 
 /**
- * Covered by {@see \Shopware\Tests\Integration\Core\Framework\Util\Database\TableHelperTest}
+ * Covered by {@see TableHelperTest}
  *
  * @final
  *

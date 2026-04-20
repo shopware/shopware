@@ -176,6 +176,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument>%elasticsearch.search.timeout%</argument>
             <argument>%elasticsearch.search.search_type%</argument>
+            <argument>%elasticsearch.search.precision_threshold%</argument>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAggregator"

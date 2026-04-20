@@ -18,6 +18,7 @@ export default function createTelemetryEventHandler(
     const telemetryEventHandlers: TelemetryEventHandlers = {
         page_change: (event) => {
             client.track('page_viewed', {
+                source: 'admin',
                 sw_route_from_name: normalizeRouteName(event.eventData.from.name),
                 sw_route_from_href: event.eventData.from.path,
                 sw_route_to_name: normalizeRouteName(event.eventData.to.name),
@@ -26,17 +27,16 @@ export default function createTelemetryEventHandler(
             });
         },
         identify: (event) => {
-            const shopId = Shopware.Store.get('context').app.config.shopId;
-            const userId = `${shopId}:${event.eventData.userId}`;
-
-            client.identify(userId, event.eventData);
+            if (event.eventData.userId) {
+                client.identify(event.eventData.userId);
+            }
         },
         login: () => {
-            client.track('login');
+            client.track('login', { source: 'admin' });
         },
         logout: () => {
-            client.track('logout');
-            client.flush();
+            client.track('logout', { source: 'admin' });
+            void client.flush();
         },
         user_interaction: (event) => {
             const { target, originalEvent } = event.eventData;
@@ -54,9 +54,7 @@ export default function createTelemetryEventHandler(
 
             target.getAttributeNames().forEach((attributeName) => {
                 if (attributeName.startsWith('data-analytics-')) {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call
                     const propertyName = string.snakeCase(attributeName.replace('data-analytics-', 'sw_element_'));
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                     eventProperties[propertyName] = target.getAttribute(attributeName);
                 }
             });
@@ -67,10 +65,11 @@ export default function createTelemetryEventHandler(
                 eventProperties.sw_pointer_button = originalEvent.buttons;
             }
 
-            client.track(eventName, eventProperties);
+            client.track(eventName, { source: 'admin', ...eventProperties });
         },
         programmatic: (event) => {
-            client.track(event.eventData.eventName, event.eventData);
+            const { eventName, ...properties } = event.eventData;
+            client.track(eventName, { source: 'admin', ...properties });
         },
     };
 

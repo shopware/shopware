@@ -10,8 +10,7 @@
     "license": "MIT",
     "autoload": {
         "files": [
-            "Framework/Adapter/Doctrine/Patch/AbstractAsset.php",
-            "Framework/Adapter/Database/Mysql.php"
+            "Framework/Adapter/Doctrine/Patch/AbstractAsset.php"
         ],
         "psr-4": {
             "Shopware\\Core\\": ""
@@ -125,9 +124,10 @@
         "symfony/monolog-bridge": "~7.4.0",
         "symfony/monolog-bundle": "~3.11.0",
         "symfony/options-resolver": "~7.4.0",
-        "symfony/polyfill-php83": ">=1.31.0",
-        "symfony/polyfill-php84": ">=1.31.0",
-        "symfony/polyfill-php85": ">=1.33.0",
+        "symfony/polyfill-php83": ">=1.34.0",
+        "symfony/polyfill-php84": ">=1.34.0",
+        "symfony/polyfill-php85": ">=1.34.0",
+        "symfony/polyfill-php86": ">=1.34.0",
         "symfony/process": "~7.4.0",
         "symfony/property-access": "~7.4.0",
         "symfony/property-info": "~7.4.0",

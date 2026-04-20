@@ -17,6 +17,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('framework')]
 class CheapestPriceUpdater
 {
+    private const VARIANT_METADATA_KEY = '_metadata';
+
     /**
      * @internal
      */
@@ -219,6 +221,8 @@ class CheapestPriceUpdater
             'LOWER(HEX(IFNULL(product.unit_id, parent.unit_id))) as unit_id',
             'IFNULL(product.purchase_unit, parent.purchase_unit) as purchase_unit',
             'IFNULL(product.reference_unit, parent.reference_unit) as reference_unit',
+            'COALESCE(product.is_closeout, parent.is_closeout, 0) as is_closeout',
+            'product.available as available',
             'product.child_count as child_count',
         );
 
@@ -244,32 +248,55 @@ class CheapestPriceUpdater
 
         $grouped = [];
         foreach ($data as $row) {
+            $parentId = (string) $row['parent_id'];
+            $variantId = (string) $row['variant_id'];
+
             $row['price'] = json_decode((string) $row['price'], true, 512, \JSON_THROW_ON_ERROR);
-            $row['sales_channel_ids'] = $visibilityMap[$row['variant_id']] ?? $visibilityMap[$row['parent_id']] ?? [];
-            $grouped[(string) $row['parent_id']][(string) $row['variant_id']][(string) $row['rule_id']] = $row;
+            $row['sales_channel_ids'] = $visibilityMap[$variantId] ?? $visibilityMap[$parentId] ?? [];
+            $grouped[$parentId][$variantId][(string) $row['rule_id']] = $row;
         }
 
         foreach ($defaults as $row) {
+            $parentId = (string) $row['parent_id'];
+            $variantId = (string) $row['variant_id'];
+
+            $grouped[$parentId][$variantId][self::VARIANT_METADATA_KEY] = $this->buildVariantMetadata($row, $visibilityMap);
+
             if ($row['price'] === null) {
-                $grouped[(string) $row['parent_id']][(string) $row['variant_id']]['default'] = null;
+                $grouped[$parentId][$variantId]['default'] = null;
 
                 continue;
             }
 
             $row['price'] = json_decode((string) $row['price'], true, 512, \JSON_THROW_ON_ERROR);
             $row['price'] = $this->normalizePrices($row['price']);
-            $row['sales_channel_ids'] = $visibilityMap[$row['variant_id']] ?? $visibilityMap[$row['parent_id']] ?? [];
+            $row['sales_channel_ids'] = $visibilityMap[$variantId] ?? $visibilityMap[$parentId] ?? [];
 
             if ($row['child_count'] > 0) {
-                $grouped[(string) $row['parent_id']]['default'] = $row;
+                $grouped[$parentId]['default'] = $row;
 
                 continue;
             }
 
-            $grouped[(string) $row['parent_id']][(string) $row['variant_id']]['default'] = $row;
+            $grouped[$parentId][$variantId]['default'] = $row;
         }
 
         return $grouped;
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     * @param array<string, array<string>> $visibilityMap
+     *
+     * @return array{available: bool, is_closeout: bool, sales_channel_ids: array<string>}
+     */
+    private function buildVariantMetadata(array $row, array $visibilityMap): array
+    {
+        return [
+            'available' => (bool) ($row['available'] ?? false),
+            'is_closeout' => (bool) ($row['is_closeout'] ?? false),
+            'sales_channel_ids' => $visibilityMap[$row['variant_id']] ?? $visibilityMap[$row['parent_id']] ?? [],
+        ];
     }
 
     /**

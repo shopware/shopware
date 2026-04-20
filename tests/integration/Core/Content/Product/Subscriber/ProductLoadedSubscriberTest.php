@@ -30,6 +30,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
@@ -101,6 +102,62 @@ class ProductLoadedSubscriberTest extends TestCase
         static::assertNotNull($productEntity);
         static::assertInstanceOf(CheapestPrice::class, $productEntity->get('cheapestPrice'));
         static::assertInstanceOf(CalculatedCheapestPrice::class, $productEntity->get('calculatedCheapestPrice'));
+    }
+
+    public function testCheapestPriceIgnoresHiddenCloseoutVariantsInSalesChannel(): void
+    {
+        $ids = new IdsCollection();
+        $systemConfigService = static::getContainer()->get(SystemConfigService::class);
+        $configKey = 'core.listing.hideCloseoutProductsWhenOutOfStock';
+        $previousValue = $systemConfigService->get($configKey, TestDefaults::SALES_CHANNEL);
+
+        try {
+            $systemConfigService->set($configKey, true, TestDefaults::SALES_CHANNEL);
+
+            static::getContainer()->get('product.repository')
+                ->create([
+                    (new ProductBuilder($ids, 'p.1'))
+                        ->price(130)
+                        ->visibility()
+                        ->variant(
+                            (new ProductBuilder($ids, 'p.1.v1'))
+                                ->price(80)
+                                ->stock(0)
+                                ->closeout()
+                                ->build()
+                        )
+                        ->variant(
+                            (new ProductBuilder($ids, 'p.1.v2'))
+                                ->price(90)
+                                ->stock(10)
+                                ->closeout()
+                                ->build()
+                        )
+                        ->build(),
+                ], Context::createDefaultContext());
+
+            $salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)
+                ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+
+            $criteria = new Criteria([$ids->get('p.1')]);
+            $criteria->addFields(['id', 'cheapestPrice', 'taxId', 'price']);
+
+            $productEntity = static::getContainer()
+                ->get('sales_channel.product.repository')
+                ->search($criteria, $salesChannelContext)
+                ->first();
+
+            static::assertNotNull($productEntity);
+            $cheapestPrice = $productEntity->get('cheapestPrice');
+            $calculatedCheapestPrice = $productEntity->get('calculatedCheapestPrice');
+
+            static::assertInstanceOf(CheapestPrice::class, $cheapestPrice);
+            static::assertInstanceOf(CalculatedCheapestPrice::class, $calculatedCheapestPrice);
+            static::assertSame($ids->get('p.1.v2'), $cheapestPrice->getVariantId());
+            static::assertSame(90.0, $calculatedCheapestPrice->getUnitPrice());
+        } finally {
+            $systemConfigService->set($configKey, $previousValue, TestDefaults::SALES_CHANNEL);
+        }
     }
 
     /**

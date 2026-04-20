@@ -194,4 +194,71 @@ class CheapestPriceContainerSalesChannelTest extends TestCase
 
         static::assertNull($cheapestPrice);
     }
+
+    public function testResolveSkipsUnavailableCloseoutVariantsWhenConfigured(): void
+    {
+        $currentSalesChannelId = Uuid::randomHex();
+
+        $testData = [
+            'variant1' => [
+                '_metadata' => [
+                    'sales_channel_ids' => [$currentSalesChannelId],
+                    'available' => false,
+                    'is_closeout' => true,
+                ],
+                'default' => [
+                    'price' => [
+                        ['currencyId' => Defaults::CURRENCY, 'gross' => 50.0, 'net' => 42.02, 'linked' => true],
+                    ],
+                    'is_ranged' => false,
+                    'rule_id' => 'default',
+                    'parent_id' => 'parent1',
+                    'purchase_unit' => 1.0,
+                    'reference_unit' => 1.0,
+                ],
+            ],
+            'variant2' => [
+                '_metadata' => [
+                    'sales_channel_ids' => [$currentSalesChannelId],
+                    'available' => true,
+                    'is_closeout' => true,
+                ],
+                'default' => [
+                    'price' => [
+                        ['currencyId' => Defaults::CURRENCY, 'gross' => 100.0, 'net' => 84.03, 'linked' => true],
+                    ],
+                    'is_ranged' => false,
+                    'rule_id' => 'default',
+                    'parent_id' => 'parent1',
+                    'purchase_unit' => 1.0,
+                    'reference_unit' => 1.0,
+                ],
+            ],
+        ];
+
+        $context = new Context(
+            new SalesChannelApiSource($currentSalesChannelId),
+            [],
+            Defaults::CURRENCY,
+            [Defaults::LANGUAGE_SYSTEM],
+            Defaults::LIVE_VERSION,
+            1.0,
+            true,
+            CartPrice::TAX_STATE_GROSS
+        );
+
+        $container = new CheapestPriceContainer($testData);
+
+        $cheapestPrice = $container->resolve($context, true);
+
+        static::assertNotNull($cheapestPrice);
+        static::assertSame('variant2', $cheapestPrice->getVariantId());
+        static::assertSame(100.0, $cheapestPrice->getPrice()->first()?->getGross());
+
+        $cheapestPriceWithoutCloseoutFilter = $container->resolve($context, false);
+
+        static::assertNotNull($cheapestPriceWithoutCloseoutFilter);
+        static::assertSame('variant1', $cheapestPriceWithoutCloseoutFilter->getVariantId());
+        static::assertSame(50.0, $cheapestPriceWithoutCloseoutFilter->getPrice()->first()?->getGross());
+    }
 }

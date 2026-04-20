@@ -14,6 +14,8 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('framework')]
 class CheapestPriceContainer extends Struct
 {
+    private const VARIANT_METADATA_KEY = '_metadata';
+
     /**
      * @var array<mixed>
      */
@@ -42,7 +44,7 @@ class CheapestPriceContainer extends Struct
         $this->value = $value;
     }
 
-    public function resolve(Context $context): ?CheapestPrice
+    public function resolve(Context $context, bool $hideCloseoutProductsWhenOutOfStock = false): ?CheapestPrice
     {
         $ruleIds = $context->getRuleIds();
         $ruleIds[] = 'default';
@@ -53,15 +55,20 @@ class CheapestPriceContainer extends Struct
         $currentSalesChannelId = $source instanceof SalesChannelApiSource ? $source->getSalesChannelId() : null;
 
         foreach ($this->value as $variantId => $group) {
+            $metadata = $this->getVariantMetadata($group);
+
+            if ($hideCloseoutProductsWhenOutOfStock && $this->isVariantHiddenByCloseoutFilter($metadata)) {
+                continue;
+            }
+
+            if ($currentSalesChannelId && !$this->isVariantPriceAvailableInSalesChannel($metadata, $currentSalesChannelId)) {
+                continue;
+            }
+
             foreach ($ruleIds as $ruleId) {
                 $price = $this->filterByRuleId($group, $ruleId, $defaultWasAdded);
 
                 if ($price === null) {
-                    continue;
-                }
-
-                // Check sales channel availability
-                if ($currentSalesChannelId && !$this->isVariantPriceAvailableInSalesChannel($price, $currentSalesChannelId)) {
                     continue;
                 }
 
@@ -287,17 +294,54 @@ class CheapestPriceContainer extends Struct
     }
 
     /**
-     * @param array<mixed> $price
+     * @param array<mixed> $group
+     *
+     * @return array<mixed>
      */
-    private function isVariantPriceAvailableInSalesChannel(array $price, string $salesChannelId): bool
+    private function getVariantMetadata(array $group): array
+    {
+        $metadata = $group[self::VARIANT_METADATA_KEY] ?? null;
+        if (\is_array($metadata)) {
+            return $metadata;
+        }
+
+        foreach ($group as $entry) {
+            if (!\is_array($entry)) {
+                continue;
+            }
+
+            if (\array_key_exists('sales_channel_ids', $entry) || \array_key_exists('available', $entry) || \array_key_exists('is_closeout', $entry)) {
+                return $entry;
+            }
+        }
+
+        return [];
+    }
+
+    /**
+     * @param array<mixed> $metadata
+     */
+    private function isVariantPriceAvailableInSalesChannel(array $metadata, string $salesChannelId): bool
     {
         // If no sales channel IDs are stored, assume it's available everywhere
-        if (!\array_key_exists('sales_channel_ids', $price)) {
+        if (!\array_key_exists('sales_channel_ids', $metadata)) {
             return true;
         }
 
-        $salesChannelIds = $price['sales_channel_ids'] ?? [];
+        $salesChannelIds = $metadata['sales_channel_ids'] ?? [];
 
         return \in_array($salesChannelId, $salesChannelIds, true);
+    }
+
+    /**
+     * @param array<mixed> $metadata
+     */
+    private function isVariantHiddenByCloseoutFilter(array $metadata): bool
+    {
+        if (!\array_key_exists('available', $metadata) || !\array_key_exists('is_closeout', $metadata)) {
+            return false;
+        }
+
+        return (bool) $metadata['is_closeout'] && !(bool) $metadata['available'];
     }
 }

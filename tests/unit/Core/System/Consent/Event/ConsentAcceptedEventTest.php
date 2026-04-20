@@ -36,7 +36,6 @@ class ConsentAcceptedEventTest extends TestCase
             'consentName' => 'my-consent',
             'consentScope' => ConsentScope\AdminUser::NAME,
             'identifier' => 'consent-identifier',
-            'actor' => 'user-123',
             'revision' => '2026-02-01',
         ], $event->getWebhookPayload());
         static::assertTrue($event->isAllowed('app-id', new AclPrivilegeCollection(['consent:my-consent:read'])));

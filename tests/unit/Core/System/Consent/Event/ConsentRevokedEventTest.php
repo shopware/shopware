@@ -34,7 +34,6 @@ class ConsentRevokedEventTest extends TestCase
             'consentName' => 'my-consent',
             'consentScope' => ConsentScope\AdminUser::NAME,
             'identifier' => 'consent-identifier',
-            'actor' => 'user-456',
         ], $event->getWebhookPayload());
         static::assertTrue($event->isAllowed('app-id', new AclPrivilegeCollection(['consent:my-consent:read'])));
         static::assertFalse($event->isAllowed('app-id', new AclPrivilegeCollection(['consent:other-consent:read'])));

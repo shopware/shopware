@@ -29,7 +29,6 @@ readonly class ConsentRevokedEvent implements Hookable
             'consentName' => $this->consentName,
             'consentScope' => $this->consentScope,
             'identifier' => $this->identifier,
-            'actor' => $this->actor,
         ];
     }
 

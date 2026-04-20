@@ -82,12 +82,7 @@ class DocumentConfigLoaderTest extends TestCase
         $loader = new DocumentConfigLoader($repo, $countryRepo);
         $config = $loader->load('invoice', $this->ids->get('sales-channel-id'), $context);
 
-        /** @phpstan-ignore property.notFound (tests dynamic adding of properties) */
-        if (!isset($config->salesChannels)) {
-            static::fail();
-        }
-
-        $salesChannels = $config->salesChannels;
+        $salesChannels = $config->getVars()['salesChannels'] ?? null;
 
         static::assertInstanceOf(DocumentBaseConfigSalesChannelCollection::class, $salesChannels);
         static::assertCount(1, $salesChannels);

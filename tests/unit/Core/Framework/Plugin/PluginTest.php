@@ -20,9 +20,7 @@ class PluginTest extends TestCase
     {
         $pluginsDir = __DIR__ . '/../../../../../src/Core/Framework/Test/Plugin/_fixture/plugins/';
         $swagTestPluginPath = realpath($pluginsDir . '/SwagTestPlugin');
-        if ($swagTestPluginPath === false) {
-            throw new \RuntimeException('SwagTestPlugin fixture directory must exist');
-        }
+        static::assertIsString($swagTestPluginPath);
         self::$swagTestPluginPath = $swagTestPluginPath;
 
         self::$symlinkedSwagTestPluginPath = sys_get_temp_dir() . '/SymlinkedSwagTest_' . uniqid();

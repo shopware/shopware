@@ -2,7 +2,9 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Media\Upload;
 
+use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemOperator;
+use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use League\Flysystem\UnableToDeleteFile;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -14,8 +16,7 @@ use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Media\Upload\MediaFileCleanupService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\Messenger\Envelope;
-use Symfony\Component\Messenger\MessageBusInterface;
+use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 
 /**
  * @internal
@@ -24,20 +25,20 @@ use Symfony\Component\Messenger\MessageBusInterface;
 #[CoversClass(MediaFileCleanupService::class)]
 class MediaFileCleanupServiceTest extends TestCase
 {
-    private FilesystemOperator&MockObject $filesystemPublic;
+    private FilesystemOperator $filesystemPublic;
 
-    private FilesystemOperator&MockObject $filesystemPrivate;
+    private FilesystemOperator $filesystemPrivate;
 
     private ThumbnailService&MockObject $thumbnailService;
 
-    private MessageBusInterface&MockObject $messageBus;
+    private CollectingMessageBus $messageBus;
 
     protected function setUp(): void
     {
-        $this->filesystemPublic = $this->createMock(FilesystemOperator::class);
-        $this->filesystemPrivate = $this->createMock(FilesystemOperator::class);
+        $this->filesystemPublic = new Filesystem(new InMemoryFilesystemAdapter());
+        $this->filesystemPrivate = new Filesystem(new InMemoryFilesystemAdapter());
         $this->thumbnailService = $this->createMock(ThumbnailService::class);
-        $this->messageBus = $this->createMock(MessageBusInterface::class);
+        $this->messageBus = new CollectingMessageBus();
     }
 
     public function testRemoveOldMediaDataDeletesPublicFile(): void
@@ -50,6 +51,9 @@ class MediaFileCleanupServiceTest extends TestCase
             false,
         );
 
+        $this->filesystemPublic->write('media/ab/cd/test.jpg', 'payload');
+        $this->filesystemPrivate->write('media/ab/cd/test.jpg', 'other');
+
         $context = Context::createDefaultContext();
         $media = new MediaEntity();
         $media->setId('media-1');
@@ -57,15 +61,14 @@ class MediaFileCleanupServiceTest extends TestCase
         $media->setPrivate(false);
         $media->setThumbnails(new MediaThumbnailCollection());
 
-        $this->filesystemPublic->expects($this->once())
-            ->method('delete')
-            ->with('media/ab/cd/test.jpg');
-
         $this->thumbnailService->expects($this->once())
             ->method('deleteThumbnails')
             ->with($media, $context);
 
         $service->removeOldMediaData($media, $context);
+
+        static::assertFalse($this->filesystemPublic->fileExists('media/ab/cd/test.jpg'));
+        static::assertTrue($this->filesystemPrivate->fileExists('media/ab/cd/test.jpg'));
     }
 
     public function testRemoveOldMediaDataDeletesPrivateFile(): void
@@ -78,20 +81,19 @@ class MediaFileCleanupServiceTest extends TestCase
             false,
         );
 
+        $this->filesystemPublic->write('media/ab/cd/private.pdf', 'decoy');
+        $this->filesystemPrivate->write('media/ab/cd/private.pdf', 'payload');
+
         $media = new MediaEntity();
         $media->setId('media-2');
         $media->assign(['path' => 'media/ab/cd/private.pdf', 'fileName' => 'private', 'fileExtension' => 'pdf']);
         $media->setPrivate(true);
         $media->setThumbnails(new MediaThumbnailCollection());
 
-        $this->filesystemPrivate->expects($this->once())
-            ->method('delete')
-            ->with('media/ab/cd/private.pdf');
-
-        $this->filesystemPublic->expects($this->never())
-            ->method('delete');
-
         $service->removeOldMediaData($media, Context::createDefaultContext());
+
+        static::assertFalse($this->filesystemPrivate->fileExists('media/ab/cd/private.pdf'));
+        static::assertTrue($this->filesystemPublic->fileExists('media/ab/cd/private.pdf'));
     }
 
     public function testRemoveOldMediaDataSkipsWithNoFile(): void
@@ -104,20 +106,33 @@ class MediaFileCleanupServiceTest extends TestCase
             false,
         );
 
+        $this->filesystemPublic->write('media/ab/cd/keep-public.jpg', 'keep');
+        $this->filesystemPrivate->write('media/ab/cd/keep-private.jpg', 'keep');
+
         $media = new MediaEntity();
         $media->setId('media-3');
         $media->setThumbnails(new MediaThumbnailCollection());
 
-        $this->filesystemPublic->expects($this->never())->method('delete');
-        $this->filesystemPrivate->expects($this->never())->method('delete');
+        $this->thumbnailService->expects($this->never())
+            ->method('deleteThumbnails');
 
         $service->removeOldMediaData($media, Context::createDefaultContext());
+
+        static::assertTrue($this->filesystemPublic->fileExists('media/ab/cd/keep-public.jpg'));
+        static::assertTrue($this->filesystemPrivate->fileExists('media/ab/cd/keep-private.jpg'));
     }
 
     public function testRemoveOldMediaDataSwallowsDeleteException(): void
     {
+        $throwingFilesystem = new Filesystem(new class extends InMemoryFilesystemAdapter {
+            public function delete(string $path): void
+            {
+                throw UnableToDeleteFile::atLocation($path);
+            }
+        });
+
         $service = new MediaFileCleanupService(
-            $this->filesystemPublic,
+            $throwingFilesystem,
             $this->filesystemPrivate,
             $this->thumbnailService,
             $this->messageBus,
@@ -130,9 +145,6 @@ class MediaFileCleanupServiceTest extends TestCase
         $media->assign(['path' => 'media/ab/cd/gone.jpg', 'fileName' => 'gone', 'fileExtension' => 'jpg']);
         $media->setPrivate(false);
         $media->setThumbnails(new MediaThumbnailCollection());
-
-        $this->filesystemPublic->method('delete')
-            ->willThrowException(UnableToDeleteFile::atLocation('media/ab/cd/gone.jpg'));
 
         $this->thumbnailService->expects($this->once())
             ->method('deleteThumbnails')
@@ -151,6 +163,8 @@ class MediaFileCleanupServiceTest extends TestCase
             true,
         );
 
+        $this->filesystemPublic->write('media/ab/cd/file.jpg', 'payload');
+
         $media = new MediaEntity();
         $media->setId('media-5');
         $media->assign(['path' => 'media/ab/cd/file.jpg', 'fileName' => 'file', 'fileExtension' => 'jpg']);
@@ -161,6 +175,8 @@ class MediaFileCleanupServiceTest extends TestCase
             ->method('deleteThumbnails');
 
         $service->removeOldMediaData($media, Context::createDefaultContext());
+
+        static::assertFalse($this->filesystemPublic->fileExists('media/ab/cd/file.jpg'));
     }
 
     public function testDeleteThumbnailsDelegatesToService(): void
@@ -213,16 +229,14 @@ class MediaFileCleanupServiceTest extends TestCase
             false,
         );
 
-        $this->messageBus->expects($this->once())
-            ->method('dispatch')
-            ->with(static::callback(function (GenerateThumbnailsMessage $message): bool {
-                static::assertSame(['media-8'], $message->getMediaIds());
-
-                return true;
-            }))
-            ->willReturn(new Envelope(new GenerateThumbnailsMessage()));
-
         $service->dispatchThumbnailGeneration('media-8', Context::createDefaultContext());
+
+        $messages = $this->messageBus->getMessages();
+        static::assertCount(1, $messages);
+
+        $message = $messages[0]->getMessage();
+        static::assertInstanceOf(GenerateThumbnailsMessage::class, $message);
+        static::assertSame(['media-8'], $message->getMediaIds());
     }
 
     public function testDispatchThumbnailGenerationSkipsWhenRemote(): void
@@ -235,9 +249,8 @@ class MediaFileCleanupServiceTest extends TestCase
             true,
         );
 
-        $this->messageBus->expects($this->never())
-            ->method('dispatch');
-
         $service->dispatchThumbnailGeneration('media-9', Context::createDefaultContext());
+
+        static::assertSame([], $this->messageBus->getMessages());
     }
 }

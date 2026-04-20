@@ -100,9 +100,9 @@ readonly class PresignedMediaUploadService
         $media = $this->findMediaWithThumbnails($mediaId, $context);
         $isReplace = $media->hasFile();
 
-        try {
-            $this->validateFinalizeRequest($mediaId, $payload, $media, $isReplace, $context);
+        $this->validateFinalizeRequest($mediaId, $payload, $media, $isReplace, $context);
 
+        try {
             $s3Metadata = $this->verifyFileOnStorage($mediaId, $payload->path);
 
             if ($isReplace) {
@@ -145,7 +145,7 @@ readonly class PresignedMediaUploadService
                 throw MediaException::mediaNotFound($payload->mediaId);
             }
 
-            $this->validateFileExtension($payload->extension, $media->isPrivate(), $payload->mediaId);
+            $this->validateFileExtension($payload->extension, $media->isPrivate(), $context, $payload->mediaId);
 
             $uploadedAt = new \DateTimeImmutable();
             $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($payload, $uploadedAt): void {
@@ -157,7 +157,7 @@ readonly class PresignedMediaUploadService
             return ['mediaId' => $payload->mediaId, 'uploadedAt' => $uploadedAt];
         }
 
-        $this->validateFileExtension($payload->extension, $payload->private);
+        $this->validateFileExtension($payload->extension, $payload->private, $context);
 
         $mediaId = Uuid::randomHex();
         $uploadedAt = new \DateTimeImmutable();
@@ -207,7 +207,7 @@ readonly class PresignedMediaUploadService
 
     private function validateFinalizeRequest(string $mediaId, PresignedUploadFinalizePayload $payload, MediaEntity $media, bool $isReplace, Context $context): void
     {
-        $this->validateFileExtension($payload->extension, $media->isPrivate(), $mediaId);
+        $this->validateFileExtension($payload->extension, $media->isPrivate(), $context, $mediaId);
         $this->validateExpectedPath($mediaId, $payload, $media);
 
         if (!$isReplace) {
@@ -352,9 +352,12 @@ readonly class PresignedMediaUploadService
         }
     }
 
-    private function validateFileExtension(string $extension, bool $isPrivate, string $mediaId = ''): void
+    private function validateFileExtension(string $extension, bool $isPrivate, Context $context, string $mediaId = ''): void
     {
-        $event = new MediaFileExtensionWhitelistEvent($isPrivate ? $this->privateAllowedExtensions : $this->allowedExtensions);
+        $event = new MediaFileExtensionWhitelistEvent(
+            $isPrivate ? $this->privateAllowedExtensions : $this->allowedExtensions,
+            $context,
+        );
         $this->eventDispatcher->dispatch($event);
 
         $fileExtension = mb_strtolower($extension);

@@ -9,18 +9,18 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @internal
  */
 #[Package('discovery')]
-class PresignedUploadPreparePayload
+readonly class PresignedUploadPreparePayload
 {
     public function __construct(
         #[Assert\NotBlank]
-        public readonly string $fileName = '',
+        public string $fileName = '',
         #[Assert\NotBlank]
-        public readonly string $extension = '',
+        public string $extension = '',
         #[Assert\NotBlank]
-        public readonly string $mimeType = '',
-        public readonly ?string $mediaFolderId = null,
-        public readonly bool $private = false,
-        public readonly ?string $mediaId = null,
+        public string $mimeType = '',
+        public ?string $mediaFolderId = null,
+        public bool $private = false,
+        public ?string $mediaId = null,
     ) {
     }
 }

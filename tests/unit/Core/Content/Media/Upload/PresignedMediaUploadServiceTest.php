@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Media\Upload;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
 use Shopware\Core\Content\Media\MediaCollection;
@@ -19,10 +20,8 @@ use Shopware\Core\Content\Media\Upload\PresignedUploadPreparePayload;
 use Shopware\Core\Content\Media\Upload\PresignedUrlGeneratorInterface;
 use Shopware\Core\Content\Media\Upload\PresignedUrlResult;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -32,11 +31,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(PresignedMediaUploadService::class)]
 class PresignedMediaUploadServiceTest extends TestCase
 {
-    /**
-     * @var EntityRepository<MediaCollection>&MockObject
-     */
-    private EntityRepository&MockObject $mediaRepository;
-
     private PresignedUrlGeneratorInterface&MockObject $presignedUrlGenerator;
 
     private EventDispatcherInterface&MockObject $eventDispatcher;
@@ -45,56 +39,50 @@ class PresignedMediaUploadServiceTest extends TestCase
 
     private MediaFileCleanupService&MockObject $mediaFileCleanup;
 
-    private PresignedMediaUploadService $service;
-
     protected function setUp(): void
     {
-        $this->mediaRepository = $this->createMock(EntityRepository::class);
         $this->presignedUrlGenerator = $this->createMock(PresignedUrlGeneratorInterface::class);
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $this->mediaPathStrategy = $this->createMock(AbstractMediaPathStrategy::class);
-
-        $typeDetector = $this->createMock(TypeDetector::class);
         $this->mediaFileCleanup = $this->createMock(MediaFileCleanupService::class);
 
         $this->eventDispatcher->method('dispatch')->willReturnCallback(
-            static function (object $event) {
-                return $event;
-            }
+            static fn (object $event) => $event,
         );
+    }
 
-        $this->service = new PresignedMediaUploadService(
-            $this->mediaRepository,
+    /**
+     * @param array<array<mixed>|callable> $searches
+     *
+     * @return array{StaticEntityRepository<MediaCollection>, PresignedMediaUploadService}
+     */
+    private function createService(array $searches = []): array
+    {
+        /** @var StaticEntityRepository<MediaCollection> $repo */
+        $repo = new StaticEntityRepository($searches);
+
+        $service = new PresignedMediaUploadService(
+            $repo,
             $this->presignedUrlGenerator,
             $this->eventDispatcher,
-            $typeDetector,
+            $this->createMock(TypeDetector::class),
             $this->mediaFileCleanup,
             ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'mp4', 'mp3', 'pdf'],
             ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'mp4', 'mp3', 'pdf'],
             $this->mediaPathStrategy,
             new \Psr\Log\NullLogger(),
         );
+
+        return [$repo, $service];
     }
 
     public function testPrepareCreatesMediaAndReturnsPresignedUrl(): void
     {
+        // isFileNameTaken search — no duplicates.
+        [$repo, $service] = $this->createService([new MediaCollection()]);
+
         $context = Context::createDefaultContext();
         $expiresAt = new \DateTimeImmutable('+5 minutes');
-
-        $this->mediaRepository->expects($this->once())
-            ->method('create')
-            ->with(
-                static::callback(function (array $payload): bool {
-                    static::assertCount(1, $payload);
-                    static::assertArrayHasKey('id', $payload[0]);
-                    static::assertFalse($payload[0]['private']);
-                    static::assertArrayHasKey('uploadedAt', $payload[0]);
-                    static::assertInstanceOf(\DateTime::class, $payload[0]['uploadedAt']);
-
-                    return true;
-                }),
-                $context
-            );
 
         $this->presignedUrlGenerator->expects($this->once())
             ->method('generate')
@@ -114,7 +102,13 @@ class PresignedMediaUploadServiceTest extends TestCase
             mimeType: 'image/jpeg',
         );
 
-        $result = $this->service->prepare($payload, $context);
+        $result = $service->prepare($payload, $context);
+
+        static::assertCount(1, $repo->creates);
+        $created = $repo->creates[0][0];
+        static::assertArrayHasKey('id', $created);
+        static::assertFalse($created['private']);
+        static::assertInstanceOf(\DateTime::class, $created['uploadedAt']);
 
         static::assertNotEmpty($result->mediaId);
         static::assertSame('https://s3.example.com/presigned-url', $result->url);
@@ -125,18 +119,7 @@ class PresignedMediaUploadServiceTest extends TestCase
 
     public function testPrepareWithMediaFolderId(): void
     {
-        $context = Context::createDefaultContext();
-
-        $this->mediaRepository->expects($this->once())
-            ->method('create')
-            ->with(
-                static::callback(function (array $payload): bool {
-                    static::assertSame('folder-123', $payload[0]['mediaFolderId']);
-
-                    return true;
-                }),
-                $context
-            );
+        [$repo, $service] = $this->createService([new MediaCollection()]);
 
         $this->presignedUrlGenerator->expects($this->once())
             ->method('generate')
@@ -153,15 +136,15 @@ class PresignedMediaUploadServiceTest extends TestCase
             mediaFolderId: 'folder-123',
         );
 
-        $this->service->prepare($payload, $context);
+        $service->prepare($payload, Context::createDefaultContext());
+
+        static::assertCount(1, $repo->creates);
+        static::assertSame('folder-123', $repo->creates[0][0]['mediaFolderId']);
     }
 
     public function testPrepareDeletesMediaOnGenerateFailure(): void
     {
-        $context = Context::createDefaultContext();
-
-        $this->mediaRepository->expects($this->once())->method('create');
-        $this->mediaRepository->expects($this->once())->method('delete');
+        [$repo, $service] = $this->createService([new MediaCollection()]);
 
         $this->presignedUrlGenerator->expects($this->once())
             ->method('generate')
@@ -175,7 +158,12 @@ class PresignedMediaUploadServiceTest extends TestCase
             mimeType: 'image/jpeg',
         );
 
-        $this->service->prepare($payload, $context);
+        try {
+            $service->prepare($payload, Context::createDefaultContext());
+        } finally {
+            static::assertCount(1, $repo->creates);
+            static::assertCount(1, $repo->deletes);
+        }
     }
 
     public function testFinalizeVerifiesAndUpdatesMedia(): void
@@ -184,24 +172,15 @@ class PresignedMediaUploadServiceTest extends TestCase
         $mediaId = '0189b0a1-0000-0000-0000-000000000001';
         $path = 'media/ab/cd/test-file.jpg';
 
-        $media = new MediaEntity();
-        $media->setId($mediaId);
-        $media->setUploadedAt(new \DateTime());
-        $media->setPrivate(false);
-        $media->setThumbnails(new \Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection());
+        $media = $this->buildMedia($mediaId);
 
-        $searchResult = new EntitySearchResult(
-            'media',
-            1,
+        // 1st search: findMediaWithThumbnails. 2nd search: ensureFileNameIsUnique (non-replace).
+        [$repo, $service] = $this->createService([
             new MediaCollection([$media]),
-            null,
-            new Criteria(),
-            $context
-        );
-        $this->mediaRepository->method('search')->willReturn($searchResult);
+            new MediaCollection(),
+        ]);
 
-        $this->mediaPathStrategy->method('generate')
-            ->willReturn([$mediaId => $path]);
+        $this->mediaPathStrategy->method('generate')->willReturn([$mediaId => $path]);
 
         $this->presignedUrlGenerator->expects($this->once())
             ->method('getFileMetadata')
@@ -212,26 +191,6 @@ class PresignedMediaUploadServiceTest extends TestCase
                 etag: 'd41d8cd98f00b204e9800998ecf8427e',
                 contentType: 'image/jpeg',
             ));
-
-        $this->mediaRepository->expects($this->once())
-            ->method('update')
-            ->with(
-                static::callback(function (array $data) use ($mediaId): bool {
-                    static::assertSame($mediaId, $data[0]['id']);
-                    static::assertSame('image/jpeg', $data[0]['mimeType']);
-                    static::assertSame('jpg', $data[0]['fileExtension']);
-                    static::assertSame(12345, $data[0]['fileSize']);
-                    static::assertSame('test-file', $data[0]['fileName']);
-                    static::assertArrayHasKey('uploadedAt', $data[0]);
-                    static::assertSame('d41d8cd98f00b204e9800998ecf8427e', $data[0]['metaData']['hash']);
-                    static::assertSame(1920, $data[0]['metaData']['width']);
-                    static::assertSame(1080, $data[0]['metaData']['height']);
-                    static::assertSame(\IMAGETYPE_JPEG, $data[0]['metaData']['type']);
-
-                    return true;
-                }),
-                static::anything()
-            );
 
         $this->eventDispatcher->expects($this->exactly(4))->method('dispatch');
 
@@ -244,39 +203,42 @@ class PresignedMediaUploadServiceTest extends TestCase
             height: 1080,
         );
 
-        $this->service->finalize($mediaId, $payload, $context);
+        $service->finalize($mediaId, $payload, $context);
+
+        static::assertCount(1, $repo->updates);
+        $update = $repo->updates[0][0];
+        static::assertSame($mediaId, $update['id']);
+        static::assertSame('image/jpeg', $update['mimeType']);
+        static::assertSame('jpg', $update['fileExtension']);
+        static::assertSame(12345, $update['fileSize']);
+        static::assertSame('test-file', $update['fileName']);
+        static::assertArrayHasKey('uploadedAt', $update);
+        static::assertSame('d41d8cd98f00b204e9800998ecf8427e', $update['metaData']['hash']);
+        static::assertSame(1920, $update['metaData']['width']);
+        static::assertSame(1080, $update['metaData']['height']);
+        static::assertSame(\IMAGETYPE_JPEG, $update['metaData']['type']);
     }
 
     public function testFinalizeThrowsWhenFileNotFoundInS3(): void
     {
-        $context = Context::createDefaultContext();
         $mediaId = '0189b0a1-0000-0000-0000-000000000002';
         $path = 'media/ab/cd/test-file.jpg';
 
-        $media = new MediaEntity();
-        $media->setId($mediaId);
-        $media->setUploadedAt(new \DateTime());
-        $media->setPrivate(false);
-        $media->setThumbnails(new \Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection());
+        $media = $this->buildMedia($mediaId);
 
-        $searchResult = new EntitySearchResult(
-            'media',
-            1,
+        [, $service] = $this->createService([
             new MediaCollection([$media]),
-            null,
-            new Criteria(),
-            $context
-        );
-        $this->mediaRepository->method('search')->willReturn($searchResult);
+            new MediaCollection(),
+        ]);
 
-        $this->mediaPathStrategy->method('generate')
-            ->willReturn([$mediaId => $path]);
+        $this->mediaPathStrategy->method('generate')->willReturn([$mediaId => $path]);
 
         $this->presignedUrlGenerator->expects($this->once())
             ->method('getFileMetadata')
             ->with($path)
             ->willReturn(null);
 
+        // Validation passed (path matches) — cleanup on the validated path is safe.
         $this->presignedUrlGenerator->expects($this->once())
             ->method('deleteFromStorage')
             ->with($path);
@@ -291,36 +253,25 @@ class PresignedMediaUploadServiceTest extends TestCase
             path: $path,
         );
 
-        $this->service->finalize($mediaId, $payload, $context);
+        $service->finalize($mediaId, $payload, Context::createDefaultContext());
     }
 
-    public function testFinalizeThrowsOnPathMismatch(): void
+    public function testFinalizeThrowsOnPathMismatchWithoutDeletingSubmittedPath(): void
     {
-        $context = Context::createDefaultContext();
         $mediaId = '0189b0a1-0000-0000-0000-000000000003';
 
-        $media = new MediaEntity();
-        $media->setId($mediaId);
-        $media->setUploadedAt(new \DateTime());
-        $media->setPrivate(false);
-        $media->setThumbnails(new \Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection());
+        $media = $this->buildMedia($mediaId);
 
-        $searchResult = new EntitySearchResult(
-            'media',
-            1,
-            new MediaCollection([$media]),
-            null,
-            new Criteria(),
-            $context
-        );
-        $this->mediaRepository->method('search')->willReturn($searchResult);
+        [, $service] = $this->createService([new MediaCollection([$media])]);
 
         $this->mediaPathStrategy->method('generate')
             ->willReturn([$mediaId => 'media/ab/cd/test-file.jpg']);
 
-        $this->presignedUrlGenerator->expects($this->once())
-            ->method('deleteFromStorage')
-            ->with('media/tampered/path/evil.jpg');
+        // Security invariant: the submitted path must not be touched when validation fails,
+        // otherwise an attacker could trigger deletion of an arbitrary victim file by pointing
+        // $payload->path at it.
+        $this->presignedUrlGenerator->expects($this->never())->method('deleteFromStorage');
+        $this->presignedUrlGenerator->expects($this->never())->method('getFileMetadata');
 
         $this->expectException(MediaException::class);
         $this->expectExceptionMessage('Could not verify uploaded file for media');
@@ -332,33 +283,21 @@ class PresignedMediaUploadServiceTest extends TestCase
             path: 'media/tampered/path/evil.jpg',
         );
 
-        $this->service->finalize($mediaId, $payload, $context);
+        $service->finalize($mediaId, $payload, Context::createDefaultContext());
     }
 
-    public function testFinalizeThrowsOnDisallowedExtension(): void
+    public function testFinalizeThrowsOnDisallowedExtensionWithoutDeletingSubmittedPath(): void
     {
-        $context = Context::createDefaultContext();
         $mediaId = '0189b0a1-0000-0000-0000-000000000004';
 
-        $media = new MediaEntity();
-        $media->setId($mediaId);
-        $media->setUploadedAt(new \DateTime());
-        $media->setPrivate(false);
-        $media->setThumbnails(new \Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection());
+        $media = $this->buildMedia($mediaId);
 
-        $searchResult = new EntitySearchResult(
-            'media',
-            1,
-            new MediaCollection([$media]),
-            null,
-            new Criteria(),
-            $context
-        );
-        $this->mediaRepository->method('search')->willReturn($searchResult);
+        [, $service] = $this->createService([new MediaCollection([$media])]);
 
-        $this->presignedUrlGenerator->expects($this->once())
-            ->method('deleteFromStorage')
-            ->with('media/ab/cd/malicious.php');
+        // Security invariant: even if the attacker submits a valid victim path, a finalize with a
+        // disallowed extension must not cause a storage deletion.
+        $this->presignedUrlGenerator->expects($this->never())->method('deleteFromStorage');
+        $this->presignedUrlGenerator->expects($this->never())->method('getFileMetadata');
 
         $this->expectException(MediaException::class);
         $this->expectExceptionMessage('not supported');
@@ -367,36 +306,25 @@ class PresignedMediaUploadServiceTest extends TestCase
             fileName: 'malicious',
             extension: 'php',
             mimeType: 'application/x-php',
-            path: 'media/ab/cd/malicious.php',
+            path: 'media/ab/cd/victims-legit-file.jpg',
         );
 
-        $this->service->finalize($mediaId, $payload, $context);
+        $service->finalize($mediaId, $payload, Context::createDefaultContext());
     }
 
     public function testFinalizeWithoutDimensionsStoresOnlyHash(): void
     {
-        $context = Context::createDefaultContext();
         $mediaId = '0189b0a1-0000-0000-0000-000000000005';
         $path = 'media/ab/cd/video.mp4';
 
-        $media = new MediaEntity();
-        $media->setId($mediaId);
-        $media->setUploadedAt(new \DateTime());
-        $media->setPrivate(false);
-        $media->setThumbnails(new \Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection());
+        $media = $this->buildMedia($mediaId);
 
-        $searchResult = new EntitySearchResult(
-            'media',
-            1,
+        [$repo, $service] = $this->createService([
             new MediaCollection([$media]),
-            null,
-            new Criteria(),
-            $context
-        );
-        $this->mediaRepository->method('search')->willReturn($searchResult);
+            new MediaCollection(),
+        ]);
 
-        $this->mediaPathStrategy->method('generate')
-            ->willReturn([$mediaId => $path]);
+        $this->mediaPathStrategy->method('generate')->willReturn([$mediaId => $path]);
 
         $this->presignedUrlGenerator->method('getFileMetadata')
             ->willReturn(new FileMetadataResult(
@@ -406,18 +334,6 @@ class PresignedMediaUploadServiceTest extends TestCase
                 contentType: 'video/mp4',
             ));
 
-        $this->mediaRepository->expects($this->once())
-            ->method('update')
-            ->with(
-                static::callback(function (array $data): bool {
-                    static::assertSame(50_000_000, $data[0]['fileSize']);
-                    static::assertSame(['hash' => 'abc123def456'], $data[0]['metaData']);
-
-                    return true;
-                }),
-                static::anything()
-            );
-
         $payload = new PresignedUploadFinalizePayload(
             fileName: 'video',
             extension: 'mp4',
@@ -425,25 +341,34 @@ class PresignedMediaUploadServiceTest extends TestCase
             path: $path,
         );
 
-        $this->service->finalize($mediaId, $payload, $context);
+        $service->finalize($mediaId, $payload, Context::createDefaultContext());
+
+        static::assertCount(1, $repo->updates);
+        $update = $repo->updates[0][0];
+        static::assertSame(50_000_000, $update['fileSize']);
+        static::assertSame(['hash' => 'abc123def456'], $update['metaData']);
     }
 
     public function testIsSupportedDelegatesToGenerator(): void
     {
+        [, $service] = $this->createService();
+
         $this->presignedUrlGenerator->expects($this->once())
             ->method('isSupported')
             ->willReturn(true);
 
-        static::assertTrue($this->service->isSupported());
+        static::assertTrue($service->isSupported());
     }
 
     public function testIsEnabledDelegatesToGenerator(): void
     {
+        [, $service] = $this->createService();
+
         $this->presignedUrlGenerator->expects($this->once())
             ->method('isEnabled')
             ->willReturn(false);
 
-        static::assertFalse($this->service->isEnabled());
+        static::assertFalse($service->isEnabled());
     }
 
     public function testFinalizeReplaceRemovesOldMediaData(): void
@@ -453,25 +378,12 @@ class PresignedMediaUploadServiceTest extends TestCase
         $oldPath = 'media/ab/cd/old-file.png';
         $newPath = 'media/ef/gh/test-file.jpg';
 
-        $media = new MediaEntity();
-        $media->setId($mediaId);
-        $media->setUploadedAt(new \DateTime());
-        $media->setPrivate(false);
+        $media = $this->buildMedia($mediaId);
         $media->assign(['path' => $oldPath, 'fileName' => 'old-file', 'fileExtension' => 'png']);
-        $media->setThumbnails(new \Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection());
 
-        $searchResult = new EntitySearchResult(
-            'media',
-            1,
-            new MediaCollection([$media]),
-            null,
-            new Criteria(),
-            $context
-        );
-        $this->mediaRepository->method('search')->willReturn($searchResult);
+        [$repo, $service] = $this->createService([new MediaCollection([$media])]);
 
-        $this->mediaPathStrategy->method('generate')
-            ->willReturn([$mediaId => $newPath]);
+        $this->mediaPathStrategy->method('generate')->willReturn([$mediaId => $newPath]);
 
         $this->presignedUrlGenerator->expects($this->once())
             ->method('getFileMetadata')
@@ -491,21 +403,6 @@ class PresignedMediaUploadServiceTest extends TestCase
             ->method('dispatchThumbnailGeneration')
             ->with($mediaId, $context);
 
-        $this->mediaRepository->expects($this->once())
-            ->method('update')
-            ->with(
-                static::callback(function (array $data) use ($mediaId): bool {
-                    static::assertSame($mediaId, $data[0]['id']);
-                    static::assertSame('image/jpeg', $data[0]['mimeType']);
-                    static::assertSame('jpg', $data[0]['fileExtension']);
-                    static::assertSame(5000, $data[0]['fileSize']);
-                    static::assertSame('replace-hash-123', $data[0]['metaData']['hash']);
-
-                    return true;
-                }),
-                static::anything()
-            );
-
         $payload = new PresignedUploadFinalizePayload(
             fileName: 'test-file',
             extension: 'jpg',
@@ -515,7 +412,15 @@ class PresignedMediaUploadServiceTest extends TestCase
             height: 600,
         );
 
-        $this->service->finalize($mediaId, $payload, $context);
+        $service->finalize($mediaId, $payload, $context);
+
+        static::assertCount(1, $repo->updates);
+        $update = $repo->updates[0][0];
+        static::assertSame($mediaId, $update['id']);
+        static::assertSame('image/jpeg', $update['mimeType']);
+        static::assertSame('jpg', $update['fileExtension']);
+        static::assertSame(5000, $update['fileSize']);
+        static::assertSame('replace-hash-123', $update['metaData']['hash']);
     }
 
     public function testFinalizeReplaceSamePathDeletesThumbnails(): void
@@ -524,25 +429,12 @@ class PresignedMediaUploadServiceTest extends TestCase
         $mediaId = '0189b0a1-0000-0000-0000-000000000011';
         $path = 'media/ab/cd/same-file.jpg';
 
-        $media = new MediaEntity();
-        $media->setId($mediaId);
-        $media->setUploadedAt(new \DateTime());
-        $media->setPrivate(false);
+        $media = $this->buildMedia($mediaId);
         $media->assign(['path' => $path, 'fileName' => 'same-file', 'fileExtension' => 'jpg']);
-        $media->setThumbnails(new \Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection());
 
-        $searchResult = new EntitySearchResult(
-            'media',
-            1,
-            new MediaCollection([$media]),
-            null,
-            new Criteria(),
-            $context
-        );
-        $this->mediaRepository->method('search')->willReturn($searchResult);
+        [, $service] = $this->createService([new MediaCollection([$media])]);
 
-        $this->mediaPathStrategy->method('generate')
-            ->willReturn([$mediaId => $path]);
+        $this->mediaPathStrategy->method('generate')->willReturn([$mediaId => $path]);
 
         $this->presignedUrlGenerator->method('getFileMetadata')
             ->willReturn(new FileMetadataResult(
@@ -552,9 +444,7 @@ class PresignedMediaUploadServiceTest extends TestCase
                 contentType: 'image/jpeg',
             ));
 
-        $this->mediaFileCleanup->expects($this->never())
-            ->method('removeOldMediaData');
-
+        $this->mediaFileCleanup->expects($this->never())->method('removeOldMediaData');
         $this->mediaFileCleanup->expects($this->once())
             ->method('deleteThumbnails')
             ->with($media, $context);
@@ -568,6 +458,17 @@ class PresignedMediaUploadServiceTest extends TestCase
             height: 480,
         );
 
-        $this->service->finalize($mediaId, $payload, $context);
+        $service->finalize($mediaId, $payload, $context);
+    }
+
+    private function buildMedia(string $mediaId): MediaEntity
+    {
+        $media = new MediaEntity();
+        $media->setId($mediaId);
+        $media->setUploadedAt(new \DateTime());
+        $media->setPrivate(false);
+        $media->setThumbnails(new MediaThumbnailCollection());
+
+        return $media;
     }
 }

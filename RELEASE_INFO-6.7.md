@@ -92,6 +92,9 @@ The Administration sidebar off-canvas now closes reliably on very small viewport
 Switch and checkbox fields in theme configuration now render and handle inheritance consistently. Before they wouldn't have shown the inheritance switch.
 Also the checkbox field is now positionally aligned with the other components.
 
+### Resolving download errors by renaming media
+When merchants rename a media file, its URL automatically updates so they can download it without issues.
+
 ## Storefront
 
 ## App System

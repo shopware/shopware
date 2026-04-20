@@ -36,6 +36,10 @@ A new `position` column was added to the `salutation` entity so merchants can co
 This replaces the previous alphabetical sorting. Default salutations (`not_specified`, `mrs`, `mr`) are migrated automatically to positions `1`, `2`, and `3`.
 Custom salutations keep the default value of `100` - review them in Administration → Settings → Shop → Salutations after upgrading and assign explicit positions, otherwise they will appear grouped together at the end.
 
+### Deprecated non-used `MAIL_TEMPLATE_SALES_CHANNEL_*_EVENT` constants
+
+Deprecated the constants `Shopware\Core\Content\MailTemplate\MAIL_TEMPLATE_SALES_CHANNEL_{WRITTEN,DELETED,LOADED,SEARCH_RESULT_LOADED,AGGREGATION_LOADED,ID_SEARCH_RESULT_LOADED}_EVENT` as the entity has been removed with Shopware 6.5 and the events were not fired anymore.
+
 ## Administration
 
 ### Re-render iframe integrations when location changes

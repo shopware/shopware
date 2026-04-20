@@ -412,7 +412,7 @@ class CachedEscaperRuntimeTest extends TestCase
     }
 
     /**
-     * @return \Generator<string, array{input: int|string|null, expected: string}>
+     * @return \Generator<string, array{input: int|float|string|null, expected: string}>
      */
     public static function EscapeDataProvider(): \Generator
     {
@@ -424,6 +424,11 @@ class CachedEscaperRuntimeTest extends TestCase
         yield 'integer input' => [
             'input' => 123,
             'expected' => '123',
+        ];
+
+        yield 'float input' => [
+            'input' => 123.4,
+            'expected' => '123.4',
         ];
 
         yield 'string input' => [
@@ -438,7 +443,7 @@ class CachedEscaperRuntimeTest extends TestCase
     }
 
     #[DataProvider('EscapeDataProvider')]
-    public function testEscapeWithVariousInputs(int|string|null $input, string $expected): void
+    public function testEscapeWithVariousInputs(int|float|string|null $input, string $expected): void
     {
         $result = $this->escaper->escape($input, 'html', 'UTF-8');
 

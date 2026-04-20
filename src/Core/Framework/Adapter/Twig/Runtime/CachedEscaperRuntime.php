@@ -32,6 +32,8 @@ class CachedEscaperRuntime implements RuntimeExtensionInterface
 
     /**
      * Mimic the public API of {@see EscaperRuntime} as it is final and cannot be extended
+     *
+     * @codeCoverageIgnore
      */
     public function setEscaper(string $strategy, callable $callable): void
     {
@@ -40,6 +42,8 @@ class CachedEscaperRuntime implements RuntimeExtensionInterface
 
     /**
      * Mimic the public API of {@see EscaperRuntime} as it is final and cannot be extended
+     *
+     * @codeCoverageIgnore
      *
      * @return array<string, callable(string $string, string $charset): string>
      */
@@ -51,6 +55,8 @@ class CachedEscaperRuntime implements RuntimeExtensionInterface
     /**
      * Mimic the public API of {@see EscaperRuntime} as it is final and cannot be extended
      *
+     * @codeCoverageIgnore
+     *
      * @param array<class-string<\Stringable>, string[]> $safeClasses
      */
     public function setSafeClasses(array $safeClasses = []): void
@@ -60,6 +66,8 @@ class CachedEscaperRuntime implements RuntimeExtensionInterface
 
     /**
      * Mimic the public API of {@see EscaperRuntime} as it is final and cannot be extended
+     *
+     * @codeCoverageIgnore
      *
      * @param class-string<\Stringable> $class
      * @param list<string> $strategies

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig\Runtime;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\Runtime\CachedEscaperRuntime;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -176,6 +177,7 @@ class CachedEscaperRuntimeTest extends TestCase
         $this->escaper = new CachedEscaperRuntime(new EscaperRuntime());
     }
 
+    #[TestDox('Ensures that the decoration stays in sync with upstream')]
     public function testAllPublicMethodsAreMimicked(): void
     {
         $originalMethods = (new \ReflectionClass(EscaperRuntime::class))->getMethods(\ReflectionMethod::IS_PUBLIC);

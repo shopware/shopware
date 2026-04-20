@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Adapter\Twig;
+namespace Shopware\Core\Framework\Adapter\Twig\Runtime;
 
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\Service\ResetInterface;
@@ -16,10 +16,10 @@ use Symfony\Contracts\Service\ResetInterface;
  * causing memory leaks.
  */
 #[Package('framework')]
-class SwTwigFunctionResetter implements ResetInterface
+class CachedEscaperRuntimeResetter implements ResetInterface
 {
     public function reset(): void
     {
-        SwTwigFunction::resetEscapeCache();
+        CachedEscaperRuntime::resetEscapeCache();
     }
 }

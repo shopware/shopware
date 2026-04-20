@@ -2,11 +2,12 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig;
 
+use Shopware\Core\Framework\Adapter\Twig\Runtime\CachedEscaperRuntime;
 use Shopware\Core\Framework\Log\Package;
-use Twig\Compiler;
 use Twig\Environment;
 use Twig\Loader\LoaderInterface;
 use Twig\Node\Node;
+use Twig\Runtime\EscaperRuntime;
 
 /**
  * @internal
@@ -14,7 +15,7 @@ use Twig\Node\Node;
 #[Package('framework')]
 class TwigEnvironment extends Environment
 {
-    private ?Compiler $compiler = null;
+    private ?CachedEscaperRuntime $escaperRuntime = null;
 
     /**
      * @param array<string, mixed> $options
@@ -27,20 +28,31 @@ class TwigEnvironment extends Environment
         parent::__construct($loader, $options);
     }
 
+    public function getRuntime(string $class)
+    {
+        if ($class === EscaperRuntime::class) {
+            if ($this->escaperRuntime !== null) {
+                /** @phpstan-ignore return.type (There is no other way to decorate the EscaperRuntime) */
+                return $this->escaperRuntime;
+            }
+            $this->escaperRuntime = new CachedEscaperRuntime(new EscaperRuntime($this->getCharset()));
+
+            /** @phpstan-ignore return.type (There is no other way to decorate the EscaperRuntime) */
+            return $this->escaperRuntime;
+        }
+
+        return parent::getRuntime($class);
+    }
+
     /**
      * Overrides Twig internals with SW custom wrappers {@see SwTwigFunction}
      */
     public function compile(Node $node): string
     {
-        if ($this->compiler === null) {
-            $this->compiler = new Compiler($this);
-        }
-
-        $source = $this->compiler->compile($node)->getSource();
+        $source = parent::compile($node);
 
         $replaces = [
             'CoreExtension::getAttribute(' => '\Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::getAttribute(',
-            '$this->env->getRuntime(\'Twig\\Runtime\\EscaperRuntime\')->escape(' => '\Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::escapeFilter($this->env->getRuntime(\'Twig\\Runtime\\EscaperRuntime\'), ',
         ];
 
         return str_replace(array_keys($replaces), array_values($replaces), $source);

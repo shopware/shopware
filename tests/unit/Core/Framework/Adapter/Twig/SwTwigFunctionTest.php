@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Adapter\Twig\SwTwigFunction;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Struct;
 use Twig\Environment;
-use Twig\Runtime\EscaperRuntime;
 use Twig\Source;
 
 /**
@@ -24,12 +23,6 @@ class SwTwigFunctionTest extends TestCase
     protected function setUp(): void
     {
         $this->environment = $this->createMock(Environment::class);
-    }
-
-    protected function tearDown(): void
-    {
-        // Clean up static cache after each test to avoid test pollution
-        SwTwigFunction::resetEscapeCache();
     }
 
     /**
@@ -101,72 +94,6 @@ class SwTwigFunctionTest extends TestCase
         );
 
         static::assertSame($expected, $result);
-    }
-
-    /**
-     * @return \Generator<string, array{input: int|string|null, expected: string}>
-     */
-    public static function escapeFilterDataProvider(): \Generator
-    {
-        yield 'null input' => [
-            'input' => null,
-            'expected' => '',
-        ];
-
-        yield 'integer input' => [
-            'input' => 123,
-            'expected' => '123',
-        ];
-
-        yield 'string input' => [
-            'input' => 'test',
-            'expected' => 'test',
-        ];
-
-        yield 'escaped string input' => [
-            'input' => '<script>alert("test")</script>',
-            'expected' => '&lt;script&gt;alert(&quot;test&quot;)&lt;/script&gt;',
-        ];
-    }
-
-    #[DataProvider('escapeFilterDataProvider')]
-    public function testEscapeFilterWithVariousInputs(int|string|null $input, string $expected): void
-    {
-        $result = SwTwigFunction::escapeFilter(new EscaperRuntime(), $input, 'html', 'UTF-8');
-
-        static::assertSame($expected, $result);
-    }
-
-    public function testEscapeFilterWithCache(): void
-    {
-        $escaper = new EscaperRuntime();
-
-        // First call to cache the result
-        $string = 'cached_string';
-        $result1 = SwTwigFunction::escapeFilter($escaper, $string, 'html', 'UTF-8');
-
-        // Make sure result is cached
-        $cache = (new \ReflectionProperty(new SwTwigFunction(), 'escapeCache'))->getValue();
-        static::assertCount(1, $cache);
-        static::assertArrayHasKey($string, $cache);
-
-        // Second call to get the cached result
-        $result2 = SwTwigFunction::escapeFilter($escaper, $string, 'html', 'UTF-8');
-
-        // Assert that the results are the same, indicating the cache was used
-        static::assertSame($result1, $result2);
-    }
-
-    public function testEscapeFilterDoesNotCacheNonStringInputs(): void
-    {
-        $escaper = new EscaperRuntime();
-
-        // Use a boolean since $string is mixed, and a non-string input should not be cached
-        $result1 = SwTwigFunction::escapeFilter($escaper, true, 'html', 'UTF-8');
-        $result2 = SwTwigFunction::escapeFilter($escaper, true, 'html', 'UTF-8');
-
-        // Results are the same with same input, but cache was not involved - guaranteed by earlier expectations
-        static::assertSame($result1, $result2);
     }
 
     public function testGetAttributePropagatesThrowable(): void

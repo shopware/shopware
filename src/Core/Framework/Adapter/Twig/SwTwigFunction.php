@@ -6,12 +6,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Twig\Environment;
-use Twig\Error\RuntimeError;
 use Twig\Extension\CoreExtension;
-use Twig\Markup;
-use Twig\Runtime\EscaperRuntime;
 use Twig\Source;
 use Twig\Template;
 
@@ -26,14 +22,6 @@ class SwTwigFunction
      * Used in {@see MacroOverrideNode::compile()}
      */
     public static mixed $macroResult = null;
-
-    /**
-     * Cache for escaped strings to avoid repeated escaping of the same content.
-     * Reset between requests via {@see SwTwigFunctionResetter} for long runner compatibility.
-     *
-     * @var array<string, array<string, string|Markup>>
-     */
-    private static array $escapeCache = [];
 
     /**
      * Wrapper around {@see CoreExtension::getAttribute()}
@@ -85,65 +73,5 @@ class SwTwigFunction
         } finally {
             FieldVisibility::$isInTwigRenderingContext = false;
         }
-    }
-
-    /**
-     * Wrapper around {@see EscaperRuntime::escape}
-     * Caches the escaped value to increase the performance
-     */
-    public static function escapeFilter(
-        EscaperRuntime $escaperRuntime,
-        mixed $string,
-        string $strategy = 'html',
-        ?string $charset = null,
-        bool $autoescape = false,
-    ): string|Markup {
-        if ($string === null) {
-            $string = '';
-        }
-
-        if (\is_scalar($string)) {
-            $string = (string) $string;
-        }
-
-        $isString = \is_string($string);
-
-        if ($isString) {
-            if (isset(self::$escapeCache[$string][$strategy])) {
-                return self::$escapeCache[$string][$strategy];
-            }
-
-            if (Uuid::isValid($string)) {
-                self::$escapeCache[$string][$strategy] = $string;
-
-                return $string;
-            }
-        }
-
-        try {
-            $result = $escaperRuntime->escape($string, $strategy, $charset, $autoescape);
-        } catch (RuntimeError) {
-            return $string;
-        }
-
-        if (!$isString) {
-            return $result;
-        }
-
-        self::$escapeCache[$string][$strategy] = $result;
-
-        return $result;
-    }
-
-    /**
-     * Resets the escape filter cache.
-     *
-     * This method is called by {@see SwTwigFunctionResetter} between requests
-     * in long runner environments (RoadRunner, FrankenPHP, Swoole) to prevent
-     * memory leaks from unbounded cache growth.
-     */
-    public static function resetEscapeCache(): void
-    {
-        self::$escapeCache = [];
     }
 }

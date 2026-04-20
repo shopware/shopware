@@ -18,7 +18,7 @@
     <div class="sw-desktop__content">
         {% block sw_desktop_content_view %}
         <sw-error-boundary>
-            <router-view />
+            <router-view :key="$route.params.id" />
         </sw-error-boundary>
         {% endblock %}
     </div>

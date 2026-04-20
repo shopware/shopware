@@ -119,3 +119,7 @@
 |`shopware.updated` | Fires after an shopware update has been finished | - | 
 |`app.config.changed` | Fires when a system config value is changed | `system_config:read` | 
 |`app.system_heartbeat` | Fires as a recurrent task. Indicates to the app that the system is up and running. | - | 
+|`consent.backend_data.accepted` | Fires when the backend_data consent is accepted. | `consent:backend_data:read` | 
+|`consent.backend_data.revoked` | Fires when the backend_data consent is revoked. | `consent:backend_data:read` | 
+|`consent.product_analytics.accepted` | Fires when the product_analytics consent is accepted. | `consent:product_analytics:read` | 
+|`consent.product_analytics.revoked` | Fires when the product_analytics consent is revoked. | `consent:product_analytics:read` | 

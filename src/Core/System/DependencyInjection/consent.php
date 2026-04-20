@@ -2,9 +2,11 @@
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\System\Consent\Api\ConsentController;
+use Shopware\Core\System\Consent\ConsentDefinitionRegistry;
 use Shopware\Core\System\Consent\ConsentRepository;
 use Shopware\Core\System\Consent\ConsentScope;
 use Shopware\Core\System\Consent\Definition;
+use Shopware\Core\System\Consent\Event\ConsentHookableEventDescriber;
 use Shopware\Core\System\Consent\Log\ConsentChangedSubscriber;
 use Shopware\Core\System\Consent\Log\ConsentLogInterface;
 use Shopware\Core\System\Consent\Log\DatabaseLog;
@@ -30,10 +32,15 @@ return static function (ContainerConfigurator $container): void {
             new Reference(Connection::class),
         ]);
 
+    $services->set(ConsentDefinitionRegistry::class)
+        ->args([
+            new TaggedIteratorArgument('shopware.consent.definition'),
+        ]);
+
     $services->set(ConsentService::class)
         ->args([
             new TaggedIteratorArgument('shopware.consent.scope'),
-            new TaggedIteratorArgument('shopware.consent.definition'),
+            new Reference(ConsentDefinitionRegistry::class),
             new Reference(ConsentRepository::class),
             new Reference('event_dispatcher'),
         ])
@@ -68,4 +75,10 @@ return static function (ContainerConfigurator $container): void {
         ->args([
             new Reference(Connection::class),
         ]);
+
+    $services->set(ConsentHookableEventDescriber::class)
+        ->args([
+            new Reference(ConsentDefinitionRegistry::class),
+        ])
+        ->tag('shopware.hookable_event.describer');
 };

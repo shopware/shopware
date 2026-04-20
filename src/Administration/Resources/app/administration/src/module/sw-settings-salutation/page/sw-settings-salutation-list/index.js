@@ -25,7 +25,7 @@ export default {
             isLoading: false,
             limit: 10,
             salutations: null,
-            sortBy: 'salutationKey',
+            sortBy: 'position',
             sortDirection: 'ASC',
         };
     },
@@ -67,7 +67,7 @@ export default {
             this.isLoading = true;
             const criteria = new Criteria(this.page, this.limit);
             criteria.setTerm(this.term);
-            criteria.addSorting(Criteria.sort('salutationKey', 'ASC', false));
+            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
 
             this.salutationRepository.search(criteria).then((searchResult) => {
                 this.total = searchResult.total;
@@ -78,6 +78,11 @@ export default {
 
         getColumns() {
             return [
+                {
+                    property: 'position',
+                    label: 'sw-settings-salutation.list.columnPosition',
+                    inlineEdit: 'number',
+                },
                 {
                     property: 'salutationKey',
                     label: 'sw-settings-salutation.list.columnSalutationKey',

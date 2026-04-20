@@ -36,7 +36,7 @@
     "follow-redirects": "1.16.0",
     "minimatch": "10.2.4",
     "brace-expansion": "5.0.5",
-    "basic-ftp": "5.2.2",
+    "basic-ftp": "^5.3.0",
     "flatted": "3.4.2",
     "defu": "6.1.5",
     "lodash": "4.18.1",

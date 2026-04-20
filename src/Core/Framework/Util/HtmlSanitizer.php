@@ -8,6 +8,16 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\Unit\Core\Framework\Util\HtmlSanitizerTest;
 use Symfony\Contracts\Service\ResetInterface;
 
+/**
+ * @phpstan-type SetsArray array<string, array{
+ *     name?: string,
+ *     tags?: list<string>,
+ *     attributes?: list<string>,
+ *     options?: array<string, array{value?: mixed, values?: list<mixed>}>,
+ *     custom_attributes?: list<array{tags: list<string>, attributes: list<string>}>,
+ *     custom_tags?: list<array{tag: string, type: string, contents: string, attr_collections: list<string>, attributes: list<string>}>
+ * }>
+ */
 #[Package('framework')]
 class HtmlSanitizer implements ResetInterface
 {
@@ -21,7 +31,7 @@ class HtmlSanitizer implements ResetInterface
     /**
      * @internal
      *
-     * @param array<string, array{name?: string, tags?: list<string>, attributes?: list<string>, options?: array<string, mixed>, custom_attributes?: array<string, array<string, list<string>>>}> $sets
+     * @param SetsArray $sets
      * @param array<string, array{sets?: list<string>|null}> $fieldSets
      */
     public function __construct(
@@ -99,6 +109,7 @@ class HtmlSanitizer implements ResetInterface
         $allowedElements = [];
         $allowedAttributes = [];
         $customAttributes = [];
+        $customTags = [];
 
         foreach ($options as $element => $attributes) {
             if ($element !== '*') {
@@ -106,7 +117,7 @@ class HtmlSanitizer implements ResetInterface
             }
 
             foreach ($attributes as $attr) {
-                $allowedAttributes[] = $element === '*' ? $attr : "{$element}.{$attr}";
+                $allowedAttributes[] = $element === '*' ? $attr : \sprintf('%s.%s', $element, $attr);
             }
         }
 
@@ -116,6 +127,16 @@ class HtmlSanitizer implements ResetInterface
             foreach ($sets as $set) {
                 if (isset($this->sets[$set]['tags'])) {
                     $allowedElements = array_merge($allowedElements, $this->sets[$set]['tags']);
+                }
+                if (isset($this->sets[$set]['custom_tags'])) {
+                    $allowedTags = array_map(static fn ($customElement) => $customElement['tag'], $this->sets[$set]['custom_tags']);
+                    $allowedElements = array_merge($allowedElements, $allowedTags);
+                    foreach ($this->sets[$set]['custom_tags'] as $customTag) {
+                        $allowedAttributes = array_merge($allowedAttributes, $customTag['attributes']);
+
+                        $customAttributes[$customTag['tag']] = array_values($customTag['attributes']);
+                    }
+                    $customTags = array_merge($customTags, $this->sets[$set]['custom_tags']);
                 }
                 if (isset($this->sets[$set]['attributes'])) {
                     $allowedAttributes = array_merge($allowedAttributes, $this->sets[$set]['attributes']);
@@ -144,11 +165,28 @@ class HtmlSanitizer implements ResetInterface
 
         $definition = $config->getHTMLDefinition(true);
 
-        if ($definition === null) {
+        if (!$definition instanceof \HTMLPurifier_HTMLDefinition) {
             return $config;
         }
 
         $this->addHTML5Tags($definition);
+
+        $manager = $definition->manager;
+        if (!$manager instanceof \HTMLPurifier_HTMLModuleManager) {
+            return $config;
+        }
+
+        foreach ($customTags as $customTag) {
+            if ($manager->getElement($customTag['tag']) === false) {
+                $definition->addElement(
+                    $customTag['tag'],
+                    $customTag['type'],
+                    $customTag['contents'],
+                    $customTag['attr_collections'],
+                    $customTag['attributes'],
+                );
+            }
+        }
 
         foreach ($customAttributes as $tag => $attributes) {
             foreach ($attributes as $attribute) {
@@ -159,7 +197,7 @@ class HtmlSanitizer implements ResetInterface
         return $config;
     }
 
-    private function addHTML5Tags(\HTMLPurifier_HTMLDefinition $definition): \HTMLPurifier_HTMLDefinition
+    private function addHTML5Tags(\HTMLPurifier_HTMLDefinition $definition): void
     {
         $definition->addElement('section', 'Block', 'Flow', 'Common');
         $definition->addElement('nav', 'Block', 'Flow', 'Common');
@@ -305,7 +343,5 @@ class HtmlSanitizer implements ResetInterface
                 'width' => 'Length',
             ]
         );
-
-        return $definition;
     }
 }

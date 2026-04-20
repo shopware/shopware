@@ -81,3 +81,8 @@ shopware:
         major: true
         toggleable: true
         description: "Replace inline microdata (itemscope/itemprop) with JSON-LD structured data in the Storefront. When enabled, legacy microdata attributes are removed and a <script type=\"application/ld+json\"> block is injected into the <head> instead."
+      - name: BREADCRUMB_REWORK
+        default: false
+        major: true
+        toggleable: true
+        description: "Experimental! Enables the new breadcrumb loading and adds the possibility to build the product breadcrumb using the referrer category."

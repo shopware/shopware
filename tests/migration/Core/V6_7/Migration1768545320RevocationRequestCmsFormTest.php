@@ -5,6 +5,7 @@ namespace Shopware\Tests\Migration\Core\V6_7;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -26,23 +27,7 @@ class Migration1768545320RevocationRequestCmsFormTest extends TestCase
 
     public function testUpdate(): void
     {
-        $cmsPageByteId = $this->getCmsPageId();
-        $cmsSectionByteId = $this->getCmsSectionId($cmsPageByteId);
-        $cmsBlockByteId = $this->getCmsBlockId();
-
-        if ($cmsPageByteId !== null) {
-            $this->connection->delete('cms_page', ['id' => $cmsPageByteId]);
-            $this->connection->delete('cms_section', ['cms_page_id' => $cmsPageByteId]);
-        }
-
-        if ($cmsSectionByteId !== null) {
-            $this->connection->delete('cms_block', ['cms_section_id' => $cmsSectionByteId]);
-        }
-
-        if ($cmsBlockByteId !== null) {
-            $this->connection->delete('cms_block', ['id' => $cmsBlockByteId]);
-            $this->connection->delete('cms_slot', ['cms_block_id' => $cmsPageByteId]);
-        }
+        $this->deletePageSectionBlockAndSlot();
 
         $migration = new Migration1768545320RevocationRequestCmsForm();
         $migration->update($this->connection);
@@ -83,6 +68,48 @@ class Migration1768545320RevocationRequestCmsFormTest extends TestCase
         static::assertArrayHasKey('translations', $cmsSlotResult);
         static::assertIsArray($cmsSlotResult['translations']);
         static::assertCount(2, $cmsSlotResult['translations']);
+    }
+
+    public function testUpdateSkipsDuplicateTranslationsWhenGermanUsesSystemLanguage(): void
+    {
+        $this->connection->beginTransaction();
+
+        try {
+            $this->deletePageSectionBlockAndSlot();
+
+            $systemLocaleByteId = $this->getLocaleIdByLanguageId(Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM));
+
+            $enLocaleByteId = $this->getLocaleIdByCode('en-GB');
+            $deLocaleByteId = $this->getLocaleIdByCode('de-DE');
+
+            static::assertIsString($enLocaleByteId);
+            static::assertIsString($deLocaleByteId);
+
+            // ensure en-GB locale is not there
+            $this->updateLocaleCode($enLocaleByteId, 'old-en-GB');
+
+            if ($systemLocaleByteId !== $deLocaleByteId) {
+                // ensure de-DE locale is not there
+                $this->updateLocaleCode($deLocaleByteId, 'old-de-DE');
+                // ensure system locale is de-DE
+                $this->updateLocaleCode($systemLocaleByteId, 'de-DE');
+            }
+
+            $migration = new Migration1768545320RevocationRequestCmsForm();
+            $migration->update($this->connection);
+            $migration->update($this->connection);
+
+            $cmsPageResult = $this->getCmsPage();
+            static::assertCount(1, $cmsPageResult['translations']);
+
+            $cmsSectionResult = $this->getCmsSection($cmsPageResult['id']);
+            $cmsBlockResult = $this->getCmsBlock($cmsSectionResult['id']);
+            $cmsSlotResult = $this->getCmsSlot($cmsBlockResult['id']);
+
+            static::assertCount(1, $cmsSlotResult['translations']);
+        } finally {
+            $this->connection->rollBack();
+        }
     }
 
     /**
@@ -213,5 +240,61 @@ SQL;
         }
 
         return $cmsBlockByteId;
+    }
+
+    private function getLocaleIdByLanguageId(string $languageByteId): string
+    {
+        $localeByteId = $this->connection->fetchOne(
+            'SELECT `locale_id` FROM `language` WHERE `id` = :languageId',
+            ['languageId' => $languageByteId]
+        );
+
+        static::assertIsString($localeByteId);
+
+        return $localeByteId;
+    }
+
+    private function getLocaleIdByCode(string $localeCode): ?string
+    {
+        $localeByteId = $this->connection->fetchOne(
+            'SELECT `id` FROM `locale` WHERE `code` = :code',
+            ['code' => $localeCode]
+        );
+
+        if (!\is_string($localeByteId)) {
+            return null;
+        }
+
+        return $localeByteId;
+    }
+
+    private function updateLocaleCode(string $localeByteId, string $localeCode): void
+    {
+        $this->connection->update(
+            'locale',
+            ['code' => $localeCode],
+            ['id' => $localeByteId]
+        );
+    }
+
+    private function deletePageSectionBlockAndSlot(): void
+    {
+        $cmsPageByteId = $this->getCmsPageId();
+        $cmsSectionByteId = $this->getCmsSectionId($cmsPageByteId);
+        $cmsBlockByteId = $this->getCmsBlockId();
+
+        if ($cmsPageByteId !== null) {
+            $this->connection->delete('cms_page', ['id' => $cmsPageByteId]);
+            $this->connection->delete('cms_section', ['cms_page_id' => $cmsPageByteId]);
+        }
+
+        if ($cmsSectionByteId !== null) {
+            $this->connection->delete('cms_block', ['cms_section_id' => $cmsSectionByteId]);
+        }
+
+        if ($cmsBlockByteId !== null) {
+            $this->connection->delete('cms_block', ['id' => $cmsBlockByteId]);
+            $this->connection->delete('cms_slot', ['cms_block_id' => $cmsPageByteId]);
+        }
     }
 }

@@ -186,6 +186,7 @@ valid-filters = [
     "strval",
     "boolval",
     "md5",
+    "sha256",
 ]
 
 # Valid twig tests that are allowed to be used with the `is` operator.

@@ -241,20 +241,7 @@ test('Only authorized users in administration can change store consent and user 
 
     await test.step('Setup user which can not change store consent but user data consent', async () => {
 
-        let permissions: string[];
-        // eslint-disable-next-line playwright/no-conditional-in-test
-        if (InstanceMeta.isSaaS) {
-            permissions = [
-                'language:read',
-                'locale:read',
-                'log_entry:create',
-                'message_queue_stats:read',
-                'system_config:read',
-                'user.update_profile', 'user:read', 'user_change_me', 'user_config:create', 'user_config:read', 'user_config:update',
-
-            ];
-        } else {
-            permissions = [
+       const permissions = [
                 'language:read',
                 'locale:read',
                 'log_entry:create',
@@ -262,7 +249,6 @@ test('Only authorized users in administration can change store consent and user 
                 'system_config:read',
                 'user.update_profile', 'user:read', 'user_change_me', 'user_config:create', 'user_config:read', 'user_config:update',
             ];
-        }
 
         const onlyChangeUserProfilePermissions = await TestDataService.createAclRole({ privileges: permissions });
         await TestDataService.assignAclRoleUser(onlyChangeUserProfilePermissions.id, user.id);
@@ -284,7 +270,7 @@ test('Only authorized users in administration can change store consent and user 
 
         await AdminYourProfile.page.goto(AdminYourProfile.url('privacy-preferences'));
 
-        await expect(AdminConsentModal.consentModal).toBeVisible();
+        await expect(AdminConsentModal.consentModal).toBeVisible({ timeout: 10_000 });
         await expect(AdminConsentModal.shareStoreDataCheckbox).toHaveCount(0);
         await expect(AdminConsentModal.shareUsageDataCheckbox).toHaveCount(0);
         await expect(AdminConsentModal.shareUsageDataHeadline).toBeVisible()

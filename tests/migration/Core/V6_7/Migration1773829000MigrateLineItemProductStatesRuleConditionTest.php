@@ -58,14 +58,41 @@ class Migration1773829000MigrateLineItemProductStatesRuleConditionTest extends T
 
     public function testUpdateIsNoOp(): void
     {
+        $createdAt = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+
+        $this->connection->insert('rule', [
+            'id' => $this->ruleId,
+            'name' => 'legacy product states rule',
+            'priority' => 1,
+            'payload' => null,
+            'invalid' => 0,
+            'module_types' => null,
+            'custom_fields' => null,
+            'created_at' => $createdAt,
+            'updated_at' => null,
+        ]);
+
+        $this->connection->insert('rule_condition', [
+            'id' => $this->digitalConditionId,
+            'rule_id' => $this->ruleId,
+            'parent_id' => null,
+            'type' => 'cartLineItemProductStates',
+            'value' => json_encode(['operator' => '=', 'productState' => 'is-download'], \JSON_THROW_ON_ERROR),
+            'position' => 1,
+            'custom_fields' => null,
+            'created_at' => $createdAt,
+            'updated_at' => null,
+        ]);
+
         $migration = new Migration1773829000MigrateLineItemProductStatesRuleCondition();
         $migration->update($this->connection);
 
         // update() must not convert conditions, conversion was moved to updateDestructive()
         static::assertSame(
-            '0',
-            (string) $this->connection->fetchOne(
-                'SELECT COUNT(*) FROM `rule_condition` WHERE `type` = \'cartLineItemProductType\''
+            'cartLineItemProductStates',
+            $this->connection->fetchOne(
+                'SELECT `type` FROM `rule_condition` WHERE `id` = :id',
+                ['id' => $this->digitalConditionId]
             )
         );
     }

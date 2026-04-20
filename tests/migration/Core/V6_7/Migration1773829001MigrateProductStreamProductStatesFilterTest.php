@@ -58,14 +58,40 @@ class Migration1773829001MigrateProductStreamProductStatesFilterTest extends Tes
 
     public function testUpdateIsNoOp(): void
     {
+        $createdAt = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+
+        $this->connection->insert('product_stream', [
+            'id' => $this->streamId,
+            'api_filter' => null,
+            'invalid' => 0,
+            'created_at' => $createdAt,
+            'updated_at' => null,
+        ]);
+
+        $this->connection->insert('product_stream_filter', [
+            'id' => $this->simpleFilterId,
+            'product_stream_id' => $this->streamId,
+            'parent_id' => null,
+            'type' => 'equalsAny',
+            'field' => 'states',
+            'operator' => null,
+            'value' => 'is-download',
+            'parameters' => null,
+            'position' => 1,
+            'custom_fields' => null,
+            'created_at' => $createdAt,
+            'updated_at' => null,
+        ]);
+
         $migration = new Migration1773829001MigrateProductStreamProductStatesFilter();
         $migration->update($this->connection);
 
         // update() must not convert filters, conversion was moved to updateDestructive()
         static::assertSame(
-            '0',
-            (string) $this->connection->fetchOne(
-                'SELECT COUNT(*) FROM `product_stream_filter` WHERE `field` IN (\'type\', \'product.type\')'
+            'states',
+            $this->connection->fetchOne(
+                'SELECT `field` FROM `product_stream_filter` WHERE `id` = :id',
+                ['id' => $this->simpleFilterId]
             )
         );
     }

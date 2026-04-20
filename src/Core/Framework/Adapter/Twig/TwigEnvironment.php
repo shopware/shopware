@@ -45,16 +45,12 @@ class TwigEnvironment extends Environment
     }
 
     /**
-     * Overrides Twig internals with SW custom wrappers {@see SwTwigFunction}
+     * Overrides Twig CoreExtension with SW custom wrapper {@see SwTwigFunction}
      */
     public function compile(Node $node): string
     {
         $source = parent::compile($node);
 
-        $replaces = [
-            'CoreExtension::getAttribute(' => '\Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::getAttribute(',
-        ];
-
-        return str_replace(array_keys($replaces), array_values($replaces), $source);
+        return str_replace('CoreExtension::getAttribute(', '\Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::getAttribute(', $source);
     }
 }

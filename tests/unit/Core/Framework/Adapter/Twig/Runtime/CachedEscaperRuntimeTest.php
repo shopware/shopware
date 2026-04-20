@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\Runtime\CachedEscaperRuntime;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Twig\Error\RuntimeError;
 use Twig\Runtime\EscaperRuntime;
 
@@ -173,6 +174,24 @@ class CachedEscaperRuntimeTest extends TestCase
     protected function setUp(): void
     {
         $this->escaper = new CachedEscaperRuntime(new EscaperRuntime());
+    }
+
+    public function testAllPublicMethodsAreMimicked(): void
+    {
+        $originalMethods = (new \ReflectionClass(EscaperRuntime::class))->getMethods(\ReflectionMethod::IS_PUBLIC);
+        $originalMethodNames = [];
+        foreach ($originalMethods as $method) {
+            $originalMethodNames[] = $method->getName();
+        }
+
+        $cachedMethods = (new \ReflectionClass(CachedEscaperRuntime::class))->getMethods(\ReflectionMethod::IS_PUBLIC);
+        $cachedMethodNames = [];
+        foreach ($cachedMethods as $method) {
+            $cachedMethodNames[] = $method->getName();
+        }
+
+        // Will fail, if methods are added upstream
+        static::assertSame([], array_diff($originalMethodNames, $cachedMethodNames));
     }
 
     public function testHtmlEscapingConvertsSpecialChars(): void
@@ -393,7 +412,7 @@ class CachedEscaperRuntimeTest extends TestCase
     /**
      * @return \Generator<string, array{input: int|string|null, expected: string}>
      */
-    public static function escapeFilterDataProvider(): \Generator
+    public static function EscapeDataProvider(): \Generator
     {
         yield 'null input' => [
             'input' => null,
@@ -416,15 +435,15 @@ class CachedEscaperRuntimeTest extends TestCase
         ];
     }
 
-    #[DataProvider('escapeFilterDataProvider')]
-    public function testEscapeFilterWithVariousInputs(int|string|null $input, string $expected): void
+    #[DataProvider('EscapeDataProvider')]
+    public function testEscapeWithVariousInputs(int|string|null $input, string $expected): void
     {
         $result = $this->escaper->escape($input, 'html', 'UTF-8');
 
         static::assertSame($expected, $result);
     }
 
-    public function testEscapeFilterWithCache(): void
+    public function testEscapeWithCache(): void
     {
         $this->escaper::resetEscapeCache();
 
@@ -444,7 +463,27 @@ class CachedEscaperRuntimeTest extends TestCase
         static::assertSame($result1, $result2);
     }
 
-    public function testEscapeFilterDoesNotCacheBooleanInput(): void
+    public function testEscapeUuidWithCache(): void
+    {
+        $this->escaper::resetEscapeCache();
+
+        // First call to cache the result
+        $string = Uuid::randomHex();
+        $result1 = $this->escaper->escape($string, 'html', 'UTF-8');
+
+        // Make sure result is cached
+        $cache = (new \ReflectionProperty($this->escaper, 'escapeCache'))->getValue();
+        static::assertCount(1, $cache);
+        static::assertArrayHasKey($string, $cache);
+
+        // Second call to get the cached result
+        $result2 = $this->escaper->escape($string, 'html', 'UTF-8');
+
+        // Assert that the results are the same, indicating the cache was used
+        static::assertSame($result1, $result2);
+    }
+
+    public function testEscapeDoesNotCacheBooleanInput(): void
     {
         $this->escaper::resetEscapeCache();
 

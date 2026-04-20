@@ -13,7 +13,6 @@ use Twig\Template;
 
 /**
  * @internal
- * The here defined methods are set into the compiled Twig templates in the Twig Environment override in {@see TwigEnvironment::compile()}
  */
 #[Package('framework')]
 class SwTwigFunction
@@ -26,6 +25,7 @@ class SwTwigFunction
     /**
      * Wrapper around {@see CoreExtension::getAttribute()}
      * Implements a shortcut for receiving property values from the Shopware specific `Struct` class.
+     * The method is set into the compiled Twig templates in the Twig Environment override in {@see TwigEnvironment::compile()}.
      *
      * @param list<mixed> $arguments
      */

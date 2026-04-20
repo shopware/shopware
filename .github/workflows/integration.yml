@@ -601,6 +601,8 @@ jobs:
 
       - name: Run blue-green integration tests (non-nightly)
         if: inputs.nightly != 'true'
+        env:
+          DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
         run: php -d memory_limit=-1 vendor/bin/phpunit --filter "GrantDownloadAccessActionTest" --stop-on-error --stop-on-failure
 
   update-66-67:

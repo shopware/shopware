@@ -56,6 +56,20 @@ class Migration1773829001MigrateProductStreamProductStatesFilterTest extends Tes
         static::assertSame(1773829001, $migration->getCreationTimestamp());
     }
 
+    public function testUpdateIsNoOp(): void
+    {
+        $migration = new Migration1773829001MigrateProductStreamProductStatesFilter();
+        $migration->update($this->connection);
+
+        // update() must not convert filters, conversion was moved to updateDestructive()
+        static::assertSame(
+            '0',
+            (string) $this->connection->fetchOne(
+                'SELECT COUNT(*) FROM `product_stream_filter` WHERE `field` IN (\'type\', \'product.type\')'
+            )
+        );
+    }
+
     public function testMigration(): void
     {
         $createdAt = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
@@ -116,8 +130,8 @@ class Migration1773829001MigrateProductStreamProductStatesFilterTest extends Tes
         $migration = new Migration1773829001MigrateProductStreamProductStatesFilter();
 
         // make sure the migration is idempotent
-        $migration->update($this->connection);
-        $migration->update($this->connection);
+        $migration->updateDestructive($this->connection);
+        $migration->updateDestructive($this->connection);
 
         $simpleFilter = $this->connection->fetchAssociative(
             'SELECT `field`, `value` FROM `product_stream_filter` WHERE `id` = :id',

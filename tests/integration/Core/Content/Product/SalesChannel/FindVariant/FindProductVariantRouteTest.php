@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
@@ -37,6 +38,9 @@ class FindProductVariantRouteTest extends TestCase
     protected function setUp(): void
     {
         $this->repository = static::getContainer()->get('product.repository');
+
+        static::getContainer()->get(SystemConfigService::class)
+            ->set('core.listing.hideCloseoutProductsWhenOutOfStock', false);
 
         $this->context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create('test', TestDefaults::SALES_CHANNEL);
@@ -92,6 +96,39 @@ class FindProductVariantRouteTest extends TestCase
 
         // wished to switch to red-xl but this variant is not available (active = false).
         // should switch to next matching size
+        $result = $this->findProductVariantRoute->load(
+            $this->ids->get('base'),
+            new Request(
+                [
+                    'switchedGroup' => $switched,
+                    'options' => $options,
+                ]
+            ),
+            $this->context
+        );
+
+        static::assertSame($this->ids->get('redL'), $result->getFoundCombination()->getVariantId());
+    }
+
+    public function testFindSkipsHiddenCloseoutVariantsWhenConfigured(): void
+    {
+        static::getContainer()->get(SystemConfigService::class)
+            ->set('core.listing.hideCloseoutProductsWhenOutOfStock', true);
+
+        $this->repository->update(
+            [
+                ['id' => $this->ids->get('redXL'), 'stock' => 0, 'isCloseout' => true],
+            ],
+            Context::createDefaultContext()
+        );
+
+        $switched = $this->ids->get('Color');
+
+        $options = [
+            $this->ids->get('Color') => $this->ids->get('Red'),
+            $this->ids->get('Size') => $this->ids->get('XL'),
+        ];
+
         $result = $this->findProductVariantRoute->load(
             $this->ids->get('base'),
             new Request(

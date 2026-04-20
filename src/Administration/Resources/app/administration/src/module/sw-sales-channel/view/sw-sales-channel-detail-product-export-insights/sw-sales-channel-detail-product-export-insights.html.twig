@@ -1,6 +1,6 @@
 {% block sw_sales_channel_detail_product_export_insights %}
 <sw-container class="sw-sales-channel-detail-product-export-insights__charts">
-    <template v-if="acl.can('order.viewer')">
+    <template v-if="acl.can('sales_channel.viewer')">
         <div>
             <sw-chart-card
                 class="sw-sales-channel-detail-product-export-insights__orders"
@@ -31,7 +31,7 @@
         </div>
     </template>
 
-    <template v-if="acl.can('customer.viewer')">
+    <template v-if="acl.can('sales_channel.viewer')">
         <div>
             <sw-chart-card
                 class="sw-sales-channel-detail-product-export-insights__customers"
@@ -62,7 +62,7 @@
         </div>
     </template>
 
-    <template v-if="acl.can('order.viewer')">
+    <template v-if="acl.can('sales_channel.viewer')">
         <div>
             <sw-chart-card
                 class="sw-sales-channel-detail-product-export-insights__turnover"

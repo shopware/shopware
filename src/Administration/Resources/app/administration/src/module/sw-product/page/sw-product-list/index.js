@@ -126,8 +126,7 @@ export default {
             productCriteria.setTerm(this.term);
             productCriteria.addSorting(sorting);
 
-            if (this.sortBy === 'stock') {
-                // Stock values often repeat, so add a stable tie-breaker.
+            if (!productCriteria.sortings.some((existing) => existing.field === 'id')) {
                 productCriteria.addSorting(Criteria.sort('id'));
             }
 

@@ -8,6 +8,7 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingConfig;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractAvailableCombinationLoader;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Content\Property\PropertyGroupEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 
@@ -41,8 +42,8 @@ class ProductConfiguratorLoaderTest extends TestCase
 
         $method = new \ReflectionMethod(ProductConfiguratorLoader::class, 'sortSettings');
 
-        /** @var array<string, PropertyGroupEntity> $sorted */
         $sorted = $method->invoke($loader, $groups, $product);
+        static::assertInstanceOf(PropertyGroupCollection::class, $sorted);
 
         static::assertSame(['group-b', 'group-a', 'group-c'], array_values($sorted->getIds()));
     }

@@ -13,7 +13,7 @@ These are optional and can be enabled via `shopware.api.rate_limiter` in `shopwa
 
 ### Dynamic product groups can keep matching variants ungrouped
 
-Starting with Shopware `6.7.10.0`, product streams have a new boolean field `displayAsGroup` and a corresponding Administration toggle "Keep matching variants grouped" on the dynamic product group detail page.
+Now, product streams have a new boolean field `displayAsGroup` and a corresponding Administration toggle "Keep matching variants grouped" on the dynamic product group detail page.
 When `displayAsGroup` is disabled, matching variants are returned and rendered individually instead of being grouped or remapped.
 
 The new database field `product_stream.display_as_group` defaults to `1`, so existing product streams keep the previous grouped behavior after migration unless they are changed explicitly.

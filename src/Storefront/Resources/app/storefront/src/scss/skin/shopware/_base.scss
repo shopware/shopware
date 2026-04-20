@@ -63,7 +63,10 @@ https://sass-guidelin.es/#the-7-1-pattern
 
 @import 'page/account/aside';
 @import 'page/account/register';
-@import 'page/account/address';
+// @deprecated tag:v6.8.0 - The components have been removed and the SCSS is not used anymore
+@if not feature('V6_8_0_0') {
+    @import 'page/account/address';
+}
 @import 'page/account/profile';
 @import 'page/account/order';
 @import 'page/account/order-detail';

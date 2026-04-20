@@ -223,7 +223,7 @@ export default {
                     label: 'sw-settings-search.generalTab.list.columnContent',
                     inlineEdit: 'string',
                     sortable: true,
-                    width: 'calc(var(--scale-size-224) + var(--scale-size-26))',
+                    width: '250px',
                 },
                 {
                     property: 'searchable',

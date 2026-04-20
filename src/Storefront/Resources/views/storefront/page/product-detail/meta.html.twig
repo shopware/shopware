@@ -85,9 +85,15 @@
     {% if feature('JSON_LD_DATA') %}
         {% set jsonLdWebPageType = 'ItemPage' %}
         {% sw_include '@Storefront/storefront/layout/structured-data/json-ld-webpage.html.twig' %}
-        {% sw_include '@Storefront/storefront/layout/structured-data/json-ld-breadcrumb.html.twig' with {
-            category: page.product.seoCategory
-        } only %}
+        {% if feature('v6.8.0.0') or feature('BREADCRUMB_REWORK') %}
+            {% sw_include '@Storefront/storefront/layout/structured-data/json-ld-breadcrumb.html.twig' with {
+                breadcrumbItems: page.breadcrumb
+            } only %}
+        {% else %}
+            {% sw_include '@Storefront/storefront/layout/structured-data/json-ld-breadcrumb.html.twig' with {
+                category: page.product.seoCategory
+            } only %}
+        {% endif %}
         {% sw_include '@Storefront/storefront/layout/structured-data/json-ld-product.html.twig' %}
     {% endif %}
 {% endblock %}

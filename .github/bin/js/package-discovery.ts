@@ -8,6 +8,21 @@ interface PackageInfo {
   hasCustomAuditScript?: boolean;
 }
 
+interface AuditMatrixEntry {
+  name: string;
+  path: string;
+  workingDirectory: string;
+  hasCustomAuditScript: boolean;
+  customAuditScriptPath: string | null;
+  artifactName: string;
+}
+
+const FULL_AUDIT_TRIGGER_FILES = new Set([
+  // Changes to shared audit behavior or package registry should re-run audits for every tracked package.
+  '.github/bin/js/run-npm-audit.ts',
+  '.github/bin/js/package-discovery.ts'
+]);
+
 /**
  * Expected package.json files that should be audited with their metadata
  */
@@ -72,6 +87,33 @@ export function getWorkingDirectoryFromPath(packageJsonPath: string): string {
   return packageJsonPath.replace('/package.json', '');
 }
 
+export function getPackageLockPath(packageJsonPath: string): string {
+  return packageJsonPath.replace('/package.json', '/package-lock.json');
+}
+
+export function getCustomAuditScriptPath(packageJsonPath: string): string {
+  return `${getWorkingDirectoryFromPath(packageJsonPath)}/scripts/runNpmAudit.ts`;
+}
+
+function normalizePath(path: string): string {
+  return path.replace(/^[.]\//, '');
+}
+
+function getArtifactName(packageJsonPath: string): string {
+  return `npm-audit-${normalizePath(getWorkingDirectoryFromPath(packageJsonPath)).replace(/[^a-zA-Z0-9]+/g, '-')}`;
+}
+
+function toAuditMatrixEntry(pkg: PackageInfo): AuditMatrixEntry {
+  return {
+    name: pkg.name,
+    path: pkg.path,
+    workingDirectory: getWorkingDirectoryFromPath(pkg.path),
+    hasCustomAuditScript: pkg.hasCustomAuditScript || false,
+    customAuditScriptPath: pkg.hasCustomAuditScript ? getCustomAuditScriptPath(pkg.path) : null,
+    artifactName: getArtifactName(pkg.path)
+  };
+}
+
 /**
  * Find all package.json files in the repository
  */
@@ -115,22 +157,53 @@ export function validatePackageCompleteness(): {
 /**
  * Generate GitHub Actions matrix for audit jobs
  */
-export function generateAuditMatrix(): {
-  include: Array<{
-    name: string;
-    path: string;
-    workingDirectory: string;
-    hasCustomAuditScript: boolean;
-  }>;
+export function generateAuditMatrix(changedFiles: string[] = []): {
+  include: AuditMatrixEntry[];
 } {
+  const normalizedChangedFiles = changedFiles
+    .map(file => normalizePath(file.trim()))
+    .filter(Boolean);
+
+  if (
+    normalizedChangedFiles.length === 0 ||
+    normalizedChangedFiles.some(file => FULL_AUDIT_TRIGGER_FILES.has(file))
+  ) {
+    return {
+      include: EXPECTED_PACKAGE_JSON_FILES.map(toAuditMatrixEntry)
+    };
+  }
+
+  const changedFileSet = new Set(normalizedChangedFiles);
+  const filteredPackages = EXPECTED_PACKAGE_JSON_FILES.filter((pkg) => {
+    const packageJsonPath = normalizePath(pkg.path);
+    const packageLockPath = normalizePath(getPackageLockPath(pkg.path));
+
+    if (changedFileSet.has(packageJsonPath) || changedFileSet.has(packageLockPath)) {
+      return true;
+    }
+
+    if (pkg.hasCustomAuditScript) {
+      return changedFileSet.has(normalizePath(getCustomAuditScriptPath(pkg.path)));
+    }
+
+    return false;
+  });
+
   return {
-    include: EXPECTED_PACKAGE_JSON_FILES.map(pkg => ({
-      name: pkg.name,
-      path: pkg.path,
-      workingDirectory: getWorkingDirectoryFromPath(pkg.path),
-      hasCustomAuditScript: pkg.hasCustomAuditScript || false
-    }))
+    include: filteredPackages.map(toAuditMatrixEntry)
   };
+}
+
+function readChangedFilesFromFile(filePath: string): string[] {
+  try {
+    return execSync(`cat "${filePath}"`, { encoding: 'utf8', cwd: process.cwd() })
+      .split('\n')
+      .map(line => line.trim())
+      .filter(Boolean);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to read changed files from ${filePath}: ${errorMessage}`);
+  }
 }
 
 /**
@@ -157,7 +230,11 @@ function main(): void {
 
     case 'matrix':
       try {
-        const matrix = generateAuditMatrix();
+        const changedFiles =
+          args[1] === '--changed-files-file' && args[2]
+            ? readChangedFilesFromFile(args[2])
+            : [];
+        const matrix = generateAuditMatrix(changedFiles);
         console.log(JSON.stringify(matrix));
       } catch (error) {
         console.error('Error:', error instanceof Error ? error.message : String(error));
@@ -199,7 +276,7 @@ function main(): void {
       console.log('Commands:');
       console.log('  list     - List expected package.json files');
       console.log('  find     - Find all package.json files in repository');
-      console.log('  matrix   - Generate GitHub Actions matrix for audit jobs');
+      console.log('  matrix [--changed-files-file <path>] - Generate GitHub Actions matrix for audit jobs');
       console.log('  validate - Validate package completeness');
       process.exit(1);
   }

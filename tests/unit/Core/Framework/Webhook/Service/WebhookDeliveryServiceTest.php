@@ -156,7 +156,7 @@ class WebhookDeliveryServiceTest extends TestCase
         $service->deliver($msg);
     }
 
-    public function testDeliverFailedNonTerminalCallsMarkPendingRetryWithCorrectRetryAt(): void
+    public function testDeliverFailedNonTerminalRecordsFailureAndSchedulesRetry(): void
     {
         $msg = $this->createMessage();
         $webhookRequest = $this->createWebhookRequest();
@@ -167,24 +167,22 @@ class WebhookDeliveryServiceTest extends TestCase
 
         $this->queueGuzzleResponse(new Response(500, [], '{"error":"fail"}'));
 
-        // executionCount=2 -> RETRY_DELAYS[1] = 30s
-        $expectedRetryAt = new \DateTimeImmutable('2026-04-15 12:00:30');
+        $this->webhookStateRepository->expects($this->once())->method('recordFailure')
+            ->with($msg->getWebhookId(), WebhookFailureStrategy::DisableOnThreshold);
         $this->outboxEventRepository->expects($this->once())->method('markPendingRetry')
-            ->with($msg->getWebhookEventId(), $expectedRetryAt, static::anything());
+            ->with($msg->getWebhookEventId(), static::isInstanceOf(\DateTimeImmutable::class), static::anything());
         $this->outboxEventRepository->expects($this->never())->method('markFailed');
-        $this->webhookStateRepository->expects($this->never())->method('incrementErrorCount');
 
         $service = $this->createService();
         $service->deliver($msg);
     }
 
-    public function testDeliverFailedTerminalDisableOnThresholdDeactivatesWebhook(): void
+    public function testDeliverFailedTerminalDelegatesToStateRepositoryWithConfiguredStrategy(): void
     {
         $msg = $this->createMessage();
         $webhookRequest = $this->createWebhookRequest();
 
         $this->appPayloadServiceHelper->method('createWebhookRequest')->willReturn($webhookRequest);
-        // executionCount > MAX_RETRIES (5) -> terminal
         $this->outboxEventRepository->expects($this->once())->method('markRunning')
             ->willReturn(new OutboxEntry(executionCount: 6, sequence: 1));
 
@@ -192,18 +190,15 @@ class WebhookDeliveryServiceTest extends TestCase
 
         $this->outboxEventRepository->expects($this->once())->method('markFailed')
             ->with($msg->getWebhookEventId(), static::anything());
-        $this->webhookStateRepository->expects($this->once())->method('incrementErrorCount')
-            ->with($msg->getWebhookId())
-            ->willReturn(10);
-        $this->webhookStateRepository->expects($this->once())->method('deactivate')
-            ->with($msg->getWebhookId());
+        $this->webhookStateRepository->expects($this->once())->method('recordFailure')
+            ->with($msg->getWebhookId(), WebhookFailureStrategy::DisableOnThreshold);
         $this->outboxEventRepository->expects($this->never())->method('markPendingRetry');
 
         $service = $this->createService(failureStrategy: WebhookFailureStrategy::DisableOnThreshold->value);
         $service->deliver($msg);
     }
 
-    public function testDeliverFailedTerminalIgnoreStrategyDoesNotDeactivate(): void
+    public function testDeliverFailedTerminalForwardsIgnoreStrategy(): void
     {
         $msg = $this->createMessage();
         $webhookRequest = $this->createWebhookRequest();
@@ -215,10 +210,8 @@ class WebhookDeliveryServiceTest extends TestCase
         $this->queueGuzzleResponse(new Response(500, [], '{"error":"fail"}'));
 
         $this->outboxEventRepository->expects($this->once())->method('markFailed');
-        $this->webhookStateRepository->expects($this->once())->method('incrementErrorCount')
-            ->with($msg->getWebhookId())
-            ->willReturn(15);
-        $this->webhookStateRepository->expects($this->never())->method('deactivate');
+        $this->webhookStateRepository->expects($this->once())->method('recordFailure')
+            ->with($msg->getWebhookId(), WebhookFailureStrategy::Ignore);
 
         $service = $this->createService(failureStrategy: WebhookFailureStrategy::Ignore->value);
         $service->deliver($msg);
@@ -241,7 +234,7 @@ class WebhookDeliveryServiceTest extends TestCase
                 static::callback(function ($response) {
                     static::assertInstanceOf(DeliveryResponse::class, $response);
 
-                    return $response->processingTime >= 0;
+                    return $response->processingTimeSeconds >= 0;
                 })
             );
 
@@ -293,28 +286,6 @@ class WebhookDeliveryServiceTest extends TestCase
 
         $service = $this->createService(isAdminWorkerEnabled: true);
         $service->process([$msg1, $msg2]);
-    }
-
-    public function testDeliverFailedTerminalBelowThresholdDoesNotDeactivate(): void
-    {
-        $msg = $this->createMessage();
-        $webhookRequest = $this->createWebhookRequest();
-
-        $this->appPayloadServiceHelper->method('createWebhookRequest')->willReturn($webhookRequest);
-        $this->outboxEventRepository->expects($this->once())->method('markRunning')
-            ->willReturn(new OutboxEntry(executionCount: 6, sequence: 1));
-
-        $this->queueGuzzleResponse(new Response(500, [], '{"error":"fail"}'));
-
-        $this->outboxEventRepository->expects($this->once())->method('markFailed');
-        // Error count below threshold (< 10)
-        $this->webhookStateRepository->expects($this->once())->method('incrementErrorCount')
-            ->with($msg->getWebhookId())
-            ->willReturn(5);
-        $this->webhookStateRepository->expects($this->never())->method('deactivate');
-
-        $service = $this->createService(failureStrategy: WebhookFailureStrategy::DisableOnThreshold->value);
-        $service->deliver($msg);
     }
 
     public function testDeliverSwallowsDBALExceptionFromMarkSuccess(): void

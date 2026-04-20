@@ -458,56 +458,6 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
         });
     }
 
-    public function testExistingBehaviorPreservedWhenFlagOff(): void
-    {
-        $webhookId = Uuid::randomHex();
-        $appId = Uuid::randomHex();
-        $webhookEventId = Uuid::randomHex();
-
-        $this->createAppWithWebhook($appId, $webhookId, 0);
-        $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId);
-        $this->createOutboxEntry($webhookEventMessage, $webhookId);
-
-        $this->outboxEventRepository->markRunning($webhookEventId);
-
-        $event = new WorkerMessageFailedEvent(
-            new Envelope($webhookEventMessage),
-            'async',
-            new ClientException('test', new Request('GET', 'https://test.com'), new Response(500))
-        );
-
-        $subscriber = new RetryWebhookMessageFailedSubscriber(
-            $this->connection,
-            $this->outboxEventRepository,
-            static::getContainer()->get(RelatedWebhooks::class),
-            WebhookFailureStrategy::DisableOnThreshold->value,
-        );
-
-        $subscriber->failed($event);
-
-        // markFailed SHOULD have been called — event log should be FAILED
-        $status = $this->connection->fetchOne(
-            'SELECT delivery_status FROM webhook_event_log WHERE id = :id',
-            ['id' => Uuid::fromHexToBytes($webhookEventId)]
-        );
-        static::assertSame(WebhookEventLogDefinition::STATUS_FAILED, $status);
-
-        // Delivery row should be cleaned up (terminal state)
-        $deliveryExists = $this->connection->fetchOne(
-            'SELECT 1 FROM webhook_delivery WHERE webhook_event_log_id = :id',
-            ['id' => Uuid::fromHexToBytes($webhookEventId)]
-        );
-        static::assertFalse($deliveryExists);
-
-        // Webhook error_count must have been incremented
-        $webhookRepository = static::getContainer()->get('webhook.repository');
-        $webhook = $webhookRepository->search(new Criteria([$webhookId]), $this->context)->first();
-
-        static::assertInstanceOf(WebhookEntity::class, $webhook);
-        static::assertSame(1, $webhook->getErrorCount());
-        static::assertTrue($webhook->isActive());
-    }
-
     public function testNonWebhookEventMessageIsIgnored(): void
     {
         $nonWebhookMessage = new \stdClass();

@@ -22,10 +22,7 @@ final readonly class WebhookResult
         public ?array $headers,
         public ?string $errorMessage = null,
         public ?\Throwable $exception = null,
-        /**
-         * HTTP round-trip processing time in whole seconds.
-         */
-        public ?int $processingTime = null,
+        public ?int $processingTimeSeconds = null,
     ) {
     }
 

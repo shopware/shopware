@@ -935,10 +935,8 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $this->appendNewResponse(new Response(500, [], '{"error": "internal server error"}'));
 
-        $handler = $this->createHandlerWithOutboxRetries();
-
-        Feature::fake(['WEBHOOKS_REWORK'], function () use ($handler, $webhookEventMessage, $connection, $webhookEventId, $webhookEventLogRepository): void {
-            $handler($webhookEventMessage);
+        Feature::fake(['WEBHOOKS_REWORK'], function () use ($webhookEventMessage, $connection, $webhookEventId, $webhookEventLogRepository): void {
+            ($this->webhookEventMessageHandler)($webhookEventMessage);
 
             $delivery = $connection->fetchAssociative(
                 'SELECT delivery_status, next_retry_at FROM webhook_delivery WHERE webhook_event_log_id = :id',
@@ -986,10 +984,8 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $this->appendNewResponse(new Response(500, [], '{"error": "still failing"}'));
 
-        $handler = $this->createHandlerWithOutboxRetries();
-
-        Feature::fake(['WEBHOOKS_REWORK'], function () use ($handler, $webhookEventMessage, $connection, $webhookEventId, $webhookEventLogRepository): void {
-            $handler($webhookEventMessage);
+        Feature::fake(['WEBHOOKS_REWORK'], function () use ($webhookEventMessage, $connection, $webhookEventId, $webhookEventLogRepository): void {
+            ($this->webhookEventMessageHandler)($webhookEventMessage);
 
             $deliveryCount = (int) $connection->fetchOne(
                 'SELECT COUNT(*) FROM webhook_delivery WHERE webhook_event_log_id = :id',
@@ -1066,10 +1062,8 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $this->appendNewResponse(new Response(200, [], '{"ok": true}'));
 
-        $handler = $this->createHandlerWithOutboxRetries();
-
-        Feature::fake(['WEBHOOKS_REWORK'], function () use ($handler, $webhookEventMessage, $connection, $webhookId, $relatedWebhookId): void {
-            $handler($webhookEventMessage);
+        Feature::fake(['WEBHOOKS_REWORK'], function () use ($webhookEventMessage, $connection, $webhookId, $relatedWebhookId): void {
+            ($this->webhookEventMessageHandler)($webhookEventMessage);
 
             $errorCount = (int) $connection->fetchOne(
                 'SELECT error_count FROM webhook WHERE id = :id',
@@ -1112,10 +1106,8 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $this->appendNewResponse(new ConnectException('Connection refused', new Request('POST', 'https://example.com/hook')));
 
-        $handler = $this->createHandlerWithOutboxRetries();
-
-        Feature::fake(['WEBHOOKS_REWORK'], function () use ($handler, $webhookEventMessage, $webhookEventLogRepository, $webhookEventId): void {
-            $handler($webhookEventMessage);
+        Feature::fake(['WEBHOOKS_REWORK'], function () use ($webhookEventMessage, $webhookEventLogRepository, $webhookEventId): void {
+            ($this->webhookEventMessageHandler)($webhookEventMessage);
 
             $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->first();
             static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
@@ -1149,11 +1141,9 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $this->appendNewResponse(new Response(500, [], '{"error": "fail"}'));
 
-        $handler = $this->createHandlerWithOutboxRetries();
-
-        Feature::fake([], function () use ($handler, $webhookEventMessage): void {
+        Feature::fake([], function () use ($webhookEventMessage): void {
             $this->expectException(WebhookException::class);
-            $handler($webhookEventMessage);
+            ($this->webhookEventMessageHandler)($webhookEventMessage);
         });
     }
 
@@ -1207,11 +1197,10 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $this->appendNewResponse(new Response(200));
 
-        $handler = $this->createHandlerWithOutboxRetries();
         $webhookEventLogRepository = static::getContainer()->get('webhook_event_log.repository');
 
-        Feature::fake(['WEBHOOKS_REWORK'], function () use ($handler, $webhookEventMessage, $webhookEventLogRepository, $webhookEventId): void {
-            $handler($webhookEventMessage);
+        Feature::fake(['WEBHOOKS_REWORK'], function () use ($webhookEventMessage, $webhookEventLogRepository, $webhookEventId): void {
+            ($this->webhookEventMessageHandler)($webhookEventMessage);
 
             $request = $this->getLastRequest();
             static::assertInstanceOf(RequestInterface::class, $request);
@@ -1235,11 +1224,10 @@ class WebhookEventMessageHandlerTest extends TestCase
         $connection = static::getContainer()->get(Connection::class);
         $this->appendNewResponse(new Response(200, [], '{"ok":true}'));
 
-        $handler = $this->createHandlerWithOutboxRetries();
         $webhookEventLogRepository = static::getContainer()->get('webhook_event_log.repository');
 
-        Feature::fake(['WEBHOOKS_REWORK'], function () use ($handler, $webhookEventMessage, $connection, $webhookEventId, $webhookEventLogRepository): void {
-            $handler($webhookEventMessage);
+        Feature::fake(['WEBHOOKS_REWORK'], function () use ($webhookEventMessage, $connection, $webhookEventId, $webhookEventLogRepository): void {
+            ($this->webhookEventMessageHandler)($webhookEventMessage);
 
             $request = $this->getLastRequest();
             static::assertInstanceOf(RequestInterface::class, $request);
@@ -1320,19 +1308,5 @@ class WebhookEventMessageHandlerTest extends TestCase
                 ],
             ],
         ]], Context::createDefaultContext());
-    }
-
-    private function createHandlerWithOutboxRetries(): WebhookEventMessageHandler
-    {
-        $container = static::getContainer();
-
-        return new WebhookEventMessageHandler(
-            $container->get('Shopware\Core\Framework\Webhook\Service\WebhookClient'),
-            $container->get('Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper'),
-            $container->get('Shopware\Core\Framework\Webhook\Service\RelatedWebhooks'),
-            $container->get('Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository'),
-            $container->get('Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService'),
-            $container->get('logger'),
-        );
     }
 }

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Service\RelatedWebhooks;
 use Shopware\Core\Framework\Webhook\Service\WebhookStateRepository;
+use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 
 /**
  * @internal
@@ -16,10 +17,8 @@ use Shopware\Core\Framework\Webhook\Service\WebhookStateRepository;
 #[CoversClass(WebhookStateRepository::class)]
 class WebhookStateRepositoryTest extends TestCase
 {
-    public function testIncrementErrorCountReturnsZeroWhenWebhookNotFound(): void
+    public function testRecordTerminalFailureIsNoOpWhenWebhookNotFound(): void
     {
-        $webhookId = Uuid::randomHex();
-
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())
             ->method('fetchAssociative')
@@ -30,14 +29,11 @@ class WebhookStateRepositoryTest extends TestCase
             ->method('updateRelated');
 
         $repository = new WebhookStateRepository($connection, $relatedWebhooks);
-
-        static::assertSame(0, $repository->incrementErrorCount($webhookId));
+        $repository->recordFailure(Uuid::randomHex(), WebhookFailureStrategy::DisableOnThreshold);
     }
 
-    public function testIncrementErrorCountReturnsZeroWhenWebhookInactive(): void
+    public function testRecordTerminalFailureIsNoOpWhenWebhookInactive(): void
     {
-        $webhookId = Uuid::randomHex();
-
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())
             ->method('fetchAssociative')
@@ -48,11 +44,10 @@ class WebhookStateRepositoryTest extends TestCase
             ->method('updateRelated');
 
         $repository = new WebhookStateRepository($connection, $relatedWebhooks);
-
-        static::assertSame(0, $repository->incrementErrorCount($webhookId));
+        $repository->recordFailure(Uuid::randomHex(), WebhookFailureStrategy::DisableOnThreshold);
     }
 
-    public function testIncrementErrorCountIncrementsAndReturnsNewCount(): void
+    public function testRecordTerminalFailureIncrementsBelowThreshold(): void
     {
         $webhookId = Uuid::randomHex();
 
@@ -71,8 +66,51 @@ class WebhookStateRepositoryTest extends TestCase
             );
 
         $repository = new WebhookStateRepository($connection, $relatedWebhooks);
+        $repository->recordFailure($webhookId, WebhookFailureStrategy::DisableOnThreshold);
+    }
 
-        static::assertSame(3, $repository->incrementErrorCount($webhookId));
+    public function testRecordTerminalFailureDeactivatesAtThresholdWithDisableStrategy(): void
+    {
+        $webhookId = Uuid::randomHex();
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('fetchAssociative')
+            ->willReturn(['active' => 1, 'error_count' => WebhookFailureStrategy::MAX_ERROR_COUNT - 1]);
+
+        $relatedWebhooks = $this->createMock(RelatedWebhooks::class);
+        $relatedWebhooks->expects($this->once())
+            ->method('updateRelated')
+            ->with(
+                $webhookId,
+                ['error_count' => 0, 'active' => 0],
+                static::isInstanceOf(Context::class)
+            );
+
+        $repository = new WebhookStateRepository($connection, $relatedWebhooks);
+        $repository->recordFailure($webhookId, WebhookFailureStrategy::DisableOnThreshold);
+    }
+
+    public function testRecordTerminalFailureKeepsActiveWithIgnoreStrategyAboveThreshold(): void
+    {
+        $webhookId = Uuid::randomHex();
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('fetchAssociative')
+            ->willReturn(['active' => 1, 'error_count' => WebhookFailureStrategy::MAX_ERROR_COUNT + 5]);
+
+        $relatedWebhooks = $this->createMock(RelatedWebhooks::class);
+        $relatedWebhooks->expects($this->once())
+            ->method('updateRelated')
+            ->with(
+                $webhookId,
+                ['error_count' => WebhookFailureStrategy::MAX_ERROR_COUNT + 6],
+                static::isInstanceOf(Context::class)
+            );
+
+        $repository = new WebhookStateRepository($connection, $relatedWebhooks);
+        $repository->recordFailure($webhookId, WebhookFailureStrategy::Ignore);
     }
 
     public function testResetErrorCount(): void
@@ -92,24 +130,5 @@ class WebhookStateRepositoryTest extends TestCase
 
         $repository = new WebhookStateRepository($connection, $relatedWebhooks);
         $repository->resetErrorCount($webhookId);
-    }
-
-    public function testDeactivate(): void
-    {
-        $webhookId = Uuid::randomHex();
-
-        $connection = $this->createMock(Connection::class);
-
-        $relatedWebhooks = $this->createMock(RelatedWebhooks::class);
-        $relatedWebhooks->expects($this->once())
-            ->method('updateRelated')
-            ->with(
-                $webhookId,
-                ['error_count' => 0, 'active' => 0],
-                static::isInstanceOf(Context::class)
-            );
-
-        $repository = new WebhookStateRepository($connection, $relatedWebhooks);
-        $repository->deactivate($webhookId);
     }
 }

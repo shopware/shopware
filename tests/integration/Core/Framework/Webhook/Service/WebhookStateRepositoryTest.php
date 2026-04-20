@@ -9,6 +9,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Service\WebhookStateRepository;
+use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
@@ -31,41 +32,62 @@ class WebhookStateRepositoryTest extends TestCase
         $this->repository = static::getContainer()->get(WebhookStateRepository::class);
     }
 
-    public function testIncrementErrorCountFromZero(): void
+    public function testRecordTerminalFailureIncrementsBelowThreshold(): void
     {
         $this->insertWebhook('wh-1', errorCount: 0);
 
-        $result = $this->repository->incrementErrorCount($this->ids->get('wh-1'));
+        $this->repository->recordFailure($this->ids->get('wh-1'), WebhookFailureStrategy::DisableOnThreshold);
 
-        static::assertSame(1, $result);
         static::assertSame(1, $this->fetchErrorCount('wh-1'));
+        static::assertTrue($this->fetchActive('wh-1'));
     }
 
-    public function testIncrementErrorCountFromNine(): void
+    public function testRecordTerminalFailureDeactivatesAtThreshold(): void
     {
-        $this->insertWebhook('wh-1', errorCount: 9);
+        $this->insertWebhook('wh-1', errorCount: WebhookFailureStrategy::MAX_ERROR_COUNT - 1);
 
-        $result = $this->repository->incrementErrorCount($this->ids->get('wh-1'));
+        $this->repository->recordFailure($this->ids->get('wh-1'), WebhookFailureStrategy::DisableOnThreshold);
 
-        static::assertSame(10, $result);
-        static::assertSame(10, $this->fetchErrorCount('wh-1'));
-    }
-
-    public function testIncrementErrorCountOnInactiveWebhookReturnsZero(): void
-    {
-        $this->insertWebhook('wh-1', active: false);
-
-        $result = $this->repository->incrementErrorCount($this->ids->get('wh-1'));
-
-        static::assertSame(0, $result);
         static::assertSame(0, $this->fetchErrorCount('wh-1'));
+        static::assertFalse($this->fetchActive('wh-1'));
     }
 
-    public function testIncrementErrorCountOnNonExistentWebhookReturnsZero(): void
+    public function testRecordTerminalFailureIsNoOpOnInactiveWebhook(): void
     {
-        $result = $this->repository->incrementErrorCount(Uuid::randomHex());
+        $this->insertWebhook('wh-1', errorCount: 3, active: false);
 
-        static::assertSame(0, $result);
+        $this->repository->recordFailure($this->ids->get('wh-1'), WebhookFailureStrategy::DisableOnThreshold);
+
+        static::assertSame(3, $this->fetchErrorCount('wh-1'));
+        static::assertFalse($this->fetchActive('wh-1'));
+    }
+
+    public function testRecordTerminalFailureIsNoOpOnMissingWebhook(): void
+    {
+        $this->repository->recordFailure(Uuid::randomHex(), WebhookFailureStrategy::DisableOnThreshold);
+
+        $this->addToAssertionCount(1);
+    }
+
+    public function testRecordTerminalFailureKeepsActiveUnderIgnoreStrategy(): void
+    {
+        $this->insertWebhook('wh-1', errorCount: WebhookFailureStrategy::MAX_ERROR_COUNT + 5);
+
+        $this->repository->recordFailure($this->ids->get('wh-1'), WebhookFailureStrategy::Ignore);
+
+        static::assertSame(WebhookFailureStrategy::MAX_ERROR_COUNT + 6, $this->fetchErrorCount('wh-1'));
+        static::assertTrue($this->fetchActive('wh-1'));
+    }
+
+    public function testRecordTerminalFailurePropagatesToRelatedWebhooks(): void
+    {
+        $this->insertWebhook('wh-1', errorCount: 0);
+        $this->insertWebhook('wh-2', errorCount: 0);
+
+        $this->repository->recordFailure($this->ids->get('wh-1'), WebhookFailureStrategy::DisableOnThreshold);
+
+        static::assertSame(1, $this->fetchErrorCount('wh-1'));
+        static::assertSame(1, $this->fetchErrorCount('wh-2'));
     }
 
     public function testResetErrorCount(): void
@@ -75,34 +97,6 @@ class WebhookStateRepositoryTest extends TestCase
         $this->repository->resetErrorCount($this->ids->get('wh-1'));
 
         static::assertSame(0, $this->fetchErrorCount('wh-1'));
-    }
-
-    public function testDeactivate(): void
-    {
-        $this->insertWebhook('wh-1', errorCount: 3, active: true);
-
-        $this->repository->deactivate($this->ids->get('wh-1'));
-
-        $row = $this->connection->fetchAssociative(
-            'SELECT active, error_count FROM webhook WHERE id = :id',
-            ['id' => $this->ids->getBytes('wh-1')]
-        );
-
-        static::assertIsArray($row);
-        static::assertSame(0, (int) $row['active']);
-        static::assertSame(0, (int) $row['error_count']);
-    }
-
-    public function testIncrementErrorCountPropagatesToRelatedWebhooks(): void
-    {
-        $this->insertWebhook('wh-1', errorCount: 0);
-        $this->insertWebhook('wh-2', errorCount: 0);
-
-        $result = $this->repository->incrementErrorCount($this->ids->get('wh-1'));
-
-        static::assertSame(1, $result);
-        static::assertSame(1, $this->fetchErrorCount('wh-1'));
-        static::assertSame(1, $this->fetchErrorCount('wh-2'));
     }
 
     public function testResetErrorCountPropagatesToRelatedWebhooks(): void
@@ -133,6 +127,14 @@ class WebhookStateRepositoryTest extends TestCase
     {
         return (int) $this->connection->fetchOne(
             'SELECT error_count FROM webhook WHERE id = :id',
+            ['id' => $this->ids->getBytes($key)]
+        );
+    }
+
+    private function fetchActive(string $key): bool
+    {
+        return (bool) $this->connection->fetchOne(
+            'SELECT active FROM webhook WHERE id = :id',
             ['id' => $this->ids->getBytes($key)]
         );
     }

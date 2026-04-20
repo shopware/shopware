@@ -44,17 +44,10 @@ final readonly class WebhookEventMessageHandler
 
     public function __invoke(WebhookEventMessage $message): void
     {
-        // Ensure a delivery row exists for this message. The transport sender normally
-        // creates it before dispatch, but we repair the state here so every code path
-        // reaches the same unified outbox flow.
-        //
-        // - Legacy pre-transport messages (partitionKey === null) legitimately have no
-        //   delivery row yet — they were serialized before the transport existed. Creating
-        //   the row now is expected, so we don't log anything.
-        // - New-style messages (partitionKey !== null) should already have a delivery
-        //   row by the time they land here. Missing one indicates a problem (e.g. a brief
-        //   deployment rollout window, or an unexpected dispatch path). We still repair
-        //   it, but log the discrepancy so it surfaces in monitoring.
+        // Legacy pre-transport messages (partitionKey === null) were serialized before the
+        // transport existed, so they have no delivery row yet — create it silently. For new
+        // messages a missing row means an unexpected dispatch path or a rollout window; repair
+        // and log.
         if (!$this->outboxEventRepository->hasDeliveryRow($message->getWebhookEventId())) {
             $this->outboxEventRepository->ensureOutboxEntry(new OutboxInsert(
                 $message->getWebhookEventId(),

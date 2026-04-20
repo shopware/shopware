@@ -23,7 +23,6 @@ use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\Payload\Source;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent;
@@ -37,6 +36,7 @@ use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
 use Shopware\Core\Framework\Webhook\Service\WebhookRequest;
 use Shopware\Core\Framework\Webhook\Webhook;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use Symfony\Component\Clock\NativeClock;
@@ -47,6 +47,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  * @internal
  */
 #[CoversClass(WebhookManager::class)]
+#[DisabledFeatures(['WEBHOOKS_REWORK'])]
 class WebhookManagerTest extends TestCase
 {
     private WebhookLoader&MockObject $webhookLoader;
@@ -63,10 +64,6 @@ class WebhookManagerTest extends TestCase
 
     protected function setUp(): void
     {
-        // Ensure the feature flag is registered and inactive for legacy path tests
-        Feature::registerFeature('WEBHOOKS_REWORK', ['default' => false, 'major' => true, 'toggleable' => true]);
-        unset($_SERVER['WEBHOOKS_REWORK']);
-
         $this->webhookLoader = $this->createMock(WebhookLoader::class);
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $this->clientMock = new MockHandler([new Response(200, [], '{}')]);
@@ -76,12 +73,6 @@ class WebhookManagerTest extends TestCase
         $this->webhookClient = new WebhookClient($guzzle, new NativeClock());
         $this->eventFactory = $this->createMock(HookableEventFactory::class);
         $this->bus = new CollectingMessageBus();
-    }
-
-    protected function tearDown(): void
-    {
-        unset($_SERVER['WEBHOOKS_REWORK']);
-        Feature::resetRegisteredFeatures();
     }
 
     public function testDispatchesTwoConsecutiveEventsCorrectly(): void

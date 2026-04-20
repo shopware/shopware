@@ -76,21 +76,21 @@ final readonly class WebhookClient
         ), [
             'fulfilled' => function (ResponseInterface $response, string|int $key) use (&$results, $requests, &$startTimes): void {
                 $wr = $requests[(string) $key];
-                $processingTime = $this->clock->now()->getTimestamp() - ($startTimes[spl_object_id($wr)] ?? $this->clock->now()->getTimestamp());
+                $duration = $this->clock->now()->getTimestamp() - ($startTimes[spl_object_id($wr)] ?? $this->clock->now()->getTimestamp());
 
                 $results[(string) $key] = $this->createSuccessResult(
                     $response->getStatusCode(),
                     $response->getReasonPhrase(),
                     $response->getHeaders(),
                     $response->getBody()->getContents(),
-                    $processingTime,
+                    $duration,
                 );
             },
             'rejected' => function (\Throwable $reason, string|int $key) use (&$results, $requests, &$startTimes): void {
                 $wr = $requests[(string) $key];
-                $processingTime = $this->clock->now()->getTimestamp() - ($startTimes[spl_object_id($wr)] ?? $this->clock->now()->getTimestamp());
+                $duration = $this->clock->now()->getTimestamp() - ($startTimes[spl_object_id($wr)] ?? $this->clock->now()->getTimestamp());
 
-                $results[(string) $key] = $this->createFailureResult($reason, $processingTime);
+                $results[(string) $key] = $this->createFailureResult($reason, $duration);
             },
         ]);
         $pool->promise()->wait();
@@ -101,18 +101,18 @@ final readonly class WebhookClient
     /**
      * @param array<string, string[]> $headers
      */
-    private function createSuccessResult(int $statusCode, string $reasonPhrase, array $headers, string $body, int $processingTime): WebhookResult
+    private function createSuccessResult(int $statusCode, string $reasonPhrase, array $headers, string $body, int $duration): WebhookResult
     {
         return new WebhookResult(
             json_decode($body, true),
             $statusCode,
             $reasonPhrase,
             $headers,
-            processingTime: $processingTime,
+            processingTimeSeconds: $duration,
         );
     }
 
-    private function createFailureResult(\Throwable $e, int $processingTime): WebhookResult
+    private function createFailureResult(\Throwable $e, int $duration): WebhookResult
     {
         if ($e instanceof RequestException && $e->getResponse() !== null) {
             $response = $e->getResponse();
@@ -129,7 +129,7 @@ final readonly class WebhookClient
                 $response->getHeaders(),
                 $e->getMessage(),
                 $e,
-                $processingTime,
+                $duration,
             );
         }
 
@@ -140,7 +140,7 @@ final readonly class WebhookClient
             null,
             $e->getMessage(),
             $e,
-            $processingTime,
+            $duration,
         );
     }
 }

@@ -23,6 +23,8 @@ class OutboxEventRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    private const SAMPLE_PROCESSING_TIME_SECONDS = 42;
+
     private Connection $connection;
 
     private OutboxEventRepository $repository;
@@ -203,7 +205,7 @@ class OutboxEventRepositoryTest extends TestCase
 
         $this->repository->markRunning($this->ids->get('evt-1'));
         $this->repository->markSuccess($this->ids->get('evt-1'), new DeliveryResponse(
-            processingTime: 42,
+            processingTimeSeconds: self::SAMPLE_PROCESSING_TIME_SECONDS,
             requestContent: json_encode(['headers' => []], \JSON_THROW_ON_ERROR),
             responseContent: json_encode(['body' => 'ok'], \JSON_THROW_ON_ERROR),
             responseStatusCode: 200,
@@ -218,7 +220,7 @@ class OutboxEventRepositoryTest extends TestCase
             ['id' => $this->ids->getBytes('evt-1')]
         );
         static::assertNotFalse($eventLog);
-        static::assertSame(42, (int) $eventLog['processing_time']);
+        static::assertSame(self::SAMPLE_PROCESSING_TIME_SECONDS, (int) $eventLog['processing_time']);
         static::assertSame(200, (int) $eventLog['response_status_code']);
     }
 
@@ -309,7 +311,7 @@ class OutboxEventRepositoryTest extends TestCase
 
         $this->repository->markRunning($this->ids->get('evt-1'));
         $this->repository->markSuccess($this->ids->get('evt-1'), new DeliveryResponse(
-            processingTime: 150,
+            processingTimeSeconds: self::SAMPLE_PROCESSING_TIME_SECONDS,
             requestContent: json_encode(['headers' => ['X-Sw' => 'test']], \JSON_THROW_ON_ERROR),
             responseContent: json_encode(['body' => 'accepted'], \JSON_THROW_ON_ERROR),
             responseStatusCode: 200,
@@ -323,7 +325,7 @@ class OutboxEventRepositoryTest extends TestCase
         );
         static::assertNotFalse($eventLog);
         static::assertSame(WebhookEventLogDefinition::STATUS_SUCCESS, $eventLog['delivery_status']);
-        static::assertSame(150, (int) $eventLog['processing_time']);
+        static::assertSame(self::SAMPLE_PROCESSING_TIME_SECONDS, (int) $eventLog['processing_time']);
         static::assertSame(200, (int) $eventLog['response_status_code']);
         static::assertSame('OK', $eventLog['response_reason_phrase']);
         static::assertNotNull($eventLog['request_content']);
@@ -341,7 +343,7 @@ class OutboxEventRepositoryTest extends TestCase
 
         $this->repository->markRunning($this->ids->get('evt-1'));
         $this->repository->markFailed($this->ids->get('evt-1'), new DeliveryResponse(
-            processingTime: 300,
+            processingTimeSeconds: self::SAMPLE_PROCESSING_TIME_SECONDS,
             requestContent: json_encode(['headers' => []], \JSON_THROW_ON_ERROR),
             responseContent: json_encode(['body' => 'error'], \JSON_THROW_ON_ERROR),
             responseStatusCode: 500,
@@ -355,7 +357,7 @@ class OutboxEventRepositoryTest extends TestCase
         );
         static::assertNotFalse($eventLog);
         static::assertSame(WebhookEventLogDefinition::STATUS_FAILED, $eventLog['delivery_status']);
-        static::assertSame(300, (int) $eventLog['processing_time']);
+        static::assertSame(self::SAMPLE_PROCESSING_TIME_SECONDS, (int) $eventLog['processing_time']);
         static::assertSame(500, (int) $eventLog['response_status_code']);
         static::assertSame('Internal Server Error', $eventLog['response_reason_phrase']);
 
@@ -371,7 +373,7 @@ class OutboxEventRepositoryTest extends TestCase
 
         $this->repository->markRunning($this->ids->get('evt-1'));
         $this->repository->resetForRetry($this->ids->get('evt-1'), new DeliveryResponse(
-            processingTime: 100,
+            processingTimeSeconds: self::SAMPLE_PROCESSING_TIME_SECONDS,
             requestContent: '{}',
             responseStatusCode: 503,
             responseReasonPhrase: 'Service Unavailable',
@@ -395,7 +397,7 @@ class OutboxEventRepositoryTest extends TestCase
             ['id' => $this->ids->getBytes('evt-1')]
         );
         static::assertNotFalse($eventLog);
-        static::assertSame(100, (int) $eventLog['processing_time']);
+        static::assertSame(self::SAMPLE_PROCESSING_TIME_SECONDS, (int) $eventLog['processing_time']);
         static::assertSame(503, (int) $eventLog['response_status_code']);
     }
 
@@ -511,7 +513,7 @@ class OutboxEventRepositoryTest extends TestCase
 
         $retryAt = new \DateTimeImmutable('+5 seconds');
         $response = new DeliveryResponse(
-            processingTime: 42,
+            processingTimeSeconds: self::SAMPLE_PROCESSING_TIME_SECONDS,
             requestContent: json_encode(['headers' => []], \JSON_THROW_ON_ERROR),
             responseContent: json_encode(['body' => 'error'], \JSON_THROW_ON_ERROR),
             responseStatusCode: 500,
@@ -526,7 +528,7 @@ class OutboxEventRepositoryTest extends TestCase
         );
         static::assertNotFalse($eventLog);
         static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $eventLog['delivery_status']);
-        static::assertSame(42, (int) $eventLog['processing_time']);
+        static::assertSame(self::SAMPLE_PROCESSING_TIME_SECONDS, (int) $eventLog['processing_time']);
         static::assertSame(500, (int) $eventLog['response_status_code']);
     }
 

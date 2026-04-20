@@ -275,8 +275,8 @@ class WebhookClientTest extends TestCase
         $client = $this->createClient($mockHandler);
         $result = $client->send($this->createWebhookRequest());
 
-        static::assertNotNull($result->processingTime);
-        static::assertGreaterThanOrEqual(0, $result->processingTime);
+        static::assertNotNull($result->processingTimeSeconds);
+        static::assertGreaterThanOrEqual(0, $result->processingTimeSeconds);
     }
 
     public function testSendFailureRecordsDurationMs(): void
@@ -289,8 +289,8 @@ class WebhookClientTest extends TestCase
         $result = $client->send($this->createWebhookRequest());
 
         static::assertFalse($result->successful());
-        static::assertNotNull($result->processingTime);
-        static::assertGreaterThanOrEqual(0, $result->processingTime);
+        static::assertNotNull($result->processingTimeSeconds);
+        static::assertGreaterThanOrEqual(0, $result->processingTimeSeconds);
     }
 
     public function testSendBatchFulfilledRecordsDurationMs(): void
@@ -309,9 +309,9 @@ class WebhookClientTest extends TestCase
 
         static::assertCount(2, $results);
         foreach ($results as $key => $result) {
-            static::assertTrue($result->successful(), "Expected result '{$key}' to be successful");
-            static::assertNotNull($result->processingTime, "Expected result '{$key}' to have processingTime");
-            static::assertGreaterThanOrEqual(0, $result->processingTime, "Expected result '{$key}' processingTime >= 0");
+            static::assertTrue($result->successful(), \sprintf('Expected result "%s" to be successful', $key));
+            static::assertNotNull($result->processingTimeSeconds, \sprintf('Expected result "%s" to have processingTimeSeconds', $key));
+            static::assertGreaterThanOrEqual(0, $result->processingTimeSeconds, \sprintf('Expected result "%s" processingTimeSeconds >= 0', $key));
         }
     }
 
@@ -331,9 +331,9 @@ class WebhookClientTest extends TestCase
 
         static::assertCount(2, $results);
         foreach ($results as $key => $result) {
-            static::assertFalse($result->successful(), "Expected result '{$key}' to be a failure");
-            static::assertNotNull($result->processingTime, "Expected result '{$key}' to have processingTime");
-            static::assertGreaterThanOrEqual(0, $result->processingTime, "Expected result '{$key}' processingTime >= 0");
+            static::assertFalse($result->successful(), \sprintf('Expected result "%s" to be a failure', $key));
+            static::assertNotNull($result->processingTimeSeconds, \sprintf('Expected result "%s" to have processingTimeSeconds', $key));
+            static::assertGreaterThanOrEqual(0, $result->processingTimeSeconds, \sprintf('Expected result "%s" processingTimeSeconds >= 0', $key));
         }
     }
 

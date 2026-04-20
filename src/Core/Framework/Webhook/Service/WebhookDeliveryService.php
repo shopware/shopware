@@ -16,19 +16,12 @@ use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * Domain orchestrator for webhook delivery with outbox-owned retries.
- *
- * Owns the full delivery lifecycle: persist → route (sync/async) → send HTTP → mark success/retry/failed.
- *
  * @internal
  */
 #[Package('framework')]
 class WebhookDeliveryService
 {
-    /**
-     * Matches the 5-entry delay table in RetryDelayCalculator::RETRY_DELAYS.
-     * Attempts 1..5 each schedule a retry; attempt 6 is terminal (markFailed + failure strategy).
-     */
+    // Matches RetryDelayCalculator::RETRY_DELAYS; attempt 6 is terminal.
     private const MAX_RETRIES = 5;
 
     private readonly WebhookFailureStrategy $failureStrategy;
@@ -48,12 +41,6 @@ class WebhookDeliveryService
     }
 
     /**
-     * Routes a batch of messages to sync or async delivery.
-     *
-     * - Sync: admin worker enabled, or $forceSynchronous (lifecycle events — preserves
-     *   trunk race-prevention semantics until v6.8.0 removes the flag).
-     * - Async: dispatched to the messenger bus.
-     *
      * @param list<WebhookEventMessage> $messages
      * @param bool $forceSynchronous @deprecated tag:v6.8.0 — removed; all deliveries become async.
      */
@@ -72,12 +59,12 @@ class WebhookDeliveryService
 
     public function deliver(WebhookEventMessage $message): void
     {
-        $entry = $this->outboxEventRepository->markRunning($message->getWebhookEventId());
-        if ($entry === null) {
-            return;
-        }
-
         try {
+            $entry = $this->outboxEventRepository->markRunning($message->getWebhookEventId());
+            if ($entry === null) {
+                return;
+            }
+
             $request = $this->buildRequest($message);
             $result = $this->webhookClient->send($request);
             $this->handleResult($message->getWebhookEventId(), $message->getWebhookId(), $entry->executionCount, $request, $result);
@@ -89,7 +76,12 @@ class WebhookDeliveryService
             ]);
             try {
                 $this->outboxEventRepository->markFailed($message->getWebhookEventId());
-            } catch (DBALException) {
+            } catch (DBALException $dbalException) {
+                $this->logger->error('Webhook delivery terminal write failed for event {eventId}', [
+                    'eventId' => $message->getWebhookEventId(),
+                    'webhookId' => $message->getWebhookId(),
+                    'exception' => $dbalException,
+                ]);
             }
         } catch (DBALException $e) {
             $this->logger->error('Webhook delivery persistence failed for event {eventId}', [
@@ -101,9 +93,6 @@ class WebhookDeliveryService
     }
 
     /**
-     * Delivers a batch of messages synchronously via parallel Guzzle Pool.
-     * Persists outbox entries directly (bypasses transport sender).
-     *
      * @param list<WebhookEventMessage> $messages
      */
     private function deliverBatch(array $messages): void
@@ -165,24 +154,16 @@ class WebhookDeliveryService
 
     private function handleFailure(string $eventLogId, string $webhookId, int $executionCount, DeliveryResponse $response): void
     {
+        $this->webhookStateRepository->recordFailure($webhookId, $this->failureStrategy);
+
         if ($executionCount > self::MAX_RETRIES) {
             $this->outboxEventRepository->markFailed($eventLogId, $response);
-            $this->applyFailureStrategy($webhookId);
 
             return;
         }
 
         $retryAt = $this->retryDelayCalculator->computeNextRetryAt(max(1, $executionCount));
         $this->outboxEventRepository->markPendingRetry($eventLogId, $retryAt, $response);
-    }
-
-    private function applyFailureStrategy(string $webhookId): void
-    {
-        $newCount = $this->webhookStateRepository->incrementErrorCount($webhookId);
-
-        if ($this->failureStrategy === WebhookFailureStrategy::DisableOnThreshold && $newCount >= WebhookFailureStrategy::MAX_ERROR_COUNT) {
-            $this->webhookStateRepository->deactivate($webhookId);
-        }
     }
 
     private function buildRequest(WebhookEventMessage $message): WebhookRequest

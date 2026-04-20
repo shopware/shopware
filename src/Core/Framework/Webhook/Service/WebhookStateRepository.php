@@ -6,15 +6,10 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 
 /**
- * Webhook-level data operations (error counts, active state).
- * Uses RelatedWebhooks to match trunk behavior: updates propagate to all
- * webhooks with the same event name, URL, and live-version config.
- *
- * TODO: In a follow-up, evolve into a WebhookState service that receives a DeliveryResult
- * (successful + httpStatusCode) and owns the health/failure decisions internally. This will
- * become the seam for the Phase 2 endpoint health model (HEALTHY/DEGRADED/SUSPENDED/DISABLED).
+ * Writes propagate to all related webhooks (same event name, URL, live-version config) via RelatedWebhooks.
  *
  * @internal
  */
@@ -28,41 +23,30 @@ class WebhookStateRepository
     }
 
     /**
-     * Increments the error_count for this webhook and all related webhooks.
-     * Returns the new error_count for the given webhook.
+     * Increments error_count and applies the strategy atomically. No-op if the webhook is missing or inactive.
      */
-    public function incrementErrorCount(string $webhookId): int
+    public function recordFailure(string $webhookId, WebhookFailureStrategy $strategy): void
     {
-        $id = Uuid::fromHexToBytes($webhookId);
-
         $row = $this->connection->fetchAssociative(
             'SELECT active, error_count FROM webhook WHERE id = :id',
-            ['id' => $id]
+            ['id' => Uuid::fromHexToBytes($webhookId)]
         );
 
         if (!\is_array($row) || !$row['active']) {
-            return 0;
+            return;
         }
 
         $newCount = (int) $row['error_count'] + 1;
-        $this->relatedWebhooks->updateRelated($webhookId, ['error_count' => $newCount], Context::createDefaultContext());
 
-        return $newCount;
+        $params = $strategy === WebhookFailureStrategy::DisableOnThreshold && $newCount >= WebhookFailureStrategy::MAX_ERROR_COUNT
+            ? ['error_count' => 0, 'active' => 0]
+            : ['error_count' => $newCount];
+
+        $this->relatedWebhooks->updateRelated($webhookId, $params, Context::createDefaultContext());
     }
 
-    /**
-     * Resets error_count to 0 for this webhook and all related webhooks.
-     */
     public function resetErrorCount(string $webhookId): void
     {
         $this->relatedWebhooks->updateRelated($webhookId, ['error_count' => 0], Context::createDefaultContext());
-    }
-
-    /**
-     * Deactivates this webhook and all related webhooks, resetting their error_count.
-     */
-    public function deactivate(string $webhookId): void
-    {
-        $this->relatedWebhooks->updateRelated($webhookId, ['error_count' => 0, 'active' => 0], Context::createDefaultContext());
     }
 }

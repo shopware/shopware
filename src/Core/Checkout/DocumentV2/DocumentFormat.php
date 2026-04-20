@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\DocumentV2;
+
 use Shopware\Core\Framework\Log\Package;
 
 /**

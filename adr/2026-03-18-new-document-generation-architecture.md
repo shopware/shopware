@@ -213,8 +213,9 @@ Every renderer is:
 
 A rough draft of the `AbstractDocumentRenderer` interface looks like this
 (note this might change slightly during implementation)
+
 ```php
-abstract class AbstractDocumentRenderer
+use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;abstract class AbstractDocumentRenderer
 {
     /**
      * If the renderer supports a specific document type.

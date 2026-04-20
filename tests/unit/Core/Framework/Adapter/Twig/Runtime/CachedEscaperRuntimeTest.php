@@ -412,7 +412,7 @@ class CachedEscaperRuntimeTest extends TestCase
     }
 
     /**
-     * @return \Generator<string, array{input: int|float|string|null, expected: string}>
+     * @return \Generator<string, array{input: array{}|int|float|string|null, expected: array{}|string}>
      */
     public static function EscapeDataProvider(): \Generator
     {
@@ -440,17 +440,26 @@ class CachedEscaperRuntimeTest extends TestCase
             'input' => '<script>alert("test")</script>',
             'expected' => '&lt;script&gt;alert(&quot;test&quot;)&lt;/script&gt;',
         ];
+
+        yield 'array input' => [
+            'input' => [],
+            'expected' => [],
+        ];
     }
 
+    /**
+     * @param array{}|int|float|string|null $input
+     * @param array{}|string $expected
+     */
     #[DataProvider('EscapeDataProvider')]
-    public function testEscapeWithVariousInputs(int|float|string|null $input, string $expected): void
+    public function testEscapeWithVariousInputs(array|int|float|string|null $input, array|string $expected): void
     {
         $result = $this->escaper->escape($input, 'html', 'UTF-8');
 
         static::assertSame($expected, $result);
     }
 
-    public function testEscapeWithCache(): void
+    public function testEscapeWithCachedString(): void
     {
         $this->escaper::resetEscapeCache();
 
@@ -465,6 +474,32 @@ class CachedEscaperRuntimeTest extends TestCase
 
         // Second call to get the cached result
         $result2 = $this->escaper->escape($string, 'html', 'UTF-8');
+
+        // Assert that the results are the same, indicating the cache was used
+        static::assertSame($result1, $result2);
+    }
+
+    public function testEscapeWithCachedStringable(): void
+    {
+        $this->escaper::resetEscapeCache();
+
+        // First call to cache the result
+        $stringable = new class implements \Stringable {
+            public function __toString(): string
+            {
+                return 'cached_string';
+            }
+        };
+        $hash = spl_object_hash($stringable);
+        $result1 = $this->escaper->escape($stringable, 'html', 'UTF-8');
+
+        // Make sure result is cached
+        $cache = (new \ReflectionProperty($this->escaper, 'escapeCache'))->getValue();
+        static::assertCount(1, $cache);
+        static::assertArrayHasKey($hash, $cache);
+
+        // Second call to get the cached result
+        $result2 = $this->escaper->escape($stringable, 'html', 'UTF-8');
 
         // Assert that the results are the same, indicating the cache was used
         static::assertSame($result1, $result2);

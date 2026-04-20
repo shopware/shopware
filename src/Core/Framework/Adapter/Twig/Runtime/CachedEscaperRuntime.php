@@ -85,20 +85,19 @@ class CachedEscaperRuntime implements RuntimeExtensionInterface
      */
     public function escape(mixed $string, string $strategy = 'html', ?string $charset = null, bool $autoescape = false): mixed
     {
-        if (\is_bool($string)) {
-            return $string;
+        $isStringAble = $string instanceof \Stringable;
+        if ($isStringAble) {
+            $hash = spl_object_hash($string);
+            if (isset(self::$escapeCache[$hash][$strategy])) {
+                return self::$escapeCache[$hash][$strategy];
+            }
         }
 
-        if ($string === null) {
-            $string = '';
-        }
-
-        if (\is_int($string) || \is_float($string)) {
+        if (\is_int($string) || \is_float($string) || $string === null) {
             $string = (string) $string;
         }
 
         $isString = \is_string($string);
-
         if ($isString) {
             if (isset(self::$escapeCache[$string][$strategy])) {
                 return self::$escapeCache[$string][$strategy];
@@ -111,9 +110,19 @@ class CachedEscaperRuntime implements RuntimeExtensionInterface
             }
         }
 
+        if (\is_bool($string)) {
+            return $string;
+        }
+
         $result = $this->originalEscaperRuntime->escape($string, $strategy, $charset, $autoescape);
 
-        if (!$isString) {
+        if (!$isString && !$isStringAble) {
+            return $result;
+        }
+
+        if ($isStringAble) {
+            self::$escapeCache[$hash][$strategy] = $result;
+
             return $result;
         }
 

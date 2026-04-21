@@ -52,6 +52,18 @@
                 {% set isRegulationPrice = price.regulationPrice != null %}
 
                 {#
+                    PAngV §11 compliance: when a 30-day lowest price (regulationPrice) is shown next to the
+                    strike-through price, the displayed savings percentage must be calculated against the
+                    30-day lowest price rather than the strike-through list price.
+                #}
+                {% set displayedListPricePercentage = price.listPrice.percentage %}
+                {% if isListPrice and isRegulationPrice and price.regulationPrice.price > 0 %}
+                    {% set displayedListPricePercentage = ((1 - price.unitPrice / price.regulationPrice.price) * 100)|round(2) %}
+                {% endif %}
+                {# Guard: unitPrice > regulationPrice yields a negative "savings" which is not meaningful; clamp to 0. #}
+                {% set displayedListPricePercentage = max(0, displayedListPricePercentage) %}
+
+                {#
                     Cheapest price display for variants. Used when the product is a single variant that is directly buy-able from the listing.
                     Example: "Variants from $120.00"
                 #}
@@ -112,7 +124,7 @@
 
                                 {% if afterListPriceSnippetExists %}{{ 'listing.afterListPrice'|trans|trim|sw_sanitize }}{% endif %}
 
-                                <span class="list-price-percentage">{{ 'detail.listPricePercentage'|trans({'%price%': price.listPrice.percentage })|sw_sanitize }}</span>
+                                <span class="list-price-percentage">{{ 'detail.listPricePercentage'|trans({'%price%': displayedListPricePercentage })|sw_sanitize }}</span>
                             </span>
                         {% endif %}
                     </span>

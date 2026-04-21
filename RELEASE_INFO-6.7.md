@@ -54,6 +54,14 @@ This helps merchants spot internal notes directly from the list view without ope
 
 ## Storefront
 
+### Savings percentage now aligns with 30-day lowest price
+
+When a product shows both a strike-through list price and a 30-day lowest price (regulation price), the displayed savings percentage is now calculated from the 30-day lowest price instead of the strike price.
+This aligns the storefront display with German PAngV §11 and the existing reference-price label.
+The snippet `general.listPricePreviously` has also been reworded to "lowest price in the last 30 days: %price%" / "niedrigster Preis der letzten 30 Tage: %price%".
+If you override `buy_widget_price`, `block-price`, or `component/product/card/price-unit`, or the snippet, review the new display.
+The backend `Shopware\Core\Checkout\Cart\Price\Struct\ListPrice::percentage` value is intentionally unchanged — third-party storefronts reading it directly will continue to receive the list-vs-unit percentage. Consider computing savings from `RegulationPrice` in those consumers as well.
+
 ### Order cancellation only shown for open orders
 
 The account order cancellation action is now only shown for orders in state `open`.

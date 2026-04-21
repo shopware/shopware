@@ -2,6 +2,20 @@
     {% set isListPrice = price.listPrice.percentage > 0 %}
     {% set isRegulationPrice = price.regulationPrice != null %}
 
+    {#
+        PAngV §11 compliance: when a 30-day lowest price (regulationPrice) is shown next to the
+        strike-through price, the displayed savings percentage must be calculated against the
+        30-day lowest price rather than the strike-through list price.
+    #}
+    {% set displayedListPricePercentage = price.listPrice.percentage %}
+    {% if isListPrice and isRegulationPrice and price.regulationPrice.price > 0 %}
+        {% set displayedListPricePercentage = ((1 - price.unitPrice / price.regulationPrice.price) * 100)|round(2) %}
+    {% endif %}
+    {# Guard: when unitPrice exceeds the reference, the calculated "savings" becomes
+       negative and is not a meaningful discount to advertise. Drop to 0 instead so
+       the badge is rendered as "0% saved" or suppressed by the downstream template. #}
+    {% set displayedListPricePercentage = max(0, displayedListPricePercentage) %}
+
     <div>
         {% block component_product_detail_block_price_content %}
             {% if price.listprice and isListPrice %}
@@ -18,7 +32,7 @@
 
                         {% if afterListPriceSnippetExists %}{{ 'listing.afterListPrice'|trans }}{% endif %}
 
-                        <span class="list-price-percentage">{{ 'detail.listPricePercentage'|trans({'%price%': price.listPrice.percentage })|sw_sanitize }}</span>
+                        <span class="list-price-percentage">{{ 'detail.listPricePercentage'|trans({'%price%': displayedListPricePercentage })|sw_sanitize }}</span>
                     </span>
                 {% endblock %}
             {% else %}

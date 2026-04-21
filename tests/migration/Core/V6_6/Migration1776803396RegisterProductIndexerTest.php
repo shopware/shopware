@@ -24,6 +24,13 @@ class Migration1776803396RegisterProductIndexerTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        $migration = new Migration1776803396RegisterProductIndexer();
+
+        static::assertSame(1776803396, $migration->getCreationTimestamp());
+    }
+
     public function testProductIndexerIsRegistered(): void
     {
         $migration = new Migration1776803396RegisterProductIndexer();

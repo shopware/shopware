@@ -25,6 +25,7 @@ use Shopware\Core\Kernel;
 use Shopware\Core\Migration\Traits\StateMachineMigrationImporter;
 use Shopware\Core\Migration\V6_4\Migration1632721037OrderDocumentMailTemplate;
 use Shopware\Core\Migration\V6_5\Migration1672931011ReviewFormMailTemplate;
+use Shopware\Core\Migration\V6_7\Migration1756305375AddCategoriesIndexToProduct;
 use Symfony\Component\Console\Command\Command;
 
 /**
@@ -63,6 +64,7 @@ class DomainExceptionRule implements Rule
         FastlyReverseProxyGateway::class => ReverseProxyException::class,
         Migration1672931011ReviewFormMailTemplate::class => MigrationException::class,
         Migration1632721037OrderDocumentMailTemplate::class => MigrationException::class,
+        Migration1756305375AddCategoriesIndexToProduct::class => MigrationException::class,
         StateMachineMigrationImporter::class => MigrationException::class,
     ];
 

@@ -91,6 +91,42 @@ So instead of defining a index mapping with empty `properties`, we should omit `
 ```
 
 # 6.7.3.0
+## MySQL 8.4+: disable `restrict_fk_on_non_standard_key` before updating
+Starting with 6.7.3.0 the migration `Shopware\Core\Migration\V6_7\Migration1756305375AddCategoriesIndexToProduct` adds a new index on the `product` table:
+
+```sql
+CREATE INDEX `idx.product.categories` ON `product` (`categories`)
+```
+
+On MySQL 8.4, 9.4 and 9.5 this statement can fail with:
+
+```
+SQLSTATE[HY000]: General error: 1553
+Cannot drop index '<unknown key name>': needed in a foreign key constraint
+```
+
+This is caused by the upstream MySQL bug [#118151](https://bugs.mysql.com/bug.php?id=118151), triggered when the server variable `restrict_fk_on_non_standard_key` is enabled (the default on MySQL 8.4+) and the `product` table has foreign-key-supporting indexes that the tightened check now classifies as "non-standard". The failure is not specific to this statement: any index DDL on `product` (even `OPTIMIZE TABLE product`) fails while the setting is on.
+
+MariaDB and MySQL 8.0 are not affected.
+
+**Before running the Shopware update on MySQL 8.4+, disable the setting**, either per server (recommended) or per session:
+
+```ini
+# my.cnf, under [mysqld]
+restrict_fk_on_non_standard_key = OFF
+```
+
+```sql
+-- requires SUPER / SYSTEM_VARIABLES_ADMIN
+SET GLOBAL restrict_fk_on_non_standard_key = OFF;
+```
+
+After the update completes successfully you may restore the previous value.
+
+If you ran the update without disabling the setting first, the migration will now abort with a clear error message referencing this section instead of the opaque MySQL 1553 error. Re-run `bin/console database:migrate` after flipping the server variable.
+
+See [shopware/shopware#13039](https://github.com/shopware/shopware/issues/13039) for background.
+
 ## Migration from controller variables to activeRoute
 Replace `controllerName` and `controllerAction` with `activeRoute`:
 * Twig: Use `activeRoute` instead of `controllerName`/`controllerAction`

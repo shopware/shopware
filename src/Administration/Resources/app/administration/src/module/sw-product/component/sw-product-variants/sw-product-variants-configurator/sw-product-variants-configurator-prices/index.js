@@ -65,7 +65,7 @@ export default {
                     label: currency.name,
                     rawData: true,
                     allowResize: true,
-                    width: '200px',
+                    width: 'calc(var(--scale-size-160) + var(--scale-size-40))',
                 };
             });
 

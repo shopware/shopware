@@ -6,8 +6,8 @@
     <div class="sw-configuration-option-list__toolbar">
         {% block sw_product_variants_overview_option_list_toolbar_container %}
         <sw-container
-            columns="1fr minmax(min-content, max-content) minmax(min-content, 180px) minmax(min-content, 180px)"
-            gap="0 10px"
+            columns="1fr minmax(min-content, max-content) minmax(min-content, calc(var(--scale-size-160) + var(--scale-size-20))) minmax(min-content, calc(var(--scale-size-160) + var(--scale-size-20)))"
+            gap="0 var(--scale-size-10)"
         >
 
             {% block sw_product_variants_overview_option_list_toolbar_container_search_field %}
@@ -30,7 +30,7 @@
                     {{ $tc('sw-product.variations.generatedFilterList') }}
                     <mt-icon
                         name="regular-filter"
-                        size="12px"
+                        size="var(--scale-size-12)"
                     />
                 </mt-button>
                 {% endblock %}
@@ -39,7 +39,7 @@
                 <sw-context-menu v-show="filterWindowOpen">
                     <sw-container
                         columns="1fr"
-                        gap="5px"
+                        gap="var(--scale-size-6)"
                     >
 
                         {% block sw_product_variants_overview_option_list_toolbar_container_filter_tree %}
@@ -353,20 +353,20 @@
                 <mt-icon
                     v-if="item.active === true"
                     name="regular-checkmark-xs"
-                    size="12px"
+                    size="var(--scale-size-12)"
                     class="is--active"
                 />
                 <mt-icon
                     v-else-if="item.active === false"
                     name="regular-times-s"
-                    size="10px"
+                    size="var(--scale-size-10)"
                     class="is--inactive"
                 />
                 <mt-icon
                     v-else
                     key="inherit-icon"
                     name="regular-link-horizontal"
-                    size="16px"
+                    size="var(--scale-size-16)"
                 />
             </template>
         </template>
@@ -548,13 +548,13 @@
                         v-if="item.active === true"
                         class="is--active"
                         name="regular-checkmark-xs"
-                        size="16px"
+                        size="var(--scale-size-16)"
                     />
                     <mt-icon
                         v-else-if="item.active === false"
                         class="is--inactive"
                         name="regular-times-s"
-                        size="16px"
+                        size="var(--scale-size-16)"
                     />
                     <mt-icon
                         v-else

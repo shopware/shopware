@@ -42,7 +42,7 @@
 
     {% block sw_product_category_form_visibility_field_link %}
     <sw-container
-        columns="repeat(auto-fit, minmax(250px, 1fr))"
+        columns="repeat(auto-fit, minmax(calc(var(--scale-size-224) + var(--scale-size-26)), 1fr))"
         align="center"
     >
         {% block sw_product_category_form_active_field %}
@@ -81,7 +81,7 @@
             {{ $tc('sw-product.visibility.linkAdvancedVisibility') }}
             <mt-icon
                 name="regular-long-arrow-right"
-                size="16px"
+                size="var(--scale-size-16)"
             />
         </a>
     </sw-container>

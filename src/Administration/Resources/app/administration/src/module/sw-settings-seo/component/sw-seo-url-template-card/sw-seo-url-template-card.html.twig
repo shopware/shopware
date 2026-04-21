@@ -30,7 +30,7 @@
         >
             <sw-container
                 columns="3fr 1fr"
-                gap="5px"
+                gap="var(--scale-size-6)"
             >
                 {% block sw_seo_url_template_card_entries_input_wrapper %}
                 <sw-inherit-wrapper
@@ -61,7 +61,7 @@
                                 {% block sw_seo_url_template_card_entries_input_suffix %}
                                 <sw-loader
                                     v-if="previewLoadingStates[seoUrlTemplate.id]"
-                                    size="16px"
+                                    size="var(--scale-size-16)"
                                 />
                                 <mt-icon
                                     v-else-if="errorMessages[seoUrlTemplate.id]"

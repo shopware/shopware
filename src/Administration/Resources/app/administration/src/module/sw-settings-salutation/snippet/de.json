@@ -20,7 +20,7 @@
     "detail": {
       "cardTitle": "Anrede",
       "fieldPositionLabel": "Position",
-      "fieldPositionPlaceholder": "Wähle eine Position...",
+      "fieldPositionPlaceholder": "Wähle eine Position ...",
       "fieldPositionTooltip": "Steuert die Anzeige-Reihenfolge in Auswahlfeldern; kleinere Zahlen stehen weiter oben.",
       "fieldDisplayNameLabel": "Anrede",
       "fieldDisplayNamePlaceholder": "Bitte gib eine Anrede an ...",

@@ -33,7 +33,6 @@ Shopware.Service('privileges')
                     'order_delivery:read',
                     'order_line_item:read',
                     'shipping_method:read',
-                    'mail_template_sales_channel:read',
                     'mail_template_type:read',
                     'country:read',
                     'country_state:read',
@@ -63,7 +62,6 @@ Shopware.Service('privileges')
                 privileges: [
                     'mail_template:read',
                     'state_machine_history:create',
-                    'mail_template_sales_channel:create',
                     'document:update',
                     'document:create',
                     'order:update',

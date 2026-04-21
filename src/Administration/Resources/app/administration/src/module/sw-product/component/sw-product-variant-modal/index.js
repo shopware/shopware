@@ -183,7 +183,7 @@ export default {
                     dataIndex: `price.${this.currency?.id || ''}.net`,
                     label: 'sw-product.list.columnPrice',
                     allowResize: true,
-                    width: '250px',
+                    width: 'calc(var(--scale-size-224) + var(--scale-size-26))',
                     inlineEdit: 'number',
                     align: 'right',
                 },

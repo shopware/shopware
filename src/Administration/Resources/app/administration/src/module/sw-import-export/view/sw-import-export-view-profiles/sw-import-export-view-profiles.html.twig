@@ -2,7 +2,7 @@
 <div class="sw-import-export-view-profiles">
     {% block sw_import_export_view_profile_profiles %}
     <mt-card
-        :title="$tc('sw-import-export.page.profileTab')"
+        :title="$t('sw-import-export.page.profileTab')"
         class="sw-import-export-view-profiles__grid-card"
         position-identifier="sw-import-export-view-profiles"
     >
@@ -27,7 +27,7 @@
                 variant="secondary"
                 @click="onAddNewProfile"
             >
-                {{ $tc('sw-import-export.profile.addNewProfileLabel') }}
+                {{ $t('sw-import-export.profile.addNewProfileLabel') }}
             </mt-button>
             {% endblock %}
         </div>
@@ -75,7 +75,7 @@
                     class="sw-import-export-view-profiles__listing-open-action"
                     @click="onEditProfile(item.id)"
                 >
-                    {{ $tc('sw-import-export.profile.openLabel') }}
+                    {{ $t('sw-import-export.profile.openLabel') }}
                 </sw-context-menu-item>
                 {% endblock %}
 
@@ -84,7 +84,7 @@
                     class="sw-import-export-view-profiles__listing-duplicate-action"
                     @click="onDuplicateProfile(item)"
                 >
-                    {{ $tc('sw-import-export.profile.duplicateLabel') }}
+                    {{ $t('sw-import-export.profile.duplicateLabel') }}
                 </sw-context-menu-item>
                 {% endblock %}
 
@@ -93,7 +93,7 @@
                     class="sw-import-export-view-profiles__listing-download-template-action"
                     @click="onDownloadTemplate(item)"
                 >
-                    {{ $tc('sw-import-export.profile.downloadTemplateLabel') }}
+                    {{ $t('sw-import-export.profile.downloadTemplateLabel') }}
                 </sw-context-menu-item>
                 {% endblock %}
 
@@ -104,7 +104,7 @@
                     :disabled="item.systemDefault"
                     @click="onDeleteProfile(item.id)"
                 >
-                    {{ $tc('sw-import-export.profile.deleteLabel') }}
+                    {{ $t('sw-import-export.profile.deleteLabel') }}
                 </sw-context-menu-item>
                 {% endblock %}
             </template>

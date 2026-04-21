@@ -99,7 +99,7 @@ export default Shopware.Component.wrapComponentConfig({
                     const labelA = labelOfSetting(a);
                     const labelB = labelOfSetting(b);
 
-                    return this.$tc(labelA).localeCompare(this.$tc(labelB));
+                    return this.$t(labelA).localeCompare(this.$t(labelB));
                 }),
             );
 
@@ -169,7 +169,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             if (typeof settingsItem.label === 'string') {
-                return this.$tc(settingsItem.label);
+                return this.$t(settingsItem.label);
             }
 
             if (typeof settingsItem.label !== 'object') {
@@ -188,12 +188,12 @@ export default Shopware.Component.wrapComponentConfig({
                 return settingsItem.label.label;
             }
 
-            return this.$tc(settingsItem.label.label);
+            return this.$t(settingsItem.label.label);
         },
 
         getGroupLabel(settingsGroup: string) {
             const upper = settingsGroup.charAt(0).toUpperCase() + settingsGroup.slice(1);
-            return this.$tc(`sw-settings.index.tab${upper}`);
+            return this.$t(`sw-settings.index.tab${upper}`);
         },
 
         itemIsQueried(label: string) {

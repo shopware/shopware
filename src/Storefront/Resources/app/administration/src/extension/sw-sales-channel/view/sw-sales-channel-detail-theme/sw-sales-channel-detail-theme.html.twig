@@ -1,5 +1,5 @@
 {% block sw_sales_channel_detail_theme %}
-    <sw-card :title="$tc('sales-channel-theme.title')" :isLoading="isLoading">
+    <sw-card :title="$t('sales-channel-theme.title')" :isLoading="isLoading">
         <div class="sw-sales-channel-detail-theme">
 
             {% block sw_sales_channel_detail_theme_preview %}
@@ -33,7 +33,7 @@
 
                             {% block sw_sales_channel_detail_theme_info_name %}
                                 <div class="sw-sales-channel-detail-theme__info-name" :class="{ 'is--empty': !theme }">
-                                    {{ theme ? theme.name : $tc('sales-channel-theme.defaultTitle') }}
+                                    {{ theme ? theme.name : $t('sales-channel-theme.defaultTitle') }}
                                 </div>
                             {% endblock %}
 
@@ -46,7 +46,7 @@
                             {% block sw_sales_channel_detail_theme_info_description %}
                                 <div v-if="theme && theme.description" class="sw-sales-channel-detail-theme__info-description">
                                     <p class="sw-sales-channel-detail-theme__info-description-title">
-                                        {{ $tc('sw-theme-manager.detail.description') }}:
+                                        {{ $t('sw-theme-manager.detail.description') }}:
                                     </p>
                                     <p>{{ theme.description |truncate(140) }}</p>
                                 </div>
@@ -59,13 +59,13 @@
 
                             {% block sw_sales_channel_detail_theme_info_actions_theme %}
                                 <sw-button size="small" @click="openThemeModal" :disabled="!acl.can('sales_channel.editor')">
-                                    {{ theme ? $tc('sales-channel-theme.changeTheme') : $tc('sales-channel-theme.changeThemeEmpty') }}
+                                    {{ theme ? $t('sales-channel-theme.changeTheme') : $t('sales-channel-theme.changeThemeEmpty') }}
                                 </sw-button>
                             {% endblock %}
 
                             {% block sw_sales_channel_detail_theme_info_actions_manager %}
                                 <sw-button size="small" @click="openInThemeManager" :disabled="!acl.can('sales_channel.editor')">
-                                    {{ theme ? $tc('sales-channel-theme.editContent'): $tc('sales-channel-theme.createTheme') }}
+                                    {{ theme ? $t('sales-channel-theme.editContent'): $t('sales-channel-theme.createTheme') }}
                                 </sw-button>
                             {% endblock %}
                         </div>

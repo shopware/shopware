@@ -389,7 +389,7 @@ export default Component.wrapComponentConfig({
 
             if (promotionCodeLength > 0 && latestTag.isInvalid) {
                 this.promotionError = {
-                    detail: this.$tc('sw-order.createBase.textInvalidPromotionCode'),
+                    detail: this.$t('sw-order.createBase.textInvalidPromotionCode'),
                 } as ShopwareHttpError;
             }
         },

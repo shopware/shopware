@@ -645,6 +645,10 @@ The following exception classes were removed and replaced by domain exceptions:
 * `\Shopware\Core\System\NumberRange\Exception\IncrementStorageNotFoundException` -> `\Shopware\Core\System\NumberRange\Exception\NumberRangeException::incrementStorageNotFound()`
 * `\Shopware\Core\System\NumberRange\Exception\NoConfigurationException` -> `\Shopware\Core\System\NumberRange\NumberRangeException::noConfigurationForEntity()`
 
+### Removed non-used `MAIL_TEMPLATE_SALES_CHANNEL_*_EVENT` constants
+
+Removed the constants `Shopware\Core\Content\MailTemplate\MAIL_TEMPLATE_SALES_CHANNEL_{WRITTEN,DELETED,LOADED,SEARCH_RESULT_LOADED,AGGREGATION_LOADED,ID_SEARCH_RESULT_LOADED}_EVENT` as the entity has been removed with Shopware 6.5 and the events were not fired anymore.
+
 </details>
 
 # Administration
@@ -979,6 +983,9 @@ Use the parent blocks instead
 ## File accessibility changed from public to private
 `administration/src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/index.js`
 
+## The following template blocks have been replaced due to a typo in their name
+* `sw_condiiton_date_range_field_to_date` -> `sw_condition_date_range_field_to_date`
+
 ## Removed .png and .jpg images
 
 In favor of WebP the following images have been removed:
@@ -1104,6 +1111,10 @@ The following templates no longer contain any microdata attributes:
 | `page/error/error-maintenance.html.twig` | `WebPage` on `<html>` |
 
 If your plugin or theme adds structured data by extending blocks in the templates above, migrate your overrides to the new JSON-LD template extension points described below.
+
+## Cookie bar moved to the top of the page
+
+The default cookie bar (block `base_cookie_permission`) has been moved from the bottom of the page to the top of the page (after the opening `<body>` element).
 
 ## New JSON-LD structured data block system
 

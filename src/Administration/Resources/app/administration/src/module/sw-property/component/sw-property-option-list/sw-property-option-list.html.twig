@@ -3,7 +3,7 @@
     :is-loading="isLoading"
     class="sw-property-option-list"
     position-identifier="sw-property-option-list"
-    :title="$tc('sw-property.detail.cardTitle')"
+    :title="$t('sw-property.detail.cardTitle')"
 >
 
     {% block sw_property_option_list_toolbar %}
@@ -27,7 +27,7 @@
             {% block sw_property_option_list_toolbar_delete %}
             <mt-button
                 v-tooltip="{
-                    message: $tc('sw-privileges.tooltip.warning'),
+                    message: $t('sw-privileges.tooltip.warning'),
                     disabled: acl.can('property.editor'),
                     showOnDisabledElements: true
                 }"
@@ -49,7 +49,7 @@
             <sw-container v-tooltip="tooltipAdd">
                 <mt-button
                     v-tooltip="{
-                        message: $tc('sw-privileges.tooltip.warning'),
+                        message: $t('sw-privileges.tooltip.warning'),
                         disabled: acl.can('property.editor'),
                         showOnDisabledElements: true
                     }"
@@ -59,7 +59,7 @@
                     variant="secondary"
                     @click="onAddOption(propertyGroup)"
                 >
-                    {{ $tc('sw-property.detail.addOption') }}
+                    {{ $t('sw-property.detail.addOption') }}
                 </mt-button>
             </sw-container>
             {% endblock %}
@@ -111,7 +111,7 @@
                     :disabled="!acl.can('property.editor')"
                     @click="onOptionEdit(item)"
                 >
-                    {{ $tc('sw-property.list.contextMenuView') }}
+                    {{ $t('sw-property.list.contextMenuView') }}
                 </sw-context-menu-item>
                 {% endblock %}
             </template>
@@ -124,7 +124,7 @@
                     :disabled="!acl.can('property.editor')"
                     @click="onSingleOptionDelete(item.id)"
                 >
-                    {{ $tc('sw-property.list.contextMenuDelete') }}
+                    {{ $t('sw-property.list.contextMenuDelete') }}
                 </sw-context-menu-item>
             </template>
             {% endblock %}
@@ -134,8 +134,8 @@
         <mt-empty-state
             v-if="showEmptyState"
             :icon="$route.meta.$module.icon"
-            :headline="$tc('sw-property.detail.messageOptionsEmpty')"
-            :description="$tc('sw-property.detail.messageOptionsEmptySubline')"
+            :headline="$t('sw-property.detail.messageOptionsEmpty')"
+            :description="$t('sw-property.detail.messageOptionsEmptySubline')"
         />
         {% endblock %}
     </template>

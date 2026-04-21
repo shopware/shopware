@@ -140,7 +140,7 @@ export default {
 
                         this.createNotificationError({
                             autoClose: false,
-                            message: this.$tc(`sw-promotion-v2.detail.base.codes.individual.generateModal.${errorType}`),
+                            message: this.$t(`sw-promotion-v2.detail.base.codes.individual.generateModal.${errorType}`),
                         });
                     });
                 });

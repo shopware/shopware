@@ -82,7 +82,7 @@ export default {
         },
 
         fullName() {
-            return this.salutation(this.user, this.$tc('sw-users-permissions.users.user-detail.labelNewUser'));
+            return this.salutation(this.user, this.$t('sw-users-permissions.users.user-detail.labelNewUser'));
         },
 
         userRepository() {
@@ -159,7 +159,7 @@ export default {
             return [
                 {
                     property: 'accessKey',
-                    label: this.$tc('sw-users-permissions.users.user-detail.labelAccessKey'),
+                    label: this.$t('sw-users-permissions.users.user-detail.labelAccessKey'),
                 },
             ];
         },
@@ -319,7 +319,7 @@ export default {
                 const expression = `user.${this.user.id}.email`;
                 const error = new ShopwareError({
                     code: 'USER_EMAIL_ALREADY_EXISTS',
-                    detail: this.$tc('sw-users-permissions.users.user-detail.errorEmailUsed'),
+                    detail: this.$t('sw-users-permissions.users.user-detail.errorEmailUsed'),
                 });
 
                 Shopware.Store.get('error').addApiError({
@@ -424,8 +424,8 @@ export default {
                 this.isSaveSuccessful = true;
             } catch (exception) {
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
-                    message: this.$tc(
+                    title: this.$t('global.default.error'),
+                    message: this.$t(
                         'sw-users-permissions.users.user-detail.notification.saveError.message',
                         { name: this.fullName },
                         0,

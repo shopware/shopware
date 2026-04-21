@@ -13,33 +13,33 @@
                 class="sw-first-run-wizard-shopware-account__error"
             >
                 <mt-banner
-                    :title="$tc('global.default.error')"
+                    :title="$t('global.default.error')"
                     variant="critical"
                 >
-                    {{ $tc('sw-first-run-wizard.error.messageLoginDataInvalid') }}
+                    {{ $t('sw-first-run-wizard.error.messageLoginDataInvalid') }}
                 </mt-banner>
             </div>
 
             <h5 class="headline">
-                {{ $tc('sw-first-run-wizard.shopwareAccount.headline') }}
+                {{ $t('sw-first-run-wizard.shopwareAccount.headline') }}
             </h5>
 
             <p
                 class="message"
-                v-html="$tc('sw-first-run-wizard.shopwareAccount.message')"
+                v-html="$t('sw-first-run-wizard.shopwareAccount.message')"
             ></p>
 
             <p class="create-account">
-                <span>{{ $tc('sw-first-run-wizard.shopwareAccount.registerAccountText') }}</span>
+                <span>{{ $t('sw-first-run-wizard.shopwareAccount.registerAccountText') }}</span>
 
                 <mt-link
                     class="external-link"
-                    :to="$tc('sw-first-run-wizard.shopwareAccount.registerAccountUrl')"
+                    :to="$t('sw-first-run-wizard.shopwareAccount.registerAccountUrl')"
                     variant="primary"
                     type="external"
                     target="_blank"
                 >
-                    {{ $tc('sw-first-run-wizard.shopwareAccount.registerAccountHere') }}
+                    {{ $t('sw-first-run-wizard.shopwareAccount.registerAccountHere') }}
                 </mt-link>
             </p>
 
@@ -48,28 +48,28 @@
                     v-model="shopwareId"
                     name="shopwareId"
                     validation="required"
-                    :label="$tc('sw-first-run-wizard.shopwareAccount.emailAddressLabel')"
-                    :placeholder="$tc('sw-first-run-wizard.shopwareAccount.emailAddressPlaceholder')"
+                    :label="$t('sw-first-run-wizard.shopwareAccount.emailAddressLabel')"
+                    :placeholder="$t('sw-first-run-wizard.shopwareAccount.emailAddressPlaceholder')"
                 />
             </div>
 
             <div class="input-field-password">
                 <mt-password-field
                     v-model="password"
-                    :label="$tc('sw-first-run-wizard.shopwareAccount.passwordLabel')"
-                    :placeholder="$tc('sw-first-run-wizard.shopwareAccount.passwordPlaceholder')"
+                    :label="$t('sw-first-run-wizard.shopwareAccount.passwordLabel')"
+                    :placeholder="$t('sw-first-run-wizard.shopwareAccount.passwordPlaceholder')"
                 />
             </div>
 
             <p class="forgot-password">
                 <mt-link
                     class="external-link"
-                    :to="$tc('sw-first-run-wizard.shopwareAccount.forgotPasswordUrl')"
+                    :to="$t('sw-first-run-wizard.shopwareAccount.forgotPasswordUrl')"
                     variant="primary"
                     type="external"
                     target="_blank"
                 >
-                    {{ $tc('sw-first-run-wizard.shopwareAccount.forgotPasswordText') }}
+                    {{ $t('sw-first-run-wizard.shopwareAccount.forgotPasswordText') }}
                 </mt-link>
             </p>
         </div>

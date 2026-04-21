@@ -30,7 +30,7 @@ export default {
         selectValues() {
             return [
                 {
-                    label: this.$tc('global.default.yes'),
+                    label: this.$t('global.default.yes'),
                     value: true,
                 },
             ];

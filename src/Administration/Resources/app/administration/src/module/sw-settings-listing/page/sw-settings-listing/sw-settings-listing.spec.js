@@ -587,7 +587,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                         'sw-provide': { template: `<slot/>`, inheritAttrs: false },
                     },
                     mocks: {
-                        $tc: (param) => {
+                        $t: (param) => {
                             if (snippets[param]) {
                                 return snippets[param];
                             }

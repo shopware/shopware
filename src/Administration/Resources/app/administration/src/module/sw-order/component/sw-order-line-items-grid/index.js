@@ -92,14 +92,14 @@ export default {
 
         unitPriceLabel() {
             if (this.taxStatus === 'net') {
-                return this.$tc('sw-order.detailBase.columnPriceNet');
+                return this.$t('sw-order.detailBase.columnPriceNet');
             }
 
             if (this.taxStatus === 'tax-free') {
-                return this.$tc('sw-order.detailBase.columnPriceTaxFree');
+                return this.$t('sw-order.detailBase.columnPriceTaxFree');
             }
 
-            return this.$tc('sw-order.detailBase.columnPriceGross');
+            return this.$t('sw-order.detailBase.columnPriceGross');
         },
 
         getLineItemColumns() {
@@ -365,7 +365,7 @@ export default {
 
         showTaxValue(item) {
             return (this.isCreditItem(item.id) || this.isPromotionItem(item)) && item.price.taxRules.length > 1
-                ? this.$tc('sw-order.detailBase.textCreditTax')
+                ? this.$t('sw-order.detailBase.textCreditTax')
                 : `${item.price.calculatedTaxes[0].taxRate} %`;
         },
 
@@ -384,7 +384,7 @@ export default {
             });
 
             const decorateTaxes = sortTaxes.map((taxItem) => {
-                return this.$tc(
+                return this.$t(
                     'sw-order.detailBase.taxDetail',
                     {
                         taxRate: taxItem.taxRate,
@@ -396,7 +396,7 @@ export default {
 
             return {
                 showDelay: 300,
-                message: `${this.$tc('sw-order.detailBase.tax')}<br>${decorateTaxes.join('<br>')}`,
+                message: `${this.$t('sw-order.detailBase.tax')}<br>${decorateTaxes.join('<br>')}`,
             };
         },
 

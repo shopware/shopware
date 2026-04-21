@@ -265,7 +265,7 @@ export default {
             )
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-rule.detail.associationsLoadingError'),
+                        message: this.$t('sw-settings-rule.detail.associationsLoadingError'),
                     });
                 })
                 .finally(() => {

@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 /**
@@ -16,6 +17,8 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 #[Package('checkout')]
 class Checkout extends Bundle
 {
+    const DEPENDENCY_LOCATION = __DIR__ . '/DependencyInjection/';
+
     /**
      * {@inheritdoc}
      */
@@ -23,9 +26,11 @@ class Checkout extends Bundle
     {
         parent::build($container);
 
-        $container->addCompilerPass(new CartStorageCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+        $container->addCompilerPass(new CartStorageCompilerPass());
 
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
+        $locator = new FileLocator(self::DEPENDENCY_LOCATION);
+
+        $loader = new XmlFileLoader($container, $locator);
         $loader->load('cart.xml');
         $loader->load('customer.xml');
         $loader->load('document.xml');
@@ -34,5 +39,8 @@ class Checkout extends Bundle
         $loader->load('rule.xml');
         $loader->load('promotion.xml');
         $loader->load('shipping.xml');
+
+        $phpLoader = new PhpFileLoader($container, $locator);
+        $phpLoader->load('documentV2.php');
     }
 }

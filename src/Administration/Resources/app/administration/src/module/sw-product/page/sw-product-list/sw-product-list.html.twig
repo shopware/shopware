@@ -178,7 +178,7 @@
                         >
                             <mt-icon
                                 name="regular-variants"
-                                size="14px"
+                                size="var(--scale-size-14)"
                             />
                         </mt-button>
                         {% endblock %}
@@ -214,8 +214,8 @@
                     <template v-else>
                         <mt-icon
                             :name="item.active ? 'regular-checkmark-xs' : 'regular-times-s'"
-                            :color="item.active ? '#37d046' : '#de294c'"
-                            size="16px"
+                            :color="item.active ? 'var(--color-emerald-500)' : 'var(--color-crimson-500)'"
+                            size="var(--scale-size-16)"
                         />
                     </template>
                     {% endblock %}
@@ -325,9 +325,9 @@
                         {% block sw_product_list_bulk_edit_grid_columns_active %}
                         <template #column-active="{ item }">
                             <mt-icon
-                                size="16px"
+                                size="var(--scale-size-16)"
                                 :name="item.active ? 'regular-checkmark-xs' : 'regular-times-s'"
-                                :color="item.active ? '#37d046' : '#de294c'"
+                                :color="item.active ? 'var(--color-emerald-500)' : 'var(--color-crimson-500)'"
                             />
                         </template>
                         {% endblock %}

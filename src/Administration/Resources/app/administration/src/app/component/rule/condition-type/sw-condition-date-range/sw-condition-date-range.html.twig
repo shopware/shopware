@@ -25,6 +25,8 @@
     />
     {% endblock %}
 
+    {% block sw_condition_date_range_field_to_date %}
+    {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_condition_date_range_field_to_date` instead. #}
     {% block sw_condiiton_date_range_field_to_date %}
     <mt-datepicker
         v-model="toDate"
@@ -36,6 +38,7 @@
         :disabled="disabled || undefined"
         :placeholder="$t('sw-datepicker.date.placeholder')"
     />
+    {% endblock %}
     {% endblock %}
 
     {% block sw_condition_date_range_field_timezone %}

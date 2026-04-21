@@ -33,6 +33,16 @@ export default {
             required: false,
             default: true,
         },
+        emptyStateTitle: {
+            type: String,
+            required: false,
+            default: null,
+        },
+        emptyStateDescription: {
+            type: String,
+            required: false,
+            default: null,
+        },
     },
 
     data() {

@@ -52,7 +52,7 @@
                     >
                         <sw-container
                             columns="1fr auto"
-                            gap="0 15px"
+                            gap="0 var(--scale-size-16)"
                         >
                             {% block sw_product_properties_filled_state_header_form_control %}
                             <sw-simple-search-field
@@ -174,8 +174,8 @@
                 v-if="!productHasProperties"
                 class="sw-product-properties__empty-state has--no-properties"
                 :icon="$route.meta.$module.icon"
-                :headline="$t('sw-product.properties.titleEmptyState')"
-                :description="$t('sw-product.properties.descriptionEmptyState')"
+                :headline="emptyStateTitle || $t('sw-product.properties.titleEmptyState')"
+                :description="emptyStateDescription || $t('sw-product.properties.descriptionEmptyState')"
             >
                 <!-- @deprecated tag:v6.8.0 - block will be removed -->
                 {% block sw_product_properties_empty_state_image %}

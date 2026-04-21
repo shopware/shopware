@@ -6,6 +6,11 @@ use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * In-memory storage for rendered intermediate and final format outputs.
+ *
+ * RenderState exists only for the duration of one generation run and lets dependent renderers
+ * reuse already rendered formats without persisting every intermediate artifact.
+ *
  * @internal
  */
 #[Package('after-sales')]
@@ -27,6 +32,8 @@ final class RenderState
     }
 
     /**
+     * Returns the result for a format or throws if it was not rendered before.
+     *
      * @throws DocumentV2Exception
      */
     public function require(string $format): RenderResult
@@ -39,6 +46,8 @@ final class RenderState
     }
 
     /**
+     * Stores a format result exactly once.
+     *
      * @throws DocumentV2Exception
      */
     public function add(RenderResult $result): void

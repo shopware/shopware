@@ -5,6 +5,11 @@ namespace Shopware\Core\Checkout\DocumentV2\Struct;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * Base class for provider-specific DTOs stored in RenderInput.
+ *
+ * Each document data provider returns its own RenderData subtype so renderers can consume
+ * typed, precomputed input instead of reaching back into the data loading layer.
+ *
  * @internal
  */
 #[Package('after-sales')]

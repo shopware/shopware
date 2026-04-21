@@ -19,6 +19,11 @@ final readonly class DocumentRendererRegistry
     ) {
     }
 
+    /**
+     * Returns the renderer used for one exact format and document type combination.
+     *
+     * @throws DocumentV2Exception
+     */
     public function getRenderer(string $format, string $documentType): AbstractDocumentRenderer
     {
         foreach ($this->documentRenderers as $renderer) {
@@ -31,6 +36,10 @@ final readonly class DocumentRendererRegistry
     }
 
     /**
+     * Builds a format => renderer map for all renderers that support the given document type.
+     *
+     * If multiple renderers support the same format, the later iterable entry wins.
+     *
      * @return array<string, AbstractDocumentRenderer>
      */
     public function mapRenderersByFormat(string $documentType): array

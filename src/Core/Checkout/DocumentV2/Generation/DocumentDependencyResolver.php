@@ -8,6 +8,17 @@ use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * Expands requested formats to their full renderer dependency graph and returns the order in
+ * which formats have to be rendered.
+ *
+ * Example:
+ * If the caller requests `zugferd_embedded_pdf` and the registered renderers declare
+ * `zugferd_embedded_pdf -> [pdf, zugferd_xml]` and `pdf -> [html]`,
+ * the resolver returns `['html', 'pdf', 'zugferd_xml', 'zugferd_embedded_pdf']`.
+ *
+ * The resolved list can contain transient intermediate formats that are required during
+ * rendering but are never persisted on their own.
+ *
  * @internal
  */
 #[Package('after-sales')]
@@ -19,6 +30,11 @@ final readonly class DocumentDependencyResolver
     }
 
     /**
+     * Builds the render plan for the requested output formats.
+     *
+     * The returned list is the render plan, not the persistence plan. Dependency-only formats
+     * can appear here even if the caller never asked to store them.
+     *
      * @param list<string> $formats
      *
      * @return list<string>
@@ -41,6 +57,11 @@ final readonly class DocumentDependencyResolver
     }
 
     /**
+     * Collects all transitive dependencies of the requested formats.
+     *
+     * For example, requesting `pdf` also pulls in `html` when the PDF renderer declares
+     * `html` as a dependency.
+     *
      * @param array<string, AbstractDocumentRenderer> $renderers
      * @param list<string> $formats
      *
@@ -71,6 +92,12 @@ final readonly class DocumentDependencyResolver
     }
 
     /**
+     * Sorts all required formats so every dependency is rendered before the format that uses it.
+     *
+     * The dependency graph is built from a format to its prerequisites. This means a plain
+     * topological sort produces the reverse of the execution order and has to be inverted
+     * before it is returned.
+     *
      * @param array<string, AbstractDocumentRenderer> $renderers
      * @param list<string> $neededFormats
      *

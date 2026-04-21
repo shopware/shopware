@@ -19,6 +19,8 @@ final readonly class DocumentDataProviderRegistry
     }
 
     /**
+     * Returns all providers that should contribute render data for the given document type.
+     *
      * @return list<AbstractDocumentDataProvider>
      */
     public function getByDocumentType(string $documentType): array

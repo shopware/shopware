@@ -10,24 +10,33 @@ use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * Transforms prepared RenderInput data into one concrete document format.
+ *
+ * Renderers can depend on other formats and consume their output from RenderState, which makes
+ * chained generation flows like HTML -> PDF -> embedded PDF explicit in code.
+ *
  * @internal
  */
 #[Package('after-sales')]
 abstract class AbstractDocumentRenderer
 {
-    // abstract public function getDecorated(): static;
-
     /**
+     * Returns whether this renderer can render the given document type.
+     *
      * @see DocumentType
      */
     abstract public function supports(string $type): bool;
 
     /**
+     * Returns the output format this renderer produces.
+     *
      * @see DocumentFormat
      */
     abstract public function getFormat(): string;
 
     /**
+     * Returns prerequisite formats that must exist in RenderState before this renderer runs.
+     *
      * @see DocumentFormat
      *
      * @return list<string>
@@ -37,7 +46,13 @@ abstract class AbstractDocumentRenderer
         return [];
     }
 
+    /**
+     * Renders the format into memory without persisting it.
+     */
     abstract public function renderToString(RenderInput $input, RenderState $state): RenderResult;
 
+    /**
+     * Persists a rendered result and returns the created media id.
+     */
     abstract public function persistToFile(RenderInput $input, RenderResult $result): string;
 }

@@ -5,6 +5,11 @@ namespace Shopware\Core\Checkout\DocumentV2\Struct;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * Represents one rendered format output before it is persisted to media storage.
+ *
+ * It contains both the binary or textual content and the metadata needed by the renderer to
+ * create the final persisted file artifact.
+ *
  * @internal
  */
 #[Package('after-sales')]

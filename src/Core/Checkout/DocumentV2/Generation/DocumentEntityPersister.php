@@ -15,6 +15,11 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * Persists the generated document aggregate after rendering finished successfully.
+ *
+ * One document row represents the shared document number and order snapshot, while each
+ * requested output format is stored as a separate document_file linked to the same document.
+ *
  * @internal
  */
 #[Package('after-sales')]

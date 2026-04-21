@@ -8,6 +8,10 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 
 /**
+ * Generates the shared document number for one logical document.
+ *
+ * All persisted output formats of the same generation request reuse this number.
+ *
  * @internal
  */
 #[Package('after-sales')]

@@ -18,6 +18,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * Stores one persisted artifact of a generated document in a specific format.
+ *
+ * A single document can have multiple document_file rows, for example when the caller asked
+ * for HTML and PDF output for the same document number. Intermediate dependency formats that
+ * only exist during rendering are not stored here.
+ *
  * @internal
  */
 #[Package('after-sales')]

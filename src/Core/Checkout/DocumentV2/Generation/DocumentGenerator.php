@@ -40,6 +40,12 @@ final readonly class DocumentGenerator
     ) {
     }
 
+    /**
+     * Generates one logical document with one or more persisted document_file artifacts.
+     *
+     * For example, if the caller requests only `pdf` and the PDF renderer depends on `html`,
+     * both formats are rendered, but only the PDF result is persisted as a document_file.
+     */
     public function generate(DocumentGenerationContext $generationContext): DocumentEntity
     {
         $this->validateGenerationContext($generationContext);

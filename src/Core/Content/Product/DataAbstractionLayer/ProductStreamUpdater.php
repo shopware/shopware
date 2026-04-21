@@ -21,7 +21,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -33,6 +36,23 @@ use Symfony\Component\Messenger\MessageBusInterface;
 #[Package('framework')]
 class ProductStreamUpdater extends AbstractProductStreamUpdater
 {
+    /**
+     * Maximum number of top-level ANDed conditions evaluated in a single
+     * `searchIds` call. Each filter can add multiple outer joins to the
+     * generated SQL (association traversal, translation tables, inheritance
+     * parent) — often two or three joins per condition, and more for nested
+     * paths — so the per-filter join budget is not 1:1. MariaDB/MySQL caps a
+     * single query at 61 tables (see issue #10770).
+     *
+     * 20 is chosen to keep headroom at ~3 joins/filter (≈60 joins/query)
+     * while still reducing round-trips enough that large streams with 60–200
+     * conditions stay responsive. Conditions beyond this ceiling are
+     * evaluated in subsequent queries that are narrowed to the matching ids
+     * of the previous batch, which is mathematically equivalent to an `AND`
+     * across all conditions.
+     */
+    private const CONDITION_CHUNK_SIZE = 20;
+
     /**
      * @internal
      *
@@ -85,10 +105,8 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
         $filter = json_decode((string) $filter, true, 512, \JSON_THROW_ON_ERROR);
 
-        $criteria = $this->getCriteria($filter);
-        $criteria?->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
-
-        if ($criteria === null) {
+        $parsedFilters = $this->parseFilters($filter);
+        if ($parsedFilters === null) {
             return;
         }
 
@@ -101,7 +119,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         );
 
         try {
-            $newMatches = $this->collectMatchingIdsInLanguageContexts($this->getLanguageContexts($message->getContext()), $criteria);
+            $newMatches = $this->collectMatchingIdsInLanguageContexts($this->getLanguageContexts($message->getContext()), $parsedFilters, null);
         } catch (UnmappedFieldException) {
             // invalid filter, remove all mappings
             $newMatches = [];
@@ -173,7 +191,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
     }
 
     /**
-     * @param string[] $ids
+     * @param list<string> $ids
      */
     public function updateProducts(array $ids, Context $context): void
     {
@@ -195,14 +213,14 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
                 continue;
             }
 
-            $criteria = $this->getCriteria($filter, $ids);
+            $parsedFilters = $this->parseFilters($filter);
 
-            if ($criteria === null) {
+            if ($parsedFilters === null) {
                 continue;
             }
 
             try {
-                $matchedIds = $this->collectMatchingIdsInLanguageContexts($languageContexts, $criteria);
+                $matchedIds = $this->collectMatchingIdsInLanguageContexts($languageContexts, $parsedFilters, $ids);
             } catch (UnmappedFieldException) {
                 // skip if filter field is not found
                 continue;
@@ -263,18 +281,27 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
     }
 
     /**
+     * Collects the products matching `$parsedFilters` across every relevant
+     * language context and returns the union of their ids. The chunked search
+     * (see {@see searchMatchingProductIds}) is executed once per language
+     * context so translated fields are matched in each language while still
+     * keeping every individual SQL query below the MariaDB/MySQL 61-table
+     * join limit.
+     *
      * @param list<Context> $languageContexts
+     * @param list<Filter> $parsedFilters
+     * @param list<string>|null $restrictToIds
      *
      * @return list<string>
      */
-    private function collectMatchingIdsInLanguageContexts(array $languageContexts, Criteria $criteria): array
+    private function collectMatchingIdsInLanguageContexts(array $languageContexts, array $parsedFilters, ?array $restrictToIds): array
     {
         /** @var array<string, true> $matches */
         $matches = [];
 
         foreach ($languageContexts as $languageContext) {
             $languageMatches = $languageContext->enableInheritance(
-                fn (Context $context): array => $this->repository->searchIds($criteria, $context)->getIds()
+                fn (Context $context): array => $this->searchMatchingProductIds($parsedFilters, $restrictToIds, $context)
             );
 
             foreach ($languageMatches as $id) {
@@ -286,31 +313,118 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
     }
 
     /**
+     * Parses the raw api_filter payload of a product stream into the Filter
+     * DAL representation and flattens top-level AND groupings. The returned
+     * list represents the conjunction of all contained filters, which is the
+     * exact semantic of the original filters as evaluated by `Criteria::addFilter`.
+     *
      * @param array<int, array<string, mixed>> $filters
-     * @param string[]|null $ids
+     *
+     * @return list<Filter>|null null when the filter is empty and nothing needs to be indexed
      */
-    private function getCriteria(array $filters, ?array $ids = null): ?Criteria
+    private function parseFilters(array $filters): ?array
     {
+        if ($filters === []) {
+            return null;
+        }
+
         $exception = new SearchRequestException();
 
         $filters = $this->replaceCheapestPriceFilters($filters);
+
         $parsed = [];
         foreach ($filters as $filter) {
             $parsed[] = QueryStringParser::fromArray($this->productDefinition, $filter, $exception, '');
         }
 
-        if ($filters === []) {
+        if ($parsed === []) {
             return null;
         }
 
-        $criteria = new Criteria();
-        $criteria->addFilter(...$parsed);
+        return $this->flattenAndFilters($parsed);
+    }
 
-        if ($ids !== null) {
-            $criteria->addFilter(new EqualsAnyFilter('id', $ids));
+    /**
+     * Splits the conjunction represented by `$parsedFilters` into batches of
+     * at most `self::CONDITION_CHUNK_SIZE` filters and executes a searchIds
+     * per batch. The ids matched by the first batch are used to constrain the
+     * next batch, which mathematically equals `filter_1 AND filter_2 AND ... AND filter_n`.
+     *
+     * This avoids generating a single SQL query that joins more than 61 tables
+     * (MariaDB/MySQL hard limit) when a stream contains dozens of conditions.
+     *
+     * @param list<Filter> $parsedFilters
+     * @param list<string>|null $restrictToIds
+     *
+     * @return list<string>
+     */
+    private function searchMatchingProductIds(array $parsedFilters, ?array $restrictToIds, Context $context): array
+    {
+        if ($parsedFilters === []) {
+            return [];
         }
 
-        return $criteria;
+        $chunks = array_chunk($parsedFilters, self::CONDITION_CHUNK_SIZE);
+
+        $currentIds = $restrictToIds;
+
+        foreach ($chunks as $chunkIndex => $chunk) {
+            $criteria = new Criteria();
+            $criteria->addFilter(...$chunk);
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+
+            if ($currentIds !== null) {
+                if ($currentIds === []) {
+                    // no candidates left, no product can match the remaining AND conditions
+                    return [];
+                }
+
+                $criteria->addFilter(new EqualsAnyFilter('id', $currentIds));
+            }
+
+            /** @var list<string> $matched */
+            $matched = $this->repository->searchIds($criteria, $context)->getIds();
+
+            // Only the first chunk determines the initial id set; subsequent chunks
+            // are already constrained to `currentIds`, so their result set is the
+            // intersection we are after.
+            $currentIds = $matched;
+
+            if ($currentIds === [] && $chunkIndex < \count($chunks) - 1) {
+                return [];
+            }
+        }
+
+        return $currentIds ?? [];
+    }
+
+    /**
+     * Recursively unwraps top-level `AND`/`multi-AND` filters so we can split
+     * large conjunctions into smaller batches. Any filter that is not a pure
+     * `AND` grouping is kept as-is (including `OR`/`NOT` multi filters and
+     * single field filters), because splitting it would change the semantics.
+     *
+     * @param list<Filter> $filters
+     *
+     * @return list<Filter>
+     */
+    private function flattenAndFilters(array $filters): array
+    {
+        $flattened = [];
+        foreach ($filters as $filter) {
+            if ($filter instanceof MultiFilter
+                && $filter->getOperator() === MultiFilter::CONNECTION_AND
+                && !$filter instanceof NotFilter
+            ) {
+                $flattened = [...$flattened, ...$this->flattenAndFilters(array_values($filter->getQueries()))];
+
+                continue;
+            }
+
+            $flattened[] = $filter;
+        }
+
+        return $flattened;
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Product\DataAbstractionLayer;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -345,6 +346,112 @@ class ProductStreamUpdaterTest extends TestCase
         $this->productStreamUpdater->updateProducts([$productId], Context::createDefaultContext());
 
         $this->assertProductIsInStream($productId, $streamId);
+    }
+
+    /**
+     * Regression test for https://github.com/shopware/shopware/issues/10770.
+     *
+     * A product stream with more than 61 filter conditions used to produce the
+     * MariaDB error 1116 ("Too many tables; MariaDB can only use 61 tables in
+     * a join"), because `ProductStreamUpdater` combined all conditions into a
+     * single `Criteria` that generated one big joined query during product
+     * indexing. The updater now splits the conditions into multiple smaller
+     * searches and intersects the ids, so the 61-table limit is no longer hit.
+     */
+    public function testIndexingHandlesStreamsWithMoreThanSixtyOneConditions(): void
+    {
+        $streamId = Uuid::randomHex();
+
+        $conditions = $this->buildManyDistinctAssociationConditions();
+        static::assertGreaterThan(61, \count($conditions));
+
+        $writtenEvent = $this->productStreamRepository->create([
+            [
+                'id' => $streamId,
+                'name' => 'large-stream',
+                'filters' => $conditions,
+            ],
+        ], Context::createDefaultContext());
+
+        $productStreamIndexer = static::getContainer()->get(ProductStreamIndexer::class);
+        $update = $productStreamIndexer->update($writtenEvent);
+        static::assertInstanceOf(ProductStreamIndexingMessage::class, $update);
+        $productStreamIndexer->handle($update);
+
+        $productId = Uuid::randomHex();
+        $this->createProduct($productId);
+
+        // Without the chunking fix these calls build a single criteria that joins
+        // far more than 61 tables and throw Doctrine\DBAL\Exception with
+        // SQLSTATE[HY000]: General error: 1116 (Too many tables ...).
+        $message = new ProductStreamMappingIndexingMessage($streamId, null, Context::createDefaultContext());
+        $this->productStreamUpdater->handle($message);
+
+        $this->productStreamUpdater->updateProducts([$productId], Context::createDefaultContext());
+
+        // Reaching this point means every chunked query stayed within the join
+        // limit. The mapping table must be readable for the stream (0 rows is fine
+        // — the product does not match the synthetic association conditions).
+        $mappingCount = (int) static::getContainer()->get(Connection::class)->fetchOne(
+            'SELECT COUNT(*) FROM product_stream_mapping WHERE product_stream_id = :id',
+            ['id' => Uuid::fromHexToBytes($streamId)]
+        );
+        static::assertGreaterThanOrEqual(0, $mappingCount);
+    }
+
+    /**
+     * Builds a list of AND conditions whose fields each traverse a DISTINCT
+     * association path. Distinct paths each add their own SQL join(s), so the
+     * full conjunction joins well over 61 tables in a single query — while any
+     * chunk of <= CONDITION_CHUNK_SIZE conditions stays comfortably below the
+     * limit. (Repeating the SAME path would be collapsed into one join / an
+     * EXISTS subquery and would NOT reproduce the issue.)
+     *
+     * @return list<array<string, string>>
+     */
+    private function buildManyDistinctAssociationConditions(): array
+    {
+        // Each leaf traverses at least one association (and most a translation),
+        // so it contributes one or more joins that cannot be shared with the others.
+        $leaves = [
+            'manufacturer.name',
+            'tax.name',
+            'unit.name',
+            'deliveryTime.name',
+            'cmsPage.name',
+            'featureSet.name',
+            'cover.id',
+            'categories.name',
+            'properties.name',
+            'options.name',
+            'tags.name',
+            'categoriesRo.name',
+            'media.id',
+            'prices.quantityStart',
+            'visibilities.id',
+            'productReviews.id',
+            'mainCategories.id',
+            'seoUrls.id',
+            'crossSellings.id',
+            'configuratorSettings.id',
+        ];
+
+        // Re-root every leaf through self-referencing to-one associations to
+        // multiply the number of distinct paths far beyond the 61-table limit.
+        $prefixes = ['', 'parent.', 'canonicalProduct.', 'parent.parent.'];
+
+        $conditions = [];
+        foreach ($prefixes as $prefix) {
+            foreach ($leaves as $leaf) {
+                $conditions[] = [
+                    'type' => 'equals',
+                    'field' => $prefix . $leaf,
+                    'value' => Uuid::randomHex(),
+                ];
+            }
+        }
+
+        return $conditions;
     }
 
     private function createProduct(string $productId): void

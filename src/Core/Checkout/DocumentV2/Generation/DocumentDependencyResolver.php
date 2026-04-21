@@ -90,11 +90,11 @@ final readonly class DocumentDependencyResolver
                     throw DocumentV2Exception::rendererNotFound($dependency, $documentType);
                 }
 
-                if (!isset($inDegree[$format])) {
+                if (!isset($inDegree[$dependency])) {
                     continue;
                 }
 
-                ++$inDegree[$format];
+                ++$inDegree[$dependency];
             }
         }
 
@@ -110,10 +110,6 @@ final readonly class DocumentDependencyResolver
 
         while ($queue !== []) {
             $topFormat = array_shift($queue);
-
-            if (!\is_string($topFormat)) {
-                continue;
-            }
 
             $sorted[] = $topFormat;
 

@@ -2,7 +2,7 @@
 <sw-entity-advanced-selection-modal
     class="sw-advanced-selection-rule"
     entity-name="rule"
-    :entity-display-text="$tc('global.sw-entity-advanced-selection-modal.entity.rule')"
+    :entity-display-text="$t('global.sw-entity-advanced-selection-modal.entity.rule')"
     store-key="advancedSelection.rule"
     :entity-context="context"
     :entity-columns="columns"
@@ -51,10 +51,10 @@
         {% block sw_advanced_selection_rule_list_grid_columns_invalid_content %}
         <span :class="getColumnClass(item)">
             <template v-if="item.invalid">
-                {{ $tc('sw-settings-rule.list.invalid') }}
+                {{ $t('sw-settings-rule.list.invalid') }}
             </template>
             <template v-else>
-                {{ $tc('sw-settings-rule.list.valid') }}
+                {{ $t('sw-settings-rule.list.valid') }}
             </template>
         </span>
         {% endblock %}
@@ -115,7 +115,7 @@
             class="sw-data-grid__cell-value"
         >
             {{ getCounts(item.id, aggregations)[propertyName] }}
-            {{ $tc(`sw-settings-rule.list.assignments.${propertyName}`, getCounts(item.id, aggregations)[propertyName]) }}
+            {{ $t(`sw-settings-rule.list.assignments.${propertyName}`, getCounts(item.id, aggregations)[propertyName]) }}
         </span>
     </template>
     {% endblock %}

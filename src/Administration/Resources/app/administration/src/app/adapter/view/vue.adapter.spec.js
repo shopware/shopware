@@ -671,7 +671,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             const result = rootComponent.config.globalProperties.$createTitle.call(
                 {
                     $root: {
-                        $tc: (v) => rootComponent.$tc(v),
+                        $t: (v) => rootComponent.$t(v),
                     },
                     $route: {
                         meta: {

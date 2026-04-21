@@ -21,9 +21,9 @@
             <mt-icon
                 key="inherit-icon"
                 name="regular-link-horizontal"
-                size="16px"
+                size="var(--scale-size-16)"
             />
-            {{ $tc('sw-product.crossselling.buttonRestoreCrossSellingInheritance') }}
+            {{ $t('sw-product.crossselling.buttonRestoreCrossSellingInheritance') }}
         </mt-button>
         {% endblock %}
 
@@ -51,7 +51,7 @@
             variant="secondary"
             @click="onAddCrossSelling"
         >
-            {{ $tc('sw-product.crossselling.buttonAddCrossSelling') }}
+            {{ $t('sw-product.crossselling.buttonAddCrossSelling') }}
         </mt-button>
         {% endblock %}
     </template>
@@ -64,7 +64,7 @@
     >
         {% block sw_product_detail_cross_selling_empty_state %}
         <sw-empty-state
-            :title="$tc('sw-product.crossselling.cardTitleCrossSelling')"
+            :title="$t('sw-product.crossselling.cardTitleCrossSelling')"
             :absolute="false"
             empty-module
         >
@@ -72,7 +72,7 @@
             <template #icon>
                 <img
                     :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
-                    :alt="$tc('sw-product.crossselling.cardTitleCrossSelling')"
+                    :alt="$t('sw-product.crossselling.cardTitleCrossSelling')"
                 >
             </template>
             {% endblock %}
@@ -83,7 +83,7 @@
                     {% block sw_product_detail_cross_selling_empty_state_content_child %}
                     <template v-if="isInherited">
                         {% block sw_product_detail_cross_selling_empty_state_content_child_inherited %}
-                        <p>{{ $tc('sw-product.crossselling.inheritedEmptyStateDescription') }}</p>
+                        <p>{{ $t('sw-product.crossselling.inheritedEmptyStateDescription') }}</p>
                         {% endblock %}
 
                         {% block sw_product_detail_cross_selling_empty_state_content_child_inherited_link %}
@@ -92,10 +92,10 @@
                             :to="{ name: 'sw.product.detail.crossSelling', params: { id: product.parentId } }"
                             class="sw-product-detail-cross-selling__parent-cross-sellings-link"
                         >
-                            {{ $tc('sw-product.crossselling.linkCrossSellingsOfParent') }}
+                            {{ $t('sw-product.crossselling.linkCrossSellingsOfParent') }}
                             <mt-icon
                                 name="regular-long-arrow-right"
-                                size="16px"
+                                size="var(--scale-size-16)"
                             />
                         </router-link>
                         {% endblock %}
@@ -103,7 +103,7 @@
 
                     <template v-else>
                         {% block sw_product_detail_cross_selling_empty_state_content_child_not_inherited %}
-                        <p>{{ $tc('sw-product.crossselling.notInheritedEmptyStateDescription') }}</p>
+                        <p>{{ $t('sw-product.crossselling.notInheritedEmptyStateDescription') }}</p>
                         {% endblock %}
                     </template>
                     {% endblock %}
@@ -111,7 +111,7 @@
 
                 <template v-else>
                     {% block sw_product_detail_cross_selling_empty_state_content_empty %}
-                    <p>{{ $tc('sw-product.crossselling.emptyStateDescription') }}</p>
+                    <p>{{ $t('sw-product.crossselling.emptyStateDescription') }}</p>
                     {% endblock %}
                 </template>
                 {% endblock %}
@@ -138,7 +138,7 @@
 
                         <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
                         <label class="sw-product-detail-cross-selling__inheritance-label">
-                            {{ $tc('sw-product.crossselling.inheritSwitchLabel') }}
+                            {{ $t('sw-product.crossselling.inheritSwitchLabel') }}
                         </label>
                     </div>
                 </template>
@@ -159,7 +159,7 @@
                     variant="secondary"
                     @click="onAddCrossSelling"
                 >
-                    {{ $tc('sw-product.crossselling.buttonAddCrossSelling') }}
+                    {{ $t('sw-product.crossselling.buttonAddCrossSelling') }}
                 </mt-button>
                 {% endblock %}
             </template>
@@ -173,13 +173,13 @@
     <sw-modal
         v-if="showRestoreInheritanceModal"
         variant="small"
-        :title="$tc('sw-product.crossselling.restoreInheritanceConfirmTitle')"
+        :title="$t('sw-product.crossselling.restoreInheritanceConfirmTitle')"
         class="sw-product-detail-cross-selling__restore-inheritance-modal"
         @modal-close="onCloseRestoreInheritanceModal"
     >
         {% block sw_product_detail_cross_selling_modal_restore_inheritance_text %}
         <p>
-            {{ $tc('sw-product.crossselling.restoreInheritanceConfirmText') }}
+            {{ $t('sw-product.crossselling.restoreInheritanceConfirmText') }}
         </p>
         {% endblock %}
 
@@ -191,7 +191,7 @@
                 variant="secondary"
                 @click="onCloseRestoreInheritanceModal"
             >
-                {{ $tc('global.default.cancel') }}
+                {{ $t('global.default.cancel') }}
             </mt-button>
             {% endblock %}
 
@@ -202,7 +202,7 @@
                 variant="critical"
                 @click="onConfirmRestoreInheritance"
             >
-                {{ $tc('sw-product.crossselling.restoreInheritanceButtonRestore') }}
+                {{ $t('sw-product.crossselling.restoreInheritanceButtonRestore') }}
             </mt-button>
             {% endblock %}
         </template>

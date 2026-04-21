@@ -58,11 +58,11 @@ export default Shopware.Component.wrapComponentConfig({
             return [
                 {
                     value: 'boxed',
-                    label: this.$tc('sw-cms.detail.label.sizingOptionBoxed'),
+                    label: this.$t('sw-cms.detail.label.sizingOptionBoxed'),
                 },
                 {
                     value: 'full_width',
-                    label: this.$tc('sw-cms.detail.label.sizingOptionFull'),
+                    label: this.$t('sw-cms.detail.label.sizingOptionFull'),
                 },
             ];
         },
@@ -71,11 +71,11 @@ export default Shopware.Component.wrapComponentConfig({
             return [
                 {
                     value: 'hidden',
-                    label: this.$tc('sw-cms.detail.sidebar.mobileOptionHidden'),
+                    label: this.$t('sw-cms.detail.sidebar.mobileOptionHidden'),
                 },
                 {
                     value: 'wrap',
-                    label: this.$tc('sw-cms.detail.sidebar.mobileOptionWrap'),
+                    label: this.$t('sw-cms.detail.sidebar.mobileOptionWrap'),
                 },
             ];
         },
@@ -84,15 +84,15 @@ export default Shopware.Component.wrapComponentConfig({
             return [
                 {
                     value: 'auto',
-                    label: this.$tc('sw-cms.detail.label.backgroundMediaModeAuto'),
+                    label: this.$t('sw-cms.detail.label.backgroundMediaModeAuto'),
                 },
                 {
                     value: 'contain',
-                    label: this.$tc('sw-cms.detail.label.backgroundMediaModeContain'),
+                    label: this.$t('sw-cms.detail.label.backgroundMediaModeContain'),
                 },
                 {
                     value: 'cover',
-                    label: this.$tc('sw-cms.detail.label.backgroundMediaModeCover'),
+                    label: this.$t('sw-cms.detail.label.backgroundMediaModeCover'),
                 },
             ];
         },

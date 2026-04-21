@@ -93,7 +93,7 @@ export default {
 
             variants.unshift({
                 id: null,
-                name: this.$tc('sw-product.seoForm.placeholderCanonicalProduct'),
+                name: this.$t('sw-product.seoForm.placeholderCanonicalProduct'),
             });
 
             return variants;

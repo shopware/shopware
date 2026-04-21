@@ -88,7 +88,7 @@ async function createWrapper(propsData) {
             global: {
                 plugins: [pinia],
                 mocks: {
-                    $tc(translationKey) {
+                    $t(translationKey) {
                         return mockTranslations[translationKey] ? mockTranslations[translationKey] : translationKey;
                     },
 

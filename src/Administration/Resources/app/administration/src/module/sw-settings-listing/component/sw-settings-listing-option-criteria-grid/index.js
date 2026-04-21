@@ -106,17 +106,17 @@ export default {
             return [
                 {
                     property: 'field',
-                    label: this.$tc('sw-settings-listing.general.productSortingCriteriaGrid.header.name'),
+                    label: this.$t('sw-settings-listing.general.productSortingCriteriaGrid.header.name'),
                     inlineEdit: 'string',
                 },
                 {
                     property: 'order',
-                    label: this.$tc('sw-settings-listing.general.productSortingCriteriaGrid.header.order'),
+                    label: this.$t('sw-settings-listing.general.productSortingCriteriaGrid.header.order'),
                     inlineEdit: 'string',
                 },
                 {
                     property: 'priority',
-                    label: this.$tc('sw-settings-listing.general.productSortingCriteriaGrid.header.priority'),
+                    label: this.$t('sw-settings-listing.general.productSortingCriteriaGrid.header.priority'),
                     inlineEdit: 'number',
                 },
             ];
@@ -126,59 +126,55 @@ export default {
             const criteriaOptions = [
                 {
                     value: 'product.name',
-                    label: this.$tc('sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.name'),
+                    label: this.$t('sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.name'),
                 },
                 {
                     value: 'product.ratingAverage',
-                    label: this.$tc(
+                    label: this.$t(
                         'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.ratingAverage',
                     ),
                 },
                 {
                     value: 'product.productNumber',
-                    label: this.$tc(
+                    label: this.$t(
                         'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.productNumber',
                     ),
                 },
                 {
                     value: 'product.releaseDate',
-                    label: this.$tc(
+                    label: this.$t(
                         'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.releaseDate',
                     ),
                 },
                 {
                     value: 'product.stock',
-                    label: this.$tc('sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.stock'),
+                    label: this.$t('sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.stock'),
                 },
                 {
                     value: 'product.sales',
-                    label: this.$tc('sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.sales'),
+                    label: this.$t('sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.sales'),
                 },
                 {
                     value: 'customField',
-                    label: this.$tc('sw-settings-listing.general.productSortingCriteriaGrid.options.label.customField'),
+                    label: this.$t('sw-settings-listing.general.productSortingCriteriaGrid.options.label.customField'),
                 },
                 {
                     value: 'product.cheapestPrice',
-                    label: this.$tc(
+                    label: this.$t(
                         'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.cheapestPrice',
                     ),
                 },
                 {
                     value: 'product.price',
-                    label: this.$tc('sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.price'),
+                    label: this.$t('sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.price'),
                 },
                 {
                     value: 'product.createdAt',
-                    label: this.$tc(
-                        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.createdAt',
-                    ),
+                    label: this.$t('sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.createdAt'),
                 },
                 {
                     value: 'product.available',
-                    label: this.$tc(
-                        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.available',
-                    ),
+                    label: this.$t('sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.available'),
                 },
             ];
 
@@ -190,11 +186,11 @@ export default {
         orderOptions() {
             return [
                 {
-                    label: this.$tc('global.default.ascending'),
+                    label: this.$t('global.default.ascending'),
                     value: 'asc',
                 },
                 {
-                    label: this.$tc('global.default.descending'),
+                    label: this.$t('global.default.descending'),
                     value: 'desc',
                 },
             ];
@@ -296,10 +292,10 @@ export default {
 
         getOrderSnippet(order) {
             if (order === 'asc') {
-                return this.$tc('global.default.ascending');
+                return this.$t('global.default.ascending');
             }
 
-            return this.$tc('global.default.descending');
+            return this.$t('global.default.descending');
         },
 
         onRemoveCriteria(item) {
@@ -373,7 +369,7 @@ export default {
          * @returns {string}
          */
         getCriteriaSnippetByFieldName(fieldName) {
-            return this.$tc(`sw-settings-listing.general.productSortingCriteriaGrid.options.label.${fieldName}`);
+            return this.$t(`sw-settings-listing.general.productSortingCriteriaGrid.options.label.${fieldName}`);
         },
 
         criteriaIsAlreadyUsed(criteriaName) {

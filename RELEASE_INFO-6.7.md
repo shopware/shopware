@@ -1131,6 +1131,18 @@ To enable this feature, set the `BREADCRUMB_REWORK` feature flag to `true` and a
 
 ## API
 
+### SEO URL paths reject router-breaking characters on write
+
+Writes to `seo_url.seoPathInfo` now reject strings containing `%`, `#`, `?`, `\`, or ASCII control characters (`\x00`–`\x1F`, `\x7F`).
+The validation runs in three places backed by a single allowlist (`ValidSeoPathInfo::containsDisallowedCharacters`):
+
+* the admin `POST /api/_action/seo-url/create-custom-url` and `PATCH /api/_action/seo-url/canonical` endpoints (via `SeoUrlValidationFactory`),
+* raw `POST /api/seo-url` DAL writes (via a new `PreWriteValidationEvent` subscriber, `SeoUrlWriteValidator`),
+* and the inline admin UI form (`sw-seo-url`).
+
+API consumers that currently persist any of these characters in `seoPathInfo` will receive a `CONTENT__SEO_URL_INVALID_CHARACTERS` violation where the write previously succeeded.
+Percent-encode the value (`%25` for `%`) or sanitise it on the client side before sending.
+
 ### Per-user and per-IP rate limiters for login and OAuth
 
 The login and OAuth token endpoints now support optional per user (`login_user`, `oauth_user`) and per IP (`login_client`, `oauth_client`) rate limiters, in addition to the existing combined user and IP limiter.

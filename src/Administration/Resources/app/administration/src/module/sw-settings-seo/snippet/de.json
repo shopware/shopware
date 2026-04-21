@@ -40,6 +40,7 @@
     "labelSeoPathInfo": "SEO-Pfad",
     "textEmptySeoUrls": "Es sind noch keine SEO-URLs vorhanden.",
     "textSeoUrlsDisallowedForHeadless": "Für Headless-Verkaufskanäle ist die Angabe von SEO-URLs nicht möglich.",
+    "errorInvalidCharacters": "Der SEO-Pfad enthält unzulässige Zeichen (zum Beispiel %, #, ? oder \\).",
     "labelMainCategory": "Hauptkategorie",
     "placeholderMainCategory": "Hauptkategorie wählen ..."
   }

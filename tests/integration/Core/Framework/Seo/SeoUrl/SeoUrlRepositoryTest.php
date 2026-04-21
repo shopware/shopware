@@ -2,16 +2,20 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Seo\SeoUrl;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
+use Shopware\Core\Content\Seo\Validation\Constraint\ValidSeoPathInfo;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -132,6 +136,50 @@ class SeoUrlRepositoryTest extends TestCase
 
         $registry = new SeoUrlRouteRegistry([]);
         static::assertSame([], (array) $registry->getSeoUrlRoutes());
+    }
+
+    /**
+     * @return iterable<string, array{0: string}>
+     */
+    public static function invalidSeoPathInfoProvider(): iterable
+    {
+        yield 'percent (issue #13796)' => ['seo/url%/1'];
+        yield 'fragment' => ['foo/bar#baz'];
+        yield 'query separator' => ['foo/bar?x=1'];
+        yield 'backslash' => ['foo\\bar'];
+    }
+
+    #[DataProvider('invalidSeoPathInfoProvider')]
+    public function testWritingInvalidSeoPathInfoIsRejected(string $invalidSeoPathInfo): void
+    {
+        $id = Uuid::randomHex();
+        $fk = Uuid::randomHex();
+        $url = [
+            'id' => $id,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            'foreignKey' => $fk,
+
+            'routeName' => 'testRoute',
+            'pathInfo' => '/ugly/path',
+            'seoPathInfo' => $invalidSeoPathInfo,
+
+            'isCanonical' => true,
+            'isModified' => false,
+        ];
+
+        $context = Context::createDefaultContext();
+
+        try {
+            $this->seoUrlRepository->create([$url], $context);
+            static::fail(\sprintf('Expected WriteException for invalid SEO path "%s"', $invalidSeoPathInfo));
+        } catch (WriteException $exception) {
+            $violationException = $exception->getExceptions()[0] ?? null;
+            static::assertInstanceOf(WriteConstraintViolationException::class, $violationException);
+
+            $violation = $violationException->getViolations()->get(0);
+            static::assertSame(ValidSeoPathInfo::INVALID_CHARACTERS, $violation->getCode());
+            static::assertSame('/seoPathInfo', $violation->getPropertyPath());
+        }
     }
 
     /**

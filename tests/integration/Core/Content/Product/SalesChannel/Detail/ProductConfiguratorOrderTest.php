@@ -82,6 +82,138 @@ class ProductConfiguratorOrderTest extends TestCase
         static::assertSame(['f', 'e', 'd', 'c', 'b', 'a'], $groupNames);
     }
 
+    /**
+     * Regression test for https://github.com/shopware/shopware/issues/14616.
+     *
+     * When a variant carries an option id that is missing from
+     * `product_configurator_setting` (e.g. removed via the database, or never
+     * written via the API), the remaining configurator options for that
+     * product must still resolve as combinable for in-stock variants instead
+     * of being greyed out as unavailable.
+     */
+    public function testVariantsRemainCombinableWhenOptionIsMissingFromConfiguratorSetting(): void
+    {
+        $productId = Uuid::randomHex();
+        $redSmallId = Uuid::randomHex();
+        $redMediumId = Uuid::randomHex();
+        $blueSmallId = Uuid::randomHex();
+        $blueMediumId = Uuid::randomHex();
+        $tax = ['id' => Uuid::randomHex(), 'taxRate' => 19, 'name' => 'test'];
+
+        $colorGroupId = Uuid::randomHex();
+        $sizeGroupId = Uuid::randomHex();
+
+        $redOptionId = Uuid::randomHex();
+        $blueOptionId = Uuid::randomHex();
+        $smallOptionId = Uuid::randomHex();
+        $mediumOptionId = Uuid::randomHex();
+
+        // Write the Blue property group option up front so the variants below can
+        // reference it without the admin also creating a product_configurator_setting
+        // row for it. This mirrors the shape reported in the issue (the option
+        // exists but is missing from product_configurator_setting).
+        $propertyGroupOptionRepository = static::getContainer()->get('property_group_option.repository');
+        $propertyGroupOptionRepository->create([
+            [
+                'id' => $blueOptionId,
+                'name' => 'Blue',
+                'group' => [
+                    'id' => $colorGroupId,
+                    'name' => 'Color',
+                    'position' => 1,
+                ],
+            ],
+        ], Context::createDefaultContext());
+
+        $productData = [
+            [
+                'id' => $productId,
+                'name' => 'Test product',
+                'productNumber' => 'configurator-14616-parent',
+                'manufacturer' => ['name' => 'test'],
+                'tax' => $tax,
+                'stock' => 10,
+                'active' => true,
+                'isCloseout' => true,
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => true]],
+                'configuratorSettings' => [
+                    $this->createConfiguratorSetting($redOptionId, 'Red', $colorGroupId, 'Color', 1),
+                    // Blue is intentionally missing from the configurator settings.
+                    $this->createConfiguratorSetting($smallOptionId, 'Small', $sizeGroupId, 'Size', 2),
+                    $this->createConfiguratorSetting($mediumOptionId, 'Medium', $sizeGroupId, 'Size', 2),
+                ],
+                'visibilities' => [
+                    [
+                        'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                        'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
+                    ],
+                ],
+            ],
+            [
+                'id' => $redSmallId,
+                'productNumber' => 'configurator-14616-red-small',
+                'stock' => 5,
+                'active' => true,
+                'parentId' => $productId,
+                'options' => [['id' => $redOptionId], ['id' => $smallOptionId]],
+            ],
+            [
+                'id' => $redMediumId,
+                'productNumber' => 'configurator-14616-red-medium',
+                'stock' => 5,
+                'active' => true,
+                'parentId' => $productId,
+                'options' => [['id' => $redOptionId], ['id' => $mediumOptionId]],
+            ],
+            [
+                'id' => $blueSmallId,
+                'productNumber' => 'configurator-14616-blue-small',
+                'stock' => 5,
+                'active' => true,
+                'parentId' => $productId,
+                'options' => [['id' => $blueOptionId], ['id' => $smallOptionId]],
+            ],
+            [
+                'id' => $blueMediumId,
+                'productNumber' => 'configurator-14616-blue-medium',
+                'stock' => 5,
+                'active' => true,
+                'parentId' => $productId,
+                'options' => [['id' => $blueOptionId], ['id' => $mediumOptionId]],
+            ],
+        ];
+
+        $this->repository->create($productData, Context::createDefaultContext());
+        $this->addTaxDataToSalesChannel($this->context, $tax);
+
+        // Load a Blue variant; Blue has no configurator setting row.
+        $salesChannelProduct = $this->salesChannelProductRepository
+            ->search(new Criteria([$blueSmallId]), $this->context)
+            ->first();
+        static::assertInstanceOf(SalesChannelProductEntity::class, $salesChannelProduct);
+
+        $groups = $this->loader->load($salesChannelProduct, $this->context);
+
+        $sizeGroup = $groups->get($sizeGroupId);
+        static::assertInstanceOf(PropertyGroupEntity::class, $sizeGroup);
+        $sizeOptions = $sizeGroup->getOptions();
+        static::assertNotNull($sizeOptions);
+
+        $smallOption = $sizeOptions->get($smallOptionId);
+        static::assertNotNull($smallOption);
+        static::assertTrue(
+            $smallOption->getCombinable(),
+            'Small size must remain combinable on a variant whose color option is missing from product_configurator_setting.'
+        );
+
+        $mediumOption = $sizeOptions->get($mediumOptionId);
+        static::assertNotNull($mediumOption);
+        static::assertTrue(
+            $mediumOption->getCombinable(),
+            'Medium size must remain combinable on a variant whose color option is missing from product_configurator_setting.'
+        );
+    }
+
     public function testGroupsWithoutAvailableOptionsAreRemoved(): void
     {
         $productId = Uuid::randomHex();

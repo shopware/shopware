@@ -51,6 +51,16 @@ class ProductConfiguratorLoader
             $context,
         );
 
+        // Variants may carry option ids that do not (or no longer) exist as a
+        // row in `product_configurator_setting`. In that case the stored
+        // combination can never match a hash built from configurator options
+        // alone, which would cause every option in this group to be marked as
+        // not combinable (greyed out) even though the variant itself is in
+        // stock / on clearance. Normalize the combinations against the option
+        // ids that are actually known to the configurator so the fallback
+        // matches the real availability of the variant.
+        $combinations = $combinations->filterByKnownOptionIds($groups->getOptionIdMap());
+
         $current = $this->buildCurrentOptions($product, $groups);
         $emptyGroupIds = [];
 

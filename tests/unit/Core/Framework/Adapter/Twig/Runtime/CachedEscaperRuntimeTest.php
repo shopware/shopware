@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\Runtime\CachedEscaperRuntime;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Assert\StrictEmpty;
 use Twig\Error\RuntimeError;
 use Twig\Markup;
 use Twig\Runtime\EscaperRuntime;
@@ -187,20 +188,16 @@ class CachedEscaperRuntimeTest extends TestCase
     #[TestDox('Ensures that the decoration stays in sync with upstream')]
     public function testAllPublicMethodsAreMimicked(): void
     {
-        $originalMethods = (new \ReflectionClass(EscaperRuntime::class))->getMethods(\ReflectionMethod::IS_PUBLIC);
-        $originalMethodNames = [];
-        foreach ($originalMethods as $method) {
-            $originalMethodNames[] = $method->getName();
-        }
+        $originalMethodNames = get_class_methods(EscaperRuntime::class);
+        $cachedMethodNames = get_class_methods(CachedEscaperRuntime::class);
 
-        $cachedMethods = (new \ReflectionClass(CachedEscaperRuntime::class))->getMethods(\ReflectionMethod::IS_PUBLIC);
-        $cachedMethodNames = [];
-        foreach ($cachedMethods as $method) {
-            $cachedMethodNames[] = $method->getName();
-        }
+        $missingMethods = array_diff($originalMethodNames, $cachedMethodNames);
 
         // Will fail, if methods are added upstream
-        static::assertSame([], array_diff($originalMethodNames, $cachedMethodNames));
+        StrictEmpty::assertEmpty(
+            $missingMethods,
+            \sprintf('%s is missing following methods: %s', CachedEscaperRuntime::class, implode(', ', $missingMethods))
+        );
     }
 
     public function testHtmlEscapingConvertsSpecialChars(): void

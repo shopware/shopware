@@ -146,7 +146,7 @@ describe('components/sw-entity-single-select', () => {
 
         expect(criteria).toBeInstanceOf(Object);
         expect(criteria.totalCountMode).toBe(0);
-    })
+    });
 
     it('should have no reset option when it is not defined', async () => {
         const swEntitySingleSelect = await createEntitySingleSelect({

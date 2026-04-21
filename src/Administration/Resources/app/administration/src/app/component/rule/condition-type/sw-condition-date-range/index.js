@@ -21,11 +21,11 @@ export default {
         selectValues() {
             return [
                 {
-                    label: this.$tc('global.sw-condition.condition.withTime'),
+                    label: this.$t('global.sw-condition.condition.withTime'),
                     value: true,
                 },
                 {
-                    label: this.$tc('global.sw-condition.condition.withoutTime'),
+                    label: this.$t('global.sw-condition.condition.withoutTime'),
                     value: false,
                 },
             ];
@@ -54,7 +54,7 @@ export default {
         fromDate: {
             get() {
                 this.ensureValueExist();
-                return this.condition.value.fromDate || null;
+                return this.condition.value.fromDate ? `${this.condition.value.fromDate}.000Z` : null;
             },
             set(fromDate) {
                 this.ensureValueExist();
@@ -69,7 +69,7 @@ export default {
         toDate: {
             get() {
                 this.ensureValueExist();
-                return this.condition.value.toDate || null;
+                return this.condition.value.toDate ? `${this.condition.value.toDate}.000Z` : null;
             },
             set(toDate) {
                 this.ensureValueExist();

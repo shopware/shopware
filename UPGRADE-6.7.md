@@ -1,4 +1,4 @@
-# 6.7.8.1
+# 6.7.8.2
 
 ## Digital product legacy states repair after update
 

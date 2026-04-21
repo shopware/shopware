@@ -32,7 +32,7 @@
         {% block sw_order_create_details_header_profile_searching %}
         <div class="sw-order-user-card__metadata">
             <div class="sw-order-user-card__metadata-user-name">
-                {{ $tc('sw-order.createBase.detailsHeader.textCustomer') }}
+                {{ $t('sw-order.createBase.detailsHeader.textCustomer') }}
             </div>
             <sw-container
                 columns="1fr 128px"
@@ -45,7 +45,7 @@
                     :criteria="customerCriteria"
                     label-property="firstName"
                     :value="customerId"
-                    :placeholder="$tc('sw-order.createBase.detailsHeader.placeholder')"
+                    :placeholder="$t('sw-order.createBase.detailsHeader.placeholder')"
                     show-clearable-button
                     @update:value="onSelectExistingCustomer"
                 >
@@ -129,7 +129,7 @@
                     data-analytics-id="sw-order-create-details-header.show-new-customer-modal"
                     @click="onShowNewCustomerModal"
                 >
-                    {{ $tc('sw-order.createBase.detailsHeader.buttonAddNewCustomer') }}
+                    {{ $t('sw-order.createBase.detailsHeader.buttonAddNewCustomer') }}
                 </mt-button>
             </sw-container>
         </div>

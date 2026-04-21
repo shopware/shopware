@@ -8,7 +8,7 @@
         size="medium"
         :options="selectValues"
         :disabled="disabled || undefined"
-        :placeholder="$tc('global.sw-condition.condition.withTime')"
+        :placeholder="$t('global.sw-condition.condition.withTime')"
     />
     {% endblock %}
 
@@ -21,10 +21,12 @@
         required
         :date-type="isDateTime"
         :disabled="disabled || undefined"
-        :placeholder="$tc('sw-datepicker.date.placeholder')"
+        :placeholder="$t('sw-datepicker.date.placeholder')"
     />
     {% endblock %}
 
+    {% block sw_condition_date_range_field_to_date %}
+    {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_condition_date_range_field_to_date` instead. #}
     {% block sw_condiiton_date_range_field_to_date %}
     <mt-datepicker
         v-model="toDate"
@@ -34,8 +36,9 @@
         required
         :date-type="isDateTime"
         :disabled="disabled || undefined"
-        :placeholder="$tc('sw-datepicker.date.placeholder')"
+        :placeholder="$t('sw-datepicker.date.placeholder')"
     />
+    {% endblock %}
     {% endblock %}
 
     {% block sw_condition_date_range_field_timezone %}

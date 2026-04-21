@@ -17,7 +17,7 @@
     <mt-card
         class="sw-order-create-details__payment"
         position-identifier="sw-order-create-details-payment"
-        :title="$tc('sw-order.createBase.detailsTab.labelTransactionCard')"
+        :title="$t('sw-order.createBase.detailsTab.labelTransactionCard')"
     >
         <sw-container
             class="sw_order_create-details__payment-container"
@@ -26,8 +26,8 @@
         >
             <sw-order-customer-address-select
                 v-model:value="context.billingAddressId"
-                :label="$tc('sw-order.createBase.labelBillingAddress')"
-                :placeholder="$tc('sw-order.createBase.placeholderBillingAddress')"
+                :label="$t('sw-order.createBase.labelBillingAddress')"
+                :placeholder="$t('sw-order.createBase.placeholderBillingAddress')"
                 :same-address-value="context.shippingAddressId"
                 :customer="customer"
             />
@@ -38,8 +38,8 @@
                 label-property="distinguishableName"
                 class="sw_order_create-details__payment-method"
                 :criteria="paymentMethodCriteria"
-                :label="$tc('sw-order.createBase.labelPaymentMethod')"
-                :placeholder="$tc('sw-order.createBase.placeholderPaymentMethod')"
+                :label="$t('sw-order.createBase.labelPaymentMethod')"
+                :placeholder="$t('sw-order.createBase.placeholderPaymentMethod')"
                 show-clearable-button
                 required
             />
@@ -49,8 +49,8 @@
                 class="sw_order_create-details__currency"
                 entity="currency"
                 :criteria="currencyCriteria"
-                :label="$tc('sw-order.createBase.labelCurrency')"
-                :placeholder="$tc('sw-order.createBase.placeholderCurrency')"
+                :label="$t('sw-order.createBase.labelCurrency')"
+                :placeholder="$t('sw-order.createBase.placeholderCurrency')"
                 show-clearable-button
                 required
             />
@@ -62,7 +62,7 @@
     <mt-card
         class="sw-order-create-details__shipping"
         position-identifier="sw-order-create-details-shipping"
-        :title="$tc('sw-order.createBase.detailsTab.labelDeliveryCard')"
+        :title="$t('sw-order.createBase.detailsTab.labelDeliveryCard')"
     >
         <sw-container
             class="sw_order_create_details__shipping-container"
@@ -71,9 +71,9 @@
         >
             <sw-order-customer-address-select
                 v-model:value="context.shippingAddressId"
-                :label="$tc('sw-order.createBase.labelShippingAddress')"
-                :placeholder="$tc('sw-order.createBase.placeholderShippingAddress')"
-                :same-address-label="$tc('sw-order.initialModal.options.textSameAsBillingAddress')"
+                :label="$t('sw-order.createBase.labelShippingAddress')"
+                :placeholder="$t('sw-order.createBase.placeholderShippingAddress')"
+                :same-address-label="$t('sw-order.initialModal.options.textSameAsBillingAddress')"
                 :same-address-value="context.billingAddressId"
                 :customer="customer"
             />
@@ -84,14 +84,14 @@
                 class="sw_order_create-details__shipping"
                 entity="shipping_method"
                 :criteria="shippingMethodCriteria"
-                :label="$tc('sw-order.createBase.labelShippingMethod')"
-                :placeholder="$tc('sw-order.createBase.placeholderShippingMethod')"
+                :label="$t('sw-order.createBase.labelShippingMethod')"
+                :placeholder="$t('sw-order.createBase.placeholderShippingMethod')"
                 required
             />
 
             <mt-number-field
                 v-model="shippingCosts"
-                :label="$tc('sw-order.createBase.labelShippingCosts')"
+                :label="$t('sw-order.createBase.labelShippingCosts')"
                 :min="0"
                 :step="1"
                 required
@@ -105,7 +105,7 @@
                 v-model="deliveryDate"
                 disabled
                 hide-hint
-                :label="$tc('sw-order.detailDeliveries.labelDeliveryDate')"
+                :label="$t('sw-order.detailDeliveries.labelDeliveryDate')"
             />
         </sw-container>
     </mt-card>
@@ -115,7 +115,7 @@
     <mt-card
         class="sw-order-create-details__order"
         position-identifier="sw-order-create-details-order"
-        :title="$tc('sw-order.createBase.detailsTab.labelOrderCard')"
+        :title="$t('sw-order.createBase.detailsTab.labelOrderCard')"
     >
         <sw-container
             class="sw_order_create_details__order-container"
@@ -128,8 +128,8 @@
                 v-model="email"
                 disabled
                 class="sw-order-create-details__email"
-                :label="$tc('sw-order.createBase.labelEmail')"
-                :placeholder="$tc('sw-order.createBase.placeholderEmail')"
+                :label="$t('sw-order.createBase.labelEmail')"
+                :placeholder="$t('sw-order.createBase.placeholderEmail')"
                 required
             />
             {% endblock %}
@@ -140,8 +140,8 @@
                 v-model="phoneNumber"
                 disabled
                 class="sw-order-create-details__phone-number"
-                :label="$tc('sw-order.createBase.labelPhoneNumber')"
-                :placeholder="$tc('sw-order.createBase.placeholderPhoneNumber')"
+                :label="$t('sw-order.createBase.labelPhoneNumber')"
+                :placeholder="$t('sw-order.createBase.placeholderPhoneNumber')"
                 required
             />
             {% endblock %}
@@ -152,7 +152,7 @@
                 disabled
                 entity="sales_channel"
                 class="sw-order-create-options__sales-channel"
-                :label="$tc('sw-order.createBase.labelSalesChannel')"
+                :label="$t('sw-order.createBase.labelSalesChannel')"
                 required
             />
             {% endblock %}
@@ -163,8 +163,8 @@
                 entity="language"
                 class="sw-order-create-options__order-language"
                 :criteria="languageCriteria"
-                :label="$tc('sw-order.createBase.labelOrderLanguage')"
-                :placeholder="$tc('sw-order.createBase.placeholderOrderLanguage')"
+                :label="$t('sw-order.createBase.labelOrderLanguage')"
+                :placeholder="$t('sw-order.createBase.placeholderOrderLanguage')"
                 show-clearable-button
                 required
             />
@@ -176,8 +176,8 @@
             v-model:value="promotionCodeTags"
             :disabled="!hasLineItem"
             :currency="currency"
-            :label="$tc('sw-order.createBase.labelAddPromotion')"
-            :placeholder="$tc('sw-order.createBase.placeholderAddPromotion')"
+            :label="$t('sw-order.createBase.labelAddPromotion')"
+            :placeholder="$t('sw-order.createBase.placeholderAddPromotion')"
             :error="promotionError"
             @on-remove-code="onRemoveExistingCode"
         />
@@ -188,7 +188,7 @@
         <mt-switch
             class="sw-order-create-details__disable-auto-promotion"
             :model-value="disabledAutoPromotion"
-            :label="$tc('sw-order.createBase.labelToggleAutomaticPromotions')"
+            :label="$t('sw-order.createBase.labelToggleAutomaticPromotions')"
             @update:model-value="toggleAutomaticPromotions"
         />
         {% endblock %}

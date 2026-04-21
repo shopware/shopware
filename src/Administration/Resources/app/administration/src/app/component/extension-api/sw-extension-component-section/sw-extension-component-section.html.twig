@@ -7,8 +7,8 @@
     <mt-card
         v-if="componentSection.component === 'card'"
         position-identifier=""
-        :title="$tc(componentSection?.props?.title ?? '')"
-        :subtitle="$tc(componentSection?.props?.subtitle ?? '')"
+        :title="$t(componentSection?.props?.title ?? '')"
+        :subtitle="$t(componentSection?.props?.subtitle ?? '')"
     >
 
         <template
@@ -25,7 +25,7 @@
                     :active-tab="getActiveTab(componentSection)?.name"
                     :name="tab.name"
                 >
-                    {{ $tc(tab.label ?? '') }}
+                    {{ $t(tab.label ?? '') }}
                 </sw-tabs-item>
             </sw-tabs>
         </template>
@@ -39,6 +39,7 @@
 
         <sw-iframe-renderer
             v-if="componentSection.props?.locationId && !componentSection.props?.tabs"
+            :key="componentSection.props.locationId"
             :src="componentSection.src"
             :location-id="componentSection.props.locationId"
         />
@@ -46,6 +47,7 @@
     <div v-else-if="componentSection.component === 'div'">
         <sw-iframe-renderer
             v-if="componentSection.props?.locationId"
+            :key="componentSection.props.locationId"
             :src="componentSection.src"
             :location-id="componentSection.props.locationId"
         />

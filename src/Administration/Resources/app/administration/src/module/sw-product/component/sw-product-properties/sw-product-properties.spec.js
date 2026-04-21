@@ -6,6 +6,7 @@ import { mount } from '@vue/test-utils';
 import { nextTick } from 'vue';
 
 const { Store } = Shopware;
+const { cloneDeep } = Shopware.Utils.object;
 
 let productPropertiesMock = [
     { id: '01', groupId: 'sizeId', name: '30' },
@@ -141,6 +142,32 @@ async function createWrapper() {
                         <div class="sw-card-section">
                             <slot></slot>
                         </div>
+                    `,
+                },
+                'mt-empty-state': {
+                    props: [
+                        'headline',
+                        'description',
+                    ],
+                    template: `
+                        <div class="mt-empty-state">
+                            <div class="mt-empty-state__headline">{{ headline }}</div>
+                            <div
+                                v-if="description"
+                                class="mt-empty-state__description"
+                            >
+                                {{ description }}
+                            </div>
+                            <slot name="button"></slot>
+                        </div>
+                    `,
+                },
+                'mt-button': {
+                    props: ['disabled'],
+                    template: `
+                        <button :disabled="disabled">
+                            <slot></slot>
+                        </button>
                     `,
                 },
                 'sw-entity-listing': {
@@ -658,5 +685,33 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
 
         expect(wrapper.vm.turnOffAddPropertiesModal).toHaveBeenCalledTimes(1);
         expect(callbackUpdateCurrentValuesMock).toHaveBeenCalledTimes(1);
+    });
+
+    it('should render custom empty-state copy when provided', async () => {
+        global.activeAclRoles = [];
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const emptyPropertiesProductMock = cloneDeep(productMock);
+        const emptyPropertiesParentProductMock = cloneDeep(parentProductMock);
+
+        emptyPropertiesProductMock.properties = [];
+        emptyPropertiesParentProductMock.properties = [];
+
+        Store.get('swProductDetail').product = emptyPropertiesProductMock;
+        Store.get('swProductDetail').parentProduct = emptyPropertiesParentProductMock;
+
+        await wrapper.setProps({
+            emptyStateTitle: 'bulk-edit.emptyStateTitle',
+            emptyStateDescription: 'bulk-edit.emptyStateDescription',
+        });
+
+        await wrapper.vm.getGroupIds();
+        await wrapper.vm.getProperties();
+        await flushPromises();
+
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('bulk-edit.emptyStateTitle');
+        expect(wrapper.find('.mt-empty-state__description').text()).toBe('bulk-edit.emptyStateDescription');
     });
 });

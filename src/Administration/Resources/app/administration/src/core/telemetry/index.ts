@@ -53,12 +53,34 @@ export class Telemetry {
     }
 
     identify() {
-        const sessionStore = Shopware.Store.get('session');
+        void this.waitForCurrentUser().then((user) => {
+            const sessionStore = Shopware.Store.get('session');
 
-        this.dispatchEvent('identify', {
-            userId: sessionStore.currentUser?.id || null,
-            locale: sessionStore.currentLocale,
-            isAdmin: sessionStore.currentUser?.admin || null,
+            this.dispatchEvent('identify', {
+                userId: user.id,
+                locale: sessionStore.currentLocale,
+                isAdmin: user.admin as boolean,
+            });
+        });
+    }
+
+    private waitForCurrentUser(): Promise<EntitySchema.user> {
+        const session = Shopware.Store.get('session');
+
+        if (session.currentUser) {
+            return Promise.resolve(session.currentUser);
+        }
+
+        return new Promise((resolve) => {
+            const unwatch = watch(
+                () => session.currentUser,
+                (user) => {
+                    if (user) {
+                        unwatch();
+                        resolve(user);
+                    }
+                },
+            );
         });
     }
 
@@ -72,10 +94,6 @@ export class Telemetry {
                     return;
                 }
 
-                if (to.name === from.name) {
-                    return;
-                }
-
                 this.dispatchEvent('page_change', { from, to });
             });
         });
@@ -85,11 +103,11 @@ export class Telemetry {
         const loginService = Shopware.Service('loginService');
 
         loginService.addOnLoginListener(() => {
-            this.identify();
+            this.dispatchEvent('login', {});
         });
 
         loginService.addOnLogoutListener(() => {
-            this.dispatchEvent('reset', {});
+            this.dispatchEvent('logout', {});
         });
     }
 

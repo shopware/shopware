@@ -34,7 +34,7 @@ class ArrayNormalizerTest extends TestCase
     }
 
     /**
-     * @return array<mixed>[][]
+     * @return list<array{array<string, mixed>, array<string, string>}>
      */
     public static function provideTestData(): array
     {

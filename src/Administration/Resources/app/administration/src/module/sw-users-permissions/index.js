@@ -70,7 +70,7 @@ Shopware.Module.register('sw-users-permissions', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#9AA8B5',
-    icon: 'solid-cog',
+    icon: 'regular-user',
     favicon: 'icon-module-settings.png',
     entity: 'user',
 

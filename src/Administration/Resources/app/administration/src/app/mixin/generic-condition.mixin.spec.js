@@ -49,7 +49,7 @@ describe('app/mixin/generic-condition', () => {
                         value: null,
                     },
                     ensureValueExist: () => {},
-                    $tc: (snippetKey) => snippetKey,
+                    $t: (snippetKey) => snippetKey,
                 },
             },
         });
@@ -106,5 +106,57 @@ describe('app/mixin/generic-condition', () => {
     it('should get the true visible value when visible value was set before', () => {
         wrapper.vm.updateVisibleValue(1);
         expect(wrapper.vm.getVisibleValue('amount')).toBe(1);
+    });
+
+    it('should translate options for single-select fields in getBind', () => {
+        const field = {
+            name: 'status',
+            type: 'single-select',
+            config: {
+                options: [
+                    'option1',
+                    'option2',
+                ],
+            },
+        };
+
+        const result = wrapper.vm.getBind(field);
+
+        expect(result.config.options).toEqual([
+            {
+                label: 'global.sw-condition-generic.cartLineItemDimensionWeight.status.options.option1',
+                value: 'option1',
+            },
+            {
+                label: 'global.sw-condition-generic.cartLineItemDimensionWeight.status.options.option2',
+                value: 'option2',
+            },
+        ]);
+    });
+
+    it('should translate options for multi-select fields in getBind', () => {
+        const field = {
+            name: 'tags',
+            type: 'multi-select',
+            config: {
+                options: [
+                    'optionA',
+                    'optionB',
+                ],
+            },
+        };
+
+        const result = wrapper.vm.getBind(field);
+
+        expect(result.config.options).toEqual([
+            {
+                label: 'global.sw-condition-generic.cartLineItemDimensionWeight.tags.options.optionA',
+                value: 'optionA',
+            },
+            {
+                label: 'global.sw-condition-generic.cartLineItemDimensionWeight.tags.options.optionB',
+                value: 'optionB',
+            },
+        ]);
     });
 });

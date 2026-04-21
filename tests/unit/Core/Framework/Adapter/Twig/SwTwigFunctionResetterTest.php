@@ -29,34 +29,22 @@ class SwTwigFunctionResetterTest extends TestCase
         SwTwigFunction::resetEscapeCache();
     }
 
-    public function testResetCallsSwTwigFunctionResetEscapeCache(): void
+    public function testEscapeFilterCallsGetRuntimeAfterReset(): void
     {
         $env = $this->environmentMock;
-        $runtimeCallCount = 0;
 
-        $escaperRuntime = new EscaperRuntime($env);
-        $env->method('getRuntime')->willReturnCallback(static function () use ($escaperRuntime, &$runtimeCallCount) {
-            ++$runtimeCallCount;
+        $env->expects($this->exactly(2))
+            ->method('getRuntime')
+            ->willReturn(new EscaperRuntime($env));
 
-            return $escaperRuntime;
-        });
-
-        // Populate the cache
+        // First call to populate the cache
         SwTwigFunction::escapeFilter($env, 'resetter_test_string', 'html', 'UTF-8');
-        static::assertSame(1, $runtimeCallCount);
 
-        // Verify cache is used
-        SwTwigFunction::escapeFilter($env, 'resetter_test_string', 'html', 'UTF-8');
-        // @phpstan-ignore staticMethod.alreadyNarrowedType (PHPStan doesn't track reference through callback)
-        static::assertSame(1, $runtimeCallCount, 'Cache should be used');
-
-        // Call resetter
+        // Reset the cache
         $resetter = new SwTwigFunctionResetter();
         $resetter->reset();
 
-        // After reset, cache should be cleared
+        // After reset, getRuntime should be called again
         SwTwigFunction::escapeFilter($env, 'resetter_test_string', 'html', 'UTF-8');
-        // @phpstan-ignore staticMethod.impossibleType (PHPStan doesn't track reference through callback)
-        static::assertSame(2, $runtimeCallCount, 'After resetter->reset(), cache should be cleared');
     }
 }

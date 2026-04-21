@@ -331,6 +331,77 @@ describe('module/sw-product/page/sw-product-detail', () => {
         ]);
     });
 
+    it('should set default purchasePrices on the parent product when the parent has none', async () => {
+        const parentProduct = {
+            id: 'parent-id',
+            purchasePrices: [],
+            variation: [],
+        };
+
+        await Shopware.State.commit('swProductDetail/setProduct', {
+            parentId: 'parent-id',
+        });
+
+        wrapper.vm.currencyRepository.search = jest.fn(() => {
+            return Promise.resolve([
+                {
+                    id: 'default-currency-id',
+                    isSystemDefault: true,
+                },
+            ]);
+        });
+        wrapper.vm.productRepository.get = jest.fn(() => Promise.resolve(parentProduct));
+
+        await wrapper.vm.loadParentProduct();
+
+        expect(wrapper.vm.parentProduct.purchasePrices).toStrictEqual([
+            {
+                currencyId: 'default-currency-id',
+                gross: 0,
+                net: 0,
+                linked: true,
+            },
+        ]);
+    });
+
+    it('should sync purchasePrices from the parent when a variant overrides price but still inherits purchasePrices', async () => {
+        const parentPurchasePrices = [
+            {
+                currencyId: 'default-currency-id',
+                gross: 15,
+                net: 12.61,
+                linked: true,
+            },
+        ];
+
+        wrapper.vm.productRepository.get = jest.fn()
+            .mockResolvedValueOnce({
+                id: 'child-id',
+                parentId: 'parent-id',
+                price: [
+                    {
+                        currencyId: 'default-currency-id',
+                        gross: 120,
+                        net: 100.84,
+                        linked: true,
+                    },
+                ],
+                purchasePrices: null,
+                variation: [],
+            })
+            .mockResolvedValueOnce({
+                id: 'parent-id',
+                purchasePrices: parentPurchasePrices,
+                variation: [],
+            });
+
+        await wrapper.vm.loadProduct();
+
+        expect(wrapper.vm.parentProduct.purchasePrices).toStrictEqual(parentPurchasePrices);
+        expect(wrapper.vm.product.purchasePrices).toStrictEqual(parentPurchasePrices);
+        expect(wrapper.vm.product.purchasePrices).not.toBe(wrapper.vm.parentProduct.purchasePrices);
+    });
+
     it('should validate and clear listPrices/regulationPrices on save', async () => {
         wrapper.vm.getCmsPageOverrides = jest.fn(() => {
             return null;

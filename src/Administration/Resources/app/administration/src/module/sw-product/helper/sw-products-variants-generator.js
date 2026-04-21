@@ -23,6 +23,16 @@ export default class VariantsGenerator extends EventEmitter {
 
         // local data
         this.languageId = null;
+
+        /**
+         * Additional M2M `product_option` mappings that must be inserted
+         * after `saveVariants` to extend existing variants with a newly
+         * added property axis without deleting/recreating the variant row.
+         * Structure: Array<{ productId: string, optionId: string }>
+         *
+         * @see https://github.com/shopware/shopware/issues/16252
+         */
+        this.extendExistingVariantOptions = [];
     }
 
     /**
@@ -112,8 +122,54 @@ export default class VariantsGenerator extends EventEmitter {
                 });
             })
             .then(() => {
+                // Extend preserved existing variants with the newly added
+                // axis options (see shopware/shopware#16252). This is an
+                // INSERT-only sync on the `product_option` mapping entity.
+                return this.saveExistingVariantOptionExtensions();
+            })
+            .then(() => {
                 this.indexProducts(this.productIds);
             });
+    }
+
+    /**
+     * Flushes the queued `product_option` mappings used to preserve existing
+     * variants when a new property axis is introduced. Uses the sync API with
+     * an upsert-only payload, so no mappings are ever removed here.
+     *
+     * @returns {Promise}
+     */
+    saveExistingVariantOptionExtensions() {
+        if (!this.extendExistingVariantOptions || this.extendExistingVariantOptions.length === 0) {
+            return Promise.resolve();
+        }
+
+        const payload = this.extendExistingVariantOptions.map((mapping) => ({
+            productId: mapping.productId,
+            optionId: mapping.optionId,
+        }));
+
+        // Track the preserved variants so the product indexer refreshes
+        // derived fields such as `option_ids`.
+        payload.forEach((mapping) => {
+            if (this.productIds.indexOf(mapping.productId) < 0) {
+                this.productIds.push(mapping.productId);
+            }
+        });
+
+        this.extendExistingVariantOptions = [];
+
+        return this.syncService.sync(
+            [
+                {
+                    entity: 'product_option',
+                    action: 'upsert',
+                    payload,
+                },
+            ],
+            { 'indexing-behavior': 'disable-indexing' },
+            { 'single-operation': 1 },
+        );
     }
 
     generateVariants(currencies, product, isAddOnly = false) {
@@ -166,6 +222,9 @@ export default class VariantsGenerator extends EventEmitter {
     filterVariations(newVariations, variationOnServer, currencies, isAddOnly = false) {
         const configuratorSettings = this.product.configuratorSettings;
 
+        // reset any mappings queued from a previous generation pass
+        this.extendExistingVariantOptions = [];
+
         return new Promise((resolve) => {
             const createQueue = [];
 
@@ -180,15 +239,21 @@ export default class VariantsGenerator extends EventEmitter {
             const hashed = {};
             const numbers = {};
             const numberMap = {};
+            // Keep a parallel map of hash -> sorted option ids so we can
+            // compute "existing variant is a subset of a new permutation"
+            // without re-walking `variationOnServer` later.
+            const optionsByHash = {};
 
             for (const [
                 key,
                 variant,
             ] of Object.entries(variationOnServer)) {
-                const hash = md5(JSON.stringify(variant.options.sort()));
+                const sortedOptions = [...variant.options].sort();
+                const hash = md5(JSON.stringify(sortedOptions));
                 hashed[hash] = key;
                 numberMap[hash] = variant.productNumber;
                 numbers[variant.productNumber] = true;
+                optionsByHash[hash] = sortedOptions;
             }
 
             let deleteQueue = [];
@@ -231,6 +296,90 @@ export default class VariantsGenerator extends EventEmitter {
                 }
             });
 
+            /*
+             * Preserve existing variants when a new property axis is introduced.
+             *
+             * Before this step:
+             *   - `deleteQueue` contains hashes of every existing variant whose
+             *     exact option combination is no longer among the new permutations.
+             *   - Without this preservation, adding a brand-new property axis
+             *     (e.g. adding "Size" to a product that only had "Color") would
+             *     delete EVERY existing variant and recreate them from scratch,
+             *     losing per-variant customizations (price, stock, media, custom
+             *     fields, etc.). See shopware/shopware#16252.
+             *
+             * This step rescues existing variants whose options are a strict
+             * subset of some new permutation (i.e. the new permutation only
+             * adds options from newly introduced axes). For each such pair:
+             *   - The existing variant row is preserved (removed from the
+             *     delete queue).
+             *   - The matched new permutation is removed from the create queue
+             *     (it is now "fulfilled" by the preserved variant).
+             *   - A mapping row is queued for every added option so the
+             *     existing variant picks up the new axis values via a simple
+             *     INSERT into `product_option`. `option_ids` (a
+             *     ManyToManyIdField) is auto-derived by DAL.
+             *
+             * Each new permutation can be claimed by at most one existing
+             * variant, and each existing variant claims exactly one new
+             * permutation (the first match, iterated in the order of
+             * `newVariationsSorted`, which is deterministic).
+             */
+            const adoptedNewHashes = new Set();
+            if (!isAddOnly) {
+                Object.keys(deleteQueue).forEach((existingHash) => {
+                    const existingOptions = optionsByHash[existingHash];
+                    if (!existingOptions || existingOptions.length === 0) {
+                        return;
+                    }
+
+                    const matchHash = newVariationsSorted
+                        .map((variation) => md5(JSON.stringify(variation)))
+                        .find((newHash, idx) => {
+                            if (adoptedNewHashes.has(newHash)) {
+                                return false;
+                            }
+                            if (hashed[newHash] !== undefined) {
+                                // This permutation already exists verbatim on
+                                // the server; not a "newly added" permutation
+                                // and thus not a candidate for adoption.
+                                return false;
+                            }
+                            const newOptions = newVariationsSorted[idx];
+                            if (newOptions.length <= existingOptions.length) {
+                                return false;
+                            }
+                            // Strict subset check: every existing option must
+                            // be present in the new permutation.
+                            return existingOptions.every((optionId) => newOptions.includes(optionId));
+                        });
+
+                    if (matchHash === undefined) {
+                        return;
+                    }
+
+                    const existingVariantId = deleteQueue[existingHash];
+                    const matchedNewOptions = newVariationsSorted.find(
+                        (variation) => md5(JSON.stringify(variation)) === matchHash,
+                    );
+
+                    const addedOptionIds = matchedNewOptions.filter((optionId) => !existingOptions.includes(optionId));
+
+                    addedOptionIds.forEach((optionId) => {
+                        this.extendExistingVariantOptions.push({
+                            productId: existingVariantId,
+                            optionId,
+                        });
+                    });
+
+                    adoptedNewHashes.add(matchHash);
+
+                    // Remove the existing variant from the delete queue so
+                    // its customizations survive.
+                    delete deleteQueue[existingHash];
+                });
+            }
+
             Object.keys(deleteQueue).forEach((hash) => {
                 delete numbers[numberMap[hash]];
             });
@@ -242,6 +391,12 @@ export default class VariantsGenerator extends EventEmitter {
 
                 // handled in above loop
                 if (exist !== undefined) {
+                    return;
+                }
+
+                // This new permutation has been adopted by an existing
+                // variant — skip creating a duplicate.
+                if (adoptedNewHashes.has(hash)) {
                     return;
                 }
 

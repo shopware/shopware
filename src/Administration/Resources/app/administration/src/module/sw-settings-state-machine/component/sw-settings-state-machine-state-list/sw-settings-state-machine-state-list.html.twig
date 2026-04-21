@@ -1,7 +1,7 @@
 {% block sw_settings_state_machine_state_list %}
 <mt-card
     position-identifier="sw-settings-state-machine-state-list"
-    :title="$tc('sw-settings-state-machine.state.list.stateMachineStateCardTitle')"
+    :title="$t('sw-settings-state-machine.state.list.stateMachineStateCardTitle')"
 >
     {% block sw_settings_state_machine_state_list_grid %}
     <template #grid>
@@ -24,7 +24,7 @@
                     :disabled="!acl.can('state_machine.editor')"
                     @click="showModal(item)"
                 >
-                    {{ $tc('global.default.edit') }}
+                    {{ $t('global.default.edit') }}
                 </sw-context-menu-item>
                 {% endblock %}
             </template>

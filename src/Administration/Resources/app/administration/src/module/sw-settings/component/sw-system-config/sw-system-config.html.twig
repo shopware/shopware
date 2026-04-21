@@ -5,7 +5,7 @@
         class="sw-system-config__global-sales-channel-switch"
     >
         <sw-sales-channel-switch
-            :label="$tc('sw-settings.system-config.labelSalesChannelSelect')"
+            :label="$t('sw-settings.system-config.labelSalesChannelSelect')"
             @change-sales-channel-id="onSalesChannelChanged"
         />
     </div>
@@ -33,7 +33,7 @@
             #toolbar
         >
             <sw-sales-channel-switch
-                :label="$tc('sw-settings.system-config.labelSalesChannelSelect')"
+                :label="$t('sw-settings.system-config.labelSalesChannelSelect')"
                 @change-sales-channel-id="onSalesChannelChanged"
             />
         </template>
@@ -41,7 +41,7 @@
         <template v-if="hasCssFields">
             {% block sw_system_config_content_compile_notice %}
             <mt-banner variant="attention">
-                {{ $tc('sw-settings.system-config.compileNotice') }}
+                {{ $t('sw-settings.system-config.compileNotice') }}
             </mt-banner>
             {% endblock %}
         </template>

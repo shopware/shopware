@@ -14,8 +14,8 @@
             class="sw-flow-tag-modal__to-field"
             required
             show-clearable-button
-            :label="$tc('sw-flow.modals.tag.labelToField')"
-            :placeholder="$tc('sw-flow.modals.tag.placeholderToField')"
+            :label="$t('sw-flow.modals.tag.labelToField')"
+            :placeholder="$t('sw-flow.modals.tag.placeholderToField')"
             :error="entityError"
             :options="entityOptions"
         />
@@ -27,8 +27,8 @@
             name="sw-field--tagCollection"
             class="sw-flow-tag-modal__tags-field"
             required
-            :label="$tc('sw-flow.modals.tag.labelTagsField')"
-            :placeholder="$tc('sw-flow.modals.tag.placeholderTagsField')"
+            :label="$t('sw-flow.modals.tag.labelTagsField')"
+            :placeholder="$t('sw-flow.modals.tag.placeholderTagsField')"
             :error="tagError"
             @item-add="onAddTag"
             @item-remove="onRemoveTag"
@@ -48,7 +48,7 @@
             variant="secondary"
             @click="onClose"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -59,7 +59,7 @@
             size="small"
             @click="onSaveTag"
         >
-            {{ isNewTag ? $tc('sw-flow.modals.buttonAddAction') : $tc('sw-flow.modals.buttonSaveAction') }}
+            {{ isNewTag ? $t('sw-flow.modals.buttonAddAction') : $t('sw-flow.modals.buttonSaveAction') }}
         </mt-button>
         {% endblock %}
     </template>

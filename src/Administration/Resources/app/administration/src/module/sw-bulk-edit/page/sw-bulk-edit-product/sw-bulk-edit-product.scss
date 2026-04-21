@@ -1,5 +1,3 @@
-@import "~scss/variables";
-
 .sw-bulk-edit-product {
     &.is--variant {
         // Hide form-field-renderer for price inheritance field
@@ -28,9 +26,9 @@
         padding: 0;
 
         .mt-card__quick-link {
-            text-align: right;
             display: block;
-            padding-top: 14px;
+            padding-top: var(--scale-size-14);
+            text-align: right;
             cursor: pointer;
         }
 
@@ -44,7 +42,7 @@
     .sw-text-editor {
         &.is--boxed {
             .sw-text-editor__content {
-                height: 105px;
+                height: calc(var(--scale-size-80) + var(--scale-size-26));
             }
         }
 
@@ -54,14 +52,14 @@
     }
 
     .sw-block-field__block {
-        background: $color-white;
+        background: var(--color-background-primary-default);
     }
 
     .sw-product-detail-context-prices {
-        max-width: 462px;
+        max-width: calc(var(--scale-size-224) * 2 + var(--scale-size-14));
 
         .sw-product-detail-context-prices__empty-state {
-            padding: 20px;
+            padding: var(--scale-size-20);
         }
     }
 
@@ -71,17 +69,17 @@
         }
 
         .sw-property-assignment {
-            padding: 8px;
+            padding: var(--scale-size-8);
         }
 
         .sw-product-detail-properties__empty-state {
-            padding: 20px 12px;
+            padding: var(--scale-size-20) var(--scale-size-12);
         }
 
         .sw-property-search__tree-selection,
         .sw-property-search__search-selection {
-            width: 500px;
-            right: -94px;
+            width: calc(var(--scale-size-224) * 2 + var(--scale-size-26) * 2);
+            right: calc((var(--scale-size-80) + var(--scale-size-14)) * -1);
         }
 
         .sw-property-search__tree-selection {
@@ -102,8 +100,8 @@
 
         .sw-inheritance-switch {
             position: absolute;
-            top: 15px;
-            left: -30px;
+            top: var(--scale-size-16);
+            left: calc(var(--scale-size-30) * -1);
         }
     }
 

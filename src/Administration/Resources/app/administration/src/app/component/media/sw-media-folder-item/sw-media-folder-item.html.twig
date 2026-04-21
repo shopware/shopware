@@ -90,7 +90,7 @@
             class="sw-media-context-item__show-media-action"
             @click="navigateToFolder(item.id)"
         >
-            {{ $tc('global.sw-media-folder-item.labelContextMenuShowMedia') }}
+            {{ $t('global.sw-media-folder-item.labelContextMenuShowMedia') }}
         </sw-context-menu-item>
         {% endblock %}
 
@@ -105,7 +105,7 @@
                 class="sw-media-context-item__open-settings-action"
                 @click="openSettings"
             >
-                {{ $tc('global.sw-media-folder-item.labelContextMenuShowSettings') }}
+                {{ $t('global.sw-media-folder-item.labelContextMenuShowSettings') }}
             </sw-context-menu-item>
             {% endblock %}
 
@@ -115,7 +115,7 @@
                 class="sw-media-context-item__move-folder-action"
                 @click="openMoveModal"
             >
-                {{ $tc('global.sw-media-folder-item.labelContextMenuMove') }}
+                {{ $t('global.sw-media-folder-item.labelContextMenuMove') }}
             </sw-context-menu-item>
             {% endblock %}
 
@@ -125,7 +125,7 @@
                 class="sw-media-context-item__dissolve-folder-action"
                 @click="openDissolveModal"
             >
-                {{ $tc('global.sw-media-folder-item.labelContextMenuDissolve') }}
+                {{ $t('global.sw-media-folder-item.labelContextMenuDissolve') }}
             </sw-context-menu-item>
             {% endblock %}
 
@@ -135,7 +135,7 @@
                 class="sw-media-context-item__rename-folder-action"
                 @click="startInlineEdit"
             >
-                {{ $tc('global.sw-media-folder-item.labelContextMenuRename') }}
+                {{ $t('global.sw-media-folder-item.labelContextMenuRename') }}
             </sw-context-menu-item>
             {% endblock %}
 
@@ -146,7 +146,7 @@
                 variant="danger"
                 @click="openDeleteModal"
             >
-                {{ $tc('global.default.delete') }}
+                {{ $t('global.default.delete') }}
             </sw-context-menu-item>
             {% endblock %}
         </div>

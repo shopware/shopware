@@ -1,13 +1,13 @@
 {% block sw_settings_search_searchable_content_example_modal %}
 <sw-modal
     class="sw-settings-search-example-modal"
-    :title="$tc('sw-settings-search.generalTab.titleExampleModal')"
+    :title="$t('sw-settings-search.generalTab.titleExampleModal')"
     @modal-close="closeModal"
 >
     {% block sw_settings_search_searchable_content_example_modal_content %}
     {% block sw_settings_search_searchable_content_example_modal_explain %}
     <span class="sw-field sw-settings-search__example-text">
-        {{ $tc('sw-settings-search.generalTab.modal.textExplain') }}
+        {{ $t('sw-settings-search.generalTab.modal.textExplain') }}
     </span>
     {% endblock %}
 
@@ -46,7 +46,7 @@
             size="small"
             @click="closeModal"
         >
-            {{ $tc('global.sw-modal.labelClose') }}
+            {{ $t('global.sw-modal.labelClose') }}
         </mt-button>
         {% endblock %}
     </template>

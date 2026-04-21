@@ -13,7 +13,7 @@ export default {
         smartBarHeading() {
             return this.productSortingEntity && this.productSortingEntity.label
                 ? this.productSortingEntity.label
-                : this.$tc('sw-settings-listing.create.smartBarTitle');
+                : this.$t('sw-settings-listing.create.smartBarTitle');
         },
 
         isNewProductSorting() {

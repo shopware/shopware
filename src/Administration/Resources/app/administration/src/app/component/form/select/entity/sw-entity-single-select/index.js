@@ -329,7 +329,7 @@ export default {
                             this.resultCollection = result;
 
                             const newEntity = this.repository.create(this.context, -1);
-                            newEntity.name = this.$tc(
+                            newEntity.name = this.$t(
                                 'global.sw-single-select.labelEntityAdd',
                                 {
                                     term: this.searchTerm,
@@ -596,7 +596,7 @@ export default {
 
                     this.$emit('option-select', Utils.string.camelCase(this.entity), entity);
                     this.createNotificationSuccess({
-                        message: this.$tc(
+                        message: this.$t(
                             'global.sw-single-select.labelEntityAddedSuccess',
                             {
                                 term: entity.name,
@@ -608,7 +608,7 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc(
+                        message: this.$t(
                             'global.notification.notificationSaveErrorMessage',
                             {
                                 entityName: this.entity,

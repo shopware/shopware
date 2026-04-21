@@ -1,7 +1,7 @@
 .sw-settings-units {
     .sw-settings-units-card-empty {
         .mt-card__content {
-            min-height: 250px;
+            min-height: calc(var(--scale-size-224) + var(--scale-size-26));
         }
 
         .sw-empty-state__description {

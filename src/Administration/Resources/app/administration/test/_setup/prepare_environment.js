@@ -132,7 +132,7 @@ Shopware.Application.view = {
         delete target[propertyName];
     },
     root: {
-        $tc: v => v,
+        $t: v => v,
     },
     i18n: {
         global: {

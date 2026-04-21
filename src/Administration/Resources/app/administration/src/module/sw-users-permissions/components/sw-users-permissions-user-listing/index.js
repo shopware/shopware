@@ -90,16 +90,16 @@ export default {
                 return [
                     {
                         property: 'email',
-                        label: this.$tc('sw-users-permissions.users.user-grid.labelEmail'),
+                        label: this.$t('sw-users-permissions.users.user-grid.labelEmail'),
                     },
                     {
                         property: 'aclRoles',
                         sortable: false,
-                        label: this.$tc('sw-users-permissions.users.user-grid.labelRoles'),
+                        label: this.$t('sw-users-permissions.users.user-grid.labelRoles'),
                     },
                     {
                         property: 'status',
-                        label: this.$tc('sw-users-permissions.users.user-grid.status'),
+                        label: this.$t('sw-users-permissions.users.user-grid.status'),
                     },
                 ];
             }
@@ -107,24 +107,24 @@ export default {
             return [
                 {
                     property: 'username',
-                    label: this.$tc('sw-users-permissions.users.user-grid.labelUsername'),
+                    label: this.$t('sw-users-permissions.users.user-grid.labelUsername'),
                 },
                 {
                     property: 'firstName',
-                    label: this.$tc('sw-users-permissions.users.user-grid.labelFirstName'),
+                    label: this.$t('sw-users-permissions.users.user-grid.labelFirstName'),
                 },
                 {
                     property: 'lastName',
-                    label: this.$tc('sw-users-permissions.users.user-grid.labelLastName'),
+                    label: this.$t('sw-users-permissions.users.user-grid.labelLastName'),
                 },
                 {
                     property: 'aclRoles',
                     sortable: false,
-                    label: this.$tc('sw-users-permissions.users.user-grid.labelRoles'),
+                    label: this.$t('sw-users-permissions.users.user-grid.labelRoles'),
                 },
                 {
                     property: 'email',
-                    label: this.$tc('sw-users-permissions.users.user-grid.labelEmail'),
+                    label: this.$t('sw-users-permissions.users.user-grid.labelEmail'),
                 },
             ];
         },
@@ -180,21 +180,21 @@ export default {
 
         invitationFailed() {
             this.createNotificationError({
-                title: this.$tc('global.default.error'),
-                message: this.$tc('sw-users-permissions.sso.error.cannotInviteUser'),
+                title: this.$t('global.default.error'),
+                message: this.$t('sw-users-permissions.sso.error.cannotInviteUser'),
             });
         },
 
         async onConfirmDelete(user) {
             const username = `${user.firstName} ${user.lastName} `;
-            const titleDeleteSuccess = this.$tc('global.default.success');
-            const messageDeleteSuccess = this.$tc(
+            const titleDeleteSuccess = this.$t('global.default.success');
+            const messageDeleteSuccess = this.$t(
                 'sw-users-permissions.users.user-grid.notification.deleteSuccess.message',
                 { name: username },
                 0,
             );
-            const titleDeleteError = this.$tc('global.default.error');
-            const messageDeleteError = this.$tc(
+            const titleDeleteError = this.$t('global.default.error');
+            const messageDeleteError = this.$t(
                 'sw-users-permissions.users.user-grid.notification.deleteError.message',
                 {
                     name: username,
@@ -204,8 +204,8 @@ export default {
 
             if (user.id === this.currentUser.id) {
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
-                    message: this.$tc('sw-users-permissions.users.user-grid.notification.deleteUserLoggedInError.message'),
+                    title: this.$t('global.default.error'),
+                    message: this.$t('sw-users-permissions.users.user-grid.notification.deleteUserLoggedInError.message'),
                 });
 
                 this.onCloseDeleteModal();
@@ -221,10 +221,10 @@ export default {
                     verifiedToken = await this.loginService.verifyUserToken(this.confirmPassword);
                 } catch (_e) {
                     this.createNotificationError({
-                        title: this.$tc(
+                        title: this.$t(
                             'sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorTitle',
                         ),
-                        message: this.$tc(
+                        message: this.$t(
                             'sw-users-permissions.users.user-detail.passwordConfirmation.notificationPasswordErrorMessage',
                         ),
                     });

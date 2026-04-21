@@ -56,7 +56,7 @@ export default {
             return [
                 {
                     key: 'skip',
-                    label: this.$tc('sw-first-run-wizard.general.buttonNext'),
+                    label: this.$t('sw-first-run-wizard.general.buttonNext'),
                     position: 'right',
                     variant: 'primary',
                     action: 'sw.first.run.wizard.index.defaults',
@@ -92,7 +92,7 @@ export default {
         },
 
         setTitle() {
-            this.$emit('frw-set-title', this.$tc('sw-first-run-wizard.dataImport.modalTitle'));
+            this.$emit('frw-set-title', this.$t('sw-first-run-wizard.dataImport.modalTitle'));
         },
 
         notInstalled(pluginKey) {

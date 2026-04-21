@@ -79,7 +79,7 @@ export default {
             type: Object,
             required: false,
             default(props) {
-                return new Criteria(1, props.resultLimit);
+                return new Criteria(1, props.resultLimit).setTotalCountMode(0);
             },
         },
         context: {

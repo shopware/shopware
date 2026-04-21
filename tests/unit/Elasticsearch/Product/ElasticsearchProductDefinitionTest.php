@@ -76,6 +76,53 @@ class ElasticsearchProductDefinitionTest extends TestCase
         ],
     ];
 
+    private const TRANSLATABLE_EXACT_SEARCHABLE_MAPPING = [
+        'properties' => [
+            'lang_en' => [
+                'type' => 'keyword',
+                'ignore_above' => 10000,
+                'normalizer' => 'sw_lowercase_normalizer',
+                'fields' => [
+                    'exact' => [
+                        'type' => 'text',
+                        'analyzer' => 'sw_whitespace_analyzer',
+                        'search_analyzer' => 'sw_whitespace_analyzer',
+                        'norms' => false,
+                    ],
+                    'search' => [
+                        'type' => 'text',
+                        'analyzer' => 'sw_english_analyzer',
+                    ],
+                    'ngram' => [
+                        'type' => 'text',
+                        'analyzer' => 'sw_ngram_analyzer',
+                    ],
+                ],
+            ],
+            'lang_de' => [
+                'type' => 'keyword',
+                'ignore_above' => 10000,
+                'normalizer' => 'sw_lowercase_normalizer',
+                'fields' => [
+                    'exact' => [
+                        'type' => 'text',
+                        'analyzer' => 'sw_whitespace_analyzer',
+                        'search_analyzer' => 'sw_whitespace_analyzer',
+                        'norms' => false,
+                    ],
+                    'search' => [
+                        'type' => 'text',
+                        'analyzer' => 'sw_german_analyzer',
+                    ],
+                    'ngram' => [
+                        'type' => 'text',
+                        'analyzer' => 'sw_ngram_analyzer',
+                    ],
+                ],
+            ],
+        ],
+    ];
+
     private const TRANSLATABLE_SEARCHABLE_LENGTH_NORM_MAPPING = [
         'properties' => [
             'lang_en' => [
@@ -253,7 +300,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
                 'markAsTopseller' => [
                     'type' => 'boolean',
                 ],
-                'name' => self::TRANSLATABLE_SEARCHABLE_MAPPING,
+                'name' => self::TRANSLATABLE_EXACT_SEARCHABLE_MAPPING,
                 'options' => [
                     'type' => 'nested',
                     'properties' => [
@@ -353,7 +400,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
                         ],
                     ],
                 ],
-                'customSearchKeywords' => self::TRANSLATABLE_SEARCHABLE_MAPPING,
+                'customSearchKeywords' => self::TRANSLATABLE_EXACT_SEARCHABLE_MAPPING,
                 'type' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                 'states' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                 'manufacturerId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,

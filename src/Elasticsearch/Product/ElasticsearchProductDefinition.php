@@ -54,6 +54,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
     public function getMapping(Context $context): array
     {
         $languageFields = $this->fieldBuilder->translated(self::getTextFieldConfig());
+        $languageFieldsWithExact = $this->fieldBuilder->translated(self::getTextFieldConfig(withExact: true));
         $languageFieldsWithLengthNorm = $this->fieldBuilder->translated(self::getTextFieldWithLengthNormConfig());
         $salesChannelByLanguage = $this->salesChannelLanguageLoader->loadLanguages();
         $allSalesChannels = array_values(array_unique(array_merge(...array_values($salesChannelByLanguage))));
@@ -70,11 +71,11 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 
         $properties = [
             'id' => self::KEYWORD_FIELD,
-            'name' => $languageFields,
+            'name' => $languageFieldsWithExact,
             'description' => $languageFieldsWithLengthNorm,
             'metaTitle' => $languageFields,
             'metaDescription' => $languageFieldsWithLengthNorm,
-            'customSearchKeywords' => $languageFields,
+            'customSearchKeywords' => $languageFieldsWithExact,
             'categories' => ElasticsearchFieldBuilder::nested([
                 'name' => $languageFields,
             ]),

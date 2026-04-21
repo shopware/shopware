@@ -100,7 +100,7 @@ class WebhookDeliveryServiceTest extends TestCase
         $this->appPayloadServiceHelper->method('createWebhookRequest')->willReturn($webhookRequest);
         $this->outboxEventRepository->expects($this->once())->method('ensureOutboxEntry');
         $this->outboxEventRepository->expects($this->once())->method('markRunning')
-            ->willReturn(new OutboxEntry(executionCount: 1, sequence: 1));
+            ->willReturn(new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 1, deliveryStatus: 'running'));
 
         $this->queueGuzzleResponse(new Response(200, ['Content-Type' => 'application/json'], '{"status":"ok"}'));
 
@@ -121,7 +121,7 @@ class WebhookDeliveryServiceTest extends TestCase
         $this->appPayloadServiceHelper->method('createWebhookRequest')->willReturn($webhookRequest);
         $this->outboxEventRepository->expects($this->once())->method('ensureOutboxEntry');
         $this->outboxEventRepository->expects($this->once())->method('markRunning')
-            ->willReturn(new OutboxEntry(executionCount: 1, sequence: 1));
+            ->willReturn(new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 1, deliveryStatus: 'running'));
 
         $this->queueGuzzleResponse(new Response(200, [], '{"status":"ok"}'));
 
@@ -141,7 +141,7 @@ class WebhookDeliveryServiceTest extends TestCase
         $this->appPayloadServiceHelper->method('createWebhookRequest')->willReturn($webhookRequest);
         $this->outboxEventRepository->expects($this->once())->method('markRunning')
             ->with($msg->getWebhookEventId())
-            ->willReturn(new OutboxEntry(executionCount: 1, sequence: 1));
+            ->willReturn(new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 1, deliveryStatus: 'running'));
 
         $this->queueGuzzleResponse(new Response(200, ['Content-Type' => 'application/json'], '{"status":"ok"}'));
 
@@ -163,7 +163,7 @@ class WebhookDeliveryServiceTest extends TestCase
 
         $this->appPayloadServiceHelper->method('createWebhookRequest')->willReturn($webhookRequest);
         $this->outboxEventRepository->expects($this->once())->method('markRunning')
-            ->willReturn(new OutboxEntry(executionCount: 2, sequence: 1));
+            ->willReturn(new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 2, deliveryStatus: 'running'));
 
         $this->queueGuzzleResponse(new Response(500, [], '{"error":"fail"}'));
 
@@ -184,7 +184,7 @@ class WebhookDeliveryServiceTest extends TestCase
 
         $this->appPayloadServiceHelper->method('createWebhookRequest')->willReturn($webhookRequest);
         $this->outboxEventRepository->expects($this->once())->method('markRunning')
-            ->willReturn(new OutboxEntry(executionCount: 6, sequence: 1));
+            ->willReturn(new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 6, deliveryStatus: 'running'));
 
         $this->queueGuzzleResponse(new Response(500, [], '{"error":"fail"}'));
 
@@ -205,7 +205,7 @@ class WebhookDeliveryServiceTest extends TestCase
 
         $this->appPayloadServiceHelper->method('createWebhookRequest')->willReturn($webhookRequest);
         $this->outboxEventRepository->expects($this->once())->method('markRunning')
-            ->willReturn(new OutboxEntry(executionCount: 6, sequence: 1));
+            ->willReturn(new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 6, deliveryStatus: 'running'));
 
         $this->queueGuzzleResponse(new Response(500, [], '{"error":"fail"}'));
 
@@ -224,7 +224,7 @@ class WebhookDeliveryServiceTest extends TestCase
 
         $this->appPayloadServiceHelper->method('createWebhookRequest')->willReturn($webhookRequest);
         $this->outboxEventRepository->method('markRunning')
-            ->willReturn(new OutboxEntry(executionCount: 1, sequence: 1));
+            ->willReturn(new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 1, deliveryStatus: 'running'));
 
         $this->queueGuzzleResponse(new Response(200, [], '{"ok":true}'));
 
@@ -254,7 +254,7 @@ class WebhookDeliveryServiceTest extends TestCase
             ->willReturnOnConsecutiveCalls($webhookRequest1, $webhookRequest2);
 
         $this->outboxEventRepository->method('markRunning')
-            ->willReturn(new OutboxEntry(executionCount: 1, sequence: 1));
+            ->willReturn(new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 1, deliveryStatus: 'running'));
 
         // Queue two successful Guzzle responses for the batch
         $this->queueGuzzleResponse(new Response(200, [], '{"status":"ok"}'));
@@ -295,7 +295,7 @@ class WebhookDeliveryServiceTest extends TestCase
 
         $this->appPayloadServiceHelper->method('createWebhookRequest')->willReturn($webhookRequest);
         $this->outboxEventRepository->expects($this->once())->method('markRunning')
-            ->willReturn(new OutboxEntry(executionCount: 1, sequence: 1));
+            ->willReturn(new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 1, deliveryStatus: 'running'));
 
         $this->queueGuzzleResponse(new Response(200, ['Content-Type' => 'application/json'], '{"status":"ok"}'));
 
@@ -324,7 +324,7 @@ class WebhookDeliveryServiceTest extends TestCase
 
         $this->appPayloadServiceHelper->method('createWebhookRequest')->willReturn($webhookRequest);
         $this->outboxEventRepository->expects($this->once())->method('markRunning')
-            ->willReturn(new OutboxEntry(executionCount: 2, sequence: 1));
+            ->willReturn(new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 2, deliveryStatus: 'running'));
 
         // 500 response → non-terminal failure → markPendingRetry
         $this->queueGuzzleResponse(new Response(500, [], '{"error":"fail"}'));

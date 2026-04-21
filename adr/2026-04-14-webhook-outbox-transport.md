@@ -42,13 +42,25 @@ Retry scaffolding: the outbox records retry scheduling. Delivery still goes thro
 
   > **Not in this PR:** Transport-level consumption of due retries (`WebhookTransport.get()`), consumer contract headers (`X-Shopware-Event-Id`, `X-Shopware-Sequence`, `X-Shopware-Attempt`), and stream leasing. These ship in PR 3.
 
-### PR 3 — MySQL Receiver, Retry Consumption, and Ordered Delivery
+### PR 3a — Stream-Leasing Scaffolding
+
+Schema and lock primitives for PR 3b. Migration runs unconditionally; `WEBHOOKS_REWORK` gating from PR 2 is unchanged. `WebhookTransport::get()` still returns `[]` and `StreamLockService` has no behavioral callers, so the `webhook` transport keeps forwarding to `async`.
+
+The migration backfills `webhook_stream` from existing `webhook_delivery.partition_key` values. PR 3b (or enabling `WEBHOOKS_REWORK`) then doesn't need new events to arrive before existing partitions become claimable.
+
+- `webhook_stream` table: UUID PK, `UNIQUE partition_key`, index on `last_claimed_at`. Backfill uses `MultiInsertQueryQueue` and preserves partition-key bytes.
+- `StreamLockService`: `claimNext` / `heartbeat` / `release` / `deleteOrphanedStreams` (SKIP LOCKED, 60s orphan grace). `WebhookCleanup` calls the last in a batched loop.
+- `OutboxEventRepository::fetchDue()`: due `QUEUED` / `PENDING_RETRY` rows scoped to a claimed partition. Statuses are PHPStan-narrowed to literals — no runtime validation.
+- `webhook_stream` added to `DefinitionValidator::TABLES_WITHOUT_DEFINITION` (DBAL-managed, no DAL entity).
+
+### PR 3b — MySQL Receiver, Retry Consumption, and Ordered Delivery
 
 The outbox becomes the queue. Workers consume directly from `webhook_delivery`.
 
 - `WebhookTransport.get()` polls `webhook_delivery` for due `PENDING_RETRY` rows via `SKIP LOCKED`.
 - Partition-scoped stream leasing for insertion-ordered delivery within an app.
 - Consumer contract headers: `X-Shopware-Event-Id`, `X-Shopware-Sequence`, `X-Shopware-Attempt`.
+- Crash recovery: expired leases reset `RUNNING` rows back to `PENDING_RETRY`.
 - The `async` forwarding is removed. Workers run `messenger:consume webhook`.
 
 ### Future

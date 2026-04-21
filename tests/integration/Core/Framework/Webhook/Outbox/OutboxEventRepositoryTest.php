@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\DeliveryResponse;
+use Shopware\Core\Framework\Webhook\Outbox\OutboxEntry;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxInsert;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -575,12 +576,12 @@ class OutboxEventRepositoryTest extends TestCase
         $this->repository->ensureOutboxEntry($this->toEntry($message));
 
         $first = $this->repository->markRunning($this->ids->get('evt-1'));
-        static::assertNotNull($first);
+        static::assertInstanceOf(OutboxEntry::class, $first);
         static::assertSame(1, $first->executionCount);
 
-        // Call again — delivery row is RUNNING; idempotent path returns entry
+        // Call again — delivery row is RUNNING; idempotent path returns the existing OutboxEntry
         $second = $this->repository->markRunning($this->ids->get('evt-1'));
-        static::assertNotNull($second, 'markRunning must return entry when row is already RUNNING (idempotent)');
+        static::assertInstanceOf(OutboxEntry::class, $second);
         static::assertSame(1, $second->executionCount, 'execution_count must not increment on idempotent call');
     }
 
@@ -599,7 +600,7 @@ class OutboxEventRepositoryTest extends TestCase
         // Second markRunning on a PENDING_RETRY row — must transition to RUNNING and increment count
         $result = $this->repository->markRunning($this->ids->get('evt-1'));
 
-        static::assertNotNull($result, 'markRunning must return an entry when row is pending_retry');
+        static::assertInstanceOf(OutboxEntry::class, $result);
         static::assertSame(2, $result->executionCount, 'execution_count must be incremented from 1 to 2');
 
         // delivery row must now be RUNNING
@@ -613,6 +614,190 @@ class OutboxEventRepositoryTest extends TestCase
 
         // event_log must also be RUNNING
         $this->assertEventLogStatus('evt-1', WebhookEventLogDefinition::STATUS_RUNNING);
+    }
+
+    public function testMarkRunningReturnsNullForUnknownEventLogId(): void
+    {
+        $result = $this->repository->markRunning(Uuid::randomHex());
+
+        static::assertNull($result, 'markRunning must return null for a fabricated ID with no delivery row');
+    }
+
+    public function testEnsureOutboxEntryCreatesStreamRow(): void
+    {
+        $this->createWebhook('wh-1');
+
+        $message = $this->createMessage('evt-1', 'wh-1');
+        $this->repository->ensureOutboxEntry($this->toEntry($message));
+
+        $partitionKey = Hasher::hashBinary($message->getPartitionKey(), 'xxh128');
+        $exists = (bool) $this->connection->fetchOne(
+            'SELECT 1 FROM webhook_stream WHERE partition_key = :pk',
+            ['pk' => $partitionKey]
+        );
+        static::assertTrue($exists);
+    }
+
+    public function testEnsureOutboxEntryIsIdempotentOnStreamRow(): void
+    {
+        $this->createWebhook('wh-1');
+        $this->createWebhook('wh-2');
+
+        $messageA = $this->createMessage('evt-1', 'wh-1');
+        $messageB = $this->createMessage('evt-2', 'wh-2');
+
+        $this->repository->ensureOutboxEntry($this->toEntry($messageA));
+        $this->repository->ensureOutboxEntry($this->toEntry($messageB));
+
+        $partitionKey = Hasher::hashBinary($messageA->getPartitionKey(), 'xxh128');
+        $count = (int) $this->connection->fetchOne(
+            'SELECT COUNT(*) FROM webhook_stream WHERE partition_key = :pk',
+            ['pk' => $partitionKey]
+        );
+        static::assertSame(1, $count, 'Two deliveries on the same partition must share a single stream row');
+    }
+
+    public function testFetchDueSkipsPendingRetryInFuture(): void
+    {
+        $this->createWebhook('wh-1');
+
+        $dueMessage = $this->createMessage('evt-due', 'wh-1');
+        $futureMessage = $this->createMessage('evt-future', 'wh-1');
+        $this->repository->ensureOutboxEntry($this->toEntry($dueMessage));
+        $this->repository->ensureOutboxEntry($this->toEntry($futureMessage));
+
+        // Make one of them pending_retry with a future next_retry_at
+        $this->connection->executeStatement(
+            'UPDATE webhook_delivery SET delivery_status = :status, next_retry_at = :retry WHERE webhook_event_log_id = :id',
+            [
+                'status' => WebhookEventLogDefinition::STATUS_PENDING_RETRY,
+                'retry' => (new \DateTimeImmutable('+1 hour'))->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'id' => $this->ids->getBytes('evt-future'),
+            ]
+        );
+
+        $partitionKey = Hasher::hashBinary($dueMessage->getPartitionKey(), 'xxh128');
+        $results = $this->repository->fetchDue($partitionKey, [WebhookEventLogDefinition::STATUS_QUEUED, WebhookEventLogDefinition::STATUS_PENDING_RETRY], 10);
+
+        static::assertCount(1, $results);
+        static::assertSame($dueMessage->getWebhookEventId(), $results[0]->webhookEventId);
+    }
+
+    public function testFetchDueReturnsSerializedMessagePayload(): void
+    {
+        $this->createWebhook('wh-1');
+
+        $message = $this->createMessage('evt-1', 'wh-1');
+        $this->repository->ensureOutboxEntry($this->toEntry($message));
+
+        $partitionKey = Hasher::hashBinary($message->getPartitionKey(), 'xxh128');
+        $results = $this->repository->fetchDue($partitionKey, [WebhookEventLogDefinition::STATUS_QUEUED, WebhookEventLogDefinition::STATUS_PENDING_RETRY], 10);
+
+        static::assertCount(1, $results);
+        static::assertSame(serialize($message), $results[0]->serializedWebhookMessage, 'Stored payload must be a faithful serialize() of the original message');
+    }
+
+    public function testFetchDueSkipsOtherPartitions(): void
+    {
+        $this->createWebhook('wh-1');
+        $appId = $this->createApp('AppOther');
+        $this->createWebhook('wh-2', $appId);
+
+        $messageA = $this->createMessage('evt-a', 'wh-1');
+        $messageB = $this->createMessage('evt-b', 'wh-2', $appId);
+        $this->repository->ensureOutboxEntry($this->toEntry($messageA));
+        $this->repository->ensureOutboxEntry($this->toEntry($messageB));
+
+        $partitionKeyA = Hasher::hashBinary($messageA->getPartitionKey(), 'xxh128');
+        $results = $this->repository->fetchDue($partitionKeyA, [WebhookEventLogDefinition::STATUS_QUEUED, WebhookEventLogDefinition::STATUS_PENDING_RETRY], 10);
+
+        static::assertCount(1, $results);
+        static::assertSame($messageA->getWebhookEventId(), $results[0]->webhookEventId);
+    }
+
+    public function testFetchDueSkipsRunningAndTerminalStatuses(): void
+    {
+        $this->createWebhook('wh-fd-queued');
+        $this->createWebhook('wh-fd-running');
+
+        $queuedMsg = $this->createMessage('evt-fd-queued', 'wh-fd-queued');
+        $runningMsg = $this->createMessage('evt-fd-running', 'wh-fd-running');
+        $this->repository->ensureOutboxEntry($this->toEntry($queuedMsg));
+        $this->repository->ensureOutboxEntry($this->toEntry($runningMsg));
+
+        // Flip one row to RUNNING
+        $this->connection->executeStatement(
+            'UPDATE webhook_delivery SET delivery_status = :s WHERE webhook_event_log_id = :id',
+            ['s' => WebhookEventLogDefinition::STATUS_RUNNING, 'id' => $this->ids->getBytes('evt-fd-running')]
+        );
+
+        $partitionKey = Hasher::hashBinary($queuedMsg->getPartitionKey(), 'xxh128');
+        $results = $this->repository->fetchDue($partitionKey, [WebhookEventLogDefinition::STATUS_QUEUED, WebhookEventLogDefinition::STATUS_PENDING_RETRY], 10);
+
+        static::assertCount(1, $results);
+        static::assertSame($queuedMsg->getWebhookEventId(), $results[0]->webhookEventId);
+    }
+
+    public function testFetchDueReturnsStatusOnPendingDelivery(): void
+    {
+        $this->createWebhook('wh-ds-1');
+        $this->createWebhook('wh-ds-2');
+
+        $queuedMsg = $this->createMessage('evt-ds-queued', 'wh-ds-1');
+        $pendingMsg = $this->createMessage('evt-ds-pending', 'wh-ds-2');
+        $this->repository->ensureOutboxEntry($this->toEntry($queuedMsg));
+        $this->repository->ensureOutboxEntry($this->toEntry($pendingMsg));
+
+        // Flip one row to PENDING_RETRY with a past next_retry_at so it is due
+        $this->connection->executeStatement(
+            'UPDATE webhook_delivery SET delivery_status = :s, next_retry_at = :t WHERE webhook_event_log_id = :id',
+            [
+                's' => WebhookEventLogDefinition::STATUS_PENDING_RETRY,
+                't' => (new \DateTimeImmutable('-1 hour'))->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'id' => $this->ids->getBytes('evt-ds-pending'),
+            ]
+        );
+
+        $partitionKey = Hasher::hashBinary($queuedMsg->getPartitionKey(), 'xxh128');
+        $results = $this->repository->fetchDue($partitionKey, [WebhookEventLogDefinition::STATUS_QUEUED, WebhookEventLogDefinition::STATUS_PENDING_RETRY], 10);
+
+        static::assertCount(2, $results);
+
+        $byEvent = [];
+        foreach ($results as $r) {
+            $byEvent[$r->webhookEventId] = $r->deliveryStatus;
+        }
+
+        static::assertSame(WebhookEventLogDefinition::STATUS_QUEUED, $byEvent[$queuedMsg->getWebhookEventId()]);
+        static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $byEvent[$pendingMsg->getWebhookEventId()]);
+    }
+
+    public function testFetchDueFiltersByStatusList(): void
+    {
+        $this->createWebhook('wh-sf-1');
+        $this->createWebhook('wh-sf-2');
+
+        $queuedMsg = $this->createMessage('evt-sf-queued', 'wh-sf-1');
+        $pendingMsg = $this->createMessage('evt-sf-pending', 'wh-sf-2');
+        $this->repository->ensureOutboxEntry($this->toEntry($queuedMsg));
+        $this->repository->ensureOutboxEntry($this->toEntry($pendingMsg));
+
+        // Flip one row to PENDING_RETRY with a past next_retry_at so it is due
+        $this->connection->executeStatement(
+            'UPDATE webhook_delivery SET delivery_status = :s, next_retry_at = :t WHERE webhook_event_log_id = :id',
+            [
+                's' => WebhookEventLogDefinition::STATUS_PENDING_RETRY,
+                't' => (new \DateTimeImmutable('-1 hour'))->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'id' => $this->ids->getBytes('evt-sf-pending'),
+            ]
+        );
+
+        $partitionKey = Hasher::hashBinary($queuedMsg->getPartitionKey(), 'xxh128');
+        $results = $this->repository->fetchDue($partitionKey, [WebhookEventLogDefinition::STATUS_PENDING_RETRY], 10);
+
+        static::assertCount(1, $results);
+        static::assertSame($pendingMsg->getWebhookEventId(), $results[0]->webhookEventId);
+        static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $results[0]->deliveryStatus);
     }
 
     private function assertEventLogStatus(string $eventKey, string $expectedStatus): void

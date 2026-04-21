@@ -43,6 +43,11 @@
             <argument type="service" id="Symfony\Component\Clock\ClockInterface"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Webhook\Outbox\StreamLockService">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Symfony\Component\Clock\ClockInterface"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Webhook\Service\WebhookStateRepository">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Service\RelatedWebhooks"/>
@@ -145,6 +150,7 @@
         <service id="Shopware\Core\Framework\Webhook\Service\WebhookCleanup">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
             <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Outbox\StreamLockService"/>
             <argument type="service" id="Symfony\Component\Clock\ClockInterface"/>
         </service>
 

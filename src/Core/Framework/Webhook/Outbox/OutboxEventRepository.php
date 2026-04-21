@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Framework\Webhook\Outbox;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Doctrine\DBAL\Types\Types;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
@@ -54,7 +56,63 @@ class OutboxEventRepository
                 'UPDATE webhook_event_log SET sequence = :sequence WHERE id = :id',
                 ['sequence' => $sequence, 'id' => $eventLogId]
             );
+
+            $this->connection->executeStatement(
+                'INSERT IGNORE INTO webhook_stream (id, partition_key, created_at) VALUES (:id, :pk, :now)',
+                [
+                    'id' => Uuid::randomBytes(),
+                    'pk' => $insert->partitionKey,
+                    'now' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                ]
+            );
         });
+    }
+
+    /**
+     * Returns up to $budget deliveries for the given partition whose current status is in
+     * $statuses and whose next_retry_at has passed (or is NULL). Ordered by webhook_delivery.id ASC.
+     *
+     * @param non-empty-list<WebhookEventLogDefinition::STATUS_QUEUED|WebhookEventLogDefinition::STATUS_PENDING_RETRY> $statuses
+     *
+     * @return list<OutboxEntry>
+     */
+    public function fetchDue(string $partitionKey, array $statuses, int $budget): array
+    {
+        $sql = <<<'SQL'
+            SELECT d.id, d.webhook_event_log_id, d.execution_count, d.delivery_status,
+                   el.serialized_webhook_message
+            FROM webhook_delivery d
+            JOIN webhook_event_log el ON el.id = d.webhook_event_log_id
+            WHERE d.partition_key = :pk
+              AND d.delivery_status IN (:statuses) AND (d.next_retry_at IS NULL OR d.next_retry_at <= :now)
+            ORDER BY d.id ASC
+            LIMIT :budget
+            SQL;
+
+        $rows = $this->connection->fetchAllAssociative(
+            $sql,
+            [
+                'pk' => $partitionKey,
+                'now' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'budget' => max(1, $budget),
+                'statuses' => $statuses,
+            ],
+            [
+                'budget' => Types::INTEGER,
+                'statuses' => ArrayParameterType::STRING,
+            ]
+        );
+
+        return array_map(
+            static fn (array $row) => new OutboxEntry(
+                webhookEventId: Uuid::fromBytesToHex($row['webhook_event_log_id']),
+                sequence: (int) $row['id'],
+                executionCount: (int) $row['execution_count'],
+                deliveryStatus: (string) $row['delivery_status'],
+                serializedWebhookMessage: (string) $row['serialized_webhook_message'],
+            ),
+            $rows
+        );
     }
 
     public function hasDeliveryRow(string $eventLogId): bool
@@ -66,13 +124,8 @@ class OutboxEventRepository
     }
 
     /**
-     * Atomically marks the delivery row as RUNNING and returns the claim.
-     *
-     * - A non-RUNNING row (queued or pending_retry) transitions to RUNNING,
-     *   increments execution_count, and updates event_log in the same transaction.
-     * - An already-RUNNING row is idempotent: returns the current state without incrementing.
-     * - A missing delivery row (never created, or already deleted by markSuccess/markFailed)
-     *   returns null.
+     * Transitions the delivery row to RUNNING (idempotent on already-RUNNING).
+     * Returns null if the delivery row does not exist.
      */
     public function markRunning(string $eventLogId): ?OutboxEntry
     {
@@ -112,8 +165,10 @@ class OutboxEventRepository
         }
 
         return new OutboxEntry(
-            executionCount: (int) $row['execution_count'],
+            webhookEventId: $eventLogId,
             sequence: (int) $row['id'],
+            executionCount: (int) $row['execution_count'],
+            deliveryStatus: WebhookEventLogDefinition::STATUS_RUNNING,
         );
     }
 

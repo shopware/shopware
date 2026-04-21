@@ -9,6 +9,7 @@ use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
+use Shopware\Core\Framework\Webhook\Outbox\StreamLockService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Clock\NativeClock;
 
@@ -26,6 +27,7 @@ class WebhookCleanup
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
         private readonly Connection $connection,
+        private readonly StreamLockService $streamLockService,
         private readonly ClockInterface $clock = new NativeClock(),
     ) {
     }
@@ -43,6 +45,15 @@ class WebhookCleanup
         // after double the entry lifetime, we also delete queued entries,
         // because we assume they are stuck in queued state (as we rely on message retry to retry failed webhooks)
         $this->deleteLogsOlderThanWithStatus($entryLifetimeSeconds * 2, WebhookEventLogDefinition::STATUS_QUEUED);
+
+        $this->removeOrphanedStreams();
+    }
+
+    private function removeOrphanedStreams(): void
+    {
+        do {
+            $deleted = $this->streamLockService->deleteOrphanedStreams(self::BATCH_SIZE);
+        } while ($deleted === self::BATCH_SIZE);
     }
 
     private function deleteLogsOlderThanWithStatus(int $entryLifetimeSeconds, string ...$status): void

@@ -426,7 +426,12 @@ class WebhookManagerTest extends TestCase
         $appPayloadServiceHelper->method('createWebhookRequest')->willReturnCallback($this->buildWebhookRequest(...));
 
         $outboxRepository = $this->createMock(OutboxEventRepository::class);
-        $outboxRepository->method('markRunning')->willReturn(new OutboxEntry(executionCount: 1, sequence: 1));
+        $outboxRepository->method('markRunning')->willReturn(new OutboxEntry(
+            webhookEventId: 'stub',
+            sequence: 1,
+            executionCount: 1,
+            deliveryStatus: 'running',
+        ));
 
         return new WebhookManager(
             $this->webhookLoader,

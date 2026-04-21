@@ -12,12 +12,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -124,12 +126,32 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
 
         $aggregations = $result->getAggregations();
 
-        // remove id results to prevent wrong usages
-        $aggregations->remove('properties');
+        // remove id results to prevent wrong usages. Group-aware aggregations
+        // produce additional `properties-<groupId>` / `options-<groupId>` keys that
+        // must also be dropped so downstream consumers only see the hydrated
+        // `properties` EntityResult.
+        foreach ($this->getAggregationResultNames($aggregations) as $name) {
+            $aggregations->remove($name);
+        }
         $aggregations->remove('configurators');
-        $aggregations->remove('options');
 
         $aggregations->add(new EntityResult('properties', $groups));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getAggregationResultNames(AggregationResultCollection $aggregations): array
+    {
+        $names = [];
+        foreach ($aggregations as $aggregation) {
+            $name = $aggregation->getName();
+            if ($name === 'properties' || $name === 'options' || str_starts_with($name, 'properties-') || str_starts_with($name, 'options-')) {
+                $names[] = $name;
+            }
+        }
+
+        return $names;
     }
 
     /**
@@ -173,15 +195,101 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
 
         $grouped = FetchModeHelper::group($grouped, static fn ($row): string => (string) $row['id']);
 
-        $filters = [];
-        foreach ($grouped as $options) {
-            $filters[] = new OrFilter([
+        $groupFilters = [];
+        foreach ($grouped as $groupId => $options) {
+            $groupFilters[(string) $groupId] = new OrFilter([
                 new EqualsAnyFilter('product.optionIds', $options),
                 new EqualsAnyFilter('product.propertyIds', $options),
             ]);
         }
 
-        return new Filter('properties', true, $aggregations, new AndFilter($filters), $ids, false);
+        $aggregations = $this->buildGroupAwareAggregations($groupFilters);
+
+        // `exclude = true` ensures the AggregationListingProcessor does not re-add the
+        // combined property filter to the reduced aggregations. The group-aware
+        // FilterAggregations we build ourselves embed only the *other* property groups'
+        // filters, so sibling options of a still-selected group are no longer disabled
+        // after another group's selection is removed. Non-property listing filters
+        // (manufacturer, rating, ...) are still applied via the excluded filter list.
+        return new Filter('properties', true, $aggregations, new AndFilter(array_values($groupFilters)), $ids, true);
+    }
+
+    /**
+     * Build property/option aggregations that are aware of which property group each selected
+     * option belongs to. For each selected group the aggregation excludes that group's own
+     * sub-filter (but keeps every other group's filter) so the bucket counts reflect the
+     * products that would match when that group's selection is lifted. Options belonging to
+     * groups without any active selection are aggregated against *all* selected group filters
+     * so narrowing across groups continues to work.
+     *
+     * @param array<string, OrFilter> $groupFilters map of property-group-id => OR-filter of that group's selected options
+     *
+     * @return list<FilterAggregation>
+     */
+    private function buildGroupAwareAggregations(array $groupFilters): array
+    {
+        $aggregations = [];
+        $selectedGroupIds = array_keys($groupFilters);
+
+        foreach ($groupFilters as $groupId => $_filter) {
+            $otherFilters = [];
+            foreach ($groupFilters as $otherGroupId => $otherFilter) {
+                if ($otherGroupId === $groupId) {
+                    continue;
+                }
+                $otherFilters[] = $otherFilter;
+            }
+
+            $propertyName = 'properties-' . $groupId;
+            $optionName = 'options-' . $groupId;
+
+            $aggregations[] = new FilterAggregation(
+                $propertyName . '-filter',
+                new TermsAggregation($propertyName, 'product.properties.id'),
+                array_merge(
+                    [new EqualsFilter('product.properties.groupId', $groupId)],
+                    $otherFilters
+                )
+            );
+
+            $aggregations[] = new FilterAggregation(
+                $optionName . '-filter',
+                new TermsAggregation($optionName, 'product.options.id'),
+                array_merge(
+                    [new EqualsFilter('product.options.groupId', $groupId)],
+                    $otherFilters
+                )
+            );
+        }
+
+        // Catch-all aggregation for property groups without an active selection. Options in
+        // these groups must still be narrowed by *all* currently selected group filters so
+        // the cross-group narrowing behaviour is preserved.
+        $allSelected = array_values($groupFilters);
+
+        $aggregations[] = new FilterAggregation(
+            'properties-filter',
+            new TermsAggregation('properties', 'product.properties.id'),
+            array_merge(
+                [new NotFilter(NotFilter::CONNECTION_AND, [
+                    new EqualsAnyFilter('product.properties.groupId', $selectedGroupIds),
+                ])],
+                $allSelected
+            )
+        );
+
+        $aggregations[] = new FilterAggregation(
+            'options-filter',
+            new TermsAggregation('options', 'product.options.id'),
+            array_merge(
+                [new NotFilter(NotFilter::CONNECTION_AND, [
+                    new EqualsAnyFilter('product.options.groupId', $selectedGroupIds),
+                ])],
+                $allSelected
+            )
+        );
+
+        return $aggregations;
     }
 
     /**
@@ -191,16 +299,21 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
     {
         $aggregations = $result->getAggregations();
 
-        $properties = $aggregations->get('properties');
-        \assert($properties instanceof TermsResult || $properties === null);
+        $ids = [];
+        foreach ($aggregations as $aggregation) {
+            $name = $aggregation->getName();
+            if ($name !== 'properties' && $name !== 'options' && !str_starts_with($name, 'properties-') && !str_starts_with($name, 'options-')) {
+                continue;
+            }
 
-        $options = $aggregations->get('options');
-        \assert($options instanceof TermsResult || $options === null);
+            if (!$aggregation instanceof TermsResult) {
+                continue;
+            }
 
-        $options = $options ? $options->getKeys() : [];
-        $properties = $properties ? $properties->getKeys() : [];
+            $ids = array_merge($ids, $aggregation->getKeys());
+        }
 
-        return array_unique(array_filter([...$options, ...$properties]));
+        return array_values(array_unique(array_filter($ids)));
     }
 
     /**

@@ -2223,6 +2223,14 @@ New entities for monitoring orders and customers for Agentic Commerce sales chan
 
 ## Storefront
 
+### Listing filter plugins: `p`, `order`, `limit` are now single-valued
+
+`Listing._mapFilters()` now treats the `p`, `order`, and `limit` query parameters as strictly single-valued (last value wins) instead of pipe-joining multiple contributions.
+A third-party filter plugin that returns `{ p: 2 }` from `getValues()` used to produce `p=1|2` when combined with the built-in pagination value, triggering a `400 Bad Request` on `/widgets/cms/navigation/...`. Multi-valued filter keys (`manufacturer`, `properties`, `rating`, `shipping-free`, ...) still pipe-join.
+
+The merge step also now normalises scalar / array / object contributions into arrays before merging and skips third-party filter plugins whose `getValues()` throws.
+Plugin authors who intentionally relied on the previous pipe-join behaviour for single-valued keys should either drop `p` / `order` / `limit` from their `getValues()` output or call `listing.changeListing(true, { p: nextPage })` directly.
+
 ### Order cancellation only shown for open orders
 
 The account order cancellation action is now only shown for orders in state `open`.

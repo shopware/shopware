@@ -7,6 +7,7 @@ import template from './sw-sales-channel-detail.html.twig';
 const { Mixin, Context, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
 const objectHelper = Shopware.Utils.object;
+const ShopwareError = Shopware.Classes.ShopwareError;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -48,6 +49,7 @@ export default {
                 templateOptions: [],
                 templates: null,
                 templateName: null,
+                previousTemplateName: null,
                 showTemplateModal: false,
                 selectedTemplate: null,
             },
@@ -143,7 +145,7 @@ export default {
         tooltipSave() {
             if (!this.allowSaving) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     disabled: this.allowSaving,
                     showOnDisabledElements: true,
                 };
@@ -235,6 +237,7 @@ export default {
 
                     this.generateAccessUrl();
                     this.loadAgenticCommerceExportConfig();
+                    this.detectCurrentTemplate();
 
                     this.isLoading = false;
                 });
@@ -276,15 +279,19 @@ export default {
             });
 
             if (!contentChanged) {
+                this.productComparison.templateName = templateName;
                 return;
             }
 
+            this.productComparison.previousTemplateName = this.productComparison.templateName;
+            this.productComparison.templateName = templateName;
             this.productComparison.showTemplateModal = true;
         },
 
         onTemplateModalClose() {
             this.productComparison.selectedTemplate = null;
-            this.productComparison.templateName = null;
+            this.productComparison.templateName = this.productComparison.previousTemplateName ?? null;
+            this.productComparison.previousTemplateName = null;
             this.productComparison.showTemplateModal = false;
         },
 
@@ -300,10 +307,12 @@ export default {
                 this.productExport[key] = selectedTemplate[key];
             });
 
-            this.onTemplateModalClose();
+            this.productComparison.selectedTemplate = null;
+            this.productComparison.previousTemplateName = null;
+            this.productComparison.showTemplateModal = false;
 
             this.createNotificationInfo({
-                message: this.$tc('sw-sales-channel.detail.productComparison.templates.message.template-applied-message'),
+                message: this.$t('sw-sales-channel.detail.productComparison.templates.message.template-applied-message'),
             });
         },
 
@@ -333,6 +342,20 @@ export default {
                 this.exportTemplateService.getProductExportTemplateRegistry(),
             );
             this.productComparison.templates = this.exportTemplateService.getProductExportTemplateRegistry();
+        },
+
+        detectCurrentTemplate() {
+            if (!this.productComparison.templates || !this.productExport) {
+                return;
+            }
+
+            const matchedTemplate = this.productComparison.templateOptions.find((template) => {
+                return template.bodyTemplate !== undefined && template.bodyTemplate === this.productExport.bodyTemplate;
+            });
+
+            if (matchedTemplate) {
+                this.productComparison.templateName = matchedTemplate.name;
+            }
         },
 
         saveFinish() {
@@ -370,7 +393,7 @@ export default {
                 Shopware.Utils.EventBus.emit('sw-sales-channel-detail-sales-channel-change');
             } catch (_error) {
                 this.createNotificationError({
-                    message: this.$tc(
+                    message: this.$t(
                         'sw-sales-channel.detail.messageSaveError',
                         {
                             name: this.salesChannel.name || this.placeholder(this.salesChannel, 'name'),
@@ -390,6 +413,11 @@ export default {
         },
 
         async onSave() {
+            if (!this.validateAgenticCommerceExportConfig()) {
+                this.isLoading = false;
+                return;
+            }
+
             const saveSuccessful = await this.saveSalesChannel();
 
             if (!saveSuccessful) {
@@ -405,12 +433,27 @@ export default {
             this.loadEntityData();
         },
 
+        validateAgenticCommerceExportConfig() {
+            const requiredError = new ShopwareError({ code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3' });
+            let isValid = true;
+
+            for (const entry of this.agenticCommerceExportConfig.filter((e) => e.isLoaded)) {
+                for (const el of entry.elements.filter((el) => el.config?.required && !entry.values[el.name])) {
+                    entry.errors[el.name] = requiredError;
+                    isValid = false;
+                }
+            }
+
+            return isValid;
+        },
+
         async loadAgenticCommerceExportConfig() {
             this.agenticCommerceExportConfig = this.defaultAgenticCommerceExportConfig.map((configEntry) => {
                 return {
                     ...configEntry,
                     elements: [],
                     values: {},
+                    errors: {},
                     isLoading: false,
                     isLoaded: false,
                 };

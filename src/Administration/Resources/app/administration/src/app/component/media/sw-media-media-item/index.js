@@ -122,7 +122,7 @@ export default {
                 item.fileName = updatedName;
                 item.isLoading = false;
                 this.createNotificationSuccess({
-                    message: this.$tc('global.sw-media-media-item.notification.renamingSuccess.message'),
+                    message: this.$t('global.sw-media-media-item.notification.renamingSuccess.message'),
                 });
                 this.$emit('media-item-rename-success', item);
             } catch (exception) {
@@ -141,7 +141,7 @@ export default {
             switch (error.code) {
                 case 'CONTENT__MEDIA_FILE_NAME_IS_TOO_LONG':
                     this.createNotificationError({
-                        message: this.$tc(
+                        message: this.$t(
                             'global.sw-media-media-item.notification.fileNameTooLong.message',
                             {
                                 length: error.meta.parameters.maxLength,
@@ -152,14 +152,14 @@ export default {
                     break;
                 default:
                     this.createNotificationError({
-                        message: this.$tc('global.sw-media-media-item.notification.renamingError.message'),
+                        message: this.$t('global.sw-media-media-item.notification.renamingError.message'),
                     });
             }
         },
 
         rejectRenaming(endInlineEdit) {
             this.createNotificationError({
-                message: this.$tc('global.sw-media-media-item.notification.errorBlankItemName.message'),
+                message: this.$t('global.sw-media-media-item.notification.errorBlankItemName.message'),
             });
 
             endInlineEdit();
@@ -192,12 +192,12 @@ export default {
             try {
                 await dom.copyStringToClipboard(item.url);
                 this.createNotificationSuccess({
-                    message: this.$tc('sw-media.general.notification.urlCopied.message'),
+                    message: this.$t('sw-media.general.notification.urlCopied.message'),
                 });
             } catch (_err) {
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
-                    message: this.$tc('global.sw-field.notification.notificationCopyFailureMessage'),
+                    title: this.$t('global.default.error'),
+                    message: this.$t('global.sw-field.notification.notificationCopyFailureMessage'),
                 });
             }
         },

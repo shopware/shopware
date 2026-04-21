@@ -25,12 +25,12 @@
             >
 
             <h5 class="sw-first-run-wizard-data-import__headline">
-                {{ $tc('sw-first-run-wizard.dataImport.headlineDemoData') }}
+                {{ $t('sw-first-run-wizard.dataImport.headlineDemoData') }}
             </h5>
 
             <p
                 class="sw-first-run-wizard-data-import__message"
-                v-html="$tc('sw-first-run-wizard.dataImport.messageDemoData')"
+                v-html="$t('sw-first-run-wizard.dataImport.messageDemoData')"
             ></p>
 
             <sw-button-process
@@ -43,7 +43,7 @@
                 class="button-plugin-install"
                 @click="onInstall('demodata')"
             >
-                {{ $tc('sw-first-run-wizard.dataImport.buttonInstallDemoData') }}
+                {{ $t('sw-first-run-wizard.dataImport.buttonInstallDemoData') }}
             </sw-button-process>
 
             <div
@@ -56,7 +56,7 @@
                         size="16"
                     />
 
-                    <span>{{ $tc('sw-first-run-wizard.general.pluginInstalled') }}</span>
+                    <span>{{ $t('sw-first-run-wizard.general.pluginInstalled') }}</span>
                 </span>
             </div>
         </div>
@@ -69,12 +69,12 @@
             >
 
             <h5 class="sw-first-run-wizard-import-data__headline">
-                {{ $tc('sw-first-run-wizard.dataImport.headlineMigration') }}
+                {{ $t('sw-first-run-wizard.dataImport.headlineMigration') }}
             </h5>
 
             <p
                 class="sw-first-run-wizard-data-import__message"
-                v-html="$tc('sw-first-run-wizard.dataImport.messageMigration')"
+                v-html="$t('sw-first-run-wizard.dataImport.messageMigration')"
             ></p>
 
             <sw-button-process
@@ -87,7 +87,7 @@
                 class="button-plugin-install"
                 @click="onInstall('migration')"
             >
-                {{ $tc('sw-first-run-wizard.dataImport.buttonInstallMigration') }}
+                {{ $t('sw-first-run-wizard.dataImport.buttonInstallMigration') }}
             </sw-button-process>
 
             <div
@@ -99,7 +99,7 @@
                         name="regular-check-circle-s"
                         size="16"
                     />
-                    <span>{{ $tc('sw-first-run-wizard.general.pluginInstalled') }}</span>
+                    <span>{{ $t('sw-first-run-wizard.general.pluginInstalled') }}</span>
                 </span>
             </div>
         </div>
@@ -113,7 +113,7 @@
 
         <p
             class="sw-loader-info-text"
-            v-html="$tc('sw-first-run-wizard.dataImport.loadingMessage')"
+            v-html="$t('sw-first-run-wizard.dataImport.loadingMessage')"
         ></p>
     </div>
 </div>

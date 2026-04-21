@@ -1,6 +1,6 @@
 {% block sw_data_grid_settings %}
 <sw-context-button
-    v-tooltip="{ message: $tc('global.sw-data-grid.tooltipListSettings') }"
+    v-tooltip="{ message: $t('global.sw-data-grid.tooltipListSettings') }"
     :disabled="disabled"
     :menu-width="300"
     :auto-close="false"
@@ -13,7 +13,7 @@
         <mt-button
             class="sw-data-grid-settings__trigger"
             :disabled="disabled"
-            :aria-label="$tc('global.sw-data-grid.tooltipListSettings')"
+            :aria-label="$t('global.sw-data-grid.tooltipListSettings')"
             size="x-small"
             square
             variant="secondary"
@@ -37,7 +37,7 @@
         <mt-switch
             :model-value="currentCompact"
             remove-top-margin
-            :label="$tc('global.sw-data-grid.labelSettingsCompactMode')"
+            :label="$t('global.sw-data-grid.labelSettingsCompactMode')"
             @update:model-value="onChangeCompactMode"
         />
         {% endblock %}
@@ -48,7 +48,7 @@
             v-if="enablePreviews"
             :model-value="currentPreviews"
             remove-top-margin
-            :label="$tc('global.sw-data-grid.labelSettingsPreviewImages')"
+            :label="$t('global.sw-data-grid.labelSettingsPreviewImages')"
             @update:model-value="onChangePreviews"
         />
         {% endblock %}
@@ -82,7 +82,7 @@
             {% block sw_data_grid_settings_column_visibility_checkbox %}
             <mt-checkbox
                 :disabled="column.primary"
-                :label="$te(column.label) ? $tc(column.label) : column.label"
+                :label="$te(column.label) ? $t(column.label) : column.label"
                 :checked="currentColumns[index].visible"
                 @update:checked="onChangeColumnVisibility($event, index)"
             />

@@ -214,7 +214,7 @@ async function createWrapper() {
                     'sw-provide': { template: '<slot/>', inheritAttrs: false },
                 },
                 mocks: {
-                    $tc: (t, value) => {
+                    $t: (t, value) => {
                         if (t === 'sw-order.createBase.taxDetail') {
                             return `${value.taxRate}%: ${value.tax}`;
                         }

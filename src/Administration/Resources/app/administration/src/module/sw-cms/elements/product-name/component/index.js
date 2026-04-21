@@ -35,7 +35,7 @@ export default {
 
                 if (this.element.config.content.value === 'product.name') {
                     className = 'sw-cms-el-product-name__placeholder';
-                    label = this.$tc('sw-cms.elements.productName.label');
+                    label = this.$t('sw-cms.elements.productName.label');
                 }
 
                 this.demoValue = `<h1 class="${className}">${label}</h1>`;

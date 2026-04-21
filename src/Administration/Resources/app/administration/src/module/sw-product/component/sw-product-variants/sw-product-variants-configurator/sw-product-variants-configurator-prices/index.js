@@ -54,7 +54,7 @@ export default {
             const defaultColumns = [
                 {
                     property: 'name',
-                    label: this.$tc('sw-product.variations.configuratorModal.priceOptions'),
+                    label: this.$t('sw-product.variations.configuratorModal.priceOptions'),
                     rawData: true,
                 },
             ];
@@ -65,7 +65,7 @@ export default {
                     label: currency.name,
                     rawData: true,
                     allowResize: true,
-                    width: '200px',
+                    width: 'calc(var(--scale-size-160) + var(--scale-size-40))',
                 };
             });
 

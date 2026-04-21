@@ -1,5 +1,9 @@
 name: Audit check for NPM packages
 
+permissions:
+  contents: read
+  issues: write
+
 on:
   workflow_dispatch:
   schedule:
@@ -12,6 +16,7 @@ on:
       - "**/package-lock.json"
       - "**/scripts/runNpmAudit.ts"
       - ".github/bin/js/run-npm-audit.ts"
+      - ".github/bin/js/package-discovery.ts"
   pull_request:
     types: [opened, synchronize]
     paths:
@@ -19,6 +24,7 @@ on:
       - "**/package-lock.json"
       - "**/scripts/runNpmAudit.ts"
       - ".github/bin/js/run-npm-audit.ts"
+      - ".github/bin/js/package-discovery.ts"
 
 jobs:
   check-package-completeness:
@@ -55,20 +61,40 @@ jobs:
     name: Generate audit matrix
     needs: [check-package-completeness, check-pinned-dependencies]
     runs-on: ubuntu-latest
+    env:
+      USE_CHANGED_PACKAGE_MATRIX: ${{ github.event_name == 'pull_request' || github.event_name == 'push' }}
+      IS_PULL_REQUEST: ${{ github.event_name == 'pull_request' }}
     outputs:
       matrix: ${{ steps.generate-matrix.outputs.matrix }}
     steps:
       - name: Check out code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
           node-version: 24
 
+      - name: Collect changed files
+        if: ${{ env.USE_CHANGED_PACKAGE_MATRIX == 'true' }}
+        run: |
+          if [ "${IS_PULL_REQUEST}" = "true" ]; then
+            git diff --name-only "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" > "$RUNNER_TEMP/npm-audit-changed-files.txt"
+          else
+            git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" > "$RUNNER_TEMP/npm-audit-changed-files.txt"
+          fi
+
       - name: Generate matrix
         id: generate-matrix
         run: |
-          matrix=$(node ./.github/bin/js/package-discovery.ts matrix)
+          matrix=$(
+            if [ "${USE_CHANGED_PACKAGE_MATRIX}" = "true" ]; then
+              node ./.github/bin/js/package-discovery.ts matrix --changed-files-file "$RUNNER_TEMP/npm-audit-changed-files.txt"
+            else
+              node ./.github/bin/js/package-discovery.ts matrix
+            fi
+          )
           echo "matrix=$matrix" >> $GITHUB_OUTPUT
 
   audit-packages:
@@ -90,13 +116,92 @@ jobs:
       - name: Install dependencies
         run: npm ci
         working-directory: ${{ matrix.workingDirectory }}
+        env:
+          # Keep install output focused on dependency installation. The audit runs explicitly in the next step.
+          NPM_CONFIG_AUDIT: false
 
-      - name: Run audit (standard)
-        if: ${{ !matrix.hasCustomAuditScript }}
-        run: npm audit
+      - name: Run audit
+        env:
+          NPM_AUDIT_PACKAGE_NAME: ${{ matrix.name }}
+          NPM_AUDIT_RESULT_FILE: ${{ runner.temp }}/${{ matrix.artifactName }}/result.json
+          NPM_AUDIT_WORKING_DIRECTORY: ${{ matrix.workingDirectory }}
+        run: |
+          if [ "${{ matrix.hasCustomAuditScript }}" = "true" ]; then
+            node ./scripts/runNpmAudit.ts
+          else
+            node "$GITHUB_WORKSPACE/.github/bin/js/run-npm-audit.ts"
+          fi
         working-directory: ${{ matrix.workingDirectory }}
 
-      - name: Run audit (custom script)
-        if: ${{ matrix.hasCustomAuditScript }}
-        run: node ./scripts/runNpmAudit.ts
-        working-directory: ${{ matrix.workingDirectory }}
+      - name: Upload audit result
+        if: ${{ always() }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # 6.0.0
+        with:
+          name: ${{ matrix.artifactName }}
+          path: ${{ runner.temp }}/${{ matrix.artifactName }}/result.json
+          if-no-files-found: error
+
+  report-scheduled-audit-failures:
+    name: Report scheduled audit failures
+    if: ${{ github.event_name == 'schedule' && needs.audit-packages.result == 'failure' }}
+    needs: audit-packages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        with:
+          node-version: 24
+
+      - name: Download audit results
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # 4
+        with:
+          path: ${{ runner.temp }}/npm-audit-results
+
+      - name: Build issue payload
+        run: |
+          node ./.github/bin/js/aggregate-npm-audit-results.ts \
+            "$RUNNER_TEMP/npm-audit-results" \
+            "$RUNNER_TEMP/npm-audit-issue-payload.json"
+
+      - name: Create or update audit issue
+        uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
+        env:
+          ISSUE_PAYLOAD_FILE: ${{ runner.temp }}/npm-audit-issue-payload.json
+        with:
+          script: |
+            const fs = require('node:fs');
+            const payload = JSON.parse(fs.readFileSync(process.env.ISSUE_PAYLOAD_FILE, 'utf8'));
+            const marker = '<!-- nightly-npm-audit-failures -->';
+
+            const issues = await github.paginate(github.rest.issues.listForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100,
+            });
+
+            const existingIssue = issues.find((issue) =>
+              issue.title === payload.issueTitle && typeof issue.body === 'string' && issue.body.includes(marker)
+            );
+
+            if (existingIssue) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existingIssue.number,
+                body: payload.commentBody,
+              });
+              core.info(`Added comment to issue #${existingIssue.number}`);
+              return;
+            }
+
+            const createdIssue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: payload.issueTitle,
+              body: payload.issueBody,
+            });
+
+            core.info(`Created issue #${createdIssue.data.number}`);

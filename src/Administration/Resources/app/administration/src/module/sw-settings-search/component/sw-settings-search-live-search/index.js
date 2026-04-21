@@ -76,12 +76,12 @@ export default {
             return [
                 {
                     property: 'name',
-                    label: this.$tc('sw-settings-search.liveSearchTab.labelName'),
+                    label: this.$t('sw-settings-search.liveSearchTab.labelName'),
                     rawData: true,
                 },
                 {
                     property: 'score',
-                    label: this.$tc('sw-settings-search.liveSearchTab.labelScore'),
+                    label: this.$t('sw-settings-search.liveSearchTab.labelScore'),
                     rawData: true,
                 },
             ];
@@ -144,7 +144,7 @@ export default {
                 .catch((error) => {
                     const message =
                         error.response.status === 500
-                            ? this.$tc('sw-settings-search.notification.notSupportedLanguageError')
+                            ? this.$t('sw-settings-search.notification.notSupportedLanguageError')
                             : error.message;
 
                     this.createNotificationError({

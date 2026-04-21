@@ -41,7 +41,7 @@ async function createWrapper(privileges = [], repository = {}) {
                 'sw-time-ago': true,
             },
             mocks: {
-                $tc: (...args) => JSON.stringify([...args]),
+                $t: (...args) => JSON.stringify([...args]),
                 $i18n: {
                     locale: 'en-GB',
                     messages: {

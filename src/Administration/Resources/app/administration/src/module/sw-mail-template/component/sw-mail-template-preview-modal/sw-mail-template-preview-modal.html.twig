@@ -146,7 +146,9 @@
         </div>
     </template>
 
+    {% block sw_mail_template_detail_preview_modal_footer %}
     <template #modal-footer>
+        {% block sw_mail_template_detail_preview_modal_footer_cancel %}
         <mt-button
             size="small"
             variant="secondary"
@@ -154,5 +156,7 @@
         >
             {{ $t('global.default.close') }}
         </mt-button>
+        {% endblock %}
     </template>
+    {% endblock %}
 </sw-modal>

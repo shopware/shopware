@@ -53,6 +53,10 @@ class TwigEnvironment extends Environment
             return $this->escaperRuntime;
         }
 
+        // It is safe to instantiate the original `EscaperRuntime` directly, as runtimes are cached by their FQCNs.
+        // This means it is not possible for Twig extensions to overwrite this by registering custom runtime loaders.
+        // Else this would have been done and not this trick instead.
+        // Additionally, this is faster than calling the original `getRuntime` method to get the `EscaperRuntime` instance.
         $this->escaperRuntime = new CachedEscaperRuntime(new EscaperRuntime($this->getCharset()));
 
         return $this->escaperRuntime;

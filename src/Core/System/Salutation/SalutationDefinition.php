@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SetNullOnDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
@@ -28,6 +29,12 @@ class SalutationDefinition extends EntityDefinition
     final public const ENTITY_NAME = 'salutation';
 
     final public const NOT_SPECIFIED = 'not_specified';
+
+    final public const MR = 'mr';
+
+    final public const MRS = 'mrs';
+
+    final public const DEFAULT_POSITION = 100;
 
     public function getEntityName(): string
     {
@@ -49,6 +56,13 @@ class SalutationDefinition extends EntityDefinition
         return '6.0.0.0';
     }
 
+    public function getDefaults(): array
+    {
+        return [
+            'position' => self::DEFAULT_POSITION,
+        ];
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
@@ -57,6 +71,7 @@ class SalutationDefinition extends EntityDefinition
             (new TranslatedField('displayName'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new TranslatedField('letterName'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
+            (new IntField('position', 'position'))->addFlags(new ApiAware())->setDescription('Numerical value that indicates the order in which the defined salutations must be displayed in the frontend.'),
 
             (new TranslationsAssociationField(SalutationTranslationDefinition::class, 'salutation_id'))->addFlags(new Required()),
 

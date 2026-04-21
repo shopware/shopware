@@ -946,6 +946,7 @@ Use the parent blocks instead
 
 ## The following template blocks have been replaced due to a typo in their name
 * `sw_condiiton_date_range_field_to_date` -> `sw_condition_date_range_field_to_date`
+* `sw_cms_detail_stage_empty_stade_content` -> `sw_cms_detail_stage_empty_stage_content`
 
 ## Removed .png and .jpg images
 

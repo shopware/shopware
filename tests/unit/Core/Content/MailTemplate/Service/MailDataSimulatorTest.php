@@ -378,8 +378,10 @@ class MailDataSimulatorTest extends TestCase
 
         $providerDispatcher = static::createStub(EventDispatcherInterface::class);
         $providerContainer = static::createStub(ContainerInterface::class);
+        /** @var AbstractProvider<Entity, EntityCollection<Entity>> $salesChannelProvider */
+        $salesChannelProvider = new SalesChannelProvider($providerDispatcher, $providerContainer);
         $providerMap = [
-            SalesChannelDefinition::ENTITY_NAME => new SalesChannelProvider($providerDispatcher, $providerContainer),
+            SalesChannelDefinition::ENTITY_NAME => $salesChannelProvider,
             ...$dataProviders,
         ];
 

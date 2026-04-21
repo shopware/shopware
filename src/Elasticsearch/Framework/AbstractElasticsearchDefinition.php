@@ -109,5 +109,4 @@ abstract class AbstractElasticsearchDefinition
     {
         return self::KEYWORD_FIELD + self::SEARCH_FIELD_WITH_LENGTH_NORM;
     }
-
 }

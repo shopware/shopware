@@ -36,5 +36,5 @@ abstract class AbstractDocumentRenderer
 
     abstract public function renderToString(RenderInput $input, RenderState $state): RenderResult;
 
-    abstract public function persistToFile(RenderInput $input, RenderState $state): string;
+    abstract public function persistToFile(RenderInput $input, RenderResult $result): string;
 }

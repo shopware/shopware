@@ -17,7 +17,7 @@ abstract class AbstractDocumentDataProvider
     /**
      * @see DocumentType
      *
-     * @return list<DocumentType>
+     * @return list<string>
      */
     abstract public function getDocumentTypes(): array;
 

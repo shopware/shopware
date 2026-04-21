@@ -604,10 +604,6 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
 
         expect(routeComponent).not.toBe(false);
 
-        if (routeComponent === false) {
-            throw new Error('Expected component config for route component');
-        }
-
         let enterGuardCallback;
         await routeComponent.beforeRouteEnter({}, {}, (callback) => {
             enterGuardCallback = callback;
@@ -679,10 +675,6 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         const routeComponent = await vueAdapter.getComponentForRoute(componentName)();
 
         expect(routeComponent).not.toBe(false);
-
-        if (routeComponent === false) {
-            throw new Error('Expected component config for route component');
-        }
 
         const next = jest.fn();
 

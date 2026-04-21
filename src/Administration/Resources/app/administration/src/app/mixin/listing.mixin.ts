@@ -118,6 +118,7 @@ export default Shopware.Mixin.register(
         beforeRouteLeave(to) {
             const targetRouteName = typeof to !== 'string' && 'name' in to ? to.name : undefined;
 
+            // Routes from the `sw-bulk-edit` module are generated under `sw.bulk.edit.*`.
             if (typeof targetRouteName === 'string' && targetRouteName.startsWith('sw.bulk.edit.')) {
                 return;
             }

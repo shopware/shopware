@@ -770,6 +770,8 @@ export default class VueAdapter extends ViewAdapter {
         }
     }
 
+    // Normalize route guards by collecting inherited and mixin guards and
+    // composing them into one deduplicated guard per hook for route components.
     private normalizeRouteGuards(componentConfig: ComponentConfig) {
         if (this.routeGuardComponents.has(componentConfig)) {
             return;
@@ -845,6 +847,7 @@ export default class VueAdapter extends ViewAdapter {
                 }
 
                 const guard = guards[index];
+                const forwardRouteResult = next as (result: Exclude<RouteGuardResult, undefined>) => void;
 
                 const continueNavigation = async (result?: RouteGuardResult) => {
                     if (guardName === 'beforeRouteEnter' && typeof result === 'function') {
@@ -858,60 +861,23 @@ export default class VueAdapter extends ViewAdapter {
                         return;
                     }
 
-                    if (result instanceof Error) {
-                        next(result);
-                        return;
-                    }
-
-                    if (result === false) {
-                        next(false);
-                        return;
-                    }
-
-                    if (typeof result === 'function') {
-                        next(result);
-                        return;
-                    }
-
-                    next(result);
+                    // Only beforeRouteEnter callbacks and undefined are handled above;
+                    // all other defined results are forwarded to Vue Router unchanged.
+                    forwardRouteResult(result);
                 };
 
                 if (guard.length >= 3) {
-                    await new Promise<void>((resolve, reject) => {
-                        let isSettled = false;
-
-                        const resolveOnce: NavigationGuardNext = (result?) => {
-                            if (isSettled) {
-                                return;
-                            }
-
-                            isSettled = true;
-
-                            void continueNavigation(result as RouteGuardResult)
-                                .then(resolve)
-                                .catch(reject);
+                    await new Promise<RouteGuardResult | undefined>((resolve, reject) => {
+                        const resolveRouteGuard: NavigationGuardNext = (result?) => {
+                            resolve(result as RouteGuardResult | undefined);
                         };
 
-                        try {
-                            const guardResult = guard.call(this, to, from, resolveOnce);
-
-                            void Promise.resolve(guardResult).catch((error) => {
-                                if (isSettled) {
-                                    return;
-                                }
-
-                                isSettled = true;
-                                reject(error instanceof Error ? error : new Error(String(error)));
-                            });
-                        } catch (error) {
-                            if (isSettled) {
-                                return;
-                            }
-
-                            isSettled = true;
-                            reject(error instanceof Error ? error : new Error(String(error)));
-                        }
-                    });
+                        void Promise.resolve(guard.call(this, to, from, resolveRouteGuard)).catch(reject);
+                    })
+                        .then((result) => continueNavigation(result))
+                        .catch((error) => {
+                            throw error instanceof Error ? error : new Error(String(error));
+                        });
 
                     return;
                 }

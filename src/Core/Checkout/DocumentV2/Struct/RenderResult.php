@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\DocumentV2\Struct;
 
-use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -12,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class RenderResult
 {
     public function __construct(
-        private DocumentFormat $format,
+        private string $format,
         private string $content,
         private string $fileName,
         private string $fileExtension,
@@ -20,12 +19,7 @@ final readonly class RenderResult
     ) {
     }
 
-    public function getFileNameWithExtension(): string
-    {
-        return $this->fileName . '.' . $this->fileExtension;
-    }
-
-    public function getFormat(): DocumentFormat
+    public function getFormat(): string
     {
         return $this->format;
     }

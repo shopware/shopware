@@ -2,8 +2,7 @@
 
 namespace Shopware\Core\Checkout\DocumentV2\Struct;
 
-use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
-use Shopware\Core\Checkout\DocumentV2\Exception\DocumentV2Exception;
+use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -17,20 +16,20 @@ final class RenderState
      */
     private array $results = [];
 
-    public function has(DocumentFormat $format): bool
+    public function has(string $format): bool
     {
-        return isset($this->results[$format->value]);
+        return isset($this->results[$format]);
     }
 
-    public function get(DocumentFormat $format): RenderResult
+    public function get(string $format): RenderResult
     {
-        return $this->results[$format->value];
+        return $this->results[$format];
     }
 
     /**
      * @throws DocumentV2Exception
      */
-    public function require(DocumentFormat $format): RenderResult
+    public function require(string $format): RenderResult
     {
         if (!$this->has($format)) {
             throw DocumentV2Exception::unknownRenderResult($format);
@@ -48,7 +47,7 @@ final class RenderState
             throw DocumentV2Exception::duplicateRenderResult($result->getFormat());
         }
 
-        $this->results[$result->getFormat()->value] = $result;
+        $this->results[$result->getFormat()] = $result;
     }
 
     /**

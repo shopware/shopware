@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\DocumentV2\Struct;
 
-use Shopware\Core\Checkout\DocumentV2\Exception\DocumentV2Exception;
+use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Log\Package;
 

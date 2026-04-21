@@ -5,12 +5,10 @@ namespace Shopware\Core\Framework\Webhook\Handler;
 use GuzzleHttp\Exception\BadResponseException;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
-use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\DeliveryResponse;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository;
@@ -34,7 +32,6 @@ final readonly class WebhookEventMessageHandler
      */
     public function __construct(
         private WebhookClient $webhookClient,
-        private AppPayloadServiceHelper $appPayloadServiceHelper,
         private RelatedWebhooks $relatedWebhooks,
         private OutboxEventRepository $outboxEventRepository,
         private WebhookDeliveryService $webhookDeliveryService,
@@ -49,12 +46,7 @@ final readonly class WebhookEventMessageHandler
         // messages a missing row means an unexpected dispatch path or a rollout window; repair
         // and log.
         if (!$this->outboxEventRepository->hasDeliveryRow($message->getWebhookEventId())) {
-            $this->outboxEventRepository->ensureOutboxEntry(new OutboxInsert(
-                $message->getWebhookEventId(),
-                $message->getWebhookId(),
-                Hasher::hashBinary($message->getPartitionKey(), 'xxh128'),
-                serialize($message),
-            ));
+            $this->outboxEventRepository->ensureOutboxEntry(OutboxInsert::fromMessage($message));
 
             if ($message->partitionKey !== null) {
                 $this->logger->error('Expected an outbox entry for webhook event. Not an error if this is happening during a deployment rollout.', [
@@ -72,19 +64,14 @@ final readonly class WebhookEventMessageHandler
 
         $context = Context::createDefaultContext();
 
-        $request = $this->appPayloadServiceHelper->createWebhookRequest(
-            $message->getPayload(),
-            $message->getUrl(),
-            $message->getShopwareVersion(),
-            WebhookClient::CONNECT_TIMEOUT,
-            WebhookClient::REQUEST_TIMEOUT,
-            $message->getSecret(),
-            $message->getLanguageId(),
-            $message->getUserLocale(),
-            $message->getWebhookHeaders(),
-        );
+        $entry = $this->outboxEventRepository->markRunning($message->getWebhookEventId());
+        // null + delivery row exists => another worker owns the attempt; skip.
+        // null + no delivery row => legacy pre-transport message; deliver without sequence headers.
+        if ($entry === null && $this->outboxEventRepository->hasDeliveryRow($message->getWebhookEventId())) {
+            return;
+        }
 
-        $this->outboxEventRepository->markRunning($message->getWebhookEventId());
+        $request = $this->webhookDeliveryService->buildRequest($message, $entry);
 
         try {
             $result = $this->webhookClient->send($request);

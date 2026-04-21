@@ -19,6 +19,7 @@ class WebhookTransportFactory implements TransportFactoryInterface
     public function __construct(
         private readonly OutboxEventRepository $outboxEventRepository,
         private readonly TransportInterface $asyncTransport,
+        private readonly MySQLWebhookReceiver $receiver,
     ) {
     }
 
@@ -27,7 +28,7 @@ class WebhookTransportFactory implements TransportFactoryInterface
      */
     public function createTransport(string $dsn, array $options, SerializerInterface $serializer): TransportInterface
     {
-        return new WebhookTransport($this->outboxEventRepository, $this->asyncTransport);
+        return new WebhookTransport($this->outboxEventRepository, $this->asyncTransport, $this->receiver);
     }
 
     /**

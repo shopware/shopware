@@ -5,10 +5,12 @@ namespace Shopware\Core\Framework\Webhook\Service;
 use Doctrine\DBAL\Exception as DBALException;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\Hasher;
+use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\DeliveryResponse;
+use Shopware\Core\Framework\Webhook\Outbox\OutboxEntry;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxInsert;
 use Shopware\Core\Framework\Webhook\Outbox\RetryDelayCalculator;
@@ -21,8 +23,12 @@ use Symfony\Component\Messenger\MessageBusInterface;
 #[Package('framework')]
 class WebhookDeliveryService
 {
+    public const HEADER_EVENT_ID = 'X-Shopware-Event-Id';
+    public const HEADER_SEQUENCE = 'X-Shopware-Sequence';
+    public const HEADER_ATTEMPT = 'X-Shopware-Attempt';
+
     // Matches RetryDelayCalculator::RETRY_DELAYS; attempt 6 is terminal.
-    private const MAX_RETRIES = 5;
+    public const MAX_RETRIES = 5;
 
     private readonly WebhookFailureStrategy $failureStrategy;
 
@@ -65,9 +71,9 @@ class WebhookDeliveryService
                 return;
             }
 
-            $request = $this->buildRequest($message);
-            $result = $this->webhookClient->send($request);
-            $this->handleResult($message->getWebhookEventId(), $message->getWebhookId(), $entry->executionCount, $request, $result);
+            $request = $this->buildRequest($message, $entry);
+            $httpResult = $this->webhookClient->send($request);
+            $this->handleResult($message->getWebhookEventId(), $message->getWebhookId(), $entry->executionCount, $request, $httpResult);
         } catch (\JsonException $e) {
             $this->logger->error('Webhook delivery encoding failed for event {eventId}', [
                 'eventId' => $message->getWebhookEventId(),
@@ -92,6 +98,48 @@ class WebhookDeliveryService
         }
     }
 
+    public function buildRequest(WebhookEventMessage $message, ?OutboxEntry $entry = null): WebhookRequest
+    {
+        $payload = $message->getPayload();
+        $headers = $message->getWebhookHeaders();
+        $headers[self::HEADER_EVENT_ID] = $message->getWebhookEventId();
+
+        if ($entry !== null) {
+            if (isset($payload['source']) && \is_array($payload['source'])) {
+                $payload['source']['sequence'] = $entry->sequence;
+            }
+            $headers[self::HEADER_SEQUENCE] = (string) $entry->sequence;
+            $headers[self::HEADER_ATTEMPT] = (string) max(0, $entry->executionCount - 1);
+        }
+
+        return $this->appPayloadServiceHelper->createWebhookRequest(
+            $payload,
+            $message->getUrl(),
+            $message->getShopwareVersion(),
+            WebhookClient::CONNECT_TIMEOUT,
+            WebhookClient::REQUEST_TIMEOUT,
+            $message->getSecret(),
+            $message->getLanguageId(),
+            $message->getUserLocale(),
+            $headers,
+        );
+    }
+
+    /**
+     * Called by the transport's `reject()` when the Messenger handler threw uncaught.
+     * MAX_RETRIES is the safety ceiling; past it the row is marked FAILED so a poison
+     * message can't loop the partition.
+     */
+    public function handleRejectedDelivery(string $eventLogId): void
+    {
+        $executionCount = $this->outboxEventRepository->loadExecutionCount($eventLogId);
+        if ($executionCount === null) {
+            return;
+        }
+
+        $this->persistFailureOutcome($eventLogId, $executionCount);
+    }
+
     /**
      * @param list<WebhookEventMessage> $messages
      */
@@ -104,17 +152,23 @@ class WebhookDeliveryService
         /** @var array<string, int> $executionCounts */
         $executionCounts = [];
 
+        // Write RUNNING directly so the async receiver can't re-claim the row mid-flight;
+        // a concurrent inline caller hits the event_log UCV and gets null here.
         foreach ($messages as $message) {
-            $this->outboxEventRepository->ensureOutboxEntry(new OutboxInsert(
-                $message->getWebhookEventId(),
-                $message->getWebhookId(),
-                Hasher::hashBinary($message->getPartitionKey(), 'xxh128'),
-                serialize($message),
+            $entry = Feature::silent('v6.8.0.0', fn () => $this->outboxEventRepository->ensureOutboxEntry(
+                OutboxInsert::fromMessage($message),
+                WebhookEventLogDefinition::STATUS_RUNNING,
             ));
-            $entry = $this->outboxEventRepository->markRunning($message->getWebhookEventId());
+            if ($entry === null) {
+                continue;
+            }
             $messagesByEventId[$message->getWebhookEventId()] = $message;
-            $executionCounts[$message->getWebhookEventId()] = $entry !== null ? $entry->executionCount : 1;
-            $requests[$message->getWebhookEventId()] = $this->buildRequest($message);
+            $executionCounts[$message->getWebhookEventId()] = $entry->executionCount;
+            $requests[$message->getWebhookEventId()] = $this->buildRequest($message, $entry);
+        }
+
+        if ($requests === []) {
+            return;
         }
 
         $results = $this->webhookClient->sendBatch($requests);
@@ -155,7 +209,11 @@ class WebhookDeliveryService
     private function handleFailure(string $eventLogId, string $webhookId, int $executionCount, DeliveryResponse $response): void
     {
         $this->webhookStateRepository->recordFailure($webhookId, $this->failureStrategy);
+        $this->persistFailureOutcome($eventLogId, $executionCount, $response);
+    }
 
+    private function persistFailureOutcome(string $eventLogId, int $executionCount, ?DeliveryResponse $response = null): void
+    {
         if ($executionCount > self::MAX_RETRIES) {
             $this->outboxEventRepository->markFailed($eventLogId, $response);
 
@@ -165,19 +223,5 @@ class WebhookDeliveryService
         $retryAt = $this->retryDelayCalculator->computeNextRetryAt(max(1, $executionCount));
         $this->outboxEventRepository->markPendingRetry($eventLogId, $retryAt, $response);
     }
-
-    private function buildRequest(WebhookEventMessage $message): WebhookRequest
-    {
-        return $this->appPayloadServiceHelper->createWebhookRequest(
-            $message->getPayload(),
-            $message->getUrl(),
-            $message->getShopwareVersion(),
-            WebhookClient::CONNECT_TIMEOUT,
-            WebhookClient::REQUEST_TIMEOUT,
-            $message->getSecret(),
-            $message->getLanguageId(),
-            $message->getUserLocale(),
-            $message->getWebhookHeaders(),
-        );
-    }
 }
+

@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogEntity;
 use Shopware\Core\Framework\Webhook\Handler\WebhookEventMessageHandler;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
+use Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService;
 use Shopware\Core\Framework\Webhook\WebhookEntity;
 use Shopware\Core\Framework\Webhook\WebhookException;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
@@ -118,18 +119,22 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
         static::assertSame($webhookEventLog->getDeliveryStatus(), WebhookEventLogDefinition::STATUS_SUCCESS);
-        static::assertEquals(
-            [
-                'headers' => [
-                    'Content-Type' => 'application/json',
-                    'sw-version' => '6.4',
-                    AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE => Defaults::LANGUAGE_SYSTEM,
-                    AuthMiddleware::SHOPWARE_USER_LANGUAGE => 'en-GB',
-                ],
-                'body' => $payload,
-            ],
-            $webhookEventLog->getRequestContent()
-        );
+        static::assertTrue($request->hasHeader('X-Shopware-Event-Id'));
+        static::assertSame($webhookEventId, $request->getHeaderLine('X-Shopware-Event-Id'));
+        static::assertTrue($request->hasHeader('X-Shopware-Sequence'));
+        static::assertSame('0', $request->getHeaderLine('X-Shopware-Attempt'));
+
+        $requestContent = $webhookEventLog->getRequestContent();
+        static::assertIsArray($requestContent);
+        static::assertSame($payload, $requestContent['body']);
+        $headers = $requestContent['headers'] ?? [];
+        static::assertSame('application/json', $headers['Content-Type']);
+        static::assertSame('6.4', $headers['sw-version']);
+        static::assertSame(Defaults::LANGUAGE_SYSTEM, $headers[AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE]);
+        static::assertSame('en-GB', $headers[AuthMiddleware::SHOPWARE_USER_LANGUAGE]);
+        static::assertSame($webhookEventId, $headers['X-Shopware-Event-Id']);
+        static::assertSame('0', $headers['X-Shopware-Attempt']);
+        static::assertArrayHasKey('X-Shopware-Sequence', $headers);
     }
 
     /**
@@ -1168,21 +1173,27 @@ class WebhookEventMessageHandlerTest extends TestCase
             'serializedWebhookMessage' => serialize($webhookEventMessage),
         ]], Context::createDefaultContext());
 
-        // No insertWebhookDelivery -- simulating legacy message
+        // No insertWebhookDelivery -- simulating a pre-outbox message in the queue.
 
         $this->appendNewResponse(new Response(200));
 
-        // Should not throw
-        ($this->webhookEventMessageHandler)($webhookEventMessage);
+        Feature::fake([], function () use ($webhookEventMessage, $webhookEventLogRepository, $webhookEventId): void {
+            ($this->webhookEventMessageHandler)($webhookEventMessage);
 
-        // Verify the HTTP request was actually sent
-        $request = $this->getLastRequest();
-        static::assertInstanceOf(RequestInterface::class, $request);
+            // Verify the HTTP request was actually sent
+            $request = $this->getLastRequest();
+            static::assertInstanceOf(RequestInterface::class, $request);
 
-        // delivery_status transitions to running (markRunning updates event_log even without delivery row)
-        $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->first();
-        static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
-        static::assertSame(WebhookEventLogDefinition::STATUS_SUCCESS, $webhookEventLog->getDeliveryStatus());
+            // Orphan path skips the sequence/attempt headers — there is no delivery row
+            // to read the sequence from; a regression that stamped sequence=0 would
+            // otherwise pass silently.
+            static::assertFalse($request->hasHeader(WebhookDeliveryService::HEADER_SEQUENCE));
+            static::assertFalse($request->hasHeader(WebhookDeliveryService::HEADER_ATTEMPT));
+
+            $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->first();
+            static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
+            static::assertSame(WebhookEventLogDefinition::STATUS_SUCCESS, $webhookEventLog->getDeliveryStatus());
+        });
     }
 
     public function testLegacyMessageWithoutDeliveryRowDeliversHttp(): void

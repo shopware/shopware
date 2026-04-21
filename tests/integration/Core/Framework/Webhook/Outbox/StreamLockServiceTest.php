@@ -106,6 +106,57 @@ class StreamLockServiceTest extends TestCase
         static::assertSame($pkB, $lease->partitionKey);
     }
 
+    public function testClaimNextRescuesPartitionWithOnlyStaleRunningRow(): void
+    {
+        // Worker died on the last row in this partition; nothing QUEUED/PENDING_RETRY
+        // remains. Without the stale-RUNNING branch in claimNext, the row would be
+        // stranded until an unrelated event dispatched to the same partition.
+        $this->clearWebhookState();
+        $partitionKey = $this->makePartitionKey('app-stranded');
+        $this->insertStream($partitionKey);
+        $eventLogId = $this->insertDeliveryRow($partitionKey, WebhookEventLogDefinition::STATUS_RUNNING);
+
+        $staleLastAttempt = $this->clock->now()->modify('-190 seconds')->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $this->connection->executeStatement(
+            'UPDATE webhook_delivery SET last_attempt_at = :at WHERE webhook_event_log_id = :id',
+            ['at' => $staleLastAttempt, 'id' => $eventLogId]
+        );
+
+        $lease = $this->service->claimNext(
+            'rescue-worker',
+            180,
+            [WebhookEventLogDefinition::STATUS_QUEUED, WebhookEventLogDefinition::STATUS_PENDING_RETRY]
+        );
+
+        static::assertNotNull($lease);
+        static::assertSame($partitionKey, $lease->partitionKey);
+        static::assertSame('rescue-worker', $lease->workerId);
+    }
+
+    public function testClaimNextSkipsPartitionWithOnlyFreshRunningRow(): void
+    {
+        // The active holder's lease hasn't expired yet — last_attempt_at is recent.
+        // claimNext must not steal the partition from a worker that may still be alive.
+        $this->clearWebhookState();
+        $partitionKey = $this->makePartitionKey('app-inflight');
+        $this->insertStream($partitionKey);
+        $eventLogId = $this->insertDeliveryRow($partitionKey, WebhookEventLogDefinition::STATUS_RUNNING);
+
+        $freshLastAttempt = $this->clock->now()->modify('-5 seconds')->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $this->connection->executeStatement(
+            'UPDATE webhook_delivery SET last_attempt_at = :at WHERE webhook_event_log_id = :id',
+            ['at' => $freshLastAttempt, 'id' => $eventLogId]
+        );
+
+        $lease = $this->service->claimNext(
+            'poacher-worker',
+            180,
+            [WebhookEventLogDefinition::STATUS_QUEUED, WebhookEventLogDefinition::STATUS_PENDING_RETRY]
+        );
+
+        static::assertNull($lease);
+    }
+
     public function testClaimNextReclaimsExpiredLocks(): void
     {
         $partitionKey = $this->makePartitionKey('app-f');
@@ -367,6 +418,14 @@ class StreamLockServiceTest extends TestCase
     private function makePartitionKey(string $seed): string
     {
         return Hasher::hashBinary($seed, 'xxh128');
+    }
+
+    private function clearWebhookState(): void
+    {
+        $this->connection->executeStatement('DELETE FROM webhook_stream');
+        $this->connection->executeStatement('DELETE FROM webhook_delivery');
+        $this->connection->executeStatement('DELETE FROM webhook_event_log');
+        $this->connection->executeStatement('DELETE FROM webhook');
     }
 
     private function insertStream(string $partitionKey): void

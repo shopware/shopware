@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository;
+use Shopware\Core\Framework\Webhook\Transport\MySQLWebhookReceiver;
 use Shopware\Core\Framework\Webhook\Transport\WebhookTransport;
 use Shopware\Core\Framework\Webhook\Transport\WebhookTransportFactory;
 use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
@@ -53,6 +54,7 @@ class WebhookTransportFactoryTest extends TestCase
         return new WebhookTransportFactory(
             $this->createMock(OutboxEventRepository::class),
             $this->createMock(TransportInterface::class),
+            $this->createMock(MySQLWebhookReceiver::class),
         );
     }
 }

@@ -16,7 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Event\PreWebhooksDispatchEvent;
@@ -25,6 +24,7 @@ use Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\DeliveryResponse;
+use Shopware\Core\Framework\Webhook\Outbox\OutboxEntry;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxInsert;
 use Shopware\Core\Framework\Webhook\Webhook;
@@ -59,8 +59,8 @@ class WebhookManager implements ResetInterface
         private readonly string $shopUrl,
         private readonly string $shopwareVersion,
         private readonly bool $isAdminWorkerEnabled,
-        private readonly OutboxEventRepository $outboxEventRepository,
         private readonly WebhookDeliveryService $webhookDeliveryService,
+        private readonly OutboxEventRepository $outboxEventRepository,
     ) {
     }
 
@@ -198,25 +198,13 @@ class WebhookManager implements ResetInterface
                 continue;
             }
 
-            $this->outboxEventRepository->ensureOutboxEntry(new OutboxInsert(
-                $message->getWebhookEventId(),
-                $message->getWebhookId(),
-                Hasher::hashBinary($message->getPartitionKey(), 'xxh128'),
-                serialize($message),
-            ));
-            $this->outboxEventRepository->markRunning($message->getWebhookEventId());
+            $this->outboxEventRepository->ensureOutboxEntry(OutboxInsert::fromMessage($message));
+            $entry = $this->outboxEventRepository->markRunning($message->getWebhookEventId());
+            if ($entry === null) {
+                continue;
+            }
 
-            $requests[$message->getWebhookEventId()] = $this->appPayloadServiceHelper->createWebhookRequest(
-                $message->getPayload(),
-                $message->getUrl(),
-                $message->getShopwareVersion(),
-                WebhookClient::CONNECT_TIMEOUT,
-                WebhookClient::REQUEST_TIMEOUT,
-                $message->getSecret(),
-                $message->getLanguageId(),
-                $message->getUserLocale(),
-                $message->getWebhookHeaders(),
-            );
+            $requests[$message->getWebhookEventId()] = $this->webhookDeliveryService->buildRequest($message, $entry);
         }
 
         $results = $this->webhookClient->sendBatch($requests);

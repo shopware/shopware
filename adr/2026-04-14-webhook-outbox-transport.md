@@ -55,13 +55,13 @@ The migration backfills `webhook_stream` from existing `webhook_delivery.partiti
 
 ### PR 3b — MySQL Receiver, Retry Consumption, and Ordered Delivery
 
-The outbox becomes the queue. Workers consume directly from `webhook_delivery`.
+The outbox becomes the queue. With `WEBHOOKS_REWORK` active, workers consume directly from `webhook_delivery` via stream-leased polling; with the flag inactive, the transport still forwards to `async` for a safe rollback.
 
-- `WebhookTransport.get()` polls `webhook_delivery` for due `PENDING_RETRY` rows via `SKIP LOCKED`.
-- Partition-scoped stream leasing for insertion-ordered delivery within an app.
-- Consumer contract headers: `X-Shopware-Event-Id`, `X-Shopware-Sequence`, `X-Shopware-Attempt`.
-- Crash recovery: expired leases reset `RUNNING` rows back to `PENDING_RETRY`.
-- The `async` forwarding is removed. Workers run `messenger:consume webhook`.
+- `MySQLWebhookReceiver` drives consumption via `StreamLockService` — claim a partition (`SKIP LOCKED`), run crash-recovery on stale `RUNNING` rows, yield every due entry in insertion order, rotate on batch or lease-age budget.
+- `reject()` returns the row to `PENDING_RETRY` with a short backoff so a persistently failing message can't starve its partition.
+- Consumer contract is emitted by a single seam (`WebhookDeliveryService::buildRequest`) regardless of dispatch path: `X-Shopware-Event-Id`, `X-Shopware-Sequence`, `X-Shopware-Attempt` (0-indexed), plus `source.sequence` in the JSON payload.
+- `WebhookTransport` flag-gates its full lifecycle. Flag OFF: `send` persists and forwards to `async`, `get` returns `[]`. Flag ON: `send` persists only, `get` delegates to the receiver.
+- Rollout glue: `WebhookConsumeMessagesSubscriber` (`@deprecated tag:v6.8.0`) auto-inserts `webhook` after `async` in every `messenger:consume` invocation so operators don't need to edit their consume command. Removed in v6.8 in favour of explicit receiver configuration.
 
 ### Future
 

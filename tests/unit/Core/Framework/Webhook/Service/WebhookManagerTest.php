@@ -336,6 +336,7 @@ class WebhookManagerTest extends TestCase
                     'shopId' => 'foobar',
                     'action' => $event->getName(),
                     'inAppPurchases' => null,
+                    'sequence' => 1,
                 ],
             ], \JSON_THROW_ON_ERROR)
         );
@@ -350,7 +351,19 @@ class WebhookManagerTest extends TestCase
 
         $headers = $request->getHeaders();
         static::assertArrayHasKey(RequestSigner::SHOPWARE_SHOP_SIGNATURE, $headers);
-        unset($headers[RequestSigner::SHOPWARE_SHOP_SIGNATURE], $headers['Content-Length'], $headers['User-Agent']);
+        static::assertArrayHasKey('X-Shopware-Event-Id', $headers);
+        static::assertArrayHasKey('X-Shopware-Sequence', $headers);
+        static::assertArrayHasKey('X-Shopware-Attempt', $headers);
+        static::assertSame(['1'], $headers['X-Shopware-Sequence']);
+        static::assertSame(['0'], $headers['X-Shopware-Attempt']);
+        unset(
+            $headers[RequestSigner::SHOPWARE_SHOP_SIGNATURE],
+            $headers['Content-Length'],
+            $headers['User-Agent'],
+            $headers['X-Shopware-Event-Id'],
+            $headers['X-Shopware-Sequence'],
+            $headers['X-Shopware-Attempt'],
+        );
         static::assertEquals($expectedRequest->getHeaders(), $headers);
 
         $expectedContents = json_decode($expectedRequest->getBody()->getContents(), true);
@@ -425,13 +438,18 @@ class WebhookManagerTest extends TestCase
         $appPayloadServiceHelper->method('buildSource')->willReturn(new Source('https://example.com', 'foobar', '0.0.0'));
         $appPayloadServiceHelper->method('createWebhookRequest')->willReturnCallback($this->buildWebhookRequest(...));
 
-        $outboxRepository = $this->createMock(OutboxEventRepository::class);
-        $outboxRepository->method('markRunning')->willReturn(new OutboxEntry(
+        $outboxEventRepository = $this->createMock(OutboxEventRepository::class);
+        $outboxEventRepository->method('markRunning')->willReturn(new OutboxEntry(
             webhookEventId: 'stub',
             sequence: 1,
             executionCount: 1,
             deliveryStatus: 'running',
         ));
+
+        $deliveryService = $this->createMock(WebhookDeliveryService::class);
+        $deliveryService->method('buildRequest')->willReturnCallback(
+            fn (WebhookEventMessage $message, OutboxEntry $entry): WebhookRequest => $this->buildWebhookRequestFromMessage($message, $entry, $appPayloadServiceHelper),
+        );
 
         return new WebhookManager(
             $this->webhookLoader,
@@ -444,8 +462,36 @@ class WebhookManagerTest extends TestCase
             'https://example.com',
             '0.0.0',
             $isAdminWorkerEnabled,
-            $outboxRepository,
-            $this->createMock(WebhookDeliveryService::class),
+            $deliveryService,
+            $outboxEventRepository,
+        );
+    }
+
+    private function buildWebhookRequestFromMessage(
+        WebhookEventMessage $message,
+        OutboxEntry $entry,
+        AppPayloadServiceHelper $helper,
+    ): WebhookRequest {
+        $payload = $message->getPayload();
+        if (isset($payload['source']) && \is_array($payload['source'])) {
+            $payload['source']['sequence'] = $entry->sequence;
+        }
+
+        $headers = $message->getWebhookHeaders();
+        $headers[WebhookDeliveryService::HEADER_EVENT_ID] = $message->getWebhookEventId();
+        $headers[WebhookDeliveryService::HEADER_SEQUENCE] = (string) $entry->sequence;
+        $headers[WebhookDeliveryService::HEADER_ATTEMPT] = (string) max(0, $entry->executionCount - 1);
+
+        return $helper->createWebhookRequest(
+            $payload,
+            $message->getUrl(),
+            $message->getShopwareVersion(),
+            WebhookClient::CONNECT_TIMEOUT,
+            WebhookClient::REQUEST_TIMEOUT,
+            $message->getSecret(),
+            $message->getLanguageId(),
+            $message->getUserLocale(),
+            $headers,
         );
     }
 

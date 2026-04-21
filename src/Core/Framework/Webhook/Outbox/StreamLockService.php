@@ -37,7 +37,13 @@ class StreamLockService
         return $this->connection->transactional(function () use ($workerId, $leaseSeconds, $statuses): ?StreamLease {
             $now = $this->clock->now();
             $nowFormatted = $now->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+            $staleCutoff = $now->modify(\sprintf('-%d seconds', $leaseSeconds))->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
+            // Two ways a partition is claimable: it has a due QUEUED/PENDING_RETRY row, OR
+            // it has a stale RUNNING row left behind by a crashed worker. Without the second
+            // branch, the last row on a partition can strand indefinitely when its owner
+            // dies before transitioning it.
+            //
             // SKIP LOCKED returns empty on contention; caller retries on next tick.
             $sql = <<<'SQL'
                 SELECT s.partition_key FROM webhook_stream s
@@ -45,7 +51,10 @@ class StreamLockService
                   AND EXISTS (
                       SELECT 1 FROM webhook_delivery d
                       WHERE d.partition_key = s.partition_key
-                        AND d.delivery_status IN (:statuses) AND (d.next_retry_at IS NULL OR d.next_retry_at <= :now)
+                        AND (
+                            (d.delivery_status IN (:statuses) AND (d.next_retry_at IS NULL OR d.next_retry_at <= :now))
+                            OR (d.delivery_status = :running AND d.last_attempt_at <= :staleCutoff)
+                        )
                   )
                 ORDER BY s.last_claimed_at ASC, s.partition_key ASC
                 LIMIT 1
@@ -57,6 +66,8 @@ class StreamLockService
                 [
                     'now' => $nowFormatted,
                     'statuses' => $statuses,
+                    'running' => WebhookEventLogDefinition::STATUS_RUNNING,
+                    'staleCutoff' => $staleCutoff,
                 ],
                 [
                     'statuses' => ArrayParameterType::STRING,
@@ -83,6 +94,7 @@ class StreamLockService
             return new StreamLease(
                 partitionKey: $partitionKey,
                 workerId: $workerId,
+                acquiredAt: \DateTimeImmutable::createFromInterface($now),
                 expiresAt: \DateTimeImmutable::createFromInterface($expiresAt),
             );
         });
@@ -114,6 +126,7 @@ class StreamLockService
         return new StreamLease(
             partitionKey: $lease->partitionKey,
             workerId: $lease->workerId,
+            acquiredAt: $lease->acquiredAt,
             expiresAt: $expiresAt,
         );
     }

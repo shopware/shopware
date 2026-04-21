@@ -18,10 +18,12 @@ use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\DeliveryResponse;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxEntry;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository;
+use Shopware\Core\Framework\Webhook\Outbox\OutboxInsert;
 use Shopware\Core\Framework\Webhook\Outbox\RetryDelayCalculator;
 use Shopware\Core\Framework\Webhook\Service\WebhookClient;
 use Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService;
@@ -98,9 +100,10 @@ class WebhookDeliveryServiceTest extends TestCase
         $webhookRequest = $this->createWebhookRequest();
 
         $this->appPayloadServiceHelper->method('createWebhookRequest')->willReturn($webhookRequest);
-        $this->outboxEventRepository->expects($this->once())->method('ensureOutboxEntry');
-        $this->outboxEventRepository->expects($this->once())->method('markRunning')
+        $this->outboxEventRepository->expects($this->once())->method('ensureOutboxEntry')
+            ->with(static::isInstanceOf(OutboxInsert::class), WebhookEventLogDefinition::STATUS_RUNNING)
             ->willReturn(new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 1, deliveryStatus: 'running'));
+        $this->outboxEventRepository->expects($this->never())->method('markRunning');
 
         $this->queueGuzzleResponse(new Response(200, ['Content-Type' => 'application/json'], '{"status":"ok"}'));
 
@@ -119,9 +122,10 @@ class WebhookDeliveryServiceTest extends TestCase
         $webhookRequest = $this->createWebhookRequest();
 
         $this->appPayloadServiceHelper->method('createWebhookRequest')->willReturn($webhookRequest);
-        $this->outboxEventRepository->expects($this->once())->method('ensureOutboxEntry');
-        $this->outboxEventRepository->expects($this->once())->method('markRunning')
+        $this->outboxEventRepository->expects($this->once())->method('ensureOutboxEntry')
+            ->with(static::isInstanceOf(OutboxInsert::class), WebhookEventLogDefinition::STATUS_RUNNING)
             ->willReturn(new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 1, deliveryStatus: 'running'));
+        $this->outboxEventRepository->expects($this->never())->method('markRunning');
 
         $this->queueGuzzleResponse(new Response(200, [], '{"status":"ok"}'));
 
@@ -253,8 +257,9 @@ class WebhookDeliveryServiceTest extends TestCase
         $this->appPayloadServiceHelper->method('createWebhookRequest')
             ->willReturnOnConsecutiveCalls($webhookRequest1, $webhookRequest2);
 
-        $this->outboxEventRepository->method('markRunning')
+        $this->outboxEventRepository->method('ensureOutboxEntry')
             ->willReturn(new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 1, deliveryStatus: 'running'));
+        $this->outboxEventRepository->expects($this->never())->method('markRunning');
 
         // Queue two successful Guzzle responses for the batch
         $this->queueGuzzleResponse(new Response(200, [], '{"status":"ok"}'));

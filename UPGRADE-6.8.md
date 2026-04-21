@@ -4,6 +4,39 @@
 
 <details>
 
+## Webhook Messenger transport — explicit receiver configuration required
+
+The `WebhookConsumeMessagesSubscriber` introduced in v6.7 auto-injected the `webhook` receiver
+before `async` in every `messenger:consume` invocation that included `async`. The subscriber
+is removed in v6.8.
+
+Operators must now configure the `webhook` transport explicitly:
+
+- Add `webhook` to your `messenger:consume` argument list: `bin/console messenger:consume webhook async`.
+  Put `webhook` first to keep the same priority the v6.7 subscriber provided.
+
+Shops that ran the default `messenger:consume async` without updating to include `webhook`
+will stop consuming webhook deliveries after upgrading.
+
+## Webhook delivery path under `admin_worker.enable_admin_worker=true` (default)
+
+The leased MySQL webhook receiver and the outbox-owned retry loop only run when webhooks
+flow through the Messenger `webhook` transport. With the default `admin_worker.enable_admin_worker=true`,
+`WebhookDeliveryService::process()` delivers webhooks **inline** (synchronously during the
+request that fires the event) and bypasses the MySQL receiver entirely — the admin worker is
+the fallback for installs that don't run a dedicated `messenger:consume` process, so disabling
+the inline path there would mean webhooks are never delivered.
+
+To exercise the partitioned, leased, retry-aware receiver path:
+
+1. Set `shopware.admin_worker.enable_admin_worker: false` in `config/packages/shopware.yaml`.
+2. Run a dedicated consume process: `bin/console messenger:consume webhook async`.
+
+Installs that stay on the default `admin_worker=true` get the same webhook behavior as before
+(inline delivery on the request hot path); the MySQL receiver is available for operators who
+opt in. This trade-off is intentional: inline-on-admin-worker preserves existing deployments
+that don't run a worker, while the leased receiver serves installs that do.
+
 ## Default CMS page ID now persisted for categories
 
 The default CMS page ID is now automatically written to the database when a category is saved without a `cmsPageId`.

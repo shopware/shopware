@@ -7,7 +7,7 @@
         position-identifier="sw-promotion-detail-base-general"
         class="sw-promotion-v2-detail-base__card-general"
         :is-loading="isLoading"
-        :title="$tc('sw-promotion-v2.detail.base.general.cardTitle')"
+        :title="$t('sw-promotion-v2.detail.base.general.cardTitle')"
     >
 
         {% block sw_promotion_v2_detail_base_general_name %}
@@ -19,21 +19,21 @@
             <mt-text-field
                 v-model="promotion.name"
                 class="sw-promotion-v2-detail-base__field-name"
-                :label="$tc('sw-promotion-v2.detail.base.general.nameLabel')"
+                :label="$t('sw-promotion-v2.detail.base.general.nameLabel')"
                 :disabled="!acl.can('promotion.editor')"
                 required
                 :error="promotionNameError"
-                :placeholder="placeholder(promotion, 'name', $tc('sw-promotion-v2.detail.base.general.namePlaceholder'))"
+                :placeholder="placeholder(promotion, 'name', $t('sw-promotion-v2.detail.base.general.namePlaceholder'))"
             />
 
             <mt-number-field
                 v-model="promotion.priority"
                 :disabled="!acl.can('promotion.editor')"
-                :label="$tc('sw-promotion-v2.detail.base.general.priorityLabel')"
+                :label="$t('sw-promotion-v2.detail.base.general.priorityLabel')"
                 :step="1"
                 :min="0"
                 number-type="int"
-                :help-text="$tc('sw-promotion-v2.detail.base.general.helpTextPriority')"
+                :help-text="$t('sw-promotion-v2.detail.base.general.helpTextPriority')"
             />
         </sw-container>
         {% endblock %}
@@ -49,8 +49,8 @@
                 v-model="promotion.validFrom"
                 class="sw-promotion-v2-detail-base__field-valid-from"
                 date-type="datetime"
-                :label="$tc('sw-promotion-v2.detail.base.general.validFromLabel')"
-                :placeholder="$tc('sw-promotion-v2.detail.base.general.validFromPlaceholder')"
+                :label="$t('sw-promotion-v2.detail.base.general.validFromLabel')"
+                :placeholder="$t('sw-promotion-v2.detail.base.general.validFromPlaceholder')"
                 :disabled="!acl.can('promotion.editor')"
             />
             {% endblock %}
@@ -60,8 +60,8 @@
                 v-model="promotion.validUntil"
                 class="sw-promotion-v2-detail-base__field-valid-until"
                 date-type="datetime"
-                :label="$tc('sw-promotion-v2.detail.base.general.validUntilLabel')"
-                :placeholder="$tc('sw-promotion-v2.detail.base.general.validUntilPlaceholder')"
+                :label="$t('sw-promotion-v2.detail.base.general.validUntilLabel')"
+                :placeholder="$t('sw-promotion-v2.detail.base.general.validUntilPlaceholder')"
                 :disabled="!acl.can('promotion.editor')"
                 :error="promotionValidUntilError"
             />
@@ -81,8 +81,8 @@
                 v-model="promotion.maxRedemptionsGlobal"
                 class="sw-promotion-v2-detail-base__field-max-uses-global"
                 number-type="int"
-                :label="$tc('sw-promotion-v2.detail.base.general.maxUsesGlobalLabel')"
-                :placeholder="$tc('sw-promotion-v2.detail.base.general.maxUsesGlobalPlaceholder')"
+                :label="$t('sw-promotion-v2.detail.base.general.maxUsesGlobalLabel')"
+                :placeholder="$t('sw-promotion-v2.detail.base.general.maxUsesGlobalPlaceholder')"
                 :disabled="!acl.can('promotion.editor')"
                 :min="1"
                 allow-empty
@@ -94,8 +94,8 @@
                 v-model="promotion.maxRedemptionsPerCustomer"
                 class="sw-promotion-v2-detail-base__field-max-uses-per-customer"
                 number-type="int"
-                :label="$tc('sw-promotion-v2.detail.base.general.maxUsesPerCustomerLabel')"
-                :placeholder="$tc('sw-promotion-v2.detail.base.general.maxUsesPerCustomerPlaceholder')"
+                :label="$t('sw-promotion-v2.detail.base.general.maxUsesPerCustomerLabel')"
+                :placeholder="$t('sw-promotion-v2.detail.base.general.maxUsesPerCustomerPlaceholder')"
                 :disabled="!acl.can('promotion.editor')"
                 :min="1"
                 allow-empty
@@ -110,7 +110,7 @@
         <mt-switch
             v-model="promotion.active"
             class="sw-promotion-v2-detail-base__field-active"
-            :label="$tc('sw-promotion-v2.detail.base.general.activeLabel')"
+            :label="$t('sw-promotion-v2.detail.base.general.activeLabel')"
             :disabled="!acl.can('promotion.editor')"
             bordered
         />
@@ -125,13 +125,13 @@
         class="sw-promotion-v2-detail-base__card-codes"
         position-identifier="sw-promotion-detail-base-codes"
         :is-loading="isLoading"
-        :title="$tc('sw-promotion-v2.detail.base.codes.cardTitle')"
+        :title="$t('sw-promotion-v2.detail.base.codes.cardTitle')"
     >
 
         {% block sw_promotion_v2_detail_base_codes_select %}
         <mt-select
             class="sw-promotion-v2-detail-base__field-code-type"
-            :label="$tc('sw-promotion-v2.detail.base.codes.codeTypeLabel')"
+            :label="$t('sw-promotion-v2.detail.base.codes.codeTypeLabel')"
             :disabled="!acl.can('promotion.editor')"
             :model-value="selectedCodeType"
             :options="codeTypeOptions"
@@ -148,8 +148,8 @@
                 v-model="promotion.code"
                 class="sw-promotion-v2-detail-base__fixed-field-code"
                 :disabled="!acl.can('promotion.editor')"
-                :label="$tc('sw-promotion-v2.detail.base.codes.fixed.codeLabel')"
-                :placeholder="$tc('sw-promotion-v2.detail.base.codes.fixed.codePlaceholder')"
+                :label="$t('sw-promotion-v2.detail.base.codes.fixed.codeLabel')"
+                :placeholder="$t('sw-promotion-v2.detail.base.codes.fixed.codePlaceholder')"
                 copyable
             />
             {% endblock %}
@@ -163,7 +163,7 @@
                 @update:process-success="generateFinish"
                 @click.prevent="onGenerateCodeFixed"
             >
-                {{ $tc('sw-promotion-v2.detail.base.codes.fixed.generateButton') }}
+                {{ $t('sw-promotion-v2.detail.base.codes.fixed.generateButton') }}
             </sw-button-process>
             {% endblock %}
 
@@ -191,7 +191,7 @@
     <mt-card
         v-if="showCustomFields"
         position-identifier="sw-promotion-detail-base-custom-field-sets"
-        :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+        :title="$t('sw-settings-custom-field.general.mainMenuItemGeneral')"
         :is-loading="isLoading"
     >
         <sw-custom-field-set-renderer

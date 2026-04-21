@@ -114,7 +114,7 @@ async function createWrapper(
         {
             global: {
                 mocks: {
-                    $tc: (path) => {
+                    $t: (path) => {
                         if (typeof path !== 'string') {
                             return `${path}`;
                         }

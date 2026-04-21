@@ -116,7 +116,7 @@ export default {
 
         createErrorNotification() {
             return this.createNotificationError({
-                message: this.$tc('sw-settings-customer-group.notification.errorMessageCannotDeleteCustomerGroup'),
+                message: this.$t('sw-settings-customer-group.notification.errorMessageCannotDeleteCustomerGroup'),
             });
         },
 

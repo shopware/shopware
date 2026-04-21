@@ -12,7 +12,6 @@ use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Util\ArrayComparator;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\Validator\Constraint;
 
 /**
  * @final
@@ -62,9 +61,6 @@ class LineItemCustomFieldRule extends Rule
         return false;
     }
 
-    /**
-     * @return array|Constraint[][]
-     */
     public function getConstraints(): array
     {
         return CustomFieldRule::getConstraints($this->renderedField);

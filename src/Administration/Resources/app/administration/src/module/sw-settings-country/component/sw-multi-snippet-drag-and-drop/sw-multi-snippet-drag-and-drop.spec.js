@@ -37,7 +37,7 @@ async function createWrapper(customPropsData = {}) {
                     'sw-help-text': true,
                 },
                 mocks: {
-                    $tc: (key) => key,
+                    $t: (key) => key,
                     $route: {
                         params: {
                             id: 'id',

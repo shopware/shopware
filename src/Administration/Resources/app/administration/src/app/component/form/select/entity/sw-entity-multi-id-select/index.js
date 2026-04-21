@@ -25,11 +25,12 @@ export default {
 
     props: {
         value: {
-            type: Array,
+            type: [
+                Array,
+                null,
+            ],
             required: false,
-            default() {
-                return [];
-            },
+            default: null,
         },
 
         repository: {
@@ -67,13 +68,13 @@ export default {
     },
 
     watch: {
-        value() {
+        normalizedValue(value) {
             if (this.collection === null) {
                 this.createdComponent();
                 return;
             }
 
-            if (this.collection.getIds() === this.value) {
+            if (Shopware.Utils.types.isEqual(this.collection.getIds(), value)) {
                 return;
             }
 
@@ -85,7 +86,14 @@ export default {
         this.createdComponent();
     },
 
+    computed: {
+        normalizedValue() {
+            return this.value ?? [];
+        },
+    },
+
     methods: {
+        // note: this method also gets called when `value` updates
         createdComponent() {
             const collection = new EntityCollection(this.repository.route, this.repository.entityName, this.context);
 
@@ -93,20 +101,20 @@ export default {
                 this.collection = collection;
             }
 
-            if (this.value.length <= 0) {
+            if (this.normalizedValue.length === 0) {
                 this.collection = collection;
                 return Promise.resolve(this.collection);
             }
 
             const criteria = Criteria.fromCriteria(this.criteria);
-            criteria.setIds(this.value);
+            criteria.setIds(this.normalizedValue);
             criteria.setTerm('');
             criteria.queries = [];
 
             return this.repository.search(criteria, { ...this.context, inheritance: true }).then((entities) => {
                 this.collection = entities;
 
-                if (!this.collection.length && this.value.length) {
+                if (!this.collection.length && this.normalizedValue.length) {
                     this.updateIds(this.collection);
                 }
 

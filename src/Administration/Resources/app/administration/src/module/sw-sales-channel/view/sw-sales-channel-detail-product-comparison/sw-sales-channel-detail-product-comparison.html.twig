@@ -6,7 +6,7 @@
         key="edit"
         position-identifier="sw-sales-channel-detail-product-comparison"
         :is-loading="isLoading"
-        :title="$tc('sw-sales-channel.detail.titleProductComparisonTemplate')"
+        :title="$t('sw-sales-channel.detail.titleProductComparisonTemplate')"
     >
 
         {% block sw_sales_channel_detail_product_comparison_header %}
@@ -14,7 +14,7 @@
             {% block sw_sales_channel_detail_product_comparison_input_header %}
             <sw-code-editor
                 v-model:value="productExport.headerTemplate"
-                :label="$tc('sw-sales-channel.detail.productComparison.inputHeaderLabel')"
+                :label="$t('sw-sales-channel.detail.productComparison.inputHeaderLabel')"
                 :completer-function="outerCompleterFunctionHeader"
                 :editor-config="editorConfig"
                 completion-mode="entity"
@@ -34,7 +34,7 @@
             {% block sw_sales_channel_detail_product_comparison_input_body %}
             <sw-code-editor
                 v-model:value="productExport.bodyTemplate"
-                :label="$tc('sw-sales-channel.detail.productComparison.inputBodyLabel')"
+                :label="$t('sw-sales-channel.detail.productComparison.inputBodyLabel')"
                 :completer-function="outerCompleterFunctionBody"
                 :editor-config="editorConfig"
                 completion-mode="entity"
@@ -54,7 +54,7 @@
             {% block sw_sales_channel_detail_product_comparison_input_footer %}
             <sw-code-editor
                 v-model:value="productExport.footerTemplate"
-                :label="$tc('sw-sales-channel.detail.productComparison.inputFooterLabel')"
+                :label="$t('sw-sales-channel.detail.productComparison.inputFooterLabel')"
                 :completer-function="outerCompleterFunctionFooter"
                 :editor-config="editorConfig"
                 completion-mode="entity"
@@ -82,7 +82,7 @@
                 :process-success="isValidateSuccessful"
                 @click="validateTemplate"
             >
-                {{ $tc('sw-sales-channel.detail.productComparison.buttonTestLabel') }}
+                {{ $t('sw-sales-channel.detail.productComparison.buttonTestLabel') }}
             </sw-button-process>
             {% endblock %}
 
@@ -97,7 +97,7 @@
                 :process-success="isPreviewSuccessful"
                 @click="preview"
             >
-                {{ $tc('sw-sales-channel.detail.productComparison.buttonPreviewLabel') }}
+                {{ $t('sw-sales-channel.detail.productComparison.buttonPreviewLabel') }}
             </sw-button-process>
             {% endblock %}
 
@@ -111,7 +111,7 @@
                 :disabled="isLoadingReset || !acl.can('sales_channel.editor')"
                 @click="resetToDefault"
             >
-                {{ $tc('sw-sales-channel.detail.agenticCommerce.buttonResetTemplate') }}
+                {{ $t('sw-sales-channel.detail.agenticCommerce.buttonResetTemplate') }}
             </mt-button>
             {% endblock %}
 

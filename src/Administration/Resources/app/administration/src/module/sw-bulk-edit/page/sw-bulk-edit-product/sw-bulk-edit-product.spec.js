@@ -194,7 +194,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                     'sw-bulk-edit-product-media': true,
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
                     'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
-                    'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+                    'sw-tabs-item': {
+                        template: '<div><slot></slot></div>',
+                    },
                     'sw-label': true,
                     'sw-extension-component-section': true,
                     'sw-inheritance-switch': true,
@@ -662,6 +664,26 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         expect(wrapper.vm.bulkEditProduct.price.value).toBeTruthy();
     });
 
+    it('should add default taxId when price is changed without selecting tax change', async () => {
+        const wrapper = await createWrapper({}, { name: 'sw.bulk.edit.product', params: { parentId: 'null' } });
+
+        await flushPromises();
+
+        const priceFieldsForm = wrapper.find('.sw-bulk-edit-change-field-price');
+        const priceGrossInput = priceFieldsForm.find('input');
+        await priceGrossInput.setValue('6');
+        await flushPromises();
+
+        await priceFieldsForm.find('.sw-bulk-edit-change-field__change input').setValue('checked');
+
+        wrapper.vm.onProcessData();
+
+        const taxChangeField = wrapper.vm.bulkEditSelected.find((field) => field.field === 'taxId');
+        expect(taxChangeField).toBeDefined();
+        expect(taxChangeField.type).toBe('overwrite');
+        expect(taxChangeField.value).toBe('rate1');
+    });
+
     it('should be getting the list price when the price field is exists', async () => {
         const wrapper = await createWrapper({}, { name: 'sw.bulk.edit.product', params: { parentId: 'null' } });
 
@@ -1006,6 +1028,17 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         expect(wrapper.vm.$route.meta.$module.icon).toBe('regular-products');
 
         wrapper.vm.setRouteMetaModule.mockRestore();
+    });
+
+    it('should provide bulk-edit specific property empty-state copy', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.propertyFormFields[0].config.emptyStateTitle).toBe(
+            'sw-bulk-edit.product.property.titleEmptyState',
+        );
+        expect(wrapper.vm.propertyFormFields[0].config.emptyStateDescription).toBe(
+            'sw-bulk-edit.product.property.descriptionEmptyState',
+        );
     });
 
     it('should disable processing button', async () => {

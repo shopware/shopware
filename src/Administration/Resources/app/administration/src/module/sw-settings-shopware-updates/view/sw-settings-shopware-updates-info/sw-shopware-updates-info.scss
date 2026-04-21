@@ -1,10 +1,90 @@
 @import "~scss/variables";
 
-.sw-changelog a[href^="https://github.com/shopware/shopware/issues"] {
-    font-family: monospace;
+.sw-changelog {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    color: var(--color-text-primary-default);
+    font-size: var(--font-size-xs);
+    line-height: var(--line-height-md);
+
+    h2 {
+        font-size: var(--font-size-m);
+        font-weight: var(--font-weight-semibold);
+        margin: var(--scale-size-24) 0 var(--scale-size-12);
+        color: var(--color-text-primary-default);
+
+        &:first-child {
+            margin-top: 0;
+        }
+    }
+
+    h3 {
+        font-size: var(--font-size-s);
+        font-weight: var(--font-weight-semibold);
+        margin: var(--scale-size-20) 0 var(--scale-size-8);
+        color: var(--color-text-primary-default);
+    }
+
+    p {
+        margin: 0 0 var(--scale-size-12);
+        line-height: var(--line-height-md);
+    }
+
+    ul,
+    ol {
+        margin: 0 0 var(--scale-size-16);
+        padding-left: var(--scale-size-24);
+    }
+
+    li {
+        margin-bottom: var(--scale-size-8);
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    ul {
+        list-style-type: disc;
+    }
+
+    ol {
+        list-style-type: decimal;
+    }
+
+    code {
+        font-family: $font-family-default;
+        font-size: 0.9em;
+        padding: 0 var(--scale-size-4);
+        border-radius: var(--border-radius-xs);
+        background: var(--color-elevation-surface-sunken);
+        color: var(--color-text-primary-default);
+    }
+
+    a {
+        color: var(--color-text-accent-default);
+        text-decoration: underline;
+
+        &:hover {
+            opacity: 0.85;
+        }
+    }
+
+    strong {
+        font-weight: var(--font-weight-semibold);
+    }
+}
+
+/* Long GitHub URLs: keep readable like the previous issue-link styling */
+.sw-changelog a[href^="https://github.com/shopware/shopware/issues"],
+.sw-changelog a[href^="https://github.com/shopware/shopware/pull"],
+.sw-changelog a[href^="https://github.com/shopware/shopware/compare"] {
+    font-family: ui-monospace, SFMono-Regular, menlo, monaco, consolas, monospace;
+    font-size: var(--font-size-2xs);
     color: $color-darkgray-300;
 
-    &[visited] {
+    &:visited {
         color: $color-darkgray-200;
     }
 }

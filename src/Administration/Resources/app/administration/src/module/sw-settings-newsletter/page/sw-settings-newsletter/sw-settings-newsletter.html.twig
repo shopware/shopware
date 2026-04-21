@@ -11,14 +11,14 @@
         {% block sw_settings_newsletter_smart_bar_header_title %}
         <h2>
             {% block sw_settings_newsletter_smart_bar_header_title_text %}
-            <span>{{ $tc('sw-settings.index.title') }}</span>
+            <span>{{ $t('sw-settings.index.title') }}</span>
 
             <mt-icon
                 name="regular-chevron-right-xs"
                 size="12px"
             />
 
-            <span>{{ $tc('sw-settings-newsletter.general.textHeadline') }}</span>
+            <span>{{ $t('sw-settings-newsletter.general.textHeadline') }}</span>
             {% endblock %}
 
             {% block sw_settings_newsletter_smart_bar_header_amount %}
@@ -46,7 +46,7 @@
             @update:process-success="saveFinish"
             @click="onSave"
         >
-            {{ $tc('sw-settings-newsletter.general.buttonSave') }}
+            {{ $t('sw-settings-newsletter.general.buttonSave') }}
         </sw-button-process>
         {% endblock %}
     </template>

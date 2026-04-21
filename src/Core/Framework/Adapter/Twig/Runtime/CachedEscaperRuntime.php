@@ -30,7 +30,7 @@ class CachedEscaperRuntime implements RuntimeExtensionInterface
     }
 
     /**
-     * Mimic the public API of {@see EscaperRuntime} as it is final and cannot be extended
+     * Mimics the public API of {@see EscaperRuntime} as it is final and cannot be extended
      *
      * @codeCoverageIgnore
      */
@@ -40,7 +40,7 @@ class CachedEscaperRuntime implements RuntimeExtensionInterface
     }
 
     /**
-     * Mimic the public API of {@see EscaperRuntime} as it is final and cannot be extended
+     * Mimics the public API of {@see EscaperRuntime} as it is final and cannot be extended
      *
      * @codeCoverageIgnore
      *
@@ -52,7 +52,7 @@ class CachedEscaperRuntime implements RuntimeExtensionInterface
     }
 
     /**
-     * Mimic the public API of {@see EscaperRuntime} as it is final and cannot be extended
+     * Mimics the public API of {@see EscaperRuntime} as it is final and cannot be extended
      *
      * @codeCoverageIgnore
      *
@@ -64,7 +64,7 @@ class CachedEscaperRuntime implements RuntimeExtensionInterface
     }
 
     /**
-     * Mimic the public API of {@see EscaperRuntime} as it is final and cannot be extended
+     * Mimics the public API of {@see EscaperRuntime} as it is final and cannot be extended
      *
      * @codeCoverageIgnore
      *
@@ -77,7 +77,7 @@ class CachedEscaperRuntime implements RuntimeExtensionInterface
     }
 
     /**
-     * Mimic the public API of {@see EscaperRuntime} as it is final and cannot be extended
+     * Mimics the public API of {@see EscaperRuntime} as it is final and cannot be extended
      *
      * Additionally caches the escaped value to increase the performance.
      * Caching other types than `string` and `Stringable` brings no value, as the checks for those types cost more than the cache brings benefit.

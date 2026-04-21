@@ -48,7 +48,7 @@ class SwTwigFunction
                     return $object->$item(...$arguments);
                 }
 
-                // Structs best only have getter with get/is prefixes, or public properties. Checking for other prefixes as well is to costly
+                // Structs best only have getter with get/is prefixes, or public properties. Checking for other prefixes as well is too costly
                 $getterMethods = [
                     'get' . $item,
                     'is' . $item,

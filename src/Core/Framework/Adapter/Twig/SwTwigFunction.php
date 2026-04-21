@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig;
 
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
@@ -49,7 +48,7 @@ class SwTwigFunction
                     return $object->$item(...$arguments);
                 }
 
-                // Structs best only have getter with get/is prefixes, or public properties
+                // Structs best only have getter with get/is prefixes, or public properties. Checking for other prefixes as well is to costly
                 $getterMethods = [
                     'get' . $item,
                     'is' . $item,

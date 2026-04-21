@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Shopware\Core\Framework\Adapter\Twig\Runtime;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Twig\Error\RuntimeError;
 use Twig\Extension\RuntimeExtensionInterface;
 use Twig\Markup;
@@ -79,12 +78,21 @@ class CachedEscaperRuntime implements RuntimeExtensionInterface
 
     /**
      * Mimic the public API of {@see EscaperRuntime} as it is final and cannot be extended
+     *
      * Additionally caches the escaped value to increase the performance.
+     * Caching other types than `string` and `Stringable` brings no value, as the checks for those types cost more than the cache brings benefit.
+     * E.g. integers and floats are rarely occuring with the same value more than once.
+     * Changing the logic here should be proven with performance measuering tools like Blackfire.
      *
      * @throws RuntimeError
      */
     public function escape(mixed $string, string $strategy = 'html', ?string $charset = null, bool $autoescape = false): mixed
     {
+        $isString = \is_string($string);
+        if ($isString && isset(self::$escapeCache[$string][$strategy])) {
+            return self::$escapeCache[$string][$strategy];
+        }
+
         $isStringAble = $string instanceof \Stringable;
         if ($isStringAble) {
             $hash = spl_object_hash($string);
@@ -93,36 +101,15 @@ class CachedEscaperRuntime implements RuntimeExtensionInterface
             }
         }
 
-        if (\is_int($string) || \is_float($string) || $string === null) {
-            $string = (string) $string;
-        }
-
-        $isString = \is_string($string);
-        if ($isString) {
-            if (isset(self::$escapeCache[$string][$strategy])) {
-                return self::$escapeCache[$string][$strategy];
-            }
-
-            if (Uuid::isValid($string)) {
-                self::$escapeCache[$string][$strategy] = $string;
-
-                return $string;
-            }
-        }
-
-        if (\is_bool($string)) {
-            return $string;
-        }
-
         $result = $this->originalEscaperRuntime->escape($string, $strategy, $charset, $autoescape);
-
-        if (!$isString && !$isStringAble) {
-            return $result;
-        }
 
         if ($isStringAble) {
             self::$escapeCache[$hash][$strategy] = $result;
 
+            return $result;
+        }
+
+        if (!$isString) {
             return $result;
         }
 

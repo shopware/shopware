@@ -33,7 +33,7 @@ class CachedEscaperRuntimeTest extends TestCase
     ];
 
     /**
-     * @var array<int|string, string>
+     * @var array<int|string, int|string>
      */
     private static array $htmlAttrSpecialChars = [
         '\'' => '&#x27;',
@@ -50,8 +50,8 @@ class CachedEscaperRuntimeTest extends TestCase
         'A' => 'A',
         'z' => 'z',
         'Z' => 'Z',
-        0 => '0',
-        9 => '9',
+        0 => 0,
+        9 => 9,
         /* Basic control characters and null */
         "\r" => '&#x0D;',
         "\n" => '&#x0A;',
@@ -67,7 +67,7 @@ class CachedEscaperRuntimeTest extends TestCase
     ];
 
     /**
-     * @var array<int|string, string>
+     * @var array<int|string, int|string>
      */
     private static array $jsSpecialChars = [
         /* HTML special chars - escape without exception to hex */
@@ -89,8 +89,8 @@ class CachedEscaperRuntimeTest extends TestCase
         'A' => 'A',
         'z' => 'z',
         'Z' => 'Z',
-        0 => '0',
-        9 => '9',
+        0 => 0,
+        9 => 9,
         /* Basic control characters and null */
         "\r" => '\r',
         "\n" => '\n',
@@ -103,7 +103,7 @@ class CachedEscaperRuntimeTest extends TestCase
     ];
 
     /**
-     * @var array<int|string, string>
+     * @var array<int|string, int|string>
      */
     private static array $urlSpecialChars = [
         /* HTML special chars - escape without exception to percent encoding */
@@ -127,8 +127,8 @@ class CachedEscaperRuntimeTest extends TestCase
         'A' => 'A',
         'z' => 'z',
         'Z' => 'Z',
-        0 => '0',
-        9 => '9',
+        0 => 0,
+        9 => 9,
         /* Basic control characters and null */
         "\r" => '%0D',
         "\n" => '%0A',
@@ -141,7 +141,7 @@ class CachedEscaperRuntimeTest extends TestCase
     ];
 
     /**
-     * @var array<int|string, string>
+     * @var array<int|string, int|string>
      */
     private static array $cssSpecialChars = [
         /* HTML special chars - escape without exception to hex */
@@ -161,8 +161,8 @@ class CachedEscaperRuntimeTest extends TestCase
         'A' => 'A',
         'z' => 'z',
         'Z' => 'Z',
-        0 => '0',
-        9 => '9',
+        0 => 0,
+        9 => 9,
         /* Basic control characters and null */
         "\r" => '\\D ',
         "\n" => '\\A ',
@@ -174,7 +174,13 @@ class CachedEscaperRuntimeTest extends TestCase
 
     protected function setUp(): void
     {
+        CachedEscaperRuntime::resetEscapeCache();
         $this->escaper = new CachedEscaperRuntime(new EscaperRuntime());
+    }
+
+    protected function tearDown(): void
+    {
+        CachedEscaperRuntime::resetEscapeCache();
     }
 
     #[TestDox('Ensures that the decoration stays in sync with upstream')]
@@ -412,23 +418,23 @@ class CachedEscaperRuntimeTest extends TestCase
     }
 
     /**
-     * @return \Generator<string, array{input: array{}|int|float|string|null, expected: array{}|string}>
+     * @return \Generator<string, array{input: array{}|int|float|string|null, expected: array{}|int|float|string|null}>
      */
     public static function EscapeDataProvider(): \Generator
     {
         yield 'null input' => [
             'input' => null,
-            'expected' => '',
+            'expected' => null,
         ];
 
         yield 'integer input' => [
             'input' => 123,
-            'expected' => '123',
+            'expected' => 123,
         ];
 
         yield 'float input' => [
             'input' => 123.4,
-            'expected' => '123.4',
+            'expected' => 123.4,
         ];
 
         yield 'string input' => [
@@ -449,10 +455,10 @@ class CachedEscaperRuntimeTest extends TestCase
 
     /**
      * @param array{}|int|float|string|null $input
-     * @param array{}|string $expected
+     * @param array{}|int|float|string|null $expected
      */
     #[DataProvider('EscapeDataProvider')]
-    public function testEscapeWithVariousInputs(array|int|float|string|null $input, array|string $expected): void
+    public function testEscapeWithVariousInputs(array|int|float|string|null $input, array|int|float|string|null $expected): void
     {
         $result = $this->escaper->escape($input, 'html', 'UTF-8');
 
@@ -461,8 +467,6 @@ class CachedEscaperRuntimeTest extends TestCase
 
     public function testEscapeWithCachedString(): void
     {
-        $this->escaper::resetEscapeCache();
-
         // First call to cache the result
         $string = 'cached_string';
         $result1 = $this->escaper->escape($string, 'html', 'UTF-8');
@@ -481,8 +485,6 @@ class CachedEscaperRuntimeTest extends TestCase
 
     public function testEscapeWithCachedStringable(): void
     {
-        $this->escaper::resetEscapeCache();
-
         // First call to cache the result
         $stringable = new class implements \Stringable {
             public function __toString(): string
@@ -507,8 +509,6 @@ class CachedEscaperRuntimeTest extends TestCase
 
     public function testEscapeUuidWithCache(): void
     {
-        $this->escaper::resetEscapeCache();
-
         // First call to cache the result
         $string = Uuid::randomHex();
         $result1 = $this->escaper->escape($string, 'html', 'UTF-8');
@@ -527,8 +527,6 @@ class CachedEscaperRuntimeTest extends TestCase
 
     public function testEscapeDoesNotCacheBooleanInput(): void
     {
-        $this->escaper::resetEscapeCache();
-
         $cacheProperty = new \ReflectionProperty($this->escaper, 'escapeCache');
         $cacheBefore = $cacheProperty->getValue();
         static::assertCount(0, $cacheBefore);
@@ -576,8 +574,12 @@ class CachedEscaperRuntimeTest extends TestCase
     }
 }
 
-function foo_escaper_for_test(string $string): string
+function foo_escaper_for_test(?string $string): string
 {
+    if ($string === null) {
+        return '';
+    }
+
     return strtoupper($string);
 }
 

@@ -135,15 +135,13 @@ class CheapestPriceContainer extends Struct
     public function hasListPriceRange(Context $context): bool
     {
         $prices = $this->getResolvedPrices($context);
-        $hasReference = false;
         $reference = null;
 
-        foreach ($prices as $price) {
+        foreach ($prices as $index => $price) {
             $current = $this->getDisplayableListPriceValue($price, $context);
 
-            if (!$hasReference) {
+            if ($index === 0) {
                 $reference = $current;
-                $hasReference = true;
 
                 continue;
             }

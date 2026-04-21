@@ -50,15 +50,15 @@
                 {% set price = real %}
                 {% set isListPrice = price.listPrice.percentage > 0 %}
                 {% set isRegulationPrice = price.regulationPrice != null %}
-                {% set showFrom = displayFrom or displayFromVariants or displayFromListPriceVariants %}
-                {% set showListPrice = isListPrice and not displayFrom %}
+                {% set displayFromPrice = displayFrom or displayFromVariants or displayFromListPriceVariants %}
+                {% set displayStrikePrice = isListPrice and not displayFrom %}
 
                 {#
                     Cheapest price display for variants. Used when the product is a single variant that is directly buy-able from the listing.
                     Example: "Variants from $120.00"
                 #}
                 {% block component_product_box_cheapest_price %}
-                    <div class="product-cheapest-price{% if showListPrice and isRegulationPrice %} with-list-price{% endif %}{% if showFrom and isRegulationPrice %} with-from-price{% endif %}">
+                    <div class="product-cheapest-price{% if displayStrikePrice and isRegulationPrice %} with-list-price{% endif %}{% if displayFromPrice and isRegulationPrice %} with-from-price{% endif %}">
                         {% if cheapest.unitPrice != real.unitPrice and cheapest.variantId != product.id %}
                             {{ 'listing.cheapestPriceLabel'|trans|sw_sanitize }}<span class="product-cheapest-price-price"> {{ cheapest.unitPrice|currency }}</span>
                         {% endif %}
@@ -72,7 +72,7 @@
                 #}
                 {% block component_product_box_price_label %}
                     <span class="visually-hidden product-price-label">
-                        {% if showListPrice %}
+                        {% if displayStrikePrice %}
                             {{ 'listing.listPriceLabel'|trans|sw_sanitize }}
                         {% else %}
                             {{ 'listing.regularPriceLabel'|trans|sw_sanitize }}
@@ -86,7 +86,7 @@
                     Example: "From $120.00"
                 #}
                 {% block component_product_box_from_price %}
-                    {% if showFrom %}
+                    {% if displayFromPrice %}
                         {{ 'listing.listingTextFrom'|trans|sw_sanitize }}
                     {% endif %}
                 {% endblock %}
@@ -97,10 +97,10 @@
                     Example with list price: €400.00 <s>€500.00</s> (20% saved)"
                 #}
                 {% block component_product_box_main_price %}
-                    <span class="product-price{% if showListPrice %} with-list-price{% endif %}">
+                    <span class="product-price{% if displayStrikePrice %} with-list-price{% endif %}">
                         {{ price.unitPrice|currency }}
 
-                        {% if showListPrice %}
+                        {% if displayStrikePrice %}
                             {# @deprecated tag:v6.8.0 - Snippets listing.beforeListPrice and listing.afterListPrice will be removed. Use twig blocks instead. #}
                             {% set afterListPriceSnippetExists = 'listing.afterListPrice'|trans|length > 0 %}
                             {% set beforeListPriceSnippetExists = 'listing.beforeListPrice'|trans|length > 0 %}
@@ -141,7 +141,7 @@
                 {% block component_product_box_regulation_price %}
                     {% if isRegulationPrice %}
                         <span class="product-price with-regulation-price">
-                            {% if showListPrice %}<br aria-hidden="true">{% endif %}<span class="regulation-price">{{ 'general.listPricePreviously'|trans({'%price%': price.regulationPrice.price|currency }) }}</span>
+                            {% if displayStrikePrice %}<br aria-hidden="true">{% endif %}<span class="regulation-price">{{ 'general.listPricePreviously'|trans({'%price%': price.regulationPrice.price|currency }) }}</span>
                         </span>
                     {% endif %}
                 {% endblock %}

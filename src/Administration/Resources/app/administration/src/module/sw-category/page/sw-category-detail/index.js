@@ -227,6 +227,7 @@ export default {
 
             criteria.addAssociation('tags');
             criteria.addAssociation('salesChannels');
+            criteria.addAssociation('translations');
 
             return criteria;
         },

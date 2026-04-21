@@ -1537,4 +1537,24 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
 
         expect(wrapper.vm.salesChannel.configuration).toEqual(newConfig);
     });
+
+    it('should reset salesChannelDomainId when storefront sales channel changes', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                salesChannel: {
+                    typeId: PRODUCT_COMPARISON_TYPE_ID,
+                },
+                productExport: {
+                    salesChannelDomainId: 'old-domain-id',
+                    salesChannelDomain: { id: 'old-domain-id' },
+                    storefrontSalesChannelId: 'old-sales-channel-id',
+                },
+            },
+        });
+
+        wrapper.vm.onStorefrontSelectionChange('new-sales-channel-id');
+
+        expect(wrapper.vm.productExport.salesChannelDomainId).toBeNull();
+        expect(wrapper.vm.productExport.salesChannelDomain).toBeNull();
+    });
 });

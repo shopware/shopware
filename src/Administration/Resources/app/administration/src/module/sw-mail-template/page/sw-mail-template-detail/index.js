@@ -542,7 +542,25 @@ export default {
 
                     return response;
                 })
-                .catch(() => null)
+                .catch((error) => {
+                    if (!error.response?.data?.errors?.[0]?.detail) {
+                        this.createNotificationError({
+                            message: this.$t('sw-mail-template.general.notificationGeneralSyntaxValidationErrorMessage'),
+                        });
+                    } else {
+                        this.createNotificationError({
+                            message: this.$t(
+                                'sw-mail-template.general.notificationSyntaxValidationErrorMessage',
+                                {
+                                    errorMsg: error.response?.data?.errors?.[0]?.detail,
+                                },
+                                0,
+                            ),
+                        });
+                    }
+
+                    return null;
+                })
                 .finally(() => {
                     this.isLoading = false;
                 });

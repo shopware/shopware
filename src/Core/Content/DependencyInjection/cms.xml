@@ -49,6 +49,7 @@
         <service id="Shopware\Core\Content\Cms\DataResolver\Element\FormCmsElementResolver">
             <tag name="shopware.cms.data_resolver"/>
             <argument type="service" id="Shopware\Core\System\Salutation\SalesChannel\SalutationRoute"/>
+            <argument type="service" id="Shopware\Core\System\Salutation\AbstractSalutationsSorter"/>
         </service>
 
         <service id="Shopware\Core\Content\Cms\DataAbstractionLayer\FieldSerializer\SlotConfigFieldSerializer">

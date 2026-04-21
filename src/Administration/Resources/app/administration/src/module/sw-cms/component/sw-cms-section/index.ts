@@ -190,7 +190,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         toggleButtonText() {
-            return this.$tc('sw-cms.sidebar.contentMenu.visibilitySectionTextButton', this.isCollapsed ? 0 : 1);
+            return this.$t('sw-cms.sidebar.contentMenu.visibilitySectionTextButton', this.isCollapsed ? 0 : 1);
         },
 
         expandedClass() {

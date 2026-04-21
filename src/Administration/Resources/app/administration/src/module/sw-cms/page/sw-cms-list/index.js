@@ -84,7 +84,7 @@ export default {
         sortPageTypes() {
             const sortByAllPagesOption = {
                 value: '',
-                name: this.$tc('sw-cms.sorting.labelSortByAllPages'),
+                name: this.$t('sw-cms.sorting.labelSortByAllPages'),
                 active: true,
             };
 
@@ -92,7 +92,7 @@ export default {
                 (accumulator, pageType) => {
                     accumulator.push({
                         value: pageType.name,
-                        name: this.$tc(pageType.title),
+                        name: this.$t(pageType.title),
                     });
 
                     return accumulator;
@@ -478,7 +478,7 @@ export default {
             }
 
             if (!behavior.overwrites.name) {
-                behavior.overwrites.name = `${page.name} - ${this.$tc('global.default.copy')}`;
+                behavior.overwrites.name = `${page.name} - ${this.$t('global.default.copy')}`;
             }
 
             this.isLoading = true;
@@ -491,7 +491,7 @@ export default {
                 .catch(() => {
                     this.isLoading = false;
                     this.createNotificationError({
-                        message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                        message: this.$t('global.notification.unspecifiedSaveErrorMessage'),
                     });
                 });
         },
@@ -521,7 +521,7 @@ export default {
         },
 
         deleteCmsPage(page) {
-            const messageDeleteError = this.$tc('sw-cms.components.cmsListItem.notificationDeleteErrorMessage');
+            const messageDeleteError = this.$t('sw-cms.components.cmsListItem.notificationDeleteErrorMessage');
 
             this.isLoading = true;
             return this.pageRepository
@@ -541,35 +541,35 @@ export default {
             return [
                 {
                     property: 'name',
-                    label: this.$tc('sw-cms.list.gridHeaderName'),
+                    label: this.$t('sw-cms.list.gridHeaderName'),
                     inlineEdit: 'string',
                     primary: true,
                     sortable: false,
                 },
                 {
                     property: 'type',
-                    label: this.$tc('sw-cms.list.gridHeaderType'),
+                    label: this.$t('sw-cms.list.gridHeaderType'),
                     sortable: false,
                 },
                 {
                     property: 'assignments',
-                    label: this.$tc('sw-cms.list.gridHeaderAssignments'),
+                    label: this.$t('sw-cms.list.gridHeaderAssignments'),
                     sortable: false,
                 },
                 {
                     property: 'assignedPages',
-                    label: this.$tc('sw-cms.list.gridHeaderAssignedPages'),
+                    label: this.$t('sw-cms.list.gridHeaderAssignedPages'),
                     sortable: false,
                     visible: false,
                 },
                 {
                     property: 'createdAt',
-                    label: this.$tc('sw-cms.list.gridHeaderCreated'),
+                    label: this.$t('sw-cms.list.gridHeaderCreated'),
                     sortable: false,
                 },
                 {
                     property: 'updatedAt',
-                    label: this.$tc('sw-cms.list.gridHeaderUpdated'),
+                    label: this.$t('sw-cms.list.gridHeaderUpdated'),
                     sortable: false,
                     visible: false,
                 },
@@ -592,7 +592,7 @@ export default {
 
             return {
                 showDelay: 300,
-                message: this.$tc(snippetKey),
+                message: this.$t(snippetKey),
                 disabled: !this.layoutIsLinked(page.id),
             };
         },
@@ -602,8 +602,8 @@ export default {
                 this.defaultProductId,
                 this.defaultCategoryId,
             ].includes(page.id);
-            const defaultText = this.$tc('sw-cms.components.cmsListItem.defaultLayout');
-            const typeLabel = this.$tc(this.cmsPageTypeService.getType(page.type)?.title);
+            const defaultText = this.$t('sw-cms.components.cmsListItem.defaultLayout');
+            const typeLabel = this.$t(this.cmsPageTypeService.getType(page.type)?.title);
 
             return isDefault ? `${defaultText} - ${typeLabel}` : typeLabel;
         },

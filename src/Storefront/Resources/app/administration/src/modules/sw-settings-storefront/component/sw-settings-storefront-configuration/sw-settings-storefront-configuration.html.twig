@@ -3,9 +3,9 @@
     {% block sw_settings_storefront_settings_icon_cache %}
     <sw-switch-field
         v-model:value="storefrontSettings['core.storefrontSettings.iconCache']"
-        :label="$tc('sw-settings-storefront.configuration.iconCache')"
+        :label="$t('sw-settings-storefront.configuration.iconCache')"
         v-tooltip.top="{
-                        message: $tc('sw-settings-storefront.configuration.iconCacheToolTip'),
+                        message: $t('sw-settings-storefront.configuration.iconCacheToolTip'),
                         showOnDisabledElements: true
                     }"
     />
@@ -13,9 +13,9 @@
     {% block sw_settings_storefront_settings_theme_async %}
         <sw-switch-field
             v-model:value="storefrontSettings['core.storefrontSettings.asyncThemeCompilation']"
-            :label="$tc('sw-settings-storefront.configuration.theme.async')"
+            :label="$t('sw-settings-storefront.configuration.theme.async')"
             v-tooltip.top="{
-                        message: $tc('sw-settings-storefront.configuration.theme.asyncTooltip'),
+                        message: $t('sw-settings-storefront.configuration.theme.asyncTooltip'),
                         showOnDisabledElements: true
                     }"
         />
@@ -23,9 +23,9 @@
     {% block sw_settings_storefront_settings_speculation_rules %}
         <sw-switch-field
             v-model:value="storefrontSettings['core.storefrontSettings.speculationRules']"
-            :label="$tc('sw-settings-storefront.configuration.speculationRules.title')"
+            :label="$t('sw-settings-storefront.configuration.speculationRules.title')"
             v-tooltip.top="{
-                        message: $tc('sw-settings-storefront.configuration.speculationRules.description'),
+                        message: $t('sw-settings-storefront.configuration.speculationRules.description'),
                         showOnDisabledElements: true
                     }"
         />

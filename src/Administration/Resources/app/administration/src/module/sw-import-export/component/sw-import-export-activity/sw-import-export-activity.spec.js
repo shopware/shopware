@@ -826,16 +826,11 @@ const createWrapper = async (options = {}) => {
                 'sw-time-ago': await wrapTestComponent('sw-time-ago', { sync: true }),
             },
             mocks: {
-                $tc: (key, _, pluralization) => {
-                    if (!pluralization) return key;
-
-                    switch (key) {
-                        default: {
-                            return { key, pluralization };
-                        }
+                $t: (key, params, pluralization) => {
+                    if (pluralization !== undefined) {
+                        return { key, pluralization };
                     }
-                },
-                $t: (key) => {
+
                     switch (key) {
                         case 'sw-import-export.activity.status.progress': {
                             return 'Progress';

@@ -1,7 +1,7 @@
 {% block sw_connect_action_button %}
 <div
     v-tooltip.left="{
-        message: $tc('sw-privileges.tooltip.warning'),
+        message: $t('sw-privileges.tooltip.warning'),
         disabled: acl.can(`app.${action.app}`),
         showOnDisabledElements: true
     }"
@@ -28,7 +28,7 @@
     />
 
     <span class="sw-context-menu-item__text">
-        {{ $tc(buttonLabel ?? '') }}
+        {{ $t(buttonLabel ?? '') }}
     </span>
 </div>
 {% endblock %}

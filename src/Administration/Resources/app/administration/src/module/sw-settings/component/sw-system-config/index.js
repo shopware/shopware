@@ -179,7 +179,7 @@ export default {
         },
 
         createErrorNotification(errors) {
-            let message = `<div>${this.$tc('sw-config-form-renderer.configLoadErrorMessage', {}, errors.length)}</div><ul>`;
+            let message = `<div>${this.$t('sw-config-form-renderer.configLoadErrorMessage', {}, errors.length)}</div><ul>`;
 
             errors.forEach((error) => {
                 message = `${message}<li>${error.detail}</li>`;
@@ -237,7 +237,7 @@ export default {
             }
 
             if (bind.config.css && bind.config.helpText === undefined) {
-                bind.config.helpText = this.$tc('sw-settings.system-config.scssHelpText') + element.config.css;
+                bind.config.helpText = this.$t('sw-settings.system-config.scssHelpText') + element.config.css;
             }
 
             return bind;

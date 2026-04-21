@@ -20,6 +20,7 @@ export default {
         'entityMappingService',
         'repositoryFactory',
         'acl',
+        'feature',
         'businessEventService',
     ],
 

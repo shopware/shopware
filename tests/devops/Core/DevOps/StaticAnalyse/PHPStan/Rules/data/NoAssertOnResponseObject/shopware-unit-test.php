@@ -46,4 +46,12 @@ class BarTest extends TestCase
         // allowed
         static::assertSame($expected, $actual);
     }
+
+    public function doesNotAssertNeverType(Response $foo): void
+    {
+        $bar = new \stdClass();
+        \assert($bar instanceof Response);
+
+        static::assertSame($bar, $foo);
+    }
 }

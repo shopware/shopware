@@ -49,15 +49,11 @@ class SwTwigFunction
                     return $object->$item(...$arguments);
                 }
 
-                /** @see DefinitionValidator::validateStruct() */
+                // Structs best only have getter with get/is prefixes, or public properties
                 $getterMethods = [
                     'get' . $item,
                     'is' . $item,
-                    'has' . $item,
-                    'was' . $item,
                     (string) $item, // property()
-                    'has' . preg_replace('/^has/', '', $item),
-                    'has' . preg_replace('/^was/', '', $item),
                 ];
                 foreach ($getterMethods as $getterMethod) {
                     if (method_exists($object, $getterMethod)) {

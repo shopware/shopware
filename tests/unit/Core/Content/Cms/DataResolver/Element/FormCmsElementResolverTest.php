@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Salutation\AbstractSalutationsSorter;
 use Shopware\Core\System\Salutation\SalesChannel\AbstractSalutationRoute;
 use Shopware\Core\System\Salutation\SalesChannel\SalutationRouteResponse;
 use Shopware\Core\System\Salutation\SalutationCollection;
@@ -28,7 +29,10 @@ class FormCmsElementResolverTest extends TestCase
 {
     public function testType(): void
     {
-        $formCmsElementResolver = new FormCmsElementResolver($this->createMock(AbstractSalutationRoute::class));
+        $formCmsElementResolver = new FormCmsElementResolver(
+            $this->createMock(AbstractSalutationRoute::class),
+            $this->createMock(AbstractSalutationsSorter::class)
+        );
 
         static::assertSame('form', $formCmsElementResolver->getType());
     }
@@ -36,7 +40,9 @@ class FormCmsElementResolverTest extends TestCase
     public function testResolverUsesAbstractSalutationsRouteToEnrichSlot(): void
     {
         $salutationCollection = $this->getSalutationCollection();
-        $formCmsElementResolver = new FormCmsElementResolver($this->getSalutationRoute($salutationCollection));
+        $sorter = $this->createMock(AbstractSalutationsSorter::class);
+        $sorter->method('sort')->willReturnArgument(0);
+        $formCmsElementResolver = new FormCmsElementResolver($this->getSalutationRoute($salutationCollection), $sorter);
 
         $formElement = $this->getCmsFormElement();
         $context = new ResolverContext(Generator::generateSalesChannelContext(), new Request());
@@ -50,10 +56,18 @@ class FormCmsElementResolverTest extends TestCase
         static::assertSame($formElement->getData(), $salutationCollection);
     }
 
-    public function testResolverSortsSalutationsBySalutationKeyDesc(): void
+    public function testResolverDelegatesToSalutationsSorter(): void
     {
         $salutationCollection = $this->getSalutationCollection();
-        $formCmsElementResolver = new FormCmsElementResolver($this->getSalutationRoute($salutationCollection));
+        $sortedCollection = new SalutationCollection();
+
+        $sorter = $this->createMock(AbstractSalutationsSorter::class);
+        $sorter->expects($this->once())
+            ->method('sort')
+            ->with($salutationCollection)
+            ->willReturn($sortedCollection);
+
+        $formCmsElementResolver = new FormCmsElementResolver($this->getSalutationRoute($salutationCollection), $sorter);
 
         $formElement = $this->getCmsFormElement();
         $context = new ResolverContext(Generator::generateSalesChannelContext(), new Request());
@@ -64,12 +78,7 @@ class FormCmsElementResolverTest extends TestCase
             new ElementDataCollection()
         );
 
-        $enrichedCollection = $formElement->getData();
-        static::assertInstanceOf(SalutationCollection::class, $enrichedCollection);
-
-        $sortedKeys = array_values($enrichedCollection->map(static fn (SalutationEntity $salutation) => $salutation->getSalutationKey()));
-
-        static::assertSame(['d', 'c', 'b', 'a'], $sortedKeys);
+        static::assertSame($sortedCollection, $formElement->getData());
     }
 
     public function testCollectReturnsNull(): void
@@ -77,7 +86,10 @@ class FormCmsElementResolverTest extends TestCase
         $context = new ResolverContext(Generator::generateSalesChannelContext(), new Request());
         $salutationRoute = $this->createMock(AbstractSalutationRoute::class);
 
-        $formCmsElementResolver = new FormCmsElementResolver($salutationRoute);
+        $formCmsElementResolver = new FormCmsElementResolver(
+            $salutationRoute,
+            $this->createMock(AbstractSalutationsSorter::class)
+        );
         $actual = $formCmsElementResolver->collect(new CmsSlotEntity(), $context);
 
         static::assertNull($actual);

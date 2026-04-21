@@ -71,7 +71,7 @@ export default Component.wrapComponentConfig({
         tooltipSave() {
             if (!this.allowSave) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     showOnDisabledElements: true,
                 };
             }
@@ -118,7 +118,7 @@ export default Component.wrapComponentConfig({
                 this.stateMachine = await this.stateMachineRepository.get(this.stateMachineId);
             } catch (error) {
                 this.createNotificationError({
-                    message: this.$tc(error.message),
+                    message: this.$t(error.message),
                 });
             } finally {
                 this.isLoading = false;
@@ -150,7 +150,7 @@ export default Component.wrapComponentConfig({
                 this.isSaveSuccessful = true;
             } catch {
                 this.createNotificationError({
-                    message: this.$tc('sw-settings-state-machine.notification.errorMessage'),
+                    message: this.$t('sw-settings-state-machine.notification.errorMessage'),
                 });
             } finally {
                 this.isLoading = false;

@@ -5,7 +5,7 @@
             {{ label }}
         </h2>
         <h2 v-else>
-            {{ $tc('sw-settings-tax.taxProviderDetail.textHeadline') }}
+            {{ $t('sw-settings-tax.taxProviderDetail.textHeadline') }}
         </h2>
     </template>
 
@@ -17,7 +17,7 @@
             size="default"
             @click="onCancel"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
 
         <sw-button-process
@@ -28,7 +28,7 @@
             :disabled="isLoading || !allowSave || undefined"
             @click.prevent="onSave"
         >
-            {{ $tc('global.default.save') }}
+            {{ $t('global.default.save') }}
         </sw-button-process>
     </template>
 
@@ -42,15 +42,15 @@
             <template v-else>
                 <mt-banner
                     class="sw-settings-tax-tax-provider-detail-info"
-                    :title="$tc('sw-settings-tax.taxProviderDetail.infoTitle')"
+                    :title="$t('sw-settings-tax.taxProviderDetail.infoTitle')"
                     variant="info"
                 >
-                    {{ $tc('sw-settings-tax.taxProviderDetail.infoText') }}
+                    {{ $t('sw-settings-tax.taxProviderDetail.infoText') }}
                 </mt-banner>
 
                 <mt-card
                     position-identifier="sw-settings-tax-tax-provider-detail-settings"
-                    :title="$tc('sw-settings-tax.taxProviderDetail.cardTitleSettings')"
+                    :title="$t('sw-settings-tax.taxProviderDetail.cardTitleSettings')"
                     :is-loading="isLoading"
                 >
                     <sw-container
@@ -61,21 +61,21 @@
                             v-model="taxProvider.priority"
                             class="sw-settings-tax-tax-provider-detail__field-priority"
                             :disabled="true"
-                            :label="$tc('sw-settings-tax.taxProviderDetail.labelPriority')"
+                            :label="$t('sw-settings-tax.taxProviderDetail.labelPriority')"
                         />
 
                         <mt-switch
                             v-model="taxProvider.active"
                             class="sw-settings-tax-tax-provider-detail__field-active"
                             :disabled="!acl.can('tax.editor') || undefined"
-                            :label="$tc('sw-settings-tax.taxProviderDetail.labelActive')"
+                            :label="$t('sw-settings-tax.taxProviderDetail.labelActive')"
                         />
                     </sw-container>
                 </mt-card>
 
                 <mt-card
                     position-identifier="sw-settings-tax-tax-provider-detail-availability"
-                    :title="$tc('sw-settings-tax.taxProviderDetail.cardTitleAvailability')"
+                    :title="$t('sw-settings-tax.taxProviderDetail.cardTitleAvailability')"
                     :is-loading="isLoading"
                 >
                     <sw-select-rule-create
@@ -84,7 +84,7 @@
                         :disabled="!acl.can('tax.editor') || undefined"
                         :rule-id="taxProvider.availabilityRuleId"
                         :rule-filter="ruleFilter"
-                        :placeholder="$tc('sw-settings-tax.taxProviderDetail.placeholderAvailabilityRule')"
+                        :placeholder="$t('sw-settings-tax.taxProviderDetail.placeholderAvailabilityRule')"
                         rule-aware-group-key="taxProvider"
                         @save-rule="onSaveRule"
                         @dismiss-rule="onDismissRule"

@@ -228,16 +228,16 @@ export default {
 
         emptyStateTitle() {
             return this.order?.documents?.length > 0
-                ? this.$tc('sw-order.documentCard.messageNoDocumentFound')
-                : this.$tc('sw-order.documentCard.messageEmptyTitle');
+                ? this.$t('sw-order.documentCard.messageNoDocumentFound')
+                : this.$t('sw-order.documentCard.messageEmptyTitle');
         },
 
         tooltipCreateDocumentButton() {
             if (!this.acl.can('document.viewer')) {
-                return this.$tc('sw-privileges.tooltip.warning');
+                return this.$t('sw-privileges.tooltip.warning');
             }
 
-            return this.$tc('sw-order.documentTab.tooltipSaveBeforeCreateDocument');
+            return this.$t('sw-order.documentTab.tooltipSaveBeforeCreateDocument');
         },
 
         assetFilter() {
@@ -289,7 +289,7 @@ export default {
                 let errorMessage = payload.detail;
                 if (payload.code === 'DOCUMENT__NUMBER_ALREADY_EXISTS') {
                     const translationKey = 'sw-order.documentCard.error.DOCUMENT__NUMBER_ALREADY_EXISTS';
-                    errorMessage = this.$tc(translationKey, 1, payload.meta.parameters || {});
+                    errorMessage = this.$t(translationKey, 1, payload.meta.parameters || {});
                 }
 
                 this.createNotificationError({

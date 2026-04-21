@@ -145,7 +145,7 @@ export default {
         tooltipSave() {
             if (!this.allowSaving) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     disabled: this.allowSaving,
                     showOnDisabledElements: true,
                 };
@@ -312,7 +312,7 @@ export default {
             this.productComparison.showTemplateModal = false;
 
             this.createNotificationInfo({
-                message: this.$tc('sw-sales-channel.detail.productComparison.templates.message.template-applied-message'),
+                message: this.$t('sw-sales-channel.detail.productComparison.templates.message.template-applied-message'),
             });
         },
 
@@ -393,7 +393,7 @@ export default {
                 Shopware.Utils.EventBus.emit('sw-sales-channel-detail-sales-channel-change');
             } catch (_error) {
                 this.createNotificationError({
-                    message: this.$tc(
+                    message: this.$t(
                         'sw-sales-channel.detail.messageSaveError',
                         {
                             name: this.salesChannel.name || this.placeholder(this.salesChannel, 'name'),

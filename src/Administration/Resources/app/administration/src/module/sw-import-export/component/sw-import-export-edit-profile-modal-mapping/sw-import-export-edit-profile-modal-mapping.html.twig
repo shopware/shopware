@@ -15,7 +15,7 @@
         {% block sw_import_export_edit_profile_modal_mapping_toolbar_add_mapping %}
         <mt-button
             v-tooltip="{
-                message: $tc('sw-import-export.profile.addMappingTooltipText'),
+                message: $t('sw-import-export.profile.addMappingTooltipText'),
                 disabled: addMappingEnabled,
                 showOnDisabledElements: true
             }"
@@ -26,7 +26,7 @@
             variant="secondary"
             @click="onAddMapping"
         >
-            {{ $tc('sw-import-export.profile.addMappingLabel') }}
+            {{ $t('sw-import-export.profile.addMappingLabel') }}
         </mt-button>
         {% endblock %}
     </div>
@@ -150,7 +150,7 @@
                 :disabled="profile.systemDefault"
                 @click="onDeleteMapping(item.id)"
             >
-                {{ $tc('sw-import-export.profile.deleteMappingLabel') }}
+                {{ $t('sw-import-export.profile.deleteMappingLabel') }}
             </sw-context-menu-item>
         </template>
         {% endblock %}
@@ -163,7 +163,7 @@
         v-else
         class="sw-import-export-edit-profile-modal-mapping__empty-state"
         :icon="$route.meta.$module.icon"
-        :headline="$tc('sw-import-export.profile.mappingEmptyState')"
+        :headline="$t('sw-import-export.profile.mappingEmptyState')"
     />
     {% endblock %}
 </div>

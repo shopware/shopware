@@ -397,6 +397,8 @@
         <service id="Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute" public="true">
             <argument type="service" id="sales_channel.product.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory"/>
         </service>
 
         <!-- decorated by cached route -->
@@ -538,6 +540,7 @@
         <service id="Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Content\Product\Stock\StockStorage"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingRoute" public="true">

@@ -99,9 +99,15 @@
         {% block layout_head_json_ld %}
             {% if feature('JSON_LD_DATA') %}
                 {% sw_include '@Storefront/storefront/layout/structured-data/json-ld-webpage.html.twig' %}
-                {% sw_include '@Storefront/storefront/layout/structured-data/json-ld-breadcrumb.html.twig' with {
-                    categoryId: shopware.navigation.id
-                } only %}
+                {% if feature('v6.8.0.0') or feature('BREADCRUMB_REWORK') %}
+                    {% sw_include '@Storefront/storefront/layout/structured-data/json-ld-breadcrumb.html.twig' with {
+                        breadcrumbItems: page.breadcrumb
+                    } only %}
+                {% else %}
+                    {% sw_include '@Storefront/storefront/layout/structured-data/json-ld-breadcrumb.html.twig' with {
+                        categoryId: shopware.navigation.id
+                    } only %}
+                {% endif %}
             {% endif %}
         {% endblock %}
 

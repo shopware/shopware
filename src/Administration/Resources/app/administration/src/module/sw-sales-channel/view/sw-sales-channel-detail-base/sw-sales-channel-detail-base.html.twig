@@ -226,6 +226,7 @@
                     v-bind="getAgenticCommerceExportElementBind(element)"
                     :key="`${configEntry.provider}-${element.name}`"
                     :value="configEntry.values[element.name]"
+                    :error="configEntry.errors && configEntry.errors[element.name] ? configEntry.errors[element.name] : null"
                     :disabled="!acl.can('sales_channel.editor') || isLoading || configEntry.isLoading"
                     @update:value="onAgenticCommerceExportFieldUpdate(configEntry, element.name, $event)"
                 />

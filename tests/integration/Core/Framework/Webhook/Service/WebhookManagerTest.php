@@ -230,12 +230,11 @@ class WebhookManagerTest extends TestCase
             'testToken'
         );
 
-        // Provide a response for the handler in case the webhook is dispatched.
-        // Note: the ShopIdChangeSuggestedException check may not block dispatch in all cases —
-        // this test verifies the manager doesn't crash, not the HTTP-level behavior.
-        $this->appendNewResponse(new Response(200));
+        $client = new Client([
+            'handler' => new MockHandler([]),
+        ]);
 
-        $this->getManager()->dispatch($event);
+        $this->getManager($client)->dispatch($event);
     }
 
     public function testDispatchesBusinessEventToWebhookWithoutApp(): void
@@ -581,9 +580,8 @@ class WebhookManagerTest extends TestCase
             'handler' => new MockHandler([]),
         ]);
 
-        // The bus mock on $this->bus is what the manager actually uses.
-        // Inactive apps must not trigger any webhook dispatch.
-        $this->bus->expects($this->never())
+        $this->bus
+            ->expects($this->never())
             ->method('dispatch');
 
         $this->getManager($client)->dispatch($event);
@@ -984,11 +982,38 @@ class WebhookManagerTest extends TestCase
             'handler' => new MockHandler([]),
         ]);
 
-        $capturedMessage = null;
+        $expectedPayload = [
+            'data' => [
+                'payload' => [
+                    [
+                        'entity' => 'product',
+                        'operation' => 'delete',
+                        'primaryKey' => $entityId,
+                        'updatedFields' => ['id'],
+                    ],
+                ],
+                'event' => ProductEvents::PRODUCT_WRITTEN_EVENT,
+            ],
+            'source' => [
+                'url' => $this->shopUrl,
+                'appVersion' => '0.0.1',
+                'inAppPurchases' => null,
+            ],
+        ];
+
         $this->bus->expects($this->once())
             ->method('dispatch')
-            ->with(static::callback(static function (WebhookEventMessage $message) use (&$capturedMessage) {
-                $capturedMessage = $message;
+            ->with(static::callback(static function (WebhookEventMessage $message) use ($appId, $webhookId, $expectedPayload) {
+                static::assertSame($appId, $message->getAppId());
+                static::assertSame($webhookId, $message->getWebhookId());
+                static::assertSame($appId, $message->getPartitionKey());
+                static::assertSame('https://test.com', $message->getUrl());
+
+                $actualPayload = $message->getPayload();
+                static::assertArrayHasKey('eventId', $actualPayload['source']);
+                static::assertArrayHasKey('shopId', $actualPayload['source']);
+                unset($actualPayload['source']['eventId'], $actualPayload['source']['shopId']);
+                static::assertSame($expectedPayload, $actualPayload);
 
                 return true;
             }))
@@ -997,16 +1022,6 @@ class WebhookManagerTest extends TestCase
             });
 
         $this->getManager($client, false)->dispatch($event);
-
-        static::assertNotNull($capturedMessage);
-
-        // The async path dispatches to the bus. The logWebhookWithEvent call
-        // in the old code path wrote the event log row. In the new code, the
-        // WebhookTransport::send() handles outbox persistence. The manager's
-        // async path simply dispatches the message with the correct data.
-        static::assertSame($appId, $capturedMessage->getAppId());
-        static::assertSame($webhookId, $capturedMessage->getWebhookId());
-        static::assertSame($appId, $capturedMessage->getPartitionKey());
     }
 
     public function testAsyncDispatchWithoutAppUsesDefaultPartitionKey(): void
@@ -1021,11 +1036,10 @@ class WebhookManagerTest extends TestCase
             'handler' => new MockHandler([]),
         ]);
 
-        $capturedMessage = null;
         $this->bus->expects($this->once())
             ->method('dispatch')
-            ->with(static::callback(static function (WebhookEventMessage $message) use (&$capturedMessage) {
-                $capturedMessage = $message;
+            ->with(static::callback(static function (WebhookEventMessage $message) {
+                static::assertSame(WebhookEventMessage::DEFAULT_PARTITION_KEY, $message->getPartitionKey());
 
                 return true;
             }))
@@ -1034,9 +1048,6 @@ class WebhookManagerTest extends TestCase
             });
 
         $this->getManager($client, false)->dispatch($event);
-
-        static::assertNotNull($capturedMessage);
-        static::assertSame(WebhookEventMessage::DEFAULT_PARTITION_KEY, $capturedMessage->getPartitionKey());
     }
 
     public function testSyncDispatchCreatesOutboxEntriesAndDelivers(): void

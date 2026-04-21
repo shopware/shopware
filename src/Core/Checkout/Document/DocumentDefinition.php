@@ -80,7 +80,7 @@ class DocumentDefinition extends EntityDefinition
             (new OneToManyAssociationField('dependentDocuments', self::class, 'referenced_document_id'))->addFlags(new ApiAware()),
             (new ManyToOneAssociationField('documentMediaFile', 'document_media_file_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware()),
             (new ManyToOneAssociationField('documentA11yMediaFile', 'document_a11y_media_file_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware()),
-            (new OneToManyAssociationField('documentFiles', DocumentFileDefinition::class, 'document_id'))->addFlags(new ApiAware()),
+            new OneToManyAssociationField('documentFiles', DocumentFileDefinition::class, 'document_id'),
         ]);
     }
 }

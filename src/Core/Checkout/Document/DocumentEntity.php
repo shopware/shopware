@@ -54,6 +54,9 @@ class DocumentEntity extends Entity
 
     protected ?MediaEntity $documentA11yMediaFile = null;
 
+    /**
+     * @internal
+     */
     protected ?DocumentFileCollection $documentFiles = null;
 
     public function getOrder(): ?OrderEntity
@@ -232,11 +235,17 @@ class DocumentEntity extends Entity
         $this->documentA11yMediaFile = $mediaEntity;
     }
 
+    /**
+     * @internal
+     */
     public function getDocumentFiles(): ?DocumentFileCollection
     {
         return $this->documentFiles;
     }
 
+    /**
+     * @internal
+     */
     public function setDocumentFiles(?DocumentFileCollection $documentFiles): void
     {
         $this->documentFiles = $documentFiles;

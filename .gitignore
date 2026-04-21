@@ -168,6 +168,7 @@ config/services*
 custom
 !/custom/scripts/boot
 !/custom/scripts/examples
+!/custom/plugins/ValInfiniteScroll
 files/*
 install.lock
 

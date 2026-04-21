@@ -1,0 +1,45 @@
+.val-infinite-scroll-wrapper {
+    position: relative;
+}
+
+.val-infinite-scroll--loading {
+    .val-infinite-scroll-footer {
+        &::after {
+            content: '';
+            display: block;
+            width: 2rem;
+            height: 2rem;
+            margin: 1rem auto 0;
+            border: 3px solid currentColor;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: val-spin 0.7s linear infinite;
+        }
+    }
+}
+
+@keyframes val-spin {
+    to { transform: rotate(360deg); }
+}
+
+.val-infinite-scroll-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.val-infinite-scroll-count {
+    color: var(--bs-secondary);
+    font-size: 0.875rem;
+}
+
+.val-infinite-scroll-footer {
+    display: flex;
+    justify-content: center;
+    padding: 1.5rem 0;
+}
+
+.val-infinite-scroll-load-more {
+    min-width: 180px;
+}

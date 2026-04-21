@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
+    <card>
+        <title>Infinite Scroll</title>
+        <title lang="de-DE">Infinite Scroll</title>
+
+        <input-field type="bool">
+            <name>enableInfiniteScroll</name>
+            <label>Enable Infinite Scroll</label>
+            <label lang="de-DE">Infinite Scroll aktivieren</label>
+            <helpText>Replace the default pagination with infinite scroll and a load more button.</helpText>
+            <helpText lang="de-DE">Ersetzt die Standard-Paginierung durch Infinite Scroll und eine Mehr-laden-Schaltfläche.</helpText>
+            <defaultValue>true</defaultValue>
+        </input-field>
+
+        <input-field type="int">
+            <name>pagesUntilButton</name>
+            <label>Pages until "Load next" button appears</label>
+            <label lang="de-DE">Seiten bis zur Schaltfläche "Nächste laden"</label>
+            <helpText>Number of pages to load automatically via infinite scroll before showing the manual "Load next" button.</helpText>
+            <helpText lang="de-DE">Anzahl der automatisch geladenen Seiten, bevor die manuelle "Nächste laden"-Schaltfläche erscheint.</helpText>
+            <defaultValue>2</defaultValue>
+            <min>1</min>
+        </input-field>
+    </card>
+</config>

@@ -1,0 +1,61 @@
+{% extends '@Storefront/storefront/component/product/listing.html.twig' %}
+
+{% set infiniteScrollEnabled = config('ValInfiniteScroll.config.enableInfiniteScroll') ?? false %}
+{% set pagesUntilButton = config('ValInfiniteScroll.config.pagesUntilButton') ?? 3 %}
+
+{% block product_listing %}
+    {% if infiniteScrollEnabled %}
+        <div class="val-infinite-scroll-wrapper"
+             data-infinite-scroll="true"
+             data-infinite-scroll-options="{{ {
+                 dataUrl: dataUrl,
+                 limit: searchResult.limit,
+                 total: searchResult.total,
+                 currentPage: searchResult.page,
+                 pagesUntilButton: pagesUntilButton
+             }|json_encode }}">
+            {{ parent() }}
+        </div>
+    {% else %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}
+
+{% block element_product_listing_pagination_nav_top %}
+    {% if infiniteScrollEnabled %}
+        <div class="val-infinite-scroll-header">
+            {% if searchResult.page > 1 %}
+                <a href="?p={{ searchResult.page - 1 }}"
+                   class="btn btn-sm btn-outline-secondary">
+                    {{ 'val.infiniteScroll.prevPage'|trans|sw_sanitize }}
+                </a>
+            {% endif %}
+
+            <span class="val-infinite-scroll-count"
+                  aria-live="polite"
+                  aria-atomic="true"
+                  data-count-template="{{ 'val.infiniteScroll.productsLoaded'|trans({'%loaded%': '__loaded__', '%total%': '__total__'})|sw_sanitize }}">
+                {{ 'val.infiniteScroll.productsLoaded'|trans({
+                    '%loaded%': searchResult.page * searchResult.limit,
+                    '%total%': searchResult.total
+                })|sw_sanitize }}
+            </span>
+        </div>
+    {% else %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}
+
+{% block element_product_listing_pagination_nav_bottom %}
+    {% if infiniteScrollEnabled %}
+        <div class="val-infinite-scroll-footer">
+            <button class="btn btn-outline-primary val-infinite-scroll-load-more d-none"
+                    type="button"
+                    aria-label="{{ 'val.infiniteScroll.loadMore'|trans|sw_sanitize }}">
+                {{ 'val.infiniteScroll.loadMore'|trans|sw_sanitize }}
+            </button>
+        </div>
+    {% endif %}
+
+    {{ parent() }}
+{% endblock %}

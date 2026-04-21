@@ -1,0 +1,25 @@
+{
+    "name": "val/val-infinite-scroll",
+    "description": "Adds infinite scroll and load more functionality to product listings",
+    "type": "shopware-platform-plugin",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Val\\InfiniteScroll\\": "src/"
+        }
+    },
+    "extra": {
+        "shopware-plugin-class": "Val\\InfiniteScroll\\ValInfiniteScroll",
+        "label": {
+            "de-DE": "Infinite Scroll für Produktlisten",
+            "en-GB": "Infinite Scroll for Product Listings"
+        },
+        "description": {
+            "de-DE": "Ersetzt die Standard-Paginierung durch Infinite Scroll und eine Mehr-laden-Schaltfläche",
+            "en-GB": "Replaces default pagination with infinite scroll and a load more button"
+        }
+    },
+    "require": {
+        "shopware/core": "~6.7.0"
+    }
+}

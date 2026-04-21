@@ -1,0 +1,11 @@
+{
+    "val": {
+        "infiniteScroll": {
+            "productsLoaded": "%loaded% of %total% products loaded",
+            "loadMore": "Load next",
+            "prevPage": "← Previous page",
+            "nextPage": "Next page →",
+            "loading": "Loading products…"
+        }
+    }
+}

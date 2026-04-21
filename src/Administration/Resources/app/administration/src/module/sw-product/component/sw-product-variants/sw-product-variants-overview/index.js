@@ -143,7 +143,7 @@ export default {
                     label: this.$tc('sw-product.variations.generatedListColumnStock'),
                     allowResize: true,
                     inlineEdit: 'number',
-                    width: '125px',
+                    width: 'calc(var(--scale-size-80) + var(--scale-size-40) + var(--scale-size-6))',
                     align: 'right',
                 },
                 {
@@ -151,7 +151,7 @@ export default {
                     label: this.$tc('sw-product.variations.generatedListColumnProductNumber'),
                     allowResize: true,
                     inlineEdit: 'string',
-                    width: '150px',
+                    width: 'calc(var(--scale-size-128) + var(--scale-size-22))',
                 },
                 {
                     property: 'media',
@@ -200,7 +200,7 @@ export default {
                         primary: false,
                         rawData: false,
                         inlineEdit: 'number',
-                        width: '250px',
+                        width: 'calc(var(--scale-size-224) + var(--scale-size-26))',
                     };
                 });
         },

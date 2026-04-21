@@ -1,31 +1,29 @@
-@import "~scss/variables";
-
 .sw-settings-measurement-default-units {
     &__description {
-        margin-bottom: 32px;
+        margin-bottom: var(--scale-size-32);
         font-size: var(--font-size-xs);
         font-weight: var(--font-weight-regular);
-        line-height: 20px;
+        line-height: var(--line-height-sm);
     }
 
     &__description a.sw-internal-link {
         font-size: var(--font-size-xs);
         font-weight: var(--font-weight-regular);
-        line-height: 20px;
+        line-height: var(--line-height-sm);
     }
 }
 
 .mt-select-result-list-popover-wrapper {
     .mt-select-result__result-item-text {
         flex-direction: row;
-        gap: 8px;
+        gap: var(--scale-size-8);
     }
 
     &__popover-short-name {
-        color: $color-gray-500;
+        color: var(--color-text-secondary-default);
     }
 
     .mt-select-result > .mt-icon {
-        color: $color-gray-500;
+        color: var(--color-icon-secondary-default);
     }
 }

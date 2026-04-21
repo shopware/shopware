@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @codeCoverageIgnore @see \Shopware\Tests\Integration\Core\Content\Product\DataAbstractionLayer\VariantListingUpdaterTest
+ */
 #[Package('framework')]
 class VariantListingUpdater
 {
@@ -41,7 +44,7 @@ class VariantListingUpdater
 
         $displayParent = new RetryableQuery(
             $this->connection,
-            $this->connection->prepare('UPDATE product SET display_group = MD5(HEX(product.id)) WHERE product.id = :id AND product.version_id = :versionId')
+            $this->connection->prepare('UPDATE product SET display_group = SHA2(HEX(product.id), 256) WHERE product.id = :id AND product.version_id = :versionId')
         );
 
         $hideParent = new RetryableQuery(
@@ -51,7 +54,7 @@ class VariantListingUpdater
 
         $singleVariant = new RetryableQuery(
             $this->connection,
-            $this->connection->prepare('UPDATE product SET display_group = MD5(HEX(product.parent_id)) WHERE product.parent_id = :id AND product.version_id = :versionId')
+            $this->connection->prepare('UPDATE product SET display_group = SHA2(HEX(product.parent_id), 256) WHERE product.parent_id = :id AND product.version_id = :versionId')
         );
 
         foreach ($listingConfiguration as $parentId => $config) {
@@ -70,7 +73,7 @@ class VariantListingUpdater
                 $hideParent->execute(['id' => $parentId, 'versionId' => $versionBytes]);
             }
 
-            if (empty($groups)) {
+            if ($groups === []) {
                 // display single variant in listing
                 $singleVariant->execute(['id' => $parentId, 'versionId' => $versionBytes]);
 
@@ -83,9 +86,10 @@ class VariantListingUpdater
 
             $fields = [];
             $params = ['parentId' => $parentId, 'versionId' => $versionBytes];
-            foreach ($groups as $groupId) {
-                $mappingAlias = 'mapping' . $groupId;
-                $optionAlias = 'option' . $groupId;
+            // Positional index keeps SQL aliases and Doctrine parameter names unique and stable.
+            foreach ($groups as $index => $groupId) {
+                $mappingAlias = 'mapping' . $index;
+                $optionAlias = 'option' . $index;
 
                 $query->innerJoin('root', 'product_option', $mappingAlias, $mappingAlias . '.product_id IS NOT NULL');
                 $query->innerJoin($mappingAlias, 'property_group_option', $optionAlias, $optionAlias . '.id = ' . $mappingAlias . '.property_group_option_id AND ' . $optionAlias . '.property_group_id = :' . $optionAlias);
@@ -99,11 +103,12 @@ class VariantListingUpdater
             $query->addSelect('CONCAT(' . implode(',', $fields) . ')');
 
             $sql = '
-            UPDATE product SET display_group = MD5(
+            UPDATE product SET display_group = SHA2(
                 CONCAT(
                     LOWER(HEX(product.parent_id)),
                     (' . $query->getSQL() . ')
-                )
+                ),
+                256
             ) WHERE parent_id = :parentId AND version_id = :versionId';
 
             RetryableQuery::retryable($this->connection, function () use ($sql, $params): void {
@@ -138,25 +143,55 @@ class VariantListingUpdater
         $configuration = $query->executeQuery()->fetchAllAssociative();
 
         $listingConfiguration = [];
-        foreach ($configuration as $config) {
-            $config['config'] = $config['config'] === null ? [] : json_decode((string) $config['config'], true, 512, \JSON_THROW_ON_ERROR);
+        foreach ($configuration as $row) {
+            $decodedConfig = $this->decodeVariantListingConfig($row['config'] ?? null);
 
             $groups = [];
-            $configuratorGroupConfig = $config['config']['configuratorGroupConfig'] ?? [];
-            foreach ($configuratorGroupConfig as $group) {
-                if (\array_key_exists('expressionForListings', $group) && $group['expressionForListings']) {
-                    $groups[] = $group['id'];
+            $groupConfig = $decodedConfig['configuratorGroupConfig'] ?? [];
+            if (\is_array($groupConfig)) {
+                foreach ($groupConfig as $group) {
+                    if (!\is_array($group)
+                        || !\array_key_exists('expressionForListings', $group)
+                        || $group['expressionForListings'] !== true
+                        || !\is_string($group['id'])) {
+                        continue;
+                    }
+
+                    $groupId = strtolower($group['id']);
+                    if (!Uuid::isValid($groupId)) {
+                        continue;
+                    }
+
+                    $groups[] = $groupId;
                 }
             }
 
-            $listingConfiguration[$config['id']] = [
+            $listingConfiguration[$row['id']] = [
                 'groups' => $groups,
-                'child_count' => $config['child_count'] ?? null,
-                'main_variant' => $config['config']['mainVariantId'] ?? null,
-                'display_parent' => $config['config']['displayParent'] ?? null,
+                'child_count' => $row['child_count'] ?? null,
+                'main_variant' => $decodedConfig['mainVariantId'] ?? null,
+                'display_parent' => $decodedConfig['displayParent'] ?? null,
             ];
         }
 
         return $listingConfiguration;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function decodeVariantListingConfig(mixed $raw): array
+    {
+        if (!\is_string($raw) || $raw === '') {
+            return [];
+        }
+
+        try {
+            $decoded = json_decode($raw, true, 512, \JSON_THROW_ON_ERROR);
+        } catch (\JsonException) {
+            return [];
+        }
+
+        return \is_array($decoded) ? $decoded : [];
     }
 }

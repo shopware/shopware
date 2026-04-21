@@ -83,7 +83,9 @@
       },
       "property": {
         "cardTitle": "Properties",
-        "changeLabel": "Change: Properties"
+        "changeLabel": "Change: Properties",
+        "titleEmptyState": "No property changes selected yet.",
+        "descriptionEmptyState": "Bulk edit only lists properties that will be changed. Existing product properties are not shown here."
       },
       "deliverability": {
         "cardTitle": "Deliverability",

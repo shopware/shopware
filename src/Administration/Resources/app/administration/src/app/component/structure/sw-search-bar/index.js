@@ -222,6 +222,10 @@ export default {
                 return;
             }
 
+            if (newValue.query.term === undefined) {
+                return;
+            }
+
             this.searchTerm = newValue.query.term ? newValue.query.term : '';
         },
 
@@ -452,11 +456,13 @@ export default {
         },
 
         setSearchType(type) {
+            const searchTerm = this.searchTerm.startsWith('#') ? '' : this.searchTerm;
+
             this.currentSearchType = type;
             this.showTypeSelectContainer = false;
             this.showModuleFiltersContainer = false;
             this.showResultsSearchTrends = false;
-            this.searchTerm = '';
+            this.searchTerm = searchTerm;
         },
 
         toggleOffCanvas() {

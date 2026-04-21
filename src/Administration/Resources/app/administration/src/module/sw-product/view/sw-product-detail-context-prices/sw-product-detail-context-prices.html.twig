@@ -30,8 +30,8 @@
             {% block sw_product_detail_prices_price_card_toolbar %}
                 <div class="sw-product-detail-context-prices__toolbar">
                     <sw-container
-                        columns="1fr minmax(50px, max-content) minmax(50px, max-content)"
-                        gap="0 10px"
+                        columns="1fr minmax(calc(var(--scale-size-40) + var(--scale-size-10)), max-content) minmax(calc(var(--scale-size-40) + var(--scale-size-10)), max-content)"
+                        gap="0 var(--scale-size-10)"
                     >
 
                     {% block sw_product_detail_prices_price_card_toolbar_rule_selection %}
@@ -329,7 +329,7 @@
                         {{ $tc('sw-product.advancedPrices.linkAdvancedPricesOfParent') }}
                         <mt-icon
                             name="regular-long-arrow-right"
-                            size="16px"
+                            size="var(--scale-size-16)"
                         />
                     </router-link>
                     {% endblock %}

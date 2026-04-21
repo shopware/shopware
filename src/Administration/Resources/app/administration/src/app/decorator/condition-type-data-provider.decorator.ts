@@ -457,12 +457,6 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         scopes: ['lineItem'],
         group: 'item',
     });
-    ruleConditionService.addCondition('cartLineItemStock', {
-        component: 'sw-condition-generic-line-item',
-        label: 'global.sw-condition.condition.lineItemStockRule',
-        scopes: ['lineItem'],
-        group: 'item',
-    });
     ruleConditionService.addCondition('cartLineItemActualStock', {
         component: 'sw-condition-generic-line-item',
         label: 'global.sw-condition.condition.lineItemActualStockRule',

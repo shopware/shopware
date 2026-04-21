@@ -348,6 +348,8 @@ export default {
                         allowAdd: true,
                         allowRemove: true,
                         changeLabel: this.$t('sw-bulk-edit.product.property.changeLabel'),
+                        emptyStateTitle: this.$t('sw-bulk-edit.product.property.titleEmptyState'),
+                        emptyStateDescription: this.$t('sw-bulk-edit.product.property.descriptionEmptyState'),
                         disabled: this.bulkEditProduct?.properties?.isInherited,
                         isAssociation: false,
                         showInheritanceSwitcher: false,

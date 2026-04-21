@@ -80,7 +80,7 @@ class CachedEscaperRuntime implements RuntimeExtensionInterface
      * Mimics the public API of {@see EscaperRuntime} as it is final and cannot be extended
      *
      * Additionally caches the escaped value to increase the performance.
-     * Caching other types than `string` and `Stringable` brings no value, as the checks for those types cost more than the cache brings benefit.
+     * Caching other types than `string` and `Markup` brings no value, as the checks for those types cost more than the cache brings benefit.
      * E.g. integers and floats are rarely occuring with the same value more than once.
      * Changing the logic here should be proven with performance measuering tools like Blackfire.
      *
@@ -93,18 +93,19 @@ class CachedEscaperRuntime implements RuntimeExtensionInterface
             return self::$escapeCache[$string][$strategy];
         }
 
-        $isStringAble = $string instanceof \Stringable;
-        if ($isStringAble) {
-            $hash = spl_object_hash($string);
-            if (isset(self::$escapeCache[$hash][$strategy])) {
-                return self::$escapeCache[$hash][$strategy];
+        // Only cache Twigs internal Markup class, as other Stringable classes cannot be ensured to be immutable
+        $isMarkup = $string instanceof Markup;
+        if ($isMarkup) {
+            $markupHash = spl_object_hash($string);
+            if (isset(self::$escapeCache[$markupHash][$strategy])) {
+                return self::$escapeCache[$markupHash][$strategy];
             }
         }
 
         $result = $this->originalEscaperRuntime->escape($string, $strategy, $charset, $autoescape);
 
-        if ($isStringAble) {
-            self::$escapeCache[$hash][$strategy] = $result;
+        if ($isMarkup) {
+            self::$escapeCache[$markupHash][$strategy] = $result;
 
             return $result;
         }

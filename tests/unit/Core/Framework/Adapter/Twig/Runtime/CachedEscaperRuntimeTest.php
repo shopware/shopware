@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\Runtime\CachedEscaperRuntime;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Twig\Error\RuntimeError;
+use Twig\Markup;
 use Twig\Runtime\EscaperRuntime;
 
 /**
@@ -460,7 +461,7 @@ class CachedEscaperRuntimeTest extends TestCase
     #[DataProvider('EscapeDataProvider')]
     public function testEscapeWithVariousInputs(array|int|float|string|null $input, array|int|float|string|null $expected): void
     {
-        $result = $this->escaper->escape($input, 'html', 'UTF-8');
+        $result = $this->escaper->escape($input);
 
         static::assertSame($expected, $result);
     }
@@ -469,7 +470,7 @@ class CachedEscaperRuntimeTest extends TestCase
     {
         // First call to cache the result
         $string = 'cached_string';
-        $result1 = $this->escaper->escape($string, 'html', 'UTF-8');
+        $result1 = $this->escaper->escape($string);
 
         // Make sure result is cached
         $cache = (new \ReflectionProperty($this->escaper, 'escapeCache'))->getValue();
@@ -477,23 +478,19 @@ class CachedEscaperRuntimeTest extends TestCase
         static::assertArrayHasKey($string, $cache);
 
         // Second call to get the cached result
-        $result2 = $this->escaper->escape($string, 'html', 'UTF-8');
+        $result2 = $this->escaper->escape($string);
 
         // Assert that the results are the same, indicating the cache was used
         static::assertSame($result1, $result2);
     }
 
-    public function testEscapeWithCachedStringable(): void
+    public function testEscapeWithCachedMarkup(): void
     {
-        // First call to cache the result
-        $stringable = new class implements \Stringable {
-            public function __toString(): string
-            {
-                return 'cached_string';
-            }
-        };
+        $stringable = new Markup('cached_string', 'UTF-8');
         $hash = spl_object_hash($stringable);
-        $result1 = $this->escaper->escape($stringable, 'html', 'UTF-8');
+
+        // First call to cache the result
+        $result1 = $this->escaper->escape($stringable);
 
         // Make sure result is cached
         $cache = (new \ReflectionProperty($this->escaper, 'escapeCache'))->getValue();
@@ -501,17 +498,37 @@ class CachedEscaperRuntimeTest extends TestCase
         static::assertArrayHasKey($hash, $cache);
 
         // Second call to get the cached result
-        $result2 = $this->escaper->escape($stringable, 'html', 'UTF-8');
+        $result2 = $this->escaper->escape($stringable);
 
         // Assert that the results are the same, indicating the cache was used
         static::assertSame($result1, $result2);
+    }
+
+    public function testEscapeWithStringableThatIsMutatedBetweenCallsIsNotConsideredForCaching(): void
+    {
+        $stringable = new Extension_TestClass('cached_string_one');
+        $hash1 = spl_object_hash($stringable);
+
+        $result1 = $this->escaper->escape($stringable);
+
+        $cache = (new \ReflectionProperty($this->escaper, 'escapeCache'))->getValue();
+        static::assertCount(0, $cache);
+
+        $stringable->string = 'cached_string_two';
+        $hash2 = spl_object_hash($stringable);
+
+        static::assertSame($hash1, $hash2);
+
+        $result2 = $this->escaper->escape($stringable);
+
+        static::assertNotSame($result1, $result2);
     }
 
     public function testEscapeUuidWithCache(): void
     {
         // First call to cache the result
         $string = Uuid::randomHex();
-        $result1 = $this->escaper->escape($string, 'html', 'UTF-8');
+        $result1 = $this->escaper->escape($string);
 
         // Make sure result is cached
         $cache = (new \ReflectionProperty($this->escaper, 'escapeCache'))->getValue();
@@ -519,7 +536,7 @@ class CachedEscaperRuntimeTest extends TestCase
         static::assertArrayHasKey($string, $cache);
 
         // Second call to get the cached result
-        $result2 = $this->escaper->escape($string, 'html', 'UTF-8');
+        $result2 = $this->escaper->escape($string);
 
         // Assert that the results are the same, indicating the cache was used
         static::assertSame($result1, $result2);
@@ -531,11 +548,11 @@ class CachedEscaperRuntimeTest extends TestCase
         $cacheBefore = $cacheProperty->getValue();
         static::assertCount(0, $cacheBefore);
 
-        $result1 = $this->escaper->escape(true, 'html', 'UTF-8');
+        $result1 = $this->escaper->escape(true);
         $cacheAfterFirstCall = $cacheProperty->getValue();
         static::assertCount(0, $cacheAfterFirstCall);
 
-        $result2 = $this->escaper->escape(true, 'html', 'UTF-8');
+        $result2 = $this->escaper->escape(true);
         $cacheAfterSecondCall = $cacheProperty->getValue();
         static::assertCount(0, $cacheAfterSecondCall);
 
@@ -588,8 +605,12 @@ function foo_escaper_for_test(?string $string): string
  */
 class Extension_TestClass implements \Stringable
 {
+    public function __construct(public string $string = '<br />')
+    {
+    }
+
     public function __toString(): string
     {
-        return '<br />';
+        return $this->string;
     }
 }

@@ -668,7 +668,7 @@ export default {
             return this.productRepository
                 .get(this.productId || this.product.id, Shopware.Context.api, this.productCriteria)
                 .then(async (product) => {
-                    if (!product.purchasePrices?.length > 0 && !product.parentId) {
+                    if (!product.parentId && (!product.purchasePrices || product.purchasePrices.length === 0)) {
                         if (!this.defaultCurrency?.id) {
                             await this.loadCurrencies();
                         }
@@ -692,7 +692,8 @@ export default {
                     Shopware.State.commit('swProductDetail/setProduct', product);
 
                     if (this.product.parentId) {
-                        this.loadParentProduct();
+                        await this.loadParentProduct();
+                        this.syncVariantPriceInheritance();
                     } else {
                         Shopware.State.commit('swProductDetail/setParentProduct', {});
                     }
@@ -724,6 +725,14 @@ export default {
             return this.productRepository
                 .get(this.product.parentId, Shopware.Context.api, this.productCriteria)
                 .then(async (parent) => {
+                    if (!parent.purchasePrices || parent.purchasePrices.length === 0) {
+                        if (!this.defaultCurrency?.id) {
+                            await this.loadCurrencies();
+                        }
+
+                        parent.purchasePrices = this.getDefaultPurchasePrices();
+                    }
+
                     if (parent.propertyIds?.length > 0) {
                         const propertyCriteria = new Criteria(1, null);
                         propertyCriteria.addSorting(Criteria.sort('name', 'ASC', true));
@@ -1243,6 +1252,22 @@ export default {
                     });
                 });
             });
+        },
+
+        syncVariantPriceInheritance() {
+            const priceInherited = this.product.price === null;
+            const purchasePricesInherited = this.product.purchasePrices === null;
+
+            // Price is inherited — purchasePrices must also inherit
+            if (priceInherited) {
+                this.product.purchasePrices = null;
+                return;
+            }
+
+            // Price is overridden but purchasePrices still inherited — copy from parent
+            if (purchasePricesInherited) {
+                this.product.purchasePrices = cloneDeep(this.parentProduct.purchasePrices);
+            }
         },
     },
 };

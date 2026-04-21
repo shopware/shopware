@@ -234,12 +234,12 @@ export default {
             });
             Shopware.ExtensionAPI.publishData({
                 id: 'sw-mail-template-detail__testMailSalesChannelId',
-                path: 'salesChannelId',
+                path: 'testMailSalesChannelId',
                 scope: this,
             });
             Shopware.ExtensionAPI.publishData({
                 id: 'sw-mail-template-detail__previewSalesChannelId',
-                path: 'salesChannelId',
+                path: 'testMailSalesChannelId',
                 scope: this,
             });
             Shopware.ExtensionAPI.publishData({
@@ -404,7 +404,7 @@ export default {
                 message: this.$t('sw-mail-template.general.notificationTestMailSalesChannelErrorMessage'),
             };
 
-            if (!this.salesChannelId) {
+            if (!this.testMailSalesChannelId) {
                 this.createNotificationError(notificationTestMailErrorSalesChannel);
                 return;
             }
@@ -412,7 +412,7 @@ export default {
             const criteria = new Criteria();
             criteria.addAssociation('languages');
 
-            const salesChannel = await this.salesChannelRepository.get(this.salesChannelId, Context.api, criteria);
+            const salesChannel = await this.salesChannelRepository.get(this.testMailSalesChannelId, Context.api, criteria);
 
             if (!salesChannel.languages.has(Shopware.Context.api.languageId)) {
                 this.showLanguageNotAssignedToSalesChannelWarning = true;
@@ -447,7 +447,7 @@ export default {
                         contentPlain: `${simulatedMailPreview.headerPlain.content}${simulatedMailPreview.contentPlain.content}${simulatedMailPreview.footerPlain.content}`,
                     },
                     this.mailTemplateMedia,
-                    this.salesChannelId,
+                    this.testMailSalesChannelId,
                     true,
                     [],
                     {},
@@ -519,7 +519,7 @@ export default {
                         footerPlain: headerFooterParts.footerPlain,
                     },
                     this.triggerEvent.name,
-                    this.salesChannelId,
+                    this.testMailSalesChannelId,
                 )
                 .then((response) => {
                     Object.keys(response).forEach((key) => {
@@ -583,7 +583,7 @@ export default {
         },
 
         async getPreviewMailHeaderFooterParts() {
-            if (!this.salesChannelId) {
+            if (!this.testMailSalesChannelId) {
                 return {
                     headerHtml: '',
                     footerHtml: '',
@@ -595,7 +595,7 @@ export default {
             const criteria = new Criteria();
             criteria.addAssociation('mailHeaderFooter');
 
-            const salesChannel = await this.salesChannelRepository.get(this.salesChannelId, Context.api, criteria);
+            const salesChannel = await this.salesChannelRepository.get(this.testMailSalesChannelId, Context.api, criteria);
             const mailHeaderFooter = salesChannel?.mailHeaderFooter;
 
             return {

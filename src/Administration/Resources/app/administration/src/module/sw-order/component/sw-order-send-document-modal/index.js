@@ -60,6 +60,11 @@ export default {
             return this.repositoryFactory.create('mail_template');
         },
 
+        /** @deprecated tag:v6.8.0 - Method will be removed */
+        mailHeaderFooterRepository() {
+            return this.repositoryFactory.create('mail_header_footer');
+        },
+
         mailTemplateCriteria() {
             const criteria = new Criteria(1, 25);
             criteria.addAssociation('mailTemplateType');

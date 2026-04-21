@@ -42,6 +42,32 @@ class SeoUrlPersister
      */
     public function updateSeoUrls(Context $context, string $routeName, array $foreignKeys, iterable $seoUrls, SalesChannelEntity $salesChannel): void
     {
+        $this->doUpdateSeoUrls($context, $routeName, $foreignKeys, $seoUrls, $salesChannel, false);
+    }
+
+    /**
+     * Like {@see self::updateSeoUrls()} but bypasses the write-protection guard
+     * that normally keeps automatic template regeneration from overwriting
+     * manually modified (`isModified = true`) SEO URLs.
+     *
+     * Intended for explicit admin/API updates where the user wants to edit or
+     * reset a manually modified SEO URL; must not be used for automatic
+     * template regeneration pipelines (indexers, subscribers on other entities).
+     *
+     * @param array<string> $foreignKeys
+     * @param iterable<array<string, mixed>|SeoUrlEntity> $seoUrls
+     */
+    public function forceUpdateSeoUrls(Context $context, string $routeName, array $foreignKeys, iterable $seoUrls, SalesChannelEntity $salesChannel): void
+    {
+        $this->doUpdateSeoUrls($context, $routeName, $foreignKeys, $seoUrls, $salesChannel, true);
+    }
+
+    /**
+     * @param array<string> $foreignKeys
+     * @param iterable<array<string, mixed>|SeoUrlEntity> $seoUrls
+     */
+    private function doUpdateSeoUrls(Context $context, string $routeName, array $foreignKeys, iterable $seoUrls, SalesChannelEntity $salesChannel, bool $overwrite): void
+    {
         $languageId = $context->getLanguageId();
         $canonicals = $this->findCanonicalPaths($routeName, $languageId, $foreignKeys);
         $dateTime = $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
@@ -85,7 +111,7 @@ class SeoUrlPersister
             if ($existing) {
                 // entity has override or does not change
                 /** @phpstan-ignore-next-line PHPStan could not recognize the array generated from the jsonSerialize method of the SeoUrlEntity */
-                if ($this->skipUpdate($existing, $seoUrl)) {
+                if ($this->skipUpdate($existing, $seoUrl, $overwrite)) {
                     continue;
                 }
                 $obsoleted[] = $existing['id'];
@@ -148,9 +174,23 @@ class SeoUrlPersister
      * @param array{isModified: bool, seoPathInfo: string, salesChannelId: string} $existing
      * @param array{isModified?: bool, seoPathInfo: string, salesChannelId: string} $seoUrl
      */
-    private function skipUpdate(array $existing, array $seoUrl): bool
+    private function skipUpdate(array $existing, array $seoUrl, bool $overwrite = false): bool
     {
-        if ($existing['isModified'] && !($seoUrl['isModified'] ?? false) && trim($seoUrl['seoPathInfo']) !== '') {
+        // When the caller (e.g. admin/API action) explicitly requests an overwrite,
+        // skip the "write protection" guard that normally preserves manually modified
+        // (isModified=1) SEO URLs against automatic template regeneration. The path
+        // equality guard below is still honoured to avoid creating superfluous
+        // duplicate rows when nothing actually changes.
+        //
+        // Edge case: clearing the write-protection flag with the *same* path
+        // (existing.isModified=true, payload.isModified=false, identical
+        // seoPathInfo) still short-circuits via the equality guard, so the
+        // `is_modified` flag will not actually be reset until the path also
+        // changes. Admin flows handle this naturally (clearing the SEO URL
+        // field resubmits the template-generated path, which differs from the
+        // manual value); a bare "drop protection" without a path change needs
+        // to be done via DAL write.
+        if (!$overwrite && $existing['isModified'] && !($seoUrl['isModified'] ?? false) && trim($seoUrl['seoPathInfo']) !== '') {
             return true;
         }
 

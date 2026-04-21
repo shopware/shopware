@@ -293,6 +293,82 @@ class SeoActionControllerTest extends TestCase
         static::assertSame($newSeoPathInfo, $seoUrl['seoPathInfo']);
     }
 
+    /**
+     * Regression for shopware/shopware#4413: a write-protected (isModified=true) canonical
+     * SEO URL must be editable again and resettable to the template-generated path.
+     */
+    public function testUpdateWriteProtectedCanonicalCanBeEditedAndReset(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
+
+        $id = $this->createTestProduct($salesChannelId);
+
+        $seoUrls = $this->getSeoUrls($id, true, $salesChannelId);
+        static::assertCount(1, $seoUrls);
+        $initialPathInfo = $seoUrls[0]['attributes']['seoPathInfo'];
+
+        // Initial manual modification – writes a write-protected URL.
+        $manualPath = 'manual-path';
+        $firstPayload = $seoUrls[0]['attributes'];
+        $firstPayload['seoPathInfo'] = $manualPath;
+        $firstPayload['isModified'] = true;
+
+        $this->getBrowser()->jsonRequest('PATCH', '/api/_action/seo-url/canonical', $firstPayload);
+        static::assertSame(204, $this->getBrowser()->getResponse()->getStatusCode());
+
+        $seoUrls = $this->getSeoUrls($id, true, $salesChannelId);
+        static::assertCount(1, $seoUrls);
+        static::assertTrue($seoUrls[0]['attributes']['isModified']);
+        static::assertSame($manualPath, $seoUrls[0]['attributes']['seoPathInfo']);
+
+        // (a) Manual edit of the already write-protected SEO URL must persist.
+        $editedPath = 'manual-path-edited';
+        $editPayload = $seoUrls[0]['attributes'];
+        $editPayload['seoPathInfo'] = $editedPath;
+        $editPayload['isModified'] = true;
+
+        $this->getBrowser()->jsonRequest('PATCH', '/api/_action/seo-url/canonical', $editPayload);
+        static::assertSame(204, $this->getBrowser()->getResponse()->getStatusCode());
+
+        $seoUrls = $this->getSeoUrls($id, true, $salesChannelId);
+        static::assertCount(1, $seoUrls);
+        static::assertTrue($seoUrls[0]['attributes']['isModified']);
+        static::assertSame($editedPath, $seoUrls[0]['attributes']['seoPathInfo']);
+
+        // (b) Clearing the write-protection flag must also actually clear it on the
+        // persisted canonical (previously the overwrite check silently kept isModified=true).
+        $clearPayload = $seoUrls[0]['attributes'];
+        $clearPayload['seoPathInfo'] = 'manual-path-final';
+        $clearPayload['isModified'] = false;
+
+        $this->getBrowser()->jsonRequest('PATCH', '/api/_action/seo-url/canonical', $clearPayload);
+        static::assertSame(204, $this->getBrowser()->getResponse()->getStatusCode());
+
+        $seoUrls = $this->getSeoUrls($id, true, $salesChannelId);
+        $canonical = null;
+        foreach ($seoUrls as $url) {
+            if ($url['attributes']['isCanonical'] ?? true) {
+                $canonical = $url['attributes'];
+                break;
+            }
+        }
+
+        static::assertNotNull($canonical, 'A canonical SEO URL must still exist after clearing the write-protection flag');
+        static::assertFalse($canonical['isModified'], 'Canonical SEO URL must be cleared of the write-protection flag');
+        static::assertSame('manual-path-final', $canonical['seoPathInfo']);
+
+        // The original template-generated path is still reachable (kept as a
+        // redirecting non-canonical entry so old links keep working).
+        static::assertNotEmpty(
+            array_filter(
+                $this->getSeoUrls($id, null, $salesChannelId),
+                static fn (array $url): bool => $url['attributes']['seoPathInfo'] === $initialPathInfo
+            ),
+            'Original template path must be retained as a non-canonical redirect'
+        );
+    }
+
     public function testUpdateCanonicalWithCustomSalesChannel(): void
     {
         $salesChannelId = Uuid::randomHex();

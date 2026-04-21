@@ -84,6 +84,100 @@ class SeoUrlPersisterTest extends TestCase
         );
     }
 
+    /**
+     * Regression for shopware/shopware#4413: when a SEO URL is write-protected (is_modified=1),
+     * the legacy guard in skipUpdate() should still protect it against automatic template
+     * regeneration (default overwrite=false).
+     */
+    public function testSkipUpdateProtectsWriteProtectedSeoUrlByDefault(): void
+    {
+        $existing = [
+            'id' => 'id-1',
+            'foreignKey' => 'fk-1',
+            'salesChannelId' => 'sc-1',
+            'isModified' => true,
+            'seoPathInfo' => 'manual-path',
+        ];
+        $payload = [
+            'foreignKey' => 'fk-1',
+            'salesChannelId' => 'sc-1',
+            'seoPathInfo' => 'template-path',
+            'isModified' => false,
+        ];
+
+        static::assertTrue($this->invokeSkipUpdate($existing, $payload, false));
+    }
+
+    /**
+     * Regression for shopware/shopware#4413: when the admin/API explicitly requests an overwrite,
+     * the skipUpdate() guard must no longer protect write-protected SEO URLs from being
+     * replaced with the template-generated path.
+     */
+    public function testSkipUpdateAllowsResetWithOverwrite(): void
+    {
+        $existing = [
+            'id' => 'id-1',
+            'foreignKey' => 'fk-1',
+            'salesChannelId' => 'sc-1',
+            'isModified' => true,
+            'seoPathInfo' => 'manual-path',
+        ];
+        $payload = [
+            'foreignKey' => 'fk-1',
+            'salesChannelId' => 'sc-1',
+            'seoPathInfo' => 'template-path',
+            'isModified' => false,
+        ];
+
+        static::assertFalse($this->invokeSkipUpdate($existing, $payload, true));
+    }
+
+    /**
+     * Regression for shopware/shopware#4413: the admin must be able to persist an edit that
+     * replaces the write-protected path with a new manual path.
+     */
+    public function testSkipUpdateAllowsManualEditWithOverwrite(): void
+    {
+        $existing = [
+            'id' => 'id-1',
+            'foreignKey' => 'fk-1',
+            'salesChannelId' => 'sc-1',
+            'isModified' => true,
+            'seoPathInfo' => 'manual-path',
+        ];
+        $payload = [
+            'foreignKey' => 'fk-1',
+            'salesChannelId' => 'sc-1',
+            'seoPathInfo' => 'manual-path-edited',
+            'isModified' => true,
+        ];
+
+        static::assertFalse($this->invokeSkipUpdate($existing, $payload, true));
+    }
+
+    /**
+     * Regression for shopware/shopware#4413: even with overwrite=true the path-equality guard
+     * must still short-circuit, so re-saving the exact same SEO URL does not create a duplicate.
+     */
+    public function testSkipUpdateStillSkipsIdenticalPayloadWithOverwrite(): void
+    {
+        $existing = [
+            'id' => 'id-1',
+            'foreignKey' => 'fk-1',
+            'salesChannelId' => 'sc-1',
+            'isModified' => true,
+            'seoPathInfo' => 'manual-path',
+        ];
+        $payload = [
+            'foreignKey' => 'fk-1',
+            'salesChannelId' => 'sc-1',
+            'seoPathInfo' => 'manual-path',
+            'isModified' => true,
+        ];
+
+        static::assertTrue($this->invokeSkipUpdate($existing, $payload, true));
+    }
+
     public function testUpdateSeoUrlsWithInuseSeoPaths(): void
     {
         $seoUrls = [
@@ -152,5 +246,17 @@ class SeoUrlPersisterTest extends TestCase
             $seoUrls,
             $seoChannel
         );
+    }
+
+    /**
+     * @param array{isModified: bool, seoPathInfo: string, salesChannelId: string} $existing
+     * @param array{isModified?: bool, seoPathInfo: string, salesChannelId: string} $seoUrl
+     */
+    private function invokeSkipUpdate(array $existing, array $seoUrl, bool $overwrite): bool
+    {
+        $reflection = new \ReflectionMethod(SeoUrlPersister::class, 'skipUpdate');
+        $reflection->setAccessible(true);
+
+        return (bool) $reflection->invoke($this->seoUrlPersister, $existing, $seoUrl, $overwrite);
     }
 }

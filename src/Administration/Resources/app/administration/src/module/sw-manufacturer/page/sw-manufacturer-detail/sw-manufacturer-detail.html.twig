@@ -3,7 +3,7 @@
 
     {% block sw_manufacturer_detail_header %}
     <template #smart-bar-header>
-        <h2>{{ placeholder(manufacturer, 'name', $tc('sw-manufacturer.detail.textHeadline')) }}</h2>
+        <h2>{{ placeholder(manufacturer, 'name', $t('sw-manufacturer.detail.textHeadline')) }}</h2>
     </template>
 
     {% endblock %}
@@ -19,7 +19,7 @@
             size="default"
             @click="onCancel"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -33,7 +33,7 @@
             variant="primary"
             @click.prevent="onSave"
         >
-            {{ $tc('sw-manufacturer.detail.buttonSave') }}
+            {{ $t('sw-manufacturer.detail.buttonSave') }}
         </sw-button-process>
         {% endblock %}
 
@@ -63,14 +63,14 @@
 
                 {% block sw_manufacturer_detail_content_language_info %}
                 <sw-language-info
-                    :entity-description="placeholder(manufacturer, 'name', $tc('sw-manufacturer.detail.textHeadline'))"
+                    :entity-description="placeholder(manufacturer, 'name', $t('sw-manufacturer.detail.textHeadline'))"
                 />
                 {% endblock %}
 
                 {% block sw_manufacturer_detail_base_basic_info_card %}
                 <mt-card
                     position-identifier="sw-manufacturer-detail-basic-info"
-                    :title="$tc('sw-manufacturer.detail.cardTitleManufacturerInfo')"
+                    :title="$t('sw-manufacturer.detail.cardTitleManufacturerInfo')"
                 >
                     <sw-container
                         class="sw-manufacturer-detail__container"
@@ -83,8 +83,8 @@
 
                             <mt-text-field
                                 v-model="manufacturer.name"
-                                :label="$tc('sw-manufacturer.detail.labelName')"
-                                :placeholder="placeholder(manufacturer, 'name', $tc('sw-manufacturer.detail.placeholderName'))"
+                                :label="$t('sw-manufacturer.detail.labelName')"
+                                :placeholder="placeholder(manufacturer, 'name', $t('sw-manufacturer.detail.placeholderName'))"
                                 name="name"
                                 validation="required"
                                 required
@@ -97,8 +97,8 @@
 
                             <mt-text-field
                                 v-model="manufacturer.link"
-                                :label="$tc('sw-manufacturer.detail.labelLink')"
-                                :placeholder="placeholder(manufacturer, 'link', $tc('sw-manufacturer.detail.placeholderLink'))"
+                                :label="$t('sw-manufacturer.detail.labelLink')"
+                                :placeholder="placeholder(manufacturer, 'link', $t('sw-manufacturer.detail.placeholderLink'))"
                                 name="link"
                                 :error="manufacturerLinkError"
                                 :disabled="!acl.can('product_manufacturer.editor') || undefined"
@@ -118,7 +118,7 @@
                             :allow-multi-select="false"
                             variant="regular"
                             :upload-tag="mediaUploadTag"
-                            :label="$tc('sw-manufacturer.detail.labelLogo')"
+                            :label="$t('sw-manufacturer.detail.labelLogo')"
                             :default-folder="manufacturerRepository.entityName"
                             :disabled="!acl.can('product_manufacturer.editor') || undefined"
                             @sw-media-upload-v2-media-upload-success="setMediaItem"
@@ -142,8 +142,8 @@
                     <sw-text-editor
                         v-if="!feature.isActive('METEOR_TEXT_EDITOR')"
                         v-model:value="manufacturer.description"
-                        :label="$tc('sw-manufacturer.detail.labelDescription')"
-                        :placeholder="placeholder(manufacturer, 'description', $tc('sw-manufacturer.detail.placeholderDescription'))"
+                        :label="$t('sw-manufacturer.detail.labelDescription')"
+                        :placeholder="placeholder(manufacturer, 'description', $t('sw-manufacturer.detail.placeholderDescription'))"
                         name="description"
                         sanitize-input
                         sanitize-field-name="product_manufacturer_translation.description"
@@ -153,8 +153,8 @@
                     <mt-text-editor
                         v-else
                         v-model="manufacturer.description"
-                        :label="$tc('sw-manufacturer.detail.labelDescription')"
-                        :placeholder="placeholder(manufacturer, 'description', $tc('sw-manufacturer.detail.placeholderDescription'))"
+                        :label="$t('sw-manufacturer.detail.labelDescription')"
+                        :placeholder="placeholder(manufacturer, 'description', $t('sw-manufacturer.detail.placeholderDescription'))"
                         name="description"
                         sanitize-input
                         sanitize-field-name="product_manufacturer_translation.description"
@@ -169,7 +169,7 @@
                 <mt-card
                     v-if="customFieldSets.length > 0"
                     position-identifier="sw-manufacturer-detail-custom-field-sets"
-                    :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                    :title="$t('sw-settings-custom-field.general.mainMenuItemGeneral')"
                     :is-loading="manufacturerIsLoading"
                 >
                     <sw-custom-field-set-renderer

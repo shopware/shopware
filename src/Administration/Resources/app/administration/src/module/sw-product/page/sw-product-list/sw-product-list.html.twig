@@ -16,7 +16,7 @@
         {% block sw_product_list_smart_bar_header_title %}
         <h2>
             {% block sw_product_list_smart_bar_header_title_text %}
-            {{ $tc('sw-product.list.textProductOverview') }}
+            {{ $t('sw-product.list.textProductOverview') }}
             {% endblock %}
 
             {% block sw_product_list_smart_bar_header_amount %}
@@ -36,7 +36,7 @@
     <template #smart-bar-actions>
         <sw-button-group
             v-tooltip.bottom="{
-                message: $tc('sw-privileges.tooltip.warning'),
+                message: $t('sw-privileges.tooltip.warning'),
                 disabled: acl.can('product.creator'),
                 showOnDisabledElements: true
             }"
@@ -46,7 +46,7 @@
             {% block sw_product_list_smart_bar_actions_add %}
             <mt-button
                 v-tooltip="{
-                    message: $tc('sw-privileges.tooltip.warning'),
+                    message: $t('sw-privileges.tooltip.warning'),
                     disabled: acl.can('product.creator'),
                     showOnDisabledElements: true
                 }"
@@ -56,7 +56,7 @@
                 size="default"
                 @click="$router.push({ name: 'sw.product.create', query: { creationType: 'physical' } })"
             >
-                {{ $tc('sw-product.list.buttonAddProduct') }}
+                {{ $t('sw-product.list.buttonAddProduct') }}
             </mt-button>
             {% endblock %}
             {% block sw_product_list_smart_bar_actions_add_download %}
@@ -81,14 +81,14 @@
                 {% block sw_product_list_smart_bar_actions_add_download_context_menu_item_downloadable_product %}
                 <sw-context-menu-item
                     v-tooltip="{
-                        message: $tc('sw-privileges.tooltip.warning'),
+                        message: $t('sw-privileges.tooltip.warning'),
                         disabled: acl.can('product.creator'),
                         showOnDisabledElements: true
                     }"
                     :router-link="{ name: 'sw.product.create', query: { creationType: 'digital' } }"
                     :disabled="!acl.can('product.creator')"
                 >
-                    {{ $tc('sw-product.list.buttonAddDownloadableProduct') }}
+                    {{ $t('sw-product.list.buttonAddDownloadableProduct') }}
                 </sw-context-menu-item>
                 {% endblock %}
             </sw-context-button>
@@ -170,7 +170,7 @@
                         {% block sw_product_list_grid_columns_name_content_variant_button %}
                         <mt-button
                             v-if="productHasVariants(item)"
-                            v-tooltip="{ message: $tc('sw-product.list.variantIndicatorTooltip') }"
+                            v-tooltip="{ message: $t('sw-product.list.variantIndicatorTooltip') }"
                             class="sw-product-list__variant-indicator"
                             size="x-small"
                             variant="secondary"
@@ -193,7 +193,7 @@
                             v-if="productIsDigital(item)"
                             class="sw-product-list__digital-indicator"
                         >
-                            {{ $tc('sw-product.variations.generatedListColumnContentProductState.is-download') }}
+                            {{ $t('sw-product.variations.generatedListColumnContentProductState.is-download') }}
                         </sw-label>
                     </div>
                     {% endblock %}
@@ -284,7 +284,7 @@
                         :disabled="item.parentId != null || !acl.can('product.creator')"
                         @click="onDuplicate(item)"
                     >
-                        {{ $tc('sw-product.list.buttonDuplicate') }}
+                        {{ $t('sw-product.list.buttonDuplicate') }}
                     </sw-context-menu-item>
                     {% endblock %}
 
@@ -293,7 +293,7 @@
                         v-if="productHasVariants(item)"
                         @click="openVariantModal(item)"
                     >
-                        {{ $tc('sw-product.list.contextMenuShowVariants') }}
+                        {{ $t('sw-product.list.contextMenuShowVariants') }}
                     </sw-context-menu-item>
                     {% endblock %}
                 </template>
@@ -379,7 +379,7 @@
             {% block sw_product_list_sidebar_refresh %}
             <sw-sidebar-item
                 icon="regular-undo"
-                :title="$tc('sw-product.list.titleSidebarItemRefresh')"
+                :title="$t('sw-product.list.titleSidebarItemRefresh')"
                 @click="onRefresh"
             />
             {% endblock %}

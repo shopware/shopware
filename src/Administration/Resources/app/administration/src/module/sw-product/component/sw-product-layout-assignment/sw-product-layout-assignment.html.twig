@@ -27,13 +27,13 @@
         >
             {% block sw_product_layout_assignment_heading_title %}
             <p class="sw-product-layout-assignment__title">
-                {{ cmsPage ? cmsPage.name : $tc('sw-product.layoutAssignment.title') }}
+                {{ cmsPage ? cmsPage.name : $t('sw-product.layoutAssignment.title') }}
             </p>
             {% endblock %}
 
             {% block sw_product_layout_assignment_heading_subtitle %}
             <span class="sw-product-layout-assignment__subtitle">
-                {{ $tc('sw-product.layoutAssignment.subtitle') }}
+                {{ $t('sw-product.layoutAssignment.subtitle') }}
             </span>
             {% endblock %}
         </div>
@@ -49,7 +49,7 @@
                 variant="secondary"
                 @click="openLayoutModal"
             >
-                {{ cmsPage ? $tc('sw-product.layoutAssignment.textChangeLayout') : $tc('sw-product.layoutAssignment.textAssignLayout') }}
+                {{ cmsPage ? $t('sw-product.layoutAssignment.textChangeLayout') : $t('sw-product.layoutAssignment.textAssignLayout') }}
             </mt-button>
             {% endblock %}
 
@@ -61,7 +61,7 @@
                 variant="secondary"
                 @click="openInPageBuilder"
             >
-                {{ cmsPage ? $tc('sw-product.layoutAssignment.textEditInDesigner') : $tc('sw-product.layoutAssignment.textCreateNewLayout') }}
+                {{ cmsPage ? $t('sw-product.layoutAssignment.textEditInDesigner') : $t('sw-product.layoutAssignment.textCreateNewLayout') }}
             </mt-button>
             {% endblock %}
 

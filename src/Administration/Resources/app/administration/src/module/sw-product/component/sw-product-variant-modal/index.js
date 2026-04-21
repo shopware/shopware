@@ -87,7 +87,7 @@ export default {
         },
 
         contextMenuEditText() {
-            return this.acl.can('product.editor') ? this.$tc('global.default.edit') : this.$tc('global.default.view');
+            return this.acl.can('product.editor') ? this.$t('global.default.edit') : this.$t('global.default.view');
         },
 
         filterCriteria() {
@@ -166,7 +166,7 @@ export default {
                 {
                     property: 'name',
                     dataIndex: 'name',
-                    label: this.$tc('sw-product.list.columnName'),
+                    label: this.$t('sw-product.list.columnName'),
                     routerLink: 'sw.product.detail',
                     inlineEdit: 'string',
                     allowResize: true,
@@ -174,7 +174,7 @@ export default {
                 {
                     property: 'sales',
                     dataIndex: 'sales',
-                    label: this.$tc('sw-product.list.columnSales'),
+                    label: this.$t('sw-product.list.columnSales'),
                     allowResize: true,
                     align: 'right',
                 },
@@ -213,7 +213,7 @@ export default {
                 {
                     property: 'media',
                     dataIndex: 'media',
-                    label: this.$tc('sw-product.list.columnMedia'),
+                    label: this.$t('sw-product.list.columnMedia'),
                     allowResize: true,
                     inlineEdit: true,
                     sortable: false,
@@ -541,7 +541,7 @@ export default {
                     this.isDeletionOver = true;
 
                     this.createNotificationError({
-                        message: this.$tc(
+                        message: this.$t(
                             'sw-product.list.notificationVariantDeleteErrorCanonicalUrl',
                             {
                                 variantName,
@@ -557,7 +557,7 @@ export default {
                     .syncDeleted(variantIds)
                     .then(() => {
                         this.createNotificationSuccess({
-                            message: this.$tc(
+                            message: this.$t(
                                 'sw-product.list.notificationVariantDeleteSuccess',
                                 {
                                     variantName,
@@ -573,7 +573,7 @@ export default {
                     })
                     .catch(() => {
                         this.createNotificationError({
-                            message: this.$tc(
+                            message: this.$t(
                                 'sw-product.list.notificationVariantDeleteError',
                                 {
                                     variantName,
@@ -648,7 +648,7 @@ export default {
         getNoPermissionsTooltip(role, showOnDisabledElements = true) {
             return {
                 showDelay: 300,
-                message: this.$tc('sw-privileges.tooltip.warning'),
+                message: this.$t('sw-privileges.tooltip.warning'),
                 appearance: 'dark',
                 showOnDisabledElements,
                 disabled: this.acl.can(role),

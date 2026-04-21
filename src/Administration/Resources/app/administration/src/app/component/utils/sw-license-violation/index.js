@@ -159,7 +159,7 @@ export default {
                 .forceDeletePlugin(matchingPlugin)
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-license-violation.successfullyDeleted'),
+                        message: this.$t('sw-license-violation.successfullyDeleted'),
                     });
 
                     return this.reloadViolations();

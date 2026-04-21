@@ -13,11 +13,11 @@
             {% endblock %}
 
             {% block sw_privilege_error_inner_content_headline %}
-            <h1>{{ $tc('sw-privilege-error.general.mainMenuItemGeneral') }}</h1>
+            <h1>{{ $t('sw-privilege-error.general.mainMenuItemGeneral') }}</h1>
             {% endblock %}
 
             {% block sw_privilege_error_inner_content_description %}
-            <p>{{ $tc('sw-privilege-error.general.descriptionTextModule') }}</p>
+            <p>{{ $t('sw-privilege-error.general.descriptionTextModule') }}</p>
             {% endblock %}
 
             {% block sw_privilege_error_inner_content_back_button %}
@@ -26,7 +26,7 @@
                 class="sw-privilege-error__back-button"
                 @click="routerGoBack"
             >
-                {{ $tc('sw-privilege-error.general.goBack') }}
+                {{ $t('sw-privilege-error.general.goBack') }}
             </mt-button>
             {% endblock %}
         </div>

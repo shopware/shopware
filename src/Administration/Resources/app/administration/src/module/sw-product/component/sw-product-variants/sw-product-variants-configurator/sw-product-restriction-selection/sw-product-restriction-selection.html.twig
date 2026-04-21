@@ -19,7 +19,7 @@
 
             {% block sw_product_restriction_selection_is_from %}
             <div class="sw-product-restriction-selection__isFrom">
-                <span>{{ $tc('sw-product.variations.configuratorModal.isOneFrom') }}</span>
+                <span>{{ $t('sw-product.variations.configuratorModal.isOneFrom') }}</span>
             </div>
             {% endblock %}
         </div>
@@ -60,7 +60,7 @@
                     variant="danger"
                     @click="deleteRestriction"
                 >
-                    {{ $tc('sw-product.variations.configuratorModal.deleteCombination') }}
+                    {{ $t('sw-product.variations.configuratorModal.deleteCombination') }}
                 </sw-context-menu-item>
                 {% endblock %}
             </sw-context-button>

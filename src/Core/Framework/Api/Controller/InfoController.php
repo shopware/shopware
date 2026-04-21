@@ -213,8 +213,7 @@ class InfoController extends AbstractController
             'settings' => [
                 'enableUrlFeature' => $this->params->get('shopware.media.enable_url_upload_feature'),
                 'presignedUploadSupported' => $this->presignedMediaUploadService !== null
-                    && $this->presignedMediaUploadService->isSupported()
-                    && $this->presignedMediaUploadService->isEnabled(),
+                    && $this->presignedMediaUploadService->isAvailable(),
                 'appUrlReachable' => $this->appUrlVerifier->isAppUrlReachable($request),
                 'appsRequireAppUrl' => $this->appUrlVerifier->hasAppsThatNeedAppUrl(),
                 'firstMigrationDate' => $this->migrationInfo->getFirstMigrationDate(),

@@ -83,6 +83,12 @@ readonly class PresignedMediaUploadService
             throw $e;
         }
 
+        // For replace, the new uploadedAt is persisted only after the presign URL is signed. This
+        // avoids leaving the entity's uploadedAt out-of-sync with the stored path when presigning fails
+        if ($isReplace) {
+            $this->persistReplaceUploadedAt($mediaId, $uploadedAt, $context);
+        }
+
         return new PresignedUploadPrepareResult(
             mediaId: $mediaId,
             url: $result->url,
@@ -123,14 +129,9 @@ readonly class PresignedMediaUploadService
         }
     }
 
-    public function isSupported(): bool
+    public function isAvailable(): bool
     {
         return $this->presignedUrlGenerator->isSupported();
-    }
-
-    public function isEnabled(): bool
-    {
-        return $this->presignedUrlGenerator->isEnabled();
     }
 
     /**
@@ -147,14 +148,7 @@ readonly class PresignedMediaUploadService
 
             $this->validateFileExtension($payload->extension, $media->isPrivate(), $context, $payload->mediaId);
 
-            $uploadedAt = new \DateTimeImmutable();
-            $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($payload, $uploadedAt): void {
-                $this->mediaRepository->update([
-                    ['id' => $payload->mediaId, 'uploadedAt' => \DateTime::createFromImmutable($uploadedAt)],
-                ], $context);
-            });
-
-            return ['mediaId' => $payload->mediaId, 'uploadedAt' => $uploadedAt];
+            return ['mediaId' => $payload->mediaId, 'uploadedAt' => new \DateTimeImmutable()];
         }
 
         $this->validateFileExtension($payload->extension, $payload->private, $context);
@@ -286,6 +280,15 @@ readonly class PresignedMediaUploadService
     {
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($mediaId): void {
             $this->mediaRepository->delete([['id' => $mediaId]], $context);
+        });
+    }
+
+    private function persistReplaceUploadedAt(string $mediaId, \DateTimeImmutable $uploadedAt, Context $context): void
+    {
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($mediaId, $uploadedAt): void {
+            $this->mediaRepository->update([
+                ['id' => $mediaId, 'uploadedAt' => \DateTime::createFromImmutable($uploadedAt)],
+            ], $context);
         });
     }
 

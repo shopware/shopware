@@ -42,11 +42,7 @@ readonly class MediaFileCleanupService
         } catch (UnableToDeleteFile) {
         }
 
-        if ($this->remoteThumbnailsEnable) {
-            return;
-        }
-
-        $this->thumbnailService->deleteThumbnails($media, $context);
+        $this->deleteThumbnails($media, $context);
     }
 
     public function deleteThumbnails(MediaEntity $media, Context $context): void

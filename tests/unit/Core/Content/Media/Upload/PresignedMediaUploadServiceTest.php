@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Media\Upload;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
@@ -49,31 +50,6 @@ class PresignedMediaUploadServiceTest extends TestCase
         $this->eventDispatcher->method('dispatch')->willReturnCallback(
             static fn (object $event) => $event,
         );
-    }
-
-    /**
-     * @param array<array<mixed>|callable> $searches
-     *
-     * @return array{StaticEntityRepository<MediaCollection>, PresignedMediaUploadService}
-     */
-    private function createService(array $searches = []): array
-    {
-        /** @var StaticEntityRepository<MediaCollection> $repo */
-        $repo = new StaticEntityRepository($searches);
-
-        $service = new PresignedMediaUploadService(
-            $repo,
-            $this->presignedUrlGenerator,
-            $this->eventDispatcher,
-            $this->createMock(TypeDetector::class),
-            $this->mediaFileCleanup,
-            ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'mp4', 'mp3', 'pdf'],
-            ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'mp4', 'mp3', 'pdf'],
-            $this->mediaPathStrategy,
-            new \Psr\Log\NullLogger(),
-        );
-
-        return [$repo, $service];
     }
 
     public function testPrepareCreatesMediaAndReturnsPresignedUrl(): void
@@ -163,7 +139,75 @@ class PresignedMediaUploadServiceTest extends TestCase
         } finally {
             static::assertCount(1, $repo->creates);
             static::assertCount(1, $repo->deletes);
+            static::assertCount(0, $repo->updates);
         }
+    }
+
+    public function testPrepareReplaceDoesNotPersistUploadedAtWhenGenerateFails(): void
+    {
+        $mediaId = '0189b0a1-0000-0000-0000-0000000000aa';
+        $media = $this->buildMedia($mediaId);
+
+        // 1st search: findMedia (replace branch).
+        [$repo, $service] = $this->createService([new MediaCollection([$media])]);
+
+        $this->presignedUrlGenerator->expects($this->once())
+            ->method('generate')
+            ->willThrowException(MediaException::presignedUploadNotSupported());
+
+        $this->expectException(MediaException::class);
+
+        $payload = new PresignedUploadPreparePayload(
+            fileName: 'test',
+            extension: 'jpg',
+            mimeType: 'image/jpeg',
+            mediaId: $mediaId,
+        );
+
+        try {
+            $service->prepare($payload, Context::createDefaultContext());
+        } finally {
+            // Invariant: a failed replace-prepare must leave the entity untouched. In particular
+            // uploadedAt must not be persisted, otherwise the stored value would diverge from the
+            // actual path column.
+            static::assertCount(0, $repo->updates);
+            static::assertCount(0, $repo->creates);
+            static::assertCount(0, $repo->deletes);
+        }
+    }
+
+    public function testPrepareReplacePersistsUploadedAtOnlyAfterPresignSucceeds(): void
+    {
+        $mediaId = '0189b0a1-0000-0000-0000-0000000000bb';
+        $originalUploadedAt = new \DateTime('2024-01-01 00:00:00');
+
+        $media = $this->buildMedia($mediaId);
+        $media->setUploadedAt($originalUploadedAt);
+
+        [$repo, $service] = $this->createService([new MediaCollection([$media])]);
+
+        $this->presignedUrlGenerator->expects($this->once())
+            ->method('generate')
+            ->willReturn(new PresignedUrlResult(
+                url: 'https://s3.example.com/replace',
+                path: 'media/ab/cd/replace.jpg',
+                expiresAt: new \DateTimeImmutable('+5 minutes'),
+            ));
+
+        $payload = new PresignedUploadPreparePayload(
+            fileName: 'replace',
+            extension: 'jpg',
+            mimeType: 'image/jpeg',
+            mediaId: $mediaId,
+        );
+
+        $service->prepare($payload, Context::createDefaultContext());
+
+        static::assertCount(1, $repo->updates);
+        $update = $repo->updates[0][0];
+        static::assertSame($mediaId, $update['id']);
+        static::assertInstanceOf(\DateTime::class, $update['uploadedAt']);
+        static::assertGreaterThan($originalUploadedAt, $update['uploadedAt']);
     }
 
     public function testFinalizeVerifiesAndUpdatesMedia(): void
@@ -349,26 +393,16 @@ class PresignedMediaUploadServiceTest extends TestCase
         static::assertSame(['hash' => 'abc123def456'], $update['metaData']);
     }
 
-    public function testIsSupportedDelegatesToGenerator(): void
+    public function testIsAvailableDelegatesToGenerator(): void
     {
         [, $service] = $this->createService();
 
-        $this->presignedUrlGenerator->expects($this->once())
+        $this->presignedUrlGenerator->expects($this->exactly(2))
             ->method('isSupported')
-            ->willReturn(true);
+            ->willReturn(true, false);
 
-        static::assertTrue($service->isSupported());
-    }
-
-    public function testIsEnabledDelegatesToGenerator(): void
-    {
-        [, $service] = $this->createService();
-
-        $this->presignedUrlGenerator->expects($this->once())
-            ->method('isEnabled')
-            ->willReturn(false);
-
-        static::assertFalse($service->isEnabled());
+        static::assertTrue($service->isAvailable());
+        static::assertFalse($service->isAvailable());
     }
 
     public function testFinalizeReplaceRemovesOldMediaData(): void
@@ -459,6 +493,31 @@ class PresignedMediaUploadServiceTest extends TestCase
         );
 
         $service->finalize($mediaId, $payload, $context);
+    }
+
+    /**
+     * @param list<MediaCollection> $searches
+     *
+     * @return array{StaticEntityRepository<MediaCollection>, PresignedMediaUploadService}
+     */
+    private function createService(array $searches = []): array
+    {
+        /** @var StaticEntityRepository<MediaCollection> $repo */
+        $repo = new StaticEntityRepository($searches);
+
+        $service = new PresignedMediaUploadService(
+            $repo,
+            $this->presignedUrlGenerator,
+            $this->eventDispatcher,
+            $this->createMock(TypeDetector::class),
+            $this->mediaFileCleanup,
+            ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'mp4', 'mp3', 'pdf'],
+            ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'mp4', 'mp3', 'pdf'],
+            $this->mediaPathStrategy,
+            new NullLogger(),
+        );
+
+        return [$repo, $service];
     }
 
     private function buildMedia(string $mediaId): MediaEntity

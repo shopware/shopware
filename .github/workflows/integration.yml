@@ -496,28 +496,22 @@ jobs:
         run: symfony server:start -d
 
       - name: Install Shopware in previous major version on test DB
-        if: inputs.nightly == 'true'
         run: composer init:testdb
 
       - name: Run next major migrations on test DB
-        if: inputs.nightly == 'true'
         run: DATABASE_URL="mysql://root@127.0.0.1:3306/shopware_test" bin/console database:migrate --all core.V6_8
 
       - name: Run integration tests
-        if: inputs.nightly == 'true'
-        run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --stop-on-error --stop-on-failure
+        run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --stop-on-error --stop-on-failure --random-order-seed=1776735634 --log-junit junit.xml --log-teamcity teamcity.log
 
-      - name: Install Shopware in previous major version
-        if: inputs.nightly != 'true'
-        run: bin/console system:install --basic-setup --create-database --skip-assets-install
-
-      - name: Run next major migrations
-        if: inputs.nightly != 'true'
-        run: bin/console database:migrate --all core.V6_8
-
-      - name: Run blue-green check
-        if: inputs.nightly != 'true'
-        run: php .github/bin/blue-green-check.php
+      - name: Upload test order artefacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: blue-green-67-68-test-order
+          path: |
+            junit.xml
+            teamcity.log
 
   blue-green-66-67:
     name: "PHP blue green 6.6 -> 6.7 -> 6.6"

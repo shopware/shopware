@@ -120,7 +120,21 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
     private function buildExactMatchQuery(SearchFieldConfig $config, array $tokens, string $token, int $tokenCount): BuilderInterface
     {
         if ($tokenCount === 1) {
-            return new TermQuery($config->getField(), $token, ['boost' => 1]);
+            if ($config->useExactSubfield()) {
+                return new TermQuery($config->getField() . '.exact', $token, ['boost' => 1]);
+            }
+
+            $matchQueryParams = [
+                'boost' => 1,
+                'fuzziness' => 0,
+                'operator' => 'and',
+            ];
+
+            if (!$this->useLanguageAnalyzer) {
+                $matchQueryParams['analyzer'] = 'sw_whitespace_analyzer';
+            }
+
+            return new MatchQuery($config->getField() . '.search', $token, $matchQueryParams);
         }
 
         if ($config->isAndLogic()) {

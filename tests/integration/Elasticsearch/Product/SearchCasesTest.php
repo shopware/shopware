@@ -95,6 +95,41 @@ class SearchCasesTest extends TestCase
         yield 'Exact number match' => [$products, 'DE-031668-B', 'p1'];
     }
 
+    public function testExactNameTokenMatchRanksAheadOfPrefixOnlyMatch(): void
+    {
+        $this->clearElasticsearch();
+
+        static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM product');
+
+        self::$ids = $ids = new IdsCollection();
+
+        static::getContainer()->get('product.repository')->create([
+            self::product($ids, 'exact', 'DE-EXACT-1', 'Leather Jacket'),
+            self::product($ids, 'prefix', 'DE-PREFIX-1', 'Leathery Jacket'),
+        ], Context::createDefaultContext());
+
+        $this->setSearchConfiguration(true, ['name']);
+        $this->setSearchScores(['name' => 700]);
+
+        $this->indexElasticSearch();
+
+        $searcher = $this->createEntitySearcher();
+
+        $criteria = new Criteria();
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+        $criteria->setTerm('Leather');
+
+        $definition = static::getContainer()->get(ProductDefinition::class);
+
+        $result = $searcher->search($definition, $criteria, Context::createDefaultContext());
+
+        static::assertSame(
+            'exact',
+            self::$ids->getKey((string) $result->firstId()),
+            print_r($result->getData(), true)
+        );
+    }
+
     protected function getDiContainer(): ContainerInterface
     {
         return static::getContainer();

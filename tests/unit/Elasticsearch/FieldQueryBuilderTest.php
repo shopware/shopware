@@ -103,6 +103,65 @@ class FieldQueryBuilderTest extends TestCase
         static::assertArrayHasKey('terms', $exactMatch);
     }
 
+    public function testSingleTokenExactMatchUsesExactSubfieldWhenConfigured(): void
+    {
+        $builder = new FieldQueryBuilder();
+        $field = new ResolvedField(new StringField('name', 'name'));
+        $config = new SearchFieldConfig('name', 500, false, true, true, true);
+
+        $query = $builder->build($field, 'foo', $config, Context::createDefaultContext());
+
+        static::assertNotNull($query);
+        $array = $query->toArray();
+        $exactMatch = $array['dis_max']['queries'][0] ?? null;
+        static::assertNotNull($exactMatch);
+        static::assertStringContainsString(
+            '"name.exact"',
+            json_encode($exactMatch, \JSON_THROW_ON_ERROR),
+        );
+    }
+
+    public function testSingleTokenWithoutExactSubfieldUsesSearchMatchQuery(): void
+    {
+        $builder = new FieldQueryBuilder();
+        $field = new ResolvedField(new StringField('name', 'name'));
+        $config = new SearchFieldConfig('name', 500, false, true, true);
+
+        $query = $builder->build($field, 'foo', $config, Context::createDefaultContext());
+
+        static::assertNotNull($query);
+        $array = $query->toArray();
+        $exactMatch = $array['dis_max']['queries'][0] ?? null;
+        static::assertNotNull($exactMatch);
+        static::assertArrayHasKey('match', $exactMatch);
+        static::assertArrayHasKey('name.search', $exactMatch['match']);
+        static::assertEquals(1.0, $exactMatch['match']['name.search']['boost']);
+        static::assertSame(0, $exactMatch['match']['name.search']['fuzziness']);
+        static::assertSame('and', $exactMatch['match']['name.search']['operator']);
+    }
+
+    public function testMultiTokenExactMatchDoesNotUseExactSubfieldWhenConfigured(): void
+    {
+        $builder = new FieldQueryBuilder();
+        $field = new ResolvedField(new StringField('name', 'name'));
+        $config = new SearchFieldConfig('name', 500, false, true, true, true);
+
+        $query = $builder->build($field, 'foo bar', $config, Context::createDefaultContext());
+
+        static::assertNotNull($query);
+        $array = $query->toArray();
+        $exactMatch = $array['dis_max']['queries'][0] ?? null;
+        static::assertNotNull($exactMatch);
+        static::assertStringNotContainsString(
+            '"name.exact"',
+            json_encode($exactMatch, \JSON_THROW_ON_ERROR),
+        );
+        static::assertStringContainsString(
+            '"name"',
+            json_encode($exactMatch, \JSON_THROW_ON_ERROR),
+        );
+    }
+
     public function testNgramQueryIncludedForLongTokenizedTerm(): void
     {
         $builder = new FieldQueryBuilder(4);
@@ -167,16 +226,8 @@ class FieldQueryBuilderTest extends TestCase
 
         static::assertNotNull($query);
         $array = $query->toArray();
-        $matchQuery = null;
-        foreach ($array['dis_max']['queries'] as $q) {
-            if (isset($q['match'])) {
-                $matchQuery = $q;
-
-                break;
-            }
-        }
-        static::assertNotNull($matchQuery);
-        $matchValues = reset($matchQuery['match']);
+        static::assertArrayHasKey('match', $array['dis_max']['queries'][0]);
+        $matchValues = reset($array['dis_max']['queries'][0]['match']);
         static::assertSame('sw_whitespace_analyzer', $matchValues['analyzer'] ?? null);
     }
 

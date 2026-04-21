@@ -31,6 +31,19 @@ abstract class AbstractElasticsearchDefinition
         ],
     ];
 
+    final public const SEARCH_FIELD_WITH_EXACT = [
+        'fields' => [
+            'exact' => [
+                'type' => 'text',
+                'analyzer' => 'sw_whitespace_analyzer',
+                'search_analyzer' => 'sw_whitespace_analyzer',
+                'norms' => false,
+            ],
+            'search' => ['type' => 'text', 'analyzer' => 'sw_whitespace_analyzer'],
+            'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+        ],
+    ];
+
     final public const SEARCH_FIELD_WITH_LENGTH_NORM = [
         'fields' => [
             'search' => ['type' => 'text', 'analyzer' => 'sw_whitespace_analyzer', 'similarity' => 'sw_length_norm'],
@@ -68,9 +81,9 @@ abstract class AbstractElasticsearchDefinition
     /**
      * @return array<string, mixed>
      */
-    protected static function getTextFieldConfig(): array
+    protected static function getTextFieldConfig(bool $withExact = false): array
     {
-        return self::KEYWORD_FIELD + self::SEARCH_FIELD;
+        return self::KEYWORD_FIELD + ($withExact ? self::SEARCH_FIELD_WITH_EXACT : self::SEARCH_FIELD);
     }
 
     /**

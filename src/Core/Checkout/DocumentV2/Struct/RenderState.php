@@ -21,9 +21,9 @@ final class RenderState
         return isset($this->results[$format]);
     }
 
-    public function get(string $format): RenderResult
+    public function get(string $format): ?RenderResult
     {
-        return $this->results[$format];
+        return $this->results[$format] ?? null;
     }
 
     /**
@@ -35,7 +35,7 @@ final class RenderState
             throw DocumentV2Exception::unknownRenderResult($format);
         }
 
-        return $this->get($format);
+        return $this->results[$format];
     }
 
     /**

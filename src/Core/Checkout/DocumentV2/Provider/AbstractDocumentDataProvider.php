@@ -14,6 +14,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('after-sales')]
 abstract class AbstractDocumentDataProvider
 {
+    // abstract public function getDecorated(): static;
+
     /**
      * @see DocumentType
      *

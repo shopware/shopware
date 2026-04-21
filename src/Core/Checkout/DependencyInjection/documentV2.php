@@ -23,20 +23,20 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     // $services->set(InvoiceDataProvider::class)
     //    ->args([...])
-    //    ->tag('shopware.documentV2.provider');
+    //    ->tag('shopware.document_v2.provider');
 
     $services->set(DocumentDataProviderRegistry::class)
         ->args([
-            tagged_iterator('shopware.documentV2.provider'),
+            tagged_iterator('shopware.document_v2.provider'),
         ]);
 
     // $services->set(HtmlRenderer::class)
     //    ->args([...])
-    //    ->tag('shopware.documentV2.renderer');
+    //    ->tag('shopware.document_v2.renderer');
 
     $services->set(DocumentRendererRegistry::class)
         ->args([
-            tagged_iterator('shopware.documentV2.renderer'),
+            tagged_iterator('shopware.document_v2.renderer'),
         ]);
 
     $services->set(DocumentDependencyResolver::class)

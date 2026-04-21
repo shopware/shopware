@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('after-sales')]
-final readonly class DocumentGenerationContext
+readonly class DocumentGenerationContext
 {
     /**
      * @param list<string> $formats
@@ -19,8 +19,8 @@ final readonly class DocumentGenerationContext
         private string $orderVersionId,
         private string $documentType,
         private array $formats,
-        public Context $context,
-        public ?string $documentNumber = null,
+        private Context $context,
+        private ?string $documentNumber = null,
     ) {
     }
 

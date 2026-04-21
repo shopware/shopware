@@ -25,9 +25,9 @@ final readonly class DocumentNumberGenerator
         $type = self::NUMBER_RANGE_DOCUMENT_TYPE_PREFIX . $generationContext->getDocumentType();
 
         return $this->numberRangeValueGenerator->getValue(
-            $type,
-            $generationContext->getContext(),
-            $order->getSalesChannelId(),
+            type: $type,
+            context: $generationContext->getContext(),
+            salesChannelId: $order->getSalesChannelId(),
         );
     }
 }

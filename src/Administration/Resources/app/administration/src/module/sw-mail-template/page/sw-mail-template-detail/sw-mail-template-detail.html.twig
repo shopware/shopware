@@ -312,7 +312,7 @@
 
                     {% block sw_mail_template_mail_text_form_test_sales_channel_field %}
                     <sw-entity-single-select
-                        v-model:value="salesChannelId"
+                        v-model:value="testMailSalesChannelId"
                         name="sw-field--testMailSalesChannelId"
                         entity="sales_channel"
                         :label="$t('sw-mail-template.detail.basic.labelSalesChannels')"
@@ -449,7 +449,7 @@
             >
                 <div class="sw-mail-template-detail__show-preview-sidebar-container">
                     <sw-entity-single-select
-                        v-model:value="salesChannelId"
+                        v-model:value="testMailSalesChannelId"
                         name="sw-field--previewSalesChannelId"
                         entity="sales_channel"
                         :label="$t('sw-mail-template.detail.basic.labelSalesChannels')"

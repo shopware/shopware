@@ -160,7 +160,7 @@ class MailAttachmentsBuilder
                 json_encode([
                     $attachment['fileName'],
                     $attachment['mimeType'] ?? '',
-                    $attachment['content'],
+                    Hasher::hash($attachment['content'], 'sha1'),
                 ], \JSON_THROW_ON_ERROR),
                 'sha1'
             );

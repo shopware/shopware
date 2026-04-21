@@ -130,6 +130,29 @@ class PreviewRequestFactoryTest extends TestCase
         static::assertTrue($result->strictRendering);
     }
 
+    public function testMakeAcceptsStringBooleanValuesFromFormRequests(): void
+    {
+        $context = Context::createDefaultContext();
+        $mailTemplate = $this->createMailTemplate();
+        $request = new RequestDataBag([
+            'mailTemplateId' => 'template-id',
+            'includeHeaderFooter' => '1',
+            'strictRendering' => '0',
+        ]);
+
+        $this->mailTemplateService->expects($this->once())
+            ->method('loadTemplate')
+            ->with('template-id', $context)
+            ->willReturn($mailTemplate);
+
+        $factory = new PreviewRequestFactory($this->mailTemplateService, $this->salesChannelProvider);
+
+        $result = $factory->make($request, $context);
+
+        static::assertTrue($result->includeHeaderFooter);
+        static::assertFalse($result->strictRendering);
+    }
+
     public function testMakeThrowsForInvalidEntities(): void
     {
         $context = Context::createDefaultContext();

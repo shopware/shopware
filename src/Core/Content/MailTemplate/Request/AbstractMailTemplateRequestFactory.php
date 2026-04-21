@@ -44,11 +44,15 @@ abstract readonly class AbstractMailTemplateRequestFactory
 
     protected function normalizeBoolParameter(string $parameter, mixed $value): bool
     {
-        if (!\is_bool($value)) {
-            throw MailTemplateException::invalidRequestParameterType($parameter, 'bool', get_debug_type($value));
+        if (\is_bool($value)) {
+            return $value;
         }
 
-        return $value;
+        return match (\is_int($value) ? $value : (\is_string($value) ? strtolower($value) : null)) {
+            1, '1', 'true' => true,
+            0, '0', 'false' => false,
+            default => throw MailTemplateException::invalidRequestParameterType($parameter, 'bool', get_debug_type($value)),
+        };
     }
 
     /**

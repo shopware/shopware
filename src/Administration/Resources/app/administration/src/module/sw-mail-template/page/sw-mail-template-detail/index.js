@@ -54,7 +54,7 @@ export default {
             mailTemplateMedia: null,
             mailTemplateMediaSelected: {},
             fileAccept: 'application/pdf, image/*',
-            salesChannelId: null,
+            testMailSalesChannelId: null,
             availableVariables: {},
             entitySchema: Object.fromEntries(Shopware.EntityDefinition.getDefinitionRegistry()),
             showLanguageNotAssignedToSalesChannelWarning: false,
@@ -178,6 +178,11 @@ export default {
                 return true;
             }
             return false;
+        },
+
+        /** @deprecated tag:v6.8.0 - Method will be removed */
+        hasTemplateData() {
+            return Object.keys(this.mailTemplateType?.templateData || {}).length > 0;
         },
 
         lacksEmailSendPermission() {
@@ -540,6 +545,40 @@ export default {
                 .finally(() => {
                     this.isLoading = false;
                 });
+        },
+
+        /** @deprecated tag:v6.8.0 - Method will be removed */
+        mailPreviewContent() {
+            const mailTemplate = { ...this.mailTemplate };
+
+            if (mailTemplate.contentHtml) {
+                mailTemplate.contentHtml = this.replaceContent(mailTemplate.contentHtml);
+            }
+
+            if (mailTemplate.translated?.contentHtml) {
+                mailTemplate.translated.contentHtml = this.replaceContent(mailTemplate.translated.contentHtml);
+            }
+
+            if (mailTemplate.contentPlain) {
+                mailTemplate.contentPlain = this.replaceContent(mailTemplate.contentPlain);
+            }
+
+            if (mailTemplate.translated?.contentPlain) {
+                mailTemplate.translated.contentPlain = this.replaceContent(mailTemplate.translated.contentPlain);
+            }
+
+            return mailTemplate;
+        },
+
+        /** @deprecated tag:v6.8.0 - Method will be removed */
+        replaceContent(string) {
+            // Replace .at([index]), first -> `.[index]` to suitable with mail template data
+            return string
+                .replace(/\.at\(([0-9]*)\)\./g, (matchs) => {
+                    const index = parseInt(matchs.match(/[0-9]/g).join(''), 10);
+                    return `.${index}.`;
+                })
+                .replace(/\.first\./g, '.0.');
         },
 
         async getPreviewMailHeaderFooterParts() {

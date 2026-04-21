@@ -59,6 +59,14 @@ This helps merchants spot internal notes directly from the list view without ope
 The account order cancellation action is now only shown for orders in state `open`.
 This prevents customers from being offered an invalid cancel action for completed orders.
 
+### Earlier focus for cookie bar
+
+To improve the accessibility of the cookie bar, it receives automatic focus when it is shown. This improves discoverability for screenreader and keyboard users.
+A new option `autoFocus` (default: `true`) was added to the `cookie-permission.html.twig` template and `CookiePermissionPlugin`.
+
+In addition to this the cookie bar will be moved to the top of the body element.
+* Deprecated block position of `base_cookie_permission` Cookie permission bar will be moved to top of the body element.
+
 ### Live purchase limits for closeout products on the product detail page
 
 The buy-widget quantity selector now fetches live `minPurchase`, `purchaseSteps`, and `maxPurchase` values for closeout products (internally uses new Store API endpoint `GET /store-api/product/purchase-limit`) on first user interaction (focus or click).

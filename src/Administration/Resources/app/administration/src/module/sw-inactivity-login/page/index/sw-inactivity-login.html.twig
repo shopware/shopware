@@ -10,7 +10,7 @@
         <mt-password-field
             v-model="password"
             v-autofocus
-            :label="$tc('sw-login.index.labelPassword')"
+            :label="$t('sw-login.index.labelPassword')"
             :disabled="isLoading"
             :error="passwordError"
             @keydown.enter="loginUserWithPassword"
@@ -18,7 +18,7 @@
 
         <mt-checkbox
             v-model:checked="rememberMe"
-            :label="$tc('sw-login.index.labelKeepLoggedIn')"
+            :label="$t('sw-login.index.labelKeepLoggedIn')"
         />
 
         <template #modal-footer>

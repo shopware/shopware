@@ -46,7 +46,7 @@ async function createWrapper(repositoryFactory = createMockRepositoryFactory()) 
                 },
             },
             mocks: {
-                $tc: (key) => key,
+                $t: (key) => key,
             },
         },
     });

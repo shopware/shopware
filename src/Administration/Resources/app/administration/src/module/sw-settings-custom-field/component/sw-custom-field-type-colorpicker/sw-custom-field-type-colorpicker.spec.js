@@ -35,7 +35,7 @@ async function createWrapper(props = defaultProps) {
         props,
         global: {
             mocks: {
-                $tc: (key) => key,
+                $t: (key) => key,
             },
             stubs: {
                 'sw-custom-field-translated-labels': true,

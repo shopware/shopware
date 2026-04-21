@@ -199,8 +199,30 @@ class ProductConfiguratorLoader
 
         $sortedGroupIds = array_column($config, 'id');
 
+        $remainingGroupIds = array_values(array_diff($collection->getIds(), $sortedGroupIds));
+        usort(
+            $remainingGroupIds,
+            static function (string $leftId, string $rightId) use ($collection): int {
+                $left = $collection->get($leftId);
+                $right = $collection->get($rightId);
+
+                if ($left === null || $right === null) {
+                    return 0;
+                }
+
+                $leftPosition = $left->getTranslation('position') ?? $left->getPosition() ?? 0;
+                $rightPosition = $right->getTranslation('position') ?? $right->getPosition() ?? 0;
+
+                if ($leftPosition !== $rightPosition) {
+                    return $leftPosition <=> $rightPosition;
+                }
+
+                return strnatcmp((string) $left->getTranslation('name'), (string) $right->getTranslation('name'));
+            }
+        );
+
         // ensure all ids are in the array (but only once)
-        $sortedGroupIds = array_unique(array_merge($sortedGroupIds, $collection->getIds()));
+        $sortedGroupIds = array_unique(array_merge($sortedGroupIds, $remainingGroupIds));
 
         $collection->sortByIdArray($sortedGroupIds);
 

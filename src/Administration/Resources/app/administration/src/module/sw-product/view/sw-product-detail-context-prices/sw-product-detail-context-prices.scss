@@ -2,7 +2,7 @@
 
 .sw-product-detail-context-prices {
     width: 100%;
-    max-width: 1330px;
+    max-width: calc(var(--scale-size-224) * 5 + var(--scale-size-160) + var(--scale-size-40) + var(--scale-size-10));
     margin: 0 auto;
 
     .mt-card.context-price {
@@ -13,7 +13,7 @@
         width: 100%;
 
         .mt-card__content {
-            min-height: 250px;
+            min-height: calc(var(--scale-size-224) + var(--scale-size-26));
             position: relative;
         }
 
@@ -27,9 +27,9 @@
     }
 
     .sw-product-detail-context-prices__toolbar {
-        padding: 25px;
-        background-color: $color-gray-100;
-        border-bottom: 1px solid $color-gray-300;
+        padding: var(--scale-size-26);
+        background-color: var(--color-gray-100);
+        border-bottom: var(--scale-size-1) solid var(--color-gray-300);
     }
 
     .sw-product-detail-context-prices__toolbar-selection {
@@ -37,22 +37,22 @@
     }
 
     .sw-list-price-field__vertical {
-        gap: 8px;
+        gap: var(--scale-size-8);
     }
 
     .sw-data-grid .sw-data-grid__body .sw-data-grid__cell-content {
         height: auto;
-        padding: 5px 20px 10px;
+        padding: var(--scale-size-6) var(--scale-size-20) var(--scale-size-10);
     }
 
     .sw-data-grid .sw-data-grid__body .product-detail-context-prices__price-field-wrapper {
         display: flex;
         flex-wrap: nowrap;
         align-items: center;
-        margin-bottom: 5px;
+        margin-bottom: var(--scale-size-6);
 
         .sw-product-detail-context-prices__inherited-icon {
-            margin-right: 10px;
+            margin-right: var(--scale-size-10);
         }
 
         &:last-child {
@@ -63,7 +63,7 @@
     .sw-product-detail-context-prices__type-label {
         display: flex;
         flex-direction: column;
-        gap: 34px;
+        gap: calc(var(--scale-size-32) + var(--scale-size-2));
     }
 
     input[name="sw-field--item-quantityEnd"] {
@@ -71,7 +71,7 @@
     }
 
     .sw-data-grid.is--compact .sw-product-detail-context-prices__type-label {
-        gap: 18px;
+        gap: var(--scale-size-18);
     }
 
     .sw-data-grid .sw-data-grid__body .sw-data-grid__cell-content .sw-field__addition {
@@ -83,9 +83,9 @@
     }
 
     .sw-product-detail-context-prices__empty-state {
-        max-width: 350px;
+        max-width: calc(var(--scale-size-224) + var(--scale-size-56) + var(--scale-size-40) + var(--scale-size-30));
         margin: 0 auto;
-        padding: 60px 20px;
+        padding: calc(var(--scale-size-40) + var(--scale-size-20)) var(--scale-size-20);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -98,7 +98,7 @@
 
         p {
             text-align: center;
-            margin-block: 10px;
+            margin-block: var(--scale-size-10);
         }
 
         &-select-rule {
@@ -106,32 +106,32 @@
         }
 
         .sw-product-detail-context-prices__parent-prices-link {
-            color: $color-shopware-brand-500;
-            margin-bottom: 20px;
+            color: var(--color-shopware-brand-500);
+            margin-bottom: var(--scale-size-20);
         }
     }
 
     .sw-product-detail-context-prices__inherit-toggle-wrapper {
         display: flex;
         align-items: center;
-        line-height: 16px;
-        font-size: $font-size-xs;
-        margin-bottom: 20px;
-        color: $color-darkgray-200;
+        line-height: var(--scale-size-16);
+        font-size: var(--font-size-xs);
+        margin-bottom: var(--scale-size-20);
+        color: var(--color-darkgray-200);
 
         .sw-product-detail-context-prices__inheritance-icon {
-            margin-right: 8px;
+            margin-right: var(--scale-size-8);
         }
 
         &.is--inherited {
-            color: $color-module-purple-900;
+            color: var(--color-module-purple-900);
         }
 
         .sw-product-detail-context-prices__inherit-switch {
-            margin: 0 10px 0 0;
+            margin: 0 var(--scale-size-10) 0 0;
 
             .sw-field--switch__input {
-                height: 16px;
+                height: var(--scale-size-16);
                 padding: 0;
             }
         }

@@ -2,7 +2,7 @@
 <sw-meteor-card
     class="sw-extension-ratings-card"
     :is-loading="isLoading"
-    :title="$tc('sw-extension-store.component.sw-extension-ratings.sw-extension-ratings-card.cardTitle')"
+    :title="$t('sw-extension-store.component.sw-extension-ratings.sw-extension-ratings-card.cardTitle')"
 >
     {% block sw_extension_ratings_card_has_reviews %}
     <template v-if="hasReviews">
@@ -28,7 +28,7 @@
                 variant="secondary"
                 @click="loadMoreReviews"
             >
-                {{ $tc('sw-extension-store.component.sw-extension-ratings.sw-extension-ratings-card.labelMoreReviewsBtn') }}
+                {{ $t('sw-extension-store.component.sw-extension-ratings.sw-extension-ratings-card.labelMoreReviewsBtn') }}
             </mt-button>
             {% endblock %}
         </div>
@@ -39,7 +39,7 @@
     {% block sw_extension_ratings_card_empty_state %}
     <template v-else>
         {% block sw_extension_ratings_card_empty_state_content %}
-        {{ $tc('sw-extension-store.component.sw-extension-ratings.sw-extension-ratings-card.labelNoReviews') }}
+        {{ $t('sw-extension-store.component.sw-extension-ratings.sw-extension-ratings-card.labelNoReviews') }}
         {% endblock %}
     </template>
     {% endblock %}
@@ -49,7 +49,7 @@
         v-if="isInstalledAndLicensed && !isLoading"
         class="sw-extension-ratings-card__footer-headline"
     >
-        {{ $tc('sw-extension-store.component.sw-extension-ratings.sw-extension-ratings-card.footerHeadline') }}
+        {{ $t('sw-extension-store.component.sw-extension-ratings.sw-extension-ratings-card.footerHeadline') }}
     </h3>
     {% endblock %}
 

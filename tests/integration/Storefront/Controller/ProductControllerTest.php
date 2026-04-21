@@ -348,6 +348,66 @@ class ProductControllerTest extends TestCase
         static::assertStringNotContainsString('itemprop="length"', $content);
     }
 
+    public function testReferencePriceIsRenderedWithSingleCalculatedPrice(): void
+    {
+        $unitId = Uuid::randomHex();
+        $ruleId = Uuid::randomHex();
+        $productId = $this->createProduct([
+            'unitId' => $unitId,
+            'unit' => [
+                'id' => $unitId,
+                'shortCode' => 'ml',
+                'name' => 'Milliliter',
+            ],
+            'purchaseUnit' => 500.0,
+            'referenceUnit' => 1000.0,
+            'prices' => [
+                [
+                    'quantityStart' => 1,
+                    'rule' => [
+                        'id' => $ruleId,
+                        'priority' => 1,
+                        'name' => 'Reference price rule',
+                        'conditions' => [
+                            [
+                                'type' => 'orContainer',
+                                'position' => 0,
+                                'children' => [
+                                    [
+                                        'type' => 'andContainer',
+                                        'position' => 0,
+                                        'children' => [
+                                            ['type' => 'alwaysValid', 'position' => 0],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'price' => [
+                        ['currencyId' => Defaults::CURRENCY, 'gross' => 4.0, 'net' => 3.36, 'linked' => false],
+                    ],
+                ],
+            ],
+        ]);
+
+        $response = $this->request(
+            'GET',
+            '/my-product/' . $productId,
+            []
+        );
+
+        $this->checkStatusCode($response);
+
+        $crawler = new Crawler();
+        $crawler->addHtmlContent((string) $response->getContent());
+
+        $referencePrice = $crawler->filter('.price-unit-reference-content');
+
+        static::assertCount(1, $referencePrice);
+        static::assertStringContainsString('/ 1000 Milliliter', $referencePrice->text());
+    }
+
     public function testProductQuickViewWidgetLoadedHookScriptsAreExecuted(): void
     {
         $productId = $this->createProduct();

@@ -835,7 +835,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
         expect(notificationMock).toHaveBeenCalledTimes(1);
         expect(notificationMock).toHaveBeenCalledWith({
-            message: wrapper.vm.$tc('sw-mail-template.general.missingMailTemplateTypeErrorMessage'),
+            message: wrapper.vm.$t('sw-mail-template.general.missingMailTemplateTypeErrorMessage'),
         });
 
         wrapper.vm.createNotificationError.mockRestore();

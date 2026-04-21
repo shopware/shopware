@@ -57,14 +57,14 @@ export default {
             return [
                 {
                     property: 'active',
-                    label: this.$tc('global.sw-search-preferences-modal.columnActive'),
+                    label: this.$t('global.sw-search-preferences-modal.columnActive'),
                     sortable: false,
                     width: '100px',
                     align: 'center',
                 },
                 {
                     property: 'moduleName',
-                    label: this.$tc('global.sw-search-preferences-modal.columnModuleName'),
+                    label: this.$t('global.sw-search-preferences-modal.columnModuleName'),
                     sortable: false,
                 },
             ];
@@ -128,7 +128,7 @@ export default {
         getModuleName(entityName) {
             const module = Module.getModuleByEntityName(entityName);
 
-            return this.$tc(module?.manifest.title);
+            return this.$t(module?.manifest.title);
         },
 
         onChangeSearchPreference(searchPreference) {

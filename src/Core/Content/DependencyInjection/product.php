@@ -442,6 +442,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('sales_channel.product.repository'),
             service('event_dispatcher'),
             service('logger'),
+            service(SystemConfigService::class),
         ])
         ->tag('shopware.cms.product_slider.processor');
 

@@ -25,6 +25,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('discovery')]
@@ -42,6 +43,7 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
         private readonly SalesChannelRepository $productRepository,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly LoggerInterface $logger,
+        private readonly SystemConfigService $systemConfigService,
     ) {
     }
 
@@ -87,13 +89,19 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
         $slider = new ProductSliderStruct();
         $slot->setData($slider);
 
-        $slider->setProducts(
-            $this->handleProductStream(
-                $streamResult,
-                $resolverContext->getSalesChannelContext(),
-                $entitySearchResult->getCriteria()
-            )
+        $context = $resolverContext->getSalesChannelContext();
+
+        $products = $this->handleProductStream(
+            $streamResult,
+            $context,
+            $entitySearchResult->getCriteria()
         );
+
+        if ($this->isHideOutOfStockCloseoutEnabled($this->systemConfigService, $context)) {
+            $products = $this->filterOutOutOfStockHiddenCloseoutProducts($products);
+        }
+
+        $slider->setProducts($products);
 
         $config = $slot->getFieldConfig();
 

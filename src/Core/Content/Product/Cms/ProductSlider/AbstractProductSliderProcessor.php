@@ -10,6 +10,8 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 #[Package('discovery')]
 abstract class AbstractProductSliderProcessor
@@ -37,5 +39,20 @@ abstract class AbstractProductSliderProcessor
 
             return true;
         });
+    }
+
+    /**
+     * Shared lookup for `core.listing.hideCloseoutProductsWhenOutOfStock`,
+     * keyed to the current sales channel. Consolidated here so the static and
+     * stream slider processors stay in sync.
+     */
+    protected function isHideOutOfStockCloseoutEnabled(
+        SystemConfigService $systemConfigService,
+        SalesChannelContext $context,
+    ): bool {
+        return $systemConfigService->getBool(
+            'core.listing.hideCloseoutProductsWhenOutOfStock',
+            $context->getSalesChannelId()
+        );
     }
 }

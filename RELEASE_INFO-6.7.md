@@ -2098,6 +2098,10 @@ Long-form text fields (`description`, `metaDescription`) retain the standard BM2
 
 Both similarities are configurable via `elasticsearch.similarity` in `elasticsearch.yaml`. This change requires a full reindex (`bin/console es:index`).
 
+### `ProductStreamProcessor` constructor now requires `SystemConfigService`
+
+`Shopware\Core\Content\Product\Cms\ProductSlider\ProductStreamProcessor` now takes an additional `SystemConfigService` argument so stream-backed CMS product sliders can honour the `core.listing.hideCloseoutProductsWhenOutOfStock` setting (mirroring the manual-products slider). Plugins that extend the service and call `parent::__construct(...)` must pass the new argument; when declaring the service in XML, add an `<argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>` after the existing ones.
+
 ### Product `display_group` values use SHA-256
 
 The `display_group` field on the `product` entity (available via the Admin API and Store API) is now computed with SHA-256 for variant listing instead of MD5.

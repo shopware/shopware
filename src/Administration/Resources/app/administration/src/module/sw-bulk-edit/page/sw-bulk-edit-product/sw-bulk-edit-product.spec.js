@@ -1260,6 +1260,171 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         expect(wrapper.vm.weightUnit).toBe('kg');
     });
 
+    it('should materialize parent visibilities on variant when removing a sales channel', async () => {
+        const wrapper = await createWrapper(undefined, {
+            name: 'sw.bulk.edit.product.save',
+            params: { parentId: 'parent_id', includesDigital: '0' },
+        });
+
+        await flushPromises();
+
+        wrapper.vm.parentProductFrozen = JSON.stringify({
+            id: 'parent_id',
+            visibilities: [
+                { id: 'vis_1', productId: 'parent_id', salesChannelId: 'scn_1', visibility: 30 },
+                { id: 'vis_2', productId: 'parent_id', salesChannelId: 'scn_2', visibility: 30 },
+                { id: 'vis_3', productId: 'parent_id', salesChannelId: 'scn_3', visibility: 20 },
+            ],
+        });
+
+        const change = {
+            field: 'visibilities',
+            type: 'remove',
+            mappingReferenceField: 'salesChannelId',
+            value: [
+                { id: 'vis_1', productId: 'parent_id', salesChannelId: 'scn_1', visibility: 30 },
+            ],
+        };
+
+        wrapper.vm.transformVariantVisibilityRemove(change);
+
+        expect(change.type).toBe('overwrite');
+        expect(change.value).toEqual([
+            { salesChannelId: 'scn_2', visibility: 30 },
+            { salesChannelId: 'scn_3', visibility: 20 },
+        ]);
+    });
+
+    it('should convert a variant visibility remove into an overwrite via onProcessData', async () => {
+        const wrapper = await createWrapper(undefined, {
+            name: 'sw.bulk.edit.product.save',
+            params: { parentId: 'parent_id', includesDigital: '0' },
+        });
+
+        await flushPromises();
+
+        wrapper.vm.parentProductFrozen = JSON.stringify({
+            id: 'parent_id',
+            visibilities: [
+                { id: 'vis_1', productId: 'parent_id', salesChannelId: 'scn_1', visibility: 30 },
+                { id: 'vis_2', productId: 'parent_id', salesChannelId: 'scn_2', visibility: 30 },
+            ],
+        });
+
+        wrapper.vm.bulkEditProduct.visibilities = {
+            isChanged: true,
+            type: 'remove',
+            value: [
+                { id: 'vis_1', productId: 'parent_id', salesChannelId: 'scn_1', visibility: 30 },
+            ],
+            isInherited: false,
+        };
+        wrapper.vm.product.visibilities = wrapper.vm.bulkEditProduct.visibilities.value;
+
+        wrapper.vm.onProcessData();
+
+        const visibilityChange = wrapper.vm.bulkEditSelected.find((entry) => entry.field === 'visibilities');
+        expect(visibilityChange).toBeDefined();
+        expect(visibilityChange.type).toBe('overwrite');
+        expect(visibilityChange.mappingReferenceField).toBe('salesChannelId');
+        expect(visibilityChange.value).toEqual([
+            { salesChannelId: 'scn_2', visibility: 30 },
+        ]);
+    });
+
+    it('should convert removing all inherited sales channels into an empty overwrite', async () => {
+        const wrapper = await createWrapper(undefined, {
+            name: 'sw.bulk.edit.product.save',
+            params: { parentId: 'parent_id', includesDigital: '0' },
+        });
+
+        await flushPromises();
+
+        wrapper.vm.parentProductFrozen = JSON.stringify({
+            id: 'parent_id',
+            visibilities: [
+                { id: 'vis_1', salesChannelId: 'scn_1', visibility: 30 },
+                { id: 'vis_2', salesChannelId: 'scn_2', visibility: 30 },
+            ],
+        });
+
+        const change = {
+            field: 'visibilities',
+            type: 'remove',
+            mappingReferenceField: 'salesChannelId',
+            value: [
+                { id: 'vis_1', salesChannelId: 'scn_1', visibility: 30 },
+                { id: 'vis_2', salesChannelId: 'scn_2', visibility: 30 },
+            ],
+        };
+
+        wrapper.vm.transformVariantVisibilityRemove(change);
+
+        // Overwriting the variant's visibilities with an empty set drops all the
+        // inherited rows for that variant — the DAL mapper honours the empty overwrite.
+        expect(change.type).toBe('overwrite');
+        expect(change.value).toEqual([]);
+    });
+
+    it('should NOT rewrite a parent bulk edit visibility remove (non-variant path)', async () => {
+        const wrapper = await createWrapper(undefined, {
+            name: 'sw.bulk.edit.product.save',
+            params: { includesDigital: '0' },
+        });
+
+        await flushPromises();
+
+        const change = {
+            field: 'visibilities',
+            type: 'remove',
+            mappingReferenceField: 'salesChannelId',
+            value: [
+                { id: 'vis_1', salesChannelId: 'scn_1', visibility: 30 },
+            ],
+        };
+
+        wrapper.vm.bulkEditProduct.visibilities = { isChanged: true, type: 'remove', value: change.value };
+        wrapper.vm.onProcessData();
+
+        // Parent bulk edit path must keep the REMOVE semantics — the transform only
+        // applies to variant (child) edits, so parent removals hit the standard
+        // BulkEditBaseHandler delete flow.
+        expect(wrapper.vm.bulkEditProduct.visibilities.type).toBe('remove');
+        expect(wrapper.vm.bulkEditProduct.visibilities.value).toEqual([
+            { id: 'vis_1', salesChannelId: 'scn_1', visibility: 30 },
+        ]);
+    });
+
+    it('should leave visibility remove change unchanged when parent has no visibilities', async () => {
+        const wrapper = await createWrapper(undefined, {
+            name: 'sw.bulk.edit.product.save',
+            params: { parentId: 'parent_id', includesDigital: '0' },
+        });
+
+        await flushPromises();
+
+        wrapper.vm.parentProductFrozen = JSON.stringify({
+            id: 'parent_id',
+            visibilities: [],
+        });
+
+        const change = {
+            field: 'visibilities',
+            type: 'remove',
+            mappingReferenceField: 'salesChannelId',
+            value: [
+                { id: 'vis_1', salesChannelId: 'scn_1', visibility: 30 },
+            ],
+        };
+
+        wrapper.vm.transformVariantVisibilityRemove(change);
+
+        expect(change.type).toBe('remove');
+        expect(change.value).toEqual([
+            { id: 'vis_1', salesChannelId: 'scn_1', visibility: 30 },
+        ]);
+    });
+
     it('should save preference units', async () => {
         const wrapper = await createWrapper();
         wrapper.vm.userConfigService.upsert = jest.fn();

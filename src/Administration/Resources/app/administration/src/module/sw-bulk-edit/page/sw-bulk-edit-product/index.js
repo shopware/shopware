@@ -1203,6 +1203,16 @@ export default {
                     change.mappingReferenceField = 'ruleId';
                 }
 
+                // Variants inherit the parent's visibilities by default and therefore
+                // do not own any `product_visibility` rows. A plain REMOVE bulk edit
+                // would only look for existing rows on the variant itself, find none
+                // and persist nothing. To honor the removal we materialize the parent's
+                // visibility set on the variant and drop the sales channels that should
+                // be removed.
+                if (this.isChild && key === 'visibilities' && bulkEditField.type === 'remove') {
+                    this.transformVariantVisibilityRemove(change);
+                }
+
                 if (this.isChild && change.value !== null && types.isArray(change.value)) {
                     change.value.forEach((association) => {
                         delete association.id;
@@ -1227,6 +1237,37 @@ export default {
             if (hasRegulationPrice) {
                 this.processRegulationPrice();
             }
+        },
+
+        transformVariantVisibilityRemove(change) {
+            if (!this.parentProductFrozen) {
+                return;
+            }
+
+            const parentProduct = JSON.parse(this.parentProductFrozen);
+            const parentVisibilities = Array.isArray(parentProduct?.visibilities) ? parentProduct.visibilities : [];
+
+            if (parentVisibilities.length === 0) {
+                return;
+            }
+
+            const removedSalesChannelIds = Array.isArray(change.value)
+                ? change.value.map((visibility) => visibility?.salesChannelId).filter(Boolean)
+                : [];
+
+            if (removedSalesChannelIds.length === 0) {
+                return;
+            }
+
+            const remainingVisibilities = parentVisibilities
+                .filter((visibility) => !removedSalesChannelIds.includes(visibility.salesChannelId))
+                .map((visibility) => ({
+                    salesChannelId: visibility.salesChannelId,
+                    visibility: visibility.visibility,
+                }));
+
+            change.type = 'overwrite';
+            change.value = remainingVisibilities;
         },
 
         processListPrice() {

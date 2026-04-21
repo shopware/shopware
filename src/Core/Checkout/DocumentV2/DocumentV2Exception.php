@@ -30,6 +30,10 @@ class DocumentV2Exception extends HttpException
 
     public const CIRCULAR_DEPENDENCY_CYCLE = 'DOCUMENT_V2__CIRCULAR_DEPENDENCY_CYCLE';
 
+    public const DOCUMENT_NOT_PERSISTED = 'DOCUMENT_V2__DOCUMENT_NOT_PERSISTED';
+
+    public const DOCUMENT_TYPE_NOT_FOUND = 'DOCUMENT_V2__DOCUMENT_TYPE_NOT_FOUND';
+
     public static function unknownRenderData(string $key, string $expectedClass): self
     {
         return new self(
@@ -104,6 +108,26 @@ class DocumentV2Exception extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::CIRCULAR_DEPENDENCY_CYCLE,
             'Circular render dependency cycled for document generation.',
+        );
+    }
+
+    public static function documentNotPersisted(string $documentId): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DOCUMENT_NOT_PERSISTED,
+            'Document with id "{{ documentId }}" is not persisted.',
+            ['documentId' => $documentId],
+        );
+    }
+
+    public static function documentTypeNotFound(string $documentType): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::DOCUMENT_TYPE_NOT_FOUND,
+            'Document type "{{ documentType }}" not found.',
+            ['documentType' => $documentType],
         );
     }
 }

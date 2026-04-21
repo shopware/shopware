@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\DocumentV2\Generation;
 
+use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentNumberGenerator;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Provider\AbstractDocumentDataProvider;
@@ -30,12 +31,13 @@ final readonly class DocumentGenerator
         private DocumentDataProviderRegistry $documentDataProviderRegistry,
         private DocumentRendererRegistry $documentRendererRegistry,
         private DocumentNumberGenerator $documentNumberGenerator,
+        private DocumentEntityPersister $documentEntityPersister,
         private DocumentDependencyResolver $dependencyResolver,
         private EntityRepository $orderRepository,
     ) {
     }
 
-    public function generate(DocumentGenerationContext $generationContext): RenderState
+    public function generate(DocumentGenerationContext $generationContext): DocumentEntity
     {
         $this->validateGenerationContext($generationContext);
 
@@ -87,7 +89,27 @@ final readonly class DocumentGenerator
             $renderState->add($result);
         }
 
-        return $renderState;
+        $persistedFiles = [];
+
+        foreach ($requestedFormats as $format) {
+            $renderer = $this->documentRendererRegistry->getRenderer(
+                $format,
+                $generationContext->getDocumentType(),
+            );
+
+            $mediaId = $renderer->persistToFile(
+                $renderInput,
+                $renderState->require($format)
+            );
+
+            $persistedFiles[$format] = $mediaId;
+        }
+
+        return $this->documentEntityPersister->persist(
+            $generationContext,
+            $renderInput,
+            $persistedFiles,
+        );
     }
 
     /**

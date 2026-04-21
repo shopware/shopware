@@ -65,6 +65,8 @@ final readonly class DocumentDependencyResolver
      * @param array<string, AbstractDocumentRenderer> $renderers
      * @param list<string> $formats
      *
+     * @throws DocumentV2Exception
+     *
      * @return list<string>
      */
     private function resolveNeededFormats(string $documentType, array $renderers, array $formats): array
@@ -100,6 +102,8 @@ final readonly class DocumentDependencyResolver
      *
      * @param array<string, AbstractDocumentRenderer> $renderers
      * @param list<string> $neededFormats
+     *
+     * @throws DocumentV2Exception
      *
      * @return list<string>
      */

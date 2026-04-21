@@ -143,6 +143,9 @@ final readonly class DocumentGenerator
         return $data;
     }
 
+    /**
+     * @throws DocumentV2Exception
+     */
     private function loadOrder(Criteria $criteria, DocumentGenerationContext $generationContext): OrderEntity
     {
         $context = $generationContext->getContext();
@@ -166,6 +169,9 @@ final readonly class DocumentGenerator
         return $order;
     }
 
+    /**
+     * @throws DocumentV2Exception
+     */
     private function validateGenerationContext(DocumentGenerationContext $generationContext): void
     {
         if ($generationContext->getFormats() === []) {
@@ -179,6 +185,8 @@ final readonly class DocumentGenerator
 
     /**
      * @param list<string> $formats
+     *
+     * @throws DocumentV2Exception
      *
      * @return list<string>
      */

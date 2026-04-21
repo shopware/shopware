@@ -38,6 +38,8 @@ final readonly class DocumentEntityPersister
 
     /**
      * @param array<string, string> $files
+     *
+     * @throws DocumentV2Exception
      */
     public function persist(DocumentGenerationContext $generationContext, RenderInput $input, array $files): DocumentEntity
     {
@@ -80,6 +82,9 @@ final readonly class DocumentEntityPersister
         return $document;
     }
 
+    /**
+     * @throws DocumentV2Exception
+     */
     private function getDocumentTypeId(string $documentType): string
     {
         $documentTypeId = $this->connection->fetchOne(

@@ -929,6 +929,10 @@ export default {
 
         onAgenticCommerceExportFieldUpdate(configEntry, fieldName, value) {
             configEntry.values[fieldName] = value;
+
+            if (configEntry.errors?.[fieldName]) {
+                delete configEntry.errors[fieldName];
+            }
         },
 
         onTrackingConfigChange(config) {

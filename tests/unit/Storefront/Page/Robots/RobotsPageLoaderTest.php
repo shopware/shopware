@@ -319,7 +319,8 @@ class RobotsPageLoaderTest extends TestCase
         $this->assertDirectivePaths($directives, RobotsDirectiveType::DISALLOW, ['/account/', '/en/private/']);
         $this->assertDirectivePaths($directives, RobotsDirectiveType::ALLOW, ['/en/api/', '/widgets/']);
 
-        // Domain rules should still exist but only contain the path directives for each domain
+        // Domain rules should still exist for both domains but user-agent path directives
+        // must be rendered only inside the global user-agent block, not duplicated here.
         $domainRules = $page->getDomainRules();
         $firstDomainRule = $domainRules->first();
         $secondDomainRule = $domainRules->last();
@@ -330,8 +331,8 @@ class RobotsPageLoaderTest extends TestCase
         static::assertSame('', $firstDomainRule->getBasePath());
         static::assertSame('/en', $secondDomainRule->getBasePath());
 
-        static::assertCount(2, $firstDomainRule->getDirectives());
-        static::assertCount(2, $secondDomainRule->getDirectives());
+        static::assertCount(0, $firstDomainRule->getDirectives());
+        static::assertCount(0, $secondDomainRule->getDirectives());
     }
 
     public function testLoadWithUserAgentBlocksOnlyNonPathDirectives(): void

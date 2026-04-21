@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Product;
 
+use Shopware\Core\Content\Breadcrumb\Struct\BreadcrumbCollection;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult;
@@ -30,6 +31,8 @@ class ProductPage extends Page
      * used to display reviews in templates.
      */
     protected ?ProductReviewResult $structuredDataReviews = null;
+
+    protected ?BreadcrumbCollection $breadcrumb = null;
 
     public function getProduct(): SalesChannelProductEntity
     {
@@ -89,6 +92,16 @@ class ProductPage extends Page
     public function setStructuredDataReviews(ProductReviewResult $structuredDataReviews): void
     {
         $this->structuredDataReviews = $structuredDataReviews;
+    }
+
+    public function getBreadcrumb(): ?BreadcrumbCollection
+    {
+        return $this->breadcrumb;
+    }
+
+    public function setBreadcrumb(?BreadcrumbCollection $breadcrumb): void
+    {
+        $this->breadcrumb = $breadcrumb;
     }
 
     public function getEntityName(): string

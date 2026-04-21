@@ -368,6 +368,7 @@
     "salutation.displayName",
     "salutation.letterName",
     "salutation.customFields",
+    "salutation.position",
     "salutation.createdAt",
     "salutation.updatedAt",
     "salutation.translated",

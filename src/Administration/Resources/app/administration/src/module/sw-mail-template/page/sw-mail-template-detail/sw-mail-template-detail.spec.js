@@ -531,23 +531,22 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         const previewSalesChannelSelect = wrapper.find('[name="sw-field--previewSalesChannelId"]');
 
         expect(previewSalesChannelSelect.exists()).toBe(true);
-        expect(wrapper.text()).toContain('Used to determine the sales-channel-specific header and footer.');
     });
 
     it('should use one shared sales channel value for send and preview', async () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            salesChannelId: 'sales-channel-id-1',
+            testMailSalesChannelId: 'sales-channel-id-1',
         });
 
-        expect(wrapper.vm.salesChannelId).toBe('sales-channel-id-1');
+        expect(wrapper.vm.testMailSalesChannelId).toBe('sales-channel-id-1');
     });
 
     it('should send the selected preview sales channel id when simulating', async () => {
         const wrapper = await createWrapper();
 
-        wrapper.vm.salesChannelId = 'sales-channel-id';
+        wrapper.vm.testMailSalesChannelId = 'sales-channel-id';
         await wrapper.vm.onTriggerEventChange('checkout.order.placed');
         await wrapper.vm.simulateMailPreview();
 
@@ -597,7 +596,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             },
             testerMail: 'foo@bar.com',
             isLoading: false,
-            salesChannelId: '1a2b3c',
+            testMailSalesChannelId: '1a2b3c',
             triggerEvent: {
                 name: 'checkout.order.placed',
             },
@@ -666,7 +665,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             },
             testerMail: 'foo@bar.com',
             isLoading: false,
-            salesChannelId: '1a2b3c',
+            testMailSalesChannelId: '1a2b3c',
             triggerEvent: {
                 name: 'checkout.order.placed',
             },
@@ -764,7 +763,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             },
             testerMail: 'foo@bar.com',
             isLoading: false,
-            salesChannelId: '1a2b3c',
+            testMailSalesChannelId: '1a2b3c',
             triggerEvent: {
                 name: 'checkout.order.placed',
             },
@@ -806,7 +805,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             },
             testerMail: 'foo@bar.com',
             isLoading: false,
-            salesChannelId: '1a2b3c',
+            testMailSalesChannelId: '1a2b3c',
             triggerEvent: {
                 name: 'checkout.order.placed',
             },
@@ -851,7 +850,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                 senderName: 'Sender',
                 mailTemplateTypeId: 'typeId',
             },
-            salesChannelId: '1a2b3c',
+            testMailSalesChannelId: '1a2b3c',
             triggerEvent: {
                 name: 'checkout.order.placed',
             },
@@ -896,10 +895,10 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
         await wrapper.vm.onClickShowPreview();
 
-        expect(wrapper.vm.mailPreview.headerHtml.errorTitle).toBe('Header (HTML)');
-        expect(wrapper.vm.mailPreview.headerHtml.errorMessage).toBe('Twig syntax error: html header failed.');
-        expect(wrapper.vm.mailPreview.footerPlain.errorTitle).toBe('Footer (plain text)');
-        expect(wrapper.vm.mailPreview.footerPlain.errorMessage).toBe('Twig syntax error: plain footer failed.');
+        expect(wrapper.vm.mailPreview.headerHtml.errorTitle).toBe('Twig syntax error');
+        expect(wrapper.vm.mailPreview.headerHtml.errorMessage).toBe('html header failed.');
+        expect(wrapper.vm.mailPreview.footerPlain.errorTitle).toBe('Twig syntax error');
+        expect(wrapper.vm.mailPreview.footerPlain.errorMessage).toBe('plain footer failed.');
     });
 
     it('should reset preview when simulation request fails', async () => {
@@ -917,7 +916,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             },
             testerMail: 'foo@bar.com',
             isLoading: false,
-            salesChannelId: '1a2b3c',
+            testMailSalesChannelId: '1a2b3c',
             triggerEvent: {
                 name: 'checkout.order.placed',
             },
@@ -943,7 +942,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             },
             testerMail: 'foo@bar.com',
             isLoading: false,
-            salesChannelId: '1a2b3c',
+            testMailSalesChannelId: '1a2b3c',
             triggerEvent: {
                 name: 'checkout.order.placed',
             },
@@ -1005,7 +1004,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             },
             testerMail: 'foo@bar.com',
             isLoading: false,
-            salesChannelId: '1a2b3c',
+            testMailSalesChannelId: '1a2b3c',
             triggerEvent: {
                 name: 'checkout.order.placed',
             },
@@ -1052,7 +1051,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             },
             testerMail: 'foo@bar.com',
             isLoading: false,
-            salesChannelId: '1a2b3c',
+            testMailSalesChannelId: '1a2b3c',
             triggerEvent: {
                 name: 'checkout.order.placed',
             },

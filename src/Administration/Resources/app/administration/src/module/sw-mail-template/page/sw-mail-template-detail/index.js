@@ -2,6 +2,7 @@ import camelCase from 'lodash-es/camelCase';
 import { dom } from 'src/core/service/util.service';
 import template from './sw-mail-template-detail.html.twig';
 import './sw-mail-template-detail.scss';
+import '../../component/sw-mail-template-preview-modal/sw-mail-template-preview-modal.scss';
 
 const { Mixin, Context } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;

@@ -3,6 +3,8 @@ import './sw-mail-template-preview-modal.scss';
 
 /**
  * @sw-package after-sales
+ *
+ * @private
  */
 export default {
     template,

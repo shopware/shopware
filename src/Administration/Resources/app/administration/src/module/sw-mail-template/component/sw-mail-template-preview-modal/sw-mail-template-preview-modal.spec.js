@@ -32,7 +32,7 @@ async function createWrapper() {
                     template: '<div><slot></slot></div>',
                 },
                 'mt-button': {
-                    template: '<button @click="$emit(\'click\')"><slot></slot></button>',
+                    template: '<button><slot></slot></button>',
                 },
             },
         },

@@ -42,6 +42,22 @@ describe('src/app/init/locale.init.ts', () => {
         );
     });
 
+    it('should return locale factory when snippet service is not available', async () => {
+        global.console.warn = jest.fn();
+        const originalService = Shopware.Service;
+        Shopware.Service = jest.fn().mockReturnValue(undefined);
+
+        const result = await initializeLocaleService();
+
+        expect(result).toEqual(
+            expect.objectContaining({
+                register: expect.any(Function),
+            }),
+        );
+
+        Shopware.Service = originalService;
+    });
+
     it('should register all locales for languages in the database', async () => {
         const expectedLocales = {
             id1: 'en-GB',

@@ -318,6 +318,15 @@ export default {
                 this.userService
                     .updateUser(changes.changeset[0].changes)
                     .then(async () => {
+                        if (this.newPassword) {
+                            try {
+                                await this.loginService.loginByUsername(this.user.username, this.newPassword);
+                            } catch {
+                                this.loginService.logout();
+                                return;
+                            }
+                        }
+
                         await this.updateCurrentUser();
 
                         this.isLoading = false;
@@ -326,10 +335,12 @@ export default {
                         Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
                     })
                     .catch((error) => {
-                        Shopware.Store.get('error').addApiError({
-                            expression: `user.${this.user?.id}.password`,
-                            error: new Shopware.Classes.ShopwareError(error.response.data.errors[0]),
-                        });
+                        if (error?.response?.data?.errors?.[0]) {
+                            Shopware.Store.get('error').addApiError({
+                                expression: `user.${this.user?.id}.password`,
+                                error: new Shopware.Classes.ShopwareError(error.response.data.errors[0]),
+                            });
+                        }
                         this.createNotificationError({
                             message: this.$t('sw-profile.index.notificationSaveErrorMessage'),
                         });
@@ -343,26 +354,20 @@ export default {
             this.userRepository
                 .save(this.user, context)
                 .then(async () => {
+                    if (this.newPassword) {
+                        try {
+                            await this.loginService.loginByUsername(this.user.username, this.newPassword);
+                        } catch {
+                            this.loginService.logout();
+                            return;
+                        }
+                    }
+
                     await this.updateCurrentUser();
                     Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
 
-                    if (this.newPassword) {
-                        // re-issue a valid jwt token, as all user tokens were invalidated on password change
-                        this.loginService
-                            .loginByUsername(this.user.username, this.newPassword)
-                            .then(() => {
-                                this.isSaveSuccessful = true;
-                            })
-                            .catch(() => {
-                                this.handleUserSaveError();
-                            })
-                            .finally(() => {
-                                this.isLoading = false;
-                            });
-                    } else {
-                        this.isLoading = false;
-                        this.isSaveSuccessful = true;
-                    }
+                    this.isLoading = false;
+                    this.isSaveSuccessful = true;
 
                     this.confirmPassword = '';
                     this.newPassword = '';

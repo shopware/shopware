@@ -164,7 +164,7 @@ export default {
                     allowResize: true,
                     primary: false,
                     rawData: false,
-                    width: '270px',
+                    width: 'calc(var(--scale-size-224) + var(--scale-size-24) + var(--scale-size-22))',
                     multiLine: true,
                 };
             });
@@ -179,7 +179,7 @@ export default {
                     allowResize: true,
                     primary: true,
                     rawData: false,
-                    width: '120px',
+                    width: 'calc(var(--scale-size-80) + var(--scale-size-40))',
                 },
                 {
                     property: 'quantityEnd',
@@ -188,14 +188,14 @@ export default {
                     allowResize: true,
                     primary: true,
                     rawData: false,
-                    width: '120px',
+                    width: 'calc(var(--scale-size-80) + var(--scale-size-40))',
                 },
                 {
                     property: 'type',
                     label: 'sw-product.advancedPrices.columnType',
                     visible: true,
                     allowResize: true,
-                    width: '250px',
+                    width: 'calc(var(--scale-size-224) + var(--scale-size-26))',
                     multiLine: true,
                 },
             ];

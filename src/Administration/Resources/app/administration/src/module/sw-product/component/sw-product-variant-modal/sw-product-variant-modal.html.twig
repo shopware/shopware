@@ -13,8 +13,8 @@
     <div class="sw-configuration-option-list__toolbar">
         {% block sw_product_variant_modal_toolbar_container %}
         <sw-container
-            columns="1fr minmax(50px, max-content)"
-            gap="0 16px"
+            columns="1fr minmax(calc(var(--scale-size-40) + var(--scale-size-10)), max-content)"
+            gap="0 var(--scale-size-16)"
         >
 
             {% block sw_product_variant_modal_body_label_search %}
@@ -51,7 +51,7 @@
                 >
                     <sw-container
                         columns="1fr"
-                        gap="5px"
+                        gap="var(--scale-size-6)"
                     >
 
                         {% block sw_product_variant_modal_option_list_toolbar_container_filter_tree %}
@@ -225,13 +225,13 @@
                         v-if="item.active === true"
                         class="mt-icon--product-status is--active"
                         name="regular-checkmark-xs"
-                        size="16px"
+                        size="var(--scale-size-16)"
                     />
                     <mt-icon
                         v-else-if="item.active === false"
                         class="mt-icon--product-status is--inactive"
                         name="regular-times-s"
-                        size="16px"
+                        size="var(--scale-size-16)"
                     />
                     <mt-icon
                         v-else
@@ -407,7 +407,7 @@
                 <mt-icon
                     v-if="item.active === true"
                     name="regular-checkmark-xs"
-                    size="16px"
+                    size="var(--scale-size-16)"
                     class="mt-icon--product-status is--active"
                 />
                 {% endblock %}
@@ -416,7 +416,7 @@
                 <mt-icon
                     v-else-if="item.active === false"
                     name="regular-times-s"
-                    size="16px"
+                    size="var(--scale-size-16)"
                     class="mt-icon--product-status is--inactive"
                 />
                 {% endblock %}

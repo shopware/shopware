@@ -317,7 +317,7 @@ export default {
 
             return {
                 showDelay: 300,
-                message: this.$tc(`${this.translationContext}.general.actions.actionsDisabledInLanguage`),
+                message: this.$t(`${this.translationContext}.general.actions.actionsDisabledInLanguage`),
                 disabled: !this.disableContextMenu,
             };
         },

@@ -1,6 +1,6 @@
 {% block sw_cms_layout_assignment_modal %}
 <sw-modal
-    :title="$tc('sw-cms.detail.sidebar.titleLayoutAssignment')"
+    :title="$t('sw-cms.detail.sidebar.titleLayoutAssignment')"
     class="sw-cms-layout-assignment-modal"
     @modal-close="onAbort"
 >
@@ -17,7 +17,7 @@
         v-if="page.type !== 'page' && page.type !== 'product_detail'"
         class="sw-cms-layout-assignment-modal__info-text"
     >
-        {{ $tc('sw-cms.components.cmsLayoutAssignmentModal.infoText') }}
+        {{ $t('sw-cms.components.cmsLayoutAssignmentModal.infoText') }}
     </p>
     {% endblock %}
 
@@ -26,7 +26,7 @@
         v-if="page.type === 'page'"
         class="sw-cms-layout-assignment-modal__info-text"
     >
-        {{ $tc('sw-cms.components.cmsLayoutAssignmentModal.infoTextShopPages') }}
+        {{ $t('sw-cms.components.cmsLayoutAssignmentModal.infoTextShopPages') }}
     </p>
     {% endblock %}
 
@@ -35,7 +35,7 @@
         v-if="page.type === 'product_detail'"
         class="sw-cms-layout-assignment-modal__info-text"
     >
-        {{ $tc('sw-cms.components.cmsLayoutAssignmentModal.infoTextProductDetailPages') }}
+        {{ $t('sw-cms.components.cmsLayoutAssignmentModal.infoTextProductDetailPages') }}
     </p>
     {% endblock %}
 
@@ -51,11 +51,11 @@
             <sw-tabs-item
                 v-if="page.type === 'page' || page.type === 'landingpage'"
                 :active-tab="active"
-                :title="$tc('sw-cms.components.cmsLayoutAssignmentModal.tabCategories')"
+                :title="$t('sw-cms.components.cmsLayoutAssignmentModal.tabCategories')"
                 class="sw-cms-layout-assignment-modal__tab-categories"
                 name="categories"
             >
-                {{ $tc('sw-cms.components.cmsLayoutAssignmentModal.tabCategories') }}
+                {{ $t('sw-cms.components.cmsLayoutAssignmentModal.tabCategories') }}
             </sw-tabs-item>
             {% endblock %}
 
@@ -63,17 +63,17 @@
             <sw-tabs-item
                 v-if="page.type === 'page'"
                 v-tooltip="{
-                    message: $tc('sw-privileges.tooltip.warning'),
+                    message: $t('sw-privileges.tooltip.warning'),
                     showOnDisabledElements: true,
                     disabled: acl.can('system.system_config')
                 }"
                 :active-tab="active"
-                :title="$tc('sw-cms.components.cmsLayoutAssignmentModal.tabShopPages')"
+                :title="$t('sw-cms.components.cmsLayoutAssignmentModal.tabShopPages')"
                 :disabled="!acl.can('system.system_config')"
                 class="sw-cms-layout-assignment-modal__tab-shop-pages"
                 name="shop_pages"
             >
-                {{ $tc('sw-cms.components.cmsLayoutAssignmentModal.tabShopPages') }}
+                {{ $t('sw-cms.components.cmsLayoutAssignmentModal.tabShopPages') }}
             </sw-tabs-item>
             {% endblock %}
 
@@ -81,17 +81,17 @@
             <sw-tabs-item
                 v-if="page.type === 'landingpage'"
                 v-tooltip="{
-                    message: $tc('sw-privileges.tooltip.warning'),
+                    message: $t('sw-privileges.tooltip.warning'),
                     showOnDisabledElements: true,
                     disabled: acl.can('system.system_config')
                 }"
                 :active-tab="active"
-                :title="$tc('sw-cms.components.cmsLayoutAssignmentModal.tabLandingPages')"
+                :title="$t('sw-cms.components.cmsLayoutAssignmentModal.tabLandingPages')"
                 :disabled="!acl.can('system.system_config')"
                 class="sw-cms-layout-assignment-modal__tab-landing-pages"
                 name="landing_pages"
             >
-                {{ $tc('sw-cms.components.cmsLayoutAssignmentModal.tabLandingPages') }}
+                {{ $t('sw-cms.components.cmsLayoutAssignmentModal.tabLandingPages') }}
             </sw-tabs-item>
             {% endblock %}
         </template>
@@ -104,8 +104,8 @@
                 <sw-entity-multi-select
                     v-model:entity-collection="page.landingPages"
                     class="sw-cms-layout-assignment-modal__landing-page-select"
-                    :label="$tc('global.entities.landing_page')"
-                    :placeholder="$tc('sw-cms.components.cmsLayoutAssignmentModal.placeholderLandingPages')"
+                    :label="$t('global.entities.landing_page')"
+                    :placeholder="$t('sw-cms.components.cmsLayoutAssignmentModal.placeholderLandingPages')"
                     entity-name="landing_page"
                 />
                 {% endblock %}
@@ -119,8 +119,8 @@
                 <sw-category-tree-field
                     key="categorySelect"
                     :categories-collection="page.categories"
-                    :label="$tc('sw-cms.components.cmsLayoutAssignmentModal.labelCategories')"
-                    :placeholder="$tc('sw-cms.components.cmsLayoutAssignmentModal.placeholderCategories')"
+                    :label="$t('sw-cms.components.cmsLayoutAssignmentModal.labelCategories')"
+                    :placeholder="$t('sw-cms.components.cmsLayoutAssignmentModal.placeholderCategories')"
                     :page-id="page.id"
                     :is-categories-loading="isCategoriesLoading"
                     class="sw-cms-layout-assignment-modal__category-select"
@@ -138,10 +138,10 @@
                     v-model:value="shopPageSalesChannelId"
                     class="sw-cms-layout-assignment-modal__sales-channel-select"
                     entity="sales_channel"
-                    :label="$tc('sw-cms.components.cmsLayoutAssignmentModal.labelSalesChannel')"
-                    :placeholder="$tc('sw-cms.components.cmsLayoutAssignmentModal.placeholderSalesChannel')"
-                    :reset-option="$tc('sw-cms.components.cmsLayoutAssignmentModal.resetOptionSalesChannel')"
-                    :help-text="$tc('sw-cms.components.cmsLayoutAssignmentModal.helpTextSalesChannel')"
+                    :label="$t('sw-cms.components.cmsLayoutAssignmentModal.labelSalesChannel')"
+                    :placeholder="$t('sw-cms.components.cmsLayoutAssignmentModal.placeholderSalesChannel')"
+                    :reset-option="$t('sw-cms.components.cmsLayoutAssignmentModal.resetOptionSalesChannel')"
+                    :help-text="$t('sw-cms.components.cmsLayoutAssignmentModal.helpTextSalesChannel')"
                     show-clearable-button
                     @update:value="onInputSalesChannelSelect"
                 />
@@ -152,7 +152,7 @@
                     v-model:value="selectedShopPages[shopPageSalesChannelId]"
                     :inherited-value="selectedShopPages.null"
                     :has-parent="shopPageSalesChannelId !== null"
-                    :label="$tc('sw-cms.components.cmsLayoutAssignmentModal.labelShopPages')"
+                    :label="$t('sw-cms.components.cmsLayoutAssignmentModal.labelShopPages')"
                 >
                     <template #content="props">
                         <sw-multi-select
@@ -178,8 +178,8 @@
                     :entity-collection="page.products"
                     :columns="productColumns"
                     :criteria="productCriteria"
-                    :select-label="$tc('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentLabel')"
-                    :placeholder="$tc('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentPlaceholder')"
+                    :select-label="$t('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentLabel')"
+                    :placeholder="$t('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentPlaceholder')"
                 >
                     {% block sw_cms_layout_assignment_modal_product_detail_pages_column_name %}
                     <template #column-name="{ item, column }">
@@ -223,7 +223,7 @@
                             :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
                             alt=""
                         >
-                        <p>{{ $tc('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentEmptyStateDescription') }}</p>
+                        <p>{{ $t('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentEmptyStateDescription') }}</p>
                     </template>
                     {% endblock %}
                 </sw-cms-product-assignment>
@@ -240,7 +240,7 @@
         v-if="showConfirmChangesModal"
         class="sw-cms-layout-assignment-modal__confirm-changes-modal"
         size="650px"
-        :title="$tc('sw-cms.components.cmsLayoutAssignmentModal.confirmChangesTitle')"
+        :title="$t('sw-cms.components.cmsLayoutAssignmentModal.confirmChangesTitle')"
         @modal-close="closeConfirmChangesModal"
     >
 
@@ -249,7 +249,7 @@
             v-if="hasDeletedCategories"
             class="sw-cms-layout-assignment-modal__confirm-text-categories"
         >
-            {{ $tc('sw-cms.components.cmsLayoutAssignmentModal.confirmChangesTextCategories') }}
+            {{ $t('sw-cms.components.cmsLayoutAssignmentModal.confirmChangesTextCategories') }}
         </p>
         {% endblock %}
 
@@ -258,7 +258,7 @@
             v-if="hasCategoriesWithAssignedLayouts"
             class="sw-cms-layout-assignment-modal__confirm-text-assigned-layouts"
         >
-            {{ $tc('sw-cms.components.cmsLayoutAssignmentModal.confirmChangesTextCategoriesAssignedLayouts') }}
+            {{ $t('sw-cms.components.cmsLayoutAssignmentModal.confirmChangesTextCategoriesAssignedLayouts') }}
         </p>
         {% endblock %}
 
@@ -267,7 +267,7 @@
             v-if="hasDeletedLandingPages"
             class="sw-cms-layout-assignment-modal__confirm-text-landing-pages"
         >
-            {{ $tc('sw-cms.components.cmsLayoutAssignmentModal.confirmChangesTextLandingPages') }}
+            {{ $t('sw-cms.components.cmsLayoutAssignmentModal.confirmChangesTextLandingPages') }}
         </p>
         {% endblock %}
 
@@ -276,7 +276,7 @@
             v-if="hasLandingPagesWithAssignedLayouts"
             class="sw-cms-layout-assignment-modal__confirm-text-assigned-layouts"
         >
-            {{ $tc('sw-cms.components.cmsLayoutAssignmentModal.confirmChangesTextLandingPagesAssignedLayouts') }}
+            {{ $t('sw-cms.components.cmsLayoutAssignmentModal.confirmChangesTextLandingPagesAssignedLayouts') }}
         </p>
         {% endblock %}
 
@@ -285,7 +285,7 @@
             v-if="hasDeletedShopPages"
             class="sw-cms-layout-assignment-modal__confirm-text-shop-pages"
         >
-            {{ $tc('sw-cms.components.cmsLayoutAssignmentModal.confirmChangesTextShopPages') }}
+            {{ $t('sw-cms.components.cmsLayoutAssignmentModal.confirmChangesTextShopPages') }}
         </p>
         {% endblock %}
 
@@ -294,7 +294,7 @@
             v-if="hasDeletedProducts"
             class="sw-cms-layout-assignment-modal__confirm-text-products"
         >
-            {{ $tc('sw-cms.components.cmsLayoutAssignmentModal.confirmChangesTextProducts') }}
+            {{ $t('sw-cms.components.cmsLayoutAssignmentModal.confirmChangesTextProducts') }}
         </p>
         {% endblock %}
 
@@ -303,12 +303,12 @@
             v-if="hasProductsWithAssignedLayouts"
             class="sw-cms-layout-assignment-modal__confirm-text-products-assigned-layouts"
         >
-            {{ $tc('sw-cms.components.cmsLayoutAssignmentModal.confirmChangesTextProductsAssignedLayouts') }}
+            {{ $t('sw-cms.components.cmsLayoutAssignmentModal.confirmChangesTextProductsAssignedLayouts') }}
         </p>
         {% endblock %}
 
         {% block sw_cms_layout_assignment_modal_confirm_changes_text %}
-        <p><strong>{{ $tc('sw-cms.components.cmsLayoutAssignmentModal.confirmChangesText') }}</strong></p>
+        <p><strong>{{ $t('sw-cms.components.cmsLayoutAssignmentModal.confirmChangesText') }}</strong></p>
         {% endblock %}
 
         <template #modal-footer>
@@ -319,7 +319,7 @@
                 variant="secondary"
                 @click="onKeepEditing"
             >
-                {{ $tc('global.default.cancel') }}
+                {{ $t('global.default.cancel') }}
             </mt-button>
             {% endblock %}
 
@@ -332,7 +332,7 @@
                     variant="secondary"
                     @click="onDiscardChanges"
                 >
-                    {{ $tc('global.default.discard') }}
+                    {{ $t('global.default.discard') }}
                 </mt-button>
                 {% endblock %}
 
@@ -343,7 +343,7 @@
                     size="small"
                     @click="onConfirmChanges"
                 >
-                    {{ $tc('global.default.confirm') }}
+                    {{ $t('global.default.confirm') }}
                 </mt-button>
                 {% endblock %}
             </div>
@@ -361,7 +361,7 @@
             variant="secondary"
             @click="onAbort"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -373,7 +373,7 @@
             variant="primary"
             @click="onConfirm"
         >
-            {{ $tc('global.default.apply') }}
+            {{ $t('global.default.apply') }}
         </mt-button>
         {% endblock %}
     </template>

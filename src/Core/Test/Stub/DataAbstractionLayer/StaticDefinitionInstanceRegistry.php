@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FloatFieldSeria
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\IdFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\IntFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ListFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\LongTextFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ManyToManyAssociationFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ManyToOneAssociationFieldSerializer;
@@ -84,6 +85,7 @@ class StaticDefinitionInstanceRegistry extends DefinitionInstanceRegistry
             FloatFieldSerializer::class => new FloatFieldSerializer($this->validator, $this),
             BoolFieldSerializer::class => new BoolFieldSerializer($this->validator, $this),
             JsonFieldSerializer::class => new JsonFieldSerializer($this->validator, $this),
+            ListFieldSerializer::class => new ListFieldSerializer($this->validator, $this),
             CreatedAtFieldSerializer::class => new CreatedAtFieldSerializer($this->validator, $this),
             UpdatedAtFieldSerializer::class => new UpdatedAtFieldSerializer($this->validator, $this),
             BlobFieldSerializer::class => new BlobFieldSerializer(),

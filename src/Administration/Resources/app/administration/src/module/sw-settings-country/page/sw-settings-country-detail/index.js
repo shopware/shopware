@@ -96,7 +96,7 @@ export default {
         tooltipSave() {
             if (!this.allowSave) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     disabled: this.allowSave,
                     showOnDisabledElements: true,
                 };
@@ -240,13 +240,13 @@ export default {
             return [
                 {
                     property: 'name',
-                    label: this.$tc('sw-settings-country.detail.columnStateNameLabel'),
+                    label: this.$t('sw-settings-country.detail.columnStateNameLabel'),
                     inlineEdit: 'string',
                     primary: true,
                 },
                 {
                     property: 'shortCode',
-                    label: this.$tc('sw-settings-country.detail.columnStateShortCodeLabel'),
+                    label: this.$t('sw-settings-country.detail.columnStateShortCodeLabel'),
                     inlineEdit: 'string',
                 },
             ];

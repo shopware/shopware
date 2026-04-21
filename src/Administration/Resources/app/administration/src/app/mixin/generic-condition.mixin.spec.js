@@ -49,7 +49,7 @@ describe('app/mixin/generic-condition', () => {
                         value: null,
                     },
                     ensureValueExist: () => {},
-                    $tc: (snippetKey) => snippetKey,
+                    $t: (snippetKey) => snippetKey,
                 },
             },
         });

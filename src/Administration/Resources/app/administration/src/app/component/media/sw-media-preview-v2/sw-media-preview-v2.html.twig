@@ -69,7 +69,7 @@
                     :src="previewUrl"
                     :type="mimeType"
                 >
-                {{ $tc('global.sw-media-preview-v2.fallbackVideoTagSupport') }}
+                {{ $t('global.sw-media-preview-v2.fallbackVideoTagSupport') }}
             </video>
             <button
                 v-if="!showControls && !mediaIsPrivate"
@@ -108,7 +108,7 @@
                     :src="previewUrl"
                     :type="mimeType"
                 >
-                {{ $tc('global.sw-media-preview-v2.fallbackAudioTagSupport') }}
+                {{ $t('global.sw-media-preview-v2.fallbackAudioTagSupport') }}
             </audio>
             <button
                 v-if="!showControls"

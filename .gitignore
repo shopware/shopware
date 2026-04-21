@@ -132,6 +132,7 @@ src/Core/DevOps/Locust/**/__pycache__/
 /.shopware-project.yml
 /.tinkerwell
 /shop
+.codex
 
 .php-cs-fixer.cache
 

@@ -114,20 +114,20 @@ export default Component.wrapComponentConfig({
                 {
                     property: 'firstName',
                     dataIndex: 'lastName,firstName',
-                    label: this.$tc('sw-order.initialModal.customerGrid.columnCustomerName'),
+                    label: this.$t('sw-order.initialModal.customerGrid.columnCustomerName'),
                     primary: true,
                 },
                 {
                     property: 'customerNumber',
-                    label: this.$tc('sw-order.initialModal.customerGrid.columnCustomerNumber'),
+                    label: this.$t('sw-order.initialModal.customerGrid.columnCustomerNumber'),
                 },
                 {
                     property: 'salesChannel',
-                    label: this.$tc('sw-order.initialModal.customerGrid.columnSalesChannel'),
+                    label: this.$t('sw-order.initialModal.customerGrid.columnSalesChannel'),
                 },
                 {
                     property: 'email',
-                    label: this.$tc('sw-order.initialModal.customerGrid.columnEmailAddress'),
+                    label: this.$t('sw-order.initialModal.customerGrid.columnEmailAddress'),
                 },
             ];
         },
@@ -138,7 +138,7 @@ export default Component.wrapComponentConfig({
 
         emptyTitle(): string {
             if (!this.term) {
-                return this.$tc('sw-customer.list.messageEmpty');
+                return this.$t('sw-customer.list.messageEmpty');
             }
 
             return this.$t('sw-order.initialModal.customerGrid.textEmptySearch', { name: this.term }, 0);
@@ -275,7 +275,7 @@ export default Component.wrapComponentConfig({
                 await this.updateCustomerContext();
             } catch {
                 this.createNotificationError({
-                    message: this.$tc('sw-order.create.messageSwitchCustomerError'),
+                    message: this.$t('sw-order.create.messageSwitchCustomerError'),
                 });
             } finally {
                 this.isSwitchingCustomer = false;

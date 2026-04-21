@@ -125,8 +125,8 @@ export default {
                 'customer-number-filter': {
                     property: 'customerNumber',
                     type: 'string-filter',
-                    label: this.$tc('sw-customer.filter.customerNumber.label'),
-                    placeholder: this.$tc('sw-customer.filter.customerNumber.placeholder'),
+                    label: this.$t('sw-customer.filter.customerNumber.label'),
+                    placeholder: this.$t('sw-customer.filter.customerNumber.placeholder'),
                     valueProperty: 'key',
                     labelProperty: 'key',
                     criteriaFilterType: 'equals',
@@ -134,57 +134,57 @@ export default {
                 'affiliate-code-filter': {
                     property: 'affiliateCode',
                     type: 'string-filter',
-                    label: this.$tc('sw-customer.filter.affiliateCode.label'),
-                    placeholder: this.$tc('sw-customer.filter.affiliateCode.placeholder'),
+                    label: this.$t('sw-customer.filter.affiliateCode.label'),
+                    placeholder: this.$t('sw-customer.filter.affiliateCode.placeholder'),
                     valueProperty: 'key',
                     labelProperty: 'key',
                 },
                 'campaign-code-filter': {
                     property: 'campaignCode',
                     type: 'string-filter',
-                    label: this.$tc('sw-customer.filter.campaignCode.label'),
-                    placeholder: this.$tc('sw-customer.filter.campaignCode.placeholder'),
+                    label: this.$t('sw-customer.filter.campaignCode.label'),
+                    placeholder: this.$t('sw-customer.filter.campaignCode.placeholder'),
                     valueProperty: 'key',
                     labelProperty: 'key',
                 },
                 'customer-group-request-filter': {
                     property: 'requestedGroupId',
                     type: 'existence-filter',
-                    label: this.$tc('sw-customer.filter.customerGroupRequest.label'),
-                    placeholder: this.$tc('sw-customer.filter.customerGroupRequest.placeholder'),
-                    optionHasCriteria: this.$tc('sw-customer.filter.customerGroupRequest.textHasCriteria'),
-                    optionNoCriteria: this.$tc('sw-customer.filter.customerGroupRequest.textNoCriteria'),
+                    label: this.$t('sw-customer.filter.customerGroupRequest.label'),
+                    placeholder: this.$t('sw-customer.filter.customerGroupRequest.placeholder'),
+                    optionHasCriteria: this.$t('sw-customer.filter.customerGroupRequest.textHasCriteria'),
+                    optionNoCriteria: this.$t('sw-customer.filter.customerGroupRequest.textNoCriteria'),
                 },
                 'salutation-filter': {
                     property: 'salutation',
-                    label: this.$tc('sw-customer.filter.salutation.label'),
-                    placeholder: this.$tc('sw-customer.filter.salutation.placeholder'),
+                    label: this.$t('sw-customer.filter.salutation.label'),
+                    placeholder: this.$t('sw-customer.filter.salutation.placeholder'),
                     labelProperty: 'displayName',
                 },
                 'account-status-filter': {
                     property: 'active',
-                    label: this.$tc('sw-customer.filter.status.label'),
-                    placeholder: this.$tc('sw-customer.filter.status.placeholder'),
+                    label: this.$t('sw-customer.filter.status.label'),
+                    placeholder: this.$t('sw-customer.filter.status.placeholder'),
                 },
                 'group-filter': {
                     property: 'group',
-                    label: this.$tc('sw-customer.filter.customerGroup.label'),
-                    placeholder: this.$tc('sw-customer.filter.customerGroup.placeholder'),
+                    label: this.$t('sw-customer.filter.customerGroup.label'),
+                    placeholder: this.$t('sw-customer.filter.customerGroup.placeholder'),
                 },
                 'billing-address-country-filter': {
                     property: 'defaultBillingAddress.country',
-                    label: this.$tc('sw-customer.filter.billingCountry.label'),
-                    placeholder: this.$tc('sw-customer.filter.billingCountry.placeholder'),
+                    label: this.$t('sw-customer.filter.billingCountry.label'),
+                    placeholder: this.$t('sw-customer.filter.billingCountry.placeholder'),
                 },
                 'shipping-address-country-filter': {
                     property: 'defaultShippingAddress.country',
-                    label: this.$tc('sw-customer.filter.shippingCountry.label'),
-                    placeholder: this.$tc('sw-customer.filter.shippingCountry.placeholder'),
+                    label: this.$t('sw-customer.filter.shippingCountry.label'),
+                    placeholder: this.$t('sw-customer.filter.shippingCountry.placeholder'),
                 },
                 'tags-filter': {
                     property: 'tags',
-                    label: this.$tc('sw-customer.filter.tags.label'),
-                    placeholder: this.$tc('sw-customer.filter.tags.placeholder'),
+                    label: this.$t('sw-customer.filter.tags.label'),
+                    placeholder: this.$t('sw-customer.filter.tags.placeholder'),
                 },
             };
 
@@ -228,13 +228,13 @@ export default {
             promise
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-customer.detail.messageSaveSuccess', { name: this.salutation(customer) }, 0),
+                        message: this.$t('sw-customer.detail.messageSaveSuccess', { name: this.salutation(customer) }, 0),
                     });
                 })
                 .catch(() => {
                     this.getList();
                     this.createNotificationError({
-                        message: this.$tc('sw-customer.detail.messageSaveError'),
+                        message: this.$t('sw-customer.detail.messageSaveError'),
                     });
                 });
         },
@@ -308,8 +308,8 @@ export default {
                         });
                     } else {
                         this.createNotificationError({
-                            title: this.$tc('global.default.error'),
-                            message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                            title: this.$t('global.default.error'),
+                            message: this.$t('global.notification.unspecifiedSaveErrorMessage'),
                         });
                     }
                 });

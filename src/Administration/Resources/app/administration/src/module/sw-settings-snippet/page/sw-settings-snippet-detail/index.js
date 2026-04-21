@@ -359,7 +359,7 @@ export default {
                 appearance: 'dark',
                 showOnDisabledElements,
                 disabled: this.acl.can(role),
-                message: this.$tc('sw-privileges.tooltip.warning'),
+                message: this.$t('sw-privileges.tooltip.warning'),
             };
         },
     },

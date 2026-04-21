@@ -11,6 +11,7 @@
             <label lang="de-DE">URL zur Rückgaberichtlinie</label>
             <placeholder>Enter URL...</placeholder>
             <placeholder lang="de-DE">URL eingeben ...</placeholder>
+            <required>true</required>
         </input-field>
 
         <component name="sw-entity-multi-id-select">

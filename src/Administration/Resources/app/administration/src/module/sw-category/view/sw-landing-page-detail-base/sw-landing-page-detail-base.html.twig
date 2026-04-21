@@ -4,7 +4,7 @@
     {% block sw_landing_page_detail_base_information %}
     <mt-card
         position-identifier="sw-landing-page-detail-base"
-        :title="$tc('sw-landing-page.base.general.headlineInformationCard')"
+        :title="$t('sw-landing-page.base.general.headlineInformationCard')"
         :is-loading="isLoading"
     >
         <sw-container
@@ -18,7 +18,7 @@
                 name="landingPageName"
                 validation="required"
                 :disabled="!acl.can('landing_page.editor')"
-                :label="$tc('sw-landing-page.base.general.labelName')"
+                :label="$t('sw-landing-page.base.general.labelName')"
                 :placeholder="placeholder(landingPage, 'name')"
                 :error="landingPageNameError"
             />
@@ -30,7 +30,7 @@
                 class="sw-landing-page-detail-base__active"
                 name="landingPageActive"
                 :disabled="!acl.can('landing_page.editor')"
-                :label="$tc('sw-landing-page.base.general.isActiveLabel')"
+                :label="$t('sw-landing-page.base.general.isActiveLabel')"
                 bordered
             />
             {% endblock %}
@@ -43,8 +43,8 @@
             class="sw-landing-page-detail-base__sales_channel"
             entity-name="sales_channel"
             :disabled="!acl.can('landing_page.editor')"
-            :label="$tc('sw-landing-page.base.seo.labelSalesChannel')"
-            :placeholder="$tc('sw-landing-page.base.seo.placeholderSalesChannel')"
+            :label="$t('sw-landing-page.base.seo.labelSalesChannel')"
+            :placeholder="$t('sw-landing-page.base.seo.placeholderSalesChannel')"
             :error="landingPageSalesChannelsError"
         />
         {% endblock %}
@@ -54,8 +54,8 @@
             v-if="landingPage && !isLoading"
             v-model:entity-collection="landingPage.tags"
             class="sw-landing-page-detail-base__tags"
-            :label="$tc('sw-landing-page.base.general.labelTags')"
-            :placeholder="$tc('sw-landing-page.base.general.labelTagsPlaceholder')"
+            :label="$t('sw-landing-page.base.general.labelTags')"
+            :placeholder="$t('sw-landing-page.base.general.labelTagsPlaceholder')"
             :disabled="!acl.can('landing_page.editor')"
         />
         {% endblock %}
@@ -65,15 +65,15 @@
     {% block sw_landing_page_detail_base_seo %}
     <mt-card
         position-identifier="sw-landing-page-detail-seo"
-        :title="$tc('sw-landing-page.base.seo.title')"
+        :title="$t('sw-landing-page.base.seo.title')"
         :is-loading="isLoading"
     >
         <mt-banner
             v-if="!isLayoutSet"
             variant="attention"
-            :title="$tc('sw-landing-page.base.seo.notification.noLayoutAssigned')"
+            :title="$t('sw-landing-page.base.seo.notification.noLayoutAssigned')"
         >
-            {{ $tc('sw-landing-page.base.seo.notification.noLayoutAssigned') }}
+            {{ $t('sw-landing-page.base.seo.notification.noLayoutAssigned') }}
         </mt-banner>
 
         {% block sw_landing_page_detail_base_seo_form %}
@@ -85,9 +85,9 @@
                 v-model="landingPage.metaTitle"
                 maxlength="255"
                 :disabled="!acl.can('landing_page.editor')"
-                :label="$tc('sw-landing-page.base.seo.labelMetaTitle')"
-                :help-text="$tc('sw-landing-page.base.seo.helpTextMetaTitle')"
-                :placeholder="placeholder(landingPage, 'metaTitle', $tc('sw-landing-page.base.seo.placeholderMetaTitle'))"
+                :label="$t('sw-landing-page.base.seo.labelMetaTitle')"
+                :help-text="$t('sw-landing-page.base.seo.helpTextMetaTitle')"
+                :placeholder="placeholder(landingPage, 'metaTitle', $t('sw-landing-page.base.seo.placeholderMetaTitle'))"
             />
             {% endblock %}
 
@@ -96,9 +96,9 @@
                 v-model="landingPage.metaDescription"
                 maxlength="255"
                 :disabled="!acl.can('landing_page.editor')"
-                :label="$tc('sw-landing-page.base.seo.labelMetaDescription')"
-                :help-text="$tc('sw-landing-page.base.seo.helpTextMetaDescription')"
-                :placeholder="placeholder(landingPage, 'metaDescription', $tc('sw-landing-page.base.seo.placeholderMetaDescription'))"
+                :label="$t('sw-landing-page.base.seo.labelMetaDescription')"
+                :help-text="$t('sw-landing-page.base.seo.helpTextMetaDescription')"
+                :placeholder="placeholder(landingPage, 'metaDescription', $t('sw-landing-page.base.seo.placeholderMetaDescription'))"
             />
             {% endblock %}
 
@@ -107,8 +107,8 @@
             <mt-text-field
                 v-model="landingPage.keywords"
                 :disabled="!acl.can('landing_page.editor')"
-                :label="$tc('sw-landing-page.base.seo.labelKeywords')"
-                :placeholder="placeholder(landingPage, 'keywords', $tc('sw-landing-page.base.seo.placeholderKeywords'))"
+                :label="$t('sw-landing-page.base.seo.labelKeywords')"
+                :placeholder="placeholder(landingPage, 'keywords', $t('sw-landing-page.base.seo.placeholderKeywords'))"
             />
             {% endblock %}
 
@@ -119,8 +119,8 @@
                 required
                 name="landingPageUrl"
                 :disabled="!acl.can('landing_page.editor')"
-                :label="$tc('sw-landing-page.base.seo.labelUrl')"
-                :placeholder="placeholder(landingPage, 'url', $tc('sw-landing-page.base.seo.placeholderUrl'))"
+                :label="$t('sw-landing-page.base.seo.labelUrl')"
+                :placeholder="placeholder(landingPage, 'url', $t('sw-landing-page.base.seo.placeholderUrl'))"
                 :error="landingPageUrlError"
             />
             {% endblock %}
@@ -135,7 +135,7 @@
     <mt-card
         v-if="customFieldSetsArray.length > 0"
         position-identifier="sw-landing-page-detail-attribute-sets"
-        :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+        :title="$t('sw-settings-custom-field.general.mainMenuItemGeneral')"
         :is-loading="isLoading"
     >
         <sw-custom-field-set-renderer

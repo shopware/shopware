@@ -20,7 +20,7 @@ async function createWrapper(routeParams) {
     return mount(await wrapTestComponent('sw-login-recovery-info', { sync: true }), {
         global: {
             mocks: {
-                $tc: (...args) => JSON.stringify([...args]),
+                $t: (...args) => JSON.stringify([...args]),
                 $route: { params: routeParams },
             },
             stubs: {

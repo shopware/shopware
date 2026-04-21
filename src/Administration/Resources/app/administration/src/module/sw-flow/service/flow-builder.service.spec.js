@@ -125,7 +125,7 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
     };
 
     const translator = {
-        $tc: (snippet) => {
+        $t: (snippet) => {
             return snippet;
         },
         getInlineSnippet: (snippet) => {

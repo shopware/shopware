@@ -5,15 +5,15 @@
     height: 100%;
 
     .sw-product-download-form__row {
-        border-radius: $border-radius-default;
-        border: 1px solid $color-gray-300;
-        padding: 8px 12px 8px 16px;
-        margin-top: 16px;
+        border-radius: var(--border-radius-xs);
+        border: var(--scale-size-1) solid var(--color-gray-300);
+        padding: var(--scale-size-8) var(--scale-size-12) var(--scale-size-8) var(--scale-size-16);
+        margin-top: var(--scale-size-16);
         height: auto;
         position: relative;
         overflow: hidden;
         display: grid;
-        grid-column-gap: 12px;
+        grid-column-gap: var(--scale-size-12);
         grid-template-columns: auto 1fr min-content;
     }
 
@@ -28,26 +28,26 @@
         display: inline-flex;
         justify-self: end;
         align-items: center;
-        color: $color-gray-500;
-        font-size: $font-size-xs;
-        font-weight: $font-weight-semi-bold;
+        color: var(--color-gray-500);
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-semibold);
         white-space: nowrap;
 
         span:not(:last-of-type) {
             position: relative;
-            padding-right: 24px;
+            padding-right: var(--scale-size-24);
         }
 
         span:not(:last-of-type)::after {
             position: absolute;
             top: 50%;
-            right: 10px;
+            right: var(--scale-size-10);
             transform: translateY(-50%);
             display: block;
             content: "";
-            width: 4px;
-            height: 4px;
-            background-color: $color-gray-500;
+            width: var(--scale-size-4);
+            height: var(--scale-size-4);
+            background-color: var(--color-gray-500);
             border-radius: 50%;
         }
     }
@@ -58,7 +58,7 @@
 
     .sw-product-download-form__upload-button {
         display: block;
-        margin: 0 auto 20px;
+        margin: 0 auto var(--scale-size-20);
     }
 
     &.is--disabled::after {
@@ -69,12 +69,12 @@
         right: 0;
         bottom: 0;
         left: 0;
-        background-color: #f0f2f5;
-        border-radius: 4px;
+        background-color: var(--color-gray-100);
+        border-radius: var(--border-radius-xs);
         mix-blend-mode: multiply;
     }
 
     .sw-media-upload-v2.has--error .sw-media-upload-v2__dropzone {
-        border-color: $color-crimson-500;
+        border-color: var(--color-crimson-500);
     }
 }

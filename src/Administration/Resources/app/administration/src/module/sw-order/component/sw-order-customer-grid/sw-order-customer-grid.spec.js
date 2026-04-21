@@ -185,12 +185,6 @@ async function createWrapper() {
                 },
             },
             mocks: {
-                $tc: (key, value) => {
-                    if (!value) {
-                        return key;
-                    }
-                    return key + JSON.stringify(value);
-                },
                 $t: (key, value) => {
                     if (!value) {
                         return key;

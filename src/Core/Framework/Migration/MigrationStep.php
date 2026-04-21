@@ -11,6 +11,7 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Database\TableHelper;
+use Shopware\Core\Framework\Util\UtilException;
 
 #[Package('framework')]
 abstract class MigrationStep
@@ -84,7 +85,7 @@ abstract class MigrationStep
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:exception-change - Will throw {@see \Shopware\Core\Framework\Util\UtilException} instead of {@see TableNotFoundException}
+     * @deprecated tag:v6.8.0 - reason:exception-change - Will throw {@see UtilException} instead of {@see TableNotFoundException}
      *
      * @param non-empty-string $table
      */

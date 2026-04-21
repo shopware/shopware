@@ -125,7 +125,7 @@ export default {
 
         getPropertyTranslation(property) {
             const translationKey = `sw-product-stream.filter.values.${property}`;
-            const translated = this.$tc(translationKey);
+            const translated = this.$t(translationKey);
 
             return translated === translationKey ? property : translated;
         },

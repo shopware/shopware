@@ -57,7 +57,7 @@ export default Component.wrapComponentConfig({
                     this.updateModalShown = true;
                 } else {
                     this.createNotificationInfo({
-                        message: this.$tc('sw-settings-shopware-updates.notifications.alreadyUpToDate'),
+                        message: this.$t('sw-settings-shopware-updates.notifications.alreadyUpToDate'),
                     });
                 }
             });

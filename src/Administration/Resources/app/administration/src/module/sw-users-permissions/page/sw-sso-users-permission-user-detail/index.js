@@ -59,7 +59,7 @@ export default {
 
     computed: {
         fullName() {
-            return this.salutation(this.user, this.$tc('sw-users-permissions.users.user-detail.labelNewUser'));
+            return this.salutation(this.user, this.$t('sw-users-permissions.users.user-detail.labelNewUser'));
         },
 
         tooltipCancel() {
@@ -82,7 +82,7 @@ export default {
             return [
                 {
                     property: 'accessKey',
-                    label: this.$tc('sw-users-permissions.users.user-detail.labelAccessKey'),
+                    label: this.$t('sw-users-permissions.users.user-detail.labelAccessKey'),
                 },
             ];
         },

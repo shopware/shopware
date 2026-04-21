@@ -2,7 +2,7 @@
 <mt-card
     class="sw-category-entry-point-card"
     position-identifier="sw-category-entry-point"
-    :title="$tc('sw-category.base.entry-point-card.cardTitle')"
+    :title="$t('sw-category.base.entry-point-card.cardTitle')"
 >
 
     {% block sw_category_entry_point_card_selection %}
@@ -10,8 +10,8 @@
         v-model:value="selectedEntryPoint"
         class="sw-category-entry-point-card__entry-point-selection"
         :options="entryPoints"
-        :label="$tc('sw-category.base.entry-point-card.labelEntryPoint')"
-        :placeholder="$tc('sw-category.base.entry-point-card.placeholderEntryPoint')"
+        :label="$t('sw-category.base.entry-point-card.labelEntryPoint')"
+        :placeholder="$t('sw-category.base.entry-point-card.placeholderEntryPoint')"
         :help-text="helpText"
         :disabled="hasExistingNavigation || !acl.can('category.editor')"
         show-clearable-button
@@ -21,7 +21,7 @@
 
     {% block sw_category_entry_point_card_navigation_headline %}
     <p v-if="hasExistingNavigation">
-        {{ $tc('sw-category.base.entry-point-card.existingNavigationDescription') }}
+        {{ $t('sw-category.base.entry-point-card.existingNavigationDescription') }}
     </p>
     {% endblock %}
 
@@ -52,7 +52,7 @@
         :entity-collection="associatedCollection"
         :label="salesChannelSelectionLabel"
         :criteria="salesChannelCriteria"
-        :placeholder="$tc('sw-category.base.entry-point-card.placeholderSalesChannels')"
+        :placeholder="$t('sw-category.base.entry-point-card.placeholderSalesChannels')"
         :disabled="!selectedEntryPoint || !acl.can('category.editor')"
         @update:entity-collection="onSalesChannelChange"
     />
@@ -67,7 +67,7 @@
         variant="secondary"
         @click="openConfigureHomeModal"
     >
-        {{ $tc('sw-category.base.entry-point-card.buttonConfigureHome') }}
+        {{ $t('sw-category.base.entry-point-card.buttonConfigureHome') }}
     </mt-button>
     {% endblock %}
 

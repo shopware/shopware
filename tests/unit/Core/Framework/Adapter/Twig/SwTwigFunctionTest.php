@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\SwTwigFunction;
 use Shopware\Core\Framework\Struct\ArrayStruct;
@@ -18,11 +18,11 @@ use Twig\Source;
 #[CoversClass(SwTwigFunction::class)]
 class SwTwigFunctionTest extends TestCase
 {
-    private MockObject&Environment $environment;
+    private Stub&Environment $environment;
 
     protected function setUp(): void
     {
-        $this->environment = $this->createMock(Environment::class);
+        $this->environment = static::createStub(Environment::class);
     }
 
     /**
@@ -96,9 +96,8 @@ class SwTwigFunctionTest extends TestCase
         static::assertSame($expected, $result);
     }
 
-    public function testGetAttributePropagatesThrowable(): void
+    public function testGetAttributeFallsBackToCoreExtensionWhenMethodThrows(): void
     {
-        $env = $this->createMock(Environment::class);
         $source = new Source('', 'test_template');
 
         $this->expectExceptionObject(new \RuntimeException('Test exception'));
@@ -107,7 +106,7 @@ class SwTwigFunctionTest extends TestCase
         $struct->setThrowException(true);
 
         SwTwigFunction::getAttribute(
-            $env,
+            $this->environment,
             $source,
             $struct,
             'nonExistentProperty'

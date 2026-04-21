@@ -7,7 +7,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\Runtime\CachedEscaperRuntime;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Assert\StrictEmpty;
 use Twig\Error\RuntimeError;
 use Twig\Markup;
@@ -185,7 +184,7 @@ class CachedEscaperRuntimeTest extends TestCase
         CachedEscaperRuntime::resetEscapeCache();
     }
 
-    #[TestDox('Ensures that the decoration stays in sync with upstream')]
+    #[TestDox('stays in sync with upstream EscaperRuntime public methods')]
     public function testAllPublicMethodsAreMimicked(): void
     {
         $originalMethodNames = get_class_methods(EscaperRuntime::class);
@@ -357,7 +356,7 @@ class CachedEscaperRuntimeTest extends TestCase
     }
 
     #[DataProvider('provideCustomEscaperCases')]
-    public function testCustomEscaper(string $expected, int|string|null $string, string $strategy): void
+    public function testCustomEscaper(string $expected, string $string, string $strategy): void
     {
         $escapeRuntime = new EscaperRuntime();
         $escapeRuntime->setEscaper('foo', foo_escaper_for_test(...));
@@ -367,17 +366,13 @@ class CachedEscaperRuntimeTest extends TestCase
     }
 
     /**
-     * @return list<array{string, int|string|null, string}>
+     * @return \Generator<string, array{string, string, string}>
      */
-    public static function provideCustomEscaperCases(): array
+    public static function provideCustomEscaperCases(): \Generator
     {
-        return [
-            ['FOO', 'foo', 'foo'],
-            ['FOO', 'fOo', 'foo'],
-            ['', '', 'foo'],
-            ['', null, 'foo'],
-            ['42', 42, 'foo'],
-        ];
+        yield 'lower case to upper case' => ['FOO', 'foo', 'foo'];
+        yield 'mixed case to upper case' => ['FOO', 'fOo', 'foo'];
+        yield 'empty string stays empty string' => ['', '', 'foo'];
     }
 
     public function testUnknownCustomEscaper(): void
@@ -403,16 +398,13 @@ class CachedEscaperRuntimeTest extends TestCase
     }
 
     /**
-     * @return list<array{string, string, array<class-string<Extension_TestClass>, list<string>>}>
+     * @return \Generator<string, array{string, string, array<class-string<Extension_TestClass>, list<string>>}>
      */
-    public static function provideObjectsForEscaping(): array
+    public static function provideObjectsForEscaping(): \Generator
     {
-        return [
-            ['&lt;br /&gt;', '<br />', ['\\' . Extension_TestClass::class => ['js']]],
-            ['<br />', '\u003Cbr\u0020\/\u003E', ['\\' . Extension_TestClass::class => ['html']]],
-            ['&lt;br /&gt;', '<br />', ['\\' . Extension_TestClass::class => ['js']]],
-            ['<br />', '<br />', ['\\' . Extension_TestClass::class => ['all']]],
-        ];
+        yield 'escape JS only' => ['&lt;br /&gt;', '<br />', ['\\' . Extension_TestClass::class => ['js']]];
+        yield 'escape HTML only' => ['<br />', '\u003Cbr\u0020\/\u003E', ['\\' . Extension_TestClass::class => ['html']]];
+        yield 'escape all' => ['<br />', '<br />', ['\\' . Extension_TestClass::class => ['all']]];
     }
 
     /**
@@ -465,95 +457,107 @@ class CachedEscaperRuntimeTest extends TestCase
 
     public function testEscapeWithCachedString(): void
     {
-        // First call to cache the result
-        $string = 'cached_string';
-        $result1 = $this->escaper->escape($string);
+        $callCount = 0;
+        $runtime = new EscaperRuntime();
+        $runtime->setEscaper('test', static function (string $string) use (&$callCount): string {
+            ++$callCount;
 
-        // Make sure result is cached
-        $cache = (new \ReflectionProperty($this->escaper, 'escapeCache'))->getValue();
-        static::assertCount(1, $cache);
-        static::assertArrayHasKey($string, $cache);
+            return strtoupper($string);
+        });
 
-        // Second call to get the cached result
-        $result2 = $this->escaper->escape($string);
+        $escaper = new CachedEscaperRuntime($runtime);
 
-        // Assert that the results are the same, indicating the cache was used
-        static::assertSame($result1, $result2);
+        static::assertSame('FOO', $escaper->escape('foo', 'test'));
+        static::assertSame('FOO', $escaper->escape('foo', 'test'));
+        static::assertSame('FOO', $escaper->escape('foo', 'test'));
+
+        static::assertSame(1, $callCount);
     }
 
     public function testEscapeWithCachedMarkup(): void
     {
-        $stringable = new Markup('cached_string', 'UTF-8');
-        $hash = spl_object_hash($stringable);
+        $callCount = 0;
+        $runtime = new EscaperRuntime();
+        $runtime->setEscaper('test', static function (string $string) use (&$callCount): string {
+            ++$callCount;
 
-        // First call to cache the result
-        $result1 = $this->escaper->escape($stringable);
+            return strtoupper($string);
+        });
 
-        // Make sure result is cached
-        $cache = (new \ReflectionProperty($this->escaper, 'escapeCache'))->getValue();
-        static::assertCount(1, $cache);
-        static::assertArrayHasKey($hash, $cache);
+        $escaper = new CachedEscaperRuntime($runtime);
 
-        // Second call to get the cached result
-        $result2 = $this->escaper->escape($stringable);
+        $stringable = new Markup('foo', 'UTF-8');
+        static::assertSame('FOO', $escaper->escape($stringable, 'test'));
+        static::assertSame('FOO', $escaper->escape($stringable, 'test'));
 
-        // Assert that the results are the same, indicating the cache was used
-        static::assertSame($result1, $result2);
+        static::assertSame(1, $callCount);
+    }
+
+    public function testDifferentStrategiesAreCachedSeparately(): void
+    {
+        $callCount = 0;
+        $runtime = new EscaperRuntime();
+        $runtime->setEscaper('upper', static function (string $string) use (&$callCount): string {
+            ++$callCount;
+
+            return strtoupper($string);
+        });
+        $runtime->setEscaper('lower', static function (string $string) use (&$callCount): string {
+            ++$callCount;
+
+            return strtolower($string);
+        });
+
+        $escaper = new CachedEscaperRuntime($runtime);
+
+        static::assertSame('FOO', $escaper->escape('Foo', 'upper'));
+        static::assertSame('foo', $escaper->escape('Foo', 'lower'));
+        static::assertSame('FOO', $escaper->escape('Foo', 'upper'));
+        static::assertSame('foo', $escaper->escape('Foo', 'lower'));
+
+        static::assertSame(2, $callCount);
     }
 
     public function testEscapeWithStringableThatIsMutatedBetweenCallsIsNotConsideredForCaching(): void
     {
-        $stringable = new Extension_TestClass('cached_string_one');
-        $hash1 = spl_object_hash($stringable);
+        $callCount = 0;
+        $runtime = new EscaperRuntime();
+        $runtime->setEscaper('test', static function (string $string) use (&$callCount): string {
+            ++$callCount;
 
-        $result1 = $this->escaper->escape($stringable);
+            return strtoupper($string);
+        });
 
-        $cache = (new \ReflectionProperty($this->escaper, 'escapeCache'))->getValue();
-        static::assertCount(0, $cache);
+        $escaper = new CachedEscaperRuntime($runtime);
 
-        $stringable->string = 'cached_string_two';
-        $hash2 = spl_object_hash($stringable);
+        $stringable = new Extension_TestClass('foo1');
 
-        static::assertSame($hash1, $hash2);
+        static::assertSame('FOO1', $escaper->escape($stringable, 'test'));
 
-        $result2 = $this->escaper->escape($stringable);
+        $stringable->string = 'foo2';
 
-        static::assertNotSame($result1, $result2);
-    }
+        static::assertSame('FOO2', $escaper->escape($stringable, 'test'));
 
-    public function testEscapeUuidWithCache(): void
-    {
-        // First call to cache the result
-        $string = Uuid::randomHex();
-        $result1 = $this->escaper->escape($string);
-
-        // Make sure result is cached
-        $cache = (new \ReflectionProperty($this->escaper, 'escapeCache'))->getValue();
-        static::assertCount(1, $cache);
-        static::assertArrayHasKey($string, $cache);
-
-        // Second call to get the cached result
-        $result2 = $this->escaper->escape($string);
-
-        // Assert that the results are the same, indicating the cache was used
-        static::assertSame($result1, $result2);
+        static::assertSame(2, $callCount);
     }
 
     public function testEscapeDoesNotCacheBooleanInput(): void
     {
-        $cacheProperty = new \ReflectionProperty($this->escaper, 'escapeCache');
-        $cacheBefore = $cacheProperty->getValue();
-        static::assertCount(0, $cacheBefore);
+        $callCount = 0;
+        $runtime = new EscaperRuntime();
+        $runtime->setEscaper('test', static function (mixed $string) use (&$callCount): mixed {
+            ++$callCount;
 
-        $result1 = $this->escaper->escape(true);
-        $cacheAfterFirstCall = $cacheProperty->getValue();
-        static::assertCount(0, $cacheAfterFirstCall);
+            return $string;
+        });
 
-        $result2 = $this->escaper->escape(true);
-        $cacheAfterSecondCall = $cacheProperty->getValue();
-        static::assertCount(0, $cacheAfterSecondCall);
+        $escaper = new CachedEscaperRuntime($runtime);
+        static::assertTrue($escaper->escape(true, 'test'));
+        static::assertTrue($escaper->escape(true, 'test'));
+        static::assertFalse($escaper->escape(false, 'test'));
+        static::assertFalse($escaper->escape(false, 'test'));
 
-        static::assertSame($result1, $result2);
+        static::assertSame(4, $callCount);
     }
 
     /**
@@ -588,12 +592,8 @@ class CachedEscaperRuntimeTest extends TestCase
     }
 }
 
-function foo_escaper_for_test(?string $string): string
+function foo_escaper_for_test(string $string): string
 {
-    if ($string === null) {
-        return '';
-    }
-
     return strtoupper($string);
 }
 

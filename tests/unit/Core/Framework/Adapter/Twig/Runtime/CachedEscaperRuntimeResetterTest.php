@@ -25,32 +25,26 @@ class CachedEscaperRuntimeResetterTest extends TestCase
         CachedEscaperRuntime::resetEscapeCache();
     }
 
-    public function testEscapeFilterCallsGetRuntimeAfterReset(): void
+    public function testResetOfCacheArray(): void
     {
-        $escaper = new CachedEscaperRuntime(new EscaperRuntime());
+        $callCount = 0;
+        $runtime = new EscaperRuntime();
+        $runtime->setEscaper('test', static function (string $string) use (&$callCount): string {
+            ++$callCount;
 
-        $escapeCacheProperty = new \ReflectionProperty($escaper, 'escapeCache');
+            return $string;
+        });
 
-        $cacheBefore = $escapeCacheProperty->getValue();
-        static::assertSame([], $cacheBefore);
+        $escaper = new CachedEscaperRuntime($runtime);
 
-        // First call to populate the cache
-        $escaper->escape('resetter_test_string', 'html', 'UTF-8');
-        $cacheAfterFirstCall = $escapeCacheProperty->getValue();
-        static::assertCount(1, $cacheAfterFirstCall);
-        static::assertArrayHasKey('resetter_test_string', $cacheAfterFirstCall);
+        $escaper->escape('foo', 'test');
+        $escaper->escape('foo', 'test');
 
-        // Reset the cache
-        $resetter = new CachedEscaperRuntimeResetter();
-        $resetter->reset();
+        (new CachedEscaperRuntimeResetter())->reset();
 
-        $cacheAfterReset = $escapeCacheProperty->getValue();
-        static::assertSame([], $cacheAfterReset);
+        $escaper->escape('foo', 'test');
+        $escaper->escape('foo', 'test');
 
-        // After reset, getRuntime should be called again
-        $escaper->escape('resetter_test_string', 'html', 'UTF-8');
-        $cacheAfterSecondCall = $escapeCacheProperty->getValue();
-        static::assertCount(1, $cacheAfterSecondCall);
-        static::assertArrayHasKey('resetter_test_string', $cacheAfterSecondCall);
+        static::assertSame(2, $callCount, 'The inner runtime should be called once before and once after the reset');
     }
 }

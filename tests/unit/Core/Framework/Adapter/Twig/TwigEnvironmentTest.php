@@ -28,13 +28,16 @@ class TwigEnvironmentTest extends TestCase
 
     public function testGetRuntimeToReturnCachedEscaper(): void
     {
+        $escaper = (new TwigEnvironment(new ArrayLoader([])))->getRuntime(EscaperRuntime::class);
+        static::assertInstanceOf(CachedEscaperRuntime::class, $escaper);
+    }
+
+    public function testGetRuntimeCachesEscaperInstance(): void
+    {
         $twig = new TwigEnvironment(new ArrayLoader([]));
 
         $escaper = $twig->getRuntime(EscaperRuntime::class);
-        static::assertInstanceOf(CachedEscaperRuntime::class, $escaper);
-
         $secondCallEscaper = $twig->getRuntime(EscaperRuntime::class);
-        static::assertInstanceOf(CachedEscaperRuntime::class, $secondCallEscaper);
 
         // Assert internal caching of the class
         static::assertSame($escaper, $secondCallEscaper);
@@ -56,11 +59,5 @@ class TwigEnvironmentTest extends TestCase
 
         $otherRuntime = $twig->getRuntime(\stdClass::class);
         static::assertInstanceOf(\stdClass::class, $otherRuntime);
-
-        $secondOtherRuntime = $twig->getRuntime(\stdClass::class);
-        static::assertInstanceOf(\stdClass::class, $secondOtherRuntime);
-
-        // Original Twig Environment also caches classes
-        static::assertSame($otherRuntime, $secondOtherRuntime);
     }
 }

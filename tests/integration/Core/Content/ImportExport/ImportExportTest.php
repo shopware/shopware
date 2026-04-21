@@ -1650,12 +1650,16 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         ], $context);
 
         $profile = $this->cloneDefaultProfile(ProductDefinition::ENTITY_NAME);
+
         $mappings = $profile->getMapping();
+        static::assertIsArray($mappings);
+
         array_unshift($mappings, [
             'key' => 'deliveryTime.translations.DEFAULT.name',
             'mappedKey' => 'delivery_time',
             'position' => -1,
         ]);
+
         $this->updateProfileMapping($profile->getId(), $mappings);
 
         $progress = $this->export(Context::createDefaultContext(), ProductDefinition::ENTITY_NAME, new Criteria([$productId]), null, $profile->getId());

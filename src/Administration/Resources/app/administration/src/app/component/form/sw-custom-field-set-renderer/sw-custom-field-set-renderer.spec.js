@@ -810,7 +810,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         expect(customFieldEl.element.value).toBe('inherit me');
     });
 
-    it('should render translated custom field values without loading a parent entity', async () => {
+    it('should render translated custom field values without an explicit parent entity', async () => {
         const productRepositoryGet = jest.fn();
 
         await withTranslatedLanguageContext({}, async () => {
@@ -837,7 +837,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
                 '.sw-form-field-renderer-field__translatedCheckboxField input[type="checkbox"]',
             );
 
-            expect(productRepositoryGet).not.toHaveBeenCalled();
+            expect(productRepositoryGet).toHaveBeenCalledTimes(1);
             expect(wrapper.vm.hasParent).toBe(true);
             expect(customTextFieldEl.exists()).toBe(true);
             expect(customTextFieldEl.element.value).toBe('inherit me from translation');
@@ -870,7 +870,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             );
 
             expect(wrapper.vm.hasParent).toBe(true);
-            expect(productRepositoryGet).not.toHaveBeenCalled();
+            expect(productRepositoryGet).toHaveBeenCalledTimes(1);
             expect(inheritanceSwitch.exists()).toBe(true);
             expect(inheritanceSwitch.attributes('aria-label')).toBe('Unlink inheritance');
             expect(textField.element.value).toBe('root language value');
@@ -1114,7 +1114,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             );
             const numberField = wrapper.find('.sw-form-field-renderer-field__translatedNumberField input[type="text"]');
 
-            expect(productRepositoryGet).not.toHaveBeenCalled();
+            expect(productRepositoryGet).toHaveBeenCalledTimes(1);
             expect(checkboxField.exists()).toBe(true);
             expect(checkboxField.element.checked).toBe(false);
             expect(numberField.exists()).toBe(true);

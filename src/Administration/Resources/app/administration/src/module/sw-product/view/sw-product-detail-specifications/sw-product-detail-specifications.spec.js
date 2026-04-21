@@ -132,10 +132,7 @@ function setupCustomFieldSpecificationState({ product, parentProduct = {}, custo
 }
 
 async function createWrapper(privileges = [], options = {}) {
-    const {
-        renderRealCustomFieldRenderer = false,
-        repositoryFactoryCreate,
-    } = options;
+    const { renderRealCustomFieldRenderer = false, repositoryFactoryCreate } = options;
 
     const stubs = {
         'mt-card': {
@@ -688,46 +685,48 @@ describe('src/module/sw-product/view/sw-product-detail-specifications', () => {
                 parentId: null,
             },
             async () => {
-            setupCustomFieldSpecificationState({
-                product: createProductEntity({
-                    customFields: {
-                        custom_test_text: null,
-                        custom_test_checkbox: null,
-                    },
-                    translatedCustomFields: {},
-                }),
-                parentProduct: {},
-                customFieldSets: createCustomFieldSets([
-                    createTranslatedTextField(),
-                    createTranslatedCheckboxField(),
-                ]),
-            });
+                setupCustomFieldSpecificationState({
+                    product: createProductEntity({
+                        customFields: {
+                            custom_test_text: null,
+                            custom_test_checkbox: null,
+                        },
+                        translatedCustomFields: {},
+                    }),
+                    parentProduct: {},
+                    customFieldSets: createCustomFieldSets([
+                        createTranslatedTextField(),
+                        createTranslatedCheckboxField(),
+                    ]),
+                });
 
-            const wrapper = await createWrapper([], {
-                renderRealCustomFieldRenderer: true,
-                ...createProductRepositoryOptions(productRepositoryGet),
-            });
+                const wrapper = await createWrapper([], {
+                    renderRealCustomFieldRenderer: true,
+                    ...createProductRepositoryOptions(productRepositoryGet),
+                });
 
-            await flushPromises();
+                await flushPromises();
 
-            const textInheritanceSwitch = wrapper.find(
-                '.sw-form-field-renderer-field__custom_test_text .mt-inheritance-switch',
-            );
-            const checkboxInheritanceSwitch = wrapper.find(
-                '.sw-form-field-renderer-field__custom_test_checkbox .mt-inheritance-switch',
-            );
-            const textField = wrapper.find('.sw-form-field-renderer-field__custom_test_text input[type="text"]');
-            const checkboxField = wrapper.find('.sw-form-field-renderer-field__custom_test_checkbox input[type="checkbox"]');
+                const textInheritanceSwitch = wrapper.find(
+                    '.sw-form-field-renderer-field__custom_test_text .mt-inheritance-switch',
+                );
+                const checkboxInheritanceSwitch = wrapper.find(
+                    '.sw-form-field-renderer-field__custom_test_checkbox .mt-inheritance-switch',
+                );
+                const textField = wrapper.find('.sw-form-field-renderer-field__custom_test_text input[type="text"]');
+                const checkboxField = wrapper.find(
+                    '.sw-form-field-renderer-field__custom_test_checkbox input[type="checkbox"]',
+                );
 
-            expect(textInheritanceSwitch.exists()).toBe(true);
-            expect(checkboxInheritanceSwitch.exists()).toBe(true);
-            expect(textInheritanceSwitch.attributes('aria-label')).toBe('Unlink inheritance');
-            expect(checkboxInheritanceSwitch.attributes('aria-label')).toBe('Unlink inheritance');
-            expect(textField.element.value).toBe('English value');
-            expect(textField.attributes('disabled')).toBeDefined();
-            expect(checkboxField.element.checked).toBe(true);
-            expect(checkboxField.attributes('disabled')).toBeDefined();
-            expect(productRepositoryGet).toHaveBeenCalledTimes(1);
+                expect(textInheritanceSwitch.exists()).toBe(true);
+                expect(checkboxInheritanceSwitch.exists()).toBe(true);
+                expect(textInheritanceSwitch.attributes('aria-label')).toBe('Unlink inheritance');
+                expect(checkboxInheritanceSwitch.attributes('aria-label')).toBe('Unlink inheritance');
+                expect(textField.element.value).toBe('English value');
+                expect(textField.attributes('disabled')).toBeDefined();
+                expect(checkboxField.element.checked).toBe(true);
+                expect(checkboxField.attributes('disabled')).toBeDefined();
+                expect(productRepositoryGet).toHaveBeenCalledTimes(1);
             },
         );
     });

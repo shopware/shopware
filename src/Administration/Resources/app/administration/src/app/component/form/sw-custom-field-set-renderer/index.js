@@ -256,6 +256,12 @@ export default {
             return Object.values(this.customFields ?? {}).some((value) => value !== null && value !== undefined);
         },
 
+        hasInheritedTranslatedCustomFields() {
+            return this.sets.some((set) => {
+                return set.customFields?.some((customField) => this.isInheritedTranslatedCustomField(customField.name));
+            });
+        },
+
         hasInheritedTranslatedCustomFieldsWithoutFallback() {
             return this.sets.some((set) => {
                 return set.customFields?.some((customField) => {
@@ -351,7 +357,7 @@ export default {
 
             const loadKey = this.getTranslatedInheritanceLoadKey();
 
-            if (!this.hasOverriddenTranslatedCustomFields() && !this.hasInheritedTranslatedCustomFieldsWithoutFallback()) {
+            if (!this.hasOverriddenTranslatedCustomFields() && !this.hasInheritedTranslatedCustomFields()) {
                 if (this.translatedInheritanceLoadKey !== loadKey) {
                     this.resetTranslatedInheritanceState();
                 }

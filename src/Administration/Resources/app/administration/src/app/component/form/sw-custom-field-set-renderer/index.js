@@ -307,7 +307,7 @@ Component.register('sw-custom-field-set-renderer', {
             }
 
             if (customFieldClone.config.customFieldType === 'entity' && customFieldClone.config.entity === 'product') {
-                const criteria = new Criteria(1, 25);
+                const criteria = new Criteria(1, 25).setTotalCountMode(0);
                 criteria.addAssociation('options.group');
 
                 customFieldClone.config.criteria = criteria;

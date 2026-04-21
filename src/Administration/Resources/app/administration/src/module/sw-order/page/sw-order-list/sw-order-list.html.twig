@@ -15,7 +15,7 @@
         {% block sw_order_list_smart_bar_header_title %}
         <h2>
             {% block sw_order_list_smart_bar_header_title_text %}
-            {{ $tc('sw-order.list.textOrders') }}
+            {{ $t('sw-order.list.textOrders') }}
             {% endblock %}
 
             {% block sw_order_list_smart_bar_header_amount %}
@@ -38,7 +38,7 @@
         {% block sw_order_list_smart_bar_actions_add %}
         <mt-button
             v-tooltip="{
-                message: $tc('sw-privileges.tooltip.warning'),
+                message: $t('sw-privileges.tooltip.warning'),
                 disabled: acl.can('order.creator'),
                 showOnDisabledElements: true
             }"
@@ -49,7 +49,7 @@
             data-analytics-id="sw-order-list.add-order"
             @click="$router.push({ name: 'sw.order.create' })"
         >
-            {{ $tc('sw-order.list.buttonAddOrder') }}
+            {{ $t('sw-order.list.buttonAddOrder') }}
         </mt-button>
         {% endblock %}
 
@@ -118,13 +118,13 @@
                         size="small"
                         class="sw-order-list__manual-order-label"
                     >
-                        {{ $tc('sw-order.list.labelManualOrder') }}
+                        {{ $t('sw-order.list.labelManualOrder') }}
                     </sw-label>
                     {% endblock %}
 
                     <mt-button
                         v-if="item.customerComment"
-                        v-tooltip="{ message: $tc('sw-order.list.tooltipCustomerComment', { comment: `${item.customerComment}` }) }"
+                        v-tooltip="{ message: $t('sw-order.list.tooltipCustomerComment', { comment: `${item.customerComment}` }) }"
                         class="sw-order-list__tooltip-order-comment"
                         size="x-small"
                         variant="secondary"
@@ -137,7 +137,7 @@
 
                     <mt-button
                         v-if="item.internalComment"
-                        v-tooltip="{ message: $tc('sw-order.list.tooltipInternalComment', { comment: `${item.internalComment}` }) }"
+                        v-tooltip="{ message: $t('sw-order.list.tooltipInternalComment', { comment: `${item.internalComment}` }) }"
                         class="sw-order-list__tooltip-order-comment"
                         size="x-small"
                         variant="primary"
@@ -252,7 +252,7 @@
                         class="sw-order-list__order-view-action"
                         :router-link="{ name: 'sw.order.detail', params: { id: item.id } }"
                     >
-                        {{ $tc('sw-order.list.contextMenuView') }}
+                        {{ $t('sw-order.list.contextMenuView') }}
                     </sw-context-menu-item>
                     {% endblock %}
 
@@ -263,7 +263,7 @@
                         data-analytics-id="sw-order-list.delete-order"
                         @click="onDelete(item.id)"
                     >
-                        {{ $tc('sw-order.list.contextMenuDelete') }}
+                        {{ $t('sw-order.list.contextMenuDelete') }}
                     </sw-context-menu-item>
                     {% endblock %}
                 </template>
@@ -274,13 +274,13 @@
                     {% block sw_order_list_delete_modal %}
                     <sw-modal
                         v-if="showDeleteModal === item.id"
-                        :title="$tc('global.default.warning')"
+                        :title="$t('global.default.warning')"
                         variant="small"
                         @modal-close="onCloseDeleteModal"
                     >
                         {% block sw_order_list_delete_modal_confirm_delete_text %}
                         <p class="sw-order-list__confirm-delete-text">
-                            {{ $tc('sw-order.list.textDeleteConfirm', { orderNumber: `${item.orderNumber}` }, 0) }}
+                            {{ $t('sw-order.list.textDeleteConfirm', { orderNumber: `${item.orderNumber}` }, 0) }}
                         </p>
                         {% endblock %}
 
@@ -293,7 +293,7 @@
                                 data-analytics-id="sw-order-list.delete-modal-cancel"
                                 @click="onCloseDeleteModal"
                             >
-                                {{ $tc('global.default.cancel') }}
+                                {{ $t('global.default.cancel') }}
                             </mt-button>
                             {% endblock %}
 
@@ -304,7 +304,7 @@
                                 data-analytics-id="sw-order-list.delete-modal-confirm"
                                 @click="onConfirmDelete(item.id)"
                             >
-                                {{ $tc('sw-order.list.buttonDelete') }}
+                                {{ $t('sw-order.list.buttonDelete') }}
                             </mt-button>
                             {% endblock %}
                         </template>
@@ -337,7 +337,7 @@
                         @click="showBulkEditModal = true"
                         @keydown.enter="showBulkEditModal = true"
                     >
-                        {{ $tc('global.sw-bulk-edit-modal.bulkEdit') }}
+                        {{ $t('global.sw-bulk-edit-modal.bulkEdit') }}
                     </a>
                     {% endblock %}
                 </template>
@@ -374,7 +374,7 @@
                                 size="small"
                                 class="sw-order-bulk_edit__manual-order-label"
                             >
-                                {{ $tc('sw-order.list.labelManualOrder') }}
+                                {{ $t('sw-order.list.labelManualOrder') }}
                             </sw-label>
                             {% endblock %}
                         </template>
@@ -463,7 +463,7 @@
             {% block sw_order_list_sidebar_refresh %}
             <sw-sidebar-item
                 icon="regular-undo"
-                :title="$tc('sw-order.list.titleSidebarItemRefresh')"
+                :title="$t('sw-order.list.titleSidebarItemRefresh')"
                 @click="onRefresh"
             />
             {% endblock %}

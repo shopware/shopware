@@ -33,7 +33,7 @@ describe('src/module/sw-settings-mailer/component/sw-settings-mailer-smtp', () =
                         'sw-ai-copilot-badge': true,
                     },
                     mocks: {
-                        $tc(translationKey) {
+                        $t(translationKey) {
                             return translationKey;
                         },
                     },

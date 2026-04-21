@@ -238,7 +238,7 @@ export default function createLicenseViolationsService(storeService) {
         });
 
         const ignorePluginAction = {
-            label: getApplicationRootReference().$tc('sw-license-violation.ignorePlugin'),
+            label: getApplicationRootReference().$t('sw-license-violation.ignorePlugin'),
             method: () => ignorePlugin(warning.name, getIgnoredPlugins()),
         };
 

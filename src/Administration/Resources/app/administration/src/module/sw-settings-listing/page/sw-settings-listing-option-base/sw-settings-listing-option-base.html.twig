@@ -55,8 +55,8 @@
         {% block sw_settings_listing_option_base_smart_bar_actions_grid_delete_modal %}
         <sw-settings-listing-delete-modal
             v-if="toBeDeletedCriteria"
-            :title="$tc('sw-settings-listing.base.delete.modalTitle')"
-            :description="$tc('sw-settings-listing.base.delete.modalDescription')"
+            :title="$t('sw-settings-listing.base.delete.modalTitle')"
+            :description="$t('sw-settings-listing.base.delete.modalDescription')"
             @cancel="toBeDeletedCriteria = null"
             @delete="onConfirmDeleteCriteria"
         />

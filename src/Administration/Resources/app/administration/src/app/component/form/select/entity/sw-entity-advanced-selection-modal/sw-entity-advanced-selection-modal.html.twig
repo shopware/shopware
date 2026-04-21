@@ -17,7 +17,7 @@
             {% block sw_entity_advanced_selection_modal_toolbar %}
             <sw-card-filter
                 class="sw-entity-advanced-selection-modal__card-filter"
-                :placeholder="$tc('global.sw-entity-advanced-selection-modal.searchPlaceholder')"
+                :placeholder="$t('global.sw-entity-advanced-selection-modal.searchPlaceholder')"
                 :initial-search-term="initialSearchTerm"
                 @sw-card-filter-term-change="onSearch"
             >
@@ -43,7 +43,7 @@
                                 {{ activeFilterNumber }}
                             </i>
 
-                            {{ $tc('global.sw-entity-advanced-selection-modal.filter') }}
+                            {{ $t('global.sw-entity-advanced-selection-modal.filter') }}
                         </mt-button>
                         {% endblock %}
 
@@ -51,7 +51,7 @@
                         <sw-context-menu v-show="filterWindowOpen">
                             {% block sw_entity_advanced_selection_modal_toolbar_filter_panel_headline %}
                             <h3 class="sw-entity-advanced-selection-modal__filter-headline">
-                                {{ $tc('global.sw-entity-advanced-selection-modal.filter') }}
+                                {{ $t('global.sw-entity-advanced-selection-modal.filter') }}
                             </h3>
                             {% endblock %}
 
@@ -78,7 +78,7 @@
                                     class="sw-entity-advanced-selection-modal__filter-reset"
                                     @click="clearFilters"
                                 >
-                                    {{ $tc('global.sw-entity-advanced-selection-modal.resetFilters') }}
+                                    {{ $t('global.sw-entity-advanced-selection-modal.resetFilters') }}
                                 </a>
                             </div>
                             {% endblock %}
@@ -151,8 +151,8 @@
                 v-else
                 class="sw-entity-advanced-selection-modal__empty-state"
                 :icon="emptyIcon"
-                :headline="$tc('sw-empty-state.messageNoResultTitle')"
-                :description="$tc('sw-empty-state.messageNoResultSublineSimple')"
+                :headline="$t('sw-empty-state.messageNoResultTitle')"
+                :description="$t('sw-empty-state.messageNoResultSublineSimple')"
             />
             {% endblock %}
         </template>
@@ -167,7 +167,7 @@
             variant="secondary"
             @click="$emit('modal-close')"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -179,7 +179,7 @@
             :disabled="isLoading"
             @click="onApply"
         >
-            {{ $tc('global.sw-entity-advanced-selection-modal.applySelection') }}
+            {{ $t('global.sw-entity-advanced-selection-modal.applySelection') }}
         </mt-button>
         {% endblock %}
     </template>

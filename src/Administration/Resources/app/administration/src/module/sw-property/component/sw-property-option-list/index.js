@@ -58,7 +58,7 @@ export default {
 
         tooltipAdd() {
             return {
-                message: this.$tc('sw-property.detail.addOptionNotPossible'),
+                message: this.$t('sw-property.detail.addOptionNotPossible'),
                 disabled: this.isSystemLanguage,
             };
         },
@@ -198,7 +198,7 @@ export default {
             return [
                 {
                     property: 'name',
-                    label: this.$tc('sw-property.detail.labelOptionName'),
+                    label: this.$t('sw-property.detail.labelOptionName'),
                     routerLink: 'sw.property.detail',
                     inlineEdit: 'string',
                     primary: true,
@@ -206,11 +206,11 @@ export default {
                 },
                 {
                     property: 'colorHexCode',
-                    label: this.$tc('sw-property.detail.labelOptionColor'),
+                    label: this.$t('sw-property.detail.labelOptionColor'),
                 },
                 {
                     property: 'position',
-                    label: this.$tc('sw-property.detail.labelOptionPosition'),
+                    label: this.$t('sw-property.detail.labelOptionPosition'),
                     inlineEdit: 'number',
                 },
             ];

@@ -1,6 +1,6 @@
 {% block sw_settings_search_excluded_search_terms %}
 <mt-card
-    :title="$tc('sw-settings-search.generalTab.labelExcludedSearchTerms')"
+    :title="$t('sw-settings-search.generalTab.labelExcludedSearchTerms')"
     class="sw-settings-search-excluded-search-terms"
     position-identifier="sw-settings-search-excluded-search-terms"
 >
@@ -8,7 +8,7 @@
         {% block sw_settings_search_excluded_search_terms_empty_state %}
         <sw-empty-state
             v-if="showEmptyState"
-            :title="$tc('sw-settings-search.generalTab.textEmptyStateExcludedSearchTerms')"
+            :title="$t('sw-settings-search.generalTab.textEmptyStateExcludedSearchTerms')"
             :show-description="false"
             :has-action-slot="true"
             :absolute="false"
@@ -18,7 +18,7 @@
                 {% block sw_settings_search_excluded_search_terms_empty_state_image %}
                 <img
                     :src="assetFilter('administration/administration/static/img/empty-states/settings-empty-state.svg')"
-                    :alt="$tc('sw-settings-search.generalTab.textEmptyStateExcludedSearchTerms')"
+                    :alt="$t('sw-settings-search.generalTab.textEmptyStateExcludedSearchTerms')"
                 >
                 {% endblock %}
             </template>
@@ -33,7 +33,7 @@
                     variant="secondary"
                     @click="addExcludedSearchTerms"
                 >
-                    {{ $tc('sw-settings-search.generalTab.buttonAddExcludedSearch') }}
+                    {{ $t('sw-settings-search.generalTab.buttonAddExcludedSearch') }}
                 </mt-button>
                 {% endblock %}
             </template>
@@ -46,13 +46,13 @@
             <sw-container
                 class="sw-settings-search-excluded-search-terms__header-bar"
                 columns="1fr auto"
-                gap="10px"
+                gap="var(--scale-size-10)"
                 align="center"
             >
                 {% block sw_settings_search_excluded_search_terms_filter %}
                 <sw-card-filter
                     ref="itemFilter"
-                    :placeholder="$tc('sw-settings-search.generalTab.textPlaceholderTermsFilter')"
+                    :placeholder="$t('sw-settings-search.generalTab.textPlaceholderTermsFilter')"
                     @sw-card-filter-term-change="onSearchTermChange"
                 />
                 {% endblock %}
@@ -68,7 +68,7 @@
                         variant="secondary"
                         @click="onInsertTerm"
                     >
-                        {{ $tc('sw-settings-search.generalTab.buttonAddExcludedSearchTerms') }}
+                        {{ $t('sw-settings-search.generalTab.buttonAddExcludedSearchTerms') }}
                     </mt-button>
                     {% endblock %}
 
@@ -81,7 +81,7 @@
                         variant="secondary"
                         @click="onResetExcludedSearchTermDefault"
                     >
-                        {{ $tc('sw-settings-search.generalTab.buttonResetDefault') }}
+                        {{ $t('sw-settings-search.generalTab.buttonResetDefault') }}
                     </mt-button>
                     {% endblock %}
                 </div>
@@ -110,7 +110,7 @@
                             :disabled="!acl.can('product_search_config.deleter')"
                             @click="onBulkDeleteExcludedTerm()"
                         >
-                            {{ $tc('global.default.delete') }}
+                            {{ $t('global.default.delete') }}
                         </mt-button>
                     </template>
 
@@ -121,7 +121,7 @@
                             :disabled="!acl.can('product_search_config.deleter')"
                             @click="onDeleteExcludedTerm([item])"
                         >
-                            {{ $tc('global.default.delete') }}
+                            {{ $t('global.default.delete') }}
                         </sw-context-menu-item>
                         {% endblock %}
                     </template>
@@ -141,7 +141,7 @@
                 {% block sw_search_excliuded_terms_no_results %}
                 <div v-if="items.length === 0">
                     <p class="sw-settings-search__no-data-results">
-                        {{ $tc('sw-settings-search.generalTab.labelExcludedSearchTermsNoResults') }}
+                        {{ $t('sw-settings-search.generalTab.labelExcludedSearchTermsNoResults') }}
                     </p>
                 </div>
                 {% endblock %}

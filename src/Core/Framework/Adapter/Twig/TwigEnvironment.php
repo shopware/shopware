@@ -33,7 +33,9 @@ class TwigEnvironment extends Environment
     /**
      * Wraps the original method to inject the {@see CachedEscaperRuntime} into the Twig system.
      * It is not possible to introduce a new {@see RuntimeLoaderInterface} with {@see Environment::addRuntimeLoader()},
-     * as the internal cache key is the class name, which cannot be influenced.
+     * as the internal cache key is the FQCN, which cannot be influenced.
+     * Therefore it is also safe to instantiate the original {@see EscaperRuntime} directly.
+     * This is also faster than calling the original `getRuntime` method to get the {@see EscaperRuntime} instance.
      *
      * @template TRuntime of object
      *
@@ -53,10 +55,6 @@ class TwigEnvironment extends Environment
             return $this->escaperRuntime;
         }
 
-        // It is safe to instantiate the original `EscaperRuntime` directly, as runtimes are cached by their FQCNs.
-        // This means it is not possible for Twig extensions to overwrite this by registering custom runtime loaders.
-        // Else this would have been done and not this trick instead.
-        // Additionally, this is faster than calling the original `getRuntime` method to get the `EscaperRuntime` instance.
         $this->escaperRuntime = new CachedEscaperRuntime(new EscaperRuntime($this->getCharset()));
 
         return $this->escaperRuntime;

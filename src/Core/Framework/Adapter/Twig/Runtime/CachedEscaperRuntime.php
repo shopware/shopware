@@ -20,7 +20,7 @@ final class CachedEscaperRuntime implements RuntimeExtensionInterface
      * Cache for escaped strings to avoid repeated escaping of the same content.
      * Reset between requests via {@see CachedEscaperRuntimeResetter} for long runner compatibility.
      *
-     * @var array<string, array<string, string|Markup|mixed>>
+     * @var array<string, string>
      */
     private static array $escapeCache = [];
 
@@ -88,33 +88,37 @@ final class CachedEscaperRuntime implements RuntimeExtensionInterface
      */
     public function escape(mixed $string, string $strategy = 'html', ?string $charset = null, bool $autoescape = false): mixed
     {
-        $isString = \is_string($string);
-        if ($isString && isset(self::$escapeCache[$string][$strategy])) {
-            return self::$escapeCache[$string][$strategy];
+        $cacheKey = null;
+
+        if (\is_string($string)) {
+            $cacheKey = \sprintf('%s-%s-%s', $string, $strategy, $charset);
+            if (isset(self::$escapeCache[$cacheKey])) {
+                return self::$escapeCache[$cacheKey];
+            }
         }
 
         // Only cache Twigs internal Markup class, as other Stringable classes cannot be ensured to be immutable
-        $isMarkup = $string instanceof Markup;
-        if ($isMarkup) {
+        if ($string instanceof Markup) {
+            // Mimics the first check within the original `escape` method.
+            // `$autoescape` has no other influence on the escape result.
+            if ($autoescape) {
+                return $string;
+            }
+
             $markupHash = spl_object_hash($string);
-            if (isset(self::$escapeCache[$markupHash][$strategy])) {
-                return self::$escapeCache[$markupHash][$strategy];
+            $cacheKey = \sprintf('%s-%s-%s', $markupHash, $strategy, $charset);
+            if (isset(self::$escapeCache[$cacheKey])) {
+                return self::$escapeCache[$cacheKey];
             }
         }
 
         $result = $this->originalEscaperRuntime->escape($string, $strategy, $charset, $autoescape);
 
-        if ($isMarkup) {
-            self::$escapeCache[$markupHash][$strategy] = $result;
-
+        if ($cacheKey === null) {
             return $result;
         }
 
-        if (!$isString) {
-            return $result;
-        }
-
-        self::$escapeCache[$string][$strategy] = $result;
+        self::$escapeCache[$cacheKey] = $result;
 
         return $result;
     }

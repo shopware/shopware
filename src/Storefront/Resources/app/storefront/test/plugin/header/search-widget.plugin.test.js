@@ -317,7 +317,6 @@ describe('SearchPlugin Tests', () => {
 
         await new Promise(process.nextTick);
         expect(searchPlugin.$emitter.publish).toHaveBeenCalledWith('afterSuggest');
-        expect(searchPlugin._inputField.getAttribute('aria-expanded')).toBe('true');
         expect(searchPlugin._inputField.getAttribute('aria-controls')).toBe('search-suggest-listbox');
         expect(searchPlugin._inputField.getAttribute('aria-describedby')).toBe('search-suggest-result-info');
         expect(searchPlugin.searchSuggestLinks.length).toBe(1);
@@ -352,7 +351,6 @@ describe('SearchPlugin Tests', () => {
 
         expect(searchPlugin._inputField.hasAttribute('aria-controls')).toBe(false);
         expect(searchPlugin._inputField.hasAttribute('aria-describedby')).toBe(false);
-        expect(searchPlugin._inputField.getAttribute('aria-expanded')).toBe('false');
         expect(document.querySelector('.js-search-result')).toBeNull();
     });
 

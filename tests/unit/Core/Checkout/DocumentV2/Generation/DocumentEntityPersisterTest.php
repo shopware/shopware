@@ -98,26 +98,25 @@ class DocumentEntityPersisterTest extends TestCase
     }
 
     /**
-     * @return array<string, array{documentSearch: ?callable, documentTypeId: string, exception: DocumentV2Exception}>
+     * @return iterable<string, array{documentSearch: ?callable, documentTypeId: string, exception: DocumentV2Exception}>
      */
-    public static function persistExceptionProvider(): array
+    public static function persistExceptionProvider(): iterable
     {
-        return [
-            'document not persisted' => [
-                'documentSearch' => static function (Criteria $criteria, Context $context, StaticEntityRepository $repository): DocumentCollection {
-                    static::assertCount(1, $repository->creates);
-                    static::assertCount(1, $criteria->getIds());
+        yield 'document not persisted' => [
+            'documentSearch' => static function (Criteria $criteria, Context $context, StaticEntityRepository $repository): DocumentCollection {
+                static::assertCount(1, $repository->creates);
+                static::assertCount(1, $criteria->getIds());
 
-                    return new DocumentCollection([]);
-                },
-                'documentTypeId' => Uuid::randomHex(),
-                'exception' => DocumentV2Exception::documentNotPersisted('12345'),
-            ],
-            'document type not found' => [
-                'documentSearch' => null,
-                'documentTypeId' => '',
-                'exception' => DocumentV2Exception::documentTypeNotFound(self::DOCUMENT_TYPE),
-            ],
+                return new DocumentCollection([]);
+            },
+            'documentTypeId' => Uuid::randomHex(),
+            'exception' => DocumentV2Exception::documentNotPersisted('12345'),
+        ];
+
+        yield 'document type not found' => [
+            'documentSearch' => null,
+            'documentTypeId' => '',
+            'exception' => DocumentV2Exception::documentTypeNotFound(self::DOCUMENT_TYPE),
         ];
     }
 

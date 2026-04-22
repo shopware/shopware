@@ -19,10 +19,12 @@ class StaticDocumentRenderer extends AbstractDocumentRenderer
 {
     /**
      * @param list<string> $documentTypes
+     * @param list<string> $dependencies
      */
     public function __construct(
         private readonly DocumentFormat $format = DocumentFormat::PDF,
         private readonly array $documentTypes = [DocumentType::INVOICE->value],
+        private readonly array $dependencies = [],
     ) {
     }
 
@@ -38,10 +40,7 @@ class StaticDocumentRenderer extends AbstractDocumentRenderer
 
     public function getDependencies(): array
     {
-        return [
-            DocumentFormat::PDF->value,
-            DocumentFormat::HTML->value,
-        ];
+        return $this->dependencies;
     }
 
     public function renderToString(RenderInput $input, RenderState $state): RenderResult

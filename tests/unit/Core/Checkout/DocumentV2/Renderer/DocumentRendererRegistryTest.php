@@ -35,31 +35,32 @@ class DocumentRendererRegistryTest extends TestCase
     }
 
     /**
-     * @return array<string, array{throw: bool, format: DocumentFormat, type: DocumentType}>
+     * @return iterable<string, array{throw: bool, format: DocumentFormat, type: DocumentType}>
      */
-    public static function getRendererProvider(): array
+    public static function getRendererProvider(): iterable
     {
-        return [
-            'type mismatch, format mismatch' => [
-                'throw' => true,
-                'format' => DocumentFormat::ZUGFERD_EMBEDDED_PDF,
-                'type' => DocumentType::DELIVERY_NOTE,
-            ],
-            'type match, format mismatch' => [
-                'throw' => true,
-                'format' => DocumentFormat::ZUGFERD_EMBEDDED_PDF,
-                'type' => DocumentType::INVOICE,
-            ],
-            'type mismatch, format match' => [
-                'throw' => true,
-                'format' => DocumentFormat::HTML,
-                'type' => DocumentType::DELIVERY_NOTE,
-            ],
-            'type match, format match' => [
-                'throw' => false,
-                'format' => DocumentFormat::HTML,
-                'type' => DocumentType::INVOICE,
-            ],
+        yield 'type mismatch, format mismatch' => [
+            'throw' => true,
+            'format' => DocumentFormat::ZUGFERD_EMBEDDED_PDF,
+            'type' => DocumentType::DELIVERY_NOTE,
+        ];
+
+        yield 'type match, format mismatch' => [
+            'throw' => true,
+            'format' => DocumentFormat::ZUGFERD_EMBEDDED_PDF,
+            'type' => DocumentType::INVOICE,
+        ];
+
+        yield 'type mismatch, format match' => [
+            'throw' => true,
+            'format' => DocumentFormat::HTML,
+            'type' => DocumentType::DELIVERY_NOTE,
+        ];
+
+        yield 'type match, format match' => [
+            'throw' => false,
+            'format' => DocumentFormat::HTML,
+            'type' => DocumentType::INVOICE,
         ];
     }
 

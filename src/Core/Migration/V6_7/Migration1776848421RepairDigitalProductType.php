@@ -11,30 +11,22 @@ use Shopware\Core\Framework\Util\Database\TableHelper;
  * @internal
  */
 #[Package('inventory')]
-class Migration1763125891AddProductTypeColumn extends MigrationStep
+class Migration1776848421RepairDigitalProductType extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {
-        return 1763125891;
+        return 1776848421;
     }
 
     public function update(Connection $connection): void
     {
-        if (!TableHelper::columnExists($connection, 'product', 'type')) {
-            $this->addColumn(
-                $connection,
-                'product',
-                'type',
-                'VARCHAR(32)',
-                false,
-                '\'physical\''
-            );
-
-            $connection->executeStatement('CREATE INDEX `idx.product.type` ON `product` (`type`)');
-        }
-
-        if (!TableHelper::indexExists($connection, 'product', 'idx.product.type')) {
-            $connection->executeStatement('CREATE INDEX `idx.product.type` ON `product` (`type`)');
+        // Re-runs the is-download backfill for shops whose earlier run of
+        // Migration1763125891AddProductTypeColumn terminated early and left some
+        // download products with `type = 'physical'`.
+        if (!TableHelper::columnExists($connection, 'product', 'type')
+            || !TableHelper::columnExists($connection, 'product', 'states')
+        ) {
+            return;
         }
 
         $batchSize = 5000;

@@ -102,22 +102,22 @@ export default Shopware.Component.wrapComponentConfig({
                 {
                     id: 'primary',
                     value: 'primary',
-                    label: this.$tc('sw-text-editor-toolbar-button-link.buttonVariantPrimary'),
+                    label: this.$t('sw-text-editor-toolbar-button-link.buttonVariantPrimary'),
                 },
                 {
                     id: 'secondary',
                     value: 'secondary',
-                    label: this.$tc('sw-text-editor-toolbar-button-link.buttonVariantSecondary'),
+                    label: this.$t('sw-text-editor-toolbar-button-link.buttonVariantSecondary'),
                 },
                 {
                     id: 'primary-sm',
                     value: 'primary-sm',
-                    label: this.$tc('sw-text-editor-toolbar-button-link.buttonVariantPrimarySmall'),
+                    label: this.$t('sw-text-editor-toolbar-button-link.buttonVariantPrimarySmall'),
                 },
                 {
                     id: 'secondary-sm',
                     value: 'secondary-sm',
-                    label: this.$tc('sw-text-editor-toolbar-button-link.buttonVariantSecondarySmall'),
+                    label: this.$t('sw-text-editor-toolbar-button-link.buttonVariantSecondarySmall'),
                 },
             ];
         },

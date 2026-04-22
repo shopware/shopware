@@ -11,7 +11,7 @@
             :disabled="!acl.can('scale_unit.editor')"
             @click="onSave"
         >
-            {{ $tc('global.default.save') }}
+            {{ $t('global.default.save') }}
         </sw-button-process>
 
     </template>
@@ -33,7 +33,7 @@
                 <mt-text-field
                     v-model="unit.name"
                     name="sw-field--unit-name"
-                    :label="$tc('sw-settings-units.detail.fieldLabels.name')"
+                    :label="$t('sw-settings-units.detail.fieldLabels.name')"
                     :error="unitNameError"
                     required
                 />
@@ -41,7 +41,7 @@
                 <mt-text-field
                     v-model="unit.shortCode"
                     name="sw-field--unit-shortCode"
-                    :label="$tc('sw-settings-units.detail.fieldLabels.shortCode')"
+                    :label="$t('sw-settings-units.detail.fieldLabels.shortCode')"
                     :error="unitShortCodeError"
                     required
                 />

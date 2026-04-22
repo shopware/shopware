@@ -147,7 +147,7 @@ export default {
         tooltipSave() {
             if (!this.acl.can('number_ranges.editor')) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     disabled: this.acl.can('number_ranges.editor'),
                     showOnDisabledElements: true,
                 };
@@ -333,14 +333,14 @@ export default {
 
             if (!this.numberRange.pattern) {
                 this.createNotificationError({
-                    message: this.$tc('sw-settings-number-range.detail.errorPatternNeededMessage'),
+                    message: this.$t('sw-settings-number-range.detail.errorPatternNeededMessage'),
                 });
                 return false;
             }
 
             if (this.state > 1 && this.state >= this.numberRange.start) {
                 this.createNotificationInfo({
-                    message: this.$tc('sw-settings-number-range.detail.infoStartDecrementMessage'),
+                    message: this.$t('sw-settings-number-range.detail.infoStartDecrementMessage'),
                 });
             }
 
@@ -356,7 +356,7 @@ export default {
                 .catch((exception) => {
                     this.isLoading = false;
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-number-range.detail.messageSaveError', { name: numberRangeName }, 0),
+                        message: this.$t('sw-settings-number-range.detail.messageSaveError', { name: numberRangeName }, 0),
                     });
                     throw exception;
                 })

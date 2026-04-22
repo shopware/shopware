@@ -5,7 +5,7 @@
     :active="activeTab === 'html'"
     @click="activeTab = 'html'"
 >
-    {{ $tc('sw-settings-logging.mailInfo.tabHTML') }}
+    {{ $t('sw-settings-logging.mailInfo.tabHTML') }}
 </sw-tabs-item>
 
 <sw-tabs-item
@@ -13,7 +13,7 @@
     :active="activeTab === 'plain'"
     @click="activeTab = 'plain'"
 >
-    {{ $tc('sw-settings-logging.mailInfo.tabPlain') }}
+    {{ $t('sw-settings-logging.mailInfo.tabPlain') }}
 </sw-tabs-item>
 
 {% parent() %}
@@ -27,7 +27,7 @@
     {% block sw_settings_logging_mail_sent_content_recipients %}
     <div class="sw-settings-logging-mail-sent-info__recipients">
         {% block sw_settings_logging_mail_sent_content_recipients_title %}
-        <span>{{ $tc('sw-settings-logging.mailInfo.recipientsTitle') }}: {{ recipientString }}</span>
+        <span>{{ $t('sw-settings-logging.mailInfo.recipientsTitle') }}: {{ recipientString }}</span>
         {% endblock %}
     </div>
     {% endblock %}
@@ -35,7 +35,7 @@
     {% block sw_settings_logging_mail_sent_content_mailbody %}
     <div>
         {% block sw_settings_logging_mail_sent_content_mailbody_title %}
-        <span>{{ $tc('sw-settings-logging.mailInfo.contentsTitle') }}:</span>
+        <span>{{ $t('sw-settings-logging.mailInfo.contentsTitle') }}:</span>
         {% endblock %}
 
         {% block sw_settings_logging_mail_sent_content_mailbody_html %}

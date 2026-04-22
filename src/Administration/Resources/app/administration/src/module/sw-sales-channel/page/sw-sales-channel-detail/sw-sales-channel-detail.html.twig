@@ -3,7 +3,7 @@
     {% block sw_sales_channel_detail_header %}
     <template #smart-bar-header>
         {% block sw_sales_channel_detail_header_headline %}
-        <h2>{{ placeholder(salesChannel, 'name', $tc('sw-sales-channel.detail.textHeadline')) }}</h2>
+        <h2>{{ placeholder(salesChannel, 'name', $t('sw-sales-channel.detail.textHeadline')) }}</h2>
         {% endblock %}
     </template>
     {% endblock %}
@@ -24,7 +24,7 @@
             @update:process-success="saveFinish"
             @click.prevent="onSave"
         >
-            {{ $tc('sw-sales-channel.detail.buttonSave') }}
+            {{ $t('sw-sales-channel.detail.buttonSave') }}
         </sw-button-process>
         {% endblock %}
     </template>
@@ -46,7 +46,7 @@
 
             {% block sw_sales_channel_detail_content_language_info %}
             <sw-language-info
-                :entity-description="placeholder(salesChannel, 'name', $tc('sw-sales-channel.detail.textHeadline'))"
+                :entity-description="placeholder(salesChannel, 'name', $t('sw-sales-channel.detail.textHeadline'))"
             />
             {% endblock %}
 
@@ -58,9 +58,9 @@
                 {%  block sw_sales_channel_detail_content_tab_general %}
                 <sw-tabs-item
                     :route="{ name: 'sw.sales.channel.detail.base', params: { id: $route.params.id } }"
-                    :title="$tc('sw-sales-channel.detail.tabBase')"
+                    :title="$t('sw-sales-channel.detail.tabBase')"
                 >
-                    {{ $tc('sw-sales-channel.detail.tabBase') }}
+                    {{ $t('sw-sales-channel.detail.tabBase') }}
                 </sw-tabs-item>
                 {% endblock %}
 
@@ -78,9 +78,9 @@
                 <sw-tabs-item
                     v-if="isHeadless || isStorefront"
                     :route="{ name: 'sw.sales.channel.detail.products', params: { id: $route.params.id } }"
-                    :title="$tc('sw-sales-channel.detail.tabProducts')"
+                    :title="$t('sw-sales-channel.detail.tabProducts')"
                 >
-                    {{ $tc('sw-sales-channel.detail.tabProducts') }}
+                    {{ $t('sw-sales-channel.detail.tabProducts') }}
                 </sw-tabs-item>
                 {% endblock %}
 
@@ -90,9 +90,9 @@
                 <sw-tabs-item
                     v-if="isAgenticCommerce && !isLoading"
                     :route="{ name: 'sw.sales.channel.detail.agenticCommerceIntegration', params: { id: $route.params.id } }"
-                    :title="$tc('sw-sales-channel.detail.agenticCommerce.tabIntegration')"
+                    :title="$t('sw-sales-channel.detail.agenticCommerce.tabIntegration')"
                 >
-                    {{ $tc('sw-sales-channel.detail.agenticCommerce.tabIntegration') }}
+                    {{ $t('sw-sales-channel.detail.agenticCommerce.tabIntegration') }}
                 </sw-tabs-item>
                 {% endblock %}
 
@@ -102,9 +102,9 @@
                 <sw-tabs-item
                     v-if="isProductExportChannel && !isLoading"
                     :route="{ name: 'sw.sales.channel.detail.productComparison', params: { id: $route.params.id } }"
-                    :title="$tc('sw-sales-channel.detail.tabProductComparison')"
+                    :title="$t('sw-sales-channel.detail.tabProductComparison')"
                 >
-                    {{ $tc('sw-sales-channel.detail.tabProductComparison') }}
+                    {{ $t('sw-sales-channel.detail.tabProductComparison') }}
                 </sw-tabs-item>
                 {% endblock %}
                 {% endblock %}
@@ -113,9 +113,9 @@
                 <sw-tabs-item
                     v-if="isStorefront"
                     :route="{ name: 'sw.sales.channel.detail.analytics', params: { id: $route.params.id } }"
-                    :title="$tc('sw-sales-channel.detail.tabAnalytics')"
+                    :title="$t('sw-sales-channel.detail.tabAnalytics')"
                 >
-                    {{ $tc('sw-sales-channel.detail.tabAnalytics') }}
+                    {{ $t('sw-sales-channel.detail.tabAnalytics') }}
                 </sw-tabs-item>
                 {% endblock %}
             </sw-tabs>

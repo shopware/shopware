@@ -144,30 +144,30 @@ export default {
             const filters = {
                 conditionGroups: {
                     property: 'conditions.type',
-                    label: this.$tc('sw-settings-rule.filter.groupFilter.label'),
-                    placeholder: this.$tc('sw-settings-rule.filter.groupFilter.placeholder'),
+                    label: this.$t('sw-settings-rule.filter.groupFilter.label'),
+                    placeholder: this.$t('sw-settings-rule.filter.groupFilter.placeholder'),
                     type: 'multi-select-filter',
                     options: this.groupFilterOptions,
                 },
                 conditions: {
                     property: 'conditions.type',
-                    label: this.$tc('sw-settings-rule.filter.conditionFilter.label'),
-                    placeholder: this.$tc('sw-settings-rule.filter.conditionFilter.placeholder'),
+                    label: this.$t('sw-settings-rule.filter.conditionFilter.label'),
+                    placeholder: this.$t('sw-settings-rule.filter.conditionFilter.placeholder'),
                     type: 'multi-select-filter',
                     options: this.conditionFilterOptions,
                 },
                 assignments: {
                     existingType: true,
                     property: 'conditions',
-                    label: this.$tc('sw-settings-rule.filter.assignmentFilter.label'),
-                    placeholder: this.$tc('sw-settings-rule.filter.assignmentFilter.placeholder'),
+                    label: this.$t('sw-settings-rule.filter.assignmentFilter.label'),
+                    placeholder: this.$t('sw-settings-rule.filter.assignmentFilter.placeholder'),
                     type: 'multi-select-filter',
                     options: this.associationFilterOptions,
                 },
                 tags: {
                     property: 'tags',
-                    label: this.$tc('sw-settings-rule.filter.tagFilter.label'),
-                    placeholder: this.$tc('sw-settings-rule.filter.tagFilter.placeholder'),
+                    label: this.$t('sw-settings-rule.filter.tagFilter.label'),
+                    placeholder: this.$t('sw-settings-rule.filter.tagFilter.placeholder'),
                     criteria: new Criteria(1, 25).addSorting(Criteria.sort('name')),
                 },
             };
@@ -179,7 +179,7 @@ export default {
             const conditions = this.ruleConditionDataProviderService.getConditions().map((condition) => {
                 return {
                     value: condition.type,
-                    label: this.$tc(condition.label),
+                    label: this.$t(condition.label),
                 };
             });
             conditions.sort((a, b) => a.label.localeCompare(b.label));
@@ -199,7 +199,7 @@ export default {
 
                 groupFilter.push({
                     value: conditionFilterString,
-                    label: this.$tc(group.name),
+                    label: this.$t(group.name),
                 });
             });
             groupFilter.sort((a, b) => a.label.localeCompare(b.label));
@@ -217,7 +217,7 @@ export default {
                     if (value.type === 'association' && key !== 'conditions' && key !== 'tags') {
                         associations.push({
                             value: key,
-                            label: this.$tc(`sw-settings-rule.filter.assignmentFilter.values.${key}`),
+                            label: this.$t(`sw-settings-rule.filter.assignmentFilter.values.${key}`),
                         });
                     }
                 },

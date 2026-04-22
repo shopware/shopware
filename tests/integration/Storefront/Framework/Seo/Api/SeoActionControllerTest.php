@@ -293,6 +293,32 @@ class SeoActionControllerTest extends TestCase
         static::assertSame($newSeoPathInfo, $seoUrl['seoPathInfo']);
     }
 
+    public function testUpdateCanonicalRejectsSeoPathInfoContainingPercent(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
+
+        $id = $this->createTestProduct($salesChannelId);
+
+        $seoUrls = $this->getSeoUrls($id, true, $salesChannelId);
+        static::assertCount(1, $seoUrls);
+
+        $seoUrl = $seoUrls[0]['attributes'];
+        $seoUrl['seoPathInfo'] = 'seo/url%/1';
+        $seoUrl['isModified'] = true;
+
+        $this->getBrowser()->jsonRequest('PATCH', '/api/_action/seo-url/canonical', $seoUrl);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(400, $response->getStatusCode(), (string) $response->getContent());
+
+        $content = $response->getContent();
+        static::assertIsString($content);
+        $result = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame('/seoPathInfo', $result['errors'][0]['source']['pointer']);
+    }
+
     public function testUpdateCanonicalWithCustomSalesChannel(): void
     {
         $salesChannelId = Uuid::randomHex();

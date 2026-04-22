@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Routing\Validation\Constraint\RouteNotBlocked;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Constraints\Type;
 
 #[Package('inventory')]
@@ -42,7 +43,7 @@ class SeoUrlValidationFactory implements SeoUrlDataValidationFactoryInterface
             ->add('foreignKey', ...$fkConstraints)
             ->add('routeName', new NotBlank(), new Type('string'))
             ->add('pathInfo', new NotBlank(), new Type('string'))
-            ->add('seoPathInfo', new NotBlank(), new Type('string'), new RouteNotBlocked())
+            ->add('seoPathInfo', new NotBlank(), new Type('string'), new Regex(pattern: '/%/', match: false), new RouteNotBlocked())
             ->add('salesChannelId', new NotBlank(), new EntityExists(
                 entity: SalesChannelDefinition::ENTITY_NAME,
                 context: $context,

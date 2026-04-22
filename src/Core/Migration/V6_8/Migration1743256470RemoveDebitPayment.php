@@ -42,5 +42,8 @@ class Migration1743256470RemoveDebitPayment extends MigrationStep
                 );
             }
         }
+        // deleted rows from payment_method can invalidate PaymentDistinguishableNameGenerator
+        // output without scheduling a payment_method.indexer refresh.
+        $this->registerIndexer($connection, 'payment_method.indexer');
     }
 }

@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DefaultPayment;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Migration\IndexerQueuer;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -62,6 +63,19 @@ class Migration1743256470RemoveDebitPaymentTest extends TestCase
                 ['id' => $id],
             )
         );
+    }
+
+    public function testPaymentMethodIndexerIsRegistered(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+
+        $migration = new Migration1743256470RemoveDebitPayment();
+        $migration->update($connection);
+        $migration->update($connection);
+
+        $indexers = (new IndexerQueuer($connection))->getIndexers();
+
+        static::assertArrayHasKey('payment_method.indexer', $indexers);
     }
 
     private function createPaymentMethodIfNotExists(Connection $connection): string

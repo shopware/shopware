@@ -80,6 +80,16 @@ class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
     public function confirmWithResponse(RequestDataBag $dataBag, SalesChannelContext $context): SuccessResponse
     {
         $recipient = $this->getNewsletterRecipient('hash', $dataBag->get('hash', ''), $context->getContext());
+        $emHash = Hasher::hash($recipient->getEmail(), 'sha1');
+
+        if ($recipient->getStatus() === NewsletterSubscribeRoute::STATUS_OPT_IN) {
+            $this->validator->validate([
+                'id' => $recipient->getId(),
+                'em' => $dataBag->get('em'),
+            ], $this->getConfirmValidation($emHash));
+
+            return new SuccessResponse();
+        }
 
         $data = [
             'id' => $recipient->getId(),
@@ -88,7 +98,7 @@ class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
             'em' => $dataBag->get('em'),
         ];
 
-        $this->validator->validate($data, $this->getBeforeConfirmSubscribeValidation(Hasher::hash($recipient->getEmail(), 'sha1')));
+        $this->validator->validate($data, $this->getBeforeConfirmSubscribeValidation($emHash));
 
         $data['status'] = NewsletterSubscribeRoute::STATUS_OPT_IN;
         $data['confirmedAt'] = new \DateTime();
@@ -119,9 +129,16 @@ class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
 
     private function getBeforeConfirmSubscribeValidation(string $emHash): DataValidationDefinition
     {
+        $definition = $this->getConfirmValidation($emHash);
+        $definition->add('status', new EqualTo(value: NewsletterSubscribeRoute::STATUS_NOT_SET));
+
+        return $definition;
+    }
+
+    private function getConfirmValidation(string $emHash): DataValidationDefinition
+    {
         $definition = new DataValidationDefinition('newsletter_recipient.opt_in_before');
         $definition->add('id', new NotBlank())
-            ->add('status', new EqualTo(value: NewsletterSubscribeRoute::STATUS_NOT_SET))
             ->add('em', new EqualTo(value: $emHash));
 
         return $definition;

@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
@@ -122,6 +123,36 @@ class NewsletterConfirmRouteTest extends TestCase
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
         $status = static::getContainer()->get(Connection::class)->fetchOne('SELECT status FROM newsletter_recipient WHERE email = "test@test.de"');
+        static::assertSame('optIn', $status);
+    }
+
+    public function testConfirmAlreadyConfirmedRecipient(): void
+    {
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/newsletter/subscribe',
+                [
+                    'email' => 'repeat-confirm@test.de',
+                    'option' => 'subscribe',
+                    'storefrontUrl' => 'http://localhost',
+                ]
+            );
+
+        $hash = static::getContainer()->get(Connection::class)->fetchOne('SELECT hash FROM newsletter_recipient WHERE email = "repeat-confirm@test.de"');
+
+        $payload = [
+            'em' => Hasher::hash('repeat-confirm@test.de', 'sha1'),
+            'hash' => $hash,
+        ];
+
+        $this->browser->request('POST', '/store-api/newsletter/confirm', $payload);
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
+
+        $this->browser->request('POST', '/store-api/newsletter/confirm', $payload);
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
+
+        $status = static::getContainer()->get(Connection::class)->fetchOne('SELECT status FROM newsletter_recipient WHERE email = "repeat-confirm@test.de"');
         static::assertSame('optIn', $status);
     }
 }

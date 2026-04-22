@@ -6,8 +6,8 @@
  *
  * Populated synchronously whenever `async-component.factory.ts` processes a
  * `Shopware.Component.override()` call that carries a Twig template string.
- * At render time `sw-block` does a single Map lookup — O(1) — and injects the
- * pre-built shim slots without any additional parsing.
+ * At render time `sw-block` resolves entries from this prebuilt Map and injects
+ * the shim slots without any additional Twig parsing on the hot path.
  *
  * TwigJS is imported here for parsing only. The global TwigJS singleton is
  * already configured by `template.factory.js` (output tokens filtered,

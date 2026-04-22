@@ -445,6 +445,8 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             expect(wrapper.find('.root-a .default-a').exists()).toBeFalsy();
             expect(wrapper.find('.root-b .override-b').exists()).toBeTruthy();
             expect(wrapper.find('.root-b .default-b').exists()).toBeFalsy();
+            expect(wrapper.find('.root-a .override-b').exists()).toBeFalsy();
+            expect(wrapper.find('.root-b .override-a').exists()).toBeFalsy();
         });
 
         it('does not apply an override registered for block-A to a sw-block with name block-B', async () => {

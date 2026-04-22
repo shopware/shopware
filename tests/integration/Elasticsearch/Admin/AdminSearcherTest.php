@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Elasticsearch\Admin;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\SkippedTestSuiteError;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -33,12 +34,17 @@ class AdminSearcherTest extends TestCase
 
     private AdminSearcher $searcher;
 
+    public static function setUpBeforeClass(): void
+    {
+        parent::setUpBeforeClass();
+
+        if (!static::getContainer()->getParameter('elasticsearch.administration.enabled')) {
+            throw new SkippedTestSuiteError('No OPENSEARCH configured');
+        }
+    }
+
     protected function setUp(): void
     {
-        if (!static::getContainer()->getParameter('elasticsearch.administration.enabled')) {
-            static::markTestSkipped('No OPENSEARCH configured');
-        }
-
         $this->productRepository = static::getContainer()->get('product.repository');
         $this->searcher = static::getContainer()->get(AdminSearcher::class);
 

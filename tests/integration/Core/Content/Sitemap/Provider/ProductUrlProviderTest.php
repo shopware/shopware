@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Sitemap\Provider;
 
+use PHPUnit\Framework\SkippedTestSuiteError;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -46,12 +47,17 @@ class ProductUrlProviderTest extends TestCase
 
     private SystemConfigService $systemConfigService;
 
+    public static function setUpBeforeClass(): void
+    {
+        parent::setUpBeforeClass();
+
+        if (!static::getContainer()->has(ProductPageSeoUrlRoute::class)) {
+            throw new SkippedTestSuiteError('#12970: Sitemap module has a dependency on storefront routes');
+        }
+    }
+
     protected function setUp(): void
     {
-        if (!static::getContainer()->has(ProductPageSeoUrlRoute::class)) {
-            static::markTestSkipped('NEXT-16799: Sitemap module has a dependency on storefront routes');
-        }
-
         $this->productRepository = static::getContainer()->get('product.repository');
         $this->seoUrlPlaceholderHandler = static::getContainer()->get(SeoUrlPlaceholderHandlerInterface::class);
         $this->systemConfigService = static::getContainer()->get(SystemConfigService::class);

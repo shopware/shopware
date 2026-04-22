@@ -4,6 +4,7 @@ namespace Shopware\Tests\Migration\Core\V6_6;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\SkippedTestSuiteError;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Util\Database\TableHelper;
@@ -19,15 +20,20 @@ class Migration1714659357CanonicalProductVersionTest extends TestCase
 
     protected Connection $connection;
 
+    public static function setUpBeforeClass(): void
+    {
+        parent::setUpBeforeClass();
+
+        $version = strtolower(self::getContainer()->get(Connection::class)->getServerVersion());
+
+        if (!str_contains($version, 'mariadb') && version_compare($version, '8.4.0', '>=')) {
+            throw new SkippedTestSuiteError('Test is only relevant for MariaDB or MySQL < 8.4.0');
+        }
+    }
+
     protected function setUp(): void
     {
         $this->connection = self::getContainer()->get(Connection::class);
-
-        $version = strtolower($this->connection->getServerVersion());
-
-        if (!str_contains($version, 'mariadb') && version_compare($version, '8.4.0', '>=')) {
-            static::markTestSkipped('Test is only relevant for MariaDB or MySQL < 8.4.0');
-        }
     }
 
     public function testMigration(): void

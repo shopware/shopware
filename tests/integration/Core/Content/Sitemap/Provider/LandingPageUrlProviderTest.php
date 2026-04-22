@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Content\Sitemap\Provider;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\SkippedTestSuiteError;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\LandingPage\LandingPageCollection;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
@@ -42,12 +43,17 @@ class LandingPageUrlProviderTest extends TestCase
      */
     private EntityRepository $landingPageRepository;
 
+    public static function setUpBeforeClass(): void
+    {
+        parent::setUpBeforeClass();
+
+        if (!static::getContainer()->has(ProductPageSeoUrlRoute::class)) {
+            throw new SkippedTestSuiteError('#12970: Sitemap module has a dependency on storefront routes');
+        }
+    }
+
     protected function setUp(): void
     {
-        if (!static::getContainer()->has(ProductPageSeoUrlRoute::class)) {
-            static::markTestSkipped('NEXT-16799: Sitemap module has a dependency on storefront routes');
-        }
-
         $this->landingPageRepository = static::getContainer()->get('landing_page.repository');
 
         $this->salesChannelContext = $this->createStorefrontSalesChannelContext(

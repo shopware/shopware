@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Integration\Core\Content\Media\Subscriber;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception as DbalException;
+use PHPUnit\Framework\SkippedTestSuiteError;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent;
 use Shopware\Core\Content\Media\MediaCollection;
@@ -37,16 +39,19 @@ class CustomFieldsUnusedMediaSubscriberTest extends TestCase
      */
     private EntityRepository $customFieldSetRepository;
 
-    protected function setUp(): void
+    public static function setUpBeforeClass(): void
     {
-        $connection = static::getContainer()->get(Connection::class);
+        parent::setUpBeforeClass();
 
         try {
-            $connection->fetchOne('SELECT JSON_OVERLAPS(JSON_ARRAY(1), JSON_ARRAY(1));');
-        } catch (\Exception $e) {
-            static::markTestSkipped('JSON_OVERLAPS() function not supported on this database');
+            static::getContainer()->get(Connection::class)->fetchOne('SELECT JSON_OVERLAPS(JSON_ARRAY(1), JSON_ARRAY(1));');
+        } catch (DbalException) {
+            throw new SkippedTestSuiteError('JSON_OVERLAPS() function not supported on this database');
         }
+    }
 
+    protected function setUp(): void
+    {
         parent::setUp();
 
         $this->mediaRepository = static::getContainer()->get('media.repository');

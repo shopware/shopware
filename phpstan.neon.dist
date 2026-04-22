@@ -32,7 +32,6 @@ parameters:
 
         # @todo NEXT-22697 - Remove when re-enabling cms-aware
         - src/Core/System/CustomEntity/Xml/Config/CustomEntityEnrichmentService.php
-        - tests/integration/Core/System/CustomEntity/Xml/Config/CmsAwareAndAdminUiTest.php
 
         # PHPStan rule test files
         - tests/devops/Core/DevOps/StaticAnalyse/PHPStan/Rules/data/*
@@ -155,7 +154,6 @@ parameters:
             paths:
                 - src/Core/Framework/Test/Plugin/_fixture/plugins/*
                 - src/Core/Framework/Test/Plugin/Requirement/_fixture/SwagRequirementValidTestExtension/*
-                - tests/integration/Core/System/CustomEntity/Xml/Config/_fixtures/plugins/*
                 - tests/integration/Core/Framework/Store/_fixtures/AppStoreTestPlugin/*
                 - tests/integration/Core/Framework/Plugin/_fixtures/*
 

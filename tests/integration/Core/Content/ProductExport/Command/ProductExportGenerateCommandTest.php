@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Content\ProductExport\Command;
 
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemOperator;
+use PHPUnit\Framework\SkippedTestSuiteError;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\ProductExport\Command\ProductExportGenerateCommand;
@@ -43,12 +44,17 @@ class ProductExportGenerateCommandTest extends TestCase
 
     private FilesystemOperator $fileSystem;
 
+    public static function setUpBeforeClass(): void
+    {
+        parent::setUpBeforeClass();
+
+        if (!static::getContainer()->has(ProductPageSeoUrlRoute::class)) {
+            throw new SkippedTestSuiteError('ProductExport tests need storefront bundle to be active');
+        }
+    }
+
     protected function setUp(): void
     {
-        if (!static::getContainer()->has(ProductPageSeoUrlRoute::class)) {
-            static::markTestSkipped('ProductExport tests need storefront bundle to be active');
-        }
-
         $this->repository = static::getContainer()->get('product_export.repository');
         $this->context = Context::createDefaultContext();
         $this->fileSystem = static::getContainer()->get('shopware.filesystem.private');

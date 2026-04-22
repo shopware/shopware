@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Maintenance\SalesChannel\Command;
 
+use PHPUnit\Framework\SkippedTestSuiteError;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
@@ -31,16 +32,22 @@ class SalesChannelReplaceUrlCommandTest extends TestCase
      */
     private EntityRepository $domainRepo;
 
+    public static function setUpBeforeClass(): void
+    {
+        parent::setUpBeforeClass();
+
+        /** @var EntityRepository<SalesChannelDomainCollection> $domainRepo */
+        $domainRepo = static::getContainer()->get('sales_channel_domain.repository');
+        $domain = $domainRepo->search(self::getStorefrontDomainCriteria(), Context::createDefaultContext())->getEntities()->first();
+
+        if ($domain === null) {
+            throw new SkippedTestSuiteError('SalesChannelReplaceUrlCommandTests need storefront channel to be active');
+        }
+    }
+
     protected function setUp(): void
     {
         $this->domainRepo = static::getContainer()->get('sales_channel_domain.repository');
-        $criteria = $this->getStorefrontDomainCriteria();
-
-        $domain = $this->domainRepo->search($criteria, Context::createDefaultContext())->getEntities()->first();
-
-        if ($domain === null) {
-            static::markTestSkipped('SalesChannelReplaceUrlCommandTests need storefront channel to be active');
-        }
     }
 
     public function testUpdateUrlCommand(): void
@@ -57,7 +64,7 @@ class SalesChannelReplaceUrlCommandTest extends TestCase
             "\"bin/console sales-channel:replace:url\" returned errors:\n" . $commandTester->getDisplay()
         );
 
-        $criteria = $this->getStorefrontDomainCriteria();
+        $criteria = self::getStorefrontDomainCriteria();
 
         $domain = $this->domainRepo->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
@@ -122,7 +129,7 @@ class SalesChannelReplaceUrlCommandTest extends TestCase
         );
     }
 
-    private function getStorefrontDomainCriteria(): Criteria
+    private static function getStorefrontDomainCriteria(): Criteria
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('salesChannel.typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT));

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Elasticsearch\Admin;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\SkippedTestSuiteError;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Framework\Context;
@@ -34,12 +35,17 @@ class AdminSearchControllerTest extends TestCase
      */
     private EntityRepository $promotionRepository;
 
+    public static function setUpBeforeClass(): void
+    {
+        parent::setUpBeforeClass();
+
+        if (!static::getContainer()->getParameter('elasticsearch.administration.enabled')) {
+            throw new SkippedTestSuiteError('No OPENSEARCH configured');
+        }
+    }
+
     protected function setUp(): void
     {
-        if (!static::getContainer()->getParameter('elasticsearch.administration.enabled')) {
-            static::markTestSkipped('No OPENSEARCH configured');
-        }
-
         $this->connection = static::getContainer()->get(Connection::class);
 
         $this->promotionRepository = static::getContainer()->get('promotion.repository');

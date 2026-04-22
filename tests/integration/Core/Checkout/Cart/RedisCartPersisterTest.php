@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Cart;
 
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\SkippedTestSuiteError;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCompressor;
@@ -28,15 +29,20 @@ class RedisCartPersisterTest extends TestCase
 
     private \Redis $redis;
 
+    public static function setUpBeforeClass(): void
+    {
+        parent::setUpBeforeClass();
+
+        if ((string) EnvironmentHelper::getVariable('REDIS_URL') === '') {
+            throw new SkippedTestSuiteError('Redis is not available');
+        }
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
 
         $redisUrl = (string) EnvironmentHelper::getVariable('REDIS_URL');
-
-        if ($redisUrl === '') {
-            static::markTestSkipped('Redis is not available');
-        }
 
         $client = (new RedisConnectionFactory())->create($redisUrl);
         static::assertInstanceOf(\Redis::class, $client);
@@ -47,10 +53,7 @@ class RedisCartPersisterTest extends TestCase
     protected function tearDown(): void
     {
         parent::tearDown();
-        // Clear the Redis storage only if it was set up and not skipped
-        if (isset($this->redis)) {
-            $this->redis->flushAll();
-        }
+        $this->redis->flushAll();
     }
 
     public function testPersisting(): void

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\Adapter\Cache\InvalidatorStorage;
 
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\SkippedTestSuiteError;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
@@ -19,15 +20,20 @@ class RedisInvalidatorStorageTest extends TestCase
 
     private \Redis $redis;
 
+    public static function setUpBeforeClass(): void
+    {
+        parent::setUpBeforeClass();
+
+        if ((string) EnvironmentHelper::getVariable('REDIS_URL') === '') {
+            throw new SkippedTestSuiteError('Redis is not available');
+        }
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
 
         $redisUrl = (string) EnvironmentHelper::getVariable('REDIS_URL');
-
-        if ($redisUrl === '') {
-            static::markTestSkipped('Redis is not available');
-        }
 
         $factory = new RedisConnectionFactory();
 
@@ -40,10 +46,7 @@ class RedisInvalidatorStorageTest extends TestCase
     protected function tearDown(): void
     {
         parent::tearDown();
-        // Clear the Redis storage only if it was set up and not skipped
-        if (isset($this->redis)) {
-            $this->redis->del('invalidation');
-        }
+        $this->redis->del('invalidation');
     }
 
     public function testLoadWhenEmpty(): void

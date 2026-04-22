@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Cart\Command;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\SkippedTestSuiteError;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCompressor;
@@ -36,15 +37,20 @@ class CartMigrateCommandTest extends TestCase
 
     private string $redisUrl;
 
+    public static function setUpBeforeClass(): void
+    {
+        parent::setUpBeforeClass();
+
+        if ((string) EnvironmentHelper::getVariable('REDIS_URL') === '') {
+            throw new SkippedTestSuiteError('Redis is not available');
+        }
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->redisUrl = (string) EnvironmentHelper::getVariable('REDIS_URL');
-
-        if ($this->redisUrl === '') {
-            static::markTestSkipped('Redis is not available');
-        }
     }
 
     public function testWithRedisPrefix(): void

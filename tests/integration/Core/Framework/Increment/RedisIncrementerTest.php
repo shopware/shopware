@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Increment;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\SkippedTestSuiteError;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
@@ -17,25 +18,25 @@ class RedisIncrementerTest extends TestCase
 {
     private string $redisUrl;
 
+    public static function setUpBeforeClass(): void
+    {
+        parent::setUpBeforeClass();
+
+        if ((string) EnvironmentHelper::getVariable('REDIS_URL') === '') {
+            throw new SkippedTestSuiteError('Redis is not available');
+        }
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->redisUrl = (string) EnvironmentHelper::getVariable('REDIS_URL');
-
-        if ($this->redisUrl === '') {
-            static::markTestSkipped('Redis is not available');
-        }
     }
 
     protected function tearDown(): void
     {
         parent::tearDown();
-
-        // Clear the Redis incrementer storage only if it was set up and not skipped
-        if ($this->redisUrl === '') {
-            return;
-        }
 
         $factory = new RedisConnectionFactory();
         $redisClient = $factory->create($this->redisUrl);

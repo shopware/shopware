@@ -15,6 +15,7 @@ use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
 use Shopware\Core\Content\Media\Upload\FileMetadataResult;
 use Shopware\Core\Content\Media\Upload\MediaFileCleanupService;
+use Shopware\Core\Content\Media\Upload\MediaFileExtensionValidator;
 use Shopware\Core\Content\Media\Upload\PresignedMediaUploadService;
 use Shopware\Core\Content\Media\Upload\PresignedUploadFinalizePayload;
 use Shopware\Core\Content\Media\Upload\PresignedUploadPreparePayload;
@@ -40,12 +41,15 @@ class PresignedMediaUploadServiceTest extends TestCase
 
     private MediaFileCleanupService&MockObject $mediaFileCleanup;
 
+    private MediaFileExtensionValidator&MockObject $extensionValidator;
+
     protected function setUp(): void
     {
         $this->presignedUrlGenerator = $this->createMock(PresignedUrlGeneratorInterface::class);
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $this->mediaPathStrategy = $this->createMock(AbstractMediaPathStrategy::class);
         $this->mediaFileCleanup = $this->createMock(MediaFileCleanupService::class);
+        $this->extensionValidator = $this->createMock(MediaFileExtensionValidator::class);
 
         $this->eventDispatcher->method('dispatch')->willReturnCallback(
             static fn (object $event) => $event,
@@ -236,7 +240,7 @@ class PresignedMediaUploadServiceTest extends TestCase
                 contentType: 'image/jpeg',
             ));
 
-        $this->eventDispatcher->expects($this->exactly(4))->method('dispatch');
+        $this->eventDispatcher->expects($this->exactly(3))->method('dispatch');
 
         $payload = new PresignedUploadFinalizePayload(
             fileName: 'test-file',
@@ -337,6 +341,11 @@ class PresignedMediaUploadServiceTest extends TestCase
         $media = $this->buildMedia($mediaId);
 
         [, $service] = $this->createService([new MediaCollection([$media])]);
+
+        $this->extensionValidator->expects($this->once())
+            ->method('validate')
+            ->with('php', false, static::anything(), $mediaId)
+            ->willThrowException(MediaException::fileExtensionNotSupported($mediaId, 'php'));
 
         // Security invariant: even if the attacker submits a valid victim path, a finalize with a
         // disallowed extension must not cause a storage deletion.
@@ -511,8 +520,7 @@ class PresignedMediaUploadServiceTest extends TestCase
             $this->eventDispatcher,
             $this->createMock(TypeDetector::class),
             $this->mediaFileCleanup,
-            ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'mp4', 'mp3', 'pdf'],
-            ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'mp4', 'mp3', 'pdf'],
+            $this->extensionValidator,
             $this->mediaPathStrategy,
             new NullLogger(),
         );

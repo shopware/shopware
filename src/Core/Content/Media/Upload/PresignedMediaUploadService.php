@@ -6,7 +6,6 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Core\Event\UpdateMediaPathEvent;
 use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
-use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
 use Shopware\Core\Content\Media\Event\MediaPathChangedEvent;
 use Shopware\Core\Content\Media\Event\MediaUploadedEvent;
 use Shopware\Core\Content\Media\File\FileNameValidator;
@@ -41,8 +40,6 @@ readonly class PresignedMediaUploadService
 
     /**
      * @param EntityRepository<MediaCollection> $mediaRepository
-     * @param array<string> $allowedExtensions
-     * @param list<string> $privateAllowedExtensions
      */
     public function __construct(
         private EntityRepository $mediaRepository,
@@ -50,8 +47,7 @@ readonly class PresignedMediaUploadService
         private EventDispatcherInterface $eventDispatcher,
         private TypeDetector $typeDetector,
         private MediaFileCleanupService $mediaFileCleanup,
-        private array $allowedExtensions,
-        private array $privateAllowedExtensions,
+        private MediaFileExtensionValidator $extensionValidator,
         private AbstractMediaPathStrategy $mediaPathStrategy,
         private LoggerInterface $logger,
     ) {
@@ -146,12 +142,12 @@ readonly class PresignedMediaUploadService
                 throw MediaException::mediaNotFound($payload->mediaId);
             }
 
-            $this->validateFileExtension($payload->extension, $media->isPrivate(), $context, $payload->mediaId);
+            $this->extensionValidator->validate($payload->extension, $media->isPrivate(), $context, $payload->mediaId);
 
             return ['mediaId' => $payload->mediaId, 'uploadedAt' => new \DateTimeImmutable()];
         }
 
-        $this->validateFileExtension($payload->extension, $payload->private, $context);
+        $this->extensionValidator->validate($payload->extension, $payload->private, $context);
 
         $mediaId = Uuid::randomHex();
         $uploadedAt = new \DateTimeImmutable();
@@ -201,7 +197,7 @@ readonly class PresignedMediaUploadService
 
     private function validateFinalizeRequest(string $mediaId, PresignedUploadFinalizePayload $payload, MediaEntity $media, bool $isReplace, Context $context): void
     {
-        $this->validateFileExtension($payload->extension, $media->isPrivate(), $context, $mediaId);
+        $this->extensionValidator->validate($payload->extension, $media->isPrivate(), $context, $mediaId);
         $this->validateExpectedPath($mediaId, $payload, $media);
 
         if (!$isReplace) {
@@ -353,25 +349,6 @@ readonly class PresignedMediaUploadService
 
             throw MediaException::presignedUploadFinalizeFailed($mediaId);
         }
-    }
-
-    private function validateFileExtension(string $extension, bool $isPrivate, Context $context, string $mediaId = ''): void
-    {
-        $event = new MediaFileExtensionWhitelistEvent(
-            $isPrivate ? $this->privateAllowedExtensions : $this->allowedExtensions,
-            $context,
-        );
-        $this->eventDispatcher->dispatch($event);
-
-        $fileExtension = mb_strtolower($extension);
-
-        foreach ($event->getWhitelist() as $allowed) {
-            if ($fileExtension === mb_strtolower((string) $allowed)) {
-                return;
-            }
-        }
-
-        throw MediaException::fileExtensionNotSupported($mediaId, $fileExtension);
     }
 
     private function detectMediaType(string $mimeType, string $extension): MediaType

@@ -84,6 +84,24 @@ class FrameworkTest extends TestCase
         static::assertSame([], $expected, 'configureRoutes did not emit all expected glob imports');
     }
 
+    public function testConfigureRoutesReturnsEarlyWhenConfigDirectoryMissing(): void
+    {
+        $framework = new class extends Framework {
+            public function getPath(): string
+            {
+                return '/does/not/exist/' . uniqid('shopware-test-', true);
+            }
+        };
+
+        $loader = $this->createMock(PhpFileLoader::class);
+        $loader->expects($this->never())->method('import');
+
+        $framework->configureRoutes(
+            new RoutingConfigurator(new RouteCollection(), $loader, '/tmp', '/tmp'),
+            'prod',
+        );
+    }
+
     /**
      * @param list<string> $expectedPatterns by-reference; each observed call shifts one pattern off the front.
      */

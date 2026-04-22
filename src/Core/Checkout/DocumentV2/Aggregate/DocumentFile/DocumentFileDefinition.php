@@ -47,9 +47,12 @@ class DocumentFileDefinition extends EntityDefinition
 
     public function since(): string
     {
-        return '6.7.9.0';
+        return '6.7.10.0';
     }
 
+    /**
+     * TODO: Intentionally disable default timestamps for now so `createdAt` / `updatedAt` stay non-ApiAware while `document_file` is still internal.
+     */
     protected function defaultFields(): array
     {
         return [];

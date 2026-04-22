@@ -64,6 +64,15 @@ export default Component.wrapComponentConfig({
     },
 
     methods: {
+        /** Thin wrapper so tests can spy on navigation without mocking window.location (non-configurable in JSDOM v26). */
+        _reloadPage() {
+            window.location.reload();
+        },
+
+        _navigateTo(url: string) {
+            window.location.href = url;
+        },
+
         async createdComponent() {
             if (!localStorage.getItem('sw-admin-locale')) {
                 await Shopware.Store.get('session').setAdminLocale(navigator.language);
@@ -85,7 +94,8 @@ export default Component.wrapComponentConfig({
 
             this.ssoLoading = true;
             window.sessionStorage.setItem('redirectFromLogin', 'true');
-            window.location.href = this.loginConfig.url;
+            window.sessionStorage.setItem('sw-sso-session', 'true');
+            this._navigateTo(this.loginConfig.url);
         },
 
         loginUserWithPassword() {
@@ -131,8 +141,7 @@ export default Component.wrapComponentConfig({
                 if (shouldReload) {
                     sessionStorage.removeItem('sw-login-should-reload');
                     // reload page to rebuild the administration with all dependencies
-                    // @ts-expect-error - force reload
-                    window.location.reload(true);
+                    this._reloadPage();
                 }
             });
         },
@@ -180,7 +189,7 @@ export default Component.wrapComponentConfig({
             // @ts-expect-error
             if (!response.response) {
                 this.createNotificationError({
-                    message: this.$tc('sw-login.index.messageGeneralRequestError'),
+                    message: this.$t('sw-login.index.messageGeneralRequestError'),
                 });
                 return;
             }
@@ -195,7 +204,7 @@ export default Component.wrapComponentConfig({
             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             if (parseInt(error.status, 10) === 429) {
                 const seconds = error?.meta?.parameters?.seconds;
-                this.loginAlertMessage = this.$tc('sw-login.index.messageAuthThrottled', { seconds }, 0);
+                this.loginAlertMessage = this.$t('sw-login.index.messageAuthThrottled', { seconds }, 0);
 
                 setTimeout(() => {
                     this.loginAlertMessage = '';
@@ -204,16 +213,15 @@ export default Component.wrapComponentConfig({
             }
 
             if (error.code?.length) {
-                // eslint-disable-next-line max-len
                 const { message, title } = getErrorCode(parseInt(error.code as string, 10)) as {
                     message: string;
                     title: string;
                 };
 
                 this.createNotificationError({
-                    title: this.$tc(title),
+                    title: this.$t(title),
                     // @ts-expect-error
-                    message: this.$tc(message, 0, { url }),
+                    message: this.$t(message, 0, { url }),
                 });
             }
             /* eslint-enable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */

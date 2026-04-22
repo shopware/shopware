@@ -35,7 +35,6 @@ export default {
             type: String,
             default: 'left',
         },
-        // eslint-disable-next-line vue/require-prop-types
         flex: {
             required: false,
             default: 1,

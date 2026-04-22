@@ -85,7 +85,7 @@ async function createWrapper(productSortings = [], defaultSorting = {}) {
                 },
             },
             mocks: {
-                $tc: (param) => {
+                $t: (param) => {
                     if (snippets[param]) {
                         return snippets[param];
                     }
@@ -103,7 +103,6 @@ async function createWrapper(productSortings = [], defaultSorting = {}) {
     });
 }
 
-// eslint-disable-next-line max-len
 describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el-config-product-listing-config-sorting-grid', () => {
     it('should remove entry from product sortings on delete', async () => {
         const productSortings = new EntityCollection('', '', {}, {}, [

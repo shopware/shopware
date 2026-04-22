@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Content\MailTemplate\Api;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -15,7 +14,6 @@ use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
-use Shopware\Core\Content\MailTemplate\Api\MailActionController;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
@@ -39,7 +37,6 @@ use Symfony\Component\Serializer\Serializer;
  * @internal
  */
 #[Package('after-sales')]
-#[CoversClass(MailActionController::class)]
 class MailActionControllerTest extends TestCase
 {
     use AdminApiTestBehaviour;

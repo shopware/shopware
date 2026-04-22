@@ -4,7 +4,7 @@
     <template #search-bar>
         <sw-search-bar
             initial-search-type="newsletter_recipient"
-            :placeholder="$tc('sw-newsletter-recipient.general.placeholderSearchBarSnippets')"
+            :placeholder="$t('sw-newsletter-recipient.general.placeholderSearchBarSnippets')"
             :initial-search="term"
             @search="onSearch"
         />
@@ -16,13 +16,13 @@
         {% block sw_newsletter_recipient_list_smart_bar_header_title %}
         <h2>
             {% block sw_newsletter_recipientlist_list_smart_bar_header_title_text %}
-            <span>{{ $tc('global.sw-admin-menu.navigation.mainMenuItemMarketing') }}</span>
+            <span>{{ $t('global.sw-admin-menu.navigation.mainMenuItemMarketing') }}</span>
 
             <mt-icon
                 name="regular-chevron-right-xs"
                 size="12px"
             />
-            {{ $tc('sw-newsletter-recipient.list.textHeadline') }}
+            {{ $t('sw-newsletter-recipient.list.textHeadline') }}
             {% endblock %}
 
             {% block sw_newsletter_recipient_list_smart_bar_header_amount %}
@@ -124,7 +124,7 @@
                             size="medium"
                             appearance="pill"
                         >
-                            {{ $tc('sw-newsletter-recipient.list.notSet') }}
+                            {{ $t('sw-newsletter-recipient.list.notSet') }}
                         </sw-label>
                     </template>
                     {% endblock %}
@@ -134,7 +134,7 @@
                             size="medium"
                             appearance="pill"
                         >
-                            {{ $tc('sw-newsletter-recipient.list.optIn') }}
+                            {{ $t('sw-newsletter-recipient.list.optIn') }}
                         </sw-label>
                     </template>
                     {% endblock %}
@@ -144,7 +144,7 @@
                             size="medium"
                             appearance="pill"
                         >
-                            {{ $tc('sw-newsletter-recipient.list.optOut') }}
+                            {{ $t('sw-newsletter-recipient.list.optOut') }}
                         </sw-label>
                     </template>
                     {% endblock %}
@@ -154,7 +154,7 @@
                             size="medium"
                             appearance="pill"
                         >
-                            {{ $tc('sw-newsletter-recipient.list.direct') }}
+                            {{ $t('sw-newsletter-recipient.list.direct') }}
                         </sw-label>
                     </template>
                     {% endblock %}
@@ -192,7 +192,7 @@
             {% block sw_newsletter_recipient_list_sidebar_refresh %}
             <sw-sidebar-item
                 icon="regular-undo"
-                :title="$tc('sw-newsletter-recipient.list.titleSidebarItemRefresh')"
+                :title="$t('sw-newsletter-recipient.list.titleSidebarItemRefresh')"
                 @click="onRefresh"
             />
             {% endblock %}
@@ -201,14 +201,14 @@
             <sw-sidebar-item
                 ref="filterSideBar"
                 icon="regular-filter"
-                :title="$tc('sw-newsletter-recipient.list.titleSidebarItemFilter')"
+                :title="$t('sw-newsletter-recipient.list.titleSidebarItemFilter')"
                 @sw-sidebar-item-close-content="closeContent"
                 @click="closeContent"
             >
                 {% block sw_newsletter_recipient_list_sidebar_filter_status %}
                 <sw-sidebar-collapse>
                     <template #header>
-                        {{ $tc('sw-newsletter-recipient.list.status') }}
+                        {{ $t('sw-newsletter-recipient.list.status') }}
                     </template>
 
                     <template #content>
@@ -241,7 +241,7 @@
                 {% block sw_newsletter_recipient_list_sidebar_filter_language %}
                 <sw-sidebar-collapse>
                     <template #header>
-                        {{ $tc('sw-newsletter-recipient.general.language') }}
+                        {{ $t('sw-newsletter-recipient.general.language') }}
                     </template>
 
                     <template #content>
@@ -262,7 +262,7 @@
                 {% block sw_newsletter_recipient_list_sidebar_filter_sales_channel %}
                 <sw-sidebar-collapse>
                     <template #header>
-                        {{ $tc('sw-newsletter-recipient.general.salesChannel') }}
+                        {{ $t('sw-newsletter-recipient.general.salesChannel') }}
                     </template>
 
                     <template #content>
@@ -283,7 +283,7 @@
                 {% block sw_newsletter_recipient_list_sidebar_filter_sales_tags %}
                 <sw-sidebar-collapse>
                     <template #header>
-                        {{ $tc('sw-newsletter-recipient.general.tags') }}
+                        {{ $t('sw-newsletter-recipient.general.tags') }}
                     </template>
 
                     <template #content>

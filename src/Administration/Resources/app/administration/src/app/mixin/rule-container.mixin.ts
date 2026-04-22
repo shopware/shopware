@@ -64,7 +64,6 @@ export default Shopware.Mixin.register(
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 if (this.condition[this.childAssociationField] && this.condition[this.childAssociationField].length > 0) {
                     // @ts-expect-error
-                    // eslint-disable-next-line max-len
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return
                     return this.condition[this.childAssociationField].length;
                 }

@@ -9,8 +9,11 @@
                     <div class="navigation-flyout-category-link">
                         {% block layout_navbar_content_row_category_link %}
                             {% if category.type == 'page' %}
+                                {# @deprecated tag:v6.8.0 - SiteNavigationElement url microdata removed. Not supported as a rich result. #}
                                 <a href="{{ seoUrl('frontend.navigation.page', { navigationId: category.id }) }}"
+                                   {% if not feature('JSON_LD_DATA') %}
                                    itemprop="url"
+                                   {% endif %}
                                    title="{{ name }}">
                                     {% block layout_navbar_content_row_category_link_text %}
                                         {{ 'general.toCategory'|trans|sw_sanitize }} {{ name }}

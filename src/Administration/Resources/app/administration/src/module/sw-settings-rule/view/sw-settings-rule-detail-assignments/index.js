@@ -69,7 +69,6 @@ export default {
             return RuleAssignmentConfigurationService(this.rule.id, this.associationLimit).getConfiguration();
         },
 
-        /* eslint-disable max-len */
         /**
          * Definition of the associated entities of the current rule.
          * The component will render a sw-entity-listing for each association entity,
@@ -78,7 +77,6 @@ export default {
          * @type {[{id: String, notAssignedDataTotal: int, entityName: String, label: String, criteria: Function, api: Function, detailRoute: String, gridColumns: Array<Object>, deleteContext: Object, addContext: Object }]}
          * @returns {Array<Object>}
          */
-        /* eslint-enable max-len */
         associationEntitiesConfig() {
             return Object.values(this.getRuleAssignmentConfiguration);
         },
@@ -267,7 +265,7 @@ export default {
             )
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-rule.detail.associationsLoadingError'),
+                        message: this.$t('sw-settings-rule.detail.associationsLoadingError'),
                     });
                 })
                 .finally(() => {

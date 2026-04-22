@@ -487,7 +487,7 @@ export default class CookieConfiguration extends Plugin {
                     CookieStorage.setItem(
                         cookieData.cookie,
                         cookieData.value,
-                        cookieData.expiration || this._getDefaultCookieExpiration()
+                        cookieData.expiration || this._getDefaultCookieExpiration(),
                     );
                 }
             }
@@ -902,7 +902,7 @@ export default class CookieConfiguration extends Plugin {
             cookieGroups,
             'selected',
             selectedCookiesFromDOM,
-            data.languageId
+            data.languageId,
         );
 
         this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
@@ -1023,9 +1023,17 @@ export default class CookieConfiguration extends Plugin {
     /**
      * @private
      */
+    /**
+     * Thin wrapper so tests can spy on navigation without mocking window.location
+     * (non-configurable in JSDOM v26).
+     */
+    _navigateTo(url) {
+        window.location.href = url;
+    }
+
     _onLogin() {
         AjaxOffCanvas.close();
-        window.location.href = window.router['frontend.account.login.page'];
+        this._navigateTo(window.router['frontend.account.login.page']);
     }
 
     /**
@@ -1048,7 +1056,7 @@ export default class CookieConfiguration extends Plugin {
             }
             offcanvasElement.addEventListener('hidden.bs.offcanvas',
                 this._restoreFocus.bind(this),
-                { once: true }
+                { once: true },
             );
         });
     }

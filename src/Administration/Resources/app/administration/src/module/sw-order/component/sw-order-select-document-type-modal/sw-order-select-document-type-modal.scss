@@ -1,4 +1,14 @@
 .sw-order-select-document-type-modal {
+    &__type-switch {
+        margin-top: 0;
+    }
+
+    &__divider {
+        width: 100%;
+        border-top: 1px solid var(--color-border-secondary-default);
+        margin-bottom: var(--scale-size-22);
+    }
+
     &__radio-field {
         &.sw-field {
             margin-bottom: 0;
@@ -7,5 +17,6 @@
 
     .sw-field__radio-option.is--disabled {
         background-color: transparent;
+        border-radius: var(--border-radius-xs);
     }
 }

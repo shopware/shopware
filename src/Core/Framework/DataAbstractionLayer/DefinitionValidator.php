@@ -92,6 +92,7 @@ class DefinitionValidator
         'admin_elasticsearch_index_task',
         'app_config',
         'cart',
+        'deleted_apps',
         'migration',
         'sales_channel_api_context',
         'elasticsearch_index_task',
@@ -364,6 +365,7 @@ class DefinitionValidator
                 $getterMethods[] = 'is' . $propertyName;
                 $getterMethods[] = 'has' . $propertyName;
                 $getterMethods[] = 'has' . preg_replace('/^has/', '', $propertyName);
+                $getterMethods[] = 'was' . preg_replace('/^was/', '', $propertyName);
             }
 
             $hasGetter = false;

@@ -2,6 +2,7 @@
  * @sw-package after-sales
  */
 import { mount } from '@vue/test-utils';
+import { DOCUMENT_TYPES } from '../../order.types';
 
 const orderFixture = {
     id: 'order1',
@@ -94,6 +95,10 @@ const orderFixture = {
     ],
 };
 
+const numberRangeServiceMock = {
+    reserve: jest.fn().mockResolvedValue({ number: 1337 }),
+};
+
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-order-document-settings-credit-note-modal', { sync: true }), {
         global: {
@@ -132,9 +137,7 @@ async function createWrapper() {
                 'sw-help-text': true,
             },
             provide: {
-                numberRangeService: {
-                    reserve: () => Promise.resolve({ number: 1337 }),
-                },
+                numberRangeService: numberRangeServiceMock,
             },
         },
         props: {
@@ -315,51 +318,54 @@ describe('sw-order-document-settings-credit-note-modal', () => {
         expect(wrapper.emitted()['loading-document']).toBeTruthy();
     });
 
-    it('should call numberRangeService.reserve if documentNumberPreview equal documentConfig.documentNumber', async () => {
-        const number = 'RESERVE_NUMBER';
-        const spyReserve = jest.spyOn(wrapper.vm.numberRangeService, 'reserve').mockImplementation(() =>
-            Promise.resolve({
-                number,
-            }),
-        );
-
-        await wrapper.setProps({
-            order: {
-                salesChannelId: 'Headless',
-                currency: {
-                    isoCode: 'USD',
+    it.each([
+        { technicalName: DOCUMENT_TYPES.CREDIT_NOTE },
+        { technicalName: DOCUMENT_TYPES.ZUGFERD_CREDIT_NOTE },
+        { technicalName: DOCUMENT_TYPES.ZUGFERD_EMBEDDED_CREDIT_NOTE },
+    ])(
+        'should call numberRangeService if documentNumberPreview equal documentNumber: $technicalName',
+        async ({ technicalName }) => {
+            await wrapper.setProps({
+                order: {
+                    salesChannelId: 'Headless',
+                    currency: {
+                        isoCode: 'USD',
+                    },
+                    lineItems: [],
+                    documents: [],
                 },
-                lineItems: [],
-                documents: [],
-            },
-        });
+            });
 
-        await wrapper.setData({
-            documentNumberPreview: 'PREVIEW_NUM_001',
-            documentConfig: {
-                documentNumber: 'PREVIEW_NUM_001',
-            },
-        });
+            await wrapper.setData({
+                documentNumberPreview: 'PREVIEW_NUM_001',
+                documentConfig: {
+                    documentNumber: 'PREVIEW_NUM_001',
+                },
+            });
 
-        await wrapper.setProps({
-            currentDocumentType: {
-                technicalName: 'credit_note',
-            },
-        });
+            await wrapper.setProps({
+                currentDocumentType: {
+                    technicalName,
+                },
+            });
 
-        wrapper.vm.createNotificationInfo = jest.fn();
+            wrapper.vm.createNotificationInfo = jest.fn();
 
-        await wrapper.vm.onCreateDocument();
+            numberRangeServiceMock.reserve.mockClear();
+            await wrapper.vm.onCreateDocument();
 
-        expect(wrapper.vm.createNotificationInfo).toHaveBeenCalledWith({
-            message: 'sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED',
-        });
-        expect(spyReserve).toHaveBeenCalledTimes(1);
-        expect(spyReserve).toHaveBeenCalledWith('document_credit_note', 'Headless', false);
-        expect(wrapper.vm.documentConfig.custom.creditNoteNumber).toEqual(number);
-        expect(wrapper.vm.documentConfig.documentNumber).toEqual(number);
-        expect(wrapper.emitted()['document-create']).toBeTruthy();
-    });
+            expect(wrapper.vm.createNotificationInfo).toHaveBeenCalledWith({
+                message: 'sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED',
+            });
+
+            expect(numberRangeServiceMock.reserve).toHaveBeenCalledTimes(1);
+            expect(numberRangeServiceMock.reserve).toHaveBeenCalledWith('document_credit_note', 'Headless', false);
+
+            expect(wrapper.vm.documentConfig.custom.creditNoteNumber).toBe(1337);
+            expect(wrapper.vm.documentConfig.documentNumber).toBe(1337);
+            expect(wrapper.emitted()['document-create']).toBeTruthy();
+        },
+    );
 
     it('should set document creditNoteNumber if documentNumberPreview not equal config documentNumber', async () => {
         await wrapper.setData({

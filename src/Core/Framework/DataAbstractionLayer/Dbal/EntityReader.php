@@ -36,13 +36,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Reader\EntityReaderTest;
 
 use function Symfony\Component\String\u;
 
 /**
  * @internal
  *
- * @codeCoverageIgnore - Covered by integration test {@see \Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Reader\EntityReaderTest}
+ * @codeCoverageIgnore - Covered by integration test {@see EntityReaderTest}
  */
 #[Package('framework')]
 class EntityReader implements EntityReaderInterface
@@ -798,24 +799,26 @@ class EntityReader implements EntityReaderInterface
         // collect all ids of many-to-many association which already stored inside the struct instances
         $ids = $this->collectManyToManyIds($collection, $association);
 
-        if ($ids !== []) {
-            $criteria->setIds($ids);
-        }
-
         $referenceClass = $association->getToManyReferenceDefinition();
         /** @var EntityCollection<Entity> $collectionClass */
         $collectionClass = $referenceClass->getCollectionClass();
 
-        $data = $this->_read(
-            $criteria,
-            $referenceClass,
-            $context,
-            new $collectionClass(),
-            $referenceClass->getFields()->getBasicFields(),
-            false,
-            $fieldsForPartialLoading,
-            $isPartialLoading,
-        );
+        if ($ids !== []) {
+            $criteria->setIds($ids);
+
+            $data = $this->_read(
+                $criteria,
+                $referenceClass,
+                $context,
+                new $collectionClass(),
+                $referenceClass->getFields()->getBasicFields(),
+                false,
+                $fieldsForPartialLoading,
+                $isPartialLoading,
+            );
+        } else {
+            $data = new $collectionClass();
+        }
 
         foreach ($collection as $struct) {
             $extension = $struct->getExtension(self::INTERNAL_MAPPING_STORAGE);

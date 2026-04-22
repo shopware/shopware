@@ -40,6 +40,7 @@ class CacheHeadersService
         $response->headers->set(PlatformRequest::HEADER_CURRENCY_ID, $context->getCurrencyId());
 
         $newVaryArray = array_merge($response->getVary(), [
+            PlatformRequest::HEADER_ACCESS_KEY,
             PlatformRequest::HEADER_LANGUAGE_ID,
             PlatformRequest::HEADER_CURRENCY_ID,
             HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE,

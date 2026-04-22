@@ -1,15 +1,16 @@
 import Plugin from 'src/plugin-system/plugin.class';
 /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
 import HttpClient from 'src/service/http-client.service';
+import ButtonLoadingIndicator from 'src/utility/loading-indicator/button-loading-indicator.util';
 
 /**
  * @package discovery
  */
 export default class FormCmsHandler extends Plugin {
-
     static options = {
         hiddenClass: 'd-none',
         hiddenSubmitSelector: '.submit--hidden',
+        submitSelector: 'button[type=submit]',
         formContentSelector: '.form-content',
         cmsBlock: '.cms-block',
         /**
@@ -23,9 +24,11 @@ export default class FormCmsHandler extends Plugin {
         /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
         this._client = new HttpClient();
         this._getHiddenSubmit();
+        this._getSubmitButton();
         this._registerEvents();
         this._getCmsBlock();
         this._getConfirmationText();
+        this._submitButtonLoader = null;
     }
 
     sendAjaxFormSubmit() {
@@ -48,6 +51,7 @@ export default class FormCmsHandler extends Plugin {
 
     _getConfirmationText() {
         const input = this.el.querySelector('input[name="confirmationText"]');
+
         if (input) {
             this._confirmationText = input.value;
         }
@@ -59,6 +63,10 @@ export default class FormCmsHandler extends Plugin {
 
     _getHiddenSubmit() {
         this._hiddenSubmit = this.el.querySelector(this.options.hiddenSubmitSelector);
+    }
+
+    _getSubmitButton() {
+        this._submitButton = this.el.querySelector(this.options.submitSelector);
     }
 
     _handleSubmit(event) {
@@ -79,7 +87,13 @@ export default class FormCmsHandler extends Plugin {
         if (this.formSubmittedByCaptcha) {
             return;
         }
+
         this.$emitter.publish('beforeSubmit');
+
+        if (this._submitButton) {
+            this._submitButtonLoader = new ButtonLoadingIndicator(this._submitButton);
+            this._submitButtonLoader.create();
+        }
 
         this.sendAjaxFormSubmit();
     }
@@ -93,11 +107,18 @@ export default class FormCmsHandler extends Plugin {
         if (response.length > 0) {
             let changeContent = true;
             let content = '';
+
             for (let i = 0; i < response.length; i += 1) {
                 if (response[i].type === 'danger' || response[i].type === 'info') {
                     changeContent = false;
                 }
+
                 content += response[i].alert;
+            }
+
+            if (!changeContent && this._submitButtonLoader) {
+                this._submitButtonLoader.remove();
+                this._submitButtonLoader = null;
             }
 
             // Reset form after successful submission to clear form contents.
@@ -116,12 +137,15 @@ export default class FormCmsHandler extends Plugin {
             if (this._confirmationText) {
                 content = this._confirmationText;
             }
+
             this._block.innerHTML = `<div class="confirm-message">${content}</div>`;
         } else {
             const confirmDiv = this._block.querySelector('.confirm-alert');
+
             if (confirmDiv) {
                 confirmDiv.remove();
             }
+
             const html = `<div class="confirm-alert">${content}</div>`;
             this._block.insertAdjacentHTML('beforeend', html);
         }

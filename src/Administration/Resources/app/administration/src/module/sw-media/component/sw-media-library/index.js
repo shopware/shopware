@@ -92,7 +92,6 @@ export default {
         allowMultiSelect: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -158,7 +157,7 @@ export default {
         rootFolder() {
             const root = this.mediaFolderRepository.create(Context.api);
             root.id = '';
-            root.name = this.$tc('sw-media.index.rootFolderName');
+            root.name = this.$t('sw-media.index.rootFolderName');
 
             return root;
         },

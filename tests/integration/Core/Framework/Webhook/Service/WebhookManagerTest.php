@@ -7,7 +7,6 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -22,7 +21,7 @@ use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
-use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
+use Shopware\Core\Framework\App\Lifecycle\PermissionLifecycleService;
 use Shopware\Core\Framework\App\Manifest\Xml\Permission\Permissions;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
@@ -38,6 +37,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
+use Shopware\Core\Framework\Webhook\Service\WebhookClient;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
 use Shopware\Core\Kernel;
@@ -52,7 +52,6 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
-#[CoversClass(WebhookManager::class)]
 class WebhookManagerTest extends TestCase
 {
     use GuzzleTestClientBehaviour;
@@ -182,7 +181,7 @@ class WebhookManagerTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'shopId' => $this->shopIdProvider->getShopId(),
+                'shopId' => $this->shopIdProvider->getShopId()->id,
                 'appVersion' => '0.0.1',
                 'inAppPurchases' => null,
             ],
@@ -481,7 +480,7 @@ class WebhookManagerTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'shopId' => $this->shopIdProvider->getShopId(),
+                'shopId' => $this->shopIdProvider->getShopId()->id,
                 'appVersion' => '0.0.1',
                 'inAppPurchases' => null,
             ],
@@ -534,7 +533,7 @@ class WebhookManagerTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'shopId' => $this->shopIdProvider->getShopId(),
+                'shopId' => $this->shopIdProvider->getShopId()->id,
                 'appVersion' => '0.0.1',
                 'inAppPurchases' => null,
             ],
@@ -684,7 +683,7 @@ class WebhookManagerTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'shopId' => $this->shopIdProvider->getShopId(),
+                'shopId' => $this->shopIdProvider->getShopId()->id,
                 'appVersion' => '0.0.1',
                 'inAppPurchases' => null,
             ],
@@ -713,14 +712,14 @@ class WebhookManagerTest extends TestCase
             ],
         ]);
 
-        $permissionPersister = static::getContainer()->get(PermissionPersister::class);
+        $permissionLifecycle = static::getContainer()->get(PermissionLifecycleService::class);
         $permissions = Permissions::fromArray([
             'permissions' => [
                 'product' => ['read'],
             ],
         ]);
 
-        $permissionPersister->updatePrivileges($permissions, $appId, true, Context::createDefaultContext());
+        $permissionLifecycle->updatePrivileges($permissions, $appId, true, Context::createDefaultContext());
 
         $this->appendNewResponse(new Response(200));
 
@@ -755,7 +754,7 @@ class WebhookManagerTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'shopId' => $this->shopIdProvider->getShopId(),
+                'shopId' => $this->shopIdProvider->getShopId()->id,
                 'appVersion' => '0.0.1',
                 'inAppPurchases' => null,
             ],
@@ -805,7 +804,7 @@ class WebhookManagerTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'shopId' => $this->shopIdProvider->getShopId(),
+                'shopId' => $this->shopIdProvider->getShopId()->id,
                 'appVersion' => '0.0.1',
                 'inAppPurchases' => null,
             ],
@@ -861,7 +860,7 @@ class WebhookManagerTest extends TestCase
             ],
             'source' => [
                 'url' => $this->shopUrl,
-                'shopId' => $this->shopIdProvider->getShopId(),
+                'shopId' => $this->shopIdProvider->getShopId()->id,
                 'appVersion' => '0.0.1',
                 'inAppPurchases' => null,
             ],
@@ -1012,12 +1011,12 @@ class WebhookManagerTest extends TestCase
         }
 
         if ($permissions !== null && $appId !== null) {
-            $permissionPersister = static::getContainer()->get(PermissionPersister::class);
+            $permissionLifecycle = static::getContainer()->get(PermissionLifecycleService::class);
             $permissions = Permissions::fromArray([
                 'permissions' => $permissions,
             ]);
 
-            $permissionPersister->updatePrivileges($permissions, $appId, true, $context);
+            $permissionLifecycle->updatePrivileges($permissions, $appId, true, $context);
         }
     }
 
@@ -1057,6 +1056,8 @@ class WebhookManagerTest extends TestCase
         ?Client $client = null,
         bool $adminWorkerEnabled = true
     ): WebhookManager {
+        $guzzle = $client ?? static::getContainer()->get('shopware.webhook.guzzle');
+
         return new WebhookManager(
             static::getContainer()->get(WebhookLoader::class),
             static::getContainer()->get('event_dispatcher'),
@@ -1064,7 +1065,7 @@ class WebhookManagerTest extends TestCase
             static::getContainer()->get(HookableEventFactory::class),
             static::getContainer()->get(AppLocaleProvider::class),
             static::getContainer()->get(AppPayloadServiceHelper::class),
-            $client ?? static::getContainer()->get('shopware.app_system.guzzle'),
+            new WebhookClient($guzzle),
             $this->bus,
             $this->shopUrl,
             Kernel::SHOPWARE_FALLBACK_VERSION,

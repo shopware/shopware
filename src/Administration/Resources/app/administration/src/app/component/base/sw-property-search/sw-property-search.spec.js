@@ -263,7 +263,6 @@ describe('components/base/sw-property-search', () => {
 
         expect(wrapper.vm.optionPage).toBe(1);
 
-        // eslint-disable-next-line max-len
         const nextPageButton = wrapper.find(
             '.sw-property-search__tree-selection__option_grid .sw-pagination__list-button:not(.is-active)',
         );
@@ -305,7 +304,6 @@ describe('components/base/sw-property-search', () => {
         expect(wrapper.vm.optionPage).toBe(1);
         expect(groupOptions).toBe(12);
 
-        // eslint-disable-next-line max-len
         const nextPageButton = wrapper.find(
             '.sw-property-search__tree-selection__option_grid .sw-pagination__list-button:not(.is-active)',
         );

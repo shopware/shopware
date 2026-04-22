@@ -107,7 +107,7 @@ export default {
         tooltipSave() {
             if (!this.acl.can('rule.editor')) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     disabled: this.acl.can('rule.editor'),
                     showOnDisabledElements: true,
                 };
@@ -129,20 +129,22 @@ export default {
         },
 
         tabItems() {
+            const id = this.ruleId || this.$route?.params?.id;
+
             return [
                 {
-                    title: this.$tc('sw-settings-rule.detail.tabGeneral'),
+                    title: this.$t('sw-settings-rule.detail.tabGeneral'),
                     route: {
                         name: 'sw.settings.rule.detail.base',
-                        params: { id: this.$route.params.id },
+                        params: { id },
                     },
                     cssClassSuffix: 'general',
                 },
                 {
-                    title: this.$tc('sw-settings-rule.detail.tabAssignments'),
+                    title: this.$t('sw-settings-rule.detail.tabAssignments'),
                     route: {
                         name: 'sw.settings.rule.detail.assignments',
-                        params: { id: this.$route.params.id },
+                        params: { id },
                     },
                     cssClassSuffix: 'assignments',
                 },
@@ -406,14 +408,14 @@ export default {
                 );
 
                 if (restrictions.isRestricted) {
-                    const message = this.$tc(
+                    const message = this.$t(
                         'sw-restricted-rules.restrictedAssignment.equalsAnyViolationTooltip',
                         {
                             conditions: this.ruleConditionDataProviderService.getTranslatedConditionViolationList(
                                 restrictions.equalsAnyNotMatched,
                                 'sw-restricted-rules.or',
                             ),
-                            entityLabel: this.$tc(restrictions.assignmentSnippet, 2),
+                            entityLabel: this.$t(restrictions.assignmentSnippet, 2),
                         },
                         0,
                     );
@@ -456,7 +458,7 @@ export default {
                 Shopware.Store.get('error').addApiError({
                     expression: `rule_condition.${this.rule.id}.value`,
                     error: new Shopware.Classes.ShopwareError({
-                        detail: this.$tc('sw-settings-rule.error-codes.INVALID_DATE_RANGE'),
+                        detail: this.$t('sw-settings-rule.error-codes.INVALID_DATE_RANGE'),
                         code: 'INVALID_DATE_RANGE',
                     }),
                 });
@@ -536,7 +538,7 @@ export default {
 
         showErrorNotification() {
             this.createNotificationError({
-                message: this.$tc('sw-settings-rule.detail.messageSaveError', { name: this.rule.name }, 0),
+                message: this.$t('sw-settings-rule.detail.messageSaveError', { name: this.rule.name }, 0),
             });
             this.isLoading = false;
         },
@@ -557,7 +559,7 @@ export default {
             return this.onSave().then(() => {
                 const behaviour = {
                     overwrites: {
-                        name: `${this.rule.name} ${this.$tc('global.default.copy')}`,
+                        name: `${this.rule.name} ${this.$t('global.default.copy')}`,
                         // setting the createdAt to null, so that api does set a new date
                         createdAt: null,
                     },

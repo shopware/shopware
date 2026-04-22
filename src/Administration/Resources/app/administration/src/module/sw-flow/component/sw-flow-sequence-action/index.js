@@ -78,7 +78,7 @@ export default {
             const groups = this.actionGroups.map((group) => {
                 return {
                     id: group,
-                    label: this.$tc(`sw-flow.actions.group.${group}`),
+                    label: this.$t(`sw-flow.actions.group.${group}`),
                 };
             });
 
@@ -410,7 +410,7 @@ export default {
             const actionTitle = this.flowBuilderService.getActionTitle(actionName);
             return {
                 ...actionTitle,
-                label: this.$tc(actionTitle.label),
+                label: this.$t(actionTitle.label),
                 group: this.flowBuilderService.getActionGroupMapping(actionName),
             };
         },
@@ -502,7 +502,6 @@ export default {
 
                 action.group = action.group || this.flowBuilderService.getGroup('GENERAL');
 
-                // eslint-disable-next-line max-len
                 actions.push(
                     actions.splice(
                         actions.findIndex((el) => el.group === this.flowBuilderService.getGroup('GENERAL')),

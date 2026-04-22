@@ -4,7 +4,13 @@
 import ViewAdapter from 'src/core/adapter/view.adapter';
 import { createI18n } from 'vue-i18n';
 import type { FallbackLocale, I18n } from 'vue-i18n';
-import type { Router } from 'vue-router';
+import type {
+    NavigationGuardNext,
+    Router,
+    RouteLocationNormalized,
+    RouteLocationNormalizedLoaded,
+    RouteLocationRaw,
+} from 'vue-router';
 import { createApp, defineAsyncComponent, h } from 'vue';
 import type { Component as VueComponent, App } from 'vue';
 import VuePlugins from 'src/app/plugin';
@@ -43,6 +49,8 @@ import MtSearch from '@shopware-ag/meteor-component-library/dist/esm/MtSearch';
 import MtLink from '@shopware-ag/meteor-component-library/dist/esm/MtLink';
 import MtUnitField from '@shopware-ag/meteor-component-library/dist/esm/MtUnitField';
 import MtSnackbar from '@shopware-ag/meteor-component-library/dist/esm/MtSnackbar';
+import MtBadge from '@shopware-ag/meteor-component-library/dist/esm/MtBadge';
+import MtPromoBadge from '@shopware-ag/meteor-component-library/dist/esm/MtPromoBadge';
 
 import getBlockDataScope from '../../component/structure/sw-block-override/sw-block/get-block-data-scope';
 import useSystem from '../../composables/use-system';
@@ -50,11 +58,30 @@ import useSession from '../../composables/use-session';
 
 const { Component, State, Mixin } = Shopware;
 
+type RouteGuardName = 'beforeRouteEnter' | 'beforeRouteLeave' | 'beforeRouteUpdate';
+type RouteGuard = (
+    this: unknown,
+    to: RouteLocationNormalized,
+    from: RouteLocationNormalizedLoaded,
+    next: NavigationGuardNext,
+) => unknown;
+type RouteEnterCallback =
+    Exclude<Parameters<NavigationGuardNext>[0], undefined> extends (vm: infer VM) => void ? (vm: VM) => void : never;
+type RouteGuardResult = false | RouteLocationRaw | Error | RouteEnterCallback | undefined;
+
+const routeGuardNames: RouteGuardName[] = [
+    'beforeRouteEnter',
+    'beforeRouteLeave',
+    'beforeRouteUpdate',
+];
+
 /**
  * @private
  */
 export default class VueAdapter extends ViewAdapter {
     private resolvedComponentConfigs: Map<string, Promise<ComponentConfig | boolean>>;
+
+    private routeGuardComponents: WeakSet<ComponentConfig>;
 
     private vueComponents: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -70,25 +97,13 @@ export default class VueAdapter extends ViewAdapter {
 
         this.i18n = undefined;
         this.resolvedComponentConfigs = new Map();
+        this.routeGuardComponents = new WeakSet();
         this.vueComponents = {};
 
         this.app = createApp({
             name: 'ShopwareAdministration',
             template: '<sw-admin />',
-            mounted() {
-                // `DELAY` matches animation-delay that is used in `administration/index.html`
-                const DELAY = 2000;
-                const MIN_VISIBLE_TIME = 300;
-
-                const startTime = window._pageLoadTime_;
-                const elapsedTime = Date.now() - startTime;
-                // prevent flickering, show loading indicator longer than necessary:
-                const buffer = elapsedTime < DELAY ? 0 : Math.max(DELAY + MIN_VISIBLE_TIME - elapsedTime, 0);
-
-                setTimeout(() => {
-                    document.getElementById('page-loading-screen')?.remove();
-                }, buffer);
-            },
+            mounted: () => window.removePageLoadingIndicator(),
         });
     }
 
@@ -105,7 +120,6 @@ export default class VueAdapter extends ViewAdapter {
         this.initDirectives();
 
         const vuexRoot = State._store;
-        // eslint-disable-next-line @typescript-eslint/no-empty-object-type
         const i18n = this.initLocales();
 
         // add router to View
@@ -122,7 +136,6 @@ export default class VueAdapter extends ViewAdapter {
                 console.warn(
                     'the order of the parameters for $t has changed in the latest version.',
                     'Please, check Vue I18n documentation for more details:',
-                    // eslint-disable-next-line max-len
                     'https://vue-i18n.intlify.dev/guide/migration/breaking10#tc-key-key-resourcekeys-choice-number-named-record-string-unknown-translateresult',
                 );
                 // This is a workaround to avoid breaking changes for the $tc function which that swap the second and
@@ -189,12 +202,10 @@ export default class VueAdapter extends ViewAdapter {
          * So we should convert from provide/inject to Shopware.Service
          */
         Object.keys(providers).forEach((provideKey) => {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             Object.defineProperty(this.app._context.provides, provideKey, {
                 get: () => providers[provideKey],
                 enumerable: true,
                 configurable: true,
-                // eslint-disable-next-line @typescript-eslint/no-empty-function
                 set() {},
             });
         });
@@ -214,15 +225,11 @@ export default class VueAdapter extends ViewAdapter {
         });
 
         // Add global properties to root view instance
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
         this.app.$tc = i18n.global.t;
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
         this.app.$t = i18n.global.t;
 
         this.initTitle(this.app);
-        /* eslint-enable max-len */
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         this.app.mount(renderElement);
 
         if (process.env.NODE_ENV === 'development') {
@@ -384,6 +391,8 @@ export default class VueAdapter extends ViewAdapter {
             MtLink,
             MtUnitField,
             MtSnackbar,
+            MtBadge,
+            MtPromoBadge,
         } as const;
 
         const lazyMeteorComponents = {
@@ -453,7 +462,6 @@ export default class VueAdapter extends ViewAdapter {
                     let vueComponent;
 
                     if (typeof component !== 'boolean') {
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                         this.app?.component(componentName, component);
                         vueComponent = this.app?.component(componentName);
                     }
@@ -466,13 +474,8 @@ export default class VueAdapter extends ViewAdapter {
                 return;
             }
 
-            this.registerAsyncComponent(
-                componentName,
-                // @ts-expect-error - resolved config does not match completely a standard vue component
-                () => this.componentResolver(componentName),
-            );
+            this.registerAsyncComponent(componentName, () => this.componentResolver(componentName));
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call
             const vueComponent = this.app?.component(componentName);
 
             // @ts-expect-error - resolved config does not match completely a standard vue component
@@ -482,7 +485,7 @@ export default class VueAdapter extends ViewAdapter {
         });
     }
 
-    componentResolver(componentName: string) {
+    componentResolver(componentName: string): Promise<ComponentConfig | boolean> {
         if (!this.resolvedComponentConfigs.has(componentName)) {
             this.resolvedComponentConfigs.set(
                 componentName,
@@ -500,7 +503,7 @@ export default class VueAdapter extends ViewAdapter {
             );
         }
 
-        return this.resolvedComponentConfigs.get(componentName);
+        return this.resolvedComponentConfigs.get(componentName) as Promise<ComponentConfig | boolean>;
     }
 
     /**
@@ -514,7 +517,6 @@ export default class VueAdapter extends ViewAdapter {
         const componentName = componentConfig.name;
         this.resolveMixins(componentConfig);
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         this.app?.component(componentName, componentConfig);
         const vueComponent = this.app?.component(componentName);
 
@@ -539,8 +541,16 @@ export default class VueAdapter extends ViewAdapter {
      * Returns a final Vue component by its name without defineAsyncComponent
      * which cannot be used in the router.
      */
-    getComponentForRoute(componentName: string) {
-        return () => this.componentResolver(componentName);
+    getComponentForRoute(componentName: string): () => Promise<boolean | ComponentConfig> {
+        return async () => {
+            const componentConfig = await this.componentResolver(componentName);
+
+            if (typeof componentConfig !== 'boolean') {
+                this.normalizeRouteGuards(componentConfig);
+            }
+
+            return componentConfig;
+        };
     }
 
     /**
@@ -602,7 +612,7 @@ export default class VueAdapter extends ViewAdapter {
                 return;
             }
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-argument
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             this.app?.use(plugin);
         });
 
@@ -657,7 +667,6 @@ export default class VueAdapter extends ViewAdapter {
             allowComposition: true,
         } as const;
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         const i18n = createI18n(options);
 
         Shopware.Vue.watch(
@@ -713,7 +722,7 @@ export default class VueAdapter extends ViewAdapter {
                 return '';
             }
 
-            const baseTitle = this.$root.$tc('global.sw-admin-menu.textShopwareAdmin');
+            const baseTitle = this.$root.$t('global.sw-admin-menu.textShopwareAdmin');
 
             if (!this.$route.meta || !this.$route.meta.$module) {
                 return '';
@@ -721,16 +730,14 @@ export default class VueAdapter extends ViewAdapter {
 
             // @ts-expect-error - $module is not typed correctly
             const moduleTitle = this.$route.meta.$module?.title as string;
-            const pageTitle = this.$root.$tc(moduleTitle);
+            const pageTitle = this.$root.$t(moduleTitle);
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const params = [
                 baseTitle,
                 pageTitle,
                 identifier,
                 ...additionalParams,
             ].filter((item) => {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
                 return item !== null && item.trim() !== '';
             });
 
@@ -745,10 +752,7 @@ export default class VueAdapter extends ViewAdapter {
      */
     resolveMixins(componentConfig: ComponentConfig) {
         // If the mixin is a string, use our mixin registry
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         if (componentConfig.mixins?.length) {
-            // eslint-disable-next-line max-len
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
             componentConfig.mixins = componentConfig.mixins.map((mixin) => {
                 if (typeof mixin === 'string') {
                     // @ts-expect-error
@@ -763,6 +767,155 @@ export default class VueAdapter extends ViewAdapter {
         if (componentConfig.extends) {
             // @ts-expect-error - extends can be a string or a component config
             this.resolveMixins(componentConfig.extends);
+        }
+    }
+
+    // Normalize route guards by collecting inherited and mixin guards and
+    // composing them into one deduplicated guard per hook for route components.
+    private normalizeRouteGuards(componentConfig: ComponentConfig) {
+        if (this.routeGuardComponents.has(componentConfig)) {
+            return;
+        }
+
+        this.routeGuardComponents.add(componentConfig);
+
+        routeGuardNames.forEach((guardName) => {
+            const guards = this.collectRouteGuards(componentConfig, guardName);
+
+            if (!guards.length) {
+                return;
+            }
+
+            this.setRouteGuard(componentConfig, guardName, this.composeRouteGuards(guards, guardName));
+        });
+    }
+
+    private collectRouteGuards(
+        componentConfig: ComponentConfig,
+        guardName: RouteGuardName,
+        visitedConfigs = new Set<ComponentConfig>(),
+        seenGuards = new Set<RouteGuard>(),
+    ): RouteGuard[] {
+        if (visitedConfigs.has(componentConfig)) {
+            return [];
+        }
+
+        visitedConfigs.add(componentConfig);
+
+        const guards: RouteGuard[] = [];
+
+        if (componentConfig.extends && typeof componentConfig.extends !== 'string') {
+            guards.push(...this.collectRouteGuards(componentConfig.extends, guardName, visitedConfigs, seenGuards));
+        }
+
+        componentConfig.mixins?.forEach((mixin) => {
+            if (typeof mixin === 'string') {
+                return;
+            }
+
+            guards.push(...this.collectRouteGuards(mixin as ComponentConfig, guardName, visitedConfigs, seenGuards));
+        });
+
+        const currentGuard = this.getRouteGuard(componentConfig, guardName);
+
+        if (currentGuard && !seenGuards.has(currentGuard)) {
+            seenGuards.add(currentGuard);
+            guards.push(currentGuard);
+        }
+
+        return guards;
+    }
+
+    private composeRouteGuards(guards: RouteGuard[], guardName: RouteGuardName): RouteGuard {
+        return async function composedRouteGuard(this: unknown, to, from, next) {
+            const enterCallbacks: RouteEnterCallback[] = [];
+
+            const runGuard = async (index: number): Promise<void> => {
+                if (index >= guards.length) {
+                    if (guardName === 'beforeRouteEnter' && enterCallbacks.length) {
+                        next((vm) => {
+                            enterCallbacks.forEach((callback) => {
+                                callback(vm);
+                            });
+                        });
+
+                        return;
+                    }
+
+                    next();
+                    return;
+                }
+
+                const guard = guards[index];
+                const forwardRouteResult = next as (result: Exclude<RouteGuardResult, undefined>) => void;
+
+                const continueNavigation = async (result?: RouteGuardResult) => {
+                    if (guardName === 'beforeRouteEnter' && typeof result === 'function') {
+                        enterCallbacks.push(result);
+                        await runGuard(index + 1);
+                        return;
+                    }
+
+                    if (typeof result === 'undefined') {
+                        await runGuard(index + 1);
+                        return;
+                    }
+
+                    // Only beforeRouteEnter callbacks and undefined are handled above;
+                    // all other defined results are forwarded to Vue Router unchanged.
+                    forwardRouteResult(result);
+                };
+
+                if (guard.length >= 3) {
+                    await new Promise<RouteGuardResult | undefined>((resolve, reject) => {
+                        const resolveRouteGuard: NavigationGuardNext = (result?) => {
+                            resolve(result as RouteGuardResult | undefined);
+                        };
+
+                        void Promise.resolve(guard.call(this, to, from, resolveRouteGuard)).catch(reject);
+                    })
+                        .then((result) => continueNavigation(result))
+                        .catch((error) => {
+                            throw error instanceof Error ? error : new Error(String(error));
+                        });
+
+                    return;
+                }
+
+                await continueNavigation((await guard.call(this, to, from, next)) as RouteGuardResult);
+            };
+
+            try {
+                await runGuard(0);
+            } catch (error) {
+                next(error as Error);
+            }
+        };
+    }
+
+    private getRouteGuard(componentConfig: ComponentConfig, guardName: RouteGuardName): RouteGuard | undefined {
+        switch (guardName) {
+            case 'beforeRouteEnter':
+                return componentConfig.beforeRouteEnter as RouteGuard | undefined;
+            case 'beforeRouteLeave':
+                return componentConfig.beforeRouteLeave as RouteGuard | undefined;
+            case 'beforeRouteUpdate':
+                return componentConfig.beforeRouteUpdate as RouteGuard | undefined;
+            default:
+                return undefined;
+        }
+    }
+
+    private setRouteGuard(componentConfig: ComponentConfig, guardName: RouteGuardName, guard: RouteGuard) {
+        switch (guardName) {
+            case 'beforeRouteEnter':
+                componentConfig.beforeRouteEnter = guard;
+                return;
+            case 'beforeRouteLeave':
+                componentConfig.beforeRouteLeave = guard;
+                return;
+            case 'beforeRouteUpdate':
+                componentConfig.beforeRouteUpdate = guard;
         }
     }
 }

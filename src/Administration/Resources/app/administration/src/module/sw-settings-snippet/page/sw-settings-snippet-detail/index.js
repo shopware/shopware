@@ -213,7 +213,6 @@ export default {
 
             this.isSaveable = this.checkIsSaveable();
 
-            // eslint-disable-next-line no-restricted-globals
             if (!isNaN(this.translationKey)) {
                 this.isLoading = false;
                 this.createNotificationError({
@@ -360,7 +359,7 @@ export default {
                 appearance: 'dark',
                 showOnDisabledElements,
                 disabled: this.acl.can(role),
-                message: this.$tc('sw-privileges.tooltip.warning'),
+                message: this.$t('sw-privileges.tooltip.warning'),
             };
         },
     },

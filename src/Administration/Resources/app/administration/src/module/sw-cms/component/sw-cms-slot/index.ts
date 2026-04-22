@@ -128,13 +128,13 @@ export default Shopware.Component.wrapComponentConfig({
         tooltipDisabled() {
             if (this.elementConfig?.disabledConfigInfoTextKey) {
                 return {
-                    message: this.$tc(this.elementConfig.disabledConfigInfoTextKey),
+                    message: this.$t(this.elementConfig.disabledConfigInfoTextKey),
                     disabled: !!this.elementConfig.defaultConfig && !this.element.locked,
                 };
             }
 
             return {
-                message: this.$tc('sw-cms.elements.general.config.tab.settings'),
+                message: this.$t('sw-cms.elements.general.config.tab.settings'),
                 disabled: true,
             };
         },
@@ -167,17 +167,23 @@ export default Shopware.Component.wrapComponentConfig({
             this.showElementSettings = true;
         },
 
-        onCloseSettingsModal() {
+        async onCloseSettingsModal() {
             if (!this.showElementSettings) {
                 return;
             }
 
-            const childComponent = this.$refs.elementComponentRef as {
-                handleUpdateContent: () => void;
-            };
+            const childComponent = this.$refs.elementComponentRef as
+                | {
+                      handleUpdateContent?: () => boolean | void | Promise<boolean | void>;
+                  }
+                | undefined;
 
             if (childComponent?.handleUpdateContent) {
-                childComponent.handleUpdateContent();
+                const result = await childComponent.handleUpdateContent();
+
+                if (result === false) {
+                    return;
+                }
             }
 
             this.showElementSettings = false;

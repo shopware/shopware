@@ -262,7 +262,8 @@ class CacheHeadersServiceTest extends TestCase
 
         static::assertTrue($response->headers->has(PlatformRequest::HEADER_LANGUAGE_ID), 'Vary header should always be set');
         $vary = $response->headers->all('vary');
-        static::assertCount(3, $vary);
+        static::assertCount(4, $vary);
+        static::assertContains(PlatformRequest::HEADER_ACCESS_KEY, $vary);
         static::assertContains(PlatformRequest::HEADER_LANGUAGE_ID, $vary);
         static::assertContains(PlatformRequest::HEADER_CURRENCY_ID, $vary);
         static::assertContains(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, $vary);

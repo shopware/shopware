@@ -335,7 +335,7 @@ export default {
                 await this.getDataForActionDescription();
             } catch {
                 this.createNotificationError({
-                    message: this.$tc('sw-flow.flowNotification.messageError'),
+                    message: this.$t('sw-flow.flowNotification.messageError'),
                 });
             }
         },
@@ -357,7 +357,7 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-flow.flowNotification.messageError'),
+                        message: this.$t('sw-flow.flowNotification.messageError'),
                     });
                 });
         },
@@ -368,7 +368,7 @@ export default {
 
             if (!this.flow?.name || !this.flow?.eventName) {
                 this.createNotificationWarning({
-                    message: this.$tc('sw-flow.flowNotification.emptyFields.general'),
+                    message: this.$t('sw-flow.flowNotification.emptyFields.general'),
                 });
 
                 return;
@@ -379,7 +379,7 @@ export default {
 
             if (invalidSequences.length) {
                 this.createNotificationWarning({
-                    message: this.$tc('sw-flow.flowNotification.emptyFields.sequences'),
+                    message: this.$t('sw-flow.flowNotification.emptyFields.sequences'),
                 });
 
                 return;
@@ -390,7 +390,7 @@ export default {
 
             if (this.isTemplate) {
                 this.createNotificationError({
-                    message: this.$tc('sw-flow.flowNotification.messageWarningSave'),
+                    message: this.$t('sw-flow.flowNotification.messageWarningSave'),
                 });
 
                 this.isLoading = false;
@@ -407,7 +407,7 @@ export default {
                 .then(() => {
                     if ((typeof this.flow.isNew === 'function' && this.flow.isNew()) || this.$route.params.flowTemplateId) {
                         this.createNotificationSuccess({
-                            message: this.$tc('sw-flow.flowNotification.messageCreateSuccess'),
+                            message: this.$t('sw-flow.flowNotification.messageCreateSuccess'),
                         });
 
                         this.$router.push({
@@ -423,7 +423,7 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-flow.flowNotification.messageSaveError'),
+                        message: this.$t('sw-flow.flowNotification.messageSaveError'),
                     });
 
                     this.handleFieldValiationError();
@@ -551,7 +551,6 @@ export default {
             }
 
             const promises = [];
-            // eslint-disable-next-line max-len
             const hasSetOrderStateAction = this.sequences.some(
                 (sequence) => sequence.actionName === this.flowBuilderService.getActionName('SET_ORDER_STATE'),
             );
@@ -565,7 +564,6 @@ export default {
                 );
             }
 
-            // eslint-disable-next-line max-len
             const hasDocumentAction = this.sequences.some(
                 (sequence) => sequence.actionName === this.flowBuilderService.getActionName('GENERATE_DOCUMENT'),
             );
@@ -579,7 +577,6 @@ export default {
                 );
             }
 
-            // eslint-disable-next-line max-len
             const hasMailSendAction = this.sequences.some(
                 (sequence) => sequence.actionName === this.flowBuilderService.getActionName('MAIL_SEND'),
             );
@@ -593,7 +590,6 @@ export default {
                 );
             }
 
-            // eslint-disable-next-line max-len
             const hasChangeCustomerGroup = this.sequences.some(
                 (sequence) => sequence.actionName === this.flowBuilderService.getActionName('CHANGE_CUSTOMER_GROUP'),
             );
@@ -612,7 +608,6 @@ export default {
                 this.flowBuilderService.getActionName('SET_CUSTOMER_CUSTOM_FIELD'),
                 this.flowBuilderService.getActionName('SET_CUSTOMER_GROUP_CUSTOM_FIELD'),
             ];
-            // eslint-disable-next-line max-len
             const hasSetCustomFieldAction = this.sequences.some((sequence) =>
                 customFieldActionConstants.includes(sequence.actionName),
             );
@@ -654,7 +649,7 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-flow.flowNotification.messageError'),
+                        message: this.$t('sw-flow.flowNotification.messageError'),
                     });
                 });
         },

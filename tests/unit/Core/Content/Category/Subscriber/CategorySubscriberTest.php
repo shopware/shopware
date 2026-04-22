@@ -2,24 +2,31 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Category\Subscriber;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
-use Shopware\Core\Content\Category\CategoryEntity;
-use Shopware\Core\Content\Category\CategoryEvents;
 use Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryDefinition;
 use Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryEntity;
 use Shopware\Core\Content\Category\Service\CategoryUrlGenerator;
 use Shopware\Core\Content\Category\Subscriber\CategorySubscriber;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
@@ -27,168 +34,345 @@ use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 #[CoversClass(CategorySubscriber::class)]
 class CategorySubscriberTest extends TestCase
 {
+    private IdsCollection $ids;
+
+    private CategoryDefinition $definition;
+
+    protected function setUp(): void
+    {
+        $this->ids = new IdsCollection();
+
+        new StaticDefinitionInstanceRegistry(
+            [$this->definition = new CategoryDefinition()],
+            $this->createMock(ValidatorInterface::class),
+            $this->createMock(EntityWriteGatewayInterface::class)
+        );
+    }
+
     public function testHasEvents(): void
     {
         $expectedEvents = [
-            CategoryEvents::CATEGORY_LOADED_EVENT => 'categoryLoaded',
-            'sales_channel.' . CategoryEvents::CATEGORY_LOADED_EVENT => 'salesChannelCategoryLoaded',
+            'sales_channel.category.loaded' => 'salesChannelCategoryLoaded',
+            EntityWriteEvent::class => 'beforeWriteCategory',
         ];
 
         static::assertSame($expectedEvents, CategorySubscriber::getSubscribedEvents());
     }
 
-    #[DataProvider('categoryLoadedEventDataProvider')]
-    public function testCategoryLoadedEvent(
-        SystemConfigService $systemConfigService,
-        CategoryEntity $categoryEntity,
-        ?string $cmsPageIdBeforeEvent,
-        ?string $cmsPageIdAfterEvent
-    ): void {
-        $categorySubscriber = new CategorySubscriber($systemConfigService, $this->createMock(CategoryUrlGenerator::class));
-
-        static::assertSame($cmsPageIdBeforeEvent, $categoryEntity->getCmsPageId());
-
-        $event = new EntityLoadedEvent(new CategoryDefinition(), [$categoryEntity], Context::createDefaultContext());
-        $categorySubscriber->categoryLoaded($event);
-
-        static::assertSame($cmsPageIdAfterEvent, $categoryEntity->getCmsPageId());
-    }
-
-    #[DataProvider('salesChannelCategoryLoadedEventDataProvider')]
     public function testSalesChannelCategoryLoadedEvent(
-        SystemConfigService $systemConfigService,
-        SalesChannelCategoryEntity $categoryEntity,
-        ?string $cmsPageIdBeforeEvent,
-        ?string $cmsPageIdAfterEvent,
-        string $salesChannelId
     ): void {
-        $categorySubscriber = new CategorySubscriber($systemConfigService, $this->createMock(CategoryUrlGenerator::class));
+        $systemConfigService = self::getSystemConfigServiceMock();
 
-        static::assertSame($cmsPageIdBeforeEvent, $categoryEntity->getCmsPageId());
+        $categoryUrlGenerator = $this->createMock(CategoryUrlGenerator::class);
+        $categoryUrlGenerator->method('generate')->willReturn('https://example.com');
+
+        $categorySubscriber = new CategorySubscriber(
+            $systemConfigService,
+            $categoryUrlGenerator,
+            $this->createConnectionMock()
+        );
+
+        $category = new SalesChannelCategoryEntity();
+        $category->setId($this->ids->getBytes('category'));
 
         $event = new SalesChannelEntityLoadedEvent(
             new SalesChannelCategoryDefinition(),
-            [$categoryEntity],
-            $this->getSalesChannelContext($salesChannelId)
+            [$category],
+            Generator::generateSalesChannelContext()
         );
 
-        $categorySubscriber->categoryLoaded($event);
         $categorySubscriber->salesChannelCategoryLoaded($event);
 
-        static::assertSame($cmsPageIdAfterEvent, $categoryEntity->getCmsPageId());
+        static::assertSame('https://example.com', $category->getSeoUrl());
     }
 
-    /**
-     * @return iterable<string, array{SystemConfigService, CategoryEntity, string|null, string|null}>
-     */
-    public static function categoryLoadedEventDataProvider(): iterable
+    public function testDoNothingIfNoCommands(): void
     {
-        yield 'It does not set cms page id if already set by the user' => [
-            self::getSystemConfigServiceMock(),
-            self::getCategory('foobar', false),
-            'foobar',
-            'foobar',
-        ];
+        $subscriber = $this->createSubscriber($this->ids->get('default-cms'));
+        $event = EntityWriteEvent::create(
+            WriteContext::createFromContext(Context::createDefaultContext()),
+            [],
+        );
 
-        yield 'It does not set if no default is given' => [
-            self::getSystemConfigServiceMock(),
-            self::getCategory(null, false),
-            null,
-            null,
-        ];
-
-        yield 'It uses overall default' => [
-            self::getSystemConfigServiceMock(null, 'cmsPageId'),
-            self::getCategory(null, false),
-            null,
-            'cmsPageId',
-        ];
+        $subscriber->beforeWriteCategory($event);
+        static::assertCount(0, $event->getCommandsForEntity(CategoryDefinition::ENTITY_NAME));
     }
 
-    /**
-     * @return iterable<string, array{SystemConfigService, CategoryEntity, string|null, string|null, string}>
-     */
-    public static function salesChannelCategoryLoadedEventDataProvider(): iterable
+    public function testInsertWithoutCmsPageIdAddsDefault(): void
     {
-        yield 'It does not set cms page id if already set by the user' => [
-            self::getSystemConfigServiceMock(),
-            self::getCategory('foobar', false, true),
-            'foobar',
-            'foobar',
-            'salesChannelId',
-        ];
+        $defaultCmsPageId = $this->ids->get('default-cms');
 
-        yield 'It does not set cms page id if already set by the subscriber' => [
-            self::getSystemConfigServiceMock('salesChannelId', 'cmsPageId'),
-            self::getCategory('differentCmsPageId', true, true),
-            'differentCmsPageId',
-            'differentCmsPageId',
-            'salesChannelId',
-        ];
+        $subscriber = $this->createSubscriber($defaultCmsPageId);
 
-        yield 'It uses salesChannel specific default' => [
-            self::getSystemConfigServiceMock('salesChannelId', 'salesChannelSpecificDefault'),
-            self::getCategory(null, false, true),
-            null,
-            'salesChannelSpecificDefault',
-            'salesChannelId',
-        ];
+        $command = new InsertCommand(
+            $this->definition,
+            ['name' => 'Test Category'],
+            ['id' => $this->ids->getBytes('category')],
+            $this->createMock(EntityExistence::class),
+            '/0'
+        );
 
-        $systemConfigWithOnlyGlobalDefault = self::getSystemConfigServiceMock('nonExistentSalesChannel', 'foobar');
-        $systemConfigWithOnlyGlobalDefault->set(CategoryDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY, 'globalDefaultCmsPage');
+        $this->dispatchEvent($subscriber, [$command]);
 
-        yield 'It uses global default when no sales channel specific default is set' => [
-            $systemConfigWithOnlyGlobalDefault,
-            self::getCategory(null, false, true),
-            null,
-            'globalDefaultCmsPage',
-            'testSalesChannelId',
-        ];
+        static::assertSame(Uuid::fromHexToBytes($defaultCmsPageId), $command->getPayload()['cms_page_id']);
     }
 
-    private static function getSystemConfigServiceMock(?string $salesChannelId = null, ?string $cmsPageId = null): SystemConfigService
+    public function testInsertWithNullCmsPageIdAddsDefault(): void
     {
-        if ($salesChannelId === null && $cmsPageId === null) {
+        $defaultCmsPageId = $this->ids->get('default-cms');
+
+        $subscriber = $this->createSubscriber($defaultCmsPageId);
+
+        $command = new InsertCommand(
+            $this->definition,
+            ['cms_page_id' => null],
+            ['id' => $this->ids->getBytes('category')],
+            $this->createMock(EntityExistence::class),
+            '/0'
+        );
+
+        $this->dispatchEvent($subscriber, [$command]);
+
+        static::assertSame(Uuid::fromHexToBytes($defaultCmsPageId), $command->getPayload()['cms_page_id']);
+    }
+
+    public function testInsertWithExplicitCmsPageIdKeepsIt(): void
+    {
+        $defaultCmsPageId = $this->ids->get('default-cms');
+        $explicitCmsPageId = $this->ids->getBytes('explicit-cms');
+
+        $subscriber = $this->createSubscriber($defaultCmsPageId);
+
+        $command = new InsertCommand(
+            $this->definition,
+            ['cms_page_id' => $explicitCmsPageId],
+            ['id' => $this->ids->getBytes('category')],
+            $this->createMock(EntityExistence::class),
+            '/0'
+        );
+
+        $this->dispatchEvent($subscriber, [$command]);
+
+        static::assertSame($explicitCmsPageId, $command->getPayload()['cms_page_id']);
+    }
+
+    public function testUpdateWithNullCmsPageIdSetsDefault(): void
+    {
+        $defaultCmsPageId = $this->ids->get('default-cms');
+
+        $subscriber = $this->createSubscriber($defaultCmsPageId);
+
+        $command = new UpdateCommand(
+            $this->definition,
+            ['cms_page_id' => null],
+            ['id' => $this->ids->getBytes('category')],
+            $this->createMock(EntityExistence::class),
+            '/0'
+        );
+
+        $this->dispatchEvent($subscriber, [$command]);
+
+        static::assertSame(Uuid::fromHexToBytes($defaultCmsPageId), $command->getPayload()['cms_page_id']);
+    }
+
+    public function testUpdateWithExplicitCmsPageIdKeepsIt(): void
+    {
+        $defaultCmsPageId = $this->ids->get('default-cms');
+        $explicitCmsPageId = $this->ids->getBytes('explicit-cms');
+
+        $subscriber = $this->createSubscriber($defaultCmsPageId);
+
+        $command = new UpdateCommand(
+            $this->definition,
+            ['cms_page_id' => $explicitCmsPageId],
+            ['id' => $this->ids->getBytes('category')],
+            $this->createMock(EntityExistence::class),
+            '/0'
+        );
+
+        $this->dispatchEvent($subscriber, [$command]);
+
+        static::assertSame($explicitCmsPageId, $command->getPayload()['cms_page_id']);
+    }
+
+    public function testUpdateWithoutCmsPageIdInPayloadDoesNotModify(): void
+    {
+        $defaultCmsPageId = $this->ids->get('default-cms');
+
+        $subscriber = $this->createSubscriber($defaultCmsPageId);
+
+        $command = new UpdateCommand(
+            $this->definition,
+            ['name' => 'Updated Name'],
+            ['id' => $this->ids->getBytes('category')],
+            $this->createMock(EntityExistence::class),
+            '/0'
+        );
+
+        $this->dispatchEvent($subscriber, [$command]);
+
+        static::assertArrayNotHasKey('cms_page_id', $command->getPayload());
+    }
+
+    public function testDeleteCommandIsSkipped(): void
+    {
+        $defaultCmsPageId = $this->ids->get('default-cms');
+
+        $subscriber = $this->createSubscriber($defaultCmsPageId);
+
+        $command = new DeleteCommand(
+            $this->definition,
+            ['id' => $this->ids->getBytes('category')],
+            $this->createMock(EntityExistence::class),
+        );
+
+        $this->dispatchEvent($subscriber, [$command]);
+
+        static::assertArrayNotHasKey('cms_page_id', $command->getPayload());
+    }
+
+    public function testSkipsWhenNoDefaultConfigured(): void
+    {
+        $subscriber = $this->createSubscriber(null);
+
+        $command = new InsertCommand(
+            $this->definition,
+            ['name' => 'Test Category'],
+            ['id' => $this->ids->getBytes('category')],
+            $this->createMock(EntityExistence::class),
+            '/0'
+        );
+
+        $this->dispatchEvent($subscriber, [$command]);
+
+        static::assertArrayNotHasKey('cms_page_id', $command->getPayload());
+    }
+
+    public function testSkipsWhenConfiguredDefaultCmsPageIdIsInvalid(): void
+    {
+        $subscriber = $this->createSubscriber('invalid-id');
+
+        $command = new InsertCommand(
+            $this->definition,
+            ['name' => 'Test Category'],
+            ['id' => $this->ids->getBytes('category')],
+            $this->createMock(EntityExistence::class),
+            '/0'
+        );
+
+        $this->dispatchEvent($subscriber, [$command]);
+
+        static::assertArrayNotHasKey('cms_page_id', $command->getPayload());
+    }
+
+    public function testSkipsWhenConfiguredDefaultCmsPageDoesNotExist(): void
+    {
+        $subscriber = $this->createSubscriber($this->ids->get('missing-default-cms'), false);
+
+        $command = new InsertCommand(
+            $this->definition,
+            ['name' => 'Test Category'],
+            ['id' => $this->ids->getBytes('category')],
+            $this->createMock(EntityExistence::class),
+            '/0'
+        );
+
+        $this->dispatchEvent($subscriber, [$command]);
+
+        static::assertArrayNotHasKey('cms_page_id', $command->getPayload());
+    }
+
+    public function testMultipleCommandsProcessedCorrectly(): void
+    {
+        $defaultCmsPageId = $this->ids->get('default-cms');
+        $explicitCmsPageId = $this->ids->getBytes('explicit-cms');
+
+        $subscriber = $this->createSubscriber($defaultCmsPageId);
+
+        $insertWithout = new InsertCommand(
+            $this->definition,
+            ['name' => 'No CMS'],
+            ['id' => $this->ids->getBytes('cat-1')],
+            $this->createMock(EntityExistence::class),
+            '/0'
+        );
+
+        $insertWith = new InsertCommand(
+            $this->definition,
+            ['cms_page_id' => $explicitCmsPageId],
+            ['id' => $this->ids->getBytes('cat-2')],
+            $this->createMock(EntityExistence::class),
+            '/1'
+        );
+
+        $updateNull = new UpdateCommand(
+            $this->definition,
+            ['cms_page_id' => null],
+            ['id' => $this->ids->getBytes('cat-3')],
+            $this->createMock(EntityExistence::class),
+            '/2'
+        );
+
+        $updateUnrelated = new UpdateCommand(
+            $this->definition,
+            ['name' => 'Renamed'],
+            ['id' => $this->ids->getBytes('cat-4')],
+            $this->createMock(EntityExistence::class),
+            '/3'
+        );
+
+        $this->dispatchEvent($subscriber, [$insertWithout, $insertWith, $updateNull, $updateUnrelated]);
+
+        $defaultBytes = Uuid::fromHexToBytes($defaultCmsPageId);
+
+        static::assertSame($defaultBytes, $insertWithout->getPayload()['cms_page_id']);
+        static::assertSame($explicitCmsPageId, $insertWith->getPayload()['cms_page_id']);
+        static::assertSame($defaultBytes, $updateNull->getPayload()['cms_page_id']);
+        static::assertArrayNotHasKey('cms_page_id', $updateUnrelated->getPayload());
+    }
+
+    private static function getSystemConfigServiceMock(?string $cmsPageId = null): SystemConfigService
+    {
+        if ($cmsPageId === null) {
             return new StaticSystemConfigService([]);
         }
 
-        if ($salesChannelId === null) {
-            return new StaticSystemConfigService([
-                CategoryDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY => $cmsPageId,
-            ]);
-        }
-
         return new StaticSystemConfigService([
-            $salesChannelId => [
-                CategoryDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY => $cmsPageId,
-            ],
+            CategoryDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY => $cmsPageId,
         ]);
     }
 
-    /**
-     * @return ($salesChannelEntity is true ? SalesChannelCategoryEntity : CategoryEntity)
-     */
-    private static function getCategory(?string $cmsPageId, bool $cmsPageIdSwitched, bool $salesChannelEntity = false): CategoryEntity
+    private function createSubscriber(?string $defaultCmsPageId, bool $defaultCmsPageExists = true): CategorySubscriber
     {
-        $category = new CategoryEntity();
-        if ($salesChannelEntity) {
-            $category = new SalesChannelCategoryEntity();
-        }
+        $config = $defaultCmsPageId !== null
+            ? [CategoryDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY => $defaultCmsPageId]
+            : [];
 
-        if ($cmsPageId) {
-            $category->setCmsPageId($cmsPageId);
-        }
-
-        $category->setCmsPageIdSwitched($cmsPageIdSwitched);
-
-        return $category;
+        return new CategorySubscriber(
+            new StaticSystemConfigService($config),
+            $this->createMock(CategoryUrlGenerator::class),
+            $this->createConnectionMock($defaultCmsPageExists),
+        );
     }
 
-    private function getSalesChannelContext(string $salesChanelId): SalesChannelContext
+    private function createConnectionMock(bool $defaultCmsPageExists = true): Connection
     {
-        $salesChannelEntity = new SalesChannelEntity();
-        $salesChannelEntity->setId($salesChanelId);
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchOne')->willReturn($defaultCmsPageExists ? Uuid::fromHexToBytes($this->ids->get('default-cms')) : false);
 
-        return Generator::generateSalesChannelContext(salesChannel: $salesChannelEntity);
+        return $connection;
+    }
+
+    /**
+     * @param array<WriteCommand> $commands
+     */
+    private function dispatchEvent(CategorySubscriber $subscriber, array $commands): void
+    {
+        $event = EntityWriteEvent::create(
+            WriteContext::createFromContext(Context::createDefaultContext()),
+            $commands,
+        );
+
+        $subscriber->beforeWriteCategory($event);
     }
 }

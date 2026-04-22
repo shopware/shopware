@@ -14,7 +14,6 @@ import {
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class Store {
-    // eslint-disable-next-line no-use-before-define
     static #instance: Store;
 
     static #stores = new Map<keyof PiniaRootState, StoreDefinition>();

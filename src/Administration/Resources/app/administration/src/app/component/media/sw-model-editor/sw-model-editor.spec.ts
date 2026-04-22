@@ -1,15 +1,13 @@
 /**
  * @sw-package innovation
  */
-import type { QuickViewSettings } from '@shopware-ag/dive/quickview';
 import { mount } from '@vue/test-utils';
 
 // Mock QuickView from @shopware-ag/dive/quickview
 const mockQuickView = jest.fn();
 const mockQuickViewDispose = jest.fn();
 jest.mock('@shopware-ag/dive/quickview', () => ({
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    QuickView: (...args: QuickViewSettings[]) => mockQuickView(...args),
+    QuickView: mockQuickView,
 }));
 
 // Mock Toolbox from @shopware-ag/dive/toolbox
@@ -28,8 +26,7 @@ const mockToolbox = jest.fn().mockImplementation(() => ({
     selectionState: { select: mockSelect },
 }));
 jest.mock('@shopware-ag/dive/toolbox', () => ({
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    Toolbox: (...args: unknown[]) => mockToolbox(...args),
+    Toolbox: mockToolbox,
 }));
 
 interface MockVector3 {
@@ -91,7 +88,7 @@ const mockMediaService = {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function createWrapper(componentConfig: any = {}) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     return mount(await wrapTestComponent('sw-model-editor', { sync: true }), {
         props: {
             source: createMediaEntity(),
@@ -609,7 +606,6 @@ describe('src/app/component/media/sw-model-editor', () => {
             const buttons = wrapper.findAll('.sw-model-editor-canvas-ui__button');
             const scaleButton = buttons[2];
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             expect(scaleButton.attributes('disabled')).toBeDefined();
         });
 
@@ -620,7 +616,6 @@ describe('src/app/component/media/sw-model-editor', () => {
             const buttons = wrapper.findAll('.sw-model-editor-canvas-ui__button');
             const translateButton = buttons[0];
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             expect(translateButton.attributes('disabled')).toBeUndefined();
         });
 
@@ -631,7 +626,6 @@ describe('src/app/component/media/sw-model-editor', () => {
             const buttons = wrapper.findAll('.sw-model-editor-canvas-ui__button');
             const rotateButton = buttons[1];
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             expect(rotateButton.attributes('disabled')).toBeUndefined();
         });
     });

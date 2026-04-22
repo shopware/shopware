@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import { mount } from '@vue/test-utils';
 import { setActivePinia, createPinia } from 'pinia';
 
@@ -53,7 +52,7 @@ async function createWrapper(extension) {
     return mount(await wrapTestComponent('sw-extension-card-bought', { sync: true }), {
         global: {
             mocks: {
-                $tc: (v1, v2, v3) =>
+                $t: (v1, v2, v3) =>
                     v1 || v2
                         ? v1
                         : JSON.stringify([
@@ -453,7 +452,6 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
 
     it('should display error on install and download attempt when app subscription is expired', async () => {
         httpClient.post.mockImplementation(() => {
-            // eslint-disable-next-line prefer-promise-reject-errors
             return Promise.reject({
                 response: {
                     data: {

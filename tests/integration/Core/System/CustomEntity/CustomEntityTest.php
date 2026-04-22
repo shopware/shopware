@@ -881,7 +881,7 @@ class CustomEntityTest extends TestCase
         // list
         $client->request('GET', '/api/custom-entity-blog', ['ids' => [$ids->get('blog-1')]], [], ['HTTP_ACCEPT' => 'application/json']);
         $response = $client->getResponse();
-        $body = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
+        $body = json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
 
         static::assertIsArray($body);
@@ -905,7 +905,7 @@ class CustomEntityTest extends TestCase
             \json_encode(['ids' => [$ids->get('blog-1')]], \JSON_THROW_ON_ERROR)
         );
         $response = $client->getResponse();
-        $body = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
+        $body = json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
 
         static::assertIsArray($body);
@@ -923,7 +923,7 @@ class CustomEntityTest extends TestCase
             ['HTTP_ACCEPT' => 'application/json'],
         );
         $response = $client->getResponse();
-        $body = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
+        $body = json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
 
         static::assertIsArray($body);
@@ -945,7 +945,7 @@ class CustomEntityTest extends TestCase
             ['HTTP_ACCEPT' => 'application/json'],
         );
         $response = $client->getResponse();
-        $body = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
+        $body = json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
 
         static::assertIsArray($body);

@@ -6,7 +6,6 @@ import SnippetApiService from 'src/core/service/api/snippet.api.service';
 import createLoginService from 'src/core/service/login.service';
 import createHTTPClient from 'src/core/factory/http.factory';
 import LocaleFactory from 'src/core/factory/locale.factory';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import MockAdapter from 'axios-mock-adapter';
 import type { AxiosInstance } from 'axios';
 

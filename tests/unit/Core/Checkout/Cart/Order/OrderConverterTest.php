@@ -104,12 +104,12 @@ class OrderConverterTest extends TestCase
     }
 
     /**
-     * @param class-string<\Throwable> $exceptionClass
+     * @param class-string<\Throwable>|null $exceptionClass
      */
     #[DataProvider('assembleSalesChannelContextData')]
-    public function testAssembleSalesChannelContext(string $exceptionClass, string $manipulateOrder = ''): void
+    public function testAssembleSalesChannelContext(?string $exceptionClass, string $manipulateOrder = ''): void
     {
-        if ($exceptionClass !== '') {
+        if ($exceptionClass !== null) {
             $this->expectException($exceptionClass);
         }
 
@@ -134,9 +134,7 @@ class OrderConverterTest extends TestCase
                 ];
 
                 if (!Feature::isActive('v6.8.0.0')) {
-                    $expectedOptions = array_merge($expectedOptions, [
-                        SalesChannelContextService::SHIPPING_METHOD_ID => 'order-delivery-shipping-method-id',
-                    ]);
+                    $expectedOptions[SalesChannelContextService::SHIPPING_METHOD_ID] = 'order-delivery-shipping-method-id';
                 }
 
                 static::assertSame($expectedOptions, $options);
@@ -150,7 +148,7 @@ class OrderConverterTest extends TestCase
     }
 
     /**
-     * @return list<list<string>>
+     * @return list<array{0: class-string<\Throwable>|null, 1?: string}>
      */
     public static function assembleSalesChannelContextData(): array
     {
@@ -167,7 +165,7 @@ class OrderConverterTest extends TestCase
                 AddressNotFoundException::class,
             ],
             [
-                '',
+                null,
             ],
         ];
     }

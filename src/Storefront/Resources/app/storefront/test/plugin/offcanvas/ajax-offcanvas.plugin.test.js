@@ -109,6 +109,6 @@ describe('AjaxOffcanvas tests', () => {
     });
 
     it('should throw error when no URL is passed', () => {
-        expect(() => AjaxOffcanvas.open()).toThrowError('A url must be given!');
+        expect(() => AjaxOffcanvas.open()).toThrow('A url must be given!');
     });
 });

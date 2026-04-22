@@ -26,14 +26,12 @@ export default {
         allowEdit: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
         showSettingsInformation: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },
@@ -88,13 +86,13 @@ export default {
         },
 
         productNumberHelpText() {
-            return this.$tc(
+            return this.$t(
                 'sw-product.basicForm.productNumberHelpText.label',
                 {
                     link: `<sw-internal-link
                            :router-link=${JSON.stringify(this.productNumberRangeLink)}
                            :inline="true">
-                           ${this.$tc('sw-product.basicForm.productNumberHelpText.linkText')}
+                           ${this.$t('sw-product.basicForm.productNumberHelpText.linkText')}
                        </sw-internal-link>`,
                 },
                 0,
@@ -111,18 +109,18 @@ export default {
                 params: { key: 'listing.boxLabelTopseller' },
             };
 
-            return this.$tc(
+            return this.$t(
                 'sw-product.basicForm.highlightHelpText.label',
                 {
                     themesLink: `<sw-internal-link
                                  :router-link=${JSON.stringify(themesLink)}
                                  :inline="true">
-                                 ${this.$tc('sw-product.basicForm.highlightHelpText.themeLinkText')}
+                                 ${this.$t('sw-product.basicForm.highlightHelpText.themeLinkText')}
                              </sw-internal-link>`,
                     snippetLink: `<sw-internal-link
                                   :router-link=${JSON.stringify(snippetLink)}
                                   :inline="true">
-                                  ${this.$tc('sw-product.basicForm.highlightHelpText.snippetLinkText')}
+                                  ${this.$t('sw-product.basicForm.highlightHelpText.snippetLinkText')}
                               </sw-internal-link>`,
                 },
                 0,

@@ -122,7 +122,7 @@ class CustomerDefinition extends EntityDefinition
             (new BoolField('double_opt_in_registration', 'doubleOptInRegistration'))->addFlags(new ApiAware())->setDescription('Set to `true` to allow user subscriptions to an email marketing list.'),
             (new DateTimeField('double_opt_in_email_sent_date', 'doubleOptInEmailSentDate'))->addFlags(new ApiAware())->setDescription('Date and time when the double opt-in email was sent.'),
             (new DateTimeField('double_opt_in_confirm_date', 'doubleOptInConfirmDate'))->addFlags(new ApiAware())->setDescription('Date and time when the double opt-in email was confirmed.'),
-            (new StringField('hash', 'hash'))->addFlags(new ApiAware())->setDescription('Password hash for customer recovery.'),
+            (new StringField('hash', 'hash'))->addFlags(new ApiAware())->setDescription('Customer registration double opt-in hash for confirming the customer account.'),
             (new BoolField('guest', 'guest'))->addFlags(new ApiAware())->setDescription('Boolean value is `true` if it is to be a guest account.'),
             (new DateTimeField('first_login', 'firstLogin'))->addFlags(new ApiAware())->setDescription('To capture date and time of customer\'s first login.'),
             (new DateTimeField('last_login', 'lastLogin'))->addFlags(new ApiAware())->setDescription('To capture date and time of customer\'s last login.'),

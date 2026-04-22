@@ -13,7 +13,7 @@ export default function createLicenseViolationsService(storeService) {
     const responseCacheKey = 'licenseViolationCache';
     const showViolationsKey = 'licenseViolationShowViolations';
 
-    return {
+    const service = {
         checkForLicenseViolations,
         saveTimeToLocalStorage,
         removeTimeFromLocalStorage,
@@ -25,6 +25,7 @@ export default function createLicenseViolationsService(storeService) {
         getIgnoredPlugins,
         getViolationsFromCache,
         saveViolationsToCache,
+        _getLocationHostname,
         key: {
             lastLicenseWarningsKey,
             lastLicenseFetchedKey,
@@ -33,8 +34,14 @@ export default function createLicenseViolationsService(storeService) {
         },
     };
 
+    return service;
+
+    function _getLocationHostname() {
+        return window.location.hostname;
+    }
+
     function checkForLicenseViolations() {
-        const hostname = window.location.hostname;
+        const hostname = service._getLocationHostname();
         const emptyViolationsResponse = Promise.resolve({
             warnings: [],
             violations: [],
@@ -231,7 +238,7 @@ export default function createLicenseViolationsService(storeService) {
         });
 
         const ignorePluginAction = {
-            label: getApplicationRootReference().$tc('sw-license-violation.ignorePlugin'),
+            label: getApplicationRootReference().$t('sw-license-violation.ignorePlugin'),
             method: () => ignorePlugin(warning.name, getIgnoredPlugins()),
         };
 

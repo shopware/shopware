@@ -52,7 +52,6 @@ export default {
     computed: {
         shortenedText() {
             let text = this.text;
-            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
             this.shortened = false;
             if (this.maximumNewLines > 0) {
                 const splitted = text.split(lineExpr).filter((element) => {
@@ -60,12 +59,10 @@ export default {
                 });
                 if (splitted.length > this.maximumNewLines) {
                     text = splitted.slice(0, this.maximumNewLines).join('\n');
-                    // eslint-disable-next-line vue/no-side-effects-in-computed-properties
                     this.shortened = true;
                 }
             }
             if (text.length > this.maximumLength) {
-                // eslint-disable-next-line vue/no-side-effects-in-computed-properties
                 this.shortened = true;
             }
             return text.slice(0, this.maximumLength).replace(lineExpr, lineBreak);

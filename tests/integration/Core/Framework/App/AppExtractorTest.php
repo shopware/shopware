@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppArchiveValidator;
 use Shopware\Core\Framework\App\AppExtractor;
@@ -14,7 +13,6 @@ use Symfony\Component\Filesystem\Path;
 /**
  * @internal
  */
-#[CoversClass(AppArchiveValidator::class)]
 class AppExtractorTest extends TestCase
 {
     private string $temporaryFilePath;

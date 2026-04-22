@@ -34,6 +34,7 @@
         "opensearch-project/opensearch-php": "^2.3.1",
         "shopware/core": "*",
         "shyim/opensearch-php-dsl": "^1.0.5",
+        "symfony/event-dispatcher": "~7.4.0",
         "symfony/http-foundation": "~7.4.0",
         "symfony/messenger": "~7.4.0"
     },

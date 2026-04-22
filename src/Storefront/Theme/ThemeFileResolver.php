@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\File;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
@@ -149,7 +148,7 @@ class ThemeFileResolver
                     continue;
                 }
 
-                throw new ThemeCompileException(
+                throw ThemeException::themeCompileException(
                     $themeConfig->getTechnicalName(),
                     \sprintf('Unable to load file "Resources/%s". Did you forget to build the theme? Try running ./bin/build-storefront.sh', $filepath)
                 );

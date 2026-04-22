@@ -119,7 +119,7 @@ export default {
             }
 
             conditions.forEach((condition) => {
-                condition.translatedLabel = this.$tc(condition.label);
+                condition.translatedLabel = this.$t(condition.label);
             });
 
             conditions.sort((a, b) => a.translatedLabel.localeCompare(b.translatedLabel));
@@ -153,7 +153,7 @@ export default {
             const groups = Object.values(this.conditionDataProviderService.getGroups());
 
             groups.forEach((group) => {
-                group.label = this.$tc(group.name);
+                group.label = this.$t(group.name);
             });
 
             groups.sort((a, b) => {
@@ -213,7 +213,6 @@ export default {
             if (this.needsRootOrContainer(rootConditions)) {
                 const newRoot = this.applyRoot(rootConditions);
 
-                // eslint-disable-next-line vue/no-mutating-props
                 this.initialConditions.push(newRoot);
                 rootConditions = [newRoot];
             }

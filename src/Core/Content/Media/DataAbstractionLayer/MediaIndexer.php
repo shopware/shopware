@@ -87,7 +87,7 @@ class MediaIndexer extends EntityIndexer
             return;
         }
 
-        $ids = array_unique(array_filter($ids));
+        $ids = array_values(array_unique(array_filter($ids)));
         if ($ids === []) {
             return;
         }
@@ -115,7 +115,7 @@ class MediaIndexer extends EntityIndexer
             ]);
         }
 
-        $this->eventDispatcher->dispatch(new MediaIndexerEvent($ids, $context, $message->getSkip()));
+        $this->eventDispatcher->dispatch(new MediaIndexerEvent($ids, $context, array_values($message->getSkip())));
     }
 
     public function getTotal(): int

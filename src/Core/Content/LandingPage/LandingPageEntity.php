@@ -42,6 +42,9 @@ class LandingPageEntity extends Entity
 
     protected ?string $url = null;
 
+    /**
+     * @var ?array<string, mixed>
+     */
     protected ?array $slotConfig = null;
 
     protected ?SeoUrlCollection $seoUrls = null;
@@ -156,11 +159,17 @@ class LandingPageEntity extends Entity
         $this->url = $url;
     }
 
+    /**
+     * @return ?array<string, mixed>
+     */
     public function getSlotConfig(): ?array
     {
         return $this->slotConfig;
     }
 
+    /**
+     * @param ?array<string, mixed> $slotConfig
+     */
     public function setSlotConfig(?array $slotConfig): void
     {
         $this->slotConfig = $slotConfig;

@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Elasticsearch\Product;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -13,14 +12,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
-use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * @internal
  */
-#[CoversClass(ElasticsearchEntitySearcher::class)]
 class SearchCasesTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -55,7 +52,9 @@ class SearchCasesTest extends TestCase
 
         $scores = [];
         foreach ($result->getData() as $item) {
-            $scores[self::$ids->getKey((string) $item['id'])] = $item['_score'];
+            $key = self::$ids->getKey((string) $item['id']);
+            static::assertNotNull($key);
+            $scores[$key] = $item['_score'];
         }
 
         static::assertSame(

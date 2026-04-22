@@ -5,7 +5,7 @@ import './acl';
 
 const { Module } = Shopware;
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.extend(
     'sw-settings-custom-field-set-create',
     'sw-settings-custom-field-set-detail',
@@ -64,7 +64,7 @@ Shopware.Component.extend(
     'sw-custom-field-type-base',
     () => import('./component/sw-custom-field-type-colorpicker'),
 );
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-custom-field', {

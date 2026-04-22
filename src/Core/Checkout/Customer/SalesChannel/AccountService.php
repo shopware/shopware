@@ -90,7 +90,6 @@ class AccountService
     }
 
     /**
-     * @throws CustomerNotFoundException
      * @throws BadCredentialsException
      * @throws CustomerOptinNotCompletedException
      */
@@ -109,7 +108,6 @@ class AccountService
     }
 
     /**
-     * @throws CustomerNotFoundException
      * @throws BadCredentialsException
      * @throws CustomerOptinNotCompletedException
      */
@@ -119,7 +117,11 @@ class AccountService
             throw CustomerException::badCredentials();
         }
 
-        $customer = $this->getCustomerByEmail($email, $context);
+        try {
+            $customer = $this->getCustomerByEmail($email, $context);
+        } catch (CustomerNotFoundException) {
+            throw CustomerException::badCredentials();
+        }
 
         if ($customer->hasLegacyPassword()) {
             if (!$this->legacyPasswordVerifier->verify($password, $customer)) {

@@ -6,9 +6,10 @@ use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
-use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
 use Shopware\Core\Framework\App\Template\AbstractTemplateLoader;
 use Shopware\Core\Framework\App\Template\TemplateCollection;
+use Shopware\Core\Framework\App\Template\TemplateStateService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -19,7 +20,7 @@ use Shopware\Core\Framework\Util\Hasher;
  * @internal only for use by the app-system
  */
 #[Package('framework')]
-class TemplatePersister
+class TemplatePersister implements PersisterInterface
 {
     /**
      * @param EntityRepository<TemplateCollection> $templateRepository
@@ -33,19 +34,19 @@ class TemplatePersister
     ) {
     }
 
-    public function updateTemplates(Manifest $manifest, string $appId, Context $context, bool $install): void
+    public function persist(AppLifecycleContext $context): void
     {
-        $app = $this->getAppWithExistingTemplates($appId, $context);
+        $app = $this->getAppWithExistingTemplates($context->app->getId(), $context->context);
         $existingTemplates = $app->getTemplates();
 
         \assert($existingTemplates !== null);
 
-        $templatePaths = $this->templateLoader->getTemplatePathsForApp($manifest);
+        $templatePaths = $this->templateLoader->getTemplatePathsForApp($context->manifest);
 
         $upserts = [];
 
         foreach ($templatePaths as $templatePath) {
-            $templateContent = $this->templateLoader->getTemplateContent($templatePath, $manifest);
+            $templateContent = $this->templateLoader->getTemplateContent($templatePath, $context->manifest);
 
             $existing = $existingTemplates->filterByProperty('path', $templatePath)->first();
             if (!$existing) {
@@ -53,7 +54,7 @@ class TemplatePersister
                     'template' => $templateContent,
                     'path' => $templatePath,
                     'active' => $app->isActive(),
-                    'appId' => $appId,
+                    'appId' => $context->app->getId(),
                     'hash' => Hasher::hash($templateContent),
                 ];
 
@@ -76,7 +77,7 @@ class TemplatePersister
 
         if ($upserts !== []) {
             $needsCacheClear = true;
-            $this->templateRepository->upsert($upserts, $context);
+            $this->templateRepository->upsert($upserts, $context->context);
         }
 
         $ids = $existingTemplates->getIds();
@@ -84,16 +85,16 @@ class TemplatePersister
             $needsCacheClear = true;
             $ids = array_map(static fn (string $id): array => ['id' => $id], array_values($ids));
 
-            $this->templateRepository->delete($ids, $context);
+            $this->templateRepository->delete($ids, $context->context);
         }
 
         /**
          * only clear cache when we are in an update context
          * otherwise cache is cleared on template active/deactivate
          *
-         * @see \Shopware\Core\Framework\App\Template\TemplateStateService::updateAppTemplates
+         * @see TemplateStateService::updateAppTemplates
          **/
-        if ($needsCacheClear && !$install) {
+        if ($needsCacheClear && !$context->isInstall) {
             $this->cacheClearer->clearHttpCache();
         }
     }

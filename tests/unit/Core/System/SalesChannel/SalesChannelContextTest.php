@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\AbstractCartPersister;
+use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\Log\Package;
@@ -82,31 +82,34 @@ class SalesChannelContextTest extends TestCase
     public function testWithPermissions(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
-        static::assertEmpty($salesChannelContext->getPermissions());
+        $permissionsBefore = $salesChannelContext->getPermissions();
+        static::assertSame([], $permissionsBefore);
 
         $called = false;
         $salesChannelContext->withPermissions(
-            [AbstractCartPersister::PERSIST_CART_ERROR_PERMISSION => true],
+            [CheckoutPermissions::PERSIST_CART_ERRORS => true],
             static function (SalesChannelContext $context) use (&$called): void {
                 $called = true;
 
-                static::assertTrue($context->hasPermission(AbstractCartPersister::PERSIST_CART_ERROR_PERMISSION));
+                static::assertTrue($context->hasPermission(CheckoutPermissions::PERSIST_CART_ERRORS));
             },
         );
 
         static::assertTrue($called);
-        static::assertEmpty($salesChannelContext->getPermissions());
+        $permissionsAfter = $salesChannelContext->getPermissions();
+        static::assertSame([], $permissionsAfter);
     }
 
     public function testWithPermissionsWithLockedPermissions(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
         $salesChannelContext->lockPermissions();
-        static::assertEmpty($salesChannelContext->getPermissions());
+        $permissionsBefore = $salesChannelContext->getPermissions();
+        static::assertSame([], $permissionsBefore);
 
         $called = false;
         $salesChannelContext->withPermissions(
-            [AbstractCartPersister::PERSIST_CART_ERROR_PERMISSION => true],
+            [CheckoutPermissions::PERSIST_CART_ERRORS => true],
             static function (SalesChannelContext $context) use (&$called): void {
                 $called = true;
 
@@ -115,7 +118,8 @@ class SalesChannelContextTest extends TestCase
         );
 
         static::assertTrue($called);
-        static::assertEmpty($salesChannelContext->getPermissions());
+        $permissionsAfter = $salesChannelContext->getPermissions();
+        static::assertSame([], $permissionsAfter);
     }
 
     public function testSalesChannelContextStateFunctionPassesResetsAndKeepsState(): void
@@ -152,7 +156,7 @@ class SalesChannelContextTest extends TestCase
         // fake twig rendering context, see `\Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::getAttribute()`
         FieldVisibility::$isInTwigRenderingContext = true;
 
-        static::expectExceptionObject(SalesChannelException::contextTokenNotAccessible());
+        $this->expectExceptionObject(SalesChannelException::contextTokenNotAccessible());
         $salesChannelContext->getToken();
     }
 }

@@ -42,6 +42,11 @@ Deprecated the constants `Shopware\Core\Content\MailTemplate\MAIL_TEMPLATE_SALES
 
 ## Administration
 
+### Fixed mixin-based route guards for lazy-loaded administration routes
+
+Mixin-defined route guards such as `beforeRouteLeave` are now executed reliably for lazy-loaded Administration route components.
+This fixes cases where cleanup logic in shared mixins, for example in listing pages, was skipped during navigation to detail pages.
+
 ### Re-render iframe integrations when location changes
 
 Iframe-based Administration extensions now re-render correctly when their `locationId` changes.
@@ -58,6 +63,14 @@ This helps merchants spot internal notes directly from the list view without ope
 
 The account order cancellation action is now only shown for orders in state `open`.
 This prevents customers from being offered an invalid cancel action for completed orders.
+
+### Earlier focus for cookie bar
+
+To improve the accessibility of the cookie bar, it receives automatic focus when it is shown. This improves discoverability for screenreader and keyboard users.
+A new option `autoFocus` (default: `true`) was added to the `cookie-permission.html.twig` template and `CookiePermissionPlugin`.
+
+In addition to this the cookie bar will be moved to the top of the body element.
+* Deprecated block position of `base_cookie_permission` Cookie permission bar will be moved to top of the body element.
 
 ### Live purchase limits for closeout products on the product detail page
 

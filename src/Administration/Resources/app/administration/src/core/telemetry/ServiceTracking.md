@@ -126,11 +126,11 @@ import { consent } from '@shopware-ag/meteor-admin-sdk';
 // read current state
 const state = await consent.status({ consent: 'product_analytics' });
 
-if (state.isAccepted) {
-    // consent is current and accepted
+if (state.isAccepted && !state.isStale) {
+    // accepted and up to date with the current revision
 }
 
-if (state.isStale) {
+if (state.isAccepted && state.isStale) {
     // previously accepted but a newer revision exists – treat as not accepted
 }
 ```
@@ -156,8 +156,8 @@ The `Consent` object returned by both methods has the same shape:
     updatedAt: string | null;
     acceptedRevision: string | null;
     lastRevision: string | null;
-    isAccepted: boolean;
-    isStale: boolean;
+    isAccepted: boolean;  // status === 'accepted', not revision-aware
+    isStale: boolean;     // accepted for an older revision than the current one
 }
 ```
 

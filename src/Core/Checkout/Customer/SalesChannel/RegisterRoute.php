@@ -330,7 +330,9 @@ class RegisterRoute extends AbstractRegisterRoute
         }
 
         if ($shippingAddress instanceof DataBag) {
-            $shippingAddress->set('salutationId', $data->get('salutationId'));
+            if (!$shippingAddress->get('salutationId')) {
+                $shippingAddress->set('salutationId', $data->get('salutationId'));
+            }
         }
 
         $definition = $this->getCustomerCreateValidationDefinition($isGuest, $data, $context);

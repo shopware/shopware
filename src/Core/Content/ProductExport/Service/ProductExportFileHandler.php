@@ -7,6 +7,7 @@ use League\Flysystem\UnableToDeleteFile;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 #[Package('inventory')]
 class ProductExportFileHandler implements ProductExportFileHandlerInterface
@@ -37,19 +38,24 @@ class ProductExportFileHandler implements ProductExportFileHandlerInterface
 
     public function writeProductExportContent(string $content, string $filePath, bool $append = false): bool
     {
-        if ($this->fileSystem->fileExists($filePath) && !$append) {
-            $this->fileSystem->delete($filePath);
-        }
-
         $existingContent = '';
         if ($append && $this->fileSystem->fileExists($filePath)) {
             $existingContent = $this->fileSystem->read($filePath);
         }
 
+        $targetPath = $filePath;
+        if (!$append) {
+            $targetPath = $filePath . '.' . Uuid::randomHex() . '.tmp';
+        }
+
         $this->fileSystem->write(
-            $filePath,
+            $targetPath,
             $existingContent . $content
         );
+
+        if (!$append) {
+            $this->fileSystem->move($targetPath, $filePath);
+        }
 
         return true;
     }

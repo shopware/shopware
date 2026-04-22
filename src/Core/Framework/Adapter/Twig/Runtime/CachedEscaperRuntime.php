@@ -14,7 +14,7 @@ use Twig\Runtime\EscaperRuntime;
  * @internal
  */
 #[Package('framework')]
-class CachedEscaperRuntime implements RuntimeExtensionInterface
+final class CachedEscaperRuntime implements RuntimeExtensionInterface
 {
     /**
      * Cache for escaped strings to avoid repeated escaping of the same content.

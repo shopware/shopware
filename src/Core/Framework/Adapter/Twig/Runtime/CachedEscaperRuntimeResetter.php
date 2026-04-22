@@ -16,7 +16,7 @@ use Symfony\Contracts\Service\ResetInterface;
  * causing memory leaks.
  */
 #[Package('framework')]
-class CachedEscaperRuntimeResetter implements ResetInterface
+final class CachedEscaperRuntimeResetter implements ResetInterface
 {
     public function reset(): void
     {

@@ -27,6 +27,8 @@ test.describe('Product Analytics - Consent Modal Validation',
             const AdminConsentModal = new AdminPageObjects['DataSharingConsentModal'](page);
             const AdminSettingsListing = new AdminPageObjects['SettingsListing'](page);
 
+            await page.clock.install({ time: new Date('2027-02-02T08:00:00') });
+
             await test.step('Modify product analytics API and consent API requests.', async () => {
 
                 const { consentHandler } = setupConsentInterceptor();
@@ -184,6 +186,8 @@ test.describe('Product Analytics - Consent Modal Validation',
             const page: Page = await createNewAdminPageContext(browser, SalesChannelBaseConfig);
             const user: User = await TestDataService.createUser({ createdAt: '2024-01-01T00:00:00.000Z' });
 
+            await page.clock.install({ time: new Date('2027-02-02T08:00:00') });
+
             await test.step('Modify product analytics API and consent API requests.', async () => {
 
                 const { trackingEventHandler } = setupProductAnalyticsInterceptor();
@@ -229,6 +233,8 @@ test.describe('Product Analytics - Consent Modal Validation',
 
         const page: Page = await createNewAdminPageContext(browser, SalesChannelBaseConfig);
         const user: User = await TestDataService.createUser({ admin: false, createdAt: '2024-01-01T00:00:00.000Z' });
+
+        await page.clock.install({ time: new Date('2027-02-02T08:00:00') });
 
         await test.step('Modify product analytics API and consent API requests.', async () => {
 
@@ -303,6 +309,8 @@ test.describe('Product Analytics - Consent Modal Validation',
             const page: Page = await createNewAdminPageContext(browser, SalesChannelBaseConfig);
             const AdminConsentModal = new AdminPageObjects['DataSharingConsentModal'](page);
 
+            await page.clock.install({ time: new Date('2027-02-02T08:00:00') });
+
             await test.step('Modify product analytics API and consent API requests.', async () => {
 
                 const { trackingEventHandler } = setupProductAnalyticsInterceptor();
@@ -336,6 +344,8 @@ test.describe('Product Analytics - Consent Modal Validation',
                 const page = await createNewAdminPageContext(browser, SalesChannelBaseConfig);
                 const AdminConsentModal = new AdminPageObjects['DataSharingConsentModal'](page);
                 const user2: User = await TestDataService.createUser({ createdAt: '2024-01-01T00:00:00.000Z' });
+
+                await page.clock.install({ time: new Date('2027-02-02T08:00:00') });
 
                 await loginToAdministration(
                     page,

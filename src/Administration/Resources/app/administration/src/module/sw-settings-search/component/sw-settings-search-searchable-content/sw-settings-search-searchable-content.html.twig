@@ -2,20 +2,20 @@
 <mt-card
     class="sw-settings-search-searchable-content"
     position-identifier="sw-settings-search-searchable-content"
-    :title="$tc('sw-settings-search.generalTab.labelSearchableContent')"
+    :title="$t('sw-settings-search.generalTab.labelSearchableContent')"
 >
     {% block sw_settings_search_searchable_content_title %}
     <span class="sw-field sw-settings-search__searchable-content-title">
-        {{ $tc('sw-settings-search.generalTab.textDescriptionSearchableContent') }}
+        {{ $t('sw-settings-search.generalTab.textDescriptionSearchableContent') }}
     </span>
     {% endblock %}
 
     {% block sw_settings_search_searchable_actions %}
     <sw-container
         class="sw-field"
-        columns="repeat(auto-fit, minmax(100px, 1fr))"
+        columns="repeat(auto-fit, minmax(calc(var(--scale-size-96) + var(--scale-size-4)), 1fr))"
         align="center"
-        gap="0px 30px"
+        gap="0 var(--scale-size-30)"
     >
         <div class="sw-settings-search__searchable-content-button-group">
             {% block sw_settings_search_searchable_add_item %}
@@ -28,7 +28,7 @@
                 variant="secondary"
                 @click="onAddNewConfig"
             >
-                {{ $tc('sw-settings-search.generalTab.buttonAddContent') }}
+                {{ $t('sw-settings-search.generalTab.buttonAddContent') }}
             </mt-button>
             {% endblock %}
 
@@ -41,7 +41,7 @@
                 variant="secondary"
                 @click="onResetToDefault"
             >
-                {{ $tc('sw-settings-search.generalTab.buttonResetDefault') }}
+                {{ $t('sw-settings-search.generalTab.buttonResetDefault') }}
             </mt-button>
             {% endblock %}
         </div>
@@ -58,10 +58,10 @@
                 tabindex="0"
                 @click="onShowExampleModal"
             >
-                {{ $tc('sw-settings-search.generalTab.linkExample') }}
+                {{ $t('sw-settings-search.generalTab.linkExample') }}
                 <mt-icon
                     name="regular-long-arrow-right"
-                    size="16px"
+                    size="var(--scale-size-16)"
                 />
             </a>
             {% endblock %}
@@ -70,10 +70,10 @@
                 :to="{ name: 'sw.settings.search.index.liveSearch' }"
                 class="sw-settings-search__searchable-content-rebuild-link"
             >
-                {{ $tc('sw-settings-search.liveSearchTab.linkRebuildSearchIndex') }}
+                {{ $t('sw-settings-search.liveSearchTab.linkRebuildSearchIndex') }}
                 <mt-icon
                     name="regular-long-arrow-right"
-                    size="16px"
+                    size="var(--scale-size-16)"
                 />
             </router-link>
         </div>
@@ -103,7 +103,7 @@
                 :active-tab="active"
                 @click="onChangeTab(tabNames.generalTab)"
             >
-                {{ $tc('sw-settings-search.generalTab.labelGeneralTab') }}
+                {{ $t('sw-settings-search.generalTab.labelGeneralTab') }}
             </sw-tabs-item>
             {% endblock %}
 
@@ -114,7 +114,7 @@
                 :active-tab="active"
                 @click="onChangeTab(tabNames.customTab)"
             >
-                {{ $tc('sw-settings-search.generalTab.labelCustomFieldsTab') }}
+                {{ $t('sw-settings-search.generalTab.labelCustomFieldsTab') }}
             </sw-tabs-item>
         </template>
 

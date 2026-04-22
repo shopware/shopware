@@ -15,7 +15,7 @@
             size="default"
             @click="onCancel"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
 
         {% block sw_newsletter_recipient_detail_actions_edit %}
@@ -27,7 +27,7 @@
             @update:process-success="onSaveFinish"
             @click="onSave"
         >
-            {{ $tc('sw-newsletter-recipient.general.buttonSave') }}
+            {{ $t('sw-newsletter-recipient.general.buttonSave') }}
         </sw-button-process>
         {% endblock %}
     </template>
@@ -44,7 +44,7 @@
             <mt-card
                 v-else-if="newsletterRecipient"
                 position-identifier="sw-newsletter-recipient-detail"
-                :title="$tc('sw-newsletter-recipient.general.information')"
+                :title="$t('sw-newsletter-recipient.general.information')"
             >
                 {% block sw_newsletter_recipient_detail_form %}
 
@@ -56,7 +56,7 @@
                     <sw-entity-single-select
                         v-model:value="newsletterRecipient.salutationId"
                         :disabled="!acl.can('newsletter_recipient.editor')"
-                        :label="$tc('sw-newsletter-recipient.general.salutation')"
+                        :label="$t('sw-newsletter-recipient.general.salutation')"
                         label-property="displayName"
                         entity="salutation"
                         show-clearable-button
@@ -67,7 +67,7 @@
 
                     <mt-text-field
                         v-model="newsletterRecipient.title"
-                        :label="$tc('sw-newsletter-recipient.list.title')"
+                        :label="$t('sw-newsletter-recipient.list.title')"
                         :disabled="!acl.can('newsletter_recipient.editor')"
                     />
                     {% endblock %}
@@ -81,7 +81,7 @@
 
                     <mt-text-field
                         v-model="newsletterRecipient.firstName"
-                        :label="$tc('sw-newsletter-recipient.list.firstName')"
+                        :label="$t('sw-newsletter-recipient.list.firstName')"
                         :disabled="!acl.can('newsletter_recipient.editor')"
                     />
                     {% endblock %}
@@ -90,7 +90,7 @@
 
                     <mt-text-field
                         v-model="newsletterRecipient.lastName"
-                        :label="$tc('sw-newsletter-recipient.list.lastName')"
+                        :label="$t('sw-newsletter-recipient.list.lastName')"
                         :disabled="!acl.can('newsletter_recipient.editor')"
                     />
                     {% endblock %}
@@ -100,7 +100,7 @@
 
                 <mt-text-field
                     v-model="newsletterRecipient.email"
-                    :label="$tc('sw-newsletter-recipient.list.email')"
+                    :label="$t('sw-newsletter-recipient.list.email')"
                     :disabled="!acl.can('newsletter_recipient.editor')"
                 />
                 {% endblock %}
@@ -109,7 +109,7 @@
 
                 <mt-text-field
                     v-model="newsletterRecipient.street"
-                    :label="$tc('sw-newsletter-recipient.list.street')"
+                    :label="$t('sw-newsletter-recipient.list.street')"
                     :disabled="!acl.can('newsletter_recipient.editor')"
                 />
                 {% endblock %}
@@ -122,7 +122,7 @@
 
                     <mt-text-field
                         v-model="newsletterRecipient.zipCode"
-                        :label="$tc('sw-newsletter-recipient.list.zipCode')"
+                        :label="$t('sw-newsletter-recipient.list.zipCode')"
                         :disabled="!acl.can('newsletter_recipient.editor')"
                     />
                     {% endblock %}
@@ -131,7 +131,7 @@
 
                     <mt-text-field
                         v-model="newsletterRecipient.city"
-                        :label="$tc('sw-newsletter-recipient.list.city')"
+                        :label="$t('sw-newsletter-recipient.list.city')"
                         :disabled="!acl.can('newsletter_recipient.editor')"
                     />
                     {% endblock %}
@@ -140,7 +140,7 @@
                 {% block sw_newsletter_recipient_detail_form_language %}
                 <sw-entity-single-select
                     v-model:value="newsletterRecipient.languageId"
-                    :label="$tc('sw-newsletter-recipient.general.language')"
+                    :label="$t('sw-newsletter-recipient.general.language')"
                     :disabled="!acl.can('newsletter_recipient.editor')"
                     entity="language"
                     show-clearable-button
@@ -150,7 +150,7 @@
                 {% block sw_newsletter_recipient_detail_form_sales_channel %}
                 <sw-entity-single-select
                     v-model:value="newsletterRecipient.salesChannelId"
-                    :label="$tc('sw-newsletter-recipient.general.salesChannel')"
+                    :label="$t('sw-newsletter-recipient.general.salesChannel')"
                     label-property="name"
                     :disabled="true"
                     entity="sales_channel"
@@ -162,7 +162,7 @@
                 <sw-entity-tag-select
                     v-model:entity-collection="newsletterRecipient.tags"
                     class="sw-newsletter-recipient-detail__tags"
-                    :label="$tc('sw-newsletter-recipient.general.tags')"
+                    :label="$t('sw-newsletter-recipient.general.tags')"
                     :disabled="!acl.can('newsletter_recipient.editor')"
                 />
                 {% endblock %}
@@ -174,7 +174,7 @@
             <mt-card
                 v-if="newsletterRecipient && customFieldSets && customFieldSets.length > 0"
                 position-identifier="sw-newsletter-customFields"
-                :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                :title="$t('sw-settings-custom-field.general.mainMenuItemGeneral')"
             >
                 <sw-custom-field-set-renderer
                     :entity="newsletterRecipient"

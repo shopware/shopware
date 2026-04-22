@@ -39,7 +39,7 @@ Component.override('sw-sales-channel-detail', {
                 await this.themeService.assignTheme(newThemeId, this.salesChannel.id);
             } catch {
                 this.createNotificationError({
-                    message: this.$tc('sw-theme-manager.general.messageSaveError')
+                    message: this.$t('sw-theme-manager.general.messageSaveError')
                 });
             }
         },

@@ -9,6 +9,20 @@ In the Administration, we can now use this system to read and update the consent
 Everything you need to read a consent state and react to consent changes is available in the `useConsentStore` composable.
 The pinia store returned from it, gives you access to read a consent's state.
 
+Each consent entry contains revision metadata in addition to the raw status:
+
+- `acceptedRevision`: the revision that was accepted last, or `null`
+- `latestRevision`: the current revision defined by the backend, or `null`
+
+`consentStore.isAccepted()` is revision-aware:
+
+- if a consent has no revisions, `status === 'accepted'` is enough
+- if a consent has revisions, `isAccepted()` only returns `true` when `acceptedRevision === latestRevision`
+
+> **Note:** this differs from the PHP `ConsentState::isAccepted()`, which only checks the status and is not revision-aware. The JS `isAccepted()` is equivalent to the PHP `isCurrent()` method. If you need the raw status check without revision awareness, read `consent.status === 'accepted'` directly.
+
+If you need to distinguish "accepted, but outdated" from "not accepted", use `consentStore.isStale()`.
+
 ```ts
 import useConsentStore from 'src/core/consent/consent.store'
 
@@ -21,12 +35,18 @@ const consentState = computed(() => consentStore.consents?.your_consent.status ?
 if (consentStore.isAccepted('your_consent')) {
     // do something
 }
+
+if (consentStore.isStale('your_consent')) {
+    // consent was accepted before, but not for the current revision
+}
 ```
 
 ## Update a consent state
 
 To update the current state of a consent, it is mandatory to use the actions `accept` and `revoke` from the store.
 This will also update the state across all tabs in the browser. Don't use the api services directly.
+
+The store intentionally accepts without sending a cached revision from the client. The backend resolves the current latest revision server-side, which avoids avoidable failures when the latest revision changed after the last `list()` call.
 
 ```ts
 import useConsentStore from 'src/core/consent/consent.store'
@@ -70,6 +90,8 @@ Shopware.Utils.EventBus.off('consent', eventHandler);
         actor: string | null;
         status: 'unset' | 'declined' | 'accepted' | 'revoked';
         updatedAt: string | null;
+        acceptedRevision: string | null;
+        latestRevision: string | null;
     };
     timestamp: Date;
 }

@@ -209,9 +209,7 @@
                                               placeholder="{{ 'checkout.customerCommentPlaceholder'|trans|sw_sanitize }}"
                                               id="{{ constant('Shopware\\Core\\Checkout\\Order\\SalesChannel\\OrderService::CUSTOMER_COMMENT_KEY') }}"
                                               form="confirmOrderForm"
-                                              name="{{ constant('Shopware\\Core\\Checkout\\Order\\SalesChannel\\OrderService::CUSTOMER_COMMENT_KEY') }}"
-                                              data-checkout-customer-comment-storage="true"
-                                              data-checkout-customer-comment-storage-options="{{ { customerId: context.customer.id }|json_encode }}"></textarea>
+                                              name="{{ constant('Shopware\\Core\\Checkout\\Order\\SalesChannel\\OrderService::CUSTOMER_COMMENT_KEY') }}"></textarea>
                                 {% endblock %}
                             </div>
                         {% endblock %}
@@ -322,8 +320,10 @@
     <div class="checkout-aside-action">
         <form id="confirmOrderForm"
               action="{{ confirmOrderFormAction }}"
+              data-checkout-customer-storage="true"
+              data-checkout-customer-storage-options="{{ { customerId: context.customer.id }|json_encode }}"
               data-form-preserver="true"
-              data-form-preserver-options="{{ { ignoredElementNames: [constant('Shopware\\Core\\Checkout\\Order\\SalesChannel\\OrderService::CUSTOMER_COMMENT_KEY')] }|json_encode }}"
+              data-form-preserver-options="{{ { ignoredElementNames: [constant('Shopware\\Core\\Checkout\\Order\\SalesChannel\\OrderService::CUSTOMER_COMMENT_KEY'), 'tos'] }|json_encode }}"
               data-form-handler="true"
               data-form-handler-options="{{ { formFieldSelector: null }|json_encode }}"
               data-form-add-history="true"

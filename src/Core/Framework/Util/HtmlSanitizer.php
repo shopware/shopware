@@ -28,6 +28,8 @@ class HtmlSanitizer implements ResetInterface
 
     private readonly string $cacheDir;
 
+    private readonly HtmlPurifierConfigProvider $configProvider;
+
     /**
      * @internal
      *
@@ -39,9 +41,11 @@ class HtmlSanitizer implements ResetInterface
         private readonly bool $cacheEnabled = true,
         private readonly array $sets = [],
         private readonly array $fieldSets = [],
-        private readonly bool $enabled = true
+        private readonly bool $enabled = true,
+        ?HtmlPurifierConfigProvider $configProvider = null,
     ) {
         $this->cacheDir = (string) $cacheDir;
+        $this->configProvider = $configProvider ?? new HtmlPurifierConfigProvider();
     }
 
     /**
@@ -84,7 +88,7 @@ class HtmlSanitizer implements ResetInterface
 
     private function getBaseConfig(): \HTMLPurifier_Config
     {
-        $config = \HTMLPurifier_Config::createDefault();
+        $config = $this->configProvider->getConfig();
 
         if ($this->cacheDir !== '') {
             $config->set('Cache.SerializerPath', $this->cacheDir);

@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Migration\IndexerQueuer;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -34,6 +35,11 @@ class Migration1776848421RepairDigitalProductTypeTest extends TestCase
         } catch (\Throwable) {
         }
 
+        $this->connection->executeStatement(
+            'DELETE FROM `system_config` WHERE `configuration_key` = :key',
+            ['key' => IndexerQueuer::INDEXER_KEY]
+        );
+
         $this->ensureStatesColumnExists();
         $this->ensureTypeColumnExists();
     }
@@ -44,6 +50,11 @@ class Migration1776848421RepairDigitalProductTypeTest extends TestCase
             $this->connection->executeStatement('DELETE FROM `product`');
         } catch (\Throwable) {
         }
+
+        $this->connection->executeStatement(
+            'DELETE FROM `system_config` WHERE `configuration_key` = :key',
+            ['key' => IndexerQueuer::INDEXER_KEY]
+        );
     }
 
     public function testCreationTimestamp(): void
@@ -66,6 +77,33 @@ class Migration1776848421RepairDigitalProductTypeTest extends TestCase
         static::assertSame('digital', $this->fetchType('already-digital'));
         static::assertSame('physical', $this->fetchType('physical-without-states'));
         static::assertSame('physical', $this->fetchType('physical-with-other-state'));
+    }
+
+    public function testRegistersProductIndexerWhenProductsWereRepaired(): void
+    {
+        $this->insertProduct('faulty-download', 'physical', ['is-download']);
+
+        $migration = new Migration1776848421RepairDigitalProductType();
+        $migration->update($this->connection);
+
+        $indexers = (new IndexerQueuer($this->connection))->getIndexers();
+
+        static::assertArrayHasKey('product.indexer', $indexers);
+        static::assertContains('product.states', $indexers['product.indexer']);
+    }
+
+    public function testDoesNotRegisterProductIndexerWhenNothingWasRepaired(): void
+    {
+        $this->insertProduct('already-digital', 'digital', ['is-download']);
+        $this->insertProduct('physical-without-states', 'physical', null);
+        $this->insertProduct('physical-with-other-state', 'physical', ['some-other-state']);
+
+        $migration = new Migration1776848421RepairDigitalProductType();
+        $migration->update($this->connection);
+
+        $indexers = (new IndexerQueuer($this->connection))->getIndexers();
+
+        static::assertArrayNotHasKey('product.indexer', $indexers);
     }
 
     public function testSkipsWhenTypeColumnMissing(): void

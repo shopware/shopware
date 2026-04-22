@@ -30,6 +30,7 @@ class Migration1776848421RepairDigitalProductType extends MigrationStep
         }
 
         $batchSize = 5000;
+        $hasAffected = false;
 
         do {
             $affected = $connection->executeStatement(
@@ -39,6 +40,14 @@ class Migration1776848421RepairDigitalProductType extends MigrationStep
                  ORDER BY `id`
                  LIMIT {$batchSize};"
             );
+
+            if ($hasAffected === false && $affected > 0) {
+                $hasAffected = true;
+            }
         } while ($affected > 0);
+
+        if ($hasAffected) {
+            $this->registerIndexer($connection, 'product.indexer', ['product.states']);
+        }
     }
 }

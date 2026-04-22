@@ -4,6 +4,7 @@ namespace Shopware\Tests\DevOps\Core\Migration;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\MigrationIndexerSafeguard;
 use Shopware\Core\Test\Assert\StrictEmpty;
 
@@ -29,11 +30,17 @@ use Shopware\Core\Test\Assert\StrictEmpty;
 class MigrationIndexerSafeguardTest extends TestCase
 {
     /**
-     * Migration version directories in scope for this safeguard. Extend the
-     * list only after auditing every new violation surfaced in the opened
-     * range.
+     * Earliest V6_6 major enforced by the safeguard. Migrations in versions
+     * below this number predate the indexer-registration conventions this
+     * test enforces, so they are skipped. Bump this once an older major is
+     * no longer receiving backports.
      */
-    private const ENFORCED_VERSIONS = ['V6_6', 'V6_7', 'V6_8'];
+    private const FIRST_ENFORCED_MAJOR = 6;
+
+    /**
+     * @var array<string, MigrationIndexerSafeguard>
+     */
+    private static array $safeguardByBase = [];
 
     /**
      * @param list<string> $tables feeder tables for this indexer
@@ -43,16 +50,51 @@ class MigrationIndexerSafeguardTest extends TestCase
      *                                                           whose columns can't be parsed fall back to flagging the table.
      */
     #[DataProvider('indexerProvider')]
-    public function testIndexerIsRegisteredBySameMajorWriters(
+    public function testCoreIndexerIsRegisteredBySameMajorWriters(
         string $indexer,
         array $tables,
         array $indexedColumnsByTable = [],
     ): void {
-        $safeguard = self::cachedSafeguard();
+        self::assertNoViolations('src/Core/Migration', $indexer, $tables, $indexedColumnsByTable);
+    }
 
-        $violations = $safeguard->findViolations($indexer, $tables, $indexedColumnsByTable);
+    /**
+     * @param list<string> $tables
+     * @param array<string, list<string>> $indexedColumnsByTable
+     */
+    #[DataProvider('indexerProvider')]
+    public function testAdministrationIndexerIsRegisteredBySameMajorWriters(
+        string $indexer,
+        array $tables,
+        array $indexedColumnsByTable = [],
+    ): void {
+        self::assertNoViolations('src/Administration/Migration', $indexer, $tables, $indexedColumnsByTable);
+    }
 
-        StrictEmpty::assertEmpty($violations, $safeguard->formatFailureMessage($indexer, $violations));
+    /**
+     * @param list<string> $tables
+     * @param array<string, list<string>> $indexedColumnsByTable
+     */
+    #[DataProvider('indexerProvider')]
+    public function testElasticsearchIndexerIsRegisteredBySameMajorWriters(
+        string $indexer,
+        array $tables,
+        array $indexedColumnsByTable = [],
+    ): void {
+        self::assertNoViolations('src/Elasticsearch/Migration', $indexer, $tables, $indexedColumnsByTable);
+    }
+
+    /**
+     * @param list<string> $tables
+     * @param array<string, list<string>> $indexedColumnsByTable
+     */
+    #[DataProvider('indexerProvider')]
+    public function testStorefrontIndexerIsRegisteredBySameMajorWriters(
+        string $indexer,
+        array $tables,
+        array $indexedColumnsByTable = [],
+    ): void {
+        self::assertNoViolations('src/Storefront/Migration', $indexer, $tables, $indexedColumnsByTable);
     }
 
     /**
@@ -144,19 +186,62 @@ class MigrationIndexerSafeguardTest extends TestCase
     }
 
     /**
+     * @param list<string> $tables
+     * @param array<string, list<string>> $indexedColumnsByTable
+     */
+    private static function assertNoViolations(
+        string $relativeBase,
+        string $indexer,
+        array $tables,
+        array $indexedColumnsByTable,
+    ): void {
+        $safeguard = self::cachedSafeguard($relativeBase);
+
+        $violations = $safeguard->findViolations($indexer, $tables, $indexedColumnsByTable);
+
+        StrictEmpty::assertEmpty($violations, $safeguard->formatFailureMessage($indexer, $violations));
+    }
+
+    /**
      * Shared across data-provider cases; migrations don't change between
      * test methods within a run.
      */
-    private static function cachedSafeguard(): MigrationIndexerSafeguard
+    private static function cachedSafeguard(string $relativeBase): MigrationIndexerSafeguard
     {
-        static $safeguard = null;
-        if ($safeguard === null) {
-            $safeguard = new MigrationIndexerSafeguard(
-                __DIR__ . '/../../../../src/Core/Migration',
-                self::ENFORCED_VERSIONS,
+        if (!isset(self::$safeguardByBase[$relativeBase])) {
+            self::$safeguardByBase[$relativeBase] = new MigrationIndexerSafeguard(
+                __DIR__ . '/../../../../' . $relativeBase,
+                self::enforcedVersions(),
             );
         }
 
-        return $safeguard;
+        return self::$safeguardByBase[$relativeBase];
+    }
+
+    /**
+     * Migration version directories in scope for this safeguard, derived
+     * from registered `vX.Y.Z.W` feature flags. Constrained to
+     * V6_{FIRST_ENFORCED_MAJOR}+ so older majors whose migrations predate
+     * the indexer conventions enforced here are skipped.
+     *
+     * @return list<string>
+     */
+    private static function enforcedVersions(): array
+    {
+        $majors = [];
+        foreach (array_keys(Feature::getAll(false)) as $name) {
+            if (!preg_match('/^V6_(\d+)_\d+_\d+$/', $name, $m)) {
+                continue;
+            }
+            $major = (int) $m[1];
+            if ($major < self::FIRST_ENFORCED_MAJOR) {
+                continue;
+            }
+            $majors['V6_' . $major] = true;
+        }
+        $versions = array_keys($majors);
+        sort($versions);
+
+        return $versions;
     }
 }

@@ -57,6 +57,10 @@ class SeoUrlPersister
             if ($seoUrl instanceof SeoUrlEntity) {
                 $seoUrl = $seoUrl->jsonSerialize();
             }
+
+            $allowReset = (bool) ($seoUrl['_allowReset'] ?? false);
+            unset($seoUrl['_allowReset']);
+
             $updates[] = $seoUrl;
 
             $fk = $seoUrl['foreignKey'];
@@ -74,7 +78,7 @@ class SeoUrlPersister
 
             $updatedFks[] = $fk;
 
-            if (!empty($seoUrl['error'])) {
+            if (($seoUrl['error'] ?? null) !== null && $seoUrl['error'] !== '') {
                 continue;
             }
             $existing = $canonicals[$fk][$salesChannelId] ?? null;
@@ -82,7 +86,7 @@ class SeoUrlPersister
             if ($existing) {
                 // entity has override or does not change
                 /** @phpstan-ignore-next-line PHPStan could not recognize the array generated from the jsonSerialize method of the SeoUrlEntity */
-                if ($this->skipUpdate($existing, $seoUrl)) {
+                if ($this->skipUpdate($existing, $seoUrl, $allowReset)) {
                     continue;
                 }
                 $obsoleted[] = $existing['id'];
@@ -138,9 +142,9 @@ class SeoUrlPersister
      * @param array{isModified: bool, seoPathInfo: string, salesChannelId: string} $existing
      * @param array{isModified?: bool, seoPathInfo: string, salesChannelId: string} $seoUrl
      */
-    private function skipUpdate(array $existing, array $seoUrl): bool
+    private function skipUpdate(array $existing, array $seoUrl, bool $allowReset): bool
     {
-        if ($existing['isModified'] && !($seoUrl['isModified'] ?? false) && trim($seoUrl['seoPathInfo']) !== '') {
+        if ($existing['isModified'] && !($seoUrl['isModified'] ?? false) && trim($seoUrl['seoPathInfo']) !== '' && !$allowReset) {
             return true;
         }
 

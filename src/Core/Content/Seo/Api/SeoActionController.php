@@ -9,6 +9,7 @@ use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlGenerator;
 use Shopware\Core\Content\Seo\SeoUrlPersister;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
+use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
 use Shopware\Core\Content\Seo\Validation\SeoUrlDataValidationFactoryInterface;
 use Shopware\Core\Content\Seo\Validation\SeoUrlValidationFactory;
@@ -123,7 +124,7 @@ class SeoActionController extends AbstractController
         $repository = $this->getRepository($config);
 
         $criteria = new Criteria();
-        if (!empty($fk)) {
+        if (\is_string($fk) && $fk !== '') {
             $criteria = new Criteria([$fk]);
         }
         $criteria->setLimit(1);
@@ -156,7 +157,6 @@ class SeoActionController extends AbstractController
         $validation = $this->seoUrlValidator->buildValidation($context, $seoUrlRoute->getConfig());
 
         $seoUrlData = $seoUrl->all();
-        $this->validator->validate($seoUrlData, $validation);
         $seoUrlData['isModified'] ??= true;
 
         $salesChannelId = $seoUrlData['salesChannelId'] ?? null;
@@ -174,6 +174,9 @@ class SeoActionController extends AbstractController
         if ($salesChannel->getTypeId() === Defaults::SALES_CHANNEL_TYPE_API) {
             return new Response('', Response::HTTP_NO_CONTENT);
         }
+
+        $seoUrlData = $this->normalizeCanonicalUpdateData($seoUrlData, $seoUrlRoute, $salesChannel, $context);
+        $this->validator->validate($seoUrlData, $validation);
 
         $this->seoUrlPersister->updateSeoUrls(
             $context,
@@ -327,6 +330,43 @@ class SeoActionController extends AbstractController
             ->search($criteria, $context)
             ->getEntities()
             ->first();
+    }
+
+    /**
+     * @param array<string, mixed> $seoUrlData
+     *
+     * @return array<string, mixed>
+     */
+    private function normalizeCanonicalUpdateData(
+        array $seoUrlData,
+        SeoUrlRouteInterface $seoUrlRoute,
+        SalesChannelEntity $salesChannel,
+        Context $context
+    ): array {
+        if (($seoUrlData['isModified'] ?? true) !== false || trim((string) ($seoUrlData['seoPathInfo'] ?? '')) !== '') {
+            return $seoUrlData;
+        }
+
+        $generatedSeoUrls = $this->seoUrlGenerator->generate(
+            [$seoUrlData['foreignKey']],
+            $seoUrlRoute->getConfig()->getTemplate(),
+            new ConfiguredSeoUrlRoute($seoUrlRoute, $seoUrlRoute->getConfig()),
+            $context,
+            $salesChannel
+        );
+
+        $generatedSeoUrls = \is_array($generatedSeoUrls) ? array_values($generatedSeoUrls) : array_values(iterator_to_array($generatedSeoUrls));
+        $generatedSeoUrl = array_shift($generatedSeoUrls);
+
+        if (!$generatedSeoUrl instanceof SeoUrlEntity) {
+            return $seoUrlData;
+        }
+
+        $seoUrlData['seoPathInfo'] = $generatedSeoUrl->getSeoPathInfo();
+        $seoUrlData['pathInfo'] = $generatedSeoUrl->getPathInfo();
+        $seoUrlData['_allowReset'] = true;
+
+        return $seoUrlData;
     }
 
     /**

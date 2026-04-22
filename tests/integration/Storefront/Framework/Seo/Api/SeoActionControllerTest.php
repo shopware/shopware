@@ -338,6 +338,45 @@ class SeoActionControllerTest extends TestCase
         static::assertSame($newSeoPathInfo, $seoUrl['seoPathInfo']);
     }
 
+    public function testResetCanonicalToGeneratedValue(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
+
+        $id = $this->createTestProduct($salesChannelId);
+
+        $seoUrls = $this->getSeoUrls($id, true, $salesChannelId);
+        static::assertCount(1, $seoUrls);
+
+        $generatedSeoUrl = $seoUrls[0]['attributes'];
+        $generatedSeoPathInfo = $generatedSeoUrl['seoPathInfo'];
+
+        $generatedSeoUrl['seoPathInfo'] = 'my-awesome-seo-path';
+        $generatedSeoUrl['isModified'] = true;
+
+        $this->getBrowser()->jsonRequest('PATCH', '/api/_action/seo-url/canonical', $generatedSeoUrl);
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(204, $response->getStatusCode(), (string) $response->getContent());
+
+        $seoUrls = $this->getSeoUrls($id, true, $salesChannelId);
+        static::assertCount(1, $seoUrls);
+        static::assertSame('my-awesome-seo-path', $seoUrls[0]['attributes']['seoPathInfo']);
+        static::assertTrue($seoUrls[0]['attributes']['isModified']);
+
+        $resetSeoUrl = $seoUrls[0]['attributes'];
+        $resetSeoUrl['seoPathInfo'] = '';
+        $resetSeoUrl['isModified'] = false;
+
+        $this->getBrowser()->jsonRequest('PATCH', '/api/_action/seo-url/canonical', $resetSeoUrl);
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(204, $response->getStatusCode(), (string) $response->getContent());
+
+        $seoUrls = $this->getSeoUrls($id, true, $salesChannelId);
+        static::assertCount(1, $seoUrls);
+        static::assertSame($generatedSeoPathInfo, $seoUrls[0]['attributes']['seoPathInfo']);
+        static::assertFalse($seoUrls[0]['attributes']['isModified']);
+    }
+
     public function testUpdateDefaultCanonicalForHeadlessBehavesCorrectly(): void
     {
         $salesChannelId = Uuid::randomHex();

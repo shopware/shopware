@@ -12,6 +12,7 @@ use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
 use Shopware\Core\Content\Product\Events\ProductSliderStreamCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
@@ -21,6 +22,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('discovery')]
@@ -36,6 +38,8 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
     public function __construct(
         private readonly ProductStreamBuilderInterface $productStreamBuilder,
         private readonly SalesChannelRepository $productRepository,
+        private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory,
+        private readonly SystemConfigService $systemConfigService,
         private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
@@ -139,6 +143,10 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
         }
 
         $criteria = $originCriteria->cloneForRead($finalProductIds);
+
+        if ($this->systemConfigService->getBool('core.listing.hideCloseoutProductsWhenOutOfStock', $context->getSalesChannelId())) {
+            $criteria->addFilter($this->productCloseoutFilterFactory->create($context));
+        }
 
         $products = $this->productRepository->search($criteria, $context)->getEntities();
         $products->sortByIdArray($finalProductIds);

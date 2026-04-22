@@ -14,6 +14,8 @@ use Shopware\Core\Content\Product\Cms\ProductSlider\ProductStreamProcessor;
 use Shopware\Core\Content\Product\Events\ProductSliderStreamCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
+use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilter;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -26,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\Tax\TaxCollection;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -47,6 +50,10 @@ class ProductStreamProcessorTest extends TestCase
      */
     private SalesChannelRepository&MockObject $productRepository;
 
+    private AbstractProductCloseoutFilterFactory&MockObject $productCloseoutFilterFactory;
+
+    private SystemConfigService&MockObject $systemConfigService;
+
     private EventDispatcherInterface&MockObject $eventDispatcher;
 
     protected function setUp(): void
@@ -55,6 +62,8 @@ class ProductStreamProcessorTest extends TestCase
         $this->productStreamBuilder->method('buildFilters')->willReturn([$this->getFilter()]);
 
         $this->productRepository = $this->createMock(SalesChannelRepository::class);
+        $this->productCloseoutFilterFactory = $this->createMock(AbstractProductCloseoutFilterFactory::class);
+        $this->systemConfigService = $this->createMock(SystemConfigService::class);
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $this->config = new FieldConfigCollection();
     }
@@ -179,6 +188,60 @@ class ProductStreamProcessorTest extends TestCase
         static::assertSame($products, $slider->getProducts());
     }
 
+    public function testEnrichFiltersOutOutOfStockCloseoutProductsWhenConfigured(): void
+    {
+        $slot = $this->getSlot();
+        $resolverContext = $this->getResolverContext();
+
+        $config = new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, 'product-stream-1');
+        $this->config->add($config);
+
+        $products = $this->getProducts();
+        $searchResult = $this->getEntitySearchResult($products);
+        $filteredProduct = $products->get('product-1');
+        static::assertNotNull($filteredProduct);
+        $filteredProducts = new ProductCollection([$filteredProduct]);
+
+        $data = new ElementDataCollection();
+        $data->add('product-slider-entity-fallback_id', $searchResult);
+
+        $this->systemConfigService->expects($this->once())
+            ->method('getBool')
+            ->with('core.listing.hideCloseoutProductsWhenOutOfStock', $resolverContext->getSalesChannelContext()->getSalesChannelId())
+            ->willReturn(true);
+
+        $this->productCloseoutFilterFactory->expects($this->once())
+            ->method('create')
+            ->with($resolverContext->getSalesChannelContext())
+            ->willReturn(new ProductCloseoutFilter());
+
+        $this->productRepository->expects($this->once())
+            ->method('search')
+            ->willReturnCallback(static function (Criteria $criteria) use ($filteredProducts, $resolverContext): EntitySearchResult {
+                static::assertCount(1, $criteria->getFilters());
+                static::assertInstanceOf(ProductCloseoutFilter::class, $criteria->getFilters()[0]);
+
+                return new EntitySearchResult(
+                    'product',
+                    1,
+                    $filteredProducts,
+                    null,
+                    $criteria,
+                    $resolverContext->getSalesChannelContext()->getContext()
+                );
+            });
+
+        $this->getProcessor()->enrich($slot, $data, $resolverContext);
+
+        $slider = $slot->getData();
+        static::assertInstanceOf(ProductSliderStruct::class, $slider);
+        $sliderProducts = $slider->getProducts();
+        static::assertInstanceOf(ProductCollection::class, $sliderProducts);
+        static::assertCount(1, $sliderProducts);
+        static::assertNotNull($sliderProducts->get('product-1'));
+        static::assertNull($sliderProducts->get('product-2'));
+    }
+
     public function testEnrichDoesNothingWithoutEntitySearchResult(): void
     {
         $slot = $this->getSlot();
@@ -241,7 +304,13 @@ class ProductStreamProcessorTest extends TestCase
 
     private function getProcessor(): ProductStreamProcessor
     {
-        return new ProductStreamProcessor($this->productStreamBuilder, $this->productRepository, $this->eventDispatcher);
+        return new ProductStreamProcessor(
+            $this->productStreamBuilder,
+            $this->productRepository,
+            $this->productCloseoutFilterFactory,
+            $this->systemConfigService,
+            $this->eventDispatcher
+        );
     }
 
     private function getFilter(): MultiFilter

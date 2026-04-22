@@ -2,6 +2,11 @@
 
 ## Features
 
+### [Experimental] Agentic Commerce sales channel
+
+A new "Agentic Commerce" sales channel type is available in this release. The OpenAI Merchant Center integration is the first supported provider for AI-powered product feed exports.
+The Administration includes dedicated views for configuration, product mapping, and usage insights.
+
 ## API
 
 ### Per-user and per-IP rate limiters for login and OAuth
@@ -40,6 +45,14 @@ Custom salutations keep the default value of `100` - review them in Administrati
 
 Deprecated the constants `Shopware\Core\Content\MailTemplate\MAIL_TEMPLATE_SALES_CHANNEL_{WRITTEN,DELETED,LOADED,SEARCH_RESULT_LOADED,AGGREGATION_LOADED,ID_SEARCH_RESULT_LOADED}_EVENT` as the entity has been removed with Shopware 6.5 and the events were not fired anymore.
 
+### JSONL product export format
+
+Product exports now support `ProductExportEntity::FILE_FORMAT_JSONL` as a third file format.
+
+### [Experimental] Agentic Commerce product export provider abstraction
+
+The new `AbstractAgenticCommerceProductExportProvider` can be used to implement custom Agentic Commerce export providers.
+
 ## Administration
 
 ### Fixed mixin-based route guards for lazy-loaded administration routes
@@ -56,6 +69,10 @@ This fixes stale iframe content when switching locations in Meteor Admin SDK int
 
 The Administration order list now shows internal order comments via a dedicated tooltip icon.
 This helps merchants spot internal notes directly from the list view without opening the order detail page.
+
+### [Experimental] Agentic Commerce sales channel views and tracking entities
+
+New Agentic Commerce sales channels types can be created. These sales channels have dedicated configuration options in the administration for property mapping, and usage insights. New entities for monitoring orders and customers for Agentic Commerce sales channels are included.
 
 ## Storefront
 
@@ -275,11 +292,6 @@ shopware:
 
 When `bin/console system:setup:staging` is executed, the configured keys are written to the database via `SystemConfigService`.
 
-### [Experimental] Agentic Commerce sales channel
-
-A new "Agentic Commerce" sales channel type is available in this release. The OpenAI Merchant Center integration is the first supported provider for AI-powered product feed exports.
-The Administration includes dedicated views for configuration, product mapping, and usage insights.
-
 ## API
 
 ### Minimum value constraints added to quantity fields in ProductPriceDefinition
@@ -424,23 +436,11 @@ public ?string $url = null;
 
 A value of `0` disables length validation entirely. This is pre-existing `StringFieldSerializer` behavior where any value below `1` is treated as unconstrained.
 
-### JSONL product export format
-
-Product exports now support `ProductExportEntity::FILE_FORMAT_JSONL` as a third file format.
-
-### [Experimental] Agentic Commerce product export provider abstraction
-
-The new `AbstractAgenticCommerceProductExportProvider` can be used to implement custom Agentic Commerce export providers.
-
 ## Administration
 
 ### CMS data mapping source for media custom fields
 
 Fixed media custom fields not being available as data mapping source for image elements in category and product CMS layouts. Shop Administrators can now reliably bind media custom fields to images in CMS pages without workarounds.
-
-### [Experimental] Agentic Commerce sales channel views and tracking entities
-
-New Agentic Commerce sales channels types can be created. These sales channels have dedicated configuration options in the administration for property mapping, and usage insights. New entities for monitoring orders and customers for Agentic Commerce sales channels are included.
 
 ## Storefront
 

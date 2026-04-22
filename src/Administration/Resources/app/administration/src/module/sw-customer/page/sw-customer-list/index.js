@@ -371,7 +371,7 @@ export default {
                 },
                 {
                     property: 'group',
-                    dataIndex: 'group',
+                    dataIndex: 'group.name',
                     naturalSorting: true,
                     label: 'sw-customer.list.columnGroup',
                     allowResize: true,

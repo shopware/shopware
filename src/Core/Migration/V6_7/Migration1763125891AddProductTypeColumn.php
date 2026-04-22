@@ -33,13 +33,17 @@ class Migration1763125891AddProductTypeColumn extends MigrationStep
             $connection->executeStatement('CREATE INDEX `idx.product.type` ON `product` (`type`)');
         }
 
+        if (!TableHelper::indexExists($connection, 'product', 'idx.product.type')) {
+            $connection->executeStatement('CREATE INDEX `idx.product.type` ON `product` (`type`)');
+        }
+
         $batchSize = 5000;
 
         do {
             $affected = $connection->executeStatement(
                 "UPDATE `product`
                  SET `product`.`type` = 'digital'
-                 WHERE JSON_CONTAINS(states, '\"is-download\"')
+                 WHERE `type` <> 'digital' AND JSON_CONTAINS(states, '\"is-download\"')
                  LIMIT {$batchSize};"
             );
         } while ($affected > 0);

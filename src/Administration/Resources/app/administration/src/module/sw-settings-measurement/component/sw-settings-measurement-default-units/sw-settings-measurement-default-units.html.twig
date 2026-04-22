@@ -16,14 +16,14 @@
                 inline
                 hide-icon
             >
-                {{ $tc('sw-settings-measurement.defaultUnits.linkText') }}
+                {{ $t('sw-settings-measurement.defaultUnits.linkText') }}
             </sw-internal-link>
         </template>
     </i18n-t>
 
     <sw-container
         columns="1fr 1fr 1fr"
-        gap="0 32px"
+        gap="0 var(--scale-size-32)"
     >
         <mt-select
             v-model="measurementUnits.system"

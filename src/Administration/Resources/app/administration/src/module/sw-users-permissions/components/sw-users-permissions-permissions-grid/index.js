@@ -48,8 +48,8 @@ export default {
             return privileges
                 .filter((privilege) => privilege.category === 'permissions')
                 .sort((a, b) => {
-                    const labelA = this.$tc(`sw-privileges.permissions.${a.key}.label`);
-                    const labelB = this.$tc(`sw-privileges.permissions.${b.key}.label`);
+                    const labelA = this.$t(`sw-privileges.permissions.${a.key}.label`);
+                    const labelB = this.$t(`sw-privileges.permissions.${b.key}.label`);
 
                     return labelA.localeCompare(labelB);
                 });
@@ -68,8 +68,8 @@ export default {
                     ];
                 }, [])
                 .sort((a, b) => {
-                    const labelA = this.$tc(`sw-privileges.permissions.parents.${a || 'other'}`);
-                    const labelB = this.$tc(`sw-privileges.permissions.parents.${b || 'other'}`);
+                    const labelA = this.$t(`sw-privileges.permissions.parents.${a || 'other'}`);
+                    const labelB = this.$t(`sw-privileges.permissions.parents.${b || 'other'}`);
 
                     return labelA.localeCompare(labelB);
                 });

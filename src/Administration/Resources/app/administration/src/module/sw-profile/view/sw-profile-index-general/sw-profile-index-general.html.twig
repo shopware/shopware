@@ -3,7 +3,7 @@
     {% block sw_profile_index_general_information %}
     <mt-card
         position-identifier="sw-profile-index-general"
-        :title="$tc('sw-profile.index.titleInfoCard')"
+        :title="$t('sw-profile.index.titleInfoCard')"
         :is-loading="isUserLoading || !languageId"
     >
         <sw-container v-bind="{ columns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '0 30px' }">
@@ -12,7 +12,7 @@
             <mt-text-field
                 v-model="user.firstName"
                 name="sw-field--user-firstName"
-                :label="$tc('sw-profile.index.labelFirstNameField')"
+                :label="$t('sw-profile.index.labelFirstNameField')"
                 :disabled="isDisabled || !acl.can('user.update_profile')"
             />
             {% endblock %}
@@ -22,7 +22,7 @@
             <mt-text-field
                 v-model="user.lastName"
                 name="sw-field--user-lastName"
-                :label="$tc('sw-profile.index.labelLastNameField')"
+                :label="$t('sw-profile.index.labelLastNameField')"
                 :disabled="isDisabled || !acl.can('user.update_profile')"
             />
             {% endblock %}
@@ -34,7 +34,7 @@
             <mt-text-field
                 v-model="user.username"
                 name="sw-field--user-username"
-                :label="$tc('sw-profile.index.labelUsernameField')"
+                :label="$t('sw-profile.index.labelUsernameField')"
                 :disabled="isDisabled || !acl.can('user.update_profile')"
             />
             {% endblock %}
@@ -43,9 +43,9 @@
             <mt-select
                 v-model="user.localeId"
                 name="sw-field--user-localeId"
-                :label="$tc('sw-users-permissions.users.user-detail.labelLanguage')"
+                :label="$t('sw-users-permissions.users.user-detail.labelLanguage')"
                 :disabled="!acl.can('user.update_profile')"
-                :placeholder="$tc('sw-users-permissions.users.user-detail.labelLanguagePlaceholder')"
+                :placeholder="$t('sw-users-permissions.users.user-detail.labelLanguagePlaceholder')"
                 :options="localeOptions"
             />
             {% endblock %}
@@ -60,7 +60,7 @@
                 name="sw-field--user-email"
                 validation="email"
                 required
-                :label="$tc('sw-profile.index.labelEmailField')"
+                :label="$t('sw-profile.index.labelEmailField')"
                 :disabled="!acl.can('user.update_profile')"
             />
             {% endblock %}
@@ -72,7 +72,7 @@
                 class="sw-profile--timezone"
                 :options="timezoneOptions"
                 required
-                :label="$tc('sw-users-permissions.users.user-detail.labelTimezone')"
+                :label="$t('sw-users-permissions.users.user-detail.labelTimezone')"
                 :is-loading="timezoneOptions.length <= 0"
                 :disabled="!acl.can('user.update_profile')"
             />
@@ -85,7 +85,7 @@
     <mt-card
         v-if="acl.can('media.creator')"
         position-identifier="sw-profile-index-general-image"
-        :title="$tc('sw-profile.index.titleImageCard')"
+        :title="$t('sw-profile.index.titleImageCard')"
         :is-loading="isUserLoading || !languageId"
     >
         {% block sw_profile_index_general_image_content %}
@@ -99,7 +99,7 @@
             :source="avatarMediaItem"
             :source-context="user"
             :default-folder="userRepository.schema.entity"
-            :label="$tc('sw-profile.index.labelUploadAvatar')"
+            :label="$t('sw-profile.index.labelUploadAvatar')"
             :disabled="!acl.can('user.update_profile')"
             :allow-multi-select="false"
             @media-drop="onDropMedia"
@@ -114,16 +114,16 @@
     <mt-card
         v-if="showPasswordChangeCard"
         position-identifier="sw-profile-index-general-password"
-        :title="$tc('sw-profile.index.titlePasswordCard')"
+        :title="$t('sw-profile.index.titlePasswordCard')"
         :is-loading="isUserLoading || !languageId"
     >
         {% block sw_profile_index_general_password_new_password %}
         <mt-password-field
             v-model="computedNewPassword"
             name="sw-field--computedNewPassword"
-            :label="$tc('sw-profile.index.labelNewPassword')"
+            :label="$t('sw-profile.index.labelNewPassword')"
             :disabled="!acl.can('user.update_profile')"
-            :placeholder="$tc('sw-profile.index.placeholderNewPassword')"
+            :placeholder="$t('sw-profile.index.placeholderNewPassword')"
             :error="userPasswordError"
             autocomplete="new-password"
         />
@@ -133,9 +133,9 @@
         <mt-password-field
             v-model="computedNewPasswordConfirm"
             name="sw-field--computedNewPasswordConfirm"
-            :label="$tc('sw-profile.index.labelNewPasswordConfirm')"
+            :label="$t('sw-profile.index.labelNewPasswordConfirm')"
             :disabled="!acl.can('user.update_profile')"
-            :placeholder="$tc('sw-profile.index.placeholderNewPasswordConfirm')"
+            :placeholder="$t('sw-profile.index.placeholderNewPasswordConfirm')"
             :validation="computedNewPassword === computedNewPasswordConfirm"
             autocomplete="new-password"
         />

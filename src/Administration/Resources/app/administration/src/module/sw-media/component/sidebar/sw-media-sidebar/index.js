@@ -97,7 +97,7 @@ export default {
         },
 
         getSelectedFilesCount() {
-            return `${this.$tc('sw-media.sidebar.labelHeadlineMultiple', { count: this.items.length }, this.items.length)}`;
+            return `${this.$t('sw-media.sidebar.labelHeadlineMultiple', { count: this.items.length }, this.items.length)}`;
         },
 
         firstEntity() {
@@ -165,11 +165,11 @@ export default {
                 Object.assign(this.items[0], newItem);
                 await this.mediaRepository.save(firstItem, Context.api);
                 this.createNotificationSuccess({
-                    message: this.$tc('global.sw-media-media-item.notification.settingsSuccess.message'),
+                    message: this.$t('global.sw-media-media-item.notification.settingsSuccess.message'),
                 });
             } catch {
                 this.createNotificationError({
-                    message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                    message: this.$t('global.notification.unspecifiedSaveErrorMessage'),
                 });
             } finally {
                 firstItem.isLoading = false;

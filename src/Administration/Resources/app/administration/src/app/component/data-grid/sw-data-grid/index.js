@@ -748,8 +748,15 @@ export default {
                 return;
             }
 
+            const recordId = record[this.itemIdentifierProperty];
+
+            // Keep the currently edited row stable until the user explicitly saves or cancels it.
+            if (this.isInlineEditActive && this.currentInlineEditId !== '' && this.currentInlineEditId !== recordId) {
+                return;
+            }
+
             this.enableInlineEdit();
-            this.currentInlineEditId = record[this.itemIdentifierProperty];
+            this.currentInlineEditId = recordId;
         },
 
         onClickHeaderCell(event, column) {

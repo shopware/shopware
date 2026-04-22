@@ -58,7 +58,8 @@ class CustomFieldsUnusedMediaSubscriber implements EventSubscriberInterface
             $table = $this->getTableName((string) $entity);
 
             foreach ($fields as $field) {
-                $statements[] = "SELECT JSON_UNQUOTE(JSON_EXTRACT({$table}.custom_fields, '$.{$field}')) as media_id FROM `{$table}` WHERE JSON_UNQUOTE(JSON_EXTRACT(`{$table}`.custom_fields, '$.{$field}')) IN (?)";
+                $jsonPath = $this->buildJsonPath($field);
+                $statements[] = "SELECT JSON_UNQUOTE(JSON_EXTRACT({$table}.custom_fields, '{$jsonPath}')) as media_id FROM `{$table}` WHERE JSON_UNQUOTE(JSON_EXTRACT(`{$table}`.custom_fields, '{$jsonPath}')) IN (?)";
             }
         }
 
@@ -110,7 +111,8 @@ class CustomFieldsUnusedMediaSubscriber implements EventSubscriberInterface
             $table = $this->getTableName((string) $entity);
 
             foreach ($fields as $field) {
-                $statements[] = "SELECT JSON_UNQUOTE(JSON_EXTRACT(`{$table}`.custom_fields, '$.{$field}')) as media_id FROM `{$table}` WHERE JSON_UNQUOTE(JSON_EXTRACT(`{$table}`.custom_fields, '$.{$field}')) IN (?)";
+                $jsonPath = $this->buildJsonPath($field);
+                $statements[] = "SELECT JSON_UNQUOTE(JSON_EXTRACT(`{$table}`.custom_fields, '{$jsonPath}')) as media_id FROM `{$table}` WHERE JSON_UNQUOTE(JSON_EXTRACT(`{$table}`.custom_fields, '{$jsonPath}')) IN (?)";
             }
         }
 
@@ -140,17 +142,18 @@ class CustomFieldsUnusedMediaSubscriber implements EventSubscriberInterface
             $table = $this->getTableName((string) $entity);
 
             foreach ($fields as $field) {
+                $jsonPath = $this->buildJsonPath($field);
                 $statements[] = \sprintf(
                     <<<'SQL'
-                    SELECT JSON_EXTRACT(custom_fields, "$.%s") as mediaIds FROM `%s`
+                    SELECT JSON_EXTRACT(custom_fields, '%s') as mediaIds FROM `%s`
                     WHERE JSON_OVERLAPS(
-                        JSON_EXTRACT(custom_fields, "$.%s"),
+                        JSON_EXTRACT(custom_fields, '%s'),
                         JSON_ARRAY(?)
                     );
                     SQL,
-                    $field,
+                    $jsonPath,
                     $table,
-                    $field
+                    $jsonPath
                 );
             }
         }
@@ -205,5 +208,12 @@ class CustomFieldsUnusedMediaSubscriber implements EventSubscriberInterface
         }
 
         return $fieldsPerEntity;
+    }
+
+    private function buildJsonPath(string $field): string
+    {
+        $field = str_replace(['\\', '"'], ['\\\\', '\\"'], $field);
+
+        return '$."' . $field . '"';
     }
 }

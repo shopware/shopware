@@ -9,6 +9,7 @@ use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\Subscriber\CustomFieldsUnusedMediaSubscriber;
 use Shopware\Core\Content\Test\Category\CategoryBuilder;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -95,6 +96,102 @@ class CustomFieldsUnusedMediaSubscriberTest extends TestCase
         $listener->removeUsedMedia($event);
 
         static::assertSame($unusedMediaIds, $event->getUnusedIds());
+    }
+
+    public function testMediaIdsFromCustomFieldsWithSpecialCharactersAreRemovedFromEvent(): void
+    {
+        $ids = $this->createMedia(3);
+        $mediaIds = array_values($ids->all());
+
+        $mediaFieldName = 'media_field_product_special';
+        $mediaSelectFieldName = 'media_select_field_product_special';
+        $mediaMultiSelectFieldName = 'media_multi_select_field_product_special';
+
+        $this->createFieldSet(
+            'category',
+            'media_fieldset_category_special',
+            [
+                [
+                    'name' => $mediaFieldName,
+                    'type' => CustomFieldTypes::MEDIA,
+                    'config' => [
+                        'label' => [
+                            'en-GB' => $mediaFieldName,
+                        ],
+                        'componentName' => 'sw-media-field',
+                        'customFieldType' => 'media',
+                        'customFieldPosition' => 1,
+                    ],
+                ],
+                [
+                    'name' => $mediaSelectFieldName,
+                    'type' => CustomFieldTypes::SELECT,
+                    'config' => [
+                        'entity' => 'media',
+                        'componentName' => 'sw-entity-single-select',
+                        'label' => [
+                            'en-GB' => $mediaSelectFieldName,
+                        ],
+                        'customFieldType' => 'select',
+                        'customFieldPosition' => 2,
+                    ],
+                ],
+                [
+                    'name' => $mediaMultiSelectFieldName,
+                    'type' => CustomFieldTypes::SELECT,
+                    'config' => [
+                        'entity' => 'media',
+                        'componentName' => 'sw-entity-multi-id-select',
+                        'label' => [
+                            'en-GB' => $mediaMultiSelectFieldName,
+                        ],
+                        'customFieldType' => 'select',
+                        'customFieldPosition' => 3,
+                    ],
+                ],
+            ]
+        );
+
+        $connection = static::getContainer()->get(Connection::class);
+
+        $invalidMediaFieldName = 'custom-image-delivery';
+        $invalidMediaSelectFieldName = 'custom.image.delivery';
+        $invalidMediaMultiSelectFieldName = 'custom-image.multi-select';
+
+        $connection->update('custom_field', ['name' => $invalidMediaFieldName], ['name' => $mediaFieldName]);
+        $connection->update('custom_field', ['name' => $invalidMediaSelectFieldName], ['name' => $mediaSelectFieldName]);
+        $connection->update('custom_field', ['name' => $invalidMediaMultiSelectFieldName], ['name' => $mediaMultiSelectFieldName]);
+
+        $categoryId = Uuid::randomHex();
+        $category = new CategoryBuilder($ids, 'Special category');
+
+        static::getContainer()->get('category.repository')->create([[
+            'id' => $categoryId,
+            ...$category->build(),
+        ]], Context::createDefaultContext());
+        $connection->update(
+            'category_translation',
+            [
+                'custom_fields' => json_encode([
+                    $invalidMediaFieldName => $ids->get('media-1'),
+                    $invalidMediaSelectFieldName => $ids->get('media-2'),
+                    $invalidMediaMultiSelectFieldName => [$ids->get('media-2'), $ids->get('media-3')],
+                ], \JSON_THROW_ON_ERROR),
+            ],
+            [
+                'category_id' => Uuid::fromHexToBytes($categoryId),
+                'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+            ]
+        );
+
+        $event = new UnusedMediaSearchEvent($mediaIds, Context::createDefaultContext());
+        $listener = new CustomFieldsUnusedMediaSubscriber(
+            $connection,
+            static::getContainer()->get(DefinitionInstanceRegistry::class)
+        );
+        $listener->removeUsedMedia($event);
+
+        static::assertEmpty($event->getUnusedIds());
     }
 
     private function createMedia(int $num, ?int $start = null): IdsCollection

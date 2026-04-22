@@ -45,6 +45,16 @@ class DocumentFileDefinition extends EntityDefinition
         return DocumentFileEntity::class;
     }
 
+    public function since(): string
+    {
+        return '6.7.9.0';
+    }
+
+    protected function defaultFields(): array
+    {
+        return [];
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

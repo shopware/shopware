@@ -111,13 +111,13 @@ class DocumentV2Exception extends HttpException
         );
     }
 
-    public static function documentNotPersisted(string $documentId): self
+    public static function documentNotPersisted(string $documentNumber): self
     {
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::DOCUMENT_NOT_PERSISTED,
-            'Document with id "{{ documentId }}" is not persisted.',
-            ['documentId' => $documentId],
+            'Document with number "{{ documentNumber }}" was not persisted.',
+            ['documentNumber' => $documentNumber],
         );
     }
 

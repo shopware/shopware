@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\DocumentV2\Generation;
 
-use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeCollection;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -28,11 +29,12 @@ final readonly class DocumentEntityPersister
     /**
      * @param EntityRepository<DocumentCollection> $documentRepository
      * @param EntityRepository<DocumentFileCollection> $documentFileRepository
+     * @param EntityRepository<DocumentTypeCollection> $documentTypeRepository
      */
     public function __construct(
         private EntityRepository $documentRepository,
         private EntityRepository $documentFileRepository,
-        private Connection $connection,
+        private EntityRepository $documentTypeRepository,
     ) {
     }
 
@@ -44,14 +46,15 @@ final readonly class DocumentEntityPersister
     public function persist(DocumentGenerationContext $generationContext, RenderInput $input, array $files): DocumentEntity
     {
         $documentId = Uuid::randomHex();
+        $documentNumber = $input->getDocumentNumber();
 
         $this->documentRepository->create([
             [
                 'id' => $documentId,
                 'orderId' => $generationContext->getOrderId(),
                 'orderVersionId' => $generationContext->getOrderVersionId(),
-                'documentTypeId' => $this->getDocumentTypeId($generationContext->getDocumentType()),
-                'documentNumber' => $input->getDocumentNumber(),
+                'documentTypeId' => $this->getDocumentTypeId($generationContext),
+                'documentNumber' => $documentNumber,
                 'deepLinkCode' => Random::getAlphanumericString(32),
                 'config' => [],
             ],
@@ -76,7 +79,7 @@ final readonly class DocumentEntityPersister
         )->first();
 
         if (!$document instanceof DocumentEntity) {
-            throw DocumentV2Exception::documentNotPersisted($documentId);
+            throw DocumentV2Exception::documentNotPersisted($documentNumber);
         }
 
         return $document;
@@ -85,14 +88,18 @@ final readonly class DocumentEntityPersister
     /**
      * @throws DocumentV2Exception
      */
-    private function getDocumentTypeId(string $documentType): string
+    private function getDocumentTypeId(DocumentGenerationContext $generationContext): string
     {
-        $documentTypeId = $this->connection->fetchOne(
-            'SELECT LOWER(HEX(id)) as id FROM document_type WHERE technical_name = :technicalName',
-            ['technicalName' => $documentType],
-        );
+        $documentType = $generationContext->getDocumentType();
+        $context = $generationContext->getContext();
 
-        if (!\is_string($documentTypeId) || $documentTypeId === '') {
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('technicalName', $documentType))
+            ->setLimit(1);
+
+        $documentTypeId = $this->documentTypeRepository->searchIds($criteria, $context)->firstId();
+
+        if ($documentTypeId === null || $documentTypeId === '') {
             throw DocumentV2Exception::documentTypeNotFound($documentType);
         }
 

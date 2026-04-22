@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\DependencyInjection;
 
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileDefinition;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentNumberGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentDependencyResolver;
@@ -12,7 +11,6 @@ use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
@@ -55,7 +53,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('document.repository'),
             service('document_file.repository'),
-            service(Connection::class),
+            service('document_type.repository'),
         ]);
 
     $services->set(DocumentGenerator::class)
@@ -65,7 +63,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DocumentNumberGenerator::class),
             service(DocumentEntityPersister::class),
             service(DocumentDependencyResolver::class),
-            service(EventDispatcher::class),
+            service('event_dispatcher'),
             service('order.repository'),
         ]);
 };

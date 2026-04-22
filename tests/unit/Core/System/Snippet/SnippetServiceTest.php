@@ -396,10 +396,11 @@ class SnippetServiceTest extends TestCase
             ],
         ];
 
-        yield 'es-AR iso loads exact locale only' => [
+        yield 'es-AR iso loads exact locale and bare language as base' => [
             'iso' => 'es-AR',
             'expectedSnippets' => [
                 'title' => 'Country es-AR',
+                'baseOnly' => 'Agnostic ES',
             ],
         ];
 
@@ -410,9 +411,12 @@ class SnippetServiceTest extends TestCase
             ],
         ];
 
-        yield 'unknown regional variant returns nothing when only bare language exists' => [
+        yield 'unknown regional variant falls back to agnostic language' => [
             'iso' => 'es-EM',
-            'expectedSnippets' => [],
+            'expectedSnippets' => [
+                'title' => 'Agnostic ES',
+                'baseOnly' => 'Agnostic ES',
+            ],
         ];
     }
 

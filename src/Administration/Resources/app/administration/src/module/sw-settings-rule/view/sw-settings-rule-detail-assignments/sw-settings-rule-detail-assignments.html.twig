@@ -7,7 +7,7 @@
         class="sw-settings-rule-detail-assignments__card"
         position-identifier="sw-settings-rule-detail-assignments-entity"
         :class="`sw-settings-rule-detail-assignments__card-${entity.id}`"
-        :title="$tc(entity.label)"
+        :title="$t(entity.label)"
     >
         <template #toolbar>
             {% block sw_settings_rule_detail_assignments_toolbar %}
@@ -29,7 +29,7 @@
                         variant="primary"
                         @click="onOpenAddModal(entity)"
                     >
-                        {{ $tc('sw-settings-rule.detail.buttonAddAssignment') }}
+                        {{ $t('sw-settings-rule.detail.buttonAddAssignment') }}
                     </mt-button>
                     {% endblock %}
                 </template>
@@ -91,7 +91,7 @@
                     {% block sw_settings_rule_detail_assignments_entity_listing_actions %}
                     {% block sw_settings_rule_detail_assignments_entity_listing_view_action %}
                     <sw-context-menu-item :router-link="getRouterLink(entity, item)">
-                        {{ $tc('global.default.view') }}
+                        {{ $t('global.default.view') }}
                     </sw-context-menu-item>
                     {% endblock %}
                     {% block sw_settings_rule_detail_assignments_entity_listing_delete_action %}
@@ -100,14 +100,14 @@
                         variant="danger"
                         @click="onOpenDeleteModal(entity, item)"
                     >
-                        {{ $tc('global.default.remove') }}
+                        {{ $t('global.default.remove') }}
                     </sw-context-menu-item>
                     {% endblock %}
                     {% endblock %}
                 </template>
 
                 <template #bulk-modal-delete-confirm-text="{ selectionCount }">
-                    {{ $tc('sw-settings-rule.detail.textModalBulkDelete', { count: selectionCount }, selectionCount) }}
+                    {{ $t('sw-settings-rule.detail.textModalBulkDelete', { count: selectionCount }, selectionCount) }}
                 </template>
 
                 <template #bulk-modal-delete-items="{ isBulkLoading, deleteItems }">
@@ -117,7 +117,7 @@
                         :is-loading="isBulkLoading"
                         @click="deleteItems"
                     >
-                        {{ $tc('global.default.remove') }}
+                        {{ $t('global.default.remove') }}
                     </mt-button>
                 </template>
             </sw-settings-rule-assignment-listing>
@@ -128,7 +128,7 @@
                 class="sw-settings-rule-detail-assignments__entity-empty-state"
                 :class="`sw-settings-rule-detail-assignments__entity-empty-state-${entity.id}`"
                 :icon="$route?.meta?.$module?.icon"
-                :headline="$tc('sw-settings-rule.detail.hasNoAssociations')"
+                :headline="$t('sw-settings-rule.detail.hasNoAssociations')"
             />
             {% endblock %}
             {% endblock %}
@@ -140,14 +140,14 @@
     <sw-modal
         v-if="deleteModal"
         class="sw-settings-rule-detail-assignments__delete-modal"
-        :title="$tc('sw-settings-rule.detail.titleModalDelete')"
+        :title="$t('sw-settings-rule.detail.titleModalDelete')"
         variant="small"
         @modal-close="onCloseDeleteModal"
     >
 
         {% block sw_settings_rule_detail_assignments_delete_modal_text %}
         <p class="sw-settings-rule-detail-assignments__delete-text">
-            {{ $tc('sw-settings-rule.detail.textModalDelete') }}
+            {{ $t('sw-settings-rule.detail.textModalDelete') }}
         </p>
         {% endblock %}
 
@@ -161,7 +161,7 @@
                 variant="secondary"
                 @click="onCloseDeleteModal"
             >
-                {{ $tc('global.default.cancel') }}
+                {{ $t('global.default.cancel') }}
             </mt-button>
             {% endblock %}
 
@@ -173,7 +173,7 @@
                 variant="critical"
                 @click="onDelete"
             >
-                {{ $tc('global.default.remove') }}
+                {{ $t('global.default.remove') }}
             </mt-button>
             {% endblock %}
             {% endblock %}

@@ -3,8 +3,8 @@
         v-if="!isProductExportChannel"
         :disabled="isLoading"
         :route="{ name: 'sw.sales.channel.detail.theme', params: { id: $route.params.id } }"
-        :title="$tc('sw-sales-channel.detail.tabTheme')"
+        :title="$t('sw-sales-channel.detail.tabTheme')"
     >
-        {{ $tc('sw-sales-channel.detail.tabTheme') }}
+        {{ $t('sw-sales-channel.detail.tabTheme') }}
     </sw-tabs-item>
 {% endblock %}

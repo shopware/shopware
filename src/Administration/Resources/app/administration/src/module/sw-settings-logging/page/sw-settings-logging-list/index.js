@@ -116,7 +116,7 @@ export default {
                 })
             ];
 
-            return this.$tc(`sw-settings-logging.list.level${stringLevel}`);
+            return this.$t(`sw-settings-logging.list.level${stringLevel}`);
         },
 
         getLogColumns() {

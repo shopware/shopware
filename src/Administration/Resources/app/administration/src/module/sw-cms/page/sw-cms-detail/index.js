@@ -193,7 +193,7 @@ export default {
         tooltipSave() {
             if (!this.acl.can('cms.editor')) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     disabled: this.acl.can('cms.editor'),
                     showOnDisabledElements: true,
                 };
@@ -209,10 +209,10 @@ export default {
 
         addBlockTitle() {
             if (!this.isSystemDefaultLanguage) {
-                return this.$tc('sw-cms.general.disabledAddingBlocksToolTip');
+                return this.$t('sw-cms.general.disabledAddingBlocksToolTip');
             }
 
-            return this.$tc('sw-cms.detail.sidebar.titleBlockOverview');
+            return this.$t('sw-cms.detail.sidebar.titleBlockOverview');
         },
 
         pageHasSections() {
@@ -667,7 +667,7 @@ export default {
 
             if (!this.pageIsValid()) {
                 this.createNotificationError({
-                    message: this.$tc('sw-cms.detail.notification.pageInvalid'),
+                    message: this.$t('sw-cms.detail.notification.pageInvalid'),
                 });
 
                 return Promise.reject();
@@ -782,7 +782,7 @@ export default {
 
             this.addError({
                 property: 'name',
-                message: this.$tc('sw-cms.detail.notification.messageMissingFields'),
+                message: this.$t('sw-cms.detail.notification.messageMissingFields'),
             });
 
             return false;
@@ -807,7 +807,7 @@ export default {
             this.addError({
                 property: 'blocks',
                 code: 'listingBlockNotFound',
-                message: this.$tc('sw-cms.detail.notification.messageMissingProductListing'),
+                message: this.$t('sw-cms.detail.notification.messageMissingProductListing'),
             });
             this.cmsBlocks['product-listing'].hidden = false;
 
@@ -822,7 +822,7 @@ export default {
             this.addError({
                 property: 'sections',
                 code: 'noSectionsFound',
-                message: this.$tc('sw-cms.detail.notification.messageMissingSections'),
+                message: this.$t('sw-cms.detail.notification.messageMissingSections'),
             });
 
             return false;
@@ -837,22 +837,22 @@ export default {
             if (this.page.type === CMS.PAGE_TYPES.PRODUCT_DETAIL) {
                 CMS.UNIQUE_SLOTS.forEach((index) => {
                     if (uniqueSlotCount?.[index]?.count > 1) {
-                        uniqueSlotCount[index].label = this.$tc(`sw-cms.elements.${index}.label`);
+                        uniqueSlotCount[index].label = this.$t(`sw-cms.elements.${index}.label`);
                         affectedErrorElements.push({
                             ...uniqueSlotCount[index],
                         });
 
                         valid = false;
                     } else if (!uniqueSlotCount?.[index]) {
-                        affectedWarningElements.push(this.$tc(`sw-cms.elements.${index}.label`));
+                        affectedWarningElements.push(this.$t(`sw-cms.elements.${index}.label`));
                     }
                 });
 
                 if (affectedErrorElements.length > 0) {
-                    const uniqueSlotString = CMS.UNIQUE_SLOTS.map((slot) => this.$tc(`sw-cms.elements.${slot}.label`)).join(
+                    const uniqueSlotString = CMS.UNIQUE_SLOTS.map((slot) => this.$t(`sw-cms.elements.${slot}.label`)).join(
                         ', ',
                     );
-                    const message = this.$tc(
+                    const message = this.$t(
                         'sw-cms.detail.notification.messageRedundantElements',
                         {
                             names: uniqueSlotString,
@@ -879,7 +879,7 @@ export default {
                 this.addError({
                     property: 'slotConfig',
                     code: 'requiredConfigMissing',
-                    message: this.$tc('sw-cms.detail.notification.messageMissingBlockFields'),
+                    message: this.$t('sw-cms.detail.notification.messageMissingBlockFields'),
                     payload: {
                         elements: requiredMissingSlotConfigs,
                     },

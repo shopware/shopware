@@ -5,7 +5,7 @@
     <template #search-bar>
         <sw-search-bar
             initial-search-type="promotion"
-            :placeholder="$tc('sw-promotion-v2.list.placeholderSearchBar')"
+            :placeholder="$t('sw-promotion-v2.list.placeholderSearchBar')"
             :initial-search="term"
             @search="onSearch"
         />
@@ -19,7 +19,7 @@
         <h2>
 
             {% block sw_promotion_v2_list_smart_bar_header_title_text %}
-            {{ $tc('sw-promotion-v2.list.textTitle') }}
+            {{ $t('sw-promotion-v2.list.textTitle') }}
             {% endblock %}
 
             {% block sw_promotion_v2_list_smart_bar_header_amount %}
@@ -49,7 +49,7 @@
             size="default"
             @click="$router.push({ name: 'sw.promotion.v2.create' })"
         >
-            {{ $tc('sw-promotion-v2.list.buttonAddPromotion') }}
+            {{ $t('sw-promotion-v2.list.buttonAddPromotion') }}
         </mt-button>
         {% endblock %}
 
@@ -143,7 +143,7 @@
                         :disabled="!acl.can('promotion.creator')"
                         @click="onDuplicatePromotion(item)"
                     >
-                        {{ $tc('global.default.duplicate') }}
+                        {{ $t('global.default.duplicate') }}
                     </sw-context-menu-item>
                     {% endblock %}
                 </template>
@@ -156,7 +156,7 @@
                         :disabled="(item && item.orderCount > 0) || !acl.can('promotion.deleter') || undefined"
                         @click="showDelete(item.id)"
                     >
-                        {{ $tc('global.default.delete') }}
+                        {{ $t('global.default.delete') }}
                     </sw-context-menu-item>
                 </template>
                 {% endblock %}
@@ -175,7 +175,7 @@
             {% block sw_promotion_v2_list_sidebar_refresh %}
             <sw-sidebar-item
                 icon="regular-undo"
-                :title="$tc('sw-promotion-v2.list.titleSidebarItemRefresh')"
+                :title="$t('sw-promotion-v2.list.titleSidebarItemRefresh')"
                 @click="onRefresh"
             />
             {% endblock %}

@@ -241,7 +241,7 @@ export default {
 
         buttonFileUploadLabel() {
             if (this.buttonLabel === '') {
-                return this.$tc('global.sw-media-upload-v2.buttonFileUpload');
+                return this.$t('global.sw-media-upload-v2.buttonFileUpload');
             }
 
             return this.buttonLabel;
@@ -425,8 +425,8 @@ export default {
                 fileInfo = fileReader.getNameAndExtensionFromUrl(url);
             } catch (_error) {
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
-                    message: this.$tc('global.sw-media-upload-v2.notification.invalidUrl.message'),
+                    title: this.$t('global.default.error'),
+                    message: this.$t('global.sw-media-upload-v2.notification.invalidUrl.message'),
                 });
 
                 return;
@@ -545,7 +545,7 @@ export default {
             }
 
             this.createNotificationError({
-                message: this.$tc(
+                message: this.$t(
                     'global.sw-media-upload-v2.notification.invalidFileSize.message',
                     {
                         name: file.name || file.fileName,
@@ -584,7 +584,7 @@ export default {
             }
 
             this.createNotificationError({
-                message: this.$tc(
+                message: this.$t(
                     'global.sw-media-upload-v2.notification.invalidFileType.message',
                     {
                         name: file.name,

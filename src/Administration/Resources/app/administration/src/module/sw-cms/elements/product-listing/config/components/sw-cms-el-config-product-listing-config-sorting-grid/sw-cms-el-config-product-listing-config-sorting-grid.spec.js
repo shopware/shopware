@@ -85,7 +85,7 @@ async function createWrapper(productSortings = [], defaultSorting = {}) {
                 },
             },
             mocks: {
-                $tc: (param) => {
+                $t: (param) => {
                     if (snippets[param]) {
                         return snippets[param];
                     }

@@ -68,7 +68,7 @@ export default {
             return this.operators.map(({ identifier, label }) => {
                 return {
                     identifier,
-                    label: this.plural ? this.$tc(label, 2) : this.$tc(label),
+                    label: this.plural ? this.$t(label, 2) : this.$t(label),
                 };
             });
         },

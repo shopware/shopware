@@ -23,7 +23,7 @@ async function createWrapper(privileges = [], isNew = true, currentCustomField =
             global: {
                 renderStubDefaultSlot: true,
                 mocks: {
-                    $tc: () => {
+                    $t: () => {
                         return 'foo';
                     },
                     $i18n: {

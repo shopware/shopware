@@ -18,6 +18,15 @@ class CsvReaderTest extends TestCase
 {
     private const BOM_UTF8 = "\xEF\xBB\xBF";
 
+    private const NON_SEEKABLE_STREAM = 'non-seekable-stream';
+
+    public static function setUpBeforeClass(): void
+    {
+        if (!\in_array(self::NON_SEEKABLE_STREAM, stream_get_wrappers(), true)) {
+            stream_wrapper_register(self::NON_SEEKABLE_STREAM, NonSeekableStreamWrapper::class);
+        }
+    }
+
     public function testSimpleCsv(): void
     {
         $content = implode(\PHP_EOL, [
@@ -153,6 +162,48 @@ class CsvReaderTest extends TestCase
         static::assertSame(['foo' => self::BOM_UTF8 . 'asdf', 'bar' => 'zxcv'], $result[1]);
     }
 
+    public function testReadsNonSeekableStream(): void
+    {
+        $content = self::BOM_UTF8 . 'foo;bar' . \PHP_EOL;
+        $content .= '1;2' . \PHP_EOL;
+        $content .= '"asdf";"zxcv"' . \PHP_EOL;
+
+        $reader = new CsvReader();
+        $resource = $this->openNonSeekableStream($content);
+        $result = $this->getAll($reader->read(new Config([], [], []), $resource, 0));
+
+        static::assertCount(2, $result);
+        static::assertSame(['foo' => '1', 'bar' => '2'], $result[0]);
+        static::assertSame(['foo' => 'asdf', 'bar' => 'zxcv'], $result[1]);
+    }
+
+    public function testIncrementalReadOnNonSeekableStream(): void
+    {
+        $content = 'foo;bar' . \PHP_EOL;
+        $content .= '"value one foo";"value one bar"' . \PHP_EOL;
+        $content .= '"value two foo";"value two bar"' . \PHP_EOL;
+        $content .= '100;200' . \PHP_EOL;
+
+        $reader = new CsvReader();
+        $resource = $this->openNonSeekableStream($content);
+        $record = $this->getFirst($reader->read(new Config([], [], []), $resource, 0));
+        static::assertSame(['foo' => 'value one foo', 'bar' => 'value one bar'], $record);
+
+        $offset = $reader->getOffset();
+
+        $reader = new CsvReader();
+        $resource = $this->openNonSeekableStream($content);
+        $record = $this->getFirst($reader->read(new Config([], [], []), $resource, $offset));
+        static::assertSame(['foo' => 'value two foo', 'bar' => 'value two bar'], $record);
+
+        $offset = $reader->getOffset();
+
+        $reader = new CsvReader();
+        $resource = $this->openNonSeekableStream($content);
+        $record = $this->getFirst($reader->read(new Config([], [], []), $resource, $offset));
+        static::assertSame(['foo' => '100', 'bar' => '200'], $record);
+    }
+
     /**
      * @param iterable<array<string>> $iterable
      *
@@ -181,5 +232,66 @@ class CsvReaderTest extends TestCase
         }
 
         return null;
+    }
+
+    /**
+     * @return resource
+     */
+    private function openNonSeekableStream(string $content)
+    {
+        NonSeekableStreamWrapper::$content = $content;
+
+        $resource = fopen(self::NON_SEEKABLE_STREAM . '://csv', 'r');
+        static::assertIsResource($resource);
+
+        return $resource;
+    }
+}
+
+/**
+ * @internal
+ */
+final class NonSeekableStreamWrapper
+{
+    public static string $content = '';
+
+    private int $position = 0;
+
+    public function stream_open(string $path, string $mode, int $options, ?string &$openedPath): bool
+    {
+        $this->position = 0;
+
+        return true;
+    }
+
+    public function stream_read(int $count): string
+    {
+        $chunk = substr(self::$content, $this->position, $count);
+        $this->position += \strlen($chunk);
+
+        return $chunk;
+    }
+
+    public function stream_eof(): bool
+    {
+        return $this->position >= \strlen(self::$content);
+    }
+
+    public function stream_tell(): int
+    {
+        return $this->position;
+    }
+
+    public function stream_seek(int $offset, int $whence = \SEEK_SET): bool
+    {
+        return false;
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public function stream_stat(): array
+    {
+        return [];
     }
 }

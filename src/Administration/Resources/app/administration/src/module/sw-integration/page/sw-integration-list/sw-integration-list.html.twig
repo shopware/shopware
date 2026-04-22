@@ -5,12 +5,12 @@
         {% block sw_integration_list_smart_bar_header_title %}
         <h2>
             {% block sw_integration_list_smart_bar_header_title_text %}
-            {{ $tc('sw-settings.index.title') }}
+            {{ $t('sw-settings.index.title') }}
             <mt-icon
                 name="regular-chevron-right-xs"
                 size="12px"
             />
-            {{ $tc('sw-integration.general.headlineIntegrations') }}
+            {{ $t('sw-integration.general.headlineIntegrations') }}
             {% endblock %}
         </h2>
         {% endblock %}
@@ -21,7 +21,7 @@
         {% block sw_integration_list_smart_bar_actions %}
         <mt-button
             v-tooltip.bottom="{
-                message: $tc('sw-privileges.tooltip.warning'),
+                message: $t('sw-privileges.tooltip.warning'),
                 disabled: acl.can('integration.creator'),
                 showOnDisabledElements: true
             }"
@@ -31,7 +31,7 @@
             size="default"
             @click="onCreateIntegration"
         >
-            {{ $tc('sw-integration.general.buttonCreateIntegration') }}
+            {{ $t('sw-integration.general.buttonCreateIntegration') }}
         </mt-button>
         {% endblock %}
     </template>
@@ -46,9 +46,9 @@
                 position-identifier="sw-integration-list-introduction"
             >
                 <h3 class="sw-integration-list__welcome-headline">
-                    {{ $tc('sw-integration.general.heroHeadlineIntegrations') }}
+                    {{ $t('sw-integration.general.heroHeadlineIntegrations') }}
                 </h3>
-                <p>{{ $tc('sw-integration.general.heroDescriptionIntegrations') }}</p>
+                <p>{{ $t('sw-integration.general.heroDescriptionIntegrations') }}</p>
             </mt-card>
             {% endblock %}
 
@@ -65,7 +65,7 @@
                     size="550px"
                     class="sw-integration-list__detail"
                     :is-loading="isModalLoading"
-                    :title="showSecretAccessKey ? $tc('sw-integration.detail.detailModalTitle') : $tc('sw-integration.detail.detailModalTitleEdit') + ' ' + currentIntegration.label"
+                    :title="showSecretAccessKey ? $t('sw-integration.detail.detailModalTitle') : $t('sw-integration.detail.detailModalTitleEdit') + ' ' + currentIntegration.label"
                     @modal-close="onCloseDetailModal"
                 >
                     {% block sw_integration_list_detail_modal_inner %}
@@ -78,7 +78,7 @@
                         <mt-text-field
                             v-model="currentIntegration.label"
                             name="sw-field--currentIntegration-label"
-                            :label="$tc('sw-integration.detail.labelFieldLabel')"
+                            :label="$t('sw-integration.detail.labelFieldLabel')"
                             :disabled="!acl.can('integration.editor')"
                         />
 
@@ -87,7 +87,7 @@
                             v-model="currentIntegration.admin"
                             name="sw-field--currentIntegration-admin"
                             class="sw-settings-user-detail__grid-is-admin"
-                            :label="$tc('sw-users-permissions.users.user-detail.labelAdministrator')"
+                            :label="$t('sw-users-permissions.users.user-detail.labelAdministrator')"
                             :disabled="!acl.can('admin')"
                             bordered
                         />
@@ -100,12 +100,12 @@
                         v-model:entity-collection="currentIntegration.aclRoles"
                         v-tooltip="{
                             showDelay: 300,
-                            message: $tc('sw-users-permissions.users.user-detail.disabledRoleSelectWarning'),
+                            message: $t('sw-users-permissions.users.user-detail.disabledRoleSelectWarning'),
                             disabled: !currentIntegration.admin || !acl.can('integration.editor')
                         }"
                         name="sw-field--currentIntegration-aclRoles"
                         class="sw-settings-user-detail__grid-aclRoles"
-                        :label="$tc('sw-users-permissions.users.user-detail.labelRoles')"
+                        :label="$t('sw-users-permissions.users.user-detail.labelRoles')"
                         :disabled="currentIntegration.admin || !acl.can('integration.editor')"
                         label-property="name"
                     />
@@ -116,7 +116,7 @@
                     <mt-text-field
                         v-model="currentIntegration.accessKey"
                         name="sw-field--currentIntegration-accessKey"
-                        :label="$tc('sw-integration.detail.idFieldLabel')"
+                        :label="$t('sw-integration.detail.idFieldLabel')"
                         :disabled="true"
                         :copyable="true"
                         :copyable-tooltip="true"
@@ -130,7 +130,7 @@
                             v-if="secretAccessKeyFieldTypeIsText"
                             v-model="currentIntegration.secretAccessKey"
                             name="sw-field--currentIntegration-secretAccessKey"
-                            :label="$tc('sw-integration.detail.secretFieldLabel')"
+                            :label="$t('sw-integration.detail.secretFieldLabel')"
                             :disabled="true"
                             :password-toggle-able="false"
                             :copyable="showSecretAccessKey"
@@ -141,7 +141,7 @@
                             v-if="secretAccessKeyFieldTypeIsPassword"
                             v-model="currentIntegration.secretAccessKey"
                             name="sw-field--currentIntegration-secretAccessKey"
-                            :label="$tc('sw-integration.detail.secretFieldLabel')"
+                            :label="$t('sw-integration.detail.secretFieldLabel')"
                             :disabled="true"
                             :password-toggle-able="false"
                             :copyable="showSecretAccessKey"
@@ -156,7 +156,7 @@
                         :block="true"
                         @click="onGenerateKeys"
                     >
-                        {{ $tc('sw-integration.detail.buttonCreateNewApiKeys') }}
+                        {{ $t('sw-integration.detail.buttonCreateNewApiKeys') }}
                     </mt-button>
 
                     {% block sw_integration_list_detail_modal_inner_field_helpText %}
@@ -164,7 +164,7 @@
                         v-if="!showSecretAccessKey"
                         class="sw-integration-list__help-text"
                     >
-                        {{ $tc('sw-integration.detail.hintCreateNewApiKeys') }}
+                        {{ $t('sw-integration.detail.hintCreateNewApiKeys') }}
                     </div>
                     {% endblock %}
                     {% endblock %}
@@ -175,7 +175,7 @@
                         variant="attention"
                         class="sw-integration-list__secret-help-text-alert"
                     >
-                        {{ $tc('sw-integration.detail.secretHelpText') }}
+                        {{ $t('sw-integration.detail.secretHelpText') }}
                     </mt-banner>
                     {% endblock %}
 
@@ -188,7 +188,7 @@
                             variant="secondary"
                             @click="onCloseDetailModal"
                         >
-                            {{ $tc('global.default.cancel') }}
+                            {{ $t('global.default.cancel') }}
                         </mt-button>
                         {% endblock %}
 
@@ -200,7 +200,7 @@
                             variant="primary"
                             @click="onSaveIntegration"
                         >
-                            {{ showSecretAccessKey ? $tc('sw-integration.detail.buttonApply') : $tc('sw-integration.detail.buttonApplyEdit') }}
+                            {{ showSecretAccessKey ? $t('sw-integration.detail.buttonApply') : $t('sw-integration.detail.buttonApplyEdit') }}
                         </mt-button>
                         {% endblock %}
                     </template>
@@ -250,7 +250,7 @@
                             caps
                             light
                         >
-                            {{ $tc('sw-users-permissions.users.user-detail.labelAdministrator') }}
+                            {{ $t('sw-users-permissions.users.user-detail.labelAdministrator') }}
                         </sw-label>
 
                         <span v-if="!item.admin && item.aclRoles && item.aclRoles.length">
@@ -275,7 +275,7 @@
                             :disabled="!acl.can('integration.editor')"
                             @click="onShowDetailModal(item)"
                         >
-                            {{ $tc('sw-integration.list.contextMenuEdit') }}
+                            {{ $t('sw-integration.list.contextMenuEdit') }}
                         </sw-context-menu-item>
                         {% endblock %}
 
@@ -286,7 +286,7 @@
                             :disabled="!acl.can('integration.deleter')"
                             @click="showDeleteModal = item.id"
                         >
-                            {{ $tc('sw-integration.list.contextMenuDelete') }}
+                            {{ $t('sw-integration.list.contextMenuDelete') }}
                         </sw-context-menu-item>
                         {% endblock %}
                     </template>
@@ -295,12 +295,12 @@
                         {% block sw_integration_list_grid_inner_slot_delete_modal %}
                         <sw-modal
                             v-if="showDeleteModal === item.id"
-                            :title="$tc('sw-integration.detail.deleteModalTitle')"
+                            :title="$t('sw-integration.detail.deleteModalTitle')"
                             @modal-close="onCloseDeleteModal"
                         >
                             {% block sw_integration_list_grid_inner_slot_delete_modal_confirmtext %}
                             <p>
-                                {{ $tc('sw-integration.detail.confirmDelete') }}
+                                {{ $t('sw-integration.detail.confirmDelete') }}
                                 <strong>"{{ item.label }}"</strong>
                             </p>
                             {% endblock %}
@@ -312,7 +312,7 @@
                                     variant="secondary"
                                     @click="onCloseDeleteModal"
                                 >
-                                    {{ $tc('global.default.cancel') }}
+                                    {{ $t('global.default.cancel') }}
                                 </mt-button>
 
                                 <mt-button
@@ -320,7 +320,7 @@
                                     variant="primary"
                                     @click="onConfirmDelete(item.id)"
                                 >
-                                    {{ $tc('sw-integration.detail.buttonDelete') }}
+                                    {{ $t('sw-integration.detail.buttonDelete') }}
                                 </mt-button>
                             </template>
                             {% endblock %}
@@ -334,8 +334,8 @@
                 <mt-empty-state
                     v-else
                     :icon="$route.meta.$module.icon"
-                    :headline="$tc('sw-integration.list.messageEmpty')"
-                    :description="$tc('sw-integration.list.sublineEmpty')"
+                    :headline="$t('sw-integration.list.messageEmpty')"
+                    :description="$t('sw-integration.list.sublineEmpty')"
                 />
                 {% endblock %}
                 {% endblock %}

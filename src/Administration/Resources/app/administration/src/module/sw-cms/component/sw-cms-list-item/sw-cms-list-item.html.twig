@@ -23,18 +23,18 @@
             <span
                 v-if="page.type === 'product_list'"
                 class="sw-cms-list-item__is-default"
-            >{{ $tc('sw-cms.components.cmsListItem.defaultLayoutProductList') }}</span>
+            >{{ $t('sw-cms.components.cmsListItem.defaultLayoutProductList') }}</span>
             <span
                 v-else-if="page.type === 'product_detail'"
                 class="sw-cms-list-item__is-default"
-            >{{ $tc('sw-cms.components.cmsListItem.defaultLayoutProductDetail') }}</span>
+            >{{ $t('sw-cms.components.cmsListItem.defaultLayoutProductDetail') }}</span>
         </div>
     </div>
     <div
         v-else
         class="sw-cms-list-item__image is--empty"
     >
-        {{ $tc('sw-cms.components.cmsListItem.emptyText') }}
+        {{ $t('sw-cms.components.cmsListItem.emptyText') }}
     </div>
     {% endblock %}
 

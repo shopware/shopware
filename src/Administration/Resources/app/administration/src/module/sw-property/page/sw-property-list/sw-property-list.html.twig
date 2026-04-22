@@ -5,7 +5,7 @@
     <template #search-bar>
         <sw-search-bar
             initial-search-type="property"
-            :placeholder="$tc('sw-property.general.placeholderSearchBar')"
+            :placeholder="$t('sw-property.general.placeholderSearchBar')"
             @search="onSearch"
         />
     </template>
@@ -18,7 +18,7 @@
         <h2>
 
             {% block sw_property_list_smart_bar_header_title_text %}
-            {{ $tc('sw-property.list.textProperties') }}
+            {{ $t('sw-property.list.textProperties') }}
             {% endblock %}
 
             {% block sw_property_list_smart_bar_header_title_amount %}
@@ -42,7 +42,7 @@
         {% block sw_property_list_add_button %}
         <mt-button
             v-tooltip="{
-                message: $tc('sw-privileges.tooltip.warning'),
+                message: $t('sw-privileges.tooltip.warning'),
                 disabled: acl.can('property.creator'),
                 showOnDisabledElements: true
             }"
@@ -52,7 +52,7 @@
             size="default"
             @click="$router.push({ name: 'sw.property.create' })"
         >
-            {{ $tc('sw-property.list.buttonAddProperty') }}
+            {{ $t('sw-property.list.buttonAddProperty') }}
         </mt-button>
         {% endblock %}
 
@@ -160,7 +160,7 @@
                         :router-link="{ name: 'sw.property.detail', params: { id: item.id } }"
                         :disabled="!acl.can('property.editor')"
                     >
-                        {{ $tc('sw-property.list.contextMenuView') }}
+                        {{ $t('sw-property.list.contextMenuView') }}
                     </sw-context-menu-item>
                     {% endblock %}
 
@@ -171,7 +171,7 @@
                         :disabled=" !acl.can('property.deleter')"
                         @click="onDelete(item.id)"
                     >
-                        {{ $tc('sw-property.list.contextMenuDelete') }}
+                        {{ $t('sw-property.list.contextMenuDelete') }}
                     </sw-context-menu-item>
                     {% endblock %}
                 </template>
@@ -184,11 +184,11 @@
                     <sw-modal
                         v-if="showDeleteModal === item.id"
                         variant="small"
-                        :title="$tc('global.default.warning')"
+                        :title="$t('global.default.warning')"
                         @modal-close="onCloseDeleteModal"
                     >
                         <p class="sw-property-list__confirm-delete-text">
-                            {{ $tc('sw-property.list.textDeleteConfirm', { name: item.translated.name }, 0) }}
+                            {{ $t('sw-property.list.textDeleteConfirm', { name: item.translated.name }, 0) }}
                         </p>
 
                         <template #modal-footer>
@@ -197,7 +197,7 @@
                                 variant="secondary"
                                 @click="onCloseDeleteModal"
                             >
-                                {{ $tc('global.default.cancel') }}
+                                {{ $t('global.default.cancel') }}
                             </mt-button>
 
                             <mt-button
@@ -205,7 +205,7 @@
                                 size="small"
                                 @click="onConfirmDelete(item.id)"
                             >
-                                {{ $tc('sw-property.list.buttonDelete') }}
+                                {{ $t('sw-property.list.buttonDelete') }}
                             </mt-button>
                         </template>
                     </sw-modal>
@@ -224,7 +224,7 @@
             {% block sw_property_list_sidebar_refresh_item %}
             <sw-sidebar-item
                 icon="regular-undo"
-                :title="$tc('sw-property.list.titleSidebarItemRefresh')"
+                :title="$t('sw-property.list.titleSidebarItemRefresh')"
                 @click="onRefresh"
             />
             {% endblock %}

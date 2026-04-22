@@ -11,10 +11,10 @@
             v-model="address.company"
             name="sw-field--address-company"
             :required="isBusinessAccountType"
-            :label="$tc('sw-customer.addressForm.labelCompany')"
+            :label="$t('sw-customer.addressForm.labelCompany')"
             :error="disabled ? null : addressCompanyError"
             :disabled="disabled"
-            :placeholder="$tc('sw-customer.addressForm.placeholderCompany')"
+            :placeholder="$t('sw-customer.addressForm.placeholderCompany')"
         />
         {% endblock %}
 
@@ -23,10 +23,10 @@
         <mt-text-field
             v-model="address.department"
             name="sw-field--address-department"
-            :label="$tc('sw-customer.addressForm.labelDepartment')"
+            :label="$t('sw-customer.addressForm.labelDepartment')"
             :error="disabled ? null : addressDepartmentError"
             :disabled="disabled"
-            :placeholder="$tc('sw-customer.addressForm.placeholderDepartment')"
+            :placeholder="$t('sw-customer.addressForm.placeholderDepartment')"
         />
         {% endblock %}
 
@@ -37,8 +37,8 @@
             name="sw-field--address-salutationId"
             class="sw-customer-address-form__salutation-select"
             entity="salutation"
-            :label="$tc('sw-customer.addressForm.labelSalutation')"
-            :placeholder="$tc('sw-customer.addressForm.placeholderSalutation')"
+            :label="$t('sw-customer.addressForm.labelSalutation')"
+            :placeholder="$t('sw-customer.addressForm.placeholderSalutation')"
             :error="disabled ? null : addressSalutationIdError"
             :disabled="disabled"
             :criteria="salutationCriteria"
@@ -51,8 +51,8 @@
         <mt-text-field
             v-model="address.title"
             name="sw-field--address-title"
-            :label="$tc('sw-customer.addressForm.labelTitle')"
-            :placeholder="$tc('sw-customer.addressForm.placeholderTitle')"
+            :label="$t('sw-customer.addressForm.labelTitle')"
+            :placeholder="$t('sw-customer.addressForm.placeholderTitle')"
             :error="disabled ? null : addressTitleError"
             :disabled="disabled"
         />
@@ -64,8 +64,8 @@
         <mt-text-field
             v-model="address.firstName"
             name="sw-field--address-firstName"
-            :label="$tc('sw-customer.addressForm.labelFirstName')"
-            :placeholder="$tc('sw-customer.addressForm.placeholderFirstName')"
+            :label="$t('sw-customer.addressForm.labelFirstName')"
+            :placeholder="$t('sw-customer.addressForm.placeholderFirstName')"
             validation="required"
             required
             :error="disabled ? null : addressFirstNameError"
@@ -78,8 +78,8 @@
         <mt-text-field
             v-model="address.lastName"
             name="sw-field--address-lastName"
-            :label="$tc('sw-customer.addressForm.labelLastName')"
-            :placeholder="$tc('sw-customer.addressForm.placeholderLastName')"
+            :label="$t('sw-customer.addressForm.labelLastName')"
+            :placeholder="$t('sw-customer.addressForm.placeholderLastName')"
             validation="required"
             required
             :error="disabled ? null : addressLastNameError"
@@ -92,8 +92,8 @@
         <mt-text-field
             v-model="address.street"
             name="sw-field--address-street"
-            :label="$tc('sw-customer.addressForm.labelStreet')"
-            :placeholder="$tc('sw-customer.addressForm.placeholderStreet')"
+            :label="$t('sw-customer.addressForm.labelStreet')"
+            :placeholder="$t('sw-customer.addressForm.placeholderStreet')"
             validation="required"
             required
             :error="disabled ? null : addressStreetError"
@@ -106,8 +106,8 @@
         <mt-text-field
             v-model="address.additionalAddressLine1"
             name="sw-field--address-additionalAddressLine1"
-            :label="$tc('sw-customer.addressForm.labelAdditionalAddressLine1')"
-            :placeholder="$tc('sw-customer.addressForm.placeholderAdditionalAddressLine1')"
+            :label="$t('sw-customer.addressForm.labelAdditionalAddressLine1')"
+            :placeholder="$t('sw-customer.addressForm.placeholderAdditionalAddressLine1')"
             :error="disabled ? null : addressAdditionalAddressLine1Error"
             :disabled="disabled"
         />
@@ -118,8 +118,8 @@
         <mt-text-field
             v-model="address.additionalAddressLine2"
             name="sw-field--address-additionalAddressLine2"
-            :label="$tc('sw-customer.addressForm.labelAdditionalAddressLine2')"
-            :placeholder="$tc('sw-customer.addressForm.placeholderAdditionalAddressLine2')"
+            :label="$t('sw-customer.addressForm.labelAdditionalAddressLine2')"
+            :placeholder="$t('sw-customer.addressForm.placeholderAdditionalAddressLine2')"
             :error="disabled ? null : addressAdditionalAddressLine2Error"
             :disabled="disabled"
         />
@@ -131,8 +131,8 @@
         <mt-text-field
             v-model="address.zipcode"
             name="sw-field--address-zipcode"
-            :label="$tc('sw-customer.addressForm.labelZipcode')"
-            :placeholder="$tc('sw-customer.addressForm.placeholderZipcode')"
+            :label="$t('sw-customer.addressForm.labelZipcode')"
+            :placeholder="$t('sw-customer.addressForm.placeholderZipcode')"
             validation="required"
             :required="country && country.postalCodeRequired"
             :error="disabled ? null : addressZipcodeError"
@@ -145,8 +145,8 @@
         <mt-text-field
             v-model="address.city"
             name="sw-field--address-city"
-            :label="$tc('sw-customer.addressForm.labelCity')"
-            :placeholder="$tc('sw-customer.addressForm.placeholderCity')"
+            :label="$t('sw-customer.addressForm.labelCity')"
+            :placeholder="$t('sw-customer.addressForm.placeholderCity')"
             validation="required"
             required
             :error="disabled ? null : addressCityError"
@@ -162,8 +162,8 @@
             class="sw-customer-address-form__country-select"
             entity="country"
             :criteria="countryCriteria"
-            :label="$tc('sw-customer.addressForm.labelCountry')"
-            :placeholder="$tc('sw-customer.addressForm.placeholderCountry')"
+            :label="$t('sw-customer.addressForm.labelCountry')"
+            :placeholder="$t('sw-customer.addressForm.placeholderCountry')"
             validation="required"
             required
             :error="disabled ? null : addressCountryIdError"
@@ -183,8 +183,8 @@
                 class="sw-customer-address-form__state-select"
                 entity="country_state"
                 :criteria="stateCriteria"
-                :label="$tc('sw-customer.addressForm.labelState')"
-                :placeholder="$tc('sw-customer.addressForm.placeholderState')"
+                :label="$t('sw-customer.addressForm.labelState')"
+                :placeholder="$t('sw-customer.addressForm.placeholderState')"
                 :required="country && country.forceStateInRegistration"
                 :error="disabled ? null : addressCountryStateIdError"
                 :disabled="disabled"
@@ -198,8 +198,8 @@
         <mt-text-field
             v-model="address.phoneNumber"
             name="sw-field--address-phoneNumber"
-            :label="$tc('sw-customer.addressForm.labelPhoneNumber')"
-            :placeholder="$tc('sw-customer.addressForm.placeholderPhoneNumber')"
+            :label="$t('sw-customer.addressForm.labelPhoneNumber')"
+            :placeholder="$t('sw-customer.addressForm.placeholderPhoneNumber')"
             :error="disabled ? null : addressPhoneNumberError"
             :disabled="disabled"
         />

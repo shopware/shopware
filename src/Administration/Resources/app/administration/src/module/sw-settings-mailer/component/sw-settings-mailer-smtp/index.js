@@ -39,15 +39,15 @@ export default {
             return [
                 {
                     value: 'null',
-                    label: this.$tc('sw-settings-mailer.encryption.no-encryption'),
+                    label: this.$t('sw-settings-mailer.encryption.no-encryption'),
                 },
                 {
                     value: 'ssl',
-                    label: this.$tc('sw-settings-mailer.encryption.ssl'),
+                    label: this.$t('sw-settings-mailer.encryption.ssl'),
                 },
                 {
                     value: 'tls',
-                    label: this.$tc('sw-settings-mailer.encryption.tls'),
+                    label: this.$t('sw-settings-mailer.encryption.tls'),
                 },
             ];
         },

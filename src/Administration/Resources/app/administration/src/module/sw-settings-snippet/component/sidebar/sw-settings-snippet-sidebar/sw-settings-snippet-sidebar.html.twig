@@ -3,7 +3,7 @@
     {% block sw_settings_snippet_grid_sidebar_refresh %}
     <sw-sidebar-item
         icon="regular-undo"
-        :title="$tc('sw-settings-snippet.list.titleSidebarItemRefresh')"
+        :title="$t('sw-settings-snippet.list.titleSidebarItemRefresh')"
         @click="onRefresh"
     />
     {% endblock %}
@@ -12,7 +12,7 @@
     <sw-sidebar-item
         ref="filterSideBar"
         icon="regular-filter"
-        :title="$tc('sw-settings-snippet.list.titleSidebarItemFilter')"
+        :title="$t('sw-settings-snippet.list.titleSidebarItemFilter')"
         :badge="activeFilterNumber"
         @close-content="closeContent"
         @click="closeContent"
@@ -26,7 +26,7 @@
                 tabindex="0"
                 @click="resetAll"
             >
-                {{ $tc('sw-sidebar-filter-panel.resetButton') }}
+                {{ $t('sw-sidebar-filter-panel.resetButton') }}
             </a>
         </template>
 
@@ -36,7 +36,7 @@
             group="emptySnippets"
             type="small"
             :value="filterSettings?.emptySnippets"
-            :label="$tc('sw-settings-snippet.filter.showOnlyEmpty')"
+            :label="$t('sw-settings-snippet.filter.showOnlyEmpty')"
             @update:value="onChange"
         />
         {% endblock %}
@@ -47,7 +47,7 @@
             group="editedSnippets"
             type="small"
             :value="filterSettings?.editedSnippets"
-            :label="$tc('sw-settings-snippet.filter.showOnlyCustom')"
+            :label="$t('sw-settings-snippet.filter.showOnlyCustom')"
             @update:value="onChange"
         />
         {% endblock %}
@@ -58,7 +58,7 @@
             group="addedSnippets"
             type="small"
             :value="filterSettings?.addedSnippets"
-            :label="$tc('sw-settings-snippet.filter.showOnlyAdded')"
+            :label="$t('sw-settings-snippet.filter.showOnlyAdded')"
             @update:value="onChange"
         />
         {% endblock %}
@@ -66,7 +66,7 @@
         {% block sw_settings_snippet_grid_sidebar_filter_author %}
         <sw-sidebar-collapse :expand-on-loading="isExpandedAuthorFilters">
             <template #header>
-                {{ $tc('sw-settings-snippet.filter.author') }}
+                {{ $t('sw-settings-snippet.filter.author') }}
             </template>
             <template #content>
                 <div
@@ -88,7 +88,7 @@
         {% block sw_settings_snippet_grid_sidebar_filter_more %}
         <sw-sidebar-collapse :expand-on-loading="isExpandedMoreFilters">
             <template #header>
-                {{ $tc('sw-settings-snippet.filter.more') }}
+                {{ $t('sw-settings-snippet.filter.more') }}
             </template>
             <template #content>
                 <div

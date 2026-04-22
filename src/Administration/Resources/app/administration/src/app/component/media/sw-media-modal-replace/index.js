@@ -90,7 +90,7 @@ export default {
                 this.$emit('media-replace-modal-item-replaced');
             } catch {
                 this.createNotificationError({
-                    message: this.$tc('global.default.notification.unspecifiedSaveErrorMessage'),
+                    message: this.$t('global.default.notification.unspecifiedSaveErrorMessage'),
                 });
             } finally {
                 this.itemToReplace.isLoading = false;

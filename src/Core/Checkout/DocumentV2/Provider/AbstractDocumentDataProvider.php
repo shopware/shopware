@@ -15,6 +15,8 @@ use Shopware\Core\Framework\Log\Package;
  * RenderInput so multiple renderers can reuse the same prepared data.
  *
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('after-sales')]
 abstract class AbstractDocumentDataProvider

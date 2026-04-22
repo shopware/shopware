@@ -22,6 +22,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore @see \Shopware\Tests\Integration\Core\Checkout\DocumentV2\Generation\DocumentGeneratorTest
  */
 #[Package('after-sales')]
 final readonly class DocumentGenerator

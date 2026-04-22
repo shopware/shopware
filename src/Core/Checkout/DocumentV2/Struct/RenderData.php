@@ -11,6 +11,8 @@ use Shopware\Core\Framework\Log\Package;
  * typed, precomputed input instead of reaching back into the data loading layer.
  *
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('after-sales')]
 abstract readonly class RenderData

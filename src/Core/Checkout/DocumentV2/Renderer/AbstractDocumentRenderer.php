@@ -16,6 +16,8 @@ use Shopware\Core\Framework\Log\Package;
  * chained generation flows like HTML -> PDF -> embedded PDF explicit in code.
  *
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('after-sales')]
 abstract class AbstractDocumentRenderer

@@ -11,6 +11,8 @@ use Shopware\Core\Framework\Log\Package;
  * create the final persisted file artifact.
  *
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('after-sales')]
 final readonly class RenderResult

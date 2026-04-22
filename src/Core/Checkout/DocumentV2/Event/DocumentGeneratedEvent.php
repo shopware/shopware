@@ -10,6 +10,8 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('after-sales')]
 final class DocumentGeneratedEvent extends Event implements GenericEvent

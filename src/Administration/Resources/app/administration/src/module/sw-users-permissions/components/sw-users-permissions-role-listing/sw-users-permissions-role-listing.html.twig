@@ -2,7 +2,7 @@
 <mt-card
     class="sw-users-permissions-role-listing"
     position-identifier="sw-users-permissions-role-listing"
-    :title="$tc('sw-users-permissions.roles.general.cardLabel')"
+    :title="$t('sw-users-permissions.roles.general.cardLabel')"
 >
 
     {% block sw_users_permissions_role_listing_toolbar %}
@@ -29,7 +29,7 @@
                 variant="secondary"
                 @click="$router.push({ name: 'sw.users.permissions.role.detail' })"
             >
-                {{ $tc('sw-users-permissions.roles.general.labelCreateNewRole') }}
+                {{ $t('sw-users-permissions.roles.general.labelCreateNewRole') }}
             </mt-button>
             {% endblock %}
         </sw-container>
@@ -64,7 +64,7 @@
                 class="sw-users-permissions-role-listing__context-menu-edit"
                 :disabled="!acl.can('users_and_permissions.editor') || undefined"
             >
-                {{ $tc('sw-users-permissions.roles.role-grid.contextMenuEdit') }}
+                {{ $t('sw-users-permissions.roles.role-grid.contextMenuEdit') }}
             </sw-context-menu-item>
             {% endblock %}
 
@@ -75,7 +75,7 @@
                 :disabled="!acl.can('users_and_permissions.deleter') || undefined"
                 @click="onDelete(item)"
             >
-                {{ $tc('sw-users-permissions.roles.role-grid.contextMenuDelete') }}
+                {{ $t('sw-users-permissions.roles.role-grid.contextMenuDelete') }}
             </sw-context-menu-item>
             {% endblock %}
         </template>
@@ -96,13 +96,13 @@
             {% block sw_users_permissions_role_listing_grid_actions_modals_modal %}
             <sw-modal
                 v-if="isConfirmDeleteModalOpen"
-                :title="$tc('sw-users-permissions.roles.role-grid.titleModalDelete')"
+                :title="$t('sw-users-permissions.roles.role-grid.titleModalDelete')"
                 variant="small"
                 @modal-close="onCloseDeleteModal"
             >
                 {% block sw_users_permissions_role_listing_grid_actions_modals_modal_delete_text %}
                 <p class="sw-users-permissions-role-listing__confirm-delete-text">
-                    {{ $tc('sw-users-permissions.roles.role-grid.textModalDelete', { name: item.name }, 0) }}
+                    {{ $t('sw-users-permissions.roles.role-grid.textModalDelete', { name: item.name }, 0) }}
                 </p>
                 {% endblock %}
 
@@ -114,7 +114,7 @@
                         variant="secondary"
                         @click="onCloseDeleteModal"
                     >
-                        {{ $tc('global.default.cancel') }}
+                        {{ $t('global.default.cancel') }}
                     </mt-button>
                     {% endblock %}
 
@@ -125,7 +125,7 @@
                         size="small"
                         @click="onConfirmDelete(item)"
                     >
-                        {{ $tc('sw-users-permissions.roles.role-grid.labelButtonDelete') }}
+                        {{ $t('sw-users-permissions.roles.role-grid.labelButtonDelete') }}
                     </mt-button>
                     {% endblock %}
                 </template>
@@ -153,8 +153,8 @@
     <mt-empty-state
         v-else
         :icon="$route.meta.$module.icon"
-        :headline="$tc('sw-users-permissions.roles.role-grid.messageEmptyTitle')"
-        :description="$tc('sw-users-permissions.roles.role-grid.messageEmptySubline')"
+        :headline="$t('sw-users-permissions.roles.role-grid.messageEmptyTitle')"
+        :description="$t('sw-users-permissions.roles.role-grid.messageEmptySubline')"
     />
     {% endblock %}
 

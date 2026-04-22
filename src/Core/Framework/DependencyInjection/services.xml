@@ -624,12 +624,15 @@ frame-ancestors 'none';
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Util\HtmlPurifierConfigProvider"/>
+
         <service id="Shopware\Core\Framework\Util\HtmlSanitizer" public="true">
             <argument>%shopware.html_sanitizer.cache_dir%</argument>
             <argument>%shopware.html_sanitizer.cache_enabled%</argument>
             <argument>%shopware.html_sanitizer.sets%</argument>
             <argument>%shopware.html_sanitizer.fields%</argument>
             <argument>%shopware.html_sanitizer.enabled%</argument>
+            <argument type="service" id="Shopware\Core\Framework\Util\HtmlPurifierConfigProvider"/>
 
             <tag name="kernel.reset" method="reset"/>
         </service>

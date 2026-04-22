@@ -100,7 +100,7 @@ export default {
                 children: [],
                 color: '#D8DDE6',
                 icon: 'regular-ellipsis-v',
-                label: this.$tc('sw-sales-channel.general.titleMenuMoreItems'),
+                label: this.$t('sw-sales-channel.general.titleMenuMoreItems'),
                 path: 'sw.sales.channel.list',
                 position: -1, // use last position
             };

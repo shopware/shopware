@@ -24,7 +24,7 @@ export default {
 
     methods: {
         getPlaceholder(fieldType) {
-            return this.$tc(getPlaceholderSnippet(fieldType));
+            return this.$t(getPlaceholderSnippet(fieldType));
         },
     },
 };

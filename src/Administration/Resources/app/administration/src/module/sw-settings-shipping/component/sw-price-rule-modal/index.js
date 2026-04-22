@@ -9,7 +9,7 @@ export default {
 
     computed: {
         modalTitle() {
-            return this.$tc('sw-settings-shipping.shippingPriceModal.modalTitle');
+            return this.$t('sw-settings-shipping.shippingPriceModal.modalTitle');
         },
     },
 

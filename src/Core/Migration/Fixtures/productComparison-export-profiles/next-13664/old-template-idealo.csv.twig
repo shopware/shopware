@@ -22,8 +22,7 @@
 {%- endif -%}",{#- -#}
 "{{ product.productNumber }}",{#- -#}
 "{{ product.cover.media.url }}",{#- -#}
-{% set description = product.translated.description|raw %}
-"{{ (description|length > 300 ? description|slice(0,300)|preg_replace('/&(?:#\\d*|[A-Za-z0-9]+)?$/', '') ~ '...' : description)|raw }}",{#- -#}
+"{{ product.translated.description|raw|length > 300 ? product.translated.description|raw|slice(0,300) ~ '...' : product.translated.description|raw }}",{#- -#}
 "0.00",{#- Change or add your payment methods -#}
 "0.00",{#- Change or add your payment methods -#}
 "0.00"{#- Change or add your payment methods -#}

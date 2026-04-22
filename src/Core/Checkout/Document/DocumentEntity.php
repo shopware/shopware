@@ -246,7 +246,7 @@ class DocumentEntity extends Entity
     /**
      * @internal
      */
-    public function setDocumentFiles(?DocumentFileCollection $documentFiles): void
+    public function setDocumentFiles(DocumentFileCollection $documentFiles): void
     {
         $this->documentFiles = $documentFiles;
     }

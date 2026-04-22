@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Media;
 
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
 use Shopware\Core\Checkout\Document\DocumentDefinition;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
@@ -134,6 +135,7 @@ class MediaDefinition extends EntityDefinition
             (new OneToManyAssociationField('cmsPages', CmsPageDefinition::class, 'preview_media_id'))->addFlags(new RestrictDelete()),
             (new OneToManyAssociationField('documents', DocumentDefinition::class, 'document_media_file_id'))->addFlags(new RestrictDelete()),
             (new OneToManyAssociationField('a11yDocuments', DocumentDefinition::class, 'document_a11y_media_file_id'))->addFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('documentFiles', DocumentFileDefinition::class, 'media_id'))->addFlags(new RestrictDelete()),
             (new OneToManyAssociationField('appPaymentMethods', AppPaymentMethodDefinition::class, 'original_media_id', 'id'))->addFlags(new SetNullOnDelete()),
             (new OneToManyAssociationField('appShippingMethods', AppShippingMethodDefinition::class, 'original_media_id', 'id'))->addFlags(new SetNullOnDelete()),
             (new StringField('file_hash', 'fileHash'))->addFlags(new Computed()),

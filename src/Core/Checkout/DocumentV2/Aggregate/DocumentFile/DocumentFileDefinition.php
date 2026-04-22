@@ -7,7 +7,6 @@ use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -51,10 +50,10 @@ class DocumentFileDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
 
-            (new FkField('document_id', 'documentId', DocumentDefinition::class))->addFlags(new Required(), new ApiAware()),
-            (new FkField('media_id', 'mediaId', MediaDefinition::class))->addFlags(new Required(), new ApiAware()),
+            (new FkField('document_id', 'documentId', DocumentDefinition::class))->addFlags(new Required()),
+            (new FkField('media_id', 'mediaId', MediaDefinition::class))->addFlags(new Required()),
 
-            (new StringField('document_format', 'documentFormat', 255))->addFlags(new Required(), new ApiAware()),
+            (new StringField('document_format', 'documentFormat', 255))->addFlags(new Required()),
 
             new ManyToOneAssociationField('document', 'document_id', DocumentDefinition::class, 'id', false),
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', false),

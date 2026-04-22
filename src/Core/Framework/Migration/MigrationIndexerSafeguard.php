@@ -59,39 +59,33 @@ final class MigrationIndexerSafeguard
         array $tables,
         array $indexedColumnsByTable = [],
     ): array {
-        $migrations = $this->migrations();
+        // Walk migrations newest-first within each major so a registration
+        // found earlier in the pass covers every earlier-timestamp touch in
+        // the same major without needing a precomputed latest-by-major map.
+        $laterRegistrationInMajor = [];
+        $violations = [];
 
-        $latestByMajor = [];
-        foreach ($migrations as $fqcn => $source) {
-            if (!$this->registersIndexer($source, $indexer)) {
+        foreach (array_reverse($this->migrations(), true) as $fqcn => $source) {
+            $major = $this->majorFromClass($fqcn);
+
+            if ($this->registersIndexer($source, $indexer)) {
+                $laterRegistrationInMajor[$major] = true;
                 continue;
             }
-            $major = $this->majorFromClass($fqcn);
-            $latestByMajor[$major] = max($latestByMajor[$major] ?? 0, $this->timestampFromClass($fqcn));
-        }
-
-        $violations = [];
-        foreach ($migrations as $fqcn => $source) {
+            if ($laterRegistrationInMajor[$major] ?? false) {
+                continue;
+            }
             if (str_contains($source, '@no-indexer-required')) {
                 continue;
             }
             if (!$this->migrationTouchesIndexer($source, $tables, $indexedColumnsByTable)) {
                 continue;
             }
-            if ($this->registersIndexer($source, $indexer)) {
-                continue;
-            }
-
-            $major = $this->majorFromClass($fqcn);
-            $timestamp = $this->timestampFromClass($fqcn);
-            if (($latestByMajor[$major] ?? 0) > $timestamp) {
-                continue;
-            }
 
             $violations[] = $fqcn;
         }
 
-        return $violations;
+        return array_reverse($violations);
     }
 
     public function classifyViolation(string $fqcn, string $indexer): string
@@ -194,11 +188,6 @@ final class MigrationIndexerSafeguard
             }
             yield trim($m[1]) . '\\' . $file->getFilenameWithoutExtension() => $source;
         }
-    }
-
-    private function timestampFromClass(string $fqcn): int
-    {
-        return preg_match('/Migration(\d+)/', $fqcn, $m) ? (int) $m[1] : 0;
     }
 
     private function majorFromClass(string $fqcn): string

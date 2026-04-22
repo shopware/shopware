@@ -60,12 +60,7 @@ class Feature
 
         try {
             self::$registeredFeatures = [];
-            foreach ($_SERVER as $key => $value) {
-                if (str_starts_with($key, 'v6.') || str_starts_with($key, 'FEATURE_') || str_starts_with($key, 'V6_')) {
-                    // set to false so that $_ENV is not checked
-                    $_SERVER[$key] = false;
-                }
-            }
+            self::disableAllInEnv();
 
             if ($features) {
                 foreach ($features as $feature) {
@@ -80,6 +75,20 @@ class Feature
         }
 
         return $result;
+    }
+
+    /**
+     * Sets every feature-flag key in `$_SERVER` (prefixes `v6.`, `FEATURE_`, `V6_`) to `false` so
+     * downstream `$_ENV` lookups do not sneak in as active. Used by the PHPUnit feature-flag extension
+     * and {@see self::fake()} to establish a clean baseline before selectively reactivating flags.
+     */
+    public static function disableAllInEnv(): void
+    {
+        foreach ($_SERVER as $key => $value) {
+            if (str_starts_with($key, 'v6.') || str_starts_with($key, 'FEATURE_') || str_starts_with($key, 'V6_')) {
+                $_SERVER[$key] = false;
+            }
+        }
     }
 
     /**
@@ -220,6 +229,32 @@ class Feature
         }
 
         $test->markTestSkipped('Skipping feature test due to active flag "' . $flagName . '"');
+    }
+
+    /**
+     * Class-level counterpart of {@see self::skipTestIfInActive()}. Call from `setUpBeforeClass`
+     * to gate a whole test class on a feature flag without evaluating the condition per test.
+     */
+    public static function skipTestClassIfInactive(string $flagName): void
+    {
+        if (self::isActive($flagName)) {
+            return;
+        }
+
+        throw FeatureException::skipTestSuiteError('Skipping feature test class due to inactive flag "' . $flagName . '"');
+    }
+
+    /**
+     * Class-level counterpart of {@see self::skipTestIfActive()}. Call from `setUpBeforeClass`
+     * to gate a whole test class on a feature flag without evaluating the condition per test.
+     */
+    public static function skipTestClassIfActive(string $flagName): void
+    {
+        if (!self::isActive($flagName)) {
+            return;
+        }
+
+        throw FeatureException::skipTestSuiteError('Skipping feature test class due to active flag "' . $flagName . '"');
     }
 
     public static function throwException(string $flag, string $message, bool $state = true): void

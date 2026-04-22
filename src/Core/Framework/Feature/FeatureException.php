@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Feature;
 
+use PHPUnit\Framework\SkippedTestSuiteError;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -40,5 +41,10 @@ class FeatureException extends HttpException
             self::FEATURE_ERROR,
             $message
         );
+    }
+
+    public static function skipTestSuiteError(string $message): SkippedTestSuiteError
+    {
+        return new SkippedTestSuiteError($message);
     }
 }

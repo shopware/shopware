@@ -4,7 +4,10 @@ namespace Shopware\Tests\Unit\Core\Framework;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\Attributes\IgnoreDeprecations;
+use PHPUnit\Framework\Attributes\TestDox;
+use PHPUnit\Framework\SkippedTestSuiteError;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Feature;
@@ -270,6 +273,74 @@ class FeatureTest extends TestCase
 
         // Restore $_SERVER state
         $_SERVER['FEATURE_ALL'] = $orgFeatureAll;
+    }
+
+    #[TestDox('skipTestClassIfInactive() is a no-op when the flag is active')]
+    #[DoesNotPerformAssertions]
+    public function testSkipTestClassIfInactiveDoesNotThrowWhenFlagActive(): void
+    {
+        Feature::fake(['FEATURE_ONE'], static function (): void {
+            Feature::skipTestClassIfInactive('FEATURE_ONE');
+        });
+    }
+
+    #[TestDox('skipTestClassIfInactive() throws SkippedTestSuiteError when the flag is inactive')]
+    public function testSkipTestClassIfInactiveThrowsWhenFlagInactive(): void
+    {
+        $this->expectExceptionObject(new SkippedTestSuiteError('Skipping feature test class due to inactive flag "FEATURE_ONE"'));
+
+        Feature::fake([], static function (): void {
+            Feature::skipTestClassIfInactive('FEATURE_ONE');
+        });
+    }
+
+    #[TestDox('skipTestClassIfActive() is a no-op when the flag is inactive')]
+    #[DoesNotPerformAssertions]
+    public function testSkipTestClassIfActiveDoesNotThrowWhenFlagInactive(): void
+    {
+        Feature::fake([], static function (): void {
+            Feature::skipTestClassIfActive('FEATURE_ONE');
+        });
+    }
+
+    #[TestDox('skipTestClassIfActive() throws SkippedTestSuiteError when the flag is active')]
+    public function testSkipTestClassIfActiveThrowsWhenFlagActive(): void
+    {
+        $this->expectExceptionObject(new SkippedTestSuiteError('Skipping feature test class due to active flag "FEATURE_ONE"'));
+
+        Feature::fake(['FEATURE_ONE'], static function (): void {
+            Feature::skipTestClassIfActive('FEATURE_ONE');
+        });
+    }
+
+    #[TestDox('disableAllInEnv() sets every feature-flag key in $_SERVER to false and leaves unrelated keys untouched')]
+    public function testDisableAllInEnv(): void
+    {
+        $this->seedServer([
+            'v6.7.0.0' => true,
+            'FEATURE_NEXT_1234' => '1',
+            'V6_8_0_0' => true,
+            'FEATURE_ALL' => false,
+            'HTTP_HOST' => 'localhost',
+            'PATH' => '/usr/bin',
+        ]);
+
+        Feature::disableAllInEnv();
+
+        static::assertFalse($_SERVER['v6.7.0.0']);
+        static::assertFalse($_SERVER['FEATURE_NEXT_1234']);
+        static::assertFalse($_SERVER['V6_8_0_0']);
+        static::assertFalse($_SERVER['FEATURE_ALL']);
+        static::assertSame('localhost', $_SERVER['HTTP_HOST']);
+        static::assertSame('/usr/bin', $_SERVER['PATH']);
+    }
+
+    /**
+     * @param array<string, mixed> $values
+     */
+    private function seedServer(array $values): void
+    {
+        $_SERVER = $values;
     }
 
     public static function deprecatedMethodMessageProvider(): \Generator

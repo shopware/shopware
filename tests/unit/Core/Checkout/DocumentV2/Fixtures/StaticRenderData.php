@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('after-sales')]
-readonly class RenderDataFixture extends RenderData
+readonly class StaticRenderData extends RenderData
 {
     public function __construct(
         private string $testData = 'test',

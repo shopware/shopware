@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\RenderDataFixture;
+use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticRenderData;
 
 /**
  * @internal
@@ -22,11 +22,11 @@ class RenderInputTest extends TestCase
 
     private RenderInput $input;
 
-    private RenderDataFixture $dataFixture;
+    private StaticRenderData $dataFixture;
 
     protected function setUp(): void
     {
-        $this->dataFixture = new RenderDataFixture();
+        $this->dataFixture = new StaticRenderData();
 
         $this->input = new RenderInput(
             documentType: DocumentType::INVOICE->value,
@@ -40,13 +40,13 @@ class RenderInputTest extends TestCase
     {
         static::assertCount(1, $this->input->getAllData());
         static::assertSame($this->dataFixture, $this->input->getData(self::TEST_KEY));
-        static::assertSame($this->dataFixture, $this->input->requireData(self::TEST_KEY, RenderDataFixture::class));
+        static::assertSame($this->dataFixture, $this->input->requireData(self::TEST_KEY, StaticRenderData::class));
     }
 
     public function testRequireDataThrowsIfKeyIsMissing(): void
     {
-        static::expectExceptionObject(DocumentV2Exception::unknownRenderData('something', RenderDataFixture::class));
+        static::expectExceptionObject(DocumentV2Exception::unknownRenderData('something', StaticRenderData::class));
 
-        $this->input->requireData('something', RenderDataFixture::class);
+        $this->input->requireData('something', StaticRenderData::class);
     }
 }

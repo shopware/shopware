@@ -96,7 +96,13 @@ class ProductExportGeneratorTest extends TestCase
     {
         $productExport = $this->getProductExportEntity();
 
-        $this->contextPersister->expects($this->once())->method('save');
+        $this->contextPersister->expects($this->once())
+            ->method('save')
+            ->with(
+                static::callback(static fn (mixed $token): bool => \is_string($token)),
+                ['currencyId' => 'currencyId'],
+                'storefrontSalesChannelId'
+            );
         $this->salesChannelContextService->expects($this->once())->method('get');
         $this->parserFactory->expects($this->once())->method('getParser');
 

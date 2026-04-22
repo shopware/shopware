@@ -79,7 +79,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             [
                 SalesChannelContextService::CURRENCY_ID => $productExport->getCurrencyId(),
             ],
-            $productExport->getSalesChannelId()
+            $productExport->getStorefrontSalesChannelId()
         );
 
         $languageId = $domain->getLanguageId();

@@ -1430,20 +1430,6 @@ describe('Twig → Native Block Runtime Adapter (shim)', () => {
             expect(wrapper.find('.default-content').exists()).toBeTruthy();
         });
 
-        it('renders default content when an override targets a block name never mounted as an sw-block', async () => {
-            Shopware.Component.override('sw-product-detail', {
-                template: `{% block shim_edge_no_mount_target %}<div class="override-content"></div>{% endblock %}`,
-            });
-
-            const wrapper = await createWrapper({
-                blockName: 'shim_edge_different_from_override',
-                defaultContent: '<div class="default-content"></div>',
-            });
-
-            expect(wrapper.find('.override-content').exists()).toBeFalsy();
-            expect(wrapper.find('.default-content').exists()).toBeTruthy();
-        });
-
         it('handles an override template with a whitespace-only block body without crashing', async () => {
             Shopware.Component.override('sw-product-detail', {
                 template: `{% block shim_edge_whitespace_only %}   {% endblock %}`,

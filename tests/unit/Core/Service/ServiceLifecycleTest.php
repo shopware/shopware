@@ -133,7 +133,7 @@ class ServiceLifecycleTest extends TestCase
 
         $this->logger
             ->expects($this->once())
-            ->method('debug')
+            ->method('warning')
             ->with('Cannot install service "MyCoolService" because of error: "App MyCoolService is not compatible with this Shopware version"');
 
         $lifecycle = new ServiceLifecycle(

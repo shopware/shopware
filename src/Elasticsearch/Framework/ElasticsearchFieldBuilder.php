@@ -42,7 +42,7 @@ class ElasticsearchFieldBuilder
 
             $languageFields[$languageId] = $fieldConfig;
 
-            if (\array_key_exists($locale, $this->languageAnalyzerMapping)) {
+            if (\array_key_exists($locale, $this->languageAnalyzerMapping) && isset($languageFields[$languageId]['fields']['search']['analyzer'])) {
                 $languageFields[$languageId]['fields']['search']['analyzer'] = $this->languageAnalyzerMapping[$locale];
             }
         }

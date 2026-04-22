@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @final
@@ -27,7 +28,7 @@ class IteratorFactory
     /**
      * @param array{offset: int|null}|null $lastId
      */
-    public function createIterator(string|EntityDefinition $definition, ?array $lastId = null, int $limit = 50): IterableQuery
+    public function createIterator(string|EntityDefinition $definition, ?array $lastId = null, int $limit = 50, ?string $versionId = null): IterableQuery
     {
         if (\is_string($definition)) {
             $definition = $this->registry->getByEntityName($definition);
@@ -39,6 +40,11 @@ class IteratorFactory
         $query = new QueryBuilder($this->connection);
         $query->from($escaped);
         $query->setMaxResults($limit);
+
+        if ($definition->isVersionAware() && $versionId !== null) {
+            $query->andWhere($escaped . '.version_id = :versionId');
+            $query->setParameter('versionId', Uuid::fromHexToBytes($versionId));
+        }
 
         if ($definition->hasAutoIncrement()) {
             $query->select($escaped . '.auto_increment', 'LOWER(HEX(' . $escaped . '.id)) as id');

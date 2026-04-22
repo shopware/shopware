@@ -2,6 +2,12 @@ import Plugin from 'src/plugin-system/plugin.class';
 
 export default class GoogleReCaptchaBasePlugin extends Plugin {
     init() {
+        if (window.grecaptcha && typeof window.grecaptcha.ready === 'function') {
+            window.grecaptcha.ready(this._executeGoogleReCaptchaInitialization.bind(this));
+        }
+    }
+
+    _executeGoogleReCaptchaInitialization() {
         this._getForm();
 
         if (!this._form) {

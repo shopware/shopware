@@ -639,7 +639,7 @@ EOT,
             [
                 'script' => [
                     'script' => [
-                        'inline' => <<<EOT
+                        'source' => <<<EOT
 String getPercentageKey(def accessors, def doc) {
     for (accessor in accessors) {
         def key = accessor['key'];
@@ -1096,7 +1096,7 @@ EOT,
         $sortedFilterArray = $sortedFilter->toArray();
 
         // Unset the 'source' key before comparison.
-        unset($sortedFilterArray['script']['script']['inline']);
+        unset($sortedFilterArray['script']['script']['source']);
 
         static::assertEquals($expectedFilter, $sortedFilterArray);
     }

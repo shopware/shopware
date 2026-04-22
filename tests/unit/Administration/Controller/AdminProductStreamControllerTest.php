@@ -28,7 +28,9 @@ class AdminProductStreamControllerTest extends TestCase
 
     private MockObject&SalesChannelContextServiceInterface $salesChannelContextService;
 
-    /** @var MockObject&SalesChannelRepository<ProductCollection> */
+    /**
+     * @var MockObject&SalesChannelRepository<ProductCollection>
+     */
     private MockObject&SalesChannelRepository $salesChannelRepository;
 
     private MockObject&ProductDefinition $productDefinition;

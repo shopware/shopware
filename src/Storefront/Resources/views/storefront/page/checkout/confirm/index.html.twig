@@ -238,8 +238,12 @@
         <form id="confirmOrderForm"
               action="{{ confirmOrderFormAction }}"
               data-form-preserver="true"
-              data-form-handler="true"
-              data-form-handler-options="{{ { formFieldSelector: null }|json_encode }}"
+              {% if feature('ACCESSIBILITY_TWEAKS') %}
+                  data-form-handler="true"
+                  data-form-handler-options="{{ { formFieldSelector: null }|json_encode }}"
+              {% else %}
+                  data-form-submit-loader="true"
+              {% endif %}
               data-form-add-history="true"
               data-form-add-history-options="{{ formAddHistoryOptions|json_encode }}"
               method="post">

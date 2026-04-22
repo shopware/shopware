@@ -361,7 +361,7 @@ class EntityWriter implements EntityWriterInterface
 
             foreach ($fields as $field) {
                 $property = $field->getPropertyName();
-                if (!($field instanceof StorageAware)) {
+                if (!$field instanceof StorageAware) {
                     continue;
                 }
 

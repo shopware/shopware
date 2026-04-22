@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Document\Renderer;
 
 use Doctrine\DBAL\Connection;
+use horstoeko\zugferd\codelists\ZugferdInvoiceType;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
@@ -11,6 +12,7 @@ use Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder;
 use Shopware\Core\Checkout\Document\Zugferd\ZugferdInvoiceOrdersEvent;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
@@ -22,6 +24,10 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class ZugferdRenderer extends AbstractDocumentRenderer
 {
     public const TYPE = 'zugferd_invoice';
+
+    public const FILE_EXTENSION = FileTypes::XML;
+
+    public const FILE_CONTENT_TYPE = FileTypes::XML_CONTENT_TYPE;
 
     /**
      * @internal
@@ -94,22 +100,34 @@ class ZugferdRenderer extends AbstractDocumentRenderer
         // So no A11y will be generated
         $config->merge(['fileTypes' => ['xml']]);
 
+        $number = $config->getDocumentNumber() ?: $this->getNumber($context, $order, $operation);
+
+        $now = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+
+        $config->merge([
+            'documentDate' => $operation->getConfig()['documentDate'] ?? $now,
+            'documentNumber' => $number,
+            'custom' => [
+                'invoiceNumber' => $number,
+            ],
+        ]);
+
         // create version of order to ensure the document stays the same even if the order changes
         $operation->setOrderVersionId($this->orderRepository->createVersion($order->getId(), $context, 'document'));
 
-        $documentNumber = $config->getDocumentNumber();
-        if ($documentNumber === null) {
-            $config->setDocumentNumber($documentNumber = $this->getNumber($context, $order, $operation));
-        }
-
         try {
-            $content = $this->documentBuilder->buildDocument($order, $config, $context);
-            // @deprecated tag:v6.7.0 - html argument will be removed
+            $content = $this->documentBuilder->buildDocumentWithType(
+                $order,
+                $config,
+                $context,
+                ZugferdInvoiceType::INVOICE,
+            );
+
             $renderResult->addSuccess(
                 $order->getId(),
                 new RenderedDocument(
                     '',
-                    $documentNumber,
+                    $number,
                     $config->buildName(),
                     FileTypes::XML,
                     $config->jsonSerialize(),

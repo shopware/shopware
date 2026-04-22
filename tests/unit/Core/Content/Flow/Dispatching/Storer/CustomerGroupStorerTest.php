@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Storer;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationDeclined;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
@@ -27,6 +28,9 @@ class CustomerGroupStorerTest extends TestCase
 {
     private CustomerGroupStorer $storer;
 
+    /**
+     * @var MockObject&EntityRepository<CustomerGroupCollection>
+     */
     private MockObject&EntityRepository $repository;
 
     private MockObject&EventDispatcherInterface $dispatcher;

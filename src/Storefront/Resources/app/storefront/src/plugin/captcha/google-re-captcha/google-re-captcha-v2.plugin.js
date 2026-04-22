@@ -12,15 +12,20 @@ export default class GoogleReCaptchaV2Plugin extends GoogleReCaptchaBasePlugin
     };
 
     init() {
-        super.init();
-
         this.grecaptchaContainer = this.el.querySelector(this.options.checkboxContainer);
         this.grecaptchaContainerIframe = null;
         this.grecaptchaWidgetId = null;
-
         this.currentToken = null;
 
-        this._renderV2Captcha();
+        super.init();
+    }
+
+    _executeGoogleReCaptchaInitialization() {
+        super._executeGoogleReCaptchaInitialization();
+
+        if (this.grecaptcha) {
+            this._renderV2Captcha();
+        }
     }
 
     getGreCaptchaInfo() {

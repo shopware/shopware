@@ -50,7 +50,7 @@ class CriteriaQueryBuilder
         }
 
         if ($criteria->getTerm()) {
-            $pattern = $this->interpreter->interpret($criteria->getTerm(), $context);
+            $pattern = $this->interpreter->interpret($criteria->getTerm());
             $queries = $this->scoreBuilder->buildScoreQueries($pattern, $definition, $definition->getEntityName(), $context);
             $criteria->addQuery(...$queries);
         }
@@ -146,6 +146,8 @@ class CriteriaQueryBuilder
                 } else {
                     $accessor = 'MAX(' . $accessor . ')';
                 }
+            } else {
+                $accessor = 'MIN(' . $accessor . ')';
             }
             $query->addOrderBy($accessor, $sorting->getDirection());
         }

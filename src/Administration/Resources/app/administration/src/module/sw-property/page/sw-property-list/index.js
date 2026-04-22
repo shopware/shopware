@@ -5,7 +5,7 @@
 import template from './sw-property-list.html.twig';
 import './sw-property-list.scss';
 
-const { Mixin } = Shopware;
+const { Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -59,6 +59,14 @@ export default {
         useNaturalSorting() {
             return this.sortBy === 'property.name';
         },
+
+        adminEsEnable() {
+            if (!Shopware.Feature.isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+                return false;
+            }
+
+            return Context.app.adminEsEnable ?? false;
+        },
     },
 
     methods: {
@@ -85,7 +93,13 @@ export default {
         async getList() {
             this.isLoading = true;
 
-            const criteria = await this.addQueryScores(this.term, this.defaultCriteria);
+            let criteria;
+            if (this.adminEsEnable) {
+                criteria = this.defaultCriteria;
+                criteria.setTerm(this.term);
+            } else {
+                criteria = await this.addQueryScores(this.term, this.defaultCriteria);
+            }
             if (!this.entitySearchable) {
                 this.isLoading = false;
                 this.total = 0;

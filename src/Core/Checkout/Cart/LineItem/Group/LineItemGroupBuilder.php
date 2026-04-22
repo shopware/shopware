@@ -9,9 +9,10 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemQuantitySplitter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Contracts\Service\ResetInterface;
 
 #[Package('checkout')]
-class LineItemGroupBuilder
+class LineItemGroupBuilder implements ResetInterface
 {
     /**
      * @var array<string, LineItemGroupBuilderResult|null>
@@ -27,6 +28,11 @@ class LineItemGroupBuilder
         private readonly LineItemQuantitySplitter $quantitySplitter,
         private readonly AbstractProductLineItemProvider $lineItemProvider
     ) {
+    }
+
+    public function reset(): void
+    {
+        $this->results = [];
     }
 
     /**

@@ -41,7 +41,7 @@ class ElasticsearchAdminResetCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        if ($this->adminEsHelper->getEnabled() !== true) {
+        if ($this->adminEsHelper->isEnabled() !== true) {
             $io->error('Admin elasticsearch is not enabled');
 
             return self::FAILURE;

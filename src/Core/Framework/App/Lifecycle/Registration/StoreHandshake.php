@@ -26,7 +26,9 @@ class StoreHandshake implements AppHandshakeInterface
         private readonly string $appName,
         private readonly string $shopId,
         private readonly StoreClient $storeClient,
-        private readonly string $shopwareVersion
+        private readonly string $shopwareVersion,
+        #[\SensitiveParameter]
+        private readonly ?string $currentAppSecret = null
     ) {
     }
 
@@ -43,13 +45,21 @@ class StoreHandshake implements AppHandshakeInterface
 
         $signature = $this->signPayload($uri->getQuery());
 
+        $headers = [
+            'shopware-app-signature' => $signature,
+            'sw-version' => $this->shopwareVersion,
+        ];
+
+        // Add shop signature for re-registration (secret rotation)
+        if ($this->currentAppSecret !== null) {
+            $shopSignature = hash_hmac('sha256', $uri->getQuery(), $this->currentAppSecret);
+            $headers['shopware-shop-signature'] = $shopSignature;
+        }
+
         return new Request(
             'GET',
             $uri,
-            [
-                'shopware-app-signature' => $signature,
-                'sw-version' => $this->shopwareVersion,
-            ]
+            $headers
         );
     }
 

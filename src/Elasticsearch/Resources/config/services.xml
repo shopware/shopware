@@ -376,6 +376,10 @@
             <argument>%elasticsearch.administration.enabled%</argument>
             <argument>%elasticsearch.administration.refresh_indices%</argument>
             <argument>%elasticsearch.administration.index_prefix%</argument>
+            <argument>%kernel.environment%</argument>
+            <argument>%elasticsearch.administration.throw_exception%</argument>
+            <argument type="service" id="shopware.elasticsearch.logger" />
+
         </service>
 
         <service id="Shopware\Elasticsearch\Admin\AdminSearchController" public="true">
@@ -389,8 +393,12 @@
             <argument type="service" id="admin.openSearch.client"/>
             <argument type="service" id="Shopware\Elasticsearch\Admin\AdminSearchRegistry"/>
             <argument type="service" id="Shopware\Elasticsearch\Admin\AdminElasticsearchHelper"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry" />
+            <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\AbstractElasticsearchSearchHydrator" />
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper" />
             <argument>%elasticsearch.administration.search.timeout%</argument>
             <argument>%elasticsearch.administration.search.term_max_length%</argument>
+            <argument>%elasticsearch.administration.search.search_type%</argument>
         </service>
 
         <service id="Shopware\Elasticsearch\Admin\AdminSearchRegistry">
@@ -403,16 +411,18 @@
             <argument type="service" id="shopware.elasticsearch.logger"/>
             <argument>%elasticsearch.administration.index.config%</argument>
             <argument>%elasticsearch.administration.index.mapping%</argument>
+            <argument>%kernel.environment%</argument>
 
             <tag name="kernel.event_subscriber"/>
-            <tag name="messenger.message_handler" />
+            <tag name="messenger.message_handler"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Admin\Indexer\CmsPageAdminSearchIndexer">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory" />
             <argument type="service" id="cms_page.repository"/>
-            <argument>%elasticsearch.indexing_batch_size%</argument>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder" />
+            <argument>%elasticsearch.administration.indexing_batch_size%</argument>
 
             <tag name="shopware.elastic.admin-searcher-index" key="cms_page"/>
         </service>
@@ -421,7 +431,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory" />
             <argument type="service" id="customer.repository"/>
-            <argument>%elasticsearch.indexing_batch_size%</argument>
+            <argument>%elasticsearch.administration.indexing_batch_size%</argument>
 
             <tag name="shopware.elastic.admin-searcher-index" key="customer"/>
         </service>
@@ -430,7 +440,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory" />
             <argument type="service" id="customer_group.repository"/>
-            <argument>%elasticsearch.indexing_batch_size%</argument>
+            <argument>%elasticsearch.administration.indexing_batch_size%</argument>
 
             <tag name="shopware.elastic.admin-searcher-index" key="customer_group"/>
         </service>
@@ -439,7 +449,8 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory" />
             <argument type="service" id="landing_page.repository"/>
-            <argument>%elasticsearch.indexing_batch_size%</argument>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder" />
+            <argument>%elasticsearch.administration.indexing_batch_size%</argument>
 
             <tag name="shopware.elastic.admin-searcher-index" key="landing_page"/>
         </service>
@@ -448,7 +459,8 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory" />
             <argument type="service" id="product_manufacturer.repository"/>
-            <argument>%elasticsearch.indexing_batch_size%</argument>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder" />
+            <argument>%elasticsearch.administration.indexing_batch_size%</argument>
 
             <tag name="shopware.elastic.admin-searcher-index" key="product_manufacturer"/>
         </service>
@@ -457,7 +469,8 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory" />
             <argument type="service" id="media.repository"/>
-            <argument>%elasticsearch.indexing_batch_size%</argument>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder" />
+            <argument>%elasticsearch.administration.indexing_batch_size%</argument>
 
             <tag name="shopware.elastic.admin-searcher-index" key="media"/>
         </service>
@@ -466,7 +479,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory" />
             <argument type="service" id="order.repository"/>
-            <argument>%elasticsearch.indexing_batch_size%</argument>
+            <argument>%elasticsearch.administration.indexing_batch_size%</argument>
 
             <tag name="shopware.elastic.admin-searcher-index" key="order"/>
         </service>
@@ -475,7 +488,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory" />
             <argument type="service" id="payment_method.repository"/>
-            <argument>%elasticsearch.indexing_batch_size%</argument>
+            <argument>%elasticsearch.administration.indexing_batch_size%</argument>
 
             <tag name="shopware.elastic.admin-searcher-index" key="payment_method"/>
         </service>
@@ -484,7 +497,8 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory" />
             <argument type="service" id="product.repository"/>
-            <argument>%elasticsearch.indexing_batch_size%</argument>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder" />
+            <argument>%elasticsearch.administration.indexing_batch_size%</argument>
 
             <tag name="shopware.elastic.admin-searcher-index" key="product"/>
         </service>
@@ -493,7 +507,8 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory" />
             <argument type="service" id="promotion.repository"/>
-            <argument>%elasticsearch.indexing_batch_size%</argument>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder" />
+            <argument>%elasticsearch.administration.indexing_batch_size%</argument>
 
             <tag name="shopware.elastic.admin-searcher-index" key="promotion"/>
         </service>
@@ -502,7 +517,8 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory" />
             <argument type="service" id="property_group.repository"/>
-            <argument>%elasticsearch.indexing_batch_size%</argument>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder" />
+            <argument>%elasticsearch.administration.indexing_batch_size%</argument>
 
             <tag name="shopware.elastic.admin-searcher-index" key="property_group"/>
         </service>
@@ -511,7 +527,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory" />
             <argument type="service" id="sales_channel.repository"/>
-            <argument>%elasticsearch.indexing_batch_size%</argument>
+            <argument>%elasticsearch.administration.indexing_batch_size%</argument>
 
             <tag name="shopware.elastic.admin-searcher-index" key="sales_channel"/>
         </service>
@@ -520,7 +536,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory" />
             <argument type="service" id="shipping_method.repository"/>
-            <argument>%elasticsearch.indexing_batch_size%</argument>
+            <argument>%elasticsearch.administration.indexing_batch_size%</argument>
 
             <tag name="shopware.elastic.admin-searcher-index" key="shipping_method"/>
         </service>
@@ -529,7 +545,8 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory" />
             <argument type="service" id="category.repository"/>
-            <argument>%elasticsearch.indexing_batch_size%</argument>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder" />
+            <argument>%elasticsearch.administration.indexing_batch_size%</argument>
 
             <tag name="shopware.elastic.admin-searcher-index" key="category"/>
         </service>
@@ -538,7 +555,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory" />
             <argument type="service" id="newsletter_recipient.repository"/>
-            <argument>%elasticsearch.indexing_batch_size%</argument>
+            <argument>%elasticsearch.administration.indexing_batch_size%</argument>
 
             <tag name="shopware.elastic.admin-searcher-index" key="newsletter_recipient"/>
         </service>
@@ -547,10 +564,19 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory" />
             <argument type="service" id="product_stream.repository"/>
-            <argument>%elasticsearch.indexing_batch_size%</argument>
+            <argument>%elasticsearch.administration.indexing_batch_size%</argument>
 
             <tag name="shopware.elastic.admin-searcher-index" key="product_stream"/>
         </service>
 
+        <service id="Shopware\Elasticsearch\Admin\AdminElasticsearchEntitySearcher"
+                 decorates="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"
+                 decoration-priority="500" public="true">
+
+            <argument type="service" id=".inner"/>
+            <argument type="service" id="Shopware\Elasticsearch\Admin\AdminSearchRegistry"/>
+            <argument type="service" id="Shopware\Elasticsearch\Admin\AdminElasticsearchHelper"/>
+            <argument type="service" id="Shopware\Elasticsearch\Admin\AdminSearcher"/>
+        </service>
     </services>
 </container>

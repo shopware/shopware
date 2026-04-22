@@ -7,6 +7,7 @@
     <parameters>
         <parameter key="shopware.app_dir">%kernel.project_dir%/custom/apps</parameter>
     </parameters>
+
     <services>
         <service id="Shopware\Core\Framework\App\Manifest\ManifestFactory">
         </service>
@@ -221,6 +222,16 @@
             <argument>%kernel.shopware_version%</argument>
         </service>
 
+        <service id="Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService">
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService"/>
+            <argument type="service" id="app.repository"/>
+            <argument type="service" id="integration.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
+            <argument type="service" id="messenger.default_bus"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Manifest\ManifestFactory"/>
+        </service>
+
         <service id="Shopware\Core\Framework\App\Lifecycle\Registration\HandshakeFactory">
             <argument type="string">%env(APP_URL)%</argument>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
@@ -263,7 +274,7 @@
             <argument type="service" id="custom_entity.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\Util\ConfigReader"/>
-
+            <argument type="service" id="Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator">
@@ -298,6 +309,11 @@
             <argument type="service" id="logger"/>
             <argument type="service" id="acl_role.repository"/>
             <argument type="service" id="integration.repository"/>
+            <tag name="messenger.message_handler"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\MessageHandler\RotateAppSecretHandler">
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService"/>
             <tag name="messenger.message_handler"/>
         </service>
 
@@ -401,6 +417,11 @@
             <argument type="service" id="Shopware\Core\Framework\Store\InAppPurchase"/>
         </service>
 
+        <service id="Shopware\Core\Framework\App\Api\AppSecretRotationController" public="true">
+            <argument type="service" id="app.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService"/>
+        </service>
+
         <service id="Shopware\Core\Framework\App\Command\AppPrinter">
             <argument type="service" id="app.repository"/>
         </service>
@@ -470,6 +491,14 @@
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Core\Framework\App\Command\RotateAppSecretCommand">
+            <argument type="service" id="app.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
+
+            <tag name="console.command"/>
+        </service>
+
         <service id="Shopware\Core\Framework\App\Api\AppUrlChangeController" public="true">
             <argument type="service" id="Shopware\Core\Framework\App\AppUrlChangeResolver\Resolver"/>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
@@ -486,7 +515,7 @@
         <service id="Shopware\Core\Framework\App\AppUrlChangeResolver\MoveShopPermanentlyStrategy">
             <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
             <argument type="service" id="app.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService"/>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
 
             <tag name="shopware.app_url_changed_resolver"/>
@@ -495,7 +524,7 @@
         <service id="Shopware\Core\Framework\App\AppUrlChangeResolver\ReinstallAppsStrategy">
             <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
             <argument type="service" id="app.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService"/>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
             <argument type="service" id="event_dispatcher"/>
 
@@ -662,6 +691,17 @@
 
         <service id="Shopware\Core\Framework\App\ShopId\FingerprintGenerator">
             <argument type="tagged_iterator" tag="shopware.app_system.shop_id_fingerprint"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\DeletedApps\RememberDeletedAppsSecretSubscriber">
+            <argument type="service" id="app.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway"/>
+
+            <tag name="kernel.event_subscriber"/>
         </service>
     </services>
 </container>

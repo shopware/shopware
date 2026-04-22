@@ -6,6 +6,7 @@
     {% block sw_order_document_settings_modal_form_cancellation_document_number %}
     <sw-text-field
         v-model:value="documentConfig.documentNumber"
+        class="sw-order-document-settings-storno-modal__document-number"
         :label="$tc('sw-order.documentModal.labelDocumentStornoNumber')"
     />
     {% endblock %}
@@ -14,17 +15,10 @@
     <sw-select-field
         v-model:value="documentConfig.custom.invoiceNumber"
         class="sw-order-document-settings-storno-modal__invoice-select"
+        :options="invoiceOptions"
         :label="$tc('sw-order.documentModal.labelInvoiceNumber')"
         :placeholder="$tc('sw-order.documentModal.selectInvoiceNumber')"
-    >
-        <option
-            v-for="invoice in invoices"
-            :key="invoice.config.custom.invoiceNumber"
-            :value="invoice.config.custom.invoiceNumber"
-        >
-            {{ invoice.config.custom.invoiceNumber }}
-        </option>
-    </sw-select-field>
+    />
     {% endblock %}
 
     {% block sw_order_document_settings_modal_form_cancellation_document_date %}

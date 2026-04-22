@@ -14,12 +14,14 @@ final class AdminSearchIndexingMessage implements AsyncMessageInterface
     /**
      * @param array<string, string> $indices
      * @param array<string> $ids
+     * @param array<string> $toRemoveIds
      */
     public function __construct(
-        private readonly string $entity,
-        private readonly string $indexer,
-        private readonly array $indices,
-        private readonly array $ids
+        private string $entity,
+        private string $indexer,
+        private array $indices,
+        private array $ids,
+        private array $toRemoveIds = []
     ) {
     }
 
@@ -47,5 +49,13 @@ final class AdminSearchIndexingMessage implements AsyncMessageInterface
     public function getIds(): array
     {
         return $this->ids;
+    }
+
+    /**
+     * @return array<string>
+     */
+    public function getToRemoveIds(): array
+    {
+        return $this->toRemoveIds;
     }
 }

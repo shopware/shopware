@@ -141,7 +141,7 @@ class ProductExportController extends AbstractController
             $context
         )->get($salesChannelDomainId);
 
-        if (!($salesChannelDomain instanceof SalesChannelDomainEntity)) {
+        if (!$salesChannelDomain instanceof SalesChannelDomainEntity) {
             $salesChannelDomainNotFoundException = new SalesChannelDomainNotFoundException($salesChannelDomainId);
             $loggingEvent = new ProductExportLoggingEvent(
                 $context,
@@ -166,7 +166,7 @@ class ProductExportController extends AbstractController
             $context
         )->get($salesChannelId);
 
-        if (!($salesChannel instanceof SalesChannelEntity)) {
+        if (!$salesChannel instanceof SalesChannelEntity) {
             $salesChannelNotFoundException = new SalesChannelNotFoundException($salesChannelId);
             $loggingEvent = new ProductExportLoggingEvent(
                 $context,

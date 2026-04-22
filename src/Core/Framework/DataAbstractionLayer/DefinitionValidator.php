@@ -103,6 +103,7 @@ class DefinitionValidator
         'usage_data_entity_deletion',
         'one_time_tasks',
         'invalidation_tags',
+        'deleted_apps',
     ];
 
     private const IGNORED_ENTITY_PROPERTIES = [

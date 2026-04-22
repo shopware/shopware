@@ -2,26 +2,44 @@ import GoogleReCaptchaV3Plugin from 'src/plugin/captcha/google-re-captcha/google
 
 describe('GoogleReCaptchaV3Plugin tests', () => {
     let googleReCaptchaV3Plugin = undefined;
+    let mockElement;
+    let originalPluginManager;
 
     beforeEach(() => {
         window.grecaptcha = {
-            ready: () => {},
-            execute: () => {}
+            ready: (cb) => cb(),
+            execute: jest.fn(() => Promise.resolve('successToken')),
         };
 
-        const mockElement = document.createElement('form');
+        mockElement = document.createElement('form');
         const inputField = document.createElement('input');
         inputField.className = 'grecaptcha_v3-input';
 
         mockElement.appendChild(inputField);
 
+        mockElement.submit = jest.fn();
+        mockElement.checkValidity = jest.fn(() => true);
+
+        document.body.appendChild(mockElement);
+
+        originalPluginManager = window.PluginManager;
+        window.PluginManager = {
+            getPluginInstancesFromElement: jest.fn(() => new Map()),
+            getPlugin: jest.fn(() => new Map([['instances', []]])),
+        };
+
         googleReCaptchaV3Plugin = new GoogleReCaptchaV3Plugin(mockElement, {
-            grecaptchaInputSelector: '.grecaptcha_v3-input'
+            grecaptchaInputSelector: '.grecaptcha_v3-input',
         });
     });
 
     afterEach(() => {
+        window.PluginManager = originalPluginManager;
         googleReCaptchaV3Plugin = undefined;
+
+        if (mockElement && mockElement.parentElement) {
+            mockElement.parentElement.removeChild(mockElement);
+        }
     });
 
     test('GoogleReCaptchaV3Plugin exists', () => {
@@ -42,8 +60,6 @@ describe('GoogleReCaptchaV3Plugin tests', () => {
             expect(googleReCaptchaV3Plugin._formSubmitting).toEqual(false);
             expect(googleReCaptchaV3Plugin.grecaptchaInput.value).toEqual('successToken');
             expect(googleReCaptchaV3Plugin._submitInvisibleForm).toHaveBeenCalled();
-        })
+        });
     });
 });
-
-

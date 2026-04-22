@@ -103,7 +103,7 @@ class OrderConversionContext extends Struct
     public function shouldIncludeOrderDate(): bool
     {
         Feature::triggerDeprecationOrThrow(
-            'v6.8.0',
+            'v6.8.0.0',
             'The method "OrderConversionContext::shouldIncludeOrderDate" is deprecated and will be removed in v6.8.0. Use "shouldIncludePersistentData" instead.'
         );
 
@@ -116,7 +116,7 @@ class OrderConversionContext extends Struct
     public function setIncludeOrderDate(bool $includeOrderDate): OrderConversionContext
     {
         Feature::triggerDeprecationOrThrow(
-            'v6.8.0',
+            'v6.8.0.0',
             'The method "OrderConversionContext::setIncludeOrderDate" is deprecated and will be removed in v6.8.0. Use "setIncludePersistentData" instead.'
         );
 

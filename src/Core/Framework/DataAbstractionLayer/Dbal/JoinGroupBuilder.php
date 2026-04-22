@@ -150,7 +150,7 @@ class JoinGroupBuilder
 
         /** @var Field $field */
         foreach ($fields as $field) {
-            if (!($field instanceof AssociationField)) {
+            if (!$field instanceof AssociationField) {
                 break;
             }
 

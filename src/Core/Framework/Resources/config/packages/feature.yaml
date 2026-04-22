@@ -41,6 +41,11 @@ shopware:
         major: false
         toggleable: true
         description: "Experimental! Enable OpenTelemetry metrics"
+      - name: ENABLE_OPENSEARCH_FOR_ADMIN_API
+        default: false
+        major: false
+        toggleable: true
+        description: "Experimental! Route supported Admin API entity searches through OpenSearch"
       - name: PERFORMANCE_TWEAKS
         default: false
         major: true

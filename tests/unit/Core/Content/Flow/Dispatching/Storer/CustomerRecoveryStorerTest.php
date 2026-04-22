@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Storer;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
@@ -27,6 +28,9 @@ class CustomerRecoveryStorerTest extends TestCase
 {
     private CustomerRecoveryStorer $storer;
 
+    /**
+     * @var MockObject&EntityRepository<CustomerRecoveryCollection>
+     */
     private MockObject&EntityRepository $repository;
 
     private MockObject&EventDispatcherInterface $dispatcher;

@@ -1,21 +1,26 @@
-/* eslint-disable */
 import FormCmsHandlerPlugin from 'src/plugin/forms/form-cms-handler.plugin';
 
 const template = `
     <div class="cms-block">
-      <form id="test-form"></form>
-    <div>
+      <form id="test-form">
+        <button type="submit">Submit</button>
+      </form>
+    </div>
 `.trim();
 
 describe('Form CMS Handler tests', () => {
-
     let formCmsHandlerPlugin = undefined;
     let formElement = undefined;
+    let submitButtonElement = undefined;
 
     beforeEach(() => {
         document.body.innerHTML = template;
+
         formElement = document.getElementById('test-form');
         formElement.parentElement.scrollIntoView = jest.fn(); // Used by form-cms-handler plugin, but not implemented by jsdom.
+
+        submitButtonElement = formElement.querySelector('button[type=submit]');
+
         formCmsHandlerPlugin = new FormCmsHandlerPlugin(formElement);
     });
 
@@ -50,5 +55,21 @@ describe('Form CMS Handler tests', () => {
 
         expect(mockHttpClient.post).toHaveBeenCalled();
         expect(resetSpy).not.toHaveBeenCalled();
+    });
+
+    test('form cms handler disables submit button while request is pending', () => {
+        formCmsHandlerPlugin._client = { post: jest.fn() };
+
+        formElement.dispatchEvent(new Event('submit'));
+
+        expect(submitButtonElement.disabled).toBe(true);
+    });
+
+    test('form cms handler re-enables submit button after error response', () => {
+        setupMockHttpClient('[{"type":"danger","alert":""}]');
+
+        formElement.dispatchEvent(new Event('submit'));
+
+        expect(submitButtonElement.disabled).toBe(false);
     });
 });

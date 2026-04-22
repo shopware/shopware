@@ -70,7 +70,7 @@ class Migration1768545320RevocationRequestCmsForm extends MigrationStep
             );
         }
 
-        if ($deLanguageByteId !== null) {
+        if ($deLanguageByteId !== null && $deLanguageByteId !== $enLanguageByteId) {
             $connection->insert(
                 'cms_page_translation',
                 [
@@ -179,7 +179,7 @@ class Migration1768545320RevocationRequestCmsForm extends MigrationStep
             );
         }
 
-        if ($deLanguageByteId !== null) {
+        if ($deLanguageByteId !== null && $deLanguageByteId !== $enLanguageByteId) {
             $connection->insert(
                 'cms_slot_translation',
                 [

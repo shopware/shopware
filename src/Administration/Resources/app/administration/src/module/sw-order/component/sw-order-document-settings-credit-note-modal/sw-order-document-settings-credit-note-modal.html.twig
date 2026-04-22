@@ -6,6 +6,7 @@
     {% block sw_order_document_settings_modal_form_credit_document_number %}
     <sw-text-field
         v-model:value="documentConfig.documentNumber"
+        class="sw-order-document-settings-credit-note-modal__document-number"
         :label="$tc('sw-order.documentModal.labelDocumentNumber')"
     />
     {% endblock %}

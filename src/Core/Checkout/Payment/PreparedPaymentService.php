@@ -57,7 +57,7 @@ class PreparedPaymentService
                 throw PaymentException::unknownPaymentMethodById($salesChannelContext->getPaymentMethod()->getId());
             }
 
-            if (!($paymentHandler instanceof PreparedPaymentHandlerInterface)) {
+            if (!$paymentHandler instanceof PreparedPaymentHandlerInterface) {
                 return null;
             }
 

@@ -148,7 +148,7 @@ class EntityAggregator implements EntityAggregatorInterface
 
         // Early resolve terms to extract score queries
         if ($clone->getTerm()) {
-            $pattern = $this->interpreter->interpret((string) $criteria->getTerm(), $context);
+            $pattern = $this->interpreter->interpret((string) $criteria->getTerm());
             $queries = $this->scoreBuilder->buildScoreQueries($pattern, $definition, $definition->getEntityName(), $context);
             $clone->addQuery(...$queries);
             $clone->setTerm(null);
@@ -235,7 +235,7 @@ class EntityAggregator implements EntityAggregatorInterface
         $found = false;
 
         foreach ($fields as $field) {
-            if (!($field instanceof AssociationField)) {
+            if (!$field instanceof AssociationField) {
                 break;
             }
 

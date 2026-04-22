@@ -1,3 +1,24 @@
+# 6.6.10.16
+## ProductListing with Variants and sort by price
+Grouping with `GROUP BY product.display_group`, which is necessary to process product variants, only works without SQL Mode `only_full_group_by`. When this mode is disabled, it causes rows to be dropped - potentially the one with the cheapest price. This leads to inconsistent sorting of products with variants that differ in price.
+Due to sorting by the lowest price, the `cheapestPrice` accessor was removed from the min/max logic in the `CriteriaQueryBuilder`. To ensure that a product is listed based on its cheapest variant, the accessor was supplemented with the `MIN()` function.
+
+# 6.6.10.15
+## Critical Fixes
+
+### Double signature verification in app-reregistration flow
+Introduces a secure, asynchronous app secret rotation feature to the app system, including both API and CLI interfaces.
+Added a new API endpoint and command for rotating app secrets, implemented the underlying rotation logic, and adjusted the app registration process to support secret updates and dual signature confirmation.
+This increases security by enforcing a two-step verification process during app re-registration, ensuring that only authorized parties can update app secrets.
+
+### LoginRoute and AccountService don't throw CustomerNotFoundException
+The `LoginRoute` and `AccountService` have been updated to no longer throw a `CustomerNotFoundException` when a login attempt is made with an email address that does not exist in the system.
+Instead, they will now throw a generic `BadCredentialsException` without revealing whether the email address is registered or not.
+This change enhances security by preventing potential attackers from enumerating valid email addresses through error messages.
+
+### Improve OrderRoute deepLinkCode filter type validation
+Improve the logic in `\Shopware\Core\Checkout\Order\SalesChannel\OrderRoute::load` to ensure the `deepLinkCode` filter is an instance of `\Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter`.
+
 # 6.6.10.12
 ## Symfony 7.4 Update
 

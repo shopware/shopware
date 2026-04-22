@@ -112,7 +112,17 @@ Component.register('sw-form-field-renderer', {
             currency: { id: Shopware.Context.app.systemCurrencyId, factor: 1 },
             currentComponentName: '',
             swFieldConfig: {},
-            currentValue: this.value,
+            currentValue:
+                this.type === 'price' && !this.value && !Array.isArray(this.value)
+                    ? [
+                          {
+                              currencyId: Shopware.Context.app.systemCurrencyId,
+                              gross: null,
+                              net: null,
+                              linked: true,
+                          },
+                      ]
+                    : this.value,
         };
     },
 
@@ -250,19 +260,22 @@ Component.register('sw-form-field-renderer', {
     },
 
     watch: {
-        currentValue(value) {
-            if (
-                Array.isArray(value) &&
-                Array.isArray(this.value) &&
-                value.length === this.value.length &&
-                value.every((val, index) => val === this.value[index])
-            ) {
-                return;
-            }
+        currentValue: {
+            handler(value) {
+                if (
+                    Array.isArray(value) &&
+                    Array.isArray(this.value) &&
+                    value.length === this.value.length &&
+                    value.every((val, index) => val === this.value[index])
+                ) {
+                    return;
+                }
 
-            if (value !== this.value) {
-                this.$emit('update:value', value);
-            }
+                if (value !== this.value) {
+                    this.$emit('update:value', value);
+                }
+            },
+            deep: true,
         },
         value() {
             this.currentValue = this.value;
@@ -276,17 +289,6 @@ Component.register('sw-form-field-renderer', {
     methods: {
         createdComponent() {
             this.fetchSystemCurrency();
-
-            if (this.type === 'price' && !Array.isArray(this.currentValue)) {
-                this.currentValue = [
-                    {
-                        currencyId: Shopware.Context.app.systemCurrencyId,
-                        gross: null,
-                        net: null,
-                        linked: true,
-                    },
-                ];
-            }
         },
 
         emitUpdate(data) {

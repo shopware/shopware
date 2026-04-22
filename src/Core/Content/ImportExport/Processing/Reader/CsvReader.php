@@ -86,7 +86,7 @@ class CsvReader extends AbstractReader
     private function readSingleRecord($resource): ?array
     {
         while (!feof($resource)) {
-            $record = $this->readCsvRecord($resource);
+            $record = $this->readRecord($resource);
             // skip if it's an empty line
             if ($record === false || (\count($record) === 1 && $record[0] === null)) {
                 continue;
@@ -111,7 +111,7 @@ class CsvReader extends AbstractReader
     private function initializeHeader($resource): void
     {
         while (!feof($resource)) {
-            $record = $this->readCsvRecord($resource);
+            $record = $this->readRecord($resource);
 
             if ($record === false || (\count($record) === 1 && $record[0] === null)) {
                 continue;
@@ -194,7 +194,7 @@ class CsvReader extends AbstractReader
      *
      * @return array<mixed>|false
      */
-    private function readCsvRecord($resource): array|false
+    private function readRecord($resource): array|false
     {
         $isStartOfStream = $this->getCurrentOffset($resource) === 0;
         $record = fgetcsv($resource, 0, $this->delimiter, $this->enclosure, $this->escape);

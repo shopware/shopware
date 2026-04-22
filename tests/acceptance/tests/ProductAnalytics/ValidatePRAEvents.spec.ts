@@ -39,7 +39,7 @@ test.describe('Product Analytics - Validate events.',
 
         await test.step('Login to shopware administration', async () => {
 
-            const user: User = await TestDataService.createUser({ createdAt: '2024-01-01T00:00:00.000Z' });
+            const user: User = await TestDataService.createUser();
 
             await loginToAdministration(
                 page,

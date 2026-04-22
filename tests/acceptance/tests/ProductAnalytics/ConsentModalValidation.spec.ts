@@ -3,8 +3,10 @@ import { parseCapturedRequests, removeSymfonyToolbar, setupConsentRevokeIntercep
     setupConsentInterceptor, setupProductAnalyticsInterceptor, waitForEventCount, setupConsentAcceptInterceptor,
 } from '@helpers/productanalytics-helpers';
 import { satisfies } from 'compare-versions';
+
 const TRACKING_EVENT_ENDPOINT = 'event';
 const CONSENTS_ENDPOINT = 'consents';
+const MONTHS_AHEAD = 3;
 
 test.describe('Product Analytics - Consent Modal Validation',
     { tag: '@ProductAnalytics' }, () => {
@@ -23,11 +25,11 @@ test.describe('Product Analytics - Consent Modal Validation',
             const { capturedTrackingEventRequests, trackingEventHandler } = setupProductAnalyticsInterceptor();
 
             const page: Page = await createNewAdminPageContext(browser, SalesChannelBaseConfig);
-            const user: User = await TestDataService.createUser({ createdAt: '2024-01-01T00:00:00.000Z' });
+            const user: User = await TestDataService.createUser();
             const AdminConsentModal = new AdminPageObjects['DataSharingConsentModal'](page);
             const AdminSettingsListing = new AdminPageObjects['SettingsListing'](page);
 
-            await page.clock.install({ time: new Date('2027-02-02T08:00:00') });
+            await page.clock.install({ time: new Date(new Date().setMonth(new Date().getMonth() + MONTHS_AHEAD)) });
 
             await test.step('Modify product analytics API and consent API requests.', async () => {
 
@@ -184,9 +186,9 @@ test.describe('Product Analytics - Consent Modal Validation',
                }) => {
 
             const page: Page = await createNewAdminPageContext(browser, SalesChannelBaseConfig);
-            const user: User = await TestDataService.createUser({ createdAt: '2024-01-01T00:00:00.000Z' });
+            const user: User = await TestDataService.createUser();
 
-            await page.clock.install({ time: new Date('2027-02-02T08:00:00') });
+            await page.clock.install({ time: new Date(new Date().setMonth(new Date().getMonth() + MONTHS_AHEAD)) });
 
             await test.step('Modify product analytics API and consent API requests.', async () => {
 
@@ -228,13 +230,12 @@ test.describe('Product Analytics - Consent Modal Validation',
         TestDataService,
         SalesChannelBaseConfig,
         browser,
-        InstanceMeta,
     }) => {
 
         const page: Page = await createNewAdminPageContext(browser, SalesChannelBaseConfig);
-        const user: User = await TestDataService.createUser({ admin: false, createdAt: '2024-01-01T00:00:00.000Z' });
+        const user: User = await TestDataService.createUser({ admin: false });
 
-        await page.clock.install({ time: new Date('2027-02-02T08:00:00') });
+        await page.clock.install({ time: new Date(new Date().setMonth(new Date().getMonth() + MONTHS_AHEAD)) });
 
         await test.step('Modify product analytics API and consent API requests.', async () => {
 
@@ -309,7 +310,7 @@ test.describe('Product Analytics - Consent Modal Validation',
             const page: Page = await createNewAdminPageContext(browser, SalesChannelBaseConfig);
             const AdminConsentModal = new AdminPageObjects['DataSharingConsentModal'](page);
 
-            await page.clock.install({ time: new Date('2027-02-02T08:00:00') });
+            await page.clock.install({ time: new Date(new Date().setMonth(new Date().getMonth() + MONTHS_AHEAD)) });
 
             await test.step('Modify product analytics API and consent API requests.', async () => {
 
@@ -326,7 +327,7 @@ test.describe('Product Analytics - Consent Modal Validation',
 
             await test.step('Login to shopware administration with first user', async () => {
 
-                const user1: User = await TestDataService.createUser({ createdAt: '2024-01-01T00:00:00.000Z' });
+                const user1: User = await TestDataService.createUser();
 
                 await loginToAdministration(
                     page,
@@ -343,9 +344,9 @@ test.describe('Product Analytics - Consent Modal Validation',
 
                 const page = await createNewAdminPageContext(browser, SalesChannelBaseConfig);
                 const AdminConsentModal = new AdminPageObjects['DataSharingConsentModal'](page);
-                const user2: User = await TestDataService.createUser({ createdAt: '2024-01-01T00:00:00.000Z' });
+                const user2: User = await TestDataService.createUser();
 
-                await page.clock.install({ time: new Date('2027-02-02T08:00:00') });
+                await page.clock.install({ time: new Date(new Date().setMonth(new Date().getMonth() + MONTHS_AHEAD)) });
 
                 await loginToAdministration(
                     page,

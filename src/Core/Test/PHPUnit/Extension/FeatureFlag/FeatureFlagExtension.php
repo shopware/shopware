@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\PHPUnit\Extension\FeatureFlag\Subscriber\TestFinishedSubscriber;
 use Shopware\Core\Test\PHPUnit\Extension\FeatureFlag\Subscriber\TestPreparationStartedSubscriber;
 use Shopware\Core\Test\PHPUnit\Extension\FeatureFlag\Subscriber\TestSkippedSubscriber;
+use Shopware\Core\Test\PHPUnit\Extension\FeatureFlag\Subscriber\TestSuiteFinishedSubscriber;
+use Shopware\Core\Test\PHPUnit\Extension\FeatureFlag\Subscriber\TestSuiteSkippedSubscriber;
+use Shopware\Core\Test\PHPUnit\Extension\FeatureFlag\Subscriber\TestSuiteStartedSubscriber;
 
 /**
  * This extension guarantees a clean feature environment for pure unit tests
@@ -33,6 +36,9 @@ class FeatureFlagExtension implements Extension
         $savedConfig = new SavedConfig();
 
         $facade->registerSubscribers(
+            new TestSuiteStartedSubscriber($savedConfig),
+            new TestSuiteFinishedSubscriber($savedConfig),
+            new TestSuiteSkippedSubscriber($savedConfig),
             new TestPreparationStartedSubscriber($savedConfig),
             new TestFinishedSubscriber($savedConfig),
             new TestSkippedSubscriber($savedConfig)

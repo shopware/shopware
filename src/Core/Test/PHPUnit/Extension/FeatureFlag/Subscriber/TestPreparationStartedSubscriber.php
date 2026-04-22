@@ -47,12 +47,7 @@ class TestPreparationStartedSubscriber implements PreparationStartedSubscriber
         $this->savedConfig->savedServerVars = $_SERVER;
 
         Feature::resetRegisteredFeatures();
-        foreach ($_SERVER as $key => $value) {
-            if (str_starts_with($key, 'v6.') || str_starts_with($key, 'FEATURE_') || str_starts_with($key, 'V6_')) {
-                // set to false so that $_ENV is not checked
-                $_SERVER[$key] = false;
-            }
-        }
+        Feature::disableAllInEnv();
 
         $disabledFlags = [];
         foreach ($disabledFeatures as $disabledFeature) {

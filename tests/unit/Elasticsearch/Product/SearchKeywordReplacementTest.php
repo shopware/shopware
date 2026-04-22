@@ -16,9 +16,9 @@ use Shopware\Elasticsearch\Product\SearchKeywordReplacement;
 #[CoversClass(SearchKeywordReplacement::class)]
 class SearchKeywordReplacementTest extends TestCase
 {
-    protected function setUp(): void
+    public static function setUpBeforeClass(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
+        Feature::skipTestClassIfActive('v6.8.0.0');
     }
 
     public function testSearchKeywordReplacement(): void

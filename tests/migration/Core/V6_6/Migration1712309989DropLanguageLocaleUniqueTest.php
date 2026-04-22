@@ -23,10 +23,13 @@ class Migration1712309989DropLanguageLocaleUniqueTest extends TestCase
 
     private Connection $connection;
 
+    public static function setUpBeforeClass(): void
+    {
+        Feature::skipTestClassIfInactive('v6.6.0.0');
+    }
+
     protected function setUp(): void
     {
-        Feature::skipTestIfInActive('v6.6.0.0', $this);
-
         $this->connection = static::getContainer()->get(Connection::class);
     }
 

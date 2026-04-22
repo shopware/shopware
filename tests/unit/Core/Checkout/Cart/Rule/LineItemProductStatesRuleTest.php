@@ -30,9 +30,13 @@ class LineItemProductStatesRuleTest extends TestCase
 {
     private LineItemProductStatesRule $rule;
 
+    public static function setUpBeforeClass(): void
+    {
+        Feature::skipTestClassIfActive('v6.8.0.0');
+    }
+
     protected function setUp(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
         $this->rule = new LineItemProductStatesRule();
     }
 

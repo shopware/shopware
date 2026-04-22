@@ -22,4 +22,9 @@ class SavedConfig
      * @var array<string, mixed>
      */
     public array $savedServerVars = [];
+
+    /**
+     * @var array<string, mixed>|null
+     */
+    public ?array $classSavedServerVars = null;
 }

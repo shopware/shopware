@@ -17,9 +17,9 @@ use Shopware\Elasticsearch\Product\ElasticsearchOptimizeSwitch;
 #[CoversClass(ElasticsearchOptimizeSwitch::class)]
 class ElasticsearchOptimizeSwitchTest extends TestCase
 {
-    protected function setUp(): void
+    public static function setUpBeforeClass(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
+        Feature::skipTestClassIfActive('v6.8.0.0');
     }
 
     public function testGetSubscribers(): void

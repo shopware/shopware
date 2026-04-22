@@ -40,10 +40,13 @@ class StatesUpdaterTest extends TestCase
 
     private Connection $connection;
 
+    public static function setUpBeforeClass(): void
+    {
+        Feature::skipTestClassIfActive('v6.8.0.0');
+    }
+
     protected function setUp(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $this->productRepository = static::getContainer()->get('product.repository');
         $this->statesUpdater = static::getContainer()->get(StatesUpdater::class);
         $this->connection = static::getContainer()->get(Connection::class);

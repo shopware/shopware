@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\Adapter\Redis;
 
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\SkippedTestSuiteError;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider;
@@ -29,15 +30,15 @@ class RedisDeprecatedContainerWiringTest extends TestCase
 
     private static string $redisUrl = '';
 
-    private static bool $isDeprecated = false;
-
     public static function setUpBeforeClass(): void
     {
-        self::$redisUrl = (string) EnvironmentHelper::getVariable('REDIS_URL');
-        self::$isDeprecated = (bool) EnvironmentHelper::getVariable('V6_7_0_0', false);
+        if (EnvironmentHelper::getVariable('V6_7_0_0', false)) {
+            throw new SkippedTestSuiteError('Test is deprecated and will fail with v6.7');
+        }
 
-        if (self::$redisUrl === '' || self::$isDeprecated) {
-            return;
+        self::$redisUrl = (string) EnvironmentHelper::getVariable('REDIS_URL');
+        if (self::$redisUrl === '') {
+            throw new SkippedTestSuiteError('Redis is not available');
         }
 
         self::loadKernel();
@@ -45,22 +46,7 @@ class RedisDeprecatedContainerWiringTest extends TestCase
 
     public static function tearDownAfterClass(): void
     {
-        if (self::$redisUrl === '' || self::$isDeprecated) {
-            return;
-        }
-
         self::unloadKernel();
-    }
-
-    protected function setUp(): void
-    {
-        if (self::$redisUrl === '') {
-            static::markTestSkipped('Redis is not available');
-        }
-
-        if (self::$isDeprecated) {
-            static::markTestSkipped('Test is deprecated and will fail with v6.7');
-        }
     }
 
     public function testIncrementGateway(): void

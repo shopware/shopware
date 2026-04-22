@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\Adapter\Redis;
 
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\SkippedTestSuiteError;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider;
@@ -30,7 +31,7 @@ class RedisContainerWiringTest extends TestCase
     {
         self::$redisUrl = (string) EnvironmentHelper::getVariable('REDIS_URL');
         if (self::$redisUrl === '') {
-            return;
+            throw new SkippedTestSuiteError('Redis is not available');
         }
 
         self::loadKernel();
@@ -38,18 +39,7 @@ class RedisContainerWiringTest extends TestCase
 
     public static function tearDownAfterClass(): void
     {
-        if (self::$redisUrl === '') {
-            return;
-        }
-
         self::unloadKernel();
-    }
-
-    protected function setUp(): void
-    {
-        if (self::$redisUrl === '') {
-            static::markTestSkipped('Redis is not available');
-        }
     }
 
     public function testRedisConnections(): void

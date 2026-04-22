@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Provider;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
+use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentDataProvider;
@@ -30,16 +31,41 @@ class DocumentDataProviderRegistryTest extends TestCase
         static::assertCount(0, $creditNoteProviders);
     }
 
+    public function testGetProvidersByDocumentTypeThrowsOnDuplicateProviderKeys(): void
+    {
+        $registry = new DocumentDataProviderRegistry([
+            new StaticDocumentDataProvider([DocumentType::INVOICE->value], 'duplicate'),
+            new StaticDocumentDataProvider([DocumentType::INVOICE->value], 'duplicate'),
+        ]);
+
+        static::expectExceptionObject(
+            DocumentV2Exception::duplicateProviderKey('duplicate', DocumentType::INVOICE->value)
+        );
+
+        $registry->getByDocumentType(DocumentType::INVOICE->value);
+    }
+
+    public function testGetProvidersByDocumentTypeAllowsSameKeyForDifferentDocumentTypes(): void
+    {
+        $registry = new DocumentDataProviderRegistry([
+            new StaticDocumentDataProvider([DocumentType::INVOICE->value], 'duplicate'),
+            new StaticDocumentDataProvider([DocumentType::CREDIT_NOTE->value], 'duplicate'),
+        ]);
+
+        static::assertCount(1, $registry->getByDocumentType(DocumentType::INVOICE->value));
+        static::assertCount(1, $registry->getByDocumentType(DocumentType::CREDIT_NOTE->value));
+    }
+
     private function createRegistry(): DocumentDataProviderRegistry
     {
         return new DocumentDataProviderRegistry([
             new StaticDocumentDataProvider([
                 DocumentType::INVOICE->value,
-            ]),
+            ], 'invoice'),
             new StaticDocumentDataProvider([
                 DocumentType::CANCELLATION_INVOICE->value,
                 DocumentType::INVOICE->value,
-            ]),
+            ], 'cancellation'),
         ]);
     }
 }

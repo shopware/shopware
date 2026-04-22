@@ -4,7 +4,8 @@ namespace Shopware\Core\Checkout\DocumentV2\Event;
 
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationContext;
-use Shopware\Core\Framework\Event\GenericEvent;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
@@ -14,7 +15,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  * @codeCoverageIgnore
  */
 #[Package('after-sales')]
-final class DocumentGeneratedEvent extends Event implements GenericEvent
+final class DocumentGeneratedEvent extends Event implements ShopwareEvent
 {
     final public const NAME = 'document.generation';
 
@@ -37,5 +38,10 @@ final class DocumentGeneratedEvent extends Event implements GenericEvent
     public function getGenerationContext(): DocumentGenerationContext
     {
         return $this->generationContext;
+    }
+
+    public function getContext(): Context
+    {
+        return $this->generationContext->getContext();
     }
 }

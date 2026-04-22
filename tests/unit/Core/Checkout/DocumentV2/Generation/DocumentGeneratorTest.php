@@ -16,6 +16,7 @@ use Shopware\Core\Checkout\DocumentV2\Config\DocumentNumberGenerator;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
+use Shopware\Core\Checkout\DocumentV2\Event\DocumentGeneratedEvent;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentDependencyResolver;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentEntityPersister;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationContext;
@@ -100,6 +101,7 @@ class DocumentGeneratorTest extends TestCase
         $eventDispatcher
             ->expects($this->once())
             ->method('dispatch')
+            ->with(static::isInstanceOf(DocumentGeneratedEvent::class))
             ->willReturnArgument(0);
 
         [$generator, $documentRepository, $documentFileRepository] = $this->createGenerator(

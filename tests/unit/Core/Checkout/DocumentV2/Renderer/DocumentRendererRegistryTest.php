@@ -83,6 +83,34 @@ class DocumentRendererRegistryTest extends TestCase
         static::assertSame(DocumentFormat::PDF->value, $creditNoteRenderers[DocumentFormat::PDF->value]->getFormat());
     }
 
+    public function testGetRendererThrowsOnDuplicateRendererRegistration(): void
+    {
+        $registry = new DocumentRendererRegistry([
+            new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value]),
+            new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value]),
+        ]);
+
+        static::expectExceptionObject(
+            DocumentV2Exception::duplicateRenderer(DocumentFormat::HTML->value, DocumentType::INVOICE->value)
+        );
+
+        $registry->getRenderer(DocumentFormat::HTML->value, DocumentType::INVOICE->value);
+    }
+
+    public function testMapRenderersByFormatThrowsOnDuplicateRendererRegistration(): void
+    {
+        $registry = new DocumentRendererRegistry([
+            new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value]),
+            new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value]),
+        ]);
+
+        static::expectExceptionObject(
+            DocumentV2Exception::duplicateRenderer(DocumentFormat::HTML->value, DocumentType::INVOICE->value)
+        );
+
+        $registry->mapRenderersByFormat(DocumentType::INVOICE->value);
+    }
+
     private static function createRegistry(): DocumentRendererRegistry
     {
         return new DocumentRendererRegistry([

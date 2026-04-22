@@ -21,6 +21,7 @@ class StaticDocumentDataProvider extends AbstractDocumentDataProvider
      */
     public function __construct(
         private readonly array $documentTypes = [DocumentType::INVOICE->value],
+        private readonly string $key = self::KEY,
     ) {
     }
 
@@ -31,7 +32,7 @@ class StaticDocumentDataProvider extends AbstractDocumentDataProvider
 
     public function getKey(): string
     {
-        return self::KEY;
+        return $this->key;
     }
 
     public function enrichOrderCriteria(Criteria $criteria): void

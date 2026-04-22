@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\DocumentV2\Provider;
 
+use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -28,11 +29,19 @@ final readonly class DocumentDataProviderRegistry
         $providers = [];
 
         foreach ($this->documentDataProviders as $provider) {
-            if (\in_array($documentType, $provider->getDocumentTypes(), true)) {
-                $providers[] = $provider;
+            if (!\in_array($documentType, $provider->getDocumentTypes(), true)) {
+                continue;
             }
+
+            $key = $provider->getKey();
+
+            if (isset($providers[$key])) {
+                throw DocumentV2Exception::duplicateProviderKey($key, $documentType);
+            }
+
+            $providers[$key] = $provider;
         }
 
-        return $providers;
+        return array_values($providers);
     }
 }

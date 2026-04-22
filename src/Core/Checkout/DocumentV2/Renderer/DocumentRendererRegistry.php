@@ -26,19 +26,17 @@ final readonly class DocumentRendererRegistry
      */
     public function getRenderer(string $format, string $documentType): AbstractDocumentRenderer
     {
-        foreach ($this->documentRenderers as $renderer) {
-            if ($renderer->supports($documentType) && $renderer->getFormat() === $format) {
-                return $renderer;
-            }
+        $renderers = $this->mapRenderersByFormat($documentType);
+
+        if (!isset($renderers[$format])) {
+            throw DocumentV2Exception::rendererNotFound($format, $documentType);
         }
 
-        throw DocumentV2Exception::rendererNotFound($format, $documentType);
+        return $renderers[$format];
     }
 
     /**
      * Builds a format => renderer map for all renderers that support the given document type.
-     *
-     * If multiple renderers support the same format, the later iterable entry wins.
      *
      * @return array<string, AbstractDocumentRenderer>
      */
@@ -47,9 +45,17 @@ final readonly class DocumentRendererRegistry
         $renderers = [];
 
         foreach ($this->documentRenderers as $renderer) {
-            if ($renderer->supports($documentType)) {
-                $renderers[$renderer->getFormat()] = $renderer;
+            if (!$renderer->supports($documentType)) {
+                continue;
             }
+
+            $format = $renderer->getFormat();
+
+            if (isset($renderers[$format])) {
+                throw DocumentV2Exception::duplicateRenderer($format, $documentType);
+            }
+
+            $renderers[$format] = $renderer;
         }
 
         return $renderers;

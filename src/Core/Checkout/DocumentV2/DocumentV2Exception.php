@@ -34,6 +34,10 @@ class DocumentV2Exception extends HttpException
 
     public const DOCUMENT_TYPE_NOT_FOUND = 'DOCUMENT_V2__DOCUMENT_TYPE_NOT_FOUND';
 
+    public const DUPLICATE_RENDERER = 'DOCUMENT_V2__DUPLICATE_RENDERER';
+
+    public const DUPLICATE_PROVIDER_KEY = 'DOCUMENT_V2__DUPLICATE_PROVIDER_KEY';
+
     public static function unknownRenderData(string $key, string $expectedClass): self
     {
         return new self(
@@ -128,6 +132,26 @@ class DocumentV2Exception extends HttpException
             self::DOCUMENT_TYPE_NOT_FOUND,
             'Document type "{{ documentType }}" not found.',
             ['documentType' => $documentType],
+        );
+    }
+
+    public static function duplicateRenderer(string $format, string $documentType): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DUPLICATE_RENDERER,
+            'Duplicate renderer for format "{{ format }}" and document type "{{ documentType }}".',
+            ['format' => $format, 'documentType' => $documentType],
+        );
+    }
+
+    public static function duplicateProviderKey(string $key, string $documentType): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DUPLICATE_PROVIDER_KEY,
+            'Duplicate document data provider key "{{ key }}" for document type "{{ documentType }}".',
+            ['key' => $key, 'documentType' => $documentType],
         );
     }
 }

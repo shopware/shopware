@@ -25,7 +25,24 @@ class AddColumnTraitTest extends TestCase
         $connection = $this->createConnectionMock(columnExists: true);
         $connection->expects($this->never())->method('executeStatement');
 
-        $migration = new TestAddColumnMigration();
+        $migration = new class {
+            use AddColumnTrait;
+
+            /**
+             * @param non-empty-string $table
+             * @param non-empty-string $column
+             */
+            public function callAddColumn(
+                Connection $connection,
+                string $table,
+                string $column,
+                string $type,
+                bool $nullable = true,
+                string $default = 'NULL'
+            ): bool {
+                return $this->addColumn($connection, $table, $column, $type, $nullable, $default);
+            }
+        };
 
         $result = $migration->callAddColumn($connection, 'product', 'states', 'JSON');
 
@@ -50,7 +67,24 @@ class AddColumnTraitTest extends TestCase
             ->method('executeStatement')
             ->with($expectedInstantSql);
 
-        $migration = new TestAddColumnMigration();
+        $migration = new class {
+            use AddColumnTrait;
+
+            /**
+             * @param non-empty-string $table
+             * @param non-empty-string $column
+             */
+            public function callAddColumn(
+                Connection $connection,
+                string $table,
+                string $column,
+                string $type,
+                bool $nullable = true,
+                string $default = 'NULL'
+            ): bool {
+                return $this->addColumn($connection, $table, $column, $type, $nullable, $default);
+            }
+        };
 
         $result = $migration->callAddColumn($connection, $table, $column, $type, $nullable, $default);
 
@@ -62,14 +96,15 @@ class AddColumnTraitTest extends TestCase
         $connection = $this->createConnectionMock(columnExists: false);
 
         $instantSql = 'ALTER TABLE `app` ADD COLUMN `source_config` JSON NOT NULL DEFAULT (JSON_OBJECT()), ALGORITHM=INSTANT;';
+        $inplaceSql = 'ALTER TABLE `app` ADD COLUMN `source_config` JSON NOT NULL DEFAULT (JSON_OBJECT()), ALGORITHM=INPLACE;';
         $fallbackSql = 'ALTER TABLE `app` ADD COLUMN `source_config` JSON NOT NULL DEFAULT (JSON_OBJECT());';
 
         $exception = new class('ALGORITHM=INSTANT is not supported') extends \Exception implements DBALException {};
 
-        $connection->expects($this->exactly(2))
+        $connection->expects($this->exactly(3))
             ->method('executeStatement')
-            ->willReturnCallback(static function (string $sql) use ($instantSql, $fallbackSql, $exception): int {
-                if ($sql === $instantSql) {
+            ->willReturnCallback(static function (string $sql) use ($instantSql, $inplaceSql, $fallbackSql, $exception): int {
+                if ($sql === $instantSql || $sql === $inplaceSql) {
                     throw $exception;
                 }
 
@@ -78,7 +113,24 @@ class AddColumnTraitTest extends TestCase
                 return 0;
             });
 
-        $migration = new TestAddColumnMigration();
+        $migration = new class {
+            use AddColumnTrait;
+
+            /**
+             * @param non-empty-string $table
+             * @param non-empty-string $column
+             */
+            public function callAddColumn(
+                Connection $connection,
+                string $table,
+                string $column,
+                string $type,
+                bool $nullable = true,
+                string $default = 'NULL'
+            ): bool {
+                return $this->addColumn($connection, $table, $column, $type, $nullable, $default);
+            }
+        };
 
         $result = $migration->callAddColumn($connection, 'app', 'source_config', 'JSON', false, '(JSON_OBJECT())');
 
@@ -131,30 +183,8 @@ class AddColumnTraitTest extends TestCase
 
         $connection = $this->createMock(Connection::class);
         $connection->method('createSchemaManager')->willReturn($schemaManager);
+        $connection->method('fetchOne')->willReturn($columnExists ? '1' : false);
 
         return $connection;
-    }
-}
-
-/**
- * @internal
- */
-class TestAddColumnMigration
-{
-    use AddColumnTrait;
-
-    /**
-     * @param non-empty-string $table
-     * @param non-empty-string $column
-     */
-    public function callAddColumn(
-        Connection $connection,
-        string $table,
-        string $column,
-        string $type,
-        bool $nullable = true,
-        string $default = 'NULL'
-    ): bool {
-        return $this->addColumn($connection, $table, $column, $type, $nullable, $default);
     }
 }

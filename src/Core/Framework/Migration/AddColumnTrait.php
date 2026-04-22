@@ -41,9 +41,13 @@ trait AddColumnTrait
             // Try INSTANT first – fast metadata-only operation, no table rebuild.
             $connection->executeStatement($sql . ', ALGORITHM=INSTANT;');
         } catch (DBALException) {
-            // INSTANT not supported for this operation (e.g., expression defaults, fulltext tables).
-            // Fall back to regular ALTER TABLE and let MySQL pick the best algorithm.
-            $connection->executeStatement($sql . ';');
+            try {
+                // Some MySQL 8.4 operations reject INSTANT but still allow INPLACE.
+                $connection->executeStatement($sql . ', ALGORITHM=INPLACE;');
+            } catch (DBALException) {
+                // Fall back to a plain ALTER TABLE and let MySQL pick the best algorithm.
+                $connection->executeStatement($sql . ';');
+            }
         }
 
         return true;

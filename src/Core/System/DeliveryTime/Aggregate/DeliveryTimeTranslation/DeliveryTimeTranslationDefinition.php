@@ -26,6 +26,11 @@ class DeliveryTimeTranslationDefinition extends EntityTranslationDefinition
         return DeliveryTimeTranslationEntity::class;
     }
 
+    public function getCollectionClass(): string
+    {
+        return DeliveryTimeTranslationCollection::class;
+    }
+
     public function since(): ?string
     {
         return '6.0.0.0';

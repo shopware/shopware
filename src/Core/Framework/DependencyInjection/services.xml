@@ -266,7 +266,6 @@ frame-ancestors 'none';
             <argument type="service" id="request_stack"/>
             <argument type="service" id="cache.object"/>
             <argument type="service" id="translator.formatter"/>
-            <argument>%kernel.environment%</argument>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\System\Locale\LanguageLocaleCodeProvider"/>
             <argument type="service" id="Shopware\Core\System\Snippet\SnippetService"/>

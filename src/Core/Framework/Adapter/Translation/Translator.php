@@ -69,7 +69,6 @@ class Translator extends AbstractTranslator
         private readonly RequestStack $requestStack,
         private readonly CacheInterface $cache,
         private readonly MessageFormatterInterface $formatter,
-        private readonly string $environment,
         private readonly Connection $connection,
         private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
         private readonly SnippetService $snippetService,
@@ -126,11 +125,6 @@ class Translator extends AbstractTranslator
              * fallback locale and current locale has the same localization -> reset fallback
              * or locale is symfony style locale, so we shouldn't add shopware fallbacks as it may lead to circular references
              */
-            $fallbackLocale = null;
-        }
-
-        // disable fallback logic to display symfony warnings
-        if ($this->environment !== 'prod') {
             $fallbackLocale = null;
         }
 

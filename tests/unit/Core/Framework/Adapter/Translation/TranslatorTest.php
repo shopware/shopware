@@ -74,7 +74,6 @@ class TranslatorTest extends TestCase
             $requestStack,
             $cache,
             $this->createMock(MessageFormatterInterface::class),
-            'prod',
             $connection,
             $localeCodeProvider,
             $snippetServiceMock,
@@ -134,7 +133,6 @@ class TranslatorTest extends TestCase
             $requestStack,
             $this->createMock(CacheInterface::class),
             $this->createMock(MessageFormatterInterface::class),
-            'prod',
             $connection,
             $this->createMock(LanguageLocaleCodeProvider::class),
             $this->createMock(SnippetService::class),
@@ -173,7 +171,6 @@ class TranslatorTest extends TestCase
                 $key2 => [],
             ]),
             $this->createMock(MessageFormatterInterface::class),
-            'prod',
             $connection,
             $this->createMock(LanguageLocaleCodeProvider::class),
             $snippetService,
@@ -188,6 +185,64 @@ class TranslatorTest extends TestCase
         $requestStack->push(self::createRequest(TestDefaults::SALES_CHANNEL, $domainSnippetSetId));
         $translator->reset();
         static::assertSame($domainSnippetSetId, $translator->getSnippetSetId('en-GB'));
+    }
+
+    public function testGetCatalogueUsesFallbackLocaleOutsideProd(): void
+    {
+        $snippetSetId = Uuid::randomHex();
+
+        $decorated = $this->createMock(SymfonyTranslator::class);
+        $originCatalogue = new MessageCatalogue('de-DE', [
+            'messages' => [
+                'hello' => 'Hello',
+            ],
+        ]);
+        $fallbackCatalogue = new MessageCatalogue('de', [
+            'messages' => [
+                'hello' => 'Hello',
+            ],
+        ]);
+
+        $decorated->method('getCatalogue')->willReturnMap([
+            ['de-DE', $originCatalogue],
+            ['de', $fallbackCatalogue],
+        ]);
+
+        $cache = $this->createMock(CacheInterface::class);
+        $cache->expects($this->once())
+            ->method('get')
+            ->with(\sprintf('translation.catalog.DEFAULT.%s-de', $snippetSetId), static::isCallable())
+            ->willReturnCallback(static function (string $_key, callable $callback) {
+                return $callback(new CacheItem());
+            });
+
+        $snippetService = $this->createMock(SnippetService::class);
+        $snippetService->expects($this->once())
+            ->method('getStorefrontSnippets')
+            ->with(static::isInstanceOf(MessageCatalogue::class), $snippetSetId, 'de', null)
+            ->willReturn([]);
+
+        $localeCodeProvider = $this->createMock(LanguageLocaleCodeProvider::class);
+        $localeCodeProvider->method('getLocaleForLanguageId')->with(Defaults::LANGUAGE_SYSTEM)->willReturn('de-DE');
+
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchFirstColumn')->willReturn([$snippetSetId]);
+
+        $translator = new Translator(
+            $decorated,
+            new RequestStack(),
+            $cache,
+            $this->createMock(MessageFormatterInterface::class),
+            $connection,
+            $localeCodeProvider,
+            $snippetService,
+            $this->createMock(CacheTagCollector::class),
+        );
+
+        $snippetSetIdProp = new \ReflectionProperty(Translator::class, 'snippetSetId');
+        $snippetSetIdProp->setValue($translator, $snippetSetId);
+
+        $translator->getCatalogue('de-DE');
     }
 
     /**

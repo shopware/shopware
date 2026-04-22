@@ -85,8 +85,10 @@ describe('src/app/init/sidebar.init', () => {
         // Check that sidebar is not active
         expect(Shopware.Store.get('sidebar').sidebars[0].active).toBe(false);
 
-        // Open the sidebar
-        Shopware.Store.get('sidebar').sidebars[0].active = true;
+        // Activate the sidebar
+        await ui.sidebar.setActive({
+            locationId: 'test-sidebar',
+        });
 
         // Check that sidebar is not active
         expect(Shopware.Store.get('sidebar').sidebars[0].active).toBe(true);

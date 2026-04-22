@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
  * Example:
  * If the caller requests `zugferd_embedded_pdf` and the registered renderers declare
  * `zugferd_embedded_pdf -> [pdf, zugferd_xml]` and `pdf -> [html]`,
- * the resolver returns `['html', 'pdf', 'zugferd_xml', 'zugferd_embedded_pdf']`.
+ * the resolver returns `['html', 'zugferd_xml', 'pdf', 'zugferd_embedded_pdf']`.
  *
  * The resolved list can contain transient intermediate formats that are required during
  * rendering but are never persisted on their own.

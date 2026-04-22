@@ -48,7 +48,7 @@ class Migration1776770187AddDatabaseFileTable extends MigrationStep
                 CONSTRAINT `fk.document_file.media_id`
                     FOREIGN KEY (`media_id`)
                     REFERENCES `media` (`id`)
-                    ON DELETE CASCADE ON UPDATE CASCADE
+                    ON DELETE RESTRICT ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ', $table));
     }

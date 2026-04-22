@@ -32,6 +32,8 @@ class DocumentV2Exception extends HttpException
 
     public const DOCUMENT_NOT_PERSISTED = 'DOCUMENT_V2__DOCUMENT_NOT_PERSISTED';
 
+    public const DOCUMENT_NUMBER_ALREADY_EXISTS = 'DOCUMENT_V2__DOCUMENT_NUMBER_ALREADY_EXISTS';
+
     public const DOCUMENT_TYPE_NOT_FOUND = 'DOCUMENT_V2__DOCUMENT_TYPE_NOT_FOUND';
 
     public const DUPLICATE_RENDERER = 'DOCUMENT_V2__DUPLICATE_RENDERER';
@@ -121,6 +123,16 @@ class DocumentV2Exception extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::DOCUMENT_NOT_PERSISTED,
             'Document with number "{{ documentNumber }}" was not persisted.',
+            ['documentNumber' => $documentNumber],
+        );
+    }
+
+    public static function documentNumberAlreadyExists(string $documentNumber): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::DOCUMENT_NUMBER_ALREADY_EXISTS,
+            'Document with number "{{ documentNumber }}" already exists.',
             ['documentNumber' => $documentNumber],
         );
     }

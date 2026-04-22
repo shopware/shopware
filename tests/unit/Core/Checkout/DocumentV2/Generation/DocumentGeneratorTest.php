@@ -64,6 +64,7 @@ class DocumentGeneratorTest extends TestCase
         $order = new OrderEntity();
         $order->setId($orderId);
         $order->setSalesChannelId($salesChannelId);
+        $order->setLanguageId(Defaults::LANGUAGE_SYSTEM);
 
         /** @var StaticEntityRepository<OrderCollection> $orderRepository */
         $orderRepository = new StaticEntityRepository([
@@ -192,6 +193,7 @@ class DocumentGeneratorTest extends TestCase
     ): array {
         /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
+            [],
             function (Criteria $criteria, Context $context, StaticEntityRepository $repository) use ($document): DocumentCollection {
                 static::assertCount(1, $repository->creates);
                 $document->setId($repository->creates[0][0]['id']);

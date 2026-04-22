@@ -69,6 +69,15 @@ final readonly class DocumentGenerator
 
         $order = $this->loadOrder($criteria, $generationContext);
 
+        $renderContext = $generationContext->getContext()
+            ->createWithVersionId($generationContext->getOrderVersionId());
+
+        $renderContext->assign([
+            'languageIdChain' => array_values(array_unique(array_filter(
+                [$order->getLanguageId(), ...$renderContext->getLanguageIdChain()]
+            ))),
+        ]);
+
         $documentNumber = $generationContext->getDocumentNumber() ?? $this->documentNumberGenerator->generate(
             $generationContext,
             $order,
@@ -82,6 +91,7 @@ final readonly class DocumentGenerator
             documentNumber: $documentNumber,
             order: $order,
             data: $providerData,
+            context: $renderContext,
         );
 
         foreach ($renderPlan as $format) {

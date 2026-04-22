@@ -48,6 +48,8 @@ final readonly class DocumentEntityPersister
         $documentId = Uuid::randomHex();
         $documentNumber = $input->getDocumentNumber();
 
+        $this->assertDocumentNumberIsUnique($generationContext, $documentNumber);
+
         $this->documentRepository->create([
             [
                 'id' => $documentId,
@@ -83,6 +85,23 @@ final readonly class DocumentEntityPersister
         }
 
         return $document;
+    }
+
+    /**
+     * @throws DocumentV2Exception
+     */
+    private function assertDocumentNumberIsUnique(DocumentGenerationContext $generationContext, string $documentNumber): void
+    {
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('documentNumber', $documentNumber))
+            ->addFilter(new EqualsFilter('documentType.technicalName', $generationContext->getDocumentType()))
+            ->setLimit(1);
+
+        $exists = $this->documentRepository->searchIds($criteria, $generationContext->getContext())->firstId() !== null;
+
+        if ($exists) {
+            throw DocumentV2Exception::documentNumberAlreadyExists($documentNumber);
+        }
     }
 
     /**

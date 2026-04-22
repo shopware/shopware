@@ -120,13 +120,32 @@ class DocumentEntityPersisterTest extends TestCase
         ];
     }
 
+    public function testPersistThrowsWhenDocumentNumberAlreadyExists(): void
+    {
+        $documentTypeId = Uuid::randomHex();
+        $existingDocumentId = Uuid::randomHex();
+
+        [$persister] = $this->createPersister($documentTypeId, existingDocumentIds: [$existingDocumentId]);
+
+        static::expectExceptionObject(DocumentV2Exception::documentNumberAlreadyExists('12345'));
+
+        $persister->persist(
+            $this->generationContext,
+            $this->renderInput,
+            [self::FORMAT => Uuid::randomHex()],
+        );
+    }
+
     /**
+     * @param list<string> $existingDocumentIds
+     *
      * @return array{0: DocumentEntityPersister, 1: StaticEntityRepository<DocumentCollection>, 2: StaticEntityRepository<DocumentFileCollection>}
      */
-    private function createPersister(string $documentTypeId, ?callable $documentSearch = null): array
+    private function createPersister(string $documentTypeId, ?callable $documentSearch = null, array $existingDocumentIds = []): array
     {
         /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
+            $existingDocumentIds,
             $documentSearch ?? static function (Criteria $criteria, Context $context, StaticEntityRepository $repository): DocumentCollection {
                 static::assertCount(1, $repository->creates);
                 static::assertCount(1, $criteria->getIds());

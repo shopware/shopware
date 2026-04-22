@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\DocumentV2\Struct;
 
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -24,7 +25,8 @@ final readonly class RenderInput
         private string $documentType,
         private string $documentNumber,
         private OrderEntity $order,
-        private array $data = []
+        private array $data = [],
+        private ?Context $context = null,
     ) {
     }
 
@@ -49,6 +51,16 @@ final readonly class RenderInput
         }
 
         return $data;
+    }
+
+    /**
+     * Returns the language aware render context for this generation run.
+     * The language chain is prepended with the order's language.
+     * Does fallback to default context, if no context was injected during creation.
+     */
+    public function getContext(): Context
+    {
+        return $this->context ?? Context::createDefaultContext();
     }
 
     public function getDocumentType(): string

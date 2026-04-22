@@ -34,6 +34,10 @@ class FeatureFlagExtension extends AbstractExtension
 
     public function feature(string $flag): bool
     {
+        if (!Feature::has($flag)) {
+            return false;
+        }
+
         return Feature::isActive($flag);
     }
 

@@ -313,6 +313,53 @@ describe('src/app/component/filter/sw-date-filter', () => {
         },
     );
 
+    describe('lastQuarter boundary when today is in Q1', () => {
+        beforeEach(() => {
+            jest.setSystemTime(new Date(1337, 1, 15));
+        });
+
+        afterEach(() => {
+            jest.setSystemTime(new Date(1337, 11, 31));
+        });
+
+        it('should compute last quarter as Oct-Dec of the previous year', async () => {
+            const wrapper = await createWrapper();
+
+            await wrapper.setProps({
+                filter: {
+                    property: 'releaseDate',
+                    name: 'releaseDate',
+                    label: 'Release Date',
+                    dateType: 'date',
+                    showTimeframe: true,
+                },
+            });
+
+            wrapper.vm.onTimeframeSelect('lastQuarter');
+
+            expect(wrapper.emitted()['filter-update']).toEqual([
+                [
+                    'releaseDate',
+                    [
+                        {
+                            field: 'releaseDate',
+                            parameters: {
+                                gte: '1336-10-01T00:00:00.000Z',
+                                lte: '1336-12-31T23:59:59.000Z',
+                            },
+                            type: 'range',
+                        },
+                    ],
+                    {
+                        from: '1336-10-01T00:00:00.000Z',
+                        timeframe: 'lastQuarter',
+                        to: '1336-12-31T23:59:59.000Z',
+                    },
+                ],
+            ]);
+        });
+    });
+
     it('should console.error for invalid timeframe', async () => {
         const wrapper = await createWrapper();
 

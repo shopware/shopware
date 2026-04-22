@@ -62,6 +62,10 @@ A runtime adapter has been added that bridges legacy Twig block overrides (`{% b
 Mixin-defined route guards such as `beforeRouteLeave` are now executed reliably for lazy-loaded Administration route components.
 This fixes cases where cleanup logic in shared mixins, for example in listing pages, was skipped during navigation to detail pages.
 
+### Fixed "Last Quarter" timeframe returning the wrong year in `sw-date-filter`
+
+Selecting the "Last Quarter" timeframe in any listing's date filter (orders, documents, customers, etc.) between January and March now produces a three-month range in the previous year instead of a ~15-month range that spanned both years. The end boundary is now derived from the quarter's start year rather than the current year.
+
 ### Re-render iframe integrations when location changes
 
 Iframe-based Administration extensions now re-render correctly when their `locationId` changes.

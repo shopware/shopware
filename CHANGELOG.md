@@ -1,6 +1,33 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.6.10.16
+*  [#11435 - Buybox CMS element references non-existent association](https://github.com/shopware/shopware/issues/11435)
+*  [#15984 - Translated CMS Slot Overrides](https://github.com/shopware/shopware/issues/15984)
+*  [#7835 - Installer does not use DATABASE_URL](https://github.com/shopware/shopware/issues/7835)
+*  [#15405 - Autocomplete in backend forms returns only 25 entries — important addresses/entries are missing.](https://github.com/shopware/shopware/issues/15405)
+*  [#15543 - User in history log "last change" is not changed](https://github.com/shopware/shopware/issues/15543)
+*  [#15839 - Remove dependency on maltyxx/images-generator](https://github.com/shopware/shopware/issues/15839)
+*  [#15489 - Order cancellation only shown for open orders](./changelog/release-6-6-10-16/2026-03-30-order-cancellation-only-shown-for-open-orders.md)
+*  [#15741 - Unknown feature "V6_8_0"](https://github.com/shopware/shopware/issues/15741)
+*  [#15694 - feat: add zugferd documents (backport: 6.6.x)](https://github.com/shopware/shopware/pull/15694)
+*  [#15788 - fix: Add specific ACL checks for routes that render twig templates (backport: 6.6.x)](https://github.com/shopware/shopware/pull/15788)
+*  [#14648 - Custom Field Data Mapping: Media custom field treated as text](https://github.com/shopware/shopware/issues/14648)
+*  [#11895 - Improve admin search indexing event handling and iterator versioning](./changelog/release-6-6-10-16/2025-08-15-reduce-admin-es-indexing-and-iterator-versioning.md)
+*  [#15418 - core/System/NumberRange/ValueGenerator/Pattern/IncrementStorage/IncrementSqlStorage returns string type if database entry is empty](https://github.com/shopware/shopware/issues/15418)
+*  [#15403 - Misleading info after clicking several times submit button at online cancelation request form](https://github.com/shopware/shopware/issues/15403)
+*  [#4053 - Adds MIN() Function to cheapestPrice Accessor](./changelog/release-6-6-10-16/2025-07-11-fix-correctly-sort-product-variants-with-different-prices.md) ([Ullrich Löblein](https://github.com/ulloe))
+*  [#15269 - PromotionRedemptionUpdater performance](https://github.com/shopware/shopware/issues/15269)
+*  [#15581 - Fix race condition between cart persist and load](./changelog/release-6-6-10-16/2026-03-13-fix-race-condition-cart-persist-and-load.md)
+*  [#14520 - Google reCAPTCHA is only verified/set for the first form on a page](https://github.com/shopware/shopware/issues/14520)
+*  [#15021 - Can't remove promotion set products from cart](https://github.com/shopware/shopware/issues/15021)
+*  [#10872 - Product image alt text no longer falls back to product name on product detail page since 6.6](https://github.com/shopware/shopware/issues/10872)
+*  [#15435 - When every line/field in product_search_config_field has "searchable" 0, certain product searches with "term" fail with an error](https://github.com/shopware/shopware/issues/15435)
+*  [#15419 - Fix invoice number selection for credit notes and storno invoices](./changelog/release-6-6-10-16/2025-06-27-fix-invoice-number-selection.md) ([Justus Geramb](https://github.com/jgeramb))
+*  [#15443 - fix: revocation form field validation](https://github.com/shopware/shopware/pull/15443)
+*  [#14397 - Promotion individual code is not marked as redeemed when entering the code in lowercase letters](https://github.com/shopware/shopware/issues/14397)
+*  [#14713 - Performance issue when resolving category children](https://github.com/shopware/shopware/issues/14713)
+
 ## 6.6.10.15
 *  [GHSA-c4p7-rwrg-pf6p - Double signature verification in app-reregistration flow](https://github.com/shopware/shopware/security/advisories/GHSA-c4p7-rwrg-pf6p)
 *  [GHSA-gqc5-xv7m-gcjq - Limit account enumeration via Store API](https://github.com/shopware/shopware/security/advisories/GHSA-gqc5-xv7m-gcjq)

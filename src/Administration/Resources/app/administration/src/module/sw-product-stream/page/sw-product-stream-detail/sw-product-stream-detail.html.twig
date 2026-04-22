@@ -149,8 +149,8 @@
                         v-model="productStream.displayAsGroup"
                         v-tooltip.bottom="getNoPermissionsTooltip('product_stream.editor')"
                         class="sw-product-stream-detail__display-as-group"
-                        :label="$tc('sw-product-stream.detail.labelDisplayAsGroup')"
-                        :help-text="$tc('sw-product-stream.detail.helpTextDisplayAsGroup')"
+                        :label="$t('sw-product-stream.detail.labelDisplayAsGroup')"
+                        :help-text="$t('sw-product-stream.detail.helpTextDisplayAsGroup')"
                         :disabled="!acl.can('product_stream.editor')"
                         bordered
                     />

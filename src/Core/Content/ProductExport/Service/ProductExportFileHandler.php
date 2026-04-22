@@ -7,6 +7,7 @@ use League\Flysystem\UnableToDeleteFile;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 #[Package('inventory')]
 class ProductExportFileHandler implements ProductExportFileHandlerInterface
@@ -37,19 +38,24 @@ class ProductExportFileHandler implements ProductExportFileHandlerInterface
 
     public function writeProductExportContent(string $content, string $filePath, bool $append = false): bool
     {
-        if ($this->fileSystem->fileExists($filePath) && !$append) {
-            $this->fileSystem->delete($filePath);
-        }
-
         $existingContent = '';
         if ($append && $this->fileSystem->fileExists($filePath)) {
             $existingContent = $this->fileSystem->read($filePath);
         }
 
+        $targetPath = $filePath;
+        if (!$append) {
+            $targetPath = $filePath . '.' . Uuid::randomHex() . '.tmp';
+        }
+
         $this->fileSystem->write(
-            $filePath,
+            $targetPath,
             $existingContent . $content
         );
+
+        if (!$append) {
+            $this->fileSystem->move($targetPath, $filePath);
+        }
 
         return true;
     }
@@ -65,10 +71,6 @@ class ProductExportFileHandler implements ProductExportFileHandlerInterface
 
     public function finalizePartialProductExport(string $partialFilePath, string $finalFilePath, string $headerContent, string $footerContent): bool
     {
-        if ($this->fileSystem->fileExists($partialFilePath) && $this->fileSystem->fileExists($finalFilePath)) {
-            $this->fileSystem->delete($finalFilePath);
-        }
-
         $content = $this->fileSystem->read($partialFilePath);
 
         try {
@@ -77,12 +79,10 @@ class ProductExportFileHandler implements ProductExportFileHandlerInterface
             return false;
         }
 
-        $this->fileSystem->write(
-            $finalFilePath,
-            $headerContent . $content . $footerContent
+        return $this->writeProductExportContent(
+            $headerContent . $content . $footerContent,
+            $finalFilePath
         );
-
-        return true;
     }
 
     private function isCacheExpired(ExportBehavior $behavior, ProductExportEntity $productExport): bool

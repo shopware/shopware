@@ -1,6 +1,6 @@
 import { test, expect, Page, AdminPageObjects, createNewAdminPageContext, loginToAdministration, User } from '@fixtures/AcceptanceTest';
-import { parseCapturedRequests, removeSymfonyToolbar, setupConsentRevokeInterceptor,
-    setupConsentInterceptor, setupProductAnalyticsInterceptor, waitForEventCount, setupConsentAcceptInterceptor,
+import { parseCapturedRequests, removeSymfonyToolbar,
+    setupConsentInterceptor, setupProductAnalyticsInterceptor, waitForEventCount,
 } from '@helpers/productanalytics-helpers';
 import { satisfies } from 'compare-versions';
 
@@ -34,11 +34,10 @@ test.describe('Product Analytics - Consent Modal Validation',
             await test.step('Modify product analytics API and consent API requests.', async () => {
 
                 const { consentHandler } = setupConsentInterceptor();
-                const { consentRevokeHandler } = setupConsentRevokeInterceptor();
 
                 await page.route(`**/${TRACKING_EVENT_ENDPOINT}**`, trackingEventHandler);
                 await page.route(`**/${CONSENTS_ENDPOINT}`, consentHandler);
-                await page.route(`**/${CONSENTS_ENDPOINT}/revoke`, consentRevokeHandler);
+                await page.route(`**/${CONSENTS_ENDPOINT}/revoke`, consentHandler);
             });
 
             await test.step('Login to shopware administration', async () => {
@@ -97,8 +96,6 @@ test.describe('Product Analytics - Consent Modal Validation',
                 expect(consentStatusChangeEvents).toHaveLength(2);
                 expect(consentModalDecisionEvents).toHaveLength(1);
 
-                expect(consentModalViewedEvents).toHaveLength(1);
-
                 expect(consentModalViewedEvents).toEqual(
                     expect.arrayContaining([
                         expect.objectContaining({
@@ -108,8 +105,6 @@ test.describe('Product Analytics - Consent Modal Validation',
                         }),
                     ])
                 );
-
-                expect(consentStatusChangeEvents).toHaveLength(2);
 
                 expect(consentStatusChangeEvents).toEqual(
                     expect.arrayContaining([
@@ -127,8 +122,6 @@ test.describe('Product Analytics - Consent Modal Validation',
                         }),
                     ])
                 );
-
-                expect(consentModalDecisionEvents).toHaveLength(1);
 
                 expect(consentModalDecisionEvents).toEqual(
                     expect.arrayContaining([
@@ -148,8 +141,8 @@ test.describe('Product Analytics - Consent Modal Validation',
 
                 // make sure consent modal is not shown
                 const { consentHandler } = setupConsentInterceptor({
-                    backend_data: { status: 'declined' },
-                    product_analytics: { status: 'declined' },
+                    backend_data: 'declined',
+                    product_analytics: 'declined',
                 });
                 await page.route(`**/${CONSENTS_ENDPOINT}`, consentHandler);
 
@@ -193,7 +186,7 @@ test.describe('Product Analytics - Consent Modal Validation',
             await test.step('Modify product analytics API and consent API requests.', async () => {
 
                 const { trackingEventHandler } = setupProductAnalyticsInterceptor();
-                const { consentHandler } = setupConsentInterceptor({ backend_data: { status: 'accepted' } });
+                const { consentHandler } = setupConsentInterceptor({ backend_data: 'accepted' });
 
                 await page.route(`**/${TRACKING_EVENT_ENDPOINT}**`, trackingEventHandler);
                 await page.route(`**/${CONSENTS_ENDPOINT}`, consentHandler);
@@ -241,11 +234,10 @@ test.describe('Product Analytics - Consent Modal Validation',
 
             const { trackingEventHandler } = setupProductAnalyticsInterceptor();
             const { consentHandler } = setupConsentInterceptor();
-            const { consentRevokeHandler } = setupConsentRevokeInterceptor();
 
             await page.route(`**/${TRACKING_EVENT_ENDPOINT}**`, trackingEventHandler);
             await page.route(`**/${CONSENTS_ENDPOINT}`, consentHandler);
-            await page.route(`**/${CONSENTS_ENDPOINT}/revoke`, consentRevokeHandler);
+            await page.route(`**/${CONSENTS_ENDPOINT}/revoke`, consentHandler);
         });
 
         await test.step('Setup user which can not change store consent but user data consent', async () => {
@@ -316,13 +308,11 @@ test.describe('Product Analytics - Consent Modal Validation',
 
                 const { trackingEventHandler } = setupProductAnalyticsInterceptor();
                 const { consentHandler } = setupConsentInterceptor();
-                const { consentAcceptHandler } = setupConsentAcceptInterceptor();
-                const { consentRevokeHandler } = setupConsentRevokeInterceptor();
 
                 await page.route(`**/${TRACKING_EVENT_ENDPOINT}**`, trackingEventHandler);
                 await page.route(`**/${CONSENTS_ENDPOINT}`, consentHandler);
-                await page.route(`**/${CONSENTS_ENDPOINT}/accept`, consentAcceptHandler);
-                await page.route(`**/${CONSENTS_ENDPOINT}/revoke`, consentRevokeHandler);
+                await page.route(`**/${CONSENTS_ENDPOINT}/accept`, consentHandler);
+                await page.route(`**/${CONSENTS_ENDPOINT}/revoke`, consentHandler);
             });
 
             await test.step('Login to shopware administration with first user', async () => {

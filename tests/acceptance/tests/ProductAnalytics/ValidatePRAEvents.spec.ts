@@ -30,7 +30,7 @@ test.describe('Product Analytics - Validate events.',
 
         await test.step('Intercept all API calls to product analytics', async () => {
 
-            const { consentHandler } = setupConsentInterceptor({ backend_data: { status: 'declined' }, product_analytics: { status: 'accepted' } });
+            const { consentHandler } = setupConsentInterceptor({ backend_data: 'declined', product_analytics: 'accepted' });
 
             // Intercept event and event/anonymous requests
             await page.route(`**/${TRACKING_EVENT_ENDPOINT}**`, trackingEventHandler);

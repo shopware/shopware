@@ -7,6 +7,7 @@ import { satisfies } from 'compare-versions';
 
 const TRACKING_EVENT_ENDPOINT = 'event';
 const CONSENTS_ENDPOINT = 'consents';
+const MONTHS_AHEAD = 3;
 
 test('Visual: Administration data sharing consent modal', { tag: '@Visual' }, async ({
     TestDataService,
@@ -20,6 +21,8 @@ test('Visual: Administration data sharing consent modal', { tag: '@Visual' }, as
     const page: Page = await createNewAdminPageContext(browser, SalesChannelBaseConfig);
     const AdminDataSharingConsentModal = new AdminPageObjects['DataSharingConsentModal'](page);
 
+    await page.clock.install({ time: new Date(new Date().setMonth(new Date().getMonth() + MONTHS_AHEAD)) });
+
     await test.step('Modify product analytics API and consent API requests.', async () => {
 
         const { trackingEventHandler } = setupProductAnalyticsInterceptor();
@@ -31,7 +34,7 @@ test('Visual: Administration data sharing consent modal', { tag: '@Visual' }, as
 
     await test.step('Login to shopware administration.', async () => {
 
-        const user: User = await TestDataService.createUser({ createdAt: '2024-01-01T00:00:00.000Z' });
+        const user: User = await TestDataService.createUser();
 
         await loginToAdministration(
             page,

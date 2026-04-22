@@ -6,12 +6,12 @@
         {% block sw_settings_mailer_smart_bar_header_title %}
         <h2>
             {% block sw_settings_mailer_smart_bar_header_title_text %}
-            {{ $tc('sw-settings.index.title') }}
+            {{ $t('sw-settings.index.title') }}
             <mt-icon
                 name="regular-chevron-right-xs"
                 size="12px"
             />
-            {{ $tc('sw-settings-mailer.general.textHeadline') }}
+            {{ $t('sw-settings-mailer.general.textHeadline') }}
             {% endblock %}
         </h2>
         {% endblock %}
@@ -28,7 +28,7 @@
             @update:process-success="onSaveFinish"
             @click="saveMailerSettings"
         >
-            {{ $tc('sw-settings-mailer.general.buttonSave') }}
+            {{ $t('sw-settings-mailer.general.buttonSave') }}
         </sw-button-process>
         {% endblock %}
     </template>
@@ -43,7 +43,7 @@
                 v-else
                 position-identifier="sw-settings-mailer-configuration"
                 :is-loading="isLoading"
-                :title="$tc('sw-settings-mailer.mailer-configuration.card-title')"
+                :title="$t('sw-settings-mailer.mailer-configuration.card-title')"
             >
 
                 {% block sw_settings_mailer_first_configuration %}
@@ -54,14 +54,14 @@
                     {% block sw_settings_mailer_first_configuration_headline %}
                     <h4 class="sw-settings-mailer__headline">
                         <strong>
-                            {{ $tc('sw-settings-mailer.first-configuration.headline') }}
+                            {{ $t('sw-settings-mailer.first-configuration.headline') }}
                         </strong>
                     </h4>
                     {% endblock %}
 
                     {% block sw_settings_mailer_first_configuration_description %}
                     <p>
-                        {{ $tc('sw-settings-mailer.first-configuration.description') }}
+                        {{ $t('sw-settings-mailer.first-configuration.description') }}
                     </p>
                     {% endblock %}
                 </div>
@@ -69,7 +69,7 @@
 
                 {% block sw_settings_mailer_headline_agent %}
                 <p class="sw-settings-mailer__headline">
-                    {{ $tc('sw-settings-mailer.mailer-configuration.agent') }}
+                    {{ $t('sw-settings-mailer.mailer-configuration.agent') }}
                 </p>
                 {% endblock %}
 
@@ -88,12 +88,12 @@
                     {% endblock %}
                 </div>
 
-                <p v-html="$tc('sw-settings-mailer.helpText')"></p>
+                <p v-html="$t('sw-settings-mailer.helpText')"></p>
 
                 <mt-switch
                     v-if="!isSmtpMode"
                     v-model="mailerSettings['core.mailerSettings.disableDelivery']"
-                    :label="$tc('sw-settings-mailer.card-smtp.disable-delivery')"
+                    :label="$t('sw-settings-mailer.card-smtp.disable-delivery')"
                 />
             </mt-card>
 

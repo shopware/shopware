@@ -177,8 +177,8 @@ export default {
 
             // get metadata in searchMatcher
             const metadata = module.searchMatcher(
-                new RegExp(`^${this.$tc(title).toLowerCase()}(.*)`),
-                this.$tc(title, 2),
+                new RegExp(`^${this.$t(title).toLowerCase()}(.*)`),
+                this.$t(title, 2),
                 module,
             );
 

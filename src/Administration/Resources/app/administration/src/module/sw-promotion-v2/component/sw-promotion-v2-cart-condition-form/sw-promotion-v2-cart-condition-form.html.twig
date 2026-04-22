@@ -8,8 +8,8 @@
         class="sw-promotion-v2-cart-condition-form__rule-select-cart"
         :local-mode="promotion.isNew()"
         :rule-filter="ruleFilter"
-        :label="$tc('sw-promotion-v2.detail.conditions.preConditions.labelCartConditionSelect')"
-        :placeholder="$tc('sw-promotion-v2.detail.conditions.preConditions.placeholderCartConditionSelect')"
+        :label="$t('sw-promotion-v2.detail.conditions.preConditions.labelCartConditionSelect')"
+        :placeholder="$t('sw-promotion-v2.detail.conditions.preConditions.placeholderCartConditionSelect')"
         :rule-scope="['checkout', 'global', 'lineItem']"
         rule-aware-group-key="cartPromotions"
         :disabled="isEditingDisabled"
@@ -22,7 +22,7 @@
         v-model="promotion.useSetGroups"
         class="sw-promotion-v2-cart-condition-form__use-setgroups"
         :disabled="!acl.can('promotion.editor')"
-        :label="$tc('sw-promotion-v2.detail.conditions.setgroups.switchGroupsEnabled')"
+        :label="$t('sw-promotion-v2.detail.conditions.setgroups.switchGroupsEnabled')"
     />
     {% endblock %}
 
@@ -45,14 +45,14 @@
                     :disabled="isEditingDisabled"
                     @click="duplicateSetGroup(group)"
                 >
-                    {{ $tc('global.default.duplicate') }}
+                    {{ $t('global.default.duplicate') }}
                 </sw-context-menu-item>
                 {% endblock %}
 
                 {% block sw_promotion_v2_cart_condition_setgroup_card_context_action_delete %}
                 <sw-context-menu-item
                     v-tooltip="{
-                        message: $tc('sw-privileges.tooltip.warning'),
+                        message: $t('sw-privileges.tooltip.warning'),
                         disabled: acl.can('promotion.editor'),
                         showOnDisabledElements: true
                     }"
@@ -60,7 +60,7 @@
                     :disabled="isEditingDisabled"
                     @click="deleteSetGroup(group)"
                 >
-                    {{ $tc('global.default.delete') }}
+                    {{ $t('global.default.delete') }}
                 </sw-context-menu-item>
                 {% endblock %}
 
@@ -69,7 +69,7 @@
 
             {% block sw_promotion_v2_cart_condition_setgroup_card_title %}
             <div class="sw-promotion-v2-cart-condition-form__setgroup-card-title">
-                {{ $tc('sw-promotion-v2.detail.conditions.setgroups.titleName') }} {{ index + 1 }}
+                {{ $t('sw-promotion-v2.detail.conditions.setgroups.titleName') }} {{ index + 1 }}
             </div>
             {% endblock %}
 
@@ -81,7 +81,7 @@
                 <mt-select
                     v-model="group.packagerKey"
                     class="sw-promotion-v2-cart-condition-form__setgroup-mode"
-                    :label="$tc('sw-promotion-v2.detail.conditions.setgroups.labelMode')"
+                    :label="$t('sw-promotion-v2.detail.conditions.setgroups.labelMode')"
                     :disabled="isEditingDisabled"
                     :options="packagerOptions"
                 />
@@ -91,7 +91,7 @@
                 <mt-number-field
                     v-model="group.value"
                     class="sw-promotion-v2-cart-condition-form__setgroup-value"
-                    :label="$tc('sw-promotion-v2.detail.conditions.setgroups.labelValue')"
+                    :label="$t('sw-promotion-v2.detail.conditions.setgroups.labelValue')"
                     :disabled="isEditingDisabled"
                 />
                 {% endblock %}
@@ -106,7 +106,7 @@
                 <mt-select
                     v-model="group.sorterKey"
                     class="sw-promotion-v2-cart-condition-form__setgroup-sorting"
-                    :label="$tc('sw-promotion-v2.detail.conditions.setgroups.labelSorting')"
+                    :label="$t('sw-promotion-v2.detail.conditions.setgroups.labelSorting')"
                     :disabled="isEditingDisabled"
                     :options="sorterOptions"
                 />
@@ -123,8 +123,8 @@
                 <sw-select-rule-create
                     v-model:rules="group.setGroupRules"
                     class="sw-promotion-v2-cart-condition-form__setgroup-rules"
-                    :label="$tc('sw-promotion-v2.detail.conditions.setgroups.labelRules')"
-                    :placeholder="$tc('sw-promotion-v2.detail.conditions.setgroups.placeholder')"
+                    :label="$t('sw-promotion-v2.detail.conditions.setgroups.labelRules')"
+                    :placeholder="$t('sw-promotion-v2.detail.conditions.setgroups.placeholder')"
                     :rule-filter="ruleFilter"
                     :rule-scope="['checkout', 'global', 'lineItem']"
                     :disabled="isEditingDisabled"
@@ -145,7 +145,7 @@
                 variant="secondary"
                 @click="addSetGroup"
             >
-                {{ $tc('sw-promotion-v2.detail.conditions.setgroups.buttonAddGroup') }}
+                {{ $t('sw-promotion-v2.detail.conditions.setgroups.buttonAddGroup') }}
             </mt-button>
         </div>
         {% endblock %}

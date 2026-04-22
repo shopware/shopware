@@ -63,7 +63,7 @@ export default {
             if (this.placeholder) {
                 return this.placeholder;
             }
-            return this.$tc('sw-order.stateCard.labelSelectStatePlaceholder');
+            return this.$t('sw-order.stateCard.labelSelectStatePlaceholder');
         },
 
         selectable() {

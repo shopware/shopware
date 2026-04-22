@@ -292,12 +292,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
     'identifier' => 'empty.notAllowed',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/Content/Product/DataAbstractionLayer/VariantListingUpdater.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
-    'identifier' => 'empty.notAllowed',
     'count' => 2,
     'path' => __DIR__ . '/src/Core/Content/Product/SalesChannel/Detail/ProductDetailRoute.php',
 ];
@@ -1139,12 +1133,6 @@ $ignoreErrors[] = [
     'rawMessage' => 'Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md',
     'identifier' => 'shopware.domainException',
     'count' => 1,
-    'path' => __DIR__ . '/src/Core/Framework/Rule/Rule.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md',
-    'identifier' => 'shopware.domainException',
-    'count' => 1,
     'path' => __DIR__ . '/src/Core/Framework/Store/Authentication/AbstractStoreRequestOptionsProvider.php',
 ];
 $ignoreErrors[] = [
@@ -1638,18 +1626,6 @@ $ignoreErrors[] = [
     'identifier' => 'shopware.domainException',
     'count' => 1,
     'path' => __DIR__ . '/src/Storefront/Theme/ConfigLoader/StaticFileConfigLoader.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Method Shopware\\Storefront\\Theme\\Event\\ThemeConfigChangedEvent::__construct() has parameter $config with no value type specified in iterable type array.',
-    'identifier' => 'missingType.iterableValue',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Storefront/Theme/Event/ThemeConfigChangedEvent.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Method Shopware\\Storefront\\Theme\\Event\\ThemeConfigChangedEvent::getConfig() return type has no value type specified in iterable type array.',
-    'identifier' => 'missingType.iterableValue',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Storefront/Theme/Event/ThemeConfigChangedEvent.php',
 ];
 $ignoreErrors[] = [
     'rawMessage' => 'Method Shopware\\Storefront\\Theme\\Event\\ThemeIndexerEvent::__construct() has parameter $ids with no value type specified in iterable type array.',

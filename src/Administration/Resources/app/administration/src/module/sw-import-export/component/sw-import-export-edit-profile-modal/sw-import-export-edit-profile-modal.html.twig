@@ -12,7 +12,7 @@
             v-if="profile.systemDefault"
             variant="info"
         >
-            {{ $tc('sw-import-export.profile.systemDefaultInfoText') }}
+            {{ $t('sw-import-export.profile.systemDefaultInfoText') }}
         </mt-banner>
         {% endblock %}
 
@@ -25,32 +25,32 @@
             <template #default="{ active }">
                 {% block sw_import_export_edit_profile_modal_tabs_general %}
                 <sw-tabs-item
-                    :title="$tc('sw-import-export.profile.generalTab')"
+                    :title="$t('sw-import-export.profile.generalTab')"
                     :active-tab="active"
                     name="general"
                 >
-                    {{ $tc('sw-import-export.profile.generalTab') }}
+                    {{ $t('sw-import-export.profile.generalTab') }}
                 </sw-tabs-item>
                 {% endblock %}
 
                 {% block sw_import_export_edit_profile_modal_tabs_field_mappings %}
                 <sw-tabs-item
-                    :title="$tc('sw-import-export.profile.mappingsTab')"
+                    :title="$t('sw-import-export.profile.mappingsTab')"
                     :active-tab="active"
                     name="mappings"
                 >
-                    {{ $tc('sw-import-export.profile.mappingsTab') }}
+                    {{ $t('sw-import-export.profile.mappingsTab') }}
                 </sw-tabs-item>
                 {% endblock %}
 
                 {% block sw_import_export_edit_profile_modal_tabs_field_advanced %}
                 <sw-tabs-item
                     v-if="profile.type !== 'export' && profile.config.updateEntities !== false"
-                    :title="$tc('sw-import-export.profile.advancedTab')"
+                    :title="$t('sw-import-export.profile.advancedTab')"
                     :active-tab="active"
                     name="advanced"
                 >
-                    {{ $tc('sw-import-export.profile.advancedTab') }}
+                    {{ $t('sw-import-export.profile.advancedTab') }}
                 </sw-tabs-item>
                 {% endblock %}
             </template>
@@ -70,7 +70,7 @@
                     {% block sw_import_export_edit_profile_modal_tabs_mappings %}
                     {% block sw_import_export_edit_profile_modal_tabs_mappings_text %}
                     <p class="sw-import-export-edit-profile-modal__text">
-                        {{ $tc('sw-import-export.profile.mappingDescription') }}
+                        {{ $t('sw-import-export.profile.mappingDescription') }}
                     </p>
                     {% endblock %}
 
@@ -88,7 +88,7 @@
                     {% block sw_import_export_edit_profile_modal_tabs_advanced %}
                     {% block sw_import_export_edit_profile_modal_tabs_advanced_text %}
                     <p class="sw-import-export-edit-profile-modal__text">
-                        {{ $tc('sw-import-export.profile.advancedDescription') }}
+                        {{ $t('sw-import-export.profile.advancedDescription') }}
                     </p>
                     {% endblock %}
 
@@ -102,7 +102,7 @@
 
                 <template v-if="active === 'fieldIndicators'">
                     <p class="sw-import-export-edit-profile-modal__text">
-                        {{ $tc('sw-import-export.profile.csvDescriptionBlock') }}
+                        {{ $t('sw-import-export.profile.csvDescriptionBlock') }}
                     </p>
                 </template>
             </template>
@@ -116,7 +116,7 @@
                 variant="secondary"
                 @click="$emit('profile-close')"
             >
-                {{ $tc('global.default.cancel') }}
+                {{ $t('global.default.cancel') }}
             </mt-button>
 
             <template v-if="profile.systemDefault">
@@ -126,7 +126,7 @@
                     variant="primary"
                     @click="$emit('profile-close')"
                 >
-                    {{ $tc('sw-import-export.profile.closeProfileLabel') }}
+                    {{ $t('sw-import-export.profile.closeProfileLabel') }}
                 </mt-button>
             </template>
 

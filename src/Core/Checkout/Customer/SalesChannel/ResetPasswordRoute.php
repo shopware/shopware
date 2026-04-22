@@ -88,6 +88,8 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
             $cacheKey = strtolower((string) $customer->getEmail()) . '-' . $request->getClientIp();
 
             $this->rateLimiter->reset(RateLimiter::LOGIN_ROUTE, $cacheKey);
+            $this->rateLimiter->resetIfConfigured(RateLimiter::LOGIN_USER, strtolower((string) $customer->getEmail()));
+            $this->rateLimiter->resetIfConfigured(RateLimiter::LOGIN_CLIENT, (string) $request->getClientIp());
             $this->rateLimiter->reset(RateLimiter::RESET_PASSWORD, $cacheKey);
         }
 

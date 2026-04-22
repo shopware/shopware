@@ -3,12 +3,12 @@
 .sw-product-detail-layout {
     &__no-config.sw-card {
         text-align: center;
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
     }
 
     &__content-info {
-        color: $color-gray-500;
-        font-size: $font-size-xs;
-        margin-top: 16px;
+        color: var(--color-gray-500);
+        font-size: var(--font-size-xs);
+        margin-top: var(--scale-size-16);
     }
 }

@@ -35,12 +35,17 @@ class WishlistCookieCollectListenerTest extends TestCase
     {
         $this->systemConfigService->set('core.cart.wishlistEnabled', false);
 
-        /** @phpstan-ignore shopware.mockingSimpleObjects (A mock is used here to ensure that the method is not called) */
-        $cookieCollection = $this->createMock(CookieGroupCollection::class);
-        $cookieCollection->expects($this->never())->method('get');
-        $event = new CookieGroupCollectEvent($cookieCollection, new Request(), Generator::generateSalesChannelContext());
+        $cookieGroup = new CookieGroup(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES);
+        $event = new CookieGroupCollectEvent(
+            new CookieGroupCollection([$cookieGroup]),
+            new Request(),
+            Generator::generateSalesChannelContext()
+        );
 
         $this->listener->__invoke($event);
+
+        $wishlistCookie = $event->cookieGroupCollection->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES)?->getEntries()?->get('wishlist-enabled');
+        static::assertNull($wishlistCookie);
     }
 
     public function testComfortFeaturesCookieGroupNotPresent(): void

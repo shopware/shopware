@@ -3,8 +3,8 @@
     {% block sw_settings_snippet_set_list_search_bar %}
     <template #search-bar>
         <sw-search-bar
-            :initial-search-type="$tc('sw-settings-snippet.general.searchBarTitleSets')"
-            :placeholder="$tc('sw-settings-snippet.general.placeholderSearchBarSets')"
+            :initial-search-type="$t('sw-settings-snippet.general.searchBarTitleSets')"
+            :placeholder="$t('sw-settings-snippet.general.placeholderSearchBarSets')"
             :initial-search="term"
             @search="onSearch"
         />

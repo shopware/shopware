@@ -68,12 +68,12 @@ export default {
             return [
                 {
                     property: 'label',
-                    label: this.$tc('sw-integration.list.integrationName'),
+                    label: this.$t('sw-integration.list.integrationName'),
                     primary: true,
                 },
                 {
                     property: 'writeAccess',
-                    label: this.$tc('sw-integration.list.permissions'),
+                    label: this.$t('sw-integration.list.permissions'),
                 },
             ];
         },
@@ -156,13 +156,13 @@ export default {
 
         createSavedSuccessNotification() {
             this.createNotificationSuccess({
-                message: this.$tc('sw-integration.detail.messageSaveSuccess'),
+                message: this.$t('sw-integration.detail.messageSaveSuccess'),
             });
         },
 
         createSavedErrorNotification() {
             this.createNotificationError({
-                message: this.$tc('sw-integration.detail.messageSaveError'),
+                message: this.$t('sw-integration.detail.messageSaveError'),
             });
         },
 
@@ -184,7 +184,7 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-integration.detail.messageCreateNewError'),
+                        message: this.$t('sw-integration.detail.messageCreateNewError'),
                     });
                 });
         },

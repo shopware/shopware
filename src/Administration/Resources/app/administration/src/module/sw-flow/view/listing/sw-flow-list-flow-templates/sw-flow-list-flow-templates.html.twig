@@ -46,7 +46,7 @@
                         :disabled="!acl.can('flow.creator')"
                         type="internal"
                     >
-                        {{ $tc('sw-flow.template.create') }}
+                        {{ $t('sw-flow.template.create') }}
                     </mt-link>
                 </template>
             </sw-entity-listing>
@@ -55,8 +55,8 @@
                 v-else
                 class="sw-flow-list-my_templates__empty-state"
                 :icon="$route.meta.$module.icon"
-                :headline="$tc('sw-flow.list.emptyStateTitle')"
-                :description="$tc('sw-flow.list.emptyStateSubTitle')"
+                :headline="$t('sw-flow.list.emptyStateTitle')"
+                :description="$t('sw-flow.list.emptyStateSubTitle')"
             />
         </div>
     </div>

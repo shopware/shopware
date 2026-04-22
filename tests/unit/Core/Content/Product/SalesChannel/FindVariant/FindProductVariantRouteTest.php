@@ -8,6 +8,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Exception\VariantNotFoundException;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute;
+use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilter;
+use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Context;
@@ -18,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -34,6 +37,8 @@ class FindProductVariantRouteTest extends TestCase
 
     private MockObject&CacheTagCollector $cacheTagCollector;
 
+    private MockObject&SystemConfigService $systemConfigService;
+
     private FindProductVariantRoute $route;
 
     private IdsCollection $ids;
@@ -42,9 +47,12 @@ class FindProductVariantRouteTest extends TestCase
     {
         $this->productRepositoryMock = $this->createMock(SalesChannelRepository::class);
         $this->cacheTagCollector = $this->createMock(CacheTagCollector::class);
+        $this->systemConfigService = $this->createMock(SystemConfigService::class);
         $this->route = new FindProductVariantRoute(
             $this->productRepositoryMock,
             $this->cacheTagCollector,
+            $this->systemConfigService,
+            new ProductCloseoutFilterFactory(),
         );
         $this->ids = new IdsCollection();
     }
@@ -79,6 +87,7 @@ class FindProductVariantRouteTest extends TestCase
         $criteria->setLimit(1);
         $criteria->addFilter(new EqualsFilter('product.optionIds', $this->ids->get('option1')));
         $criteria->addFilter(new EqualsFilter('product.optionIds', $this->ids->get('option2')));
+        $criteria->addFilter(new ProductCloseoutFilter());
 
         $context = Context::createDefaultContext();
 
@@ -109,6 +118,8 @@ class FindProductVariantRouteTest extends TestCase
         $this->cacheTagCollector->expects($this->once())
             ->method('addTag')
             ->with(EntityCacheKeyGenerator::buildProductTag($this->ids->get('productId')));
+
+        $this->systemConfigService->method('getBool')->willReturn(true);
 
         $response = $this->route->load($this->ids->get('productId'), $request, $this->createMock(SalesChannelContext::class));
 

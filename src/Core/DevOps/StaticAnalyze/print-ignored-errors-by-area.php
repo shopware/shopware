@@ -1,5 +1,11 @@
 <?php declare(strict_types=1);
 
+if (!isset($argv[1], $argv[2])) {
+    echo 'Usage: php print-ignored-errors-by-area.php <ignored-file-path> <area>' . \PHP_EOL;
+
+    return;
+}
+
 $ignoredFilePath = $argv[1];
 $area = $argv[2];
 

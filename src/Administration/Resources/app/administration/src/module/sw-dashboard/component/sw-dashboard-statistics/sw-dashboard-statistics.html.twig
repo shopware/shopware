@@ -11,7 +11,7 @@
     <template v-else>
         <template v-if="hasOrderToday">
             <div class="sw-dashboard-statistics__card-headline">
-                <h1>{{ $tc('sw-dashboard.todayStats.headline') }}</h1>
+                <h1>{{ $t('sw-dashboard.todayStats.headline') }}</h1>
 
                 <span class="sw-dashboard-statistics__card-headline-timerange">
                     {{ formatChartHeadlineDate(today) }}
@@ -25,12 +25,12 @@
                         class="sw-dashboard-statistics__intro-stats-today-stats"
                     >
                         <div class="sw-dashboard-statistics__intro-stats-today-single-stat">
-                            <span class="sw-dashboard-statistics__intro-stats-today-single-stat-number-type">{{ $tc('sw-dashboard.todayStats.orders') }}</span>
+                            <span class="sw-dashboard-statistics__intro-stats-today-single-stat-number-type">{{ $t('sw-dashboard.todayStats.orders') }}</span>
                             <span class="sw-dashboard-statistics__intro-stats-today-single-stat-number-value">{{ orderCountToday }}</span>
                         </div>
 
                         <div class="sw-dashboard-statistics__intro-stats-today-single-stat">
-                            <span class="sw-dashboard-statistics__intro-stats-today-single-stat-number-type">{{ $tc('sw-dashboard.todayStats.turnover') }}</span>
+                            <span class="sw-dashboard-statistics__intro-stats-today-single-stat-number-type">{{ $t('sw-dashboard.todayStats.turnover') }}</span>
                             {# price aggregations do not support currencies yet, see NEXT-5069 #}
                             <span class="sw-dashboard-statistics__intro-stats-today-single-stat-number-value">{{ currencyFilter(orderSumToday, systemCurrencyISOCode, 2) }}</span>
                         </div>
@@ -87,7 +87,7 @@
                                 class="sw-order-list__order-view-action"
                                 :router-link="{ name: 'sw.order.detail', params: { id: item.id } }"
                             >
-                                {{ $tc('sw-order.list.contextMenuView') }}
+                                {{ $t('sw-order.list.contextMenuView') }}
                             </sw-context-menu-item>
 
                         </template>
@@ -107,14 +107,14 @@
                 :series="orderCountSeries"
                 :options="chartOptionsOrderCount"
                 :fill-empty-values="ordersDateRange.aggregate"
-                :card-title="$tc('sw-dashboard.monthStats.orderNumber')"
+                :card-title="$t('sw-dashboard.monthStats.orderNumber')"
                 type="line"
                 sort
                 position-identifier=""
                 @sw-chart-card-range-update="onOrdersRangeUpdate"
             >
                 <template #range-option="{ range }">
-                    {{ $tc(`sw-dashboard.monthStats.dateRanges.${range}`) }}
+                    {{ $t(`sw-dashboard.monthStats.dateRanges.${range}`) }}
                 </template>
             </sw-chart-card>
 
@@ -125,15 +125,15 @@
                 :series="orderSumSeries"
                 :options="chartOptionsOrderSum"
                 :fill-empty-values="turnoverDateRange.aggregate"
-                :card-title="$tc('sw-dashboard.monthStats.turnover')"
-                :help-text="$tc('sw-dashboard.monthStats.helperText')"
+                :card-title="$t('sw-dashboard.monthStats.turnover')"
+                :help-text="$t('sw-dashboard.monthStats.helperText')"
                 type="line"
                 sort
                 position-identifier=""
                 @sw-chart-card-range-update="onTurnoverRangeUpdate"
             >
                 <template #range-option="{ range }">
-                    {{ $tc(`sw-dashboard.monthStats.dateRanges.${range}`) }}
+                    {{ $t(`sw-dashboard.monthStats.dateRanges.${range}`) }}
                 </template>
             </sw-chart-card>
         </template>

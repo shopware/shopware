@@ -2,7 +2,7 @@
 <mt-card
     class="sw-users-permissions-user-listing sw-settings-user-list"
     position-identifier="sw-users-permissions-user-listing"
-    :title="$tc('sw-users-permissions.users.general.cardLabel')"
+    :title="$t('sw-users-permissions.users.general.cardLabel')"
 >
 
     <div class="sw-users-permissions-user-listing__toolbar">
@@ -29,7 +29,7 @@
                 variant="primary"
                 @click="openInvitationModal"
             >
-                {{ $tc('sw-users-permissions.sso.inviteButtonLabel') }}
+                {{ $t('sw-users-permissions.sso.inviteButtonLabel') }}
             </mt-button>
 
             <mt-button
@@ -41,7 +41,7 @@
                 variant="secondary"
                 @click="$router.push({ name: 'sw.users.permissions.user.create' })"
             >
-                {{ $tc('sw-users-permissions.users.general.labelCreateNewUser') }}
+                {{ $t('sw-users-permissions.users.general.labelCreateNewUser') }}
             </mt-button>
 
             <sw-user-sso-invitation-modal
@@ -75,7 +75,7 @@
                 :disabled="!acl.can('users_and_permissions.editor') || undefined"
                 :router-link="{ name: userDetailRouterLink, params: { id: item.id } }"
             >
-                {{ $tc('sw-users-permissions.users.user-grid.contextMenuEdit') }}
+                {{ $t('sw-users-permissions.users.user-grid.contextMenuEdit') }}
             </sw-context-menu-item>
             {% endblock %}
 
@@ -86,7 +86,7 @@
                 :disabled="!acl.can('users_and_permissions.deleter') || undefined"
                 @click="onDelete(item)"
             >
-                {{ $tc('sw-users-permissions.users.user-grid.contextMenuDelete') }}
+                {{ $t('sw-users-permissions.users.user-grid.contextMenuDelete') }}
             </sw-context-menu-item>
             {% endblock %}
         </template>
@@ -160,7 +160,7 @@
                 </span>
             </template>
             <span v-else-if="item.admin">
-                {{ $tc('sw-users-permissions.users.user-detail.labelAdministrator') }}
+                {{ $t('sw-users-permissions.users.user-detail.labelAdministrator') }}
             </span>
             <span v-else></span>
         </template>
@@ -182,13 +182,13 @@
         {% block sw_settings_user_list_delete_modal %}
             <sw-modal
                 v-if="getItemToDelete(item)"
-                :title="$tc('global.default.warning')"
+                :title="$t('global.default.warning')"
                 variant="small"
                 @modal-close="onCloseDeleteModal"
             >
                 {% block sw_settings_user_list_delete_modal_confirm_delete_text %}
                 <p class="sw-settings-user-list__confirm-delete-text">
-                    {{ $tc('sw-users-permissions.users.user-grid.textModalDelete', { name: salutation(item) }, 0) }}
+                    {{ $t('sw-users-permissions.users.user-grid.textModalDelete', { name: salutation(item) }, 0) }}
                 </p>
                 {% endblock %}
 
@@ -200,8 +200,8 @@
                     required
                     name="sw-field--confirm-password"
                     :password-toggle-able="true"
-                    :label="$tc('sw-users-permissions.users.user-detail.passwordConfirmation.labelConfirmPassword')"
-                    :placeholder="$tc('sw-users-permissions.users.user-detail.passwordConfirmation.placeholderConfirmPassword')"
+                    :label="$t('sw-users-permissions.users.user-detail.passwordConfirmation.labelConfirmPassword')"
+                    :placeholder="$t('sw-users-permissions.users.user-detail.passwordConfirmation.placeholderConfirmPassword')"
                     autocomplete="off"
                     @keypress.enter="onConfirmDelete(item)"
                 />
@@ -215,7 +215,7 @@
                         variant="secondary"
                         @click="onCloseDeleteModal"
                     >
-                        {{ $tc('global.default.cancel') }}
+                        {{ $t('global.default.cancel') }}
                     </mt-button>
                     {% endblock %}
 
@@ -227,7 +227,7 @@
                         size="small"
                         @click="onConfirmDelete(item)"
                     >
-                        {{ $tc('sw-users-permissions.users.user-grid.labelButtonDelete') }}
+                        {{ $t('sw-users-permissions.users.user-grid.labelButtonDelete') }}
                     </mt-button>
                     {% endblock %}
                 </template>

@@ -137,6 +137,33 @@ class MediaUploadControllerTest extends TestCase
         $mediaUploadController->provideName($request, $context);
     }
 
+    public function testPreservePrintableUnicodeCharactersInFileNameBeforeProvideName(): void
+    {
+        $fileName = 'Geschenktüte.png';
+        $mediaId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        $request = new Request([
+            'fileName' => $fileName,
+            'extension' => 'jpg',
+            'mediaId' => $mediaId,
+        ]);
+
+        $this->fileNameProvider->expects($this->once())
+            ->method('provide')
+            ->with($fileName, 'jpg', $mediaId, $context);
+
+        $mediaUploadController = new MediaUploadController(
+            $this->mediaService,
+            $this->fileSaver,
+            $this->fileNameProvider,
+            new MediaDefinition(),
+            new EventDispatcher()
+        );
+
+        $mediaUploadController->provideName($request, $context);
+    }
+
     public function testRenameThrowsWhenEmptyFileName(): void
     {
         $mediaId = Uuid::randomHex();

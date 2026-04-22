@@ -46,7 +46,7 @@ class MediaUploadController extends AbstractController
         }
 
         $fileName = $request->query->getString('fileName', $mediaId);
-        $destination = preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $fileName);
+        $destination = preg_replace('/\p{C}+/u', '', $fileName);
 
         if (!\is_string($destination)) {
             throw MediaException::illegalFileName($fileName, 'Filename must be a string');
@@ -73,7 +73,7 @@ class MediaUploadController extends AbstractController
     public function renameMediaFile(Request $request, string $mediaId, Context $context, ResponseFactoryInterface $responseFactory): Response
     {
         $fileName = $request->request->getString('fileName');
-        $destination = preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $fileName);
+        $destination = preg_replace('/\p{C}+/u', '', $fileName);
 
         if ($destination === '') {
             throw MediaException::emptyMediaFilename();
@@ -92,7 +92,7 @@ class MediaUploadController extends AbstractController
     public function provideName(Request $request, Context $context): JsonResponse
     {
         $fileName = $request->query->getString('fileName');
-        $preferredFileName = preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $fileName);
+        $preferredFileName = preg_replace('/\p{C}+/u', '', $fileName);
 
         if (!\is_string($preferredFileName)) {
             throw MediaException::illegalFileName($fileName, 'Filename must be a string');

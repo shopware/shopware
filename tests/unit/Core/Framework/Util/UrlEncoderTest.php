@@ -105,4 +105,12 @@ class UrlEncoderTest extends TestCase
             UrlEncoder::encodeUrl('../media/file name.jpg')
         );
     }
+
+    public function testItDoesNotDoubleEncodeAlreadyEncodedPaths(): void
+    {
+        static::assertSame(
+            'https://example.com/Geschenkt%C3%BCte.jpg',
+            UrlEncoder::encodeUrl('https://example.com/Geschenkt%C3%BCte.jpg')
+        );
+    }
 }

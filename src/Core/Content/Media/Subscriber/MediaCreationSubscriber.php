@@ -37,7 +37,7 @@ class MediaCreationSubscriber implements EventSubscriberInterface
     private function filterFilePath(array $commands): void
     {
         foreach ($commands as $command) {
-            $path = preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $command->getPayload()['path']);
+            $path = preg_replace('/\p{C}+/u', '', $command->getPayload()['path']);
 
             $command->addPayload('path', \is_string($path) ? $path : null);
         }

@@ -598,6 +598,29 @@ describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
             expect(contentEntity.slotConfig).toBeNull();
         });
 
+        it('should preserve overrides on other slots when restoring this slots last field', async () => {
+            const contentEntity = {
+                slotConfig: {
+                    'test-slot-id': {
+                        testField: { value: 'child override' },
+                    },
+                    'other-slot-id': {
+                        otherField: { value: 'other slot override' },
+                    },
+                },
+            };
+            Shopware.Store.get('swCategoryDetail').category = contentEntity;
+            const wrapper = await createWrapper();
+
+            await wrapper.vm.onInheritanceRestore();
+
+            expect(contentEntity.slotConfig).not.toBeNull();
+            expect(contentEntity.slotConfig['test-slot-id']).toBeUndefined();
+            expect(contentEntity.slotConfig['other-slot-id']).toStrictEqual({
+                otherField: { value: 'other slot override' },
+            });
+        });
+
         it('should emit inheritance:restore event', async () => {
             Shopware.Store.get('swCategoryDetail').category = {
                 contentEntity: {

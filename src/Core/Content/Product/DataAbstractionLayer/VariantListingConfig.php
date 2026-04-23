@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Struct\Struct;
 class VariantListingConfig extends Struct
 {
     /**
-     * @param array<string, string>|null $configuratorGroupConfig
+     * @param list<array{id: string, representation?: string, expressionForListings?: bool}>|null $configuratorGroupConfig
      */
     public function __construct(
         protected ?bool $displayParent,
@@ -29,7 +29,7 @@ class VariantListingConfig extends Struct
     }
 
     /**
-     * @return array<string, string>|null
+     * @return list<array{id: string, representation?: string, expressionForListings?: bool}>|null
      */
     public function getConfiguratorGroupConfig(): ?array
     {

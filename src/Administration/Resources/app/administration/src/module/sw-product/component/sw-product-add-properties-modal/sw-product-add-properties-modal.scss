@@ -1,12 +1,11 @@
 @import "~scss/variables";
 
-$min-height-empty-state: 420px;
-$background-color: $color-gray-100;
+$base-size: calc(var(--scale-size-224) + var(--scale-size-56));
 
 .sw-product-add-properties-modal {
     &.sw-modal.sw-modal--default {
         .sw-modal__dialog {
-            max-width: 900px;
+            max-width: calc(var(--scale-size-224) * 4 + var(--scale-size-4));
         }
 
         .sw-modal__body {
@@ -16,7 +15,7 @@ $background-color: $color-gray-100;
 
     &__content .sw-card-section {
         position: relative;
-        min-height: $min-height-empty-state;
+        min-height: calc(#{$base-size} + var(--scale-size-40) * 3 + var(--scale-size-20));
         padding: 0;
     }
 
@@ -30,8 +29,8 @@ $background-color: $color-gray-100;
 
     &__content .sw-grid .sw-grid__cell-content {
         min-height: 0;
-        line-height: $line-height-sm;
-        padding: 10px 30px;
+        line-height: var(--font-line-height-xs);
+        padding: var(--scale-size-10) var(--scale-size-30);
     }
 
     &__content .sw-grid.sw-grid--table .sw-grid-row.is--selected {
@@ -41,15 +40,15 @@ $background-color: $color-gray-100;
 
     &__property-name {
         cursor: pointer;
-        margin-left: 10px;
+        margin-left: var(--scale-size-10);
     }
 
     &__property-selected {
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
     }
 
     &__property-values .sw-grid__cell .sw-grid__cell-content {
-        padding-left: 5px;
+        padding-left: var(--scale-size-6);
     }
 
     .sw-property-search {
@@ -59,13 +58,13 @@ $background-color: $color-gray-100;
 
         .sw-property-search__tree-selection-container,
         .sw-property-search__search-selection {
-            min-height: $min-height-empty-state;
+            min-height: calc(#{$base-size} + var(--scale-size-40) * 3 + var(--scale-size-20));
         }
     }
 
     .sw-product-add-properties-modal__toolbar {
-        border-bottom: 1px solid #d8dde6;
-        background-color: $background-color;
+        border-bottom: var(--scale-size-1) solid var(--color-border-primary-default);
+        background-color: var(--color-gray-100);
         grid-template-columns: 1fr auto;
     }
 
@@ -75,11 +74,11 @@ $background-color: $color-gray-100;
         }
 
         .mt-icon.sw-simple-search-field__search-icon.icon--regular-search-s.mt-icon--small {
-            right: 45px;
+            right: calc(var(--scale-size-40) + var(--scale-size-6));
         }
     }
 
     .sw-extension-teaser-popover {
-        margin-left: 14px;
+        margin-left: var(--scale-size-14);
     }
 }

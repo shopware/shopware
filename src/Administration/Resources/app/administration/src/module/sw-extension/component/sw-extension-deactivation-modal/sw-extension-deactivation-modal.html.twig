@@ -14,7 +14,7 @@
         ></p>
 
         <p class="sw-extension-deactivation-modal__bold-paragraph">
-            {{ $tc('sw-extension-store.component.sw-extension-deactivation-modal.alertDeactivate') }}
+            {{ $t('sw-extension-store.component.sw-extension-deactivation-modal.alertDeactivate') }}
         </p>
 
         <p class="sw-extension-deactivation-modal__hint-paragraph">
@@ -32,7 +32,7 @@
             variant="secondary"
             @click="emitClose"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -43,7 +43,7 @@
             :is-loading="isLoading"
             @click="emitDeactivate"
         >
-            {{ $tc('sw-extension-store.component.sw-extension-deactivation-modal.deactivateLabel') }}
+            {{ $t('sw-extension-store.component.sw-extension-deactivation-modal.deactivateLabel') }}
         </mt-button>
         {% endblock %}
         {% endblock %}

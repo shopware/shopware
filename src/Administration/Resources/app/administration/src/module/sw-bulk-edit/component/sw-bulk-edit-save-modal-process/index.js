@@ -130,21 +130,21 @@ export default {
         },
 
         setTitle() {
-            this.$emit('title-set', this.$tc('sw-bulk-edit.modal.process.title'));
+            this.$emit('title-set', this.$t('sw-bulk-edit.modal.process.title'));
         },
 
         updateButtons() {
             const buttonConfig = [
                 {
                     key: 'cancel',
-                    label: this.$tc('global.default.cancel'),
+                    label: this.$t('global.default.cancel'),
                     position: 'left',
                     action: '',
                     disabled: false,
                 },
                 {
                     key: 'next',
-                    label: this.$tc('global.sw-modal.labelClose'),
+                    label: this.$t('global.sw-modal.labelClose'),
                     position: 'right',
                     variant: 'primary',
                     action: '',

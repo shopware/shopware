@@ -3,7 +3,7 @@
 
     {% block sw_promotion_v2_conditions_pre_conditions_card %}
     <mt-card
-        :title="$tc('sw-promotion-v2.detail.conditions.preConditions.cardTitlePreConditions')"
+        :title="$t('sw-promotion-v2.detail.conditions.preConditions.cardTitlePreConditions')"
         position-identifier="sw-promotion-conditions-pre-conditions"
     >
 
@@ -13,8 +13,8 @@
             :promotion="promotion"
             :entity-collection="promotion.salesChannels"
             :disabled="!acl.can('promotion.editor')"
-            :label="$tc('sw-promotion-v2.detail.conditions.preConditions.labelPromotionSalesChannel')"
-            :placeholder="$tc('sw-promotion-v2.detail.conditions.preConditions.labelPromotionSalesChannel')"
+            :label="$t('sw-promotion-v2.detail.conditions.preConditions.labelPromotionSalesChannel')"
+            :placeholder="$t('sw-promotion-v2.detail.conditions.preConditions.labelPromotionSalesChannel')"
         />
         {% endblock %}
 
@@ -24,16 +24,16 @@
             v-model="promotion.preventCombination"
             class="sw-promotion-v2-conditions__prevent-combination"
             :disabled="!acl.can('promotion.editor')"
-            :label="$tc('sw-promotion-v2.detail.conditions.preConditions.labelPreventCombination')"
-            :help-text="$tc('sw-promotion-v2.detail.conditions.preConditions.helpTextPreventCombination')"
+            :label="$t('sw-promotion-v2.detail.conditions.preConditions.labelPreventCombination')"
+            :help-text="$t('sw-promotion-v2.detail.conditions.preConditions.helpTextPreventCombination')"
         />
         {% endblock %}
 
         {% block sw_promotion_v2_conditions_pre_conditions_exclusions %}
         <sw-entity-multi-select
             class="sw-promotion-v2-conditions__rules-exclusion-selection"
-            :label="$tc('sw-promotion-v2.detail.conditions.preConditions.labelPromotionExclusions')"
-            :placeholder="$tc('sw-promotion-v2.detail.conditions.preConditions.placeholderPromotionExclusions')"
+            :label="$t('sw-promotion-v2.detail.conditions.preConditions.labelPromotionExclusions')"
+            :placeholder="$t('sw-promotion-v2.detail.conditions.preConditions.placeholderPromotionExclusions')"
             :criteria="exclusionCriteria"
             :entity-collection="excludedPromotions"
             :disabled="!acl.can('promotion.editor') || promotion.preventCombination"
@@ -46,7 +46,7 @@
 
     {% block sw_promotion_v2_rule_conditions_card %}
     <mt-card
-        :title="$tc('sw-promotion-v2.detail.conditions.preConditions.cardTitleRuleConditions')"
+        :title="$t('sw-promotion-v2.detail.conditions.preConditions.cardTitleRuleConditions')"
         position-identifier="sw-promotion-conditions-rules"
     >
 
@@ -57,8 +57,8 @@
             class="sw-promotion-v2-conditions__rule-select-customer"
             :local-mode="promotion.isNew()"
             :rule-filter="personaRuleFilter"
-            :label="$tc('sw-promotion-v2.detail.conditions.preConditions.labelCustomerSelect')"
-            :placeholder="$tc('sw-promotion-v2.detail.conditions.preConditions.placeholderCustomerSelect')"
+            :label="$t('sw-promotion-v2.detail.conditions.preConditions.labelCustomerSelect')"
+            :placeholder="$t('sw-promotion-v2.detail.conditions.preConditions.placeholderCustomerSelect')"
             :rule-scope="['checkout']"
             :disabled="!acl.can('promotion.editor')"
             rule-aware-group-key="personaPromotions"
@@ -78,8 +78,8 @@
             v-model:rules="promotion.orderRules"
             class="sw-promotion-v2-conditions__rule-select-order-conditions"
             :local-mode="promotion.isNew()"
-            :label="$tc('sw-promotion-v2.detail.conditions.preConditions.labelOrderConditionSelect')"
-            :placeholder="$tc('sw-promotion-v2.detail.conditions.preConditions.placeholderOrderConditionSelect')"
+            :label="$t('sw-promotion-v2.detail.conditions.preConditions.labelOrderConditionSelect')"
+            :placeholder="$t('sw-promotion-v2.detail.conditions.preConditions.placeholderOrderConditionSelect')"
             :rule-filter="orderConditionsFilter"
             :rule-scope="['checkout']"
             :disabled="!acl.can('promotion.editor')"

@@ -4,7 +4,7 @@
     <mt-checkbox
         v-model:checked="isDefaultShippingAddressId"
         name="sw-field--isDefaultShippingAddressId"
-        :label="$tc('sw-customer.detailAddresses.contextMenuDefaultShippingAddress')"
+        :label="$t('sw-customer.detailAddresses.contextMenuDefaultShippingAddress')"
         @update:checked="onChangeDefaultShippingAddress"
     />
     {% endblock %}
@@ -14,7 +14,7 @@
         v-model:checked="isDefaultBillingAddressId"
         name="sw-field--isDefaultBillingAddressId"
         class="sw-customer-address-form__set-default-billing-address-action"
-        :label="$tc('sw-customer.detailAddresses.contextMenuDefaultBillingAddress')"
+        :label="$t('sw-customer.detailAddresses.contextMenuDefaultBillingAddress')"
         @update:checked="onChangeDefaultBillingAddress"
     />
     {% endblock %}

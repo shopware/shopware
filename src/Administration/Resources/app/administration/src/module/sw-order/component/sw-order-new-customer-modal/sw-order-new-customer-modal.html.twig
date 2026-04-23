@@ -1,6 +1,6 @@
 {% block sw_order_new_customer_modal %}
 <sw-modal
-    :title="$tc('sw-order.createBase.detailsHeader.buttonAddNewCustomer')"
+    :title="$t('sw-order.createBase.detailsHeader.buttonAddNewCustomer')"
     @modal-close="onClose"
 >
     {% block sw_order_new_customer_modal_tabs %}
@@ -16,7 +16,7 @@
                 :active-tab="active"
                 :has-error="swOrderNewCustomerDetailError"
             >
-                {{ $tc('sw-order.newCustomerModal.labelDetails') }}
+                {{ $t('sw-order.newCustomerModal.labelDetails') }}
             </sw-tabs-item>
             {% endblock %}
 
@@ -26,7 +26,7 @@
                 :active-tab="active"
                 :has-error="swOrderNewCustomerAddressError"
             >
-                {{ $tc('sw-order.createBase.detailsBody.labelBillingAddress') }}
+                {{ $t('sw-order.createBase.detailsBody.labelBillingAddress') }}
             </sw-tabs-item>
             {% endblock %}
 
@@ -36,7 +36,7 @@
                 :active-tab="active"
                 :has-error="!isSameBilling && swOrderNewCustomerAddressError"
             >
-                {{ $tc('sw-order.createBase.detailsBody.labelShippingAddress') }}
+                {{ $t('sw-order.createBase.detailsBody.labelShippingAddress') }}
             </sw-tabs-item>
             {% endblock %}
         </template>
@@ -49,7 +49,7 @@
                 <mt-switch
                     v-model="customer.guest"
                     remove-top-margin
-                    :label="$tc('sw-order.newCustomerModal.labelGuest')"
+                    :label="$t('sw-order.newCustomerModal.labelGuest')"
                 />
                 {% endblock %}
                 {% block sw_order_new_customer_modal_content_details_form %}
@@ -69,7 +69,7 @@
                 <mt-switch
                     v-model="isSameBilling"
                     remove-top-margin
-                    :label="$tc('sw-customer.addressForm.labelSameBillingAddress')"
+                    :label="$t('sw-customer.addressForm.labelSameBillingAddress')"
                 />
                 {% endblock %}
 
@@ -106,7 +106,7 @@
             data-analytics-id="sw-order-new-customer-modal.cancel"
             @click="onClose"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -118,7 +118,7 @@
             data-analytics-id="sw-order-new-customer-modal.save"
             @click="onSave"
         >
-            {{ $tc('global.default.save') }}
+            {{ $t('global.default.save') }}
         </mt-button>
         {% endblock %}
     </template>

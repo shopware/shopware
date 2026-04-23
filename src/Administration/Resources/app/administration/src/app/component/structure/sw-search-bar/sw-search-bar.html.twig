@@ -138,7 +138,7 @@
                             <span
                                 class="sw-search-bar__types-header-entity"
                             >
-                                {{ $tc(`global.entities.${entity.entity}`, entity.total) }}
+                                {{ $t(`global.entities.${entity.entity}`, entity.total) }}
                             </span>
                             {% endblock %}
 
@@ -196,13 +196,13 @@
                     {% block sw_search_bar_results_empty_content %}
                     {% block sw_search_bar_results_empty_text %}
                     <div class="sw-search-bar__results-empty-text">
-                        {{ $tc('global.sw-search-bar.messageNoResultsV2', { term: searchTerm }, 0) }}
+                        {{ $t('global.sw-search-bar.messageNoResultsV2', { term: searchTerm }, 0) }}
                     </div>
                     {% endblock %}
 
                     {% block sw_search_bar_results_empty_detail %}
                     <div class="sw-search-bar__results-empty-detail">
-                        {{ $tc('global.sw-search-bar.messageNoResultsDetailV2') }}
+                        {{ $t('global.sw-search-bar.messageNoResultsDetailV2') }}
                     </div>
                     {% endblock %}
                     {% endblock %}
@@ -218,7 +218,7 @@
             >
                 <p
                     class="sw-search-bar__shortcut-tip"
-                    v-html="$tc('global.sw-search-bar.placeholderESSearchShortcutInfo')"
+                    v-html="$t('global.sw-search-bar.placeholderESSearchShortcutInfo')"
                 ></p>
             </div>
             <div
@@ -227,7 +227,7 @@
             >
                 <p
                     class="sw-search-bar__shortcut-tip"
-                    v-html="$tc('global.sw-search-bar.placeholderSearchShortcutInfo')"
+                    v-html="$t('global.sw-search-bar.placeholderSearchShortcutInfo')"
                 ></p>
 
                 <mt-icon
@@ -252,7 +252,7 @@
                 class="sw-search-bar__header"
             >
                 <p class="sw-search-bar__header-title">
-                    {{ $tc('global.sw-search-bar.moduleFiltersHeadline') }}
+                    {{ $t('global.sw-search-bar.moduleFiltersHeadline') }}
                 </p>
             </div>
             {% endblock %}
@@ -278,13 +278,13 @@
                         :name="type.entityName ? getEntityIcon(type.entityName) : 'regular-circle'"
                     />
 
-                    {{ type.entityName ? getLabelSearchType(type.entityName) : $tc('global.sw-search-bar.searchTypeAll') }}
+                    {{ type.entityName ? getLabelSearchType(type.entityName) : $t('global.sw-search-bar.searchTypeAll') }}
                 </span>
 
                 <p
                     class="sw-search-bar__type--filter"
                 >
-                    {{ $tc('global.sw-search-bar.moduleFilter') }}
+                    {{ $t('global.sw-search-bar.moduleFilter') }}
                 </p>
             </div>
 
@@ -294,7 +294,7 @@
                 class="sw-search-bar__type-results-empty-message"
             >
                 {% block sw_search_bar_types_container_empty_text %}
-                {{ $tc('global.sw-search-bar.messageNoTypeResults') }}
+                {{ $t('global.sw-search-bar.messageNoTypeResults') }}
                 {% endblock %}
             </div>
             {% endblock %}
@@ -305,7 +305,7 @@
             >
                 <p
                     class="sw-search-bar__shortcut-tip"
-                    v-html="$tc('global.sw-search-bar.placeholderSearchShortcutInfo')"
+                    v-html="$t('global.sw-search-bar.placeholderSearchShortcutInfo')"
                 ></p>
 
                 <mt-icon
@@ -346,7 +346,7 @@
                         :style="{ 'color': getEntityIconColor(type.entityName) }"
                         :name="type.entityName ? getEntityIcon(type.entityName) : 'regular-circle'"
                     />
-                    {{ type.entityName ? getLabelSearchType(type.entityName) : $tc('global.sw-search-bar.searchTypeAll') }}
+                    {{ type.entityName ? getLabelSearchType(type.entityName) : $t('global.sw-search-bar.searchTypeAll') }}
                 </span>
             </div>
 
@@ -356,7 +356,7 @@
                 class="sw-search-bar__type-results-empty-message"
             >
                 {% block sw_search_bar_types_module_filters_container_empty_text %}
-                {{ $tc('global.sw-search-bar.messageNoTypeResults') }}
+                {{ $t('global.sw-search-bar.messageNoTypeResults') }}
                 {% endblock %}
             </div>
             {% endblock %}
@@ -365,7 +365,7 @@
             <div class="sw-search-bar__footer">
                 <p
                     class="sw-search-bar__shortcut-tip"
-                    v-html="$tc('global.sw-search-bar.placeholderFilterShortcutInfo')"
+                    v-html="$t('global.sw-search-bar.placeholderFilterShortcutInfo')"
                 ></p>
             </div>
             {% endblock %}
@@ -392,7 +392,7 @@
                         <div class="sw-search-bar__results-column-header">
                             {% block sw_search_bar_trends_results_list_column_header_title %}
                             <span class="sw-search-bar__types-header-entity">
-                                {{ $tc(`global.entities.${entity.entity}`, entity.total) }}
+                                {{ $t(`global.entities.${entity.entity}`, entity.total) }}
                             </span>
                             {% endblock %}
                         </div>
@@ -423,7 +423,7 @@
             <div class="sw-search-bar__footer">
                 <p
                     class="sw-search-bar__shortcut-tip"
-                    v-html="$tc('global.sw-search-bar.placeholderSearchShortcutInfo')"
+                    v-html="$t('global.sw-search-bar.placeholderSearchShortcutInfo')"
                 ></p>
 
                 <mt-icon

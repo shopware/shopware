@@ -62,14 +62,10 @@ describe('src/app/mixin/notification.mixin.ts', () => {
     });
 
     it('should dispatch a notification on createNotificationSuccess without translating title', () => {
-        const $tcSpy = jest.spyOn(wrapper.vm, '$tc');
-
         wrapper.vm.createNotificationSuccess({
             message: 'The unique message',
         });
 
-        // Ensure $tc is not called for title translation in the mixin
-        expect($tcSpy).not.toHaveBeenCalledWith('global.default.success');
         expect(createNotificationSpy).toHaveBeenCalledWith(
             expect.objectContaining({
                 title: 'global.default.success', // Should be the key, not translated
@@ -103,14 +99,10 @@ describe('src/app/mixin/notification.mixin.ts', () => {
     });
 
     it('should dispatch a notification on createNotificationInfo without translating title', () => {
-        const $tcSpy = jest.spyOn(wrapper.vm, '$tc');
-
         wrapper.vm.createNotificationInfo({
             message: 'The unique message',
         });
 
-        // Ensure $tc is not called for title translation in the mixin
-        expect($tcSpy).not.toHaveBeenCalledWith('global.default.info');
         expect(createNotificationSpy).toHaveBeenCalledWith(
             expect.objectContaining({
                 title: 'global.default.info', // Should be the key, not translated
@@ -144,14 +136,10 @@ describe('src/app/mixin/notification.mixin.ts', () => {
     });
 
     it('should dispatch a notification on createNotificationWarning without translating title', () => {
-        const $tcSpy = jest.spyOn(wrapper.vm, '$tc');
-
         wrapper.vm.createNotificationWarning({
             message: 'The unique message',
         });
 
-        // Ensure $tc is not called for title translation in the mixin
-        expect($tcSpy).not.toHaveBeenCalledWith('global.default.warning');
         expect(createNotificationSpy).toHaveBeenCalledWith(
             expect.objectContaining({
                 title: 'global.default.warning', // Should be the key, not translated
@@ -185,14 +173,10 @@ describe('src/app/mixin/notification.mixin.ts', () => {
     });
 
     it('should dispatch a notification on createNotificationError without translating title', () => {
-        const $tcSpy = jest.spyOn(wrapper.vm, '$tc');
-
         wrapper.vm.createNotificationError({
             message: 'The unique message',
         });
 
-        // Ensure $tc is not called for title translation in the mixin
-        expect($tcSpy).not.toHaveBeenCalledWith('global.default.error');
         expect(createNotificationSpy).toHaveBeenCalledWith(
             expect.objectContaining({
                 title: 'global.default.error', // Should be the key, not translated

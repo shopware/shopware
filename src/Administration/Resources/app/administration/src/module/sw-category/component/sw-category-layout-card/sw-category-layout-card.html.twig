@@ -2,7 +2,7 @@
 <mt-card
     class="sw-category-layout-card"
     position-identifier="sw-category-layout"
-    :title="$tc('sw-category.base.cms.title')"
+    :title="$t('sw-category.base.cms.title')"
     :is-loading="isLoading"
 >
     <div class="sw-category-layout-card__base-layout">
@@ -45,7 +45,7 @@
                     class="sw-category-layout-card__desc-headline"
                     :class="{ 'is--empty': !cmsPage }"
                 >
-                    {{ cmsPage ? cmsPage.name : $tc('sw-category.base.cms.defaultTitle') }}
+                    {{ cmsPage ? cmsPage.name : $t('sw-category.base.cms.defaultTitle') }}
                 </div>
                 {% endblock %}
 

@@ -5,15 +5,8 @@ const TRIGGER_LABEL = 'testing/test-plan';
 const ALLOWED_PARENT_TYPES = new Set(['Epic', 'Story']);
 
 export async function syncTestPlanSubIssue({ github, core, context }) {
-    const isManualRun = context.eventName === 'workflow_dispatch';
-    const action = isManualRun ? process.env.TEST_PLAN_ACTION : context.payload.action;
-    const parentIssue = isManualRun
-        ? (await github.rest.issues.get({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            issue_number: Number.parseInt(process.env.TEST_PLAN_ISSUE_NUMBER, 10),
-        })).data
-        : context.payload.issue;
+    const action = context.payload.action;
+    const parentIssue = context.payload.issue;
 
     if (!parentIssue || parentIssue.pull_request) {
         core.info('Skipping because the payload does not describe a plain issue.');
@@ -155,6 +148,11 @@ export async function syncTestPlanSubIssue({ github, core, context }) {
             title: childTitle,
             body: [
                 marker,
+                '',
+                '## Parent issue',
+                '',
+                `- ${parentRef}`,
+                `- ${parentIssue.html_url}`,
                 '',
                 templateBody,
             ].join('\n'),

@@ -102,7 +102,7 @@ class SearchCasesTest extends TestCase
 
         static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM product');
 
-        self::$ids = $ids = new IdsCollection();
+        $ids = new IdsCollection();
 
         static::getContainer()->get('product.repository')->create([
             self::product($ids, 'exact', 'DE-EXACT-1', 'Leather Jacket'),
@@ -126,7 +126,7 @@ class SearchCasesTest extends TestCase
 
         static::assertSame(
             'exact',
-            self::$ids->getKey((string) $result->firstId()),
+            $ids->getKey((string) $result->firstId()),
             print_r($result->getData(), true)
         );
     }
@@ -148,8 +148,6 @@ class SearchCasesTest extends TestCase
         ?string $expectedFirst,
         array $mustNotContainKeys = [],
     ): void {
-        self::$ids = $ids;
-
         $this->clearElasticsearch();
         static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM product');
         static::getContainer()->get('product.repository')->create($products, Context::createDefaultContext());

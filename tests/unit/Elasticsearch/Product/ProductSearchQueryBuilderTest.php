@@ -234,17 +234,17 @@ class ProductSearchQueryBuilderTest extends TestCase
                 ], BoolQuery::MUST),
                 self::bool([
                     self::disMax([
-                        self::must('name.' . Defaults::LANGUAGE_SYSTEM, ['foo', '2023'], 1),
+                        self::must('name.' . Defaults::LANGUAGE_SYSTEM, ['foo', '2023'], 2),
                         self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.4, 0, 'and', 10),
                         self::matchPhrasePrefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.6, 3, 10),
                     ], 1000),
                     self::disMax([
-                        self::must('ean', ['foo', '2023'], 1),
+                        self::must('ean', ['foo', '2023'], 2),
                         self::match('ean.search', 'foo 2023', 0.4, 0, 'and', 10),
                         self::matchPhrasePrefix('ean.search', 'foo 2023', 0.6, 3, 10),
                     ], 2000),
                     self::nested('tags', self::disMax([
-                        self::must('tags.name', ['foo', '2023'], 1),
+                        self::must('tags.name', ['foo', '2023'], 2),
                         self::match('tags.name.search', 'foo 2023', 0.4, 0, 'and', 10),
                         self::matchPhrasePrefix('tags.name.search', 'foo 2023', 0.6, 3, 10),
                     ], 500)),
@@ -297,7 +297,7 @@ class ProductSearchQueryBuilderTest extends TestCase
                     ]),
                 ], BoolQuery::MUST),
                 self::disMax([
-                    self::must($prefix . 'evolvesText', ['foo', '2023'], 1),
+                    self::must($prefix . 'evolvesText', ['foo', '2023'], 2),
                     self::match($prefix . 'evolvesText.search', 'foo 2023', 0.4, 0, 'and', 10),
                     self::matchPhrasePrefix($prefix . 'evolvesText.search', 'foo 2023', 0.6, 3, 10),
                 ], 500),
@@ -393,17 +393,17 @@ class ProductSearchQueryBuilderTest extends TestCase
                 ], BoolQuery::MUST),
                 self::bool([
                     self::disMax([
-                        self::must('name.' . Defaults::LANGUAGE_SYSTEM, ['foo', '2023'], 1),
+                        self::must('name.' . Defaults::LANGUAGE_SYSTEM, ['foo', '2023'], 2),
                         self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.4, 0, 'and', 10),
                         self::matchPhrasePrefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.6, 3, 10),
                     ], 1000),
                     self::disMax([
-                        self::must('ean', ['foo', '2023'], 1),
+                        self::must('ean', ['foo', '2023'], 2),
                         self::match('ean.search', 'foo 2023', 0.4, 0, 'and', 10),
                         self::matchPhrasePrefix('ean.search', 'foo 2023', 0.6, 3, 10),
                     ], 2000),
                     self::nested('tags', self::disMax([
-                        self::must('tags.name', ['foo', '2023'], 1),
+                        self::must('tags.name', ['foo', '2023'], 2),
                         self::match('tags.name.search', 'foo 2023', 0.4, 0, 'and', 10),
                         self::matchPhrasePrefix('tags.name.search', 'foo 2023', 0.6, 3, 10),
                     ], 500)),
@@ -459,12 +459,12 @@ class ProductSearchQueryBuilderTest extends TestCase
                 ], BoolQuery::MUST),
                 self::disMax([
                     self::disMax([
-                        self::must($prefixCfLang1 . 'evolvesText', ['foo', '2023'], 1),
+                        self::must($prefixCfLang1 . 'evolvesText', ['foo', '2023'], 2),
                         self::match($prefixCfLang1 . 'evolvesText.search', 'foo 2023', 0.4, 0, 'and', 10),
                         self::matchPhrasePrefix($prefixCfLang1 . 'evolvesText.search', 'foo 2023', 0.6, 3, 10),
                     ], 500),
                     self::disMax([
-                        self::must($prefixCfLang2 . 'evolvesText', ['foo', '2023'], 1),
+                        self::must($prefixCfLang2 . 'evolvesText', ['foo', '2023'], 2),
                         self::match($prefixCfLang2 . 'evolvesText.search', 'foo 2023', 0.4, 0, 'and', 10),
                         self::matchPhrasePrefix($prefixCfLang2 . 'evolvesText.search', 'foo 2023', 0.6, 3, 10),
                     ], 400),
@@ -730,7 +730,7 @@ class ProductSearchQueryBuilderTest extends TestCase
      *
      * @return array{bool: array{must: array<array{term: array<string, string>}>, boost: float|int}}
      */
-    private static function must(string $field, array $tokens, int|float $boost = 1): array
+    private static function must(string $field, array $tokens, int|float $boost = 2): array
     {
         $queries = array_map(static fn (string $token) => ['term' => [$field => $token]], $tokens);
 

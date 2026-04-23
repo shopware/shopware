@@ -53,6 +53,9 @@ class NoAssertsOnObjectsRule implements Rule
         }
 
         $type = $scope->getType($firstArg->value);
+        if ($type->isObject()->no()) {
+            return [];
+        }
 
         foreach (self::FORBIDDEN_OBJECTS as $object => $message) {
             if ((new ObjectType($object))->isSuperTypeOf($type)->yes()) {

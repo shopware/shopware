@@ -1,4 +1,4 @@
-import { test, assertScreenshot, setViewport, Page } from '@fixtures/AcceptanceTest';
+import { test, assertScreenshot, setViewport, Page, replaceElements, hideElements} from '@fixtures/AcceptanceTest';
 import {
     removeSymfonyToolbar, setupConsentInterceptor, setupProductAnalyticsInterceptor,
 } from '@helpers/productanalytics-helpers';
@@ -20,6 +20,7 @@ test('Visual: Administration data sharing consent modal', { tag: '@Visual' }, as
 
     const page: Page = await createNewAdminPageContext(browser, SalesChannelBaseConfig);
     const AdminDataSharingConsentModal = new AdminPageObjects['DataSharingConsentModal'](page);
+    const AdminDashboard = new AdminPageObjects['Dashboard'](page);
 
     await page.clock.install({ time: new Date(new Date().setMonth(new Date().getMonth() + MONTHS_AHEAD)) });
 
@@ -49,6 +50,15 @@ test('Visual: Administration data sharing consent modal', { tag: '@Visual' }, as
         await setViewport(AdminDataSharingConsentModal.page, {
             waitForSelector: AdminDataSharingConsentModal.shareStoreDataCheckbox,
         });
+        await replaceElements(AdminDashboard.page, [
+            AdminDashboard.welcomeHeadline,
+            AdminDashboard.welcomeMessage,
+            AdminDashboard.statisticsDateRange,
+        ]);
+        await hideElements(AdminDashboard.page, [
+            AdminDashboard.statisticsChart,
+        ]);
+
         await assertScreenshot(AdminDataSharingConsentModal.page, 'Modal-Data-Sharing-Consent.png');
     });
 });

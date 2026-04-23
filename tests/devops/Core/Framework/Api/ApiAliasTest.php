@@ -22,7 +22,6 @@ class ApiAliasTest extends TestCase
     // TODO: fix these duplicate aliases — known bugs to be treated
     private const KNOWN_DUPLICATE_ALIASES = [
         'customer_address_collection',
-        'product_collection',
         'dal_field_sorting',
         'calculated_price',
     ];

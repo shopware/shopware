@@ -335,14 +335,6 @@ class FeatureTest extends TestCase
         static::assertSame('/usr/bin', $_SERVER['PATH']);
     }
 
-    /**
-     * @param array<string, mixed> $values
-     */
-    private function seedServer(array $values): void
-    {
-        $_SERVER = $values;
-    }
-
     public static function deprecatedMethodMessageProvider(): \Generator
     {
         yield 'message with class and method string' => [
@@ -368,5 +360,13 @@ class FeatureTest extends TestCase
             // `v6.4.0.0` is not registered as feature flag, therefore it will always throw the deprecation
             'v6.4.0.0', 'deprecated message', true,
         ];
+    }
+
+    /**
+     * @param array<string, mixed> $values
+     */
+    private function seedServer(array $values): void
+    {
+        $_SERVER = $values;
     }
 }

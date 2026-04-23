@@ -152,7 +152,7 @@ elasticsearch:
                 catenate_words: true
                 split_on_case_change: true
                 generate_word_parts: true
-                split_on_numerics: false
+                split_on_numerics: true
             sw_english_stop_filter:
                 type: 'stop'
                 stopwords: '_english_'

@@ -1,5 +1,6 @@
 {% block page_product_detail_json_ld %}
     {# Determine availability following the same logic as delivery-information.html.twig #}
+    {# ludtwig-ignore twig-variable-definition-naming #}
     {% set digitalType = constant('Shopware\\Core\\Content\\Product\\ProductDefinition::TYPE_DIGITAL') %}
     {% set isDigitalProduct = page.product.type === digitalType %}
 

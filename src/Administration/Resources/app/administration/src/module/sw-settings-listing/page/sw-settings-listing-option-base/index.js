@@ -45,7 +45,7 @@ export default {
         smartBarHeading() {
             return this.productSortingEntity && this.productSortingEntity.label
                 ? this.productSortingEntity.label
-                : this.$tc('sw-settings-listing.base.smartBarTitle');
+                : this.$t('sw-settings-listing.base.smartBarTitle');
         },
 
         isGeneralCardLoading() {

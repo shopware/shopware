@@ -1,7 +1,7 @@
 {% block sw_flow_create_mail_template_modal %}
 <sw-modal
     class="sw-flow-create-mail-template-modal"
-    :title="$tc('sw-flow.modals.mail.titleNewEmailTemplate')"
+    :title="$t('sw-flow.modals.mail.titleNewEmailTemplate')"
     :closable="false"
     @modal-close="onClose"
 >
@@ -13,8 +13,8 @@
         class="sw-flow-create-mail-template-modal__type"
         entity="mail_template_type"
         required
-        :label="$tc('sw-flow.modals.mail.labelMailType')"
-        :placeholder="$tc('sw-flow.modals.mail.placeholderMailType')"
+        :label="$t('sw-flow.modals.mail.labelMailType')"
+        :placeholder="$t('sw-flow.modals.mail.placeholderMailType')"
         :error="mailTemplateMailTemplateTypeIdError"
         @update:value="onChangeType"
     />
@@ -31,8 +31,8 @@
             name="sw-field--mailTemplate-subject"
             class="sw-flow-create-mail-template-modal__subject"
             required
-            :label="$tc('sw-flow.modals.mail.labelSubject')"
-            :placeholder="$tc('sw-flow.modals.mail.placeholderSubject')"
+            :label="$t('sw-flow.modals.mail.labelSubject')"
+            :placeholder="$t('sw-flow.modals.mail.placeholderSubject')"
             :error="mailTemplateSubjectError"
         />
         {% endblock %}
@@ -43,8 +43,8 @@
             v-model="mailTemplate.senderName"
             name="sw-field--mailTemplate-senderName"
             class="sw-flow-create-mail-template-modal__sender-name"
-            :label="$tc('sw-flow.modals.mail.labelSenderName')"
-            :placeholder="$tc('sw-flow.modals.mail.placeholderSenderName')"
+            :label="$t('sw-flow.modals.mail.labelSenderName')"
+            :placeholder="$t('sw-flow.modals.mail.placeholderSenderName')"
         />
         {% endblock %}
     </sw-container>
@@ -55,8 +55,8 @@
         v-model="mailTemplate.description"
         name="sw-field--mailTemplate-description"
         class="sw-flow-create-mail-template-modal__description"
-        :label="$tc('sw-flow.modals.mail.labelDescription')"
-        :placeholder="$tc('sw-flow.modals.mail.placeholderDescription')"
+        :label="$t('sw-flow.modals.mail.labelDescription')"
+        :placeholder="$t('sw-flow.modals.mail.placeholderDescription')"
     />
     {% endblock %}
 
@@ -68,8 +68,8 @@
         class="sw-flow-create-mail-template-modal__content-plain"
         name="content_plain"
         completion-mode="entity"
-        :label="$tc('sw-flow.modals.mail.labelContentPlain')"
-        :placeholder="placeholder(mailTemplate, 'contentPlain', $tc('sw-flow.modals.mail.placeholderPlain'))"
+        :label="$t('sw-flow.modals.mail.labelContentPlain')"
+        :placeholder="placeholder(mailTemplate, 'contentPlain', $t('sw-flow.modals.mail.placeholderPlain'))"
         :completer-function="outerCompleterFunction"
         :editor-config="editorConfig"
         :error="mailTemplateContentPlainError"
@@ -85,8 +85,8 @@
         class="sw-flow-create-mail-template-modal__content-html"
         name="content_html"
         completion-mode="entity"
-        :label="$tc('sw-flow.modals.mail.labelContentHtml')"
-        :placeholder="placeholder(mailTemplate, 'contentPlain', $tc('sw-flow.modals.mail.placeholderHtml'))"
+        :label="$t('sw-flow.modals.mail.labelContentHtml')"
+        :placeholder="placeholder(mailTemplate, 'contentPlain', $t('sw-flow.modals.mail.placeholderHtml'))"
         :completer-function="outerCompleterFunction"
         :editor-config="editorConfig"
         :error="mailTemplateContentHtmlError"
@@ -104,7 +104,7 @@
             variant="secondary"
             @click="onClose"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -116,7 +116,7 @@
             :is-loading="isLoading"
             @click="onAddMailTemplate"
         >
-            {{ $tc('sw-flow.modals.mail.buttonAddMailTemplate') }}
+            {{ $t('sw-flow.modals.mail.buttonAddMailTemplate') }}
         </mt-button>
         {% endblock %}
     </template>

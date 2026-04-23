@@ -36,13 +36,22 @@ describe('findTwigFile', () => {
 
     it('returns the twig file path when a .html.twig file exists', () => {
         writeFileSync(join(tmpDir, 'my-component.html.twig'), '<div/>', 'utf-8');
-        const result = findTwigFile(tmpDir);
+        const result = findTwigFile(tmpDir, 'my-component');
         expect(result).toBe(join(tmpDir, 'my-component.html.twig'));
+    });
+
+    it('prefers the twig file that matches the component name', () => {
+        writeFileSync(join(tmpDir, 'helper.html.twig'), '<div>helper</div>', 'utf-8');
+        writeFileSync(join(tmpDir, 'sw-foo.html.twig'), '<div>component</div>', 'utf-8');
+
+        const result = findTwigFile(tmpDir, 'sw-foo');
+
+        expect(result).toBe(join(tmpDir, 'sw-foo.html.twig'));
     });
 
     it('returns null when no .html.twig file is present', () => {
         writeFileSync(join(tmpDir, 'index.js'), 'export default {}', 'utf-8');
-        const result = findTwigFile(tmpDir);
+        const result = findTwigFile(tmpDir, 'missing-component');
         expect(result).toBeNull();
     });
 });
@@ -229,6 +238,51 @@ describe('runMigration — skip (no twig file)', () => {
     it('report line contains SKIP (no twig)', () => {
         const { report } = runMigration(tmpDir, { dryRun: false });
         expect(report[0]).toContain('SKIP (no twig)');
+    });
+});
+
+describe('runMigration — skip (ambiguous twig files)', () => {
+    let tmpDir: string;
+    let componentDir: string;
+
+    beforeEach(() => {
+        tmpDir = createTempDir();
+        componentDir = makeComponent(
+            tmpDir,
+            'sw-ambiguous-card',
+            readFixture('simple-component.index.js'),
+        );
+        writeFileSync(join(componentDir, 'helper.html.twig'), '<div>helper</div>', 'utf-8');
+        writeFileSync(join(componentDir, 'sidebar.html.twig'), '<div>sidebar</div>', 'utf-8');
+    });
+
+    afterEach(() => {
+        rmSync(tmpDir, { recursive: true, force: true });
+    });
+
+    it('increments skipped count', () => {
+        const { stats } = runMigration(tmpDir, { dryRun: false });
+        expect(stats.skipped).toBe(1);
+        expect(stats.fullyMigrated).toBe(0);
+    });
+
+    it('does not write any .vue file', () => {
+        runMigration(tmpDir, { dryRun: false });
+        expect(existsSync(join(componentDir, 'sw-ambiguous-card.vue'))).toBe(false);
+    });
+
+    it('does not delete originals even when deleteOriginals is true', () => {
+        runMigration(tmpDir, { dryRun: false, deleteOriginals: true });
+        expect(existsSync(join(componentDir, 'index.js'))).toBe(true);
+        expect(existsSync(join(componentDir, 'helper.html.twig'))).toBe(true);
+        expect(existsSync(join(componentDir, 'sidebar.html.twig'))).toBe(true);
+    });
+
+    it('report line contains SKIP (ambiguous twig) and the candidate files', () => {
+        const { report } = runMigration(tmpDir, { dryRun: false });
+        expect(report[0]).toContain('SKIP (ambiguous twig)');
+        expect(report[0]).toContain('helper.html.twig');
+        expect(report[0]).toContain('sidebar.html.twig');
     });
 });
 

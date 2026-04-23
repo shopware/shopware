@@ -51,14 +51,29 @@ export interface RunResult {
     report: string[];
 }
 
-export function findTwigFile(dir: string): string | null {
+function selectTwigFile(dir: string, componentName: string): { path: string | null; candidates: string[] } {
     try {
-        const entries = readdirSync(dir);
-        const twig = entries.find((f) => f.endsWith('.html.twig'));
-        return twig ? join(dir, twig) : null;
+        const candidates = readdirSync(dir)
+            .filter((entry) => entry.endsWith('.html.twig'))
+            .sort();
+        const exactMatch = `${componentName}.html.twig`;
+
+        if (candidates.includes(exactMatch)) {
+            return { path: join(dir, exactMatch), candidates };
+        }
+
+        if (candidates.length === 1) {
+            return { path: join(dir, candidates[0]), candidates };
+        }
+
+        return { path: null, candidates };
     } catch {
-        return null;
+        return { path: null, candidates: [] };
     }
+}
+
+export function findTwigFile(dir: string, componentName: string): string | null {
+    return selectTwigFile(dir, componentName).path;
 }
 
 /**
@@ -116,10 +131,16 @@ export function runMigration(targetDir: string, options: RunOptions): RunResult 
 
             const dir = dirname(indexPath);
             const componentName = dir.split('/').at(-1) ?? 'unknown';
-            const twigPath = findTwigFile(dir);
+            const { path: twigPath, candidates: twigCandidates } = selectTwigFile(dir, componentName);
 
             if (!twigPath) {
                 stats.skipped++;
+
+                if (twigCandidates.length > 1) {
+                    report.push(`SKIP (ambiguous twig)  ${indexPath} [${twigCandidates.join(', ')}]`);
+                    continue;
+                }
+
                 report.push(`SKIP (no twig)  ${indexPath}`);
                 continue;
             }

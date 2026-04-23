@@ -202,6 +202,17 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(contextButton.exists()).toBe(true);
     });
 
+    it('should hide advanced mode controls while the product type is still loading', async () => {
+        await Shopware.State.commit('swProductDetail/setProduct', {});
+        await Shopware.State.commit('swProductDetail/setLoading', ['product', true]);
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-product-settings-mode').exists()).toBe(false);
+        expect(wrapper.find('.sw-product-detail__tab-variants').exists()).toBe(false);
+        expect(wrapper.find('.sw-product-detail__tab-layout').exists()).toBe(false);
+    });
+
     it('should show item tabs', async () => {
         await wrapper.setProps({
             productId: '1234',
@@ -255,6 +266,11 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await wrapper.setProps({
             productId: '1234',
         });
+        await Shopware.State.commit('swProductDetail/setProduct', {
+            parentId: 'parent-id',
+        });
+        await Shopware.State.commit('swProductDetail/setLoading', ['product', false]);
+        await wrapper.vm.$nextTick();
 
         const contextButton = wrapper.find('.sw-product-settings-mode');
         expect(contextButton.exists()).toBeFalsy();

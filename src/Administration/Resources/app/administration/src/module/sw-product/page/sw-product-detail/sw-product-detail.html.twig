@@ -180,7 +180,7 @@
 
                 {% block sw_product_detail_content_tabs_advanced_variants %}
                 <sw-tabs-item
-                    v-show="!isChild && showModeSetting"
+                    v-show="!isLoading && !isChild && showModeSetting"
                     class="sw-product-detail__tab-variants"
                     :route="{ name: 'sw.product.detail.variants', params: { id: $route.params.id } }"
                     :title="$tc('sw-product.detail.tabVariation')"
@@ -191,7 +191,7 @@
 
                 {% block sw_product_detail_content_tabs_layout %}
                 <sw-tabs-item
-                    v-show="!isChild && showModeSetting"
+                    v-show="!isLoading && !isChild && showModeSetting"
                     class="sw-product-detail__tab-layout"
                     :route="{ name: 'sw.product.detail.layout', params: { id: $route.params.id } }"
                     :title="$tc('sw-product.detail.tabLayout')"

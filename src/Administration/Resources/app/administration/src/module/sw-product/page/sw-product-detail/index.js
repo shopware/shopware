@@ -92,7 +92,6 @@ export default {
         ...mapGetters('swProductDetail', [
             'productRepository',
             'isLoading',
-            'isChild',
             'defaultCurrency',
             'defaultFeatureSet',
             'showModeSetting',
@@ -101,6 +100,12 @@ export default {
         ]),
 
         ...mapPageErrors(errorConfiguration),
+
+        // Read parentId directly from the reactive product state; the namespaced
+        // mapGetter cache can go stale when the product id changes without a remount.
+        isChild() {
+            return !!this.product?.parentId;
+        },
 
         identifier() {
             return this.productTitle;
@@ -341,6 +346,10 @@ export default {
         },
 
         showAdvanceModeSetting() {
+            if (this.isLoading) {
+                return false;
+            }
+
             if (this.isChild) {
                 return false;
             }

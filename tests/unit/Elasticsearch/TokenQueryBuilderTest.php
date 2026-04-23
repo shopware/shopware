@@ -25,7 +25,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -644,7 +643,6 @@ class TokenQueryBuilderTest extends TestCase
         $builder = new ProductSearchQueryBuilder(
             $this->getDefinition(),
             $this->createMock(TokenFilter::class),
-            new Tokenizer(2),
             $this->createMock(SearchConfigLoader::class),
             $this->tokenQueryBuilder
         );

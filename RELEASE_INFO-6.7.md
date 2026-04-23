@@ -294,12 +294,6 @@ shopware:
 
 When `bin/console system:setup:staging` is executed, the configured keys are written to the database via `SystemConfigService`.
 
-## API
-
-### Minimum value constraints added to quantity fields in ProductPriceDefinition
-
-The fields `quantityStart` and `quantityEnd` of ProductPriceDefinition now require a minimum value of `1`.
-
 ### Deprecation of newsletter route methods
 
 The following methods are deprecated and will be removed with the next major version:

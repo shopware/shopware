@@ -17,45 +17,12 @@ readonly class DocumentGenerationContext
      * @param list<string> $formats
      */
     public function __construct(
-        private string $orderId,
-        private string $orderVersionId,
-        private string $documentType,
-        private array $formats,
-        private Context $context,
-        private ?string $documentNumber = null,
+        public string $orderId,
+        public string $orderVersionId,
+        public string $documentType,
+        public array $formats,
+        public Context $apiContext,
+        public ?string $documentNumber = null,
     ) {
-    }
-
-    public function getOrderId(): string
-    {
-        return $this->orderId;
-    }
-
-    public function getOrderVersionId(): string
-    {
-        return $this->orderVersionId;
-    }
-
-    public function getDocumentType(): string
-    {
-        return $this->documentType;
-    }
-
-    /**
-     * @return list<string>
-     */
-    public function getFormats(): array
-    {
-        return $this->formats;
-    }
-
-    public function getContext(): Context
-    {
-        return $this->context;
-    }
-
-    public function getDocumentNumber(): ?string
-    {
-        return $this->documentNumber;
     }
 }

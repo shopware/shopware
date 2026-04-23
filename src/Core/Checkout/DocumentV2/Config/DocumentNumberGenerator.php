@@ -26,11 +26,11 @@ final readonly class DocumentNumberGenerator
 
     public function generate(DocumentGenerationContext $generationContext, OrderEntity $order): string
     {
-        $type = self::NUMBER_RANGE_DOCUMENT_TYPE_PREFIX . $generationContext->getDocumentType();
+        $type = self::NUMBER_RANGE_DOCUMENT_TYPE_PREFIX . $generationContext->documentType;
 
         return $this->numberRangeValueGenerator->getValue(
             type: $type,
-            context: $generationContext->getContext(),
+            context: $generationContext->apiContext,
             salesChannelId: $order->getSalesChannelId(),
         );
     }

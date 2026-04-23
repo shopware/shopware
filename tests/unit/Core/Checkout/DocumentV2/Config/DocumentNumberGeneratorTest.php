@@ -32,7 +32,7 @@ class DocumentNumberGeneratorTest extends TestCase
             orderVersionId: Uuid::randomHex(),
             documentType: DocumentType::INVOICE->value,
             formats: [DocumentFormat::PDF->value],
-            context: $context,
+            apiContext: $context,
         );
 
         $order = new OrderEntity();

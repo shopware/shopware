@@ -52,14 +52,14 @@ final readonly class DocumentEntityPersister
         $this->documentRepository->create([
             [
                 'id' => $documentId,
-                'orderId' => $generationContext->getOrderId(),
-                'orderVersionId' => $generationContext->getOrderVersionId(),
+                'orderId' => $generationContext->orderId,
+                'orderVersionId' => $generationContext->orderVersionId,
                 'documentTypeId' => $this->getDocumentTypeId($generationContext),
                 'documentNumber' => $input->documentNumber,
                 'deepLinkCode' => Random::getAlphanumericString(32),
                 'config' => [],
             ],
-        ], $generationContext->getContext());
+        ], $generationContext->apiContext);
 
         $documentFiles = [];
 
@@ -72,11 +72,11 @@ final readonly class DocumentEntityPersister
             ];
         }
 
-        $this->documentFileRepository->create($documentFiles, $generationContext->getContext());
+        $this->documentFileRepository->create($documentFiles, $generationContext->apiContext);
 
         $document = $this->documentRepository->search(
             (new Criteria([$documentId]))->addAssociation('documentFiles.media'),
-            $generationContext->getContext(),
+            $generationContext->apiContext,
         )->first();
 
         if (!$document instanceof DocumentEntity) {
@@ -93,10 +93,10 @@ final readonly class DocumentEntityPersister
     {
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('documentNumber', $documentNumber))
-            ->addFilter(new EqualsFilter('documentType.technicalName', $generationContext->getDocumentType()))
+            ->addFilter(new EqualsFilter('documentType.technicalName', $generationContext->documentType))
             ->setLimit(1);
 
-        $exists = $this->documentRepository->searchIds($criteria, $generationContext->getContext())->firstId() !== null;
+        $exists = $this->documentRepository->searchIds($criteria, $generationContext->apiContext)->firstId() !== null;
 
         if ($exists) {
             throw DocumentV2Exception::documentNumberAlreadyExists($documentNumber);
@@ -108,8 +108,8 @@ final readonly class DocumentEntityPersister
      */
     private function getDocumentTypeId(DocumentGenerationContext $generationContext): string
     {
-        $documentType = $generationContext->getDocumentType();
-        $context = $generationContext->getContext();
+        $documentType = $generationContext->documentType;
+        $context = $generationContext->apiContext;
 
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('technicalName', $documentType))

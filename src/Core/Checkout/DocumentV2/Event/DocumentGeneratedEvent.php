@@ -42,6 +42,6 @@ final class DocumentGeneratedEvent extends Event implements ShopwareEvent
 
     public function getContext(): Context
     {
-        return $this->generationContext->getContext();
+        return $this->generationContext->apiContext;
     }
 }

@@ -26,7 +26,7 @@ final readonly class RenderInput
         public string $documentNumber,
         public OrderEntity $order,
         private array $data = [],
-        private ?Context $context = null,
+        private ?Context $renderContext = null,
     ) {
     }
 
@@ -58,9 +58,9 @@ final readonly class RenderInput
      * The language chain is prepended with the order's language.
      * Does fallback to default context, if no context was injected during creation.
      */
-    public function getContext(): Context
+    public function getRenderContext(): Context
     {
-        return $this->context ?? Context::createDefaultContext();
+        return $this->renderContext ?? Context::createDefaultContext();
     }
 
     /**

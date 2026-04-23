@@ -50,18 +50,18 @@ final readonly class DocumentGenerator
     {
         $this->validateGenerationContext($generationContext);
 
-        $requestedFormats = $this->normalizeFormats($generationContext->getFormats());
+        $requestedFormats = $this->normalizeFormats($generationContext->formats);
 
         $renderPlan = $this->dependencyResolver->resolve(
-            $generationContext->getDocumentType(),
+            $generationContext->documentType,
             $requestedFormats,
         );
 
         $providers = $this->documentDataProviderRegistry->getByDocumentType(
-            $generationContext->getDocumentType()
+            $generationContext->documentType,
         );
 
-        $criteria = new Criteria([$generationContext->getOrderId()]);
+        $criteria = new Criteria([$generationContext->orderId]);
 
         foreach ($providers as $provider) {
             $provider->enrichOrderCriteria($criteria);
@@ -69,8 +69,8 @@ final readonly class DocumentGenerator
 
         $order = $this->loadOrder($criteria, $generationContext);
 
-        $renderContext = $generationContext->getContext()
-            ->createWithVersionId($generationContext->getOrderVersionId());
+        $renderContext = $generationContext->apiContext
+            ->createWithVersionId($generationContext->orderVersionId);
 
         $renderContext->assign([
             'languageIdChain' => array_values(array_unique(array_filter(
@@ -78,7 +78,7 @@ final readonly class DocumentGenerator
             ))),
         ]);
 
-        $documentNumber = $generationContext->getDocumentNumber() ?? $this->documentNumberGenerator->generate(
+        $documentNumber = $generationContext->documentNumber ?? $this->documentNumberGenerator->generate(
             $generationContext,
             $order,
         );
@@ -87,17 +87,17 @@ final readonly class DocumentGenerator
 
         $renderState = new RenderState();
         $renderInput = new RenderInput(
-            documentType: $generationContext->getDocumentType(),
+            documentType: $generationContext->documentType,
             documentNumber: $documentNumber,
             order: $order,
             data: $providerData,
-            context: $renderContext,
+            renderContext: $renderContext,
         );
 
         foreach ($renderPlan as $format) {
             $renderer = $this->documentRendererRegistry->getRenderer(
                 $format,
-                $generationContext->getDocumentType(),
+                $generationContext->documentType,
             );
 
             $result = $renderer->renderToString(
@@ -113,7 +113,7 @@ final readonly class DocumentGenerator
         foreach ($requestedFormats as $format) {
             $renderer = $this->documentRendererRegistry->getRenderer(
                 $format,
-                $generationContext->getDocumentType(),
+                $generationContext->documentType,
             );
 
             $mediaId = $renderer->persistToFile(
@@ -158,7 +158,7 @@ final readonly class DocumentGenerator
      */
     private function loadOrder(Criteria $criteria, DocumentGenerationContext $generationContext): OrderEntity
     {
-        $context = $generationContext->getContext();
+        $context = $generationContext->apiContext;
 
         $criteria->setTitle('document-v2-generator::load-order');
         $criteria->addAssociation('currency');
@@ -168,12 +168,12 @@ final readonly class DocumentGenerator
         $criteria->addAssociation('transactions.paymentMethod');
         $criteria->addAssociation('deliveries.shippingMethod');
 
-        $versionContext = $context->createWithVersionId($generationContext->getOrderVersionId());
+        $versionContext = $context->createWithVersionId($generationContext->orderVersionId);
 
         $order = $this->orderRepository->search($criteria, $versionContext)->getEntities()->first();
 
         if (!$order instanceof OrderEntity) {
-            throw DocumentV2Exception::orderNotFound($generationContext->getOrderId());
+            throw DocumentV2Exception::orderNotFound($generationContext->orderId);
         }
 
         return $order;
@@ -184,11 +184,11 @@ final readonly class DocumentGenerator
      */
     private function validateGenerationContext(DocumentGenerationContext $generationContext): void
     {
-        if ($generationContext->getFormats() === []) {
+        if ($generationContext->formats === []) {
             throw DocumentV2Exception::missingFormats();
         }
 
-        if ($generationContext->getOrderVersionId() === Defaults::LIVE_VERSION) {
+        if ($generationContext->orderVersionId === Defaults::LIVE_VERSION) {
             throw DocumentV2Exception::liveVersionNotAllowed();
         }
     }

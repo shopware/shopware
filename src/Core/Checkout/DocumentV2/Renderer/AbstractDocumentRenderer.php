@@ -23,18 +23,18 @@ use Shopware\Core\Framework\Log\Package;
 abstract class AbstractDocumentRenderer
 {
     /**
-     * Returns whether this renderer can render the given document type.
-     *
-     * @see DocumentType
-     */
-    abstract public function supports(string $type): bool;
-
-    /**
      * Returns the output format this renderer produces.
      *
      * @see DocumentFormat
      */
     abstract public function getFormat(): string;
+
+    /**
+     * Returns whether this renderer can render the given document type.
+     *
+     * @see DocumentType
+     */
+    abstract public function supports(string $type): bool;
 
     /**
      * Returns prerequisite formats that must exist in RenderState before this renderer runs.

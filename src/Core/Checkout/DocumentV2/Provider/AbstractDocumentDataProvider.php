@@ -23,6 +23,11 @@ use Shopware\Core\Framework\Log\Package;
 abstract class AbstractDocumentDataProvider
 {
     /**
+     * Unique key under which the provider result is stored in RenderInput.
+     */
+    abstract public function getKey(): string;
+
+    /**
      * Returns the document types this provider can contribute data for.
      *
      * @see DocumentType
@@ -32,9 +37,11 @@ abstract class AbstractDocumentDataProvider
     abstract public function getDocumentTypes(): array;
 
     /**
-     * Unique key under which the provider result is stored in RenderInput.
+     * Allows a provider to preload additional order associations before data extraction.
      */
-    abstract public function getKey(): string;
+    public function enrichOrderCriteria(Criteria $criteria): void
+    {
+    }
 
     /**
      * Builds the provider-specific rendering data for the given order.
@@ -43,11 +50,4 @@ abstract class AbstractDocumentDataProvider
         OrderEntity $order,
         DocumentGenerationContext $generationContext
     ): AbstractRenderData;
-
-    /**
-     * Allows a provider to preload additional order associations before data extraction.
-     */
-    public function enrichOrderCriteria(Criteria $criteria): void
-    {
-    }
 }

@@ -17,7 +17,7 @@
 
 {% set horizontal = (layout == 'horizontal') %}
 
-{% set cardCVA = cva({
+{% set cardCVA = html_cva(
     base: 'sw-product-card card h-100',
     variants: {
         layout: {
@@ -36,8 +36,8 @@
             true: ['is--rounded'],
             false: null,
         }
-    }
-}) %}
+    },
+) %}
 
 {% set attributeDefaults = {
     class: cardCVA.apply({ layout, mediaObjectFit, border, rounded }),

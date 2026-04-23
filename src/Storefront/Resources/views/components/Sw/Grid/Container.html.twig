@@ -26,11 +26,8 @@
     borderSubtle = false,
 %}
 
-{% set gridCVA = cva({
+{% set gridCVA = html_cva(
     base: 'grid-container',
-    defaultVariants: {
-        columns: 'auto',
-    },
     variants: {
         columns: {
             auto: 'auto-columns',
@@ -222,7 +219,7 @@
             secondarySubtle: 'border-secondary-subtle'
         },
     }
-}) %}
+) %}
 
 {% set attributeDefaults = {
     class: gridCVA.apply({

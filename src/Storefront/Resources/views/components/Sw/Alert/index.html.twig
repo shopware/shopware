@@ -10,7 +10,7 @@
     slots = [],
 %}
 
-{% set alert = cva({
+{% set alert = html_cva(
     base: 'sw-alert alert',
     variants: {
         variant: {
@@ -28,8 +28,8 @@
             md: 'text-md',
             lg: 'text-lg',
         }
-    }
-}) %}
+    },
+) %}
 
 {% set attributeDefaults = {
     class: alert.apply({ variant, size }),

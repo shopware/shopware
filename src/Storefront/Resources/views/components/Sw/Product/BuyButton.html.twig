@@ -8,9 +8,9 @@
     jsOptions = {},
 %}
 
-{% set buyButtonCVA = cva({
+{% set buyButtonCVA = html_cva(
     base: 'sw-buy-widget d-grid',
-}) %}
+) %}
 
 {% set attributeDefaults = {
     class: buyButtonCVA.apply({}),

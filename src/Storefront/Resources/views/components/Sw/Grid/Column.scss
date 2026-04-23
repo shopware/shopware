@@ -1,5 +1,36 @@
+@use "sass:map";
+
+$sw-grid-breakpoints: (
+    xs: (max: 575.98px),
+    sm: (min: 576px, max: 767.98px),
+    md: (min: 768px, max: 991.98px),
+    lg: (min: 992px, max: 1199.98px),
+    xl: (min: 1200px, max: 1399.98px),
+    xxl: (min: 1400px),
+);
+
+@mixin sw-breakpoint-only($breakpoint) {
+    $config: map.get($sw-grid-breakpoints, $breakpoint);
+    $min: map.get($config, min);
+    $max: map.get($config, max);
+
+    @if $min != null and $max != null {
+        @media (min-width: $min) and (max-width: $max) {
+            @content;
+        }
+    } @else if $min != null {
+        @media (min-width: $min) {
+            @content;
+        }
+    } @else if $max != null {
+        @media (max-width: $max) {
+            @content;
+        }
+    }
+}
+
 .grid-column {
-    min-width: 100%;
+    min-width: 0;
 
     @for $i from 1 through 12 {
         &.span-#{$i} {
@@ -7,8 +38,8 @@
         }
     }
 
-    @each $breakpoint, $value in $grid-breakpoints {
-        @include media-breakpoint-only($breakpoint) {
+    @each $breakpoint, $value in $sw-grid-breakpoints {
+        @include sw-breakpoint-only($breakpoint) {
             @for $i from 1 through 12 {
                 &.span-#{$breakpoint}-#{$i} {
                     grid-column: span #{$i};
@@ -18,8 +49,8 @@
     }
 
     // TODO: This should be generic later and not bound to the grid-column, done on "slot" level (layout options)
-    @each $breakpoint, $value in $grid-breakpoints {
-        @include media-breakpoint-only($breakpoint) {
+    @each $breakpoint, $value in $sw-grid-breakpoints {
+        @include sw-breakpoint-only($breakpoint) {
             &.d-#{$breakpoint}-hidden {
                 display: none !important;
             }

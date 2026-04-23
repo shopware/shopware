@@ -7,9 +7,9 @@
     slots = [],
 %}
 
-{% set listingCVA = cva({
+{% set listingCVA = html_cva(
     base: 'sw-product-listing',
-}) %}
+) %}
 
 {% set attributeDefaults = {
     class: listingCVA.apply({}),

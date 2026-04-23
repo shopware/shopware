@@ -7,7 +7,7 @@
     inline = false,
 %}
 
-{% set textVariants = cva({
+{% set textVariants = html_cva(
     base: 'sw-text',
     variants: {
         inline: {
@@ -15,7 +15,7 @@
             true: ['d-inline'],
         },
     },
-}) %}
+) %}
 
 {% set attributeDefaults = {
     class: textVariants.apply({ inline }),

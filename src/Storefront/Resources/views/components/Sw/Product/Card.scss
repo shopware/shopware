@@ -51,8 +51,8 @@
     // Reset global core styling. Spacing with margin already defined by --bs-card-title-spacer-y
     padding-bottom: 0;
     font-weight: 600;
-    font-size: $font-size-lg;
-    line-height: $line-height-base;
+    font-size: 1.25rem;
+    line-height: 1.5;
 }
 
 .sw-product-card__title-link {

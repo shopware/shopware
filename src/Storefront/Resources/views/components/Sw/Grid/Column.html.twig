@@ -33,7 +33,7 @@
     {% endfor %}
 {% endif %}
 
-{% set columnCVA = cva({
+{% set columnCVA = html_cva(
     base: 'grid-column',
     variants: {
         align: {
@@ -49,7 +49,7 @@
             stretch: 'justify-stretch',
         },
     },
-}) %}
+) %}
 
 {% set attributeDefaults = {
     class: columnCVA.apply({ align, justify }) ~ ' ' ~ [...displayClasses, ...spanClasses]|join(' '),

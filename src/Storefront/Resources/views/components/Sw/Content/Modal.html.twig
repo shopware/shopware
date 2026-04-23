@@ -16,7 +16,7 @@
     fullscreen = false,
 %}
 
-{% set modalCVA = cva({
+{% set modalCVA = html_cva(
     base: 'sw-modal modal',
     variants: {
         size: {
@@ -29,10 +29,10 @@
             false: null,
             true: ['fade']
         },
-    }
-}) %}
+    },
+) %}
 
-{% set modalDialogCVA = cva({
+{% set modalDialogCVA = html_cva(
     base: 'sw-modal__dialog modal-dialog',
     variants: {
         scrollable: {
@@ -51,8 +51,8 @@
             'xl-down': 'modal-fullscreen-xl-down',
             'xxl-down': 'modal-fullscreen-xxl-down',
         },
-    }
-}) %}
+    },
+) %}
 
 {% set options = {
     ajaxUrl: ajaxUrl,

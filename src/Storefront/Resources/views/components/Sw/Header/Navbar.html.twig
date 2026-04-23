@@ -6,15 +6,15 @@
     scrollable = true,
 %}
 
-{% set navbarCVA = cva({
+{% set navbarCVA = html_cva(
     base: 'sw-navbar',
     variants: {
         scrollable: {
             true: ['has--scroller'],
             false: null,
         }
-    }
-}) %}
+    },
+) %}
 
 {% set jsOptions = { scrollable } %}
 

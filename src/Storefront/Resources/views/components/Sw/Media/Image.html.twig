@@ -12,9 +12,9 @@
     visibility = null
 %}
 
-{% set mediaImageCVA = cva({
-    base: 'sw-media sw-media-image'
-}) %}
+{% set mediaImageCVA = html_cva(
+    base: 'sw-media sw-media-image',
+) %}
 
 {% set attributeDefaults = {
     src: media|sw_encode_media_url,

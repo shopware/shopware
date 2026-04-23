@@ -12,7 +12,7 @@
     flip = null,
 %}
 
-{% set iconVariants = cva({
+{% set iconVariants = html_cva(
     base: 'sw-icon sw-icon--' ~ pack ~ ' sw-icon--' ~ pack ~ '-' ~ name,
     variants: {
         size: {
@@ -44,8 +44,8 @@
             vertical: 'sw-icon--flip-vertical',
             both: 'sw-icon--flip-both',
         }
-    }
-}) %}
+    },
+) %}
 
 {% set attributeDefaults = {
     'aria-hidden': true,

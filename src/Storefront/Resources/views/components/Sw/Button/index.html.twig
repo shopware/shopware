@@ -6,7 +6,7 @@
     text = null,
 %}
 
-{% set buttonCVA = cva({
+{% set buttonCVA = html_cva(
     base: 'sw-button btn',
     variants: {
         variant: {
@@ -84,7 +84,7 @@
         outline: [true],
         class: 'btn-outline-info',
     }],
-}) %}
+) %}
 
 <button {{ attributes.defaults({ class: buttonCVA.apply({ variant, outline, size }) }) }}>
     {% block content %}{{ text }}{% endblock %}

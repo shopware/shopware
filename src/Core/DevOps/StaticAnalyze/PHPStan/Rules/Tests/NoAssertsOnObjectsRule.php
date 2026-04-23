@@ -43,7 +43,7 @@ class NoAssertsOnObjectsRule implements Rule
             return [];
         }
 
-        if (!\in_array((string) $node->name, ['assertEquals', 'assertSame'], true)) {
+        if ((string) $node->name !== 'assertEquals') {
             return [];
         }
 

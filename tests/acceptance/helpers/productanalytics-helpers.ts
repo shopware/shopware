@@ -92,10 +92,16 @@ export function setupProductAnalyticsInterceptor() {
     const capturedTrackingEventRequests: CapturedRequest[] = [];
     const trackingEventHandler = async (route: Route) => {
         const req = route.request();
+        const postData = req.postData();
 
         capturedTrackingEventRequests.push({
-            postData: req.postData(),
+            postData: postData,
         });
+
+        if (!postData) {
+            await fulfillError(route, 'Missing request body');
+            return;
+        }
 
         await route.fulfill({
             status: 200,

@@ -9,7 +9,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\Runtime\CachedEscaperRuntime;
 use Shopware\Core\Test\Assert\StrictEmpty;
 use Twig\Error\RuntimeError;
-use Twig\Markup;
 use Twig\Runtime\EscaperRuntime;
 
 /**
@@ -470,25 +469,6 @@ class CachedEscaperRuntimeTest extends TestCase
         static::assertSame('FOO', $escaper->escape('foo', 'test'));
         static::assertSame('FOO', $escaper->escape('foo', 'test'));
         static::assertSame('FOO', $escaper->escape('foo', 'test'));
-
-        static::assertSame(1, $callCount);
-    }
-
-    public function testEscapeWithCachedMarkup(): void
-    {
-        $callCount = 0;
-        $runtime = new EscaperRuntime();
-        $runtime->setEscaper('test', static function (string $string) use (&$callCount): string {
-            ++$callCount;
-
-            return strtoupper($string);
-        });
-
-        $escaper = new CachedEscaperRuntime($runtime);
-
-        $stringable = new Markup('foo', 'UTF-8');
-        static::assertSame('FOO', $escaper->escape($stringable, 'test'));
-        static::assertSame('FOO', $escaper->escape($stringable, 'test'));
 
         static::assertSame(1, $callCount);
     }

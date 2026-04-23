@@ -37,7 +37,7 @@ class ElasticsearchHelper
         private readonly ElasticsearchRegistry $registry,
         private readonly CriteriaParser $parser,
         private readonly LoggerInterface $logger,
-        private readonly ?SystemConfigService $systemConfigService = null
+        private readonly SystemConfigService $systemConfigService
     ) {
     }
 
@@ -167,10 +167,6 @@ class ElasticsearchHelper
 
     private function resolveMinScore(Context $context): float
     {
-        if ($this->systemConfigService === null) {
-            return 0.0;
-        }
-
         $salesChannelId = null;
         $source = $context->getSource();
         if ($source instanceof SalesChannelApiSource) {

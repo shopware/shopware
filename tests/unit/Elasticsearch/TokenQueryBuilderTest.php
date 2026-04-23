@@ -879,7 +879,7 @@ class TokenQueryBuilderTest extends TestCase
             'operator' => $operator,
             'fuzzy_transpositions' => true,
             'max_expansions' => $maxExpansions,
-            'prefix_length' => 2,
+            'prefix_length' => mb_strlen((string) $query) >= 10 ? 3 : 2,
             'analyzer' => $analyzer,
         ];
 

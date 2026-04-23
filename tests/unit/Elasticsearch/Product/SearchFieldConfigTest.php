@@ -49,4 +49,14 @@ class SearchFieldConfigTest extends TestCase
         static::assertSame(0, $searchConfig->getFuzziness('1234'));
         static::assertSame(0, $searchConfig->getFuzziness('1234.5'));
     }
+
+    public function testGetPrefixLength(): void
+    {
+        $searchConfig = new SearchFieldConfig('fooField', 1000.0, true);
+
+        static::assertSame(2, $searchConfig->getPrefixLength('foo'));
+        static::assertSame(2, $searchConfig->getPrefixLength('bohrcraft'));
+        static::assertSame(3, $searchConfig->getPrefixLength('bohrcraftX'));
+        static::assertSame(3, $searchConfig->getPrefixLength('Tellerkopfschraube'));
+    }
 }

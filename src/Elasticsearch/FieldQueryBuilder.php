@@ -157,7 +157,7 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
             'operator' => $config->isAndLogic() ? 'and' : 'or',
             'fuzzy_transpositions' => true,
             'max_expansions' => $maxExpansions,
-            'prefix_length' => 2,
+            'prefix_length' => $config->getPrefixLength($token),
         ];
 
         if (!$this->useLanguageAnalyzer) {

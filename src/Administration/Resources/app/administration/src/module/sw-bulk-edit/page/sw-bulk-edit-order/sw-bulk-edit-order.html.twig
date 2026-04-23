@@ -37,9 +37,9 @@
 
     {% block sw_bulk_edit_order_content %}
     <template #content>
-
         <sw-card-view
             v-if="selectedIds.length > 0 && isLoadedData"
+            class="sw-bulk-edit-order__content"
         >
             <mt-card
                 v-if="restrictedFields.length"
@@ -116,6 +116,7 @@
 
             {% block sw_bulk_edit_order_custom_field_card %}
             <mt-card
+                v-if="customFieldSets.length > 0"
                 class="sw-bulk-edit-order-base__custom_fields"
                 position-identifier="sw-bulk-edit-order-custom-fields"
                 :title="$t('sw-bulk-edit.order.customFields.cardTitle')"

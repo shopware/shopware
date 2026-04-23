@@ -11,8 +11,8 @@ class CsvReader extends AbstractReader
 {
     private const BOM_UTF8 = "\xEF\xBB\xBF";
 
-    // Use 1 KB chunk when skipping forward on non-seekable streams.
-    private const SEEK_CHUNK_SIZE = 1024;
+    // Use 8 KB chunk when skipping forward on non-seekable streams.
+    private const SEEK_CHUNK_SIZE = 8192;
 
     private int $offset = 0;
 

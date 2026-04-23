@@ -137,6 +137,91 @@ class MediaUploadControllerTest extends TestCase
         $mediaUploadController->provideName($request, $context);
     }
 
+    public function testPreservesUmlautsInFileNameBeforeUpload(): void
+    {
+        $fileName = 'Bäume_über_Wälder_schön.png';
+        $mediaId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        $request = new Request(['fileName' => $fileName]);
+
+        $uploadFile = new MediaFile(
+            '/tmp/foo/bar/baz',
+            'image/png',
+            'png',
+            1000,
+            Uuid::randomHex()
+        );
+
+        $this->mediaService->expects($this->once())
+            ->method('fetchFile')
+            ->willReturn($uploadFile);
+
+        $this->fileSaver->expects($this->once())
+            ->method('persistFileToMedia')
+            ->with($uploadFile, $fileName, $mediaId, $context);
+
+        $mediaUploadController = new MediaUploadController(
+            $this->mediaService,
+            $this->fileSaver,
+            $this->fileNameProvider,
+            new MediaDefinition(),
+            new EventDispatcher()
+        );
+
+        $mediaUploadController->upload($request, $mediaId, $context, $this->responseFactory);
+    }
+
+    public function testPreservesUmlautsInFileNameBeforeRename(): void
+    {
+        $fileName = 'Bäume_über_Wälder_schön.png';
+        $mediaId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        $request = new Request([], ['fileName' => $fileName]);
+
+        $this->fileSaver->expects($this->once())
+            ->method('renameMedia')
+            ->with($mediaId, $fileName, $context);
+
+        $mediaUploadController = new MediaUploadController(
+            $this->mediaService,
+            $this->fileSaver,
+            $this->fileNameProvider,
+            new MediaDefinition(),
+            new EventDispatcher()
+        );
+
+        $mediaUploadController->renameMediaFile($request, $mediaId, $context, $this->responseFactory);
+    }
+
+    public function testPreservesUmlautsInFileNameBeforeProvideName(): void
+    {
+        $fileName = 'Bäume_über_Wälder_schön.png';
+        $mediaId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        $request = new Request([
+            'fileName' => $fileName,
+            'extension' => 'jpg',
+            'mediaId' => $mediaId,
+        ]);
+
+        $this->fileNameProvider->expects($this->once())
+            ->method('provide')
+            ->with($fileName, 'jpg', $mediaId, $context);
+
+        $mediaUploadController = new MediaUploadController(
+            $this->mediaService,
+            $this->fileSaver,
+            $this->fileNameProvider,
+            new MediaDefinition(),
+            new EventDispatcher()
+        );
+
+        $mediaUploadController->provideName($request, $context);
+    }
+
     public function testRenameThrowsWhenEmptyFileName(): void
     {
         $mediaId = Uuid::randomHex();

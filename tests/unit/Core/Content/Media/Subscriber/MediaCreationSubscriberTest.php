@@ -130,4 +130,30 @@ class MediaCreationSubscriberTest extends TestCase
 
         static::assertSame('media/Bildschirmfoto 2023-06-24 um 16.30.36.png', $command->getPayload()['path']);
     }
+
+    public function testPathPreservesUmlauts(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $subscriber = new MediaCreationSubscriber();
+
+        $definition = $this->getDefinition();
+
+        $command = new InsertCommand(
+            $definition,
+            ['path' => 'media/Bäume_über_Wälder_schön.png'],
+            ['id' => $this->ids->getBytes('media-1')],
+            $this->createMock(EntityExistence::class),
+            '/0'
+        );
+
+        $event = EntityWriteEvent::create(
+            WriteContext::createFromContext($context),
+            [$command],
+        );
+
+        $subscriber->beforeWrite($event);
+
+        static::assertSame('media/Bäume_über_Wälder_schön.png', $command->getPayload()['path']);
+    }
 }

@@ -33,8 +33,9 @@ final class CachedEscaperRuntime implements RuntimeExtensionInterface
      * Mimics the public API of {@see EscaperRuntime} as it is final and cannot be extended
      *
      * Additionally caches the escaped value to increase the performance.
-     * Caching other types than `string` and `Markup` brings no value, as the checks for those types cost more than the cache brings benefit.
+     * Caching other types than `string` brings no value, as the checks for those types cost more than the cache brings benefit.
      * E.g. integers and floats are rarely occuring with the same value more than once.
+     * Or e.g. {@see Markup} is directly returned anyway by original escaper, due to `$autoescape` set to true for the internal usage in Twig, so also not worth caching.
      * Changing the logic here should be proven with performance measuering tools like Blackfire.
      *
      * @throws RuntimeError
@@ -45,21 +46,6 @@ final class CachedEscaperRuntime implements RuntimeExtensionInterface
 
         if (\is_string($string)) {
             $cacheKey = \sprintf('%s-%s-%s', $string, $strategy, $charset);
-            if (isset(self::$escapeCache[$cacheKey])) {
-                return self::$escapeCache[$cacheKey];
-            }
-        }
-
-        // Only cache Twigs internal Markup class, as other Stringable classes cannot be ensured to be immutable
-        if ($string instanceof Markup) {
-            // Mimics the first check within the original `escape` method.
-            // `$autoescape` has no other influence on the escape result.
-            if ($autoescape) {
-                return $string;
-            }
-
-            $markupHash = spl_object_hash($string);
-            $cacheKey = \sprintf('%s-%s-%s', $markupHash, $strategy, $charset);
             if (isset(self::$escapeCache[$cacheKey])) {
                 return self::$escapeCache[$cacheKey];
             }

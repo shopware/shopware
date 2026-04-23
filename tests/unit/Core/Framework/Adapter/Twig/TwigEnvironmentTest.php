@@ -60,4 +60,28 @@ class TwigEnvironmentTest extends TestCase
         $otherRuntime = $twig->getRuntime(\stdClass::class);
         static::assertInstanceOf(\stdClass::class, $otherRuntime);
     }
+
+    public function testMarkupEscapeIsWorkingCorrectly(): void
+    {
+        $template = <<<'TWIG'
+{% for name in names %}
+    {% set captured %}{{ name }}{% endset %}
+    Hello {{ captured|trim|e }}
+{% endfor %}
+TWIG;
+
+        $names = [
+            'John Doe',
+            'Jane Doe',
+            'Peter Doe',
+            'Hans Doe',
+            'Harald Doe',
+            'Will Doe',
+        ];
+        $renderedTemplate = (new TwigEnvironment(new ArrayLoader(['test' => $template])))->render('test', ['names' => $names]);
+
+        foreach ($names as $name) {
+            static::assertStringContainsString('Hello ' . $name, $renderedTemplate);
+        }
+    }
 }

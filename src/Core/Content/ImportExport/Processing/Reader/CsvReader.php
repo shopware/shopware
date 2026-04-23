@@ -51,7 +51,9 @@ class CsvReader extends AbstractReader
             $this->initializeHeader($resource);
         }
 
-        $this->moveToOffset($resource, max($this->offset, $this->getCurrentOffset($resource)));
+        $currentOffset = max($this->offset, $this->getCurrentOffset($resource));
+        $this->setOffset($currentOffset);
+        $this->moveToOffset($resource, $currentOffset);
 
         while (!feof($resource)) {
             $record = $this->readSingleRecord($resource);

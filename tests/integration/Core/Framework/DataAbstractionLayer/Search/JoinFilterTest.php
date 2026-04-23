@@ -2,8 +2,9 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Search;
 
-use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\AfterClass;
+use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
@@ -41,28 +42,29 @@ class JoinFilterTest extends TestCase
 
     private static bool $dataInserted = false;
 
-    private static bool $transactionStarted = false;
-
-    public static function tearDownAfterClass(): void
-    {
-        self::cleanTestData();
-        self::$dataInserted = false;
-    }
-
     protected function setUp(): void
     {
-        // We intentionally avoid setUpBeforeClass here: inserting products via the repository triggers
-        // the product indexer → SeoUrlUpdater → a deprecated DBAL method, which fires a PHP deprecation
-        // notice. PHPUnit's deprecation handler requires a TestCase on the call stack to attribute the
-        // notice to a test — which setUpBeforeClass does not provide, causing NoTestCaseObjectOnCallStackException.
-        // setUp() always runs with a TestCase on the stack, so we guard with a static flag to insert only once.
+        // Insert in setUp() not #[BeforeClass]: the repository call triggers a deprecation whose handler requires a TestCase on the stack.
         if (self::$dataInserted) {
             return;
         }
 
-        self::$ids = new IdsCollection();
         self::insertTestData();
         self::$dataInserted = true;
+    }
+
+    #[BeforeClass]
+    public static function startTransactionBefore(): void
+    {
+        self::$ids = new IdsCollection();
+        KernelLifecycleManager::getKernel()->getContainer()->get(Connection::class)->beginTransaction();
+    }
+
+    #[AfterClass]
+    public static function stopTransactionAfter(): void
+    {
+        KernelLifecycleManager::getKernel()->getContainer()->get(Connection::class)->rollBack();
+        self::$dataInserted = false;
     }
 
     public function testOneToOne(): void
@@ -767,124 +769,69 @@ class JoinFilterTest extends TestCase
             ->searchIds($criteria, Context::createDefaultContext());
     }
 
-    private static function cleanTestData(): void
-    {
-        $connection = KernelLifecycleManager::getKernel()
-            ->getContainer()
-            ->get(Connection::class);
-
-        if (self::$transactionStarted) {
-            $connection->rollBack();
-            self::$transactionStarted = false;
-
-            return;
-        }
-
-        // Fallback: if we could not open our own transaction (because another suite held one open),
-        // explicitly delete the rows we inserted so they do not leak into other tests.
-        $productIds = array_values(array_map(
-            static fn (string $id) => Uuid::fromHexToBytes($id),
-            self::$ids->prefixed('product-')
-        ));
-
-        if ($productIds !== []) {
-            $connection->executeStatement(
-                'DELETE FROM `product` WHERE `id` IN (:ids)',
-                ['ids' => $productIds],
-                ['ids' => ArrayParameterType::BINARY]
-            );
-        }
-    }
-
     private static function insertTestData(): void
     {
-        $connection = KernelLifecycleManager::getKernel()
-            ->getContainer()
-            ->get(Connection::class);
-
-        // Only open a transaction when no other test holds one open already, to avoid a nested savepoint by accident.
-        if ($connection->getTransactionNestingLevel() === 0) {
-            $connection->beginTransaction();
-            self::$transactionStarted = true;
-        }
-
         $container = KernelLifecycleManager::getKernel()->getContainer();
 
-        try {
-            $products = [
-                (new ProductBuilder(self::$ids, 'product-1', 10, 'tax'))
-                    ->price(15, 10)
-                    ->manufacturer('manufacturer-1')
-                    ->property('red', 'color')
-                    ->property('yellow', 'color')
-                    ->property('XL', 'size')
-                    ->property('L', 'size')
-                    ->category('category-1')
-                    ->category('category-2')
-                    ->prices('rule-1', 100)
-                    ->prices('rule-2', 150)
-                    ->build(),
+        $products = [
+            (new ProductBuilder(self::$ids, 'product-1', 10, 'tax'))
+                ->price(15, 10)
+                ->manufacturer('manufacturer-1')
+                ->property('red', 'color')
+                ->property('yellow', 'color')
+                ->property('XL', 'size')
+                ->property('L', 'size')
+                ->category('category-1')
+                ->category('category-2')
+                ->prices('rule-1', 100)
+                ->prices('rule-2', 150)
+                ->build(),
 
-                (new ProductBuilder(self::$ids, 'product-1-variant', 10, 'tax'))
-                    ->parent('product-1')
-                    ->build(),
+            (new ProductBuilder(self::$ids, 'product-1-variant', 10, 'tax'))
+                ->parent('product-1')
+                ->build(),
 
-                (new ProductBuilder(self::$ids, 'product-2', 3, 'tax'))
-                    ->price(15, 10)
-                    ->manufacturer('manufacturer-2')
-                    ->property('red', 'color')
-                    ->property('S', 'size')
-                    ->category('category-1')
-                    ->category('category-3')
-                    ->prices('rule-1', 150)
-                    ->build(),
+            (new ProductBuilder(self::$ids, 'product-2', 3, 'tax'))
+                ->price(15, 10)
+                ->manufacturer('manufacturer-2')
+                ->property('red', 'color')
+                ->property('S', 'size')
+                ->category('category-1')
+                ->category('category-3')
+                ->prices('rule-1', 150)
+                ->build(),
 
-                (new ProductBuilder(self::$ids, 'product-3', 3, 'tax'))
-                    ->price(15, 10)
-                    ->category('category-4')
-                    ->build(),
-            ];
+            (new ProductBuilder(self::$ids, 'product-3', 3, 'tax'))
+                ->price(15, 10)
+                ->category('category-4')
+                ->build(),
+        ];
 
-            $container->get('product.repository')
-                ->create($products, Context::createDefaultContext());
+        $container->get('product.repository')
+            ->create($products, Context::createDefaultContext());
 
-            $userId = $container->get(Connection::class)
-                ->fetchOne('SELECT LOWER(HEX(id)) FROM `user` LIMIT 1');
+        $userId = $container->get(Connection::class)
+            ->fetchOne('SELECT LOWER(HEX(id)) FROM `user` LIMIT 1');
 
-            $media = [
-                ['id' => self::$ids->create('with-avatar')],
-                ['id' => self::$ids->create('without-avatar')],
-            ];
+        $media = [
+            ['id' => self::$ids->create('with-avatar')],
+            ['id' => self::$ids->create('without-avatar')],
+        ];
 
-            $container->get('media.repository')
-                ->create($media, Context::createDefaultContext());
+        $container->get('media.repository')
+            ->create($media, Context::createDefaultContext());
 
-            $avatar = [
-                'id' => $userId,
-                'avatarId' => self::$ids->get('with-avatar'),
-            ];
+        $avatar = [
+            'id' => $userId,
+            'avatarId' => self::$ids->get('with-avatar'),
+        ];
 
-            $container->get('user.repository')
-                ->update([$avatar], Context::createDefaultContext());
+        $container->get('user.repository')
+            ->update([$avatar], Context::createDefaultContext());
 
-            $result = $container->get('product.repository')
-                ->searchIds(new Criteria(self::$ids->prefixed('product-')), Context::createDefaultContext());
+        $result = $container->get('product.repository')
+            ->searchIds(new Criteria(self::$ids->prefixed('product-')), Context::createDefaultContext());
 
-            if ($result->getTotal() !== \count($products)) {
-                throw new \UnexpectedValueException(\sprintf(
-                    'Failed to insert test data: expected %d products, got %d',
-                    \count($products),
-                    $result->getTotal()
-                ));
-            }
-        } catch (\Throwable $e) {
-            // Roll back the transaction we opened to avoid leaving it unclosed for the rest of the process
-            if (self::$transactionStarted) {
-                $connection->rollBack();
-                self::$transactionStarted = false;
-            }
-
-            throw $e;
-        }
+        static::assertSame(\count($products), $result->getTotal());
     }
 }

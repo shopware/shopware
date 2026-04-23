@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * Base class for provider-specific DTOs stored in RenderInput.
  *
- * Each document data provider returns its own RenderData subtype so renderers can consume
+ * Each document data provider returns its own AbstractRenderData subtype so renderers can consume
  * typed, precomputed input instead of reaching back into the data loading layer.
  *
  * @internal
@@ -15,6 +15,6 @@ use Shopware\Core\Framework\Log\Package;
  * @codeCoverageIgnore
  */
 #[Package('after-sales')]
-abstract readonly class RenderData
+abstract readonly class AbstractRenderData
 {
 }

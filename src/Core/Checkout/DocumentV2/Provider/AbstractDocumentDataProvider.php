@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\DocumentV2\Provider;
 
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
-use Shopware\Core\Checkout\DocumentV2\Struct\RenderData;
+use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -38,7 +38,7 @@ abstract class AbstractDocumentDataProvider
     /**
      * Builds the provider-specific rendering data for the given order.
      */
-    abstract public function provideRenderingData(OrderEntity $order): RenderData;
+    abstract public function provideRenderingData(OrderEntity $order): AbstractRenderData;
 
     /**
      * Allows a provider to preload additional order associations before data extraction.

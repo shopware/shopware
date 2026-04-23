@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\DocumentV2\Event\DocumentGeneratedEvent;
 use Shopware\Core\Checkout\DocumentV2\Provider\AbstractDocumentDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
-use Shopware\Core\Checkout\DocumentV2\Struct\RenderData;
+use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
 use Shopware\Core\Checkout\Order\OrderCollection;
@@ -138,7 +138,7 @@ final readonly class DocumentGenerator
     /**
      * @param list<AbstractDocumentDataProvider> $providers
      *
-     * @return array<string, RenderData>
+     * @return array<string, AbstractRenderData>
      */
     private function collectProviderData(array $providers, OrderEntity $order): array
     {

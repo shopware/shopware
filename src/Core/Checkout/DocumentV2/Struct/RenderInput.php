@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class RenderInput
 {
     /**
-     * @param array<string, RenderData> $data
+     * @param array<string, AbstractRenderData> $data
      */
     public function __construct(
         public string $documentType,
@@ -30,19 +30,19 @@ final readonly class RenderInput
     ) {
     }
 
-    public function getData(string $key): ?RenderData
+    public function getData(string $key): ?AbstractRenderData
     {
         return $this->data[$key] ?? null;
     }
 
     /**
-     * @template T of RenderData
+     * @template T of AbstractRenderData
      *
      * @param class-string<T> $expected
      *
      * @throws DocumentV2Exception
      */
-    public function requireData(string $key, string $expected): RenderData
+    public function requireData(string $key, string $expected): AbstractRenderData
     {
         $data = $this->getData($key);
 
@@ -64,7 +64,7 @@ final readonly class RenderInput
     }
 
     /**
-     * @return array<string, RenderData>
+     * @return array<string, AbstractRenderData>
      */
     public function getAllData(): array
     {

@@ -22,9 +22,9 @@ final readonly class RenderInput
      * @param array<string, RenderData> $data
      */
     public function __construct(
-        private string $documentType,
-        private string $documentNumber,
-        private OrderEntity $order,
+        public string $documentType,
+        public string $documentNumber,
+        public OrderEntity $order,
         private array $data = [],
         private ?Context $context = null,
     ) {
@@ -61,21 +61,6 @@ final readonly class RenderInput
     public function getContext(): Context
     {
         return $this->context ?? Context::createDefaultContext();
-    }
-
-    public function getDocumentType(): string
-    {
-        return $this->documentType;
-    }
-
-    public function getDocumentNumber(): string
-    {
-        return $this->documentNumber;
-    }
-
-    public function getOrder(): OrderEntity
-    {
-        return $this->order;
     }
 
     /**

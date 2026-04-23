@@ -46,9 +46,8 @@ final readonly class DocumentEntityPersister
     public function persist(DocumentGenerationContext $generationContext, RenderInput $input, array $files): DocumentEntity
     {
         $documentId = Uuid::randomHex();
-        $documentNumber = $input->getDocumentNumber();
 
-        $this->assertDocumentNumberIsUnique($generationContext, $documentNumber);
+        $this->assertDocumentNumberIsUnique($generationContext, $input->documentNumber);
 
         $this->documentRepository->create([
             [
@@ -56,7 +55,7 @@ final readonly class DocumentEntityPersister
                 'orderId' => $generationContext->getOrderId(),
                 'orderVersionId' => $generationContext->getOrderVersionId(),
                 'documentTypeId' => $this->getDocumentTypeId($generationContext),
-                'documentNumber' => $documentNumber,
+                'documentNumber' => $input->documentNumber,
                 'deepLinkCode' => Random::getAlphanumericString(32),
                 'config' => [],
             ],
@@ -81,7 +80,7 @@ final readonly class DocumentEntityPersister
         )->first();
 
         if (!$document instanceof DocumentEntity) {
-            throw DocumentV2Exception::documentNotPersisted($documentNumber);
+            throw DocumentV2Exception::documentNotPersisted($input->documentNumber);
         }
 
         return $document;

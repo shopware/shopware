@@ -18,36 +18,11 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class RenderResult
 {
     public function __construct(
-        private string $format,
-        private string $content,
-        private string $fileName,
-        private string $fileExtension,
-        private string $mimeType,
+        public string $format,
+        public string $content,
+        public string $fileName,
+        public string $fileExtension,
+        public string $mimeType,
     ) {
-    }
-
-    public function getFormat(): string
-    {
-        return $this->format;
-    }
-
-    public function getContent(): string
-    {
-        return $this->content;
-    }
-
-    public function getFileName(): string
-    {
-        return $this->fileName;
-    }
-
-    public function getFileExtension(): string
-    {
-        return $this->fileExtension;
-    }
-
-    public function getMimeType(): string
-    {
-        return $this->mimeType;
     }
 }

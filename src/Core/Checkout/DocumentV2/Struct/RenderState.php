@@ -52,11 +52,11 @@ final class RenderState
      */
     public function add(RenderResult $result): void
     {
-        if ($this->has($result->getFormat())) {
-            throw DocumentV2Exception::duplicateRenderResult($result->getFormat());
+        if ($this->has($result->format)) {
+            throw DocumentV2Exception::duplicateRenderResult($result->format);
         }
 
-        $this->results[$result->getFormat()] = $result;
+        $this->results[$result->format] = $result;
     }
 
     /**

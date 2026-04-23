@@ -6,6 +6,7 @@
 import { warn } from 'src/core/service/utils/debug.utils';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
 import TemplateFactory from 'src/core/factory/template.factory';
+import transformLegacyBlockConditionals from 'src/core/factory/transform-legacy-block-conditionals';
 import type {
     AllowedComponentProps,
     ComponentCustomProps,
@@ -781,7 +782,25 @@ async function build(componentName: string, skipTemplate = false): Promise<Compo
      */
     const componentTemplate = await getComponentTemplate(componentName);
     if (config && typeof componentTemplate === 'string') {
-        config.template = componentTemplate;
+        const transformedTemplate = transformLegacyBlockConditionals(componentTemplate);
+
+        if (
+            transformedTemplate !== componentTemplate &&
+            process.env.NODE_ENV !== 'production' &&
+            typeof console !== 'undefined'
+        ) {
+            warn(
+                'ComponentFactory/LegacyBlockConditionals',
+                'Rewrote component template for legacy sw-block conditionals.',
+                {
+                    componentName,
+                    before: componentTemplate,
+                    after: transformedTemplate,
+                },
+            );
+        }
+
+        config.template = transformedTemplate;
     }
 
     if (typeof config?.template !== 'string') {

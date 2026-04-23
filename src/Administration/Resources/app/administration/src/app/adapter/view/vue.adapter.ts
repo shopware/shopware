@@ -47,10 +47,22 @@ import MtBadge from '@shopware-ag/meteor-component-library/dist/esm/MtBadge';
 import MtPromoBadge from '@shopware-ag/meteor-component-library/dist/esm/MtPromoBadge';
 
 import getBlockDataScope from '../../component/structure/sw-block-override/sw-block/get-block-data-scope';
+import useBlockContext from '../../composables/use-block-context';
 import useSystem from '../../composables/use-system';
 import useSession from '../../composables/use-session';
 
 const { Component, State, Mixin } = Shopware;
+const { legacyIf, legacyElseIf, legacyElse } = useBlockContext();
+
+function getLegacyBlockConditionKey(instance: ComponentPublicInstance, blockName: string): string {
+    const componentUid = instance.$?.uid;
+
+    if (typeof componentUid !== 'number') {
+        return blockName;
+    }
+
+    return `${componentUid}:${blockName}`;
+}
 
 /**
  * @private
@@ -167,6 +179,26 @@ export default class VueAdapter extends ViewAdapter {
             get: getBlockDataScope,
             enumerable: true,
         });
+        this.app.config.globalProperties.$swLegacyBlockIf = function legacyBlockIf(
+            this: ComponentPublicInstance,
+            blockName: string,
+            expression: unknown,
+        ): boolean {
+            return legacyIf(getLegacyBlockConditionKey(this, blockName), expression);
+        };
+        this.app.config.globalProperties.$swLegacyBlockElseIf = function legacyBlockElseIf(
+            this: ComponentPublicInstance,
+            blockName: string,
+            expression: unknown,
+        ): boolean {
+            return legacyElseIf(getLegacyBlockConditionKey(this, blockName), expression);
+        };
+        this.app.config.globalProperties.$swLegacyBlockElse = function legacyBlockElse(
+            this: ComponentPublicInstance,
+            blockName: string,
+        ): boolean {
+            return legacyElse(getLegacyBlockConditionKey(this, blockName));
+        };
 
         /**
          * This is a hack for providing the services to the components.

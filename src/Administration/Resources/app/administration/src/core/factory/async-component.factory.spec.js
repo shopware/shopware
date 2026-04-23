@@ -3234,6 +3234,148 @@ describe('core/factory/async-component.factory.ts', () => {
         });
     });
 
+    describe('should support legacy v-if chains across native sw-block extensions', () => {
+        async function mountNativeBlockComponent(componentName) {
+            const swBlock = (await import('src/app/component/structure/sw-block-override/sw-block/index')).default;
+            const swBlockParent = (await import('src/app/component/structure/sw-block-override/sw-block-parent/index'))
+                .default;
+            const useBlockContext = (await import('src/app/composables/use-block-context')).default;
+            const { legacyIf, legacyElseIf, legacyElse } = useBlockContext();
+
+            const getLegacyBlockConditionKey = (vm, blockName) => {
+                const componentUid = vm.$?.uid;
+
+                if (typeof componentUid !== 'number') {
+                    return blockName;
+                }
+
+                return `${componentUid}:${blockName}`;
+            };
+
+            return mount(await ComponentFactory.build(componentName), {
+                global: {
+                    components: {
+                        'sw-block': swBlock,
+                        'sw-block-parent': swBlockParent,
+                    },
+                    mocks: {
+                        $swLegacyBlockIf(blockName, expression) {
+                            return legacyIf(getLegacyBlockConditionKey(this, blockName), expression);
+                        },
+                        $swLegacyBlockElseIf(blockName, expression) {
+                            return legacyElseIf(getLegacyBlockConditionKey(this, blockName), expression);
+                        },
+                        $swLegacyBlockElse(blockName) {
+                            return legacyElse(getLegacyBlockConditionKey(this, blockName));
+                        },
+                    },
+                },
+            });
+        }
+
+        it('does not override existing component methods with shim helpers', async () => {
+            ComponentFactory.register('native-block-legacy-method-collision', {
+                methods: {
+                    legacyIf() {
+                        return true;
+                    },
+                },
+                template: '<div>{{ legacyIf() ? "kept" : "overridden" }}</div>',
+            });
+
+            const component = await ComponentFactory.build('native-block-legacy-method-collision');
+            const wrapper = await mount(component, {});
+
+            expect(wrapper.text()).toBe('kept');
+        });
+
+        it('renders the legacy else branch without compiler errors', async () => {
+            ComponentFactory.register('native-block-legacy-else', {
+                data() {
+                    return {
+                        isConditionTrue: false,
+                    };
+                },
+                template: `
+                    <div>
+                        <sw-block name="test-block" :data="{}">
+                            <div v-if="isConditionTrue" class="true-branch">true</div>
+                        </sw-block>
+
+                        <sw-block extends="test-block">
+                            <sw-block-parent />
+                            <div v-else class="false-branch">false</div>
+                        </sw-block>
+                    </div>
+                `,
+            });
+
+            const wrapper = await mountNativeBlockComponent('native-block-legacy-else');
+
+            expect(wrapper.find('.true-branch').exists()).toBe(false);
+            expect(wrapper.find('.false-branch').exists()).toBe(true);
+        });
+
+        it('preserves v-else-if chains that end inside a native block', async () => {
+            const registerNativeBlockChain = (componentName, initialState) => {
+                const blockName = `${componentName}-block`;
+
+                ComponentFactory.register(componentName, {
+                    data() {
+                        return initialState;
+                    },
+                    template: `
+                        <div>
+                            <sw-block name="${blockName}" :data="{}">
+                                <div v-if="showBlue" class="blue-branch">blue</div>
+                                <div v-else-if="showGreen" class="green-branch">green</div>
+                            </sw-block>
+
+                            <sw-block extends="${blockName}">
+                                <sw-block-parent />
+                                <div v-else-if="showRed" class="red-branch">red</div>
+                            </sw-block>
+
+                            <sw-block extends="${blockName}">
+                                <sw-block-parent />
+                                <div v-else class="fallback-branch">fallback</div>
+                            </sw-block>
+                        </div>
+                    `,
+                });
+            };
+
+            registerNativeBlockChain('native-block-legacy-else-if-fallback', {
+                showBlue: false,
+                showGreen: false,
+                showRed: false,
+            });
+
+            registerNativeBlockChain('native-block-legacy-else-if-red', {
+                showBlue: false,
+                showGreen: false,
+                showRed: true,
+            });
+
+            registerNativeBlockChain('native-block-legacy-else-if-green', {
+                showBlue: false,
+                showGreen: true,
+                showRed: false,
+            });
+
+            const fallbackWrapper = await mountNativeBlockComponent('native-block-legacy-else-if-fallback');
+            const redWrapper = await mountNativeBlockComponent('native-block-legacy-else-if-red');
+            const greenWrapper = await mountNativeBlockComponent('native-block-legacy-else-if-green');
+
+            expect(fallbackWrapper.find('.fallback-branch').exists()).toBe(true);
+            expect(redWrapper.find('.red-branch').exists()).toBe(true);
+            expect(redWrapper.find('.fallback-branch').exists()).toBe(false);
+            expect(greenWrapper.find('.green-branch').exists()).toBe(true);
+            expect(greenWrapper.find('.red-branch').exists()).toBe(false);
+            expect(greenWrapper.find('.fallback-branch').exists()).toBe(false);
+        });
+    });
+
     describe('should handle errors accordingly', () => {
         it('should throw error calling $super("$super")', async () => {
             ComponentFactory.register('jest', {

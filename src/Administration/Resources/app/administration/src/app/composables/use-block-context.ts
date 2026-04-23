@@ -4,6 +4,7 @@
 import { reactive, type Slot } from 'vue';
 
 const blockContext: Record<string, Slot[]> = reactive({});
+const legacyConditionContext: Record<string, boolean[]> = {};
 
 function getBlocks(blockName: string): Slot[] {
     return blockContext[blockName] ?? [];
@@ -33,14 +34,53 @@ function removeBlock(blockName: string, block?: Slot): void {
     }
 }
 
+function legacyIf(blockName: string, expression: unknown): boolean {
+    const result = Boolean(expression);
+
+    legacyConditionContext[blockName] = [result];
+
+    return result;
+}
+
+function legacyElseIf(blockName: string, expression: unknown): boolean {
+    const chain = legacyConditionContext[blockName];
+
+    if (!chain) {
+        return false;
+    }
+
+    const result = Boolean(expression);
+    const previousConditionMatched = chain.some(Boolean);
+
+    chain.push(result);
+
+    return !previousConditionMatched && result;
+}
+
+function legacyElse(blockName: string): boolean {
+    const chain = legacyConditionContext[blockName];
+
+    if (!chain) {
+        return false;
+    }
+
+    delete legacyConditionContext[blockName];
+
+    return !chain.some(Boolean);
+}
+
 /**
  * @private
  */
 export default function useBlockContext() {
     return {
         blockContext,
+        legacyConditionContext,
         getBlocks,
         addBlock,
         removeBlock,
+        legacyIf,
+        legacyElseIf,
+        legacyElse,
     };
 }

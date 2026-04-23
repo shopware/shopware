@@ -520,6 +520,9 @@ interface CustomProperties extends ServiceContainer {
     $tc: I18n<{}, {}, {}, string, true>['global']['t'];
     $t: I18n<{}, {}, {}, string, true>['global']['t'];
     $dataScope: () => ComponentInternalInstance['proxy'];
+    $swLegacyBlockIf: (blockName: string, expression: unknown) => boolean;
+    $swLegacyBlockElseIf: (blockName: string, expression: unknown) => boolean;
+    $swLegacyBlockElse: (blockName: string) => boolean;
 }
 
 declare module '@vue/runtime-core' {

@@ -1332,7 +1332,7 @@ class WebhookManagerTest extends TestCase
             'test@example.com'
         );
 
-        Feature::fake(['WEBHOOKS_REWORK'], function () use ($event): void {
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($event): void {
             $this->getManager(adminWorkerEnabled: true)->dispatch($event);
 
             $eventLog = $this->connection->fetchAssociative(
@@ -1370,7 +1370,7 @@ class WebhookManagerTest extends TestCase
 
         $event = new AppDeletedEvent($appId, Context::createDefaultContext());
 
-        Feature::fake(['WEBHOOKS_REWORK'], function () use ($event): void {
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($event): void {
             $this->getManager(adminWorkerEnabled: true)->dispatch($event);
 
             $eventLog = $this->connection->fetchAssociative(
@@ -1417,7 +1417,7 @@ class WebhookManagerTest extends TestCase
             'test@example.com'
         );
 
-        Feature::fake([], function () use ($event): void {
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($event): void {
             $this->getManager(adminWorkerEnabled: true)->dispatch($event);
 
             $eventLog = $this->connection->fetchAssociative(

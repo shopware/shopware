@@ -45,8 +45,12 @@ final readonly class WebhookEventMessageHandler
         // transport existed, so they have no delivery row yet — create it silently. For new
         // messages a missing row means an unexpected dispatch path or a rollout window; repair
         // and log.
+        // @deprecated tag:v6.8.0 — remove with the flag-OFF path.
         if (!$this->outboxEventRepository->hasDeliveryRow($message->getWebhookEventId())) {
-            $this->outboxEventRepository->ensureOutboxEntry(OutboxInsert::fromMessage($message));
+            $insert = OutboxInsert::fromMessage($message);
+            if ($this->outboxEventRepository->ensureOutboxEntry($insert) === null) {
+                $this->outboxEventRepository->backfillDelivery($insert);
+            }
 
             if ($message->partitionKey !== null) {
                 $this->logger->error('Expected an outbox entry for webhook event. Not an error if this is happening during a deployment rollout.', [
@@ -65,12 +69,12 @@ final readonly class WebhookEventMessageHandler
         $context = Context::createDefaultContext();
 
         $entry = $this->outboxEventRepository->markRunning($message->getWebhookEventId());
-        // null + delivery row exists => another worker owns the attempt; skip.
-        // null + no delivery row => legacy pre-transport message; deliver without sequence headers.
-        if ($entry === null && $this->outboxEventRepository->hasDeliveryRow($message->getWebhookEventId())) {
+        // Only legacy pre-transport messages have no partitionKey. For any new-shape message,
+        // `markRunning === null` means the row was either claimed by another worker or already
+        // finalized, thus we don't need to do anything here.
+        if ($entry === null && $message->partitionKey !== null) {
             return;
         }
-
         $request = $this->webhookDeliveryService->buildRequest($message, $entry);
 
         try {

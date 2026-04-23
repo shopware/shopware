@@ -26,16 +26,24 @@ class WebhookConsumeMessagesSubscriber implements EventSubscriberInterface
 
     public static function getSubscribedEvents(): array
     {
-        if (Feature::isActive('v6.8.0.0')) {
-            return [];
-        }
-
         return [ConsoleEvents::COMMAND => 'onMessengerConsume'];
     }
 
     public function onMessengerConsume(ConsoleCommandEvent $event): void
     {
+        if (Feature::isActive('v6.8.0.0')) {
+            return;
+        }
+
         if ($event->getCommand()?->getName() !== 'messenger:consume') {
+            return;
+        }
+
+        // `messenger:consume --queues=X` requires every receiver to implement
+        // QueueReceiverInterface (Symfony Worker::run). WebhookTransport does not. Prepending
+        // it would crash the worker at startup with a RuntimeException, so leave commands that
+        // opt into queue filtering alone.
+        if ($event->getInput()->getOption('queues') !== []) {
             return;
         }
 
@@ -50,6 +58,8 @@ class WebhookConsumeMessagesSubscriber implements EventSubscriberInterface
             Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'),
         );
 
+        // First so `async` doesn't starve it; the fixed per-poll batch size provides
+        // implicit fairness to other transports.
         array_unshift($receivers, self::WEBHOOK_QUEUE);
         $event->getInput()->setArgument('receivers', $receivers);
     }

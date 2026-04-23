@@ -61,7 +61,7 @@ The outbox becomes the queue. With `WEBHOOKS_REWORK` active, workers consume dir
 - `reject()` returns the row to `PENDING_RETRY` with a short backoff so a persistently failing message can't starve its partition.
 - Consumer contract is emitted by a single seam (`WebhookDeliveryService::buildRequest`) regardless of dispatch path: `X-Shopware-Event-Id`, `X-Shopware-Sequence`, `X-Shopware-Attempt` (0-indexed), plus `source.sequence` in the JSON payload.
 - `WebhookTransport` flag-gates its full lifecycle. Flag OFF: `send` persists and forwards to `async`, `get` returns `[]`. Flag ON: `send` persists only, `get` delegates to the receiver.
-- Rollout glue: `WebhookConsumeMessagesSubscriber` (`@deprecated tag:v6.8.0`) auto-inserts `webhook` after `async` in every `messenger:consume` invocation so operators don't need to edit their consume command. Removed in v6.8 in favour of explicit receiver configuration.
+- Rollout glue: `WebhookConsumeMessagesSubscriber` (`@deprecated tag:v6.8.0`) prepends `webhook` before `async` in every `messenger:consume` invocation so operators don't need to edit their consume command. The prepend is skipped when `--queues=X` is set — Symfony's worker rejects receivers that don't implement `QueueReceiverInterface` when queue filtering is active. Removed in v6.8 in favour of explicit receiver configuration.
 
 ### Future
 

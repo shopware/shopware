@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Webhook\Outbox\OutboxEntry;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxInsert;
 use Shopware\Core\Framework\Webhook\Outbox\RetryDelayCalculator;
+use Shopware\Core\Framework\Webhook\WebhookException;
 use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -80,6 +81,7 @@ class WebhookDeliveryService
                 'webhookId' => $message->getWebhookId(),
                 'exception' => $e,
             ]);
+
             try {
                 $this->outboxEventRepository->markFailed($message->getWebhookEventId());
             } catch (DBALException $dbalException) {
@@ -90,11 +92,14 @@ class WebhookDeliveryService
                 ]);
             }
         } catch (DBALException $e) {
+            // DB is unavailable — let Messenger reject and retry instead of acking a stuck RUNNING row.
             $this->logger->error('Webhook delivery persistence failed for event {eventId}', [
                 'eventId' => $message->getWebhookEventId(),
                 'webhookId' => $message->getWebhookId(),
                 'exception' => $e,
             ]);
+
+            throw WebhookException::webhookFailedException($message->getWebhookId(), $e);
         }
     }
 
@@ -224,4 +229,3 @@ class WebhookDeliveryService
         $this->outboxEventRepository->markPendingRetry($eventLogId, $retryAt, $response);
     }
 }
-

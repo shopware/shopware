@@ -381,7 +381,7 @@ class WebhookDispatchEndToEndTest extends TestCase
         $manager = $this->getWebhookManager(isAdminWorkerEnabled: false);
         $event = $this->createCustomerBeforeLoginEvent();
 
-        Feature::fake(['WEBHOOKS_REWORK'], function () use ($manager, $event): void {
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($manager, $event): void {
             $manager->dispatch($event);
 
             $this->runWorker();
@@ -433,7 +433,7 @@ class WebhookDispatchEndToEndTest extends TestCase
         $manager = $this->getWebhookManager(isAdminWorkerEnabled: false);
         $event = $this->createCustomerBeforeLoginEvent();
 
-        Feature::fake(['WEBHOOKS_REWORK'], function () use ($manager, $event): void {
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($manager, $event): void {
             $manager->dispatch($event);
 
             // Burn the retry budget without actually delivering: each markRunning / markPendingRetry
@@ -486,7 +486,7 @@ class WebhookDispatchEndToEndTest extends TestCase
         $manager = $this->getWebhookManager(isAdminWorkerEnabled: false);
         $event = $this->createCustomerBeforeLoginEvent();
 
-        Feature::fake(['WEBHOOKS_REWORK'], function () use ($manager, $event): void {
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($manager, $event): void {
             $manager->dispatch($event);
 
             // First pass: delivery fails → PENDING_RETRY with future next_retry_at.
@@ -515,7 +515,12 @@ class WebhookDispatchEndToEndTest extends TestCase
      */
     private function withFlag(bool $active, \Closure $closure): void
     {
-        Feature::fake($active ? ['WEBHOOKS_REWORK'] : [], $closure);
+        // Pin v6.7.0.0 as the baseline in both legs. Without it, `Feature::fake([])` zeroes
+        // every v6.*/FEATURE_* env var — flag-OFF tests would then run in a world where the
+        // current released version is also disabled, diverging from production.
+        $baseline = ['v6.7.0.0'];
+
+        Feature::fake($active ? [...$baseline, 'WEBHOOKS_REWORK'] : $baseline, $closure);
     }
 
     /**

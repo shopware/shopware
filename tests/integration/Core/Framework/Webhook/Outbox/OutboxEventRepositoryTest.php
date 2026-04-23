@@ -447,6 +447,89 @@ class OutboxEventRepositoryTest extends TestCase
         static::assertSame(0, $rowCount, 'No event_log row should be created when webhook does not exist');
     }
 
+    public function testBackfillDeliveryCreatesRowsForPreFlagEventLog(): void
+    {
+        // Rollout: a legacy `async` envelope wrote webhook_event_log before the
+        // webhook_delivery table shipped. The handler finds no delivery row and calls
+        // backfillDelivery to create it.
+        $this->createWebhook('wh-1');
+        $message = $this->createMessage('evt-1', 'wh-1');
+
+        $this->connection->insert('webhook_event_log', [
+            'id' => $this->ids->getBytes('evt-1'),
+            'delivery_status' => WebhookEventLogDefinition::STATUS_QUEUED,
+            'webhook_name' => 'test-hook',
+            'event_name' => 'product.written',
+            'url' => 'https://example.com/webhook',
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $entry = $this->repository->backfillDelivery($this->toEntry($message));
+
+        static::assertInstanceOf(OutboxEntry::class, $entry);
+
+        $delivery = $this->connection->fetchAssociative(
+            'SELECT * FROM webhook_delivery WHERE webhook_event_log_id = :id',
+            ['id' => $this->ids->getBytes('evt-1')]
+        );
+        static::assertNotFalse($delivery);
+        static::assertSame(WebhookEventLogDefinition::STATUS_QUEUED, $delivery['delivery_status']);
+
+        $streamCount = (int) $this->connection->fetchOne(
+            'SELECT COUNT(*) FROM webhook_stream WHERE partition_key = :pk',
+            ['pk' => Hasher::hashBinary($message->getPartitionKey(), 'xxh128')]
+        );
+        static::assertSame(1, $streamCount);
+    }
+
+    public function testBackfillDeliverySkipsTerminalEventLog(): void
+    {
+        // markSuccess deletes webhook_delivery and leaves webhook_event_log in SUCCESS;
+        // a redelivery of the same eventId must not revive a terminal row.
+        $this->createWebhook('wh-1');
+        $message = $this->createMessage('evt-1', 'wh-1');
+
+        $this->connection->insert('webhook_event_log', [
+            'id' => $this->ids->getBytes('evt-1'),
+            'delivery_status' => WebhookEventLogDefinition::STATUS_SUCCESS,
+            'webhook_name' => 'test-hook',
+            'event_name' => 'product.written',
+            'url' => 'https://example.com/webhook',
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $entry = $this->repository->backfillDelivery($this->toEntry($message));
+
+        static::assertNull($entry);
+        $deliveryCount = (int) $this->connection->fetchOne(
+            'SELECT COUNT(*) FROM webhook_delivery WHERE webhook_event_log_id = :id',
+            ['id' => $this->ids->getBytes('evt-1')]
+        );
+        static::assertSame(0, $deliveryCount);
+    }
+
+    public function testBackfillDeliverySkipsWhenDeliveryAlreadyExists(): void
+    {
+        // Second backfill call is idempotent — first commit wins.
+        $this->createWebhook('wh-1');
+        $message = $this->createMessage('evt-1', 'wh-1');
+
+        $this->connection->insert('webhook_event_log', [
+            'id' => $this->ids->getBytes('evt-1'),
+            'delivery_status' => WebhookEventLogDefinition::STATUS_QUEUED,
+            'webhook_name' => 'test-hook',
+            'event_name' => 'product.written',
+            'url' => 'https://example.com/webhook',
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $first = $this->repository->backfillDelivery($this->toEntry($message));
+        $second = $this->repository->backfillDelivery($this->toEntry($message));
+
+        static::assertInstanceOf(OutboxEntry::class, $first);
+        static::assertNull($second);
+    }
+
     public function testSerializedWebhookMessageIsStoredInEventLog(): void
     {
         $this->createWebhook('wh-1');

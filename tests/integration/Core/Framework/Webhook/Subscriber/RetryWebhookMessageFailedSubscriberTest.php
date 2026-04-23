@@ -439,7 +439,7 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
             WebhookFailureStrategy::DisableOnThreshold->value,
         );
 
-        Feature::fake(['WEBHOOKS_REWORK'], function () use ($subscriber, $event, $webhookEventId, $webhookId): void {
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($subscriber, $event, $webhookEventId, $webhookId): void {
             $subscriber->failed($event);
 
             // Subscriber early-returned — event log status must still be QUEUED (no DB writes)

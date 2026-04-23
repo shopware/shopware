@@ -313,12 +313,7 @@ class MySQLWebhookReceiverTest extends TestCase
 
     public function testFetchStopsYieldingWhenLeaseAbandonedMidBatch(): void
     {
-        // Isolate from leftover stream/delivery rows left by earlier test files: the
-        // container-wired services in setUp bypass IntegrationTestBehaviour's transaction.
-        $this->connection->executeStatement('DELETE FROM webhook_stream');
-        $this->connection->executeStatement('DELETE FROM webhook_delivery');
-        $this->connection->executeStatement('DELETE FROM webhook_event_log');
-        $this->connection->executeStatement('DELETE FROM webhook');
+        $this->truncateHarnessTables();
 
         // Insert several messages so the generator yields more than one envelope.
         $this->createWebhook('wh-1');
@@ -337,6 +332,162 @@ class MySQLWebhookReceiverTest extends TestCase
         }
 
         static::assertCount(1, $yielded, 'fetch() must stop yielding once the lease is abandoned');
+    }
+
+    public function testBrokenMessageIsMarkedAsFailed(): void
+    {
+        $this->truncateHarnessTables();
+
+        $this->createWebhook('wh-1');
+
+        $eventLogId = Uuid::randomBytes();
+        $this->connection->insert('webhook_event_log', [
+            'id' => $eventLogId,
+            'app_name' => null,
+            'delivery_status' => WebhookEventLogDefinition::STATUS_QUEUED,
+            'webhook_name' => 'hook',
+            'event_name' => 'product.written',
+            'url' => 'https://example.com/webhook',
+            'created_at' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'serialized_webhook_message' => serialize(new \stdClass()),
+        ]);
+        $partitionKey = Hasher::hashBinary(WebhookEventMessage::DEFAULT_PARTITION_KEY, 'xxh128');
+        $this->connection->insert('webhook_delivery', [
+            'webhook_event_log_id' => $eventLogId,
+            'webhook_id' => $this->ids->getBytes('wh-1'),
+            'partition_key' => $partitionKey,
+            'delivery_status' => WebhookEventLogDefinition::STATUS_QUEUED,
+            'created_at' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+        $this->connection->executeStatement(
+            'INSERT IGNORE INTO webhook_stream (id, partition_key, created_at) VALUES (:id, :pk, :now)',
+            [
+                'id' => Uuid::randomBytes(),
+                'pk' => $partitionKey,
+                'now' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]
+        );
+
+        $envelopes = iterator_to_array($this->asGenerator($this->receiver->get()));
+
+        static::assertSame([], $envelopes);
+        static::assertSame(
+            WebhookEventLogDefinition::STATUS_FAILED,
+            $this->connection->fetchOne(
+                'SELECT delivery_status FROM webhook_event_log WHERE id = :id',
+                ['id' => $eventLogId]
+            )
+        );
+    }
+
+    public function testKeepaliveDoesNotShrinkLeaseWhenHintIsSmallerThanRemaining(): void
+    {
+        // Symfony's `--keepalive` signals with a small `$seconds` (default 5s). If we treated
+        // that as an exact extension, a healthy 240s lease would collapse to 5s and leave a
+        // window for another worker to steal the partition. Keep the lease at its current
+        // expiry when the hint is smaller than what we already have.
+        $this->createWebhook('wh-1');
+        $this->outbox->ensureOutboxEntry($this->entryFor('evt-1', 'wh-1'));
+
+        $envelopes = iterator_to_array($this->asGenerator($this->receiver->get()));
+        static::assertCount(1, $envelopes);
+
+        $partitionKey = Hasher::hashBinary(WebhookEventMessage::DEFAULT_PARTITION_KEY, 'xxh128');
+        $originalExpiry = $this->connection->fetchOne(
+            'SELECT lock_expires_at FROM webhook_stream WHERE partition_key = :pk',
+            ['pk' => $partitionKey]
+        );
+
+        $this->clock->modify('+1 seconds');
+        $this->receiver->keepalive($envelopes[0], 5);
+
+        $expiresAfter = $this->connection->fetchOne(
+            'SELECT lock_expires_at FROM webhook_stream WHERE partition_key = :pk',
+            ['pk' => $partitionKey]
+        );
+
+        static::assertSame($originalExpiry, $expiresAfter, 'keepalive must not shrink the lease when the hint is smaller than the remaining time');
+    }
+
+    public function testKeepaliveExtendsLeaseWhenHintExceedsRemaining(): void
+    {
+        // Symfony's contract says `$seconds` is the minimum duration the message must stay
+        // alive. A long-running handler that signals its own budget (e.g. 720s) must push
+        // the lease out past the current expiry, not get clamped to it.
+        $this->createWebhook('wh-1');
+        $this->outbox->ensureOutboxEntry($this->entryFor('evt-1', 'wh-1'));
+
+        $envelopes = iterator_to_array($this->asGenerator($this->receiver->get()));
+        static::assertCount(1, $envelopes);
+
+        $longHint = MySQLWebhookReceiver::LEASE_SECONDS * 3;
+        $this->clock->modify('+1 seconds');
+        $this->receiver->keepalive($envelopes[0], $longHint);
+
+        $partitionKey = Hasher::hashBinary(WebhookEventMessage::DEFAULT_PARTITION_KEY, 'xxh128');
+        $expiresAt = $this->connection->fetchOne(
+            'SELECT lock_expires_at FROM webhook_stream WHERE partition_key = :pk',
+            ['pk' => $partitionKey]
+        );
+
+        $expected = $this->clock->now()
+            ->modify(\sprintf('+%d seconds', $longHint))
+            ->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        static::assertSame($expected, $expiresAt);
+    }
+
+    public function testFetchStopsYieldingWhenLeaseExpiresMidBatch(): void
+    {
+        // A worker holding the lease must stop yielding once clock passes expiresAt —
+        // another worker may already be claiming the partition via SKIP LOCKED.
+        $this->truncateHarnessTables();
+
+        $this->createWebhook('wh-1');
+        for ($i = 1; $i <= 3; ++$i) {
+            $this->outbox->ensureOutboxEntry($this->entryFor('evt-' . $i, 'wh-1'));
+        }
+
+        $yielded = [];
+        foreach ($this->receiver->get() as $envelope) {
+            $yielded[] = $envelope;
+            if (\count($yielded) === 1) {
+                // Jump past LEASE_SECONDS. The per-yield expiresAt guard must bail on the
+                // next iteration even though currentLease is still set locally.
+                $this->clock->modify(\sprintf('+%d seconds', MySQLWebhookReceiver::LEASE_SECONDS + 1));
+            }
+        }
+
+        static::assertCount(1, $yielded, 'fetch() must stop once the DB lease has expired');
+    }
+
+    public function testLeaseRotatesAfterMaxMessagesPerLeaseBudget(): void
+    {
+        // Pins the fairness contract now that time-based rotation was removed: a worker
+        // processing a hot partition must release it after MAX_MESSAGES_PER_LEASE deliveries
+        // so another worker on a sibling partition gets a turn. Without this, a single-
+        // partition workload could hold the lease indefinitely under our new rotation rule.
+        $this->truncateHarnessTables();
+
+        $this->createWebhook('wh-1');
+        $total = MySQLWebhookReceiver::MAX_MESSAGES_PER_LEASE + 2;
+        for ($i = 1; $i <= $total; ++$i) {
+            $this->outbox->ensureOutboxEntry($this->entryFor('evt-' . $i, 'wh-1'));
+        }
+
+        $first = iterator_to_array($this->asGenerator($this->receiver->get()));
+        static::assertCount(MySQLWebhookReceiver::MAX_MESSAGES_PER_LEASE, $first, 'one batch must cap at MAX_MESSAGES_PER_LEASE');
+
+        // The batch budget is used up — the next fetch releases and re-claims before draining
+        // the remaining entries.
+        $partitionKey = Hasher::hashBinary(WebhookEventMessage::DEFAULT_PARTITION_KEY, 'xxh128');
+        $lockBetweenFetches = $this->connection->fetchOne(
+            'SELECT locked_by FROM webhook_stream WHERE partition_key = :pk',
+            ['pk' => $partitionKey]
+        );
+        static::assertNotNull($lockBetweenFetches);
+
+        $second = iterator_to_array($this->asGenerator($this->receiver->get()));
+        static::assertCount(2, $second, 'the second fetch must drain the remainder after rotation');
     }
 
     public function testPoisonPillMarksFailedAndContinues(): void
@@ -396,7 +547,6 @@ class MySQLWebhookReceiverTest extends TestCase
         }
     }
 
-
     private function createWebhook(string $key): void
     {
         $this->connection->insert('webhook', [
@@ -407,6 +557,18 @@ class MySQLWebhookReceiverTest extends TestCase
             'app_id' => null,
             'created_at' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
+    }
+
+    /**
+     * setUp uses container-wired services that bypass IntegrationTestBehaviour's transaction,
+     * so per-test row pollution has to be scrubbed explicitly.
+     */
+    private function truncateHarnessTables(): void
+    {
+        $this->connection->executeStatement('DELETE FROM webhook_stream');
+        $this->connection->executeStatement('DELETE FROM webhook_delivery');
+        $this->connection->executeStatement('DELETE FROM webhook_event_log');
+        $this->connection->executeStatement('DELETE FROM webhook');
     }
 
     private function entryFor(string $eventKey, string $webhookKey): OutboxInsert

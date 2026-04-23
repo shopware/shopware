@@ -940,7 +940,7 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $this->appendNewResponse(new Response(500, [], '{"error": "internal server error"}'));
 
-        Feature::fake(['WEBHOOKS_REWORK'], function () use ($webhookEventMessage, $connection, $webhookEventId, $webhookEventLogRepository): void {
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($webhookEventMessage, $connection, $webhookEventId, $webhookEventLogRepository): void {
             ($this->webhookEventMessageHandler)($webhookEventMessage);
 
             $delivery = $connection->fetchAssociative(
@@ -989,7 +989,7 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $this->appendNewResponse(new Response(500, [], '{"error": "still failing"}'));
 
-        Feature::fake(['WEBHOOKS_REWORK'], function () use ($webhookEventMessage, $connection, $webhookEventId, $webhookEventLogRepository): void {
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($webhookEventMessage, $connection, $webhookEventId, $webhookEventLogRepository): void {
             ($this->webhookEventMessageHandler)($webhookEventMessage);
 
             $deliveryCount = (int) $connection->fetchOne(
@@ -1067,7 +1067,7 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $this->appendNewResponse(new Response(200, [], '{"ok": true}'));
 
-        Feature::fake(['WEBHOOKS_REWORK'], function () use ($webhookEventMessage, $connection, $webhookId, $relatedWebhookId): void {
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($webhookEventMessage, $connection, $webhookId, $relatedWebhookId): void {
             ($this->webhookEventMessageHandler)($webhookEventMessage);
 
             $errorCount = (int) $connection->fetchOne(
@@ -1111,7 +1111,7 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $this->appendNewResponse(new ConnectException('Connection refused', new Request('POST', 'https://example.com/hook')));
 
-        Feature::fake(['WEBHOOKS_REWORK'], function () use ($webhookEventMessage, $webhookEventLogRepository, $webhookEventId): void {
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($webhookEventMessage, $webhookEventLogRepository, $webhookEventId): void {
             ($this->webhookEventMessageHandler)($webhookEventMessage);
 
             $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->first();
@@ -1146,7 +1146,7 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $this->appendNewResponse(new Response(500, [], '{"error": "fail"}'));
 
-        Feature::fake([], function () use ($webhookEventMessage): void {
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($webhookEventMessage): void {
             $this->expectException(WebhookException::class);
             ($this->webhookEventMessageHandler)($webhookEventMessage);
         });
@@ -1177,7 +1177,7 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $this->appendNewResponse(new Response(200));
 
-        Feature::fake([], function () use ($webhookEventMessage, $webhookEventLogRepository, $webhookEventId): void {
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($webhookEventMessage, $webhookEventLogRepository, $webhookEventId): void {
             ($this->webhookEventMessageHandler)($webhookEventMessage);
 
             // Verify the HTTP request was actually sent
@@ -1210,7 +1210,7 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $webhookEventLogRepository = static::getContainer()->get('webhook_event_log.repository');
 
-        Feature::fake(['WEBHOOKS_REWORK'], function () use ($webhookEventMessage, $webhookEventLogRepository, $webhookEventId): void {
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($webhookEventMessage, $webhookEventLogRepository, $webhookEventId): void {
             ($this->webhookEventMessageHandler)($webhookEventMessage);
 
             $request = $this->getLastRequest();
@@ -1219,6 +1219,42 @@ class WebhookEventMessageHandlerTest extends TestCase
             $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->first();
             static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
             static::assertSame(WebhookEventLogDefinition::STATUS_SUCCESS, $webhookEventLog->getDeliveryStatus());
+        });
+    }
+
+    public function testFlagOffHandlerDoesNotRedeliverAfterSuccessForNewShapeMessage(): void
+    {
+        // Flag-OFF legacy path: `hasDeliveryRow === false` is not a safe "legacy message"
+        // discriminator because markSuccess also deletes the delivery row. A Messenger
+        // redelivery would then fall through to an HTTP send without sequence headers.
+        // The correct discriminator is `$message->partitionKey === null`. Flag-ON delivery
+        // (WebhookDeliveryService::deliver) has no fallthrough branch.
+        $webhookId = Uuid::randomHex();
+        $appId = Uuid::randomHex();
+        $this->createAppWithWebhook($appId, $webhookId);
+
+        $webhookEventLogRepository = static::getContainer()->get('webhook_event_log.repository');
+        $webhookEventId = Uuid::randomHex();
+        $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId, partitionKey: $appId);
+
+        // Simulate a message whose first delivery already succeeded: event_log in SUCCESS,
+        // webhook_delivery absent. hasDeliveryRow would return false — the fingerprint that
+        // used to be misread as "legacy, deliver again".
+        $webhookEventLogRepository->create([[
+            'id' => $webhookEventId,
+            'appName' => 'SwagApp',
+            'deliveryStatus' => WebhookEventLogDefinition::STATUS_SUCCESS,
+            'webhookName' => 'hook1',
+            'eventName' => 'order',
+            'appVersion' => '0.0.1',
+            'url' => 'http://test.com',
+            'serializedWebhookMessage' => serialize($webhookEventMessage),
+        ]], Context::createDefaultContext());
+
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($webhookEventMessage): void {
+            ($this->webhookEventMessageHandler)($webhookEventMessage);
+
+            static::assertNull($this->getLastRequest(), 'new-shape message must not be re-delivered after successful completion');
         });
     }
 
@@ -1237,7 +1273,7 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $webhookEventLogRepository = static::getContainer()->get('webhook_event_log.repository');
 
-        Feature::fake(['WEBHOOKS_REWORK'], function () use ($webhookEventMessage, $connection, $webhookEventId, $webhookEventLogRepository): void {
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($webhookEventMessage, $connection, $webhookEventId, $webhookEventLogRepository): void {
             ($this->webhookEventMessageHandler)($webhookEventMessage);
 
             $request = $this->getLastRequest();

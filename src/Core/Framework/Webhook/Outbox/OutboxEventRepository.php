@@ -57,49 +57,60 @@ class OutboxEventRepository
                 return null;
             }
 
-            $now = $this->clock->now();
-            $nowFormatted = $now->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-            $isRunning = $initialStatus === WebhookEventLogDefinition::STATUS_RUNNING;
-            $executionCount = $isRunning ? 1 : 0;
+            return $this->insertDeliveryAndStream($insert, $eventLogId, $initialStatus);
+        });
+    }
 
-            $this->connection->insert('webhook_delivery', [
-                'webhook_event_log_id' => $eventLogId,
-                'webhook_id' => Uuid::fromHexToBytes($insert->webhookId),
-                'partition_key' => $insert->partitionKey,
-                'delivery_status' => $initialStatus,
-                'execution_count' => $executionCount,
-                'last_attempt_at' => $isRunning ? $nowFormatted : null,
-                'created_at' => $nowFormatted,
-            ]);
+    /**
+     * Creates the missing webhook_delivery and webhook_stream rows for an existing
+     * non-terminal webhook_event_log. No-op if the event log is missing, terminal,
+     * or already has a delivery row. Returns the inserted entry on success.
+     *
+     * @deprecated tag:v6.8.0 — rollout-compat for `async` envelopes that were
+     * serialized before WEBHOOKS_REWORK or before Migration1775570251 shipped.
+     * Remove alongside the flag-OFF path in WebhookEventMessageHandler.
+     */
+    public function backfillDelivery(OutboxInsert $insert): ?OutboxEntry
+    {
+        return RetryableTransaction::retryable($this->connection, function () use ($insert): ?OutboxEntry {
+            $eventLogId = Uuid::fromHexToBytes($insert->webhookEventId);
 
-            $sequence = (int) $this->connection->lastInsertId();
+            if ($this->hasDeliveryRow($insert->webhookEventId)) {
+                return null;
+            }
 
-            $this->connection->executeStatement(
-                'UPDATE webhook_event_log SET sequence = :sequence WHERE id = :id',
-                ['sequence' => $sequence, 'id' => $eventLogId]
+            $elStatus = $this->connection->fetchOne(
+                'SELECT delivery_status FROM webhook_event_log WHERE id = :id',
+                ['id' => $eventLogId]
             );
+            if ($elStatus === false
+                || $elStatus === WebhookEventLogDefinition::STATUS_SUCCESS
+                || $elStatus === WebhookEventLogDefinition::STATUS_FAILED
+            ) {
+                return null;
+            }
 
-            $this->connection->executeStatement(
-                'INSERT IGNORE INTO webhook_stream (id, partition_key, created_at) VALUES (:id, :pk, :now)',
-                [
-                    'id' => Uuid::randomBytes(),
-                    'pk' => $insert->partitionKey,
-                    'now' => $nowFormatted,
-                ]
-            );
-
-            return new OutboxEntry(
-                webhookEventId: $insert->webhookEventId,
-                sequence: $sequence,
-                executionCount: $executionCount,
-                deliveryStatus: $initialStatus,
-            );
+            try {
+                return $this->insertDeliveryAndStream($insert, $eventLogId, WebhookEventLogDefinition::STATUS_QUEUED);
+            } catch (UniqueConstraintViolationException) {
+                // Two workers racing the same backfill — first commit wins, drop the duplicate.
+                return null;
+            }
         });
     }
 
     /**
      * Returns up to $budget deliveries for the given partition whose current status is in
      * $statuses and whose next_retry_at has passed (or is NULL). Ordered by webhook_delivery.id ASC.
+     *
+     * Ordering contract:
+     *   - First-attempt deliveries (QUEUED rows; `next_retry_at` is always NULL for QUEUED
+     *     because markRunning never sets it) are yielded strictly in sequence order.
+     *   - Once a row is in retry (PENDING_RETRY with a future `next_retry_at`), it is skipped
+     *     until due. A later QUEUED row therefore can be yielded ahead of an earlier pending
+     *     retry. This is deliberate — retry-side ordering is best-effort to avoid
+     *     head-of-line blocking when a single endpoint is slow. The consumer contract
+     *     (`X-Shopware-Sequence`) lets receivers reconcile on their side.
      *
      * @param non-empty-list<WebhookEventLogDefinition::STATUS_QUEUED|WebhookEventLogDefinition::STATUS_PENDING_RETRY> $statuses
      *
@@ -287,25 +298,75 @@ class OutboxEventRepository
         $nowFormatted = $now->format(Defaults::STORAGE_DATE_TIME_FORMAT);
         $cutoff = $now->modify(\sprintf('-%d seconds', $staleAfterSeconds))->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
-        return (int) $this->connection->executeStatement(
-            'UPDATE webhook_delivery d
-             JOIN webhook_event_log el ON el.id = d.webhook_event_log_id
-             SET d.delivery_status = :new,
-                 d.next_retry_at   = :now,
-                 d.updated_at      = :now,
-                 el.delivery_status = :new,
-                 el.timestamp       = :ts
-             WHERE d.partition_key = :pk
-               AND d.delivery_status = :old
-               AND d.last_attempt_at <= :cutoff',
+        // Multi-table UPDATE acquires locks on both webhook_delivery and webhook_event_log;
+        // the terminal writers (markSuccess / markFailed / markPendingRetry) lock the same
+        // pair via two separate statements. A deadlock between the two paths is plausible
+        // under InnoDB depending on the optimizer plan. Wrap in RetryableTransaction so
+        // InnoDB aborts are retried in-place instead of bubbling into the receiver's
+        // consecutive-deadlock fuse.
+        return RetryableTransaction::retryable(
+            $this->connection,
+            fn (): int => (int) $this->connection->executeStatement(
+                'UPDATE webhook_delivery d
+                 JOIN webhook_event_log el ON el.id = d.webhook_event_log_id
+                 SET d.delivery_status = :new,
+                     d.next_retry_at   = :now,
+                     d.updated_at      = :now,
+                     el.delivery_status = :new,
+                     el.timestamp       = :ts
+                 WHERE d.partition_key = :pk
+                   AND d.delivery_status = :old
+                   AND d.last_attempt_at <= :cutoff',
+                [
+                    'old' => WebhookEventLogDefinition::STATUS_RUNNING,
+                    'new' => WebhookEventLogDefinition::STATUS_PENDING_RETRY,
+                    'now' => $nowFormatted,
+                    'ts' => $now->getTimestamp(),
+                    'pk' => $partitionKey,
+                    'cutoff' => $cutoff,
+                ]
+            )
+        );
+    }
+
+    private function insertDeliveryAndStream(OutboxInsert $insert, string $eventLogId, string $initialStatus): OutboxEntry
+    {
+        $now = $this->clock->now();
+        $nowFormatted = $now->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $isRunning = $initialStatus === WebhookEventLogDefinition::STATUS_RUNNING;
+        $executionCount = $isRunning ? 1 : 0;
+
+        $this->connection->insert('webhook_delivery', [
+            'webhook_event_log_id' => $eventLogId,
+            'webhook_id' => Uuid::fromHexToBytes($insert->webhookId),
+            'partition_key' => $insert->partitionKey,
+            'delivery_status' => $initialStatus,
+            'execution_count' => $executionCount,
+            'last_attempt_at' => $isRunning ? $nowFormatted : null,
+            'created_at' => $nowFormatted,
+        ]);
+
+        $sequence = (int) $this->connection->lastInsertId();
+
+        $this->connection->executeStatement(
+            'UPDATE webhook_event_log SET sequence = :sequence WHERE id = :id',
+            ['sequence' => $sequence, 'id' => $eventLogId]
+        );
+
+        $this->connection->executeStatement(
+            'INSERT IGNORE INTO webhook_stream (id, partition_key, created_at) VALUES (:id, :pk, :now)',
             [
-                'old' => WebhookEventLogDefinition::STATUS_RUNNING,
-                'new' => WebhookEventLogDefinition::STATUS_PENDING_RETRY,
+                'id' => Uuid::randomBytes(),
+                'pk' => $insert->partitionKey,
                 'now' => $nowFormatted,
-                'ts' => $now->getTimestamp(),
-                'pk' => $partitionKey,
-                'cutoff' => $cutoff,
             ]
+        );
+
+        return new OutboxEntry(
+            webhookEventId: $insert->webhookEventId,
+            sequence: $sequence,
+            executionCount: $executionCount,
+            deliveryStatus: $initialStatus,
         );
     }
 

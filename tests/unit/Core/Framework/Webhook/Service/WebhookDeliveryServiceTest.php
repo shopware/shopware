@@ -29,6 +29,7 @@ use Shopware\Core\Framework\Webhook\Service\WebhookClient;
 use Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService;
 use Shopware\Core\Framework\Webhook\Service\WebhookRequest;
 use Shopware\Core\Framework\Webhook\Service\WebhookStateRepository;
+use Shopware\Core\Framework\Webhook\WebhookException;
 use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use Symfony\Component\Clock\MockClock;
@@ -293,8 +294,12 @@ class WebhookDeliveryServiceTest extends TestCase
         $service->process([$msg1, $msg2]);
     }
 
-    public function testDeliverSwallowsDBALExceptionFromMarkSuccess(): void
+    public function testDeliverReThrowsDBALFromMarkSuccessSoMessengerCanRejectInsteadOfAcking(): void
     {
+        // Swallowing DBAL after a 2xx send would let Messenger ack the envelope with a stuck
+        // RUNNING row; crash recovery later resurrects it as a duplicate HTTP delivery.
+        // Re-throwing a domain exception routes through reject() → handleRejectedDelivery,
+        // which schedules a controlled PENDING_RETRY instead.
         $msg = $this->createMessage();
         $webhookRequest = $this->createWebhookRequest();
 
@@ -304,8 +309,9 @@ class WebhookDeliveryServiceTest extends TestCase
 
         $this->queueGuzzleResponse(new Response(200, ['Content-Type' => 'application/json'], '{"status":"ok"}'));
 
+        $dbalException = new DBALInvalidArgumentException('Connection lost');
         $this->outboxEventRepository->expects($this->once())->method('markSuccess')
-            ->willThrowException(new DBALInvalidArgumentException('Connection lost'));
+            ->willThrowException($dbalException);
 
         $this->logger->expects($this->once())->method('error')
             ->with(
@@ -318,11 +324,16 @@ class WebhookDeliveryServiceTest extends TestCase
             );
 
         $service = $this->createService();
-        // Must not throw
-        $service->deliver($msg);
+
+        try {
+            $service->deliver($msg);
+            static::fail('Expected WebhookException');
+        } catch (WebhookException $e) {
+            static::assertSame($dbalException, $e->getPrevious());
+        }
     }
 
-    public function testDeliverSwallowsDBALExceptionFromMarkPendingRetry(): void
+    public function testDeliverReThrowsDBALFromMarkPendingRetrySoMessengerCanReject(): void
     {
         $msg = $this->createMessage();
         $webhookRequest = $this->createWebhookRequest();
@@ -331,11 +342,11 @@ class WebhookDeliveryServiceTest extends TestCase
         $this->outboxEventRepository->expects($this->once())->method('markRunning')
             ->willReturn(new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 2, deliveryStatus: 'running'));
 
-        // 500 response → non-terminal failure → markPendingRetry
         $this->queueGuzzleResponse(new Response(500, [], '{"error":"fail"}'));
 
+        $dbalException = new DBALInvalidArgumentException('Connection lost');
         $this->outboxEventRepository->expects($this->once())->method('markPendingRetry')
-            ->willThrowException(new DBALInvalidArgumentException('Connection lost'));
+            ->willThrowException($dbalException);
 
         $this->logger->expects($this->once())->method('error')
             ->with(
@@ -348,8 +359,13 @@ class WebhookDeliveryServiceTest extends TestCase
             );
 
         $service = $this->createService();
-        // Must not throw
-        $service->deliver($msg);
+
+        try {
+            $service->deliver($msg);
+            static::fail('Expected WebhookException');
+        } catch (WebhookException $e) {
+            static::assertSame($dbalException, $e->getPrevious());
+        }
     }
 
     private function queueGuzzleResponse(Response $response): void

@@ -33,9 +33,9 @@ use Symfony\Contracts\Service\ResetInterface;
 class MySQLWebhookReceiver implements ReceiverInterface, KeepaliveReceiverInterface, ResetInterface
 {
     /**
-     * Worst-case `MAX_MESSAGES_PER_LEASE * REQUEST_TIMEOUT` stays below `LEASE_SECONDS`
-     * so the lease cannot expire mid-batch: 10 × 20s = 200s vs 240s, with a 40s margin
-     * for commit/ack overhead.
+     * Worst-case `MAX_MESSAGES_PER_LEASE * REQUEST_TIMEOUT` (10 × 20s = 200s) stays below
+     * `LEASE_SECONDS` with a 40s margin for commit/ack overhead, so the lease cannot
+     * expire mid-batch under the documented per-request timeout.
      */
     public const LEASE_SECONDS = 240;
     public const MAX_MESSAGES_PER_LEASE = 10;
@@ -87,8 +87,7 @@ class MySQLWebhookReceiver implements ReceiverInterface, KeepaliveReceiverInterf
                 'exception' => $e,
             ]);
 
-            // Bubble only when deadlocks persist across several consecutive calls, so a
-            // real contention storm doesn't hide behind endless empty polls.
+            // Surface a real contention storm; endless empty polls would mask a DB problem.
             if (++$this->consecutiveDeadlocks >= self::MAX_CONSECUTIVE_DEADLOCKS) {
                 $this->consecutiveDeadlocks = 0;
 
@@ -131,11 +130,17 @@ class MySQLWebhookReceiver implements ReceiverInterface, KeepaliveReceiverInterf
             return;
         }
 
-        // Honor the caller-supplied hint; the Messenger contract says this is the minimum
-        // duration the message must stay alive. Fall back to LEASE_SECONDS when omitted.
-        $duration = $seconds ?? self::LEASE_SECONDS;
+        // Honour Symfony's minimum-duration contract without ever shrinking the lease.
+        // The common case (5s SIGALRM vs a healthy 240s lease) becomes a no-op — skipping
+        // the DB round-trip for the ~47 same-value UPDATEs that would otherwise fire per
+        // lease lifetime. Null falls back to LEASE_SECONDS.
+        $remaining = $this->currentLease->expiresAt->getTimestamp() - $this->clock->now()->getTimestamp();
+        $desired = $seconds ?? self::LEASE_SECONDS;
+        if ($desired <= $remaining) {
+            return;
+        }
 
-        $renewed = $this->lockService->heartbeat($this->currentLease, $duration);
+        $renewed = $this->lockService->heartbeat($this->currentLease, $desired);
         if ($renewed === null) {
             $this->abandonLease();
 
@@ -189,6 +194,14 @@ class MySQLWebhookReceiver implements ReceiverInterface, KeepaliveReceiverInterf
             if ($this->currentLease === null) {
                 return;
             }
+            // Also guard against the lease naturally expiring without a heartbeat firing
+            // (--keepalive off or slow worker). The DB lease is what gates partition
+            // ownership; if it's past, another worker may already be draining this partition.
+            if ($this->clock->now() >= $this->currentLease->expiresAt) {
+                $this->abandonLease();
+
+                return;
+            }
             $envelope = $this->toEnvelope($entry);
             if ($envelope === null) {
                 continue;
@@ -202,8 +215,10 @@ class MySQLWebhookReceiver implements ReceiverInterface, KeepaliveReceiverInterf
     {
         \assert($this->currentLease !== null);
 
-        // Skip the DB round-trip when we already know we're past expiry — another worker
-        // will have taken over by now, so the UPDATE would return zero affected rows.
+        // Past our own expiry — the local lease is stale. Drop it and let the next tick
+        // re-acquire fresh. This is the same outcome a zero-affected-rows UPDATE would
+        // give us, but without the round-trip; under single-worker deployments this just
+        // means we fell behind on heartbeats, not that someone else took the partition.
         if ($this->clock->now() >= $this->currentLease->expiresAt) {
             $this->abandonLease();
 
@@ -265,9 +280,12 @@ class MySQLWebhookReceiver implements ReceiverInterface, KeepaliveReceiverInterf
         \assert($entry->serializedWebhookMessage !== null);
 
         // Payload was serialized by us in WebhookTransport::send(). @ silences the
-        // invalid-input warning; we handle a false return explicitly below.
+        // invalid-input warning; we handle a false return explicitly below. The
+        // allowed_classes allowlist defense-in-depths the DB blob against object-injection
+        // if an attacker ever gains SQL-write: a spoofed class deserializes as
+        // __PHP_Incomplete_Class, which the instanceof check below rejects.
         /** @phpstan-ignore shopware.unserializeUsage */
-        $message = @unserialize($entry->serializedWebhookMessage);
+        $message = @unserialize($entry->serializedWebhookMessage, ['allowed_classes' => [WebhookEventMessage::class]]);
         if ($message instanceof WebhookEventMessage) {
             // TransportMessageIdStamp enables framework tooling (messenger:failed:show,
             // profiler, SendFailedMessageToFailureTransportMiddleware) to correlate the
@@ -300,11 +318,11 @@ class MySQLWebhookReceiver implements ReceiverInterface, KeepaliveReceiverInterf
         if ($this->currentLease === null) {
             return false;
         }
-        if ($this->messagesDeliveredInLease >= self::MAX_MESSAGES_PER_LEASE) {
-            return true;
-        }
 
-        return $this->clock->now() >= $this->currentLease->acquiredAt->modify(\sprintf('+%d seconds', self::LEASE_SECONDS));
+        // Batch budget is the only fairness signal. A time-based check against the original
+        // acquire time would force rotation even while heartbeats legitimately extend the DB
+        // lease; lease-expiry on a non-rotated partition is caught per-yield in fetch().
+        return $this->messagesDeliveredInLease >= self::MAX_MESSAGES_PER_LEASE;
     }
 
     private function releaseLease(): void

@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Adapter\Twig\Runtime\CachedEscaperRuntime;
 use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Twig\Loader\ArrayLoader;
 use Twig\Runtime\EscaperRuntime;
@@ -26,10 +25,10 @@ class TwigEnvironmentTest extends TestCase
         static::assertStringContainsString('\Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::getAttribute', $code);
     }
 
-    public function testGetRuntimeToReturnCachedEscaper(): void
+    public function testGetRuntimeToReturnEscaperRuntime(): void
     {
         $escaper = (new TwigEnvironment(new ArrayLoader([])))->getRuntime(EscaperRuntime::class);
-        static::assertInstanceOf(CachedEscaperRuntime::class, $escaper);
+        static::assertInstanceOf(EscaperRuntime::class, $escaper);
     }
 
     public function testGetRuntimeCachesEscaperInstance(): void

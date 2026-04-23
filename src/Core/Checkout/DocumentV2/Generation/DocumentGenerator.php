@@ -81,7 +81,7 @@ final readonly class DocumentGenerator
             $order,
         );
 
-        $providerData = $this->collectProviderData($providers, $order);
+        $providerData = $this->collectProviderData($providers, $order, $generationContext);
 
         $renderState = new RenderState();
         $renderInput = new RenderInput(
@@ -140,12 +140,18 @@ final readonly class DocumentGenerator
      *
      * @return array<string, AbstractRenderData>
      */
-    private function collectProviderData(array $providers, OrderEntity $order): array
-    {
+    private function collectProviderData(
+        array $providers,
+        OrderEntity $order,
+        DocumentGenerationContext $generationContext
+    ): array {
         $data = [];
 
         foreach ($providers as $provider) {
-            $data[$provider->getKey()] = $provider->provideRenderingData($order);
+            $data[$provider->getKey()] = $provider->provideRenderingData(
+                $order,
+                $generationContext,
+            );
         }
 
         return $data;

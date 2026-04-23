@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures;
 
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationContext;
 use Shopware\Core\Checkout\DocumentV2\Provider\AbstractDocumentDataProvider;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -40,8 +41,10 @@ class StaticDocumentDataProvider extends AbstractDocumentDataProvider
         $criteria->addAssociation('lineItems');
     }
 
-    public function provideRenderingData(OrderEntity $order): StaticRenderData
-    {
+    public function provideRenderingData(
+        OrderEntity $order,
+        DocumentGenerationContext $generationContext
+    ): StaticRenderData {
         return new StaticRenderData();
     }
 }

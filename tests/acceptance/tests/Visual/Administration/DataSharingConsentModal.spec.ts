@@ -48,6 +48,7 @@ test('Visual: Administration data sharing consent modal', { tag: '@Visual' }, as
     await test.step('Creates a screenshot of data sharing consent modal.', async () => {
 
         await setViewport(AdminDataSharingConsentModal.page, {
+            contentHeight: 2646,
             waitForSelector: AdminDataSharingConsentModal.shareStoreDataCheckbox,
         });
         await replaceElements(AdminDashboard.page, [

@@ -12,6 +12,9 @@ use Shopware\Core\Kernel;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
+use Symfony\Component\Routing\Loader\PhpFileLoader;
+use Symfony\Component\Routing\RouteCollection;
 
 /**
  * @internal
@@ -45,8 +48,7 @@ class KernelTest extends TestCase
         $containerBuilder->setParameter('kernel.cache_dir', $this->tmpProjectDir . '/var/cache/fooBar_h123abc');
         $containerBuilder->compile();
 
-        (new \ReflectionMethod(Kernel::class, 'dumpContainer'))->invoke(
-            $this->createKernel(),
+        $this->createKernel()->invokeDumpContainer(
             new ConfigCache($this->tmpProjectDir . '/cache-file', true),
             $containerBuilder,
             'Shopware_Core_KernelDevDebugContainer',
@@ -64,8 +66,7 @@ class KernelTest extends TestCase
         $containerBuilder->setParameter('kernel.cache_dir', $this->tmpProjectDir . '/var/cache/fooBar_h123abc_');
         $containerBuilder->compile();
 
-        (new \ReflectionMethod(Kernel::class, 'dumpContainer'))->invoke(
-            $this->createKernel(),
+        $this->createKernel()->invokeDumpContainer(
             new ConfigCache($this->tmpProjectDir . '/cache', true),
             $containerBuilder,
             'Shopware_Core_KernelDevDebugContainer',
@@ -78,10 +79,31 @@ class KernelTest extends TestCase
         static::assertFalse($this->filesystem->exists($this->tmpProjectDir . '/var/cache/opcache-preload.php'));
     }
 
-    private function createKernel(): Kernel
+    public function testConfigureRoutesImportsProjectRoutesScopedToEnvironment(): void
     {
-        return new Kernel(
-            'fooBar',
+        $confDir = $this->tmpProjectDir . '/config';
+
+        $captured = $this->captureRouteImports('test');
+
+        static::assertContains([$confDir . '/{routes}/*' . Kernel::CONFIG_EXTS, 'glob'], $captured);
+        static::assertContains([$confDir . '/{routes}/test/**/*' . Kernel::CONFIG_EXTS, 'glob'], $captured);
+        static::assertContains([$confDir . '/{routes}' . Kernel::CONFIG_EXTS, 'glob'], $captured);
+    }
+
+    public function testConfigureRoutesDoesNotImportForeignEnvironmentGlobs(): void
+    {
+        $confDir = $this->tmpProjectDir . '/config';
+
+        $captured = $this->captureRouteImports('prod');
+
+        static::assertContains([$confDir . '/{routes}/prod/**/*' . Kernel::CONFIG_EXTS, 'glob'], $captured);
+        static::assertNotContains([$confDir . '/{routes}/test/**/*' . Kernel::CONFIG_EXTS, 'glob'], $captured);
+    }
+
+    private function createKernel(string $environment = 'fooBar'): KernelStub
+    {
+        return new KernelStub(
+            $environment,
             true,
             $this->createMock(StaticKernelPluginLoader::class),
             'cacheId',
@@ -89,5 +111,43 @@ class KernelTest extends TestCase
             $this->createMock(Connection::class),
             $this->tmpProjectDir,
         );
+    }
+
+    /**
+     * @return list<array{0: mixed, 1: ?string}>
+     */
+    private function captureRouteImports(string $environment): array
+    {
+        $captured = [];
+        $loader = $this->createMock(PhpFileLoader::class);
+        $loader->method('import')->willReturnCallback(
+            function (mixed $resource, ?string $type = null) use (&$captured): array {
+                $captured[] = [$resource, $type];
+
+                return [];
+            }
+        );
+
+        $this->createKernel($environment)->invokeConfigureRoutes(
+            new RoutingConfigurator(new RouteCollection(), $loader, '/tmp', '/tmp'),
+        );
+
+        return $captured;
+    }
+}
+
+/**
+ * @internal
+ */
+class KernelStub extends Kernel
+{
+    public function invokeConfigureRoutes(RoutingConfigurator $routes): void
+    {
+        $this->configureRoutes($routes);
+    }
+
+    public function invokeDumpContainer(ConfigCache $cache, ContainerBuilder $container, string $class, string $baseClass): void
+    {
+        $this->dumpContainer($cache, $container, $class, $baseClass);
     }
 }

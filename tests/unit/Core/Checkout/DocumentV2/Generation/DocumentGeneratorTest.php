@@ -51,6 +51,7 @@ class DocumentGeneratorTest extends TestCase
         $orderVersionId = Uuid::randomHex();
         $salesChannelId = Uuid::randomHex();
         $documentTypeId = Uuid::randomHex();
+        $orderLanguageId = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
         $generationContext = new DocumentGenerationContext(
@@ -64,14 +65,30 @@ class DocumentGeneratorTest extends TestCase
         $order = new OrderEntity();
         $order->setId($orderId);
         $order->setSalesChannelId($salesChannelId);
-        $order->setLanguageId(Defaults::LANGUAGE_SYSTEM);
+        $order->setLanguageId($orderLanguageId);
 
         /** @var StaticEntityRepository<OrderCollection> $orderRepository */
         $orderRepository = new StaticEntityRepository([
             function (Criteria $criteria, Context $searchContext) use ($order, $orderId, $orderVersionId): EntitySearchResult {
                 static::assertSame([$orderId], $criteria->getIds());
+                static::assertSame('document-v2-generator::load-order-language', $criteria->getTitle());
+                static::assertSame(['languageId'], $criteria->getFields());
+                static::assertSame($orderVersionId, $searchContext->getVersionId());
+
+                return new EntitySearchResult(
+                    OrderDefinition::ENTITY_NAME,
+                    1,
+                    new OrderCollection([$order]),
+                    null,
+                    $criteria,
+                    $searchContext,
+                );
+            },
+            function (Criteria $criteria, Context $searchContext) use ($order, $orderId, $orderVersionId, $orderLanguageId): EntitySearchResult {
+                static::assertSame([$orderId], $criteria->getIds());
                 static::assertSame('document-v2-generator::load-order', $criteria->getTitle());
                 static::assertSame($orderVersionId, $searchContext->getVersionId());
+                static::assertSame($orderLanguageId, $searchContext->getLanguageIdChain()[0]);
 
                 return new EntitySearchResult(
                     OrderDefinition::ENTITY_NAME,

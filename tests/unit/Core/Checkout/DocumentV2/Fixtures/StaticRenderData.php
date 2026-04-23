@@ -12,12 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 readonly class StaticRenderData extends RenderData
 {
     public function __construct(
-        private string $testData = 'test',
+        public string $testData = 'test',
     ) {
-    }
-
-    public function getTestData(): string
-    {
-        return $this->testData;
     }
 }

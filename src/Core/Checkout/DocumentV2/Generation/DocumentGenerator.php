@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -67,16 +68,13 @@ final readonly class DocumentGenerator
             $provider->enrichOrderCriteria($criteria);
         }
 
-        $order = $this->loadOrder($criteria, $generationContext);
+        $renderContext = $this->createRenderContext($generationContext);
 
-        $renderContext = $generationContext->apiContext
-            ->createWithVersionId($generationContext->orderVersionId);
-
-        $renderContext->assign([
-            'languageIdChain' => array_values(array_unique(array_filter(
-                [$order->getLanguageId(), ...$renderContext->getLanguageIdChain()]
-            ))),
-        ]);
+        $order = $this->loadOrder(
+            $criteria,
+            $renderContext,
+            $generationContext->orderId
+        );
 
         $documentNumber = $generationContext->documentNumber ?? $this->documentNumberGenerator->generate(
             $generationContext,
@@ -156,10 +154,27 @@ final readonly class DocumentGenerator
     /**
      * @throws DocumentV2Exception
      */
-    private function loadOrder(Criteria $criteria, DocumentGenerationContext $generationContext): OrderEntity
+    private function createRenderContext(DocumentGenerationContext $generationContext): Context
     {
-        $context = $generationContext->apiContext;
+        $renderContext = $generationContext->apiContext
+            ->createWithVersionId($generationContext->orderVersionId);
 
+        $orderLanguageId = $this->loadOrderLanguageId($generationContext);
+
+        $renderContext->assign([
+            'languageIdChain' => array_values(array_unique(array_filter(
+                [$orderLanguageId, ...$renderContext->getLanguageIdChain()]
+            ))),
+        ]);
+
+        return $renderContext;
+    }
+
+    /**
+     * @throws DocumentV2Exception
+     */
+    private function loadOrder(Criteria $criteria, Context $context, string $orderId): OrderEntity
+    {
         $criteria->setTitle('document-v2-generator::load-order');
         $criteria->addAssociation('currency');
         $criteria->addAssociation('language');
@@ -168,15 +183,37 @@ final readonly class DocumentGenerator
         $criteria->addAssociation('transactions.paymentMethod');
         $criteria->addAssociation('deliveries.shippingMethod');
 
-        $versionContext = $context->createWithVersionId($generationContext->orderVersionId);
+        $order = $this->orderRepository->search($criteria, $context)->getEntities()->first();
 
-        $order = $this->orderRepository->search($criteria, $versionContext)->getEntities()->first();
+        if (!$order instanceof OrderEntity) {
+            throw DocumentV2Exception::orderNotFound($orderId);
+        }
+
+        return $order;
+    }
+
+    /**
+     * @throws DocumentV2Exception
+     */
+    private function loadOrderLanguageId(DocumentGenerationContext $generationContext): string
+    {
+        $criteria = (new Criteria([$generationContext->orderId]))
+            ->setTitle('document-v2-generator::load-order-language')
+            ->addFields(['languageId']);
+
+        $context = $generationContext->apiContext
+            ->createWithVersionId($generationContext->orderVersionId);
+
+        $order = $this->orderRepository->search(
+            $criteria,
+            $context,
+        )->getEntities()->first();
 
         if (!$order instanceof OrderEntity) {
             throw DocumentV2Exception::orderNotFound($generationContext->orderId);
         }
 
-        return $order;
+        return $order->getLanguageId();
     }
 
     /**

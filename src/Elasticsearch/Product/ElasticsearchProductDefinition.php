@@ -108,7 +108,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             'streamIds' => self::KEYWORD_FIELD,
             'autoIncrement' => self::INT_FIELD,
             'manufacturerId' => self::KEYWORD_FIELD,
-            'manufacturerNumber' => self::getTextFieldConfig(),
+            'manufacturerNumber' => self::getTextFieldConfig(technicalTerms: true),
             'deliveryTimeId' => self::KEYWORD_FIELD,
             'displayGroup' => self::KEYWORD_FIELD,
             'ean' => self::getTextFieldConfig(technicalTerms: true),

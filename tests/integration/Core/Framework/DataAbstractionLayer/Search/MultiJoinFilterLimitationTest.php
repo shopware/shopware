@@ -91,10 +91,14 @@ class MultiJoinFilterLimitationTest extends TestCase
 
         static::assertSame(2, $result->getTotal());
 
-        // Note: Due to multiple join groups, the sort order is based on unfiltered joins.
-        // Both products have matching prices, making the sort order non-deterministic.
-        static::assertContains(self::$ids->get('product-1'), $result->getIds());
-        static::assertContains(self::$ids->get('product-2'), $result->getIds());
+        // Sort key is computed from the UNFILTERED join:
+        //   product-1: MIN=100 (rule-1 price=100, excluded by the >=150 filter)
+        //   product-2: MIN=150 (rule-1 price=150, matches the filter)
+        //
+        // A filter-respecting sort would tie both products at 150. The unfiltered-join
+        // semantics make product-1 sort first because of its excluded lower price.
+        static::assertSame(self::$ids->get('product-1'), $result->getIds()[0]);
+        static::assertSame(self::$ids->get('product-2'), $result->getIds()[1]);
     }
 
     public function testOneToManyWithSortWithMultipleJoinGroupsDesc(): void
@@ -123,10 +127,14 @@ class MultiJoinFilterLimitationTest extends TestCase
 
         static::assertSame(2, $result->getTotal());
 
-        // Note: Due to multiple join groups, the sort order is based on unfiltered joins.
-        // Both products have matching prices, making the sort order non-deterministic.
-        static::assertContains(self::$ids->get('product-1'), $result->getIds());
-        static::assertContains(self::$ids->get('product-2'), $result->getIds());
+        // Sort key is computed from the UNFILTERED join:
+        //   product-2: MAX=999 (rule-3 price=999, excluded — rule-3 is not in the filter)
+        //   product-1: MAX=150 (rule-2 price=150, matches the filter)
+        //
+        // A filter-respecting sort would tie both products at 150. The unfiltered-join
+        // semantics make product-2 sort first because of its excluded higher price.
+        static::assertSame(self::$ids->get('product-2'), $result->getIds()[0]);
+        static::assertSame(self::$ids->get('product-1'), $result->getIds()[1]);
     }
 
     public function testOneToManyWithMultipleJoinGroupsAndGroupingIsNotSupported(): void
@@ -174,10 +182,16 @@ class MultiJoinFilterLimitationTest extends TestCase
 
         static::assertSame(3, $result->getTotal());
 
-        // Note: Due to multiple join groups, the sort order is based on unfiltered joins.
-        static::assertContains(self::$ids->get('category-1'), $result->getIds());
-        static::assertContains(self::$ids->get('category-2'), $result->getIds());
-        static::assertContains(self::$ids->get('category-3'), $result->getIds());
+        // Sort key is computed from the UNFILTERED join:
+        //   category-3: MIN='a1-ghost'        (ghost manufacturer, filter excludes it)
+        //   category-2: MIN='a2-ghost'        (ghost manufacturer, filter excludes it)
+        //   category-1: MIN='manufacturer-1'  (matches the filter)
+        //
+        // A filter-respecting sort would place category-3 LAST (its only matching
+        // manufacturer is 'manufacturer-2'). The unfiltered-join semantics flip it to FIRST.
+        static::assertSame(self::$ids->get('category-3'), $result->getIds()[0]);
+        static::assertSame(self::$ids->get('category-2'), $result->getIds()[1]);
+        static::assertSame(self::$ids->get('category-1'), $result->getIds()[2]);
     }
 
     public function testManyToOneWithSortDesc(): void
@@ -203,10 +217,16 @@ class MultiJoinFilterLimitationTest extends TestCase
 
         static::assertSame(3, $result->getTotal());
 
-        // Note: Due to multiple join groups, the sort order is based on unfiltered joins.
-        static::assertContains(self::$ids->get('category-1'), $result->getIds());
-        static::assertContains(self::$ids->get('category-2'), $result->getIds());
-        static::assertContains(self::$ids->get('category-3'), $result->getIds());
+        // Sort key is computed from the UNFILTERED join:
+        //   category-2: MAX='zz-ghost-c2'     (ghost manufacturer, filter excludes it)
+        //   category-3: MAX='za-ghost-c3'     (ghost manufacturer, filter excludes it)
+        //   category-1: MAX='manufacturer-2'  (matches the filter)
+        //
+        // A filter-respecting sort would place category-2 LAST (its only matching
+        // manufacturer is 'manufacturer-1'). The unfiltered-join semantics flip it to FIRST.
+        static::assertSame(self::$ids->get('category-2'), $result->getIds()[0]);
+        static::assertSame(self::$ids->get('category-3'), $result->getIds()[1]);
+        static::assertSame(self::$ids->get('category-1'), $result->getIds()[2]);
     }
 
     public function testManyToOneWithMultipleJoinGroupsAndGroupingIsNotSupported(): void
@@ -257,10 +277,14 @@ class MultiJoinFilterLimitationTest extends TestCase
 
         static::assertSame(2, $result->getTotal());
 
-        // Note: Due to multiple join groups, the sort order is based on unfiltered joins.
-        // Both products have multiple properties, making the sort order potentially non-deterministic.
-        static::assertContains(self::$ids->get('product-1'), $result->getIds());
-        static::assertContains(self::$ids->get('product-2'), $result->getIds());
+        // Sort key is computed from the UNFILTERED join:
+        //   product-1: MIN='L'   (size property, excluded by the filter)
+        //   product-2: MIN='red' (color property, excluded by the filter)
+        //
+        // A filter-respecting sort would place product-2 FIRST ('S' < 'yellow').
+        // The unfiltered-join semantics flip this: product-1 sorts first on 'L'.
+        static::assertSame(self::$ids->get('product-1'), $result->getIds()[0]);
+        static::assertSame(self::$ids->get('product-2'), $result->getIds()[1]);
     }
 
     public function testManyToManyWithSortDesc(): void
@@ -289,10 +313,14 @@ class MultiJoinFilterLimitationTest extends TestCase
 
         static::assertSame(2, $result->getTotal());
 
-        // Note: Due to multiple join groups, the sort order is based on unfiltered joins.
-        // Both products have multiple properties, making the sort order potentially non-deterministic.
-        static::assertContains(self::$ids->get('product-1'), $result->getIds());
-        static::assertContains(self::$ids->get('product-2'), $result->getIds());
+        // Sort key is computed from the UNFILTERED join:
+        //   product-2: MAX='zzz-ghost' (color property, excluded by the filter)
+        //   product-1: MAX='yellow'    (color property, matches the filter)
+        //
+        // A filter-respecting sort would place product-1 FIRST ('yellow' > 'S').
+        // The unfiltered-join semantics flip this: product-2 sorts first on 'zzz-ghost'.
+        static::assertSame(self::$ids->get('product-2'), $result->getIds()[0]);
+        static::assertSame(self::$ids->get('product-1'), $result->getIds()[1]);
     }
 
     public function testManyToManyWithGroup(): void
@@ -384,14 +412,49 @@ class MultiJoinFilterLimitationTest extends TestCase
                     ->manufacturer('manufacturer-2')
                     ->property('red', 'color')
                     ->property('S', 'size')
+                    // 'zzz-ghost' property and rule-3 price intentionally sit outside every
+                    // filter in this class. They push product-2's unfiltered MAX for both
+                    // properties.name and prices.price past product-1's filter-matching MAX,
+                    // so the multi-join-group DESC sort diverges from a filter-respecting sort.
+                    ->property('zzz-ghost', 'color')
                     ->category('category-1')
                     ->category('category-3')
                     ->prices('rule-1', 150)
+                    ->prices('rule-3', 999)
                     ->build(),
 
                 (new ProductBuilder(self::$ids, 'product-3', 3, 'tax'))
                     ->price(15, 10)
                     ->category('category-4')
+                    ->build(),
+
+                // Ghost products: their manufacturers are intentionally outside the filter set
+                // ('manufacturer-1', 'manufacturer-2') but their names are chosen so each category's
+                // MIN and MAX manufacturer.name in the unfiltered join is distinct. This makes the
+                // multi-join-group sort order deterministic and demonstrably different from the
+                // order a filter-respecting sort would produce.
+                (new ProductBuilder(self::$ids, 'product-ghost-low-cat3', 0, 'tax'))
+                    ->price(15, 10)
+                    ->manufacturer('a1-ghost')
+                    ->category('category-3')
+                    ->build(),
+
+                (new ProductBuilder(self::$ids, 'product-ghost-low-cat2', 0, 'tax'))
+                    ->price(15, 10)
+                    ->manufacturer('a2-ghost')
+                    ->category('category-2')
+                    ->build(),
+
+                (new ProductBuilder(self::$ids, 'product-ghost-high-cat3', 0, 'tax'))
+                    ->price(15, 10)
+                    ->manufacturer('za-ghost-c3')
+                    ->category('category-3')
+                    ->build(),
+
+                (new ProductBuilder(self::$ids, 'product-ghost-high-cat2', 0, 'tax'))
+                    ->price(15, 10)
+                    ->manufacturer('zz-ghost-c2')
+                    ->category('category-2')
                     ->build(),
             ];
 

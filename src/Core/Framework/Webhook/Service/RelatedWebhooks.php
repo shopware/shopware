@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Webhook\Service;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CodeCoverageIgnore;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;

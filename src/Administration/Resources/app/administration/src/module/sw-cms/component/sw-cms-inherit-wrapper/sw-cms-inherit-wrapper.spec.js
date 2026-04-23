@@ -443,6 +443,47 @@ describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
             expect(contentEntity.slotConfig['test-slot-id'].otherField.value).toBe('existing');
             expect(contentEntity.slotConfig['test-slot-id'].testField.value).toBe('base-value');
         });
+
+        it('should seed inherited parent entity override instead of the base CMS config', async () => {
+            const contentEntity = {
+                slotConfig: null,
+                translations: [
+                    {
+                        languageId: 'parent-language-id',
+                        slotConfig: {
+                            'test-slot-id': {
+                                testField: { value: 'parent override', source: 'static' },
+                            },
+                        },
+                    },
+                ],
+            };
+            Shopware.Store.get('swCategoryDetail').category = contentEntity;
+            Shopware.Store.get('context').api.languageId = 'child-language-id';
+            Shopware.Store.get('context').api.language = { parentId: 'parent-language-id' };
+
+            const wrapper = await createWrapper({
+                element: new Entity('test-slot-id', 'cms_slot', {
+                    type: 'text',
+                    config: {
+                        testField: { value: 'parent override' },
+                    },
+                    translated: {
+                        config: {
+                            testField: { value: 'base-value', source: 'static' },
+                        },
+                    },
+                }),
+            });
+
+            wrapper.vm.onInheritanceRemove();
+
+            expect(contentEntity.slotConfig['test-slot-id'].testField).toStrictEqual({
+                value: 'parent override',
+                source: 'static',
+            });
+            expect(wrapper.vm.runtimeConfig.testField.value).toBe('parent override');
+        });
     });
 
     describe('onInheritanceRestore method', () => {

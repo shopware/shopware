@@ -37,9 +37,9 @@
 
     {% block sw_bulk_edit_order_content %}
     <template #content>
+
         <sw-card-view
             v-if="selectedIds.length > 0 && isLoadedData"
-            class="sw-bulk-edit-order__content"
         >
             <mt-card
                 v-if="restrictedFields.length"

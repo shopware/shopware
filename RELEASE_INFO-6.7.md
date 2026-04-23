@@ -16,6 +16,14 @@ These are optional and can be enabled via `shopware.api.rate_limiter` in `shopwa
 
 ## Core
 
+### Elasticsearch: Configurable minimum score threshold for search results
+
+A new system configuration key `core.search.minScore` (float, default `0.0`) lets merchants drop low-relevance Elasticsearch hits per sales channel. When the value is above `0.0`, it is applied as the native `min_score` parameter on the product term-search query.
+
+The setting is most useful for cutting the long tail of fuzzy or ngram-only matches on single-token queries. Recommended tuning range is `0.5–1.5`; start low and increase gradually while observing noisy queries. Leave at `0.0` to disable.
+
+Configured in Settings > Search (per sales channel) or via the System Config API.
+
 ### Elasticsearch: Disabled BM25 field-length normalization for structured search fields
 
 Elasticsearch product search now uses a custom BM25 similarity with `b=0` (no field-length normalization) as the index default. This prevents short product names like "Sony TV" from ranking unfairly above descriptive ones like "Sony 65-inch 4K Ultra HD Smart OLED TV" when both match the same search terms.

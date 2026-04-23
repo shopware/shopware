@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
+    <card>
+        <title>Search</title>
+        <title lang="de-DE">Suche</title>
+
+        <input-field type="float">
+            <name>minScore</name>
+            <label>Minimum score threshold for search results</label>
+            <label lang="de-DE">Mindestpunktzahl für Suchergebnisse</label>
+            <helpText>Drop Elasticsearch hits with a BM25 score below this threshold. Useful for filtering the long tail of low-relevance fuzzy or ngram matches. Leave 0 to disable. Typical useful range is 0.5–1.5; tune per shop by watching noisy single-token queries.</helpText>
+            <helpText lang="de-DE">Elasticsearch-Treffer mit einer BM25-Punktzahl unterhalb dieses Schwellenwerts werden verworfen. Nützlich zum Herausfiltern des langen Schwanzes an irrelevanten Fuzzy- oder Ngram-Treffern. 0 deaktiviert die Funktion. Sinnvoller Bereich: 0,5–1,5; pro Shop durch Beobachtung auffälliger Einzelwortsuchen anpassen.</helpText>
+            <defaultValue>0.0</defaultValue>
+            <min>0</min>
+        </input-field>
+    </card>
+</config>

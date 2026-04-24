@@ -2,11 +2,14 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig;
 
+use Shopware\Core\Framework\Adapter\Twig\Runtime\CachedEscaperRuntime;
 use Shopware\Core\Framework\Log\Package;
-use Twig\Compiler;
 use Twig\Environment;
+use Twig\Error\RuntimeError;
 use Twig\Loader\LoaderInterface;
 use Twig\Node\Node;
+use Twig\Runtime\EscaperRuntime;
+use Twig\RuntimeLoader\RuntimeLoaderInterface;
 
 /**
  * @internal
@@ -14,10 +17,10 @@ use Twig\Node\Node;
 #[Package('framework')]
 class TwigEnvironment extends Environment
 {
-    private ?Compiler $compiler = null;
+    private ?CachedEscaperRuntime $escaperRuntime = null;
 
     /**
-     * @param array<mixed> $options
+     * @param array<string, mixed> $options
      */
     public function __construct(LoaderInterface $loader, array $options = [])
     {
@@ -27,19 +30,43 @@ class TwigEnvironment extends Environment
         parent::__construct($loader, $options);
     }
 
-    public function compile(Node $node): string
+    /**
+     * Wraps the original method to inject the {@see CachedEscaperRuntime} into the Twig system.
+     * It is not possible to introduce a new {@see RuntimeLoaderInterface} with {@see Environment::addRuntimeLoader()},
+     * as the internal cache key is the FQCN, which cannot be influenced.
+     * Therefore it is also safe to instantiate the original {@see EscaperRuntime} directly.
+     * This is also faster than calling the original `getRuntime` method to get the {@see EscaperRuntime} instance.
+     *
+     * @template TRuntime of object
+     *
+     * @param class-string<TRuntime> $class
+     *
+     * @throws RuntimeError
+     *
+     * @return ($class is class-string<EscaperRuntime> ? CachedEscaperRuntime : TRuntime)
+     */
+    public function getRuntime(string $class): object
     {
-        if ($this->compiler === null) {
-            $this->compiler = new Compiler($this);
+        if ($class !== EscaperRuntime::class) {
+            return parent::getRuntime($class);
         }
 
-        $source = $this->compiler->compile($node)->getSource();
+        if ($this->escaperRuntime !== null) {
+            return $this->escaperRuntime;
+        }
 
-        $replaces = [
-            'CoreExtension::getAttribute(' => '\Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::getAttribute(',
-            'twig_escape_filter(' => '\Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::escapeFilter(',
-        ];
+        $this->escaperRuntime = new CachedEscaperRuntime(new EscaperRuntime($this->getCharset()));
 
-        return str_replace(array_keys($replaces), array_values($replaces), $source);
+        return $this->escaperRuntime;
+    }
+
+    /**
+     * Overrides Twig CoreExtension with SW custom wrapper {@see SwTwigFunction}
+     */
+    public function compile(Node $node): string
+    {
+        $source = parent::compile($node);
+
+        return str_replace('CoreExtension::getAttribute(', '\Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::getAttribute(', $source);
     }
 }

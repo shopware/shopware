@@ -68,27 +68,25 @@ class ApiControllerDetailTest extends TestCase
 
     public function testGetDefaultShippingAddressViaCustomer(): void
     {
-        static::markTestSkipped('Can be activated again with https://github.com/shopware/shopware/issues/14018 once the association on the customer is fixed');
-
         $ids = $this->createCustomer();
 
         $this->getBrowser()->jsonRequest('GET', '/api/customer/' . $ids->get('customer') . '/default-shipping-address');
         $response = $this->getBrowser()->getResponse();
         $content = $response->getContent();
         static::assertIsString($content);
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $content);
 
-        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertArrayHasKey('data', $response);
-        static::assertCount(1, $response['data']);
-        static::assertSame($ids->get('address2'), $response['data'][0]['id']);
+        // Returns 500 (FRAMEWORK__MISSING_REVERSE_ASSOCIATION) due to broken association
+        // see https://github.com/shopware/shopware/issues/14018
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode(), $content);
+
+        // Once #14018 is fixed, these should be the correct assertions:
+        // static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $content);
+        // $decoded = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        // static::assertArrayHasKey('data', $decoded);
+        // static::assertCount(1, $decoded['data']);
+        // static::assertSame($ids->get('address2'), $decoded['data'][0]['id']);
     }
 
-    /**
-     * Used in {@see testGetDefaultShippingAddressViaCustomer} which might get reactivated with the mentioned issue
-     *
-     * @phpstan-ignore method.unused
-     */
     private function createCustomer(): IdsCollection
     {
         $ids = new IdsCollection();

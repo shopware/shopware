@@ -124,7 +124,7 @@ export default {
         getItemName(item) {
             const entityNameIdentifier = `global.entities.${item.entity}`;
 
-            return `${item.entity} (${this.$tc(entityNameIdentifier)})`;
+            return `${item.entity} (${this.$t(entityNameIdentifier)})`;
         },
 
         async getUnusedThumbnailSizes() {
@@ -147,9 +147,7 @@ export default {
         async addThumbnail({ width, height }) {
             if (this.checkIfThumbnailExists({ width, height })) {
                 this.createNotificationError({
-                    message: this.$tc(
-                        'global.sw-media-modal-folder-settings.notification.error.messageThumbnailSizeExisted',
-                    ),
+                    message: this.$t('global.sw-media-modal-folder-settings.notification.error.messageThumbnailSizeExisted'),
                 });
 
                 return;
@@ -270,8 +268,8 @@ export default {
                 }
 
                 this.createNotificationSuccess({
-                    title: this.$root.$tc('global.default.success'),
-                    message: this.$root.$tc('global.sw-media-modal-folder-settings.notification.success.message'),
+                    title: this.$root.$t('global.default.success'),
+                    message: this.$root.$t('global.sw-media-modal-folder-settings.notification.success.message'),
                 });
 
                 this.$nextTick(() => {
@@ -279,8 +277,8 @@ export default {
                 });
             } catch (_e) {
                 this.createNotificationError({
-                    title: this.$root.$tc('global.default.error'),
-                    message: this.$root.$tc('global.sw-media-modal-folder-settings.notification.error.message'),
+                    title: this.$root.$t('global.default.error'),
+                    message: this.$root.$t('global.sw-media-modal-folder-settings.notification.error.message'),
                 });
             }
         },

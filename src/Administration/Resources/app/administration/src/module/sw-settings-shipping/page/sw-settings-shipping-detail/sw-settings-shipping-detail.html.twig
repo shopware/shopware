@@ -4,7 +4,7 @@
 
     {% block sw_settings_shipping_detail_header %}
     <template #smart-bar-header>
-        <h2>{{ placeholder(shippingMethod, 'name', $tc('sw-settings-shipping.detail.textHeadline')) }}</h2>
+        <h2>{{ placeholder(shippingMethod, 'name', $t('sw-settings-shipping.detail.textHeadline')) }}</h2>
     </template>
     {% endblock %}
 
@@ -18,7 +18,7 @@
             size="default"
             @click="onCancel"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -32,7 +32,7 @@
             variant="primary"
             @click.prevent="onSave"
         >
-            {{ $tc('sw-settings-shipping.detail.buttonSave') }}
+            {{ $t('sw-settings-shipping.detail.buttonSave') }}
         </sw-button-process>
         {% endblock %}
     </template>
@@ -61,14 +61,14 @@
                 {% block sw_settings_shipping_detail_content_language_info %}
                 <sw-language-info
                     :is-new-entity="isNewShippingMethod"
-                    :entity-description="placeholder(shippingMethod, 'name', $tc('sw-settings-shipping.detail.textHeadline'))"
+                    :entity-description="placeholder(shippingMethod, 'name', $t('sw-settings-shipping.detail.textHeadline'))"
                 />
                 {% endblock %}
 
                 {% block sw_settings_shipping_detail_base %}
                 <mt-card
                     position-identifier="sw-settings-shipping-detail-base"
-                    :title="$tc('sw-settings-shipping.detail.labelBasicInfo')"
+                    :title="$t('sw-settings-shipping.detail.labelBasicInfo')"
                     :is-loading="isLoading"
                 >
                     <sw-container
@@ -83,8 +83,8 @@
                             required
                             :disabled="!acl.can('shipping.editor') || undefined"
                             :error="shippingMethodNameError"
-                            :label="$tc('sw-settings-shipping.detail.labelName')"
-                            :placeholder="placeholder(shippingMethod, 'name', $tc('sw-settings-shipping.detail.placeholderName'))"
+                            :label="$t('sw-settings-shipping.detail.labelName')"
+                            :placeholder="placeholder(shippingMethod, 'name', $t('sw-settings-shipping.detail.placeholderName'))"
                         />
                         {% endblock %}
 
@@ -96,10 +96,10 @@
                             class="sw-settings-shipping-detail__field-technical-name"
                             required
                             :disabled="!acl.can('shipping.editor') || undefined"
-                            :label="$tc('sw-settings-shipping.detail.labelTechnicalName')"
-                            :placeholder="placeholder(shippingMethod, 'technicalName', $tc('sw-settings-shipping.detail.placeholderTechnicalName'))"
+                            :label="$t('sw-settings-shipping.detail.labelTechnicalName')"
+                            :placeholder="placeholder(shippingMethod, 'technicalName', $t('sw-settings-shipping.detail.placeholderTechnicalName'))"
                             :error="shippingMethodTechnicalNameError"
-                            :help-text="$tc('sw-settings-shipping.detail.helpTextTechnicalName')"
+                            :help-text="$t('sw-settings-shipping.detail.helpTextTechnicalName')"
                         />
                         {% endblock %}
 
@@ -110,8 +110,8 @@
                             class="sw-settings-shipping-detail__field-position"
                             :step="1"
                             :disabled="!acl.can('shipping.editor') || undefined"
-                            :label="$tc('sw-settings-shipping.detail.labelPosition')"
-                            :placeholder="$tc('sw-settings-shipping.detail.placeholderPosition')"
+                            :label="$t('sw-settings-shipping.detail.labelPosition')"
+                            :placeholder="$t('sw-settings-shipping.detail.placeholderPosition')"
                         />
                         {% endblock %}
                         {% block sw_settings_shipping_detail_base_content_field_active %}
@@ -121,7 +121,7 @@
                             name="sw-field--shippingMethod-active"
                             bordered
                             :disabled="!acl.can('shipping.editor') || undefined"
-                            :label="$tc('sw-settings-shipping.detail.labelActive')"
+                            :label="$t('sw-settings-shipping.detail.labelActive')"
                         />
                         {% endblock %}
                     </sw-container>
@@ -136,8 +136,8 @@
                             :model-value="shippingMethod.description"
                             class="sw-settings-shipping-detail__description"
                             :disabled="!acl.can('shipping.editor') || undefined"
-                            :label="$tc('sw-settings-shipping.detail.labelDescription')"
-                            :placeholder="placeholder(shippingMethod, 'description', $tc('sw-settings-shipping.detail.placeholderDescription'))"
+                            :label="$t('sw-settings-shipping.detail.labelDescription')"
+                            :placeholder="placeholder(shippingMethod, 'description', $t('sw-settings-shipping.detail.placeholderDescription'))"
                         />
                         {% endblock %}
 
@@ -155,7 +155,7 @@
                             :allow-multi-select="false"
                             variant="regular"
                             :disabled="!acl.can('shipping.editor') || undefined"
-                            :label="$tc('sw-settings-shipping.detail.labelLogoUpload')"
+                            :label="$t('sw-settings-shipping.detail.labelLogoUpload')"
                             :default-folder="shippingMethod.getEntityName()"
                             @media-drop="onDropMedia"
                             @media-upload-sidebar-open="openMediaSidebar"
@@ -172,8 +172,8 @@
                         entity="delivery_time"
                         :disabled="!acl.can('shipping.editor') || undefined"
                         :criteria="deliveryTimeCriteria"
-                        :label="$tc('sw-settings-shipping.detail.labelDeliveryTime')"
-                        :placeholder="$tc('sw-settings-shipping.detail.placeholderDeliveryTime')"
+                        :label="$t('sw-settings-shipping.detail.labelDeliveryTime')"
+                        :placeholder="$t('sw-settings-shipping.detail.placeholderDeliveryTime')"
                         :error="shippingMethodDeliveryTimeIdError"
                         show-clearable-button
                         required
@@ -186,9 +186,9 @@
                         v-model="shippingMethod.trackingUrl"
                         name="sw-field--shippingMethod-trackingUrl"
                         :disabled="!acl.can('shipping.editor') || undefined"
-                        :label="$tc('sw-settings-shipping.detail.labelTrackingUrl')"
-                        :placeholder="placeholder(shippingMethod, 'trackingUrl', $tc('sw-settings-shipping.detail.placeholderTrackingUrl'))"
-                        :help-text="$tc('sw-settings-shipping.detail.helpTextTrackingUrl')"
+                        :label="$t('sw-settings-shipping.detail.labelTrackingUrl')"
+                        :placeholder="placeholder(shippingMethod, 'trackingUrl', $t('sw-settings-shipping.detail.placeholderTrackingUrl'))"
+                        :help-text="$t('sw-settings-shipping.detail.helpTextTrackingUrl')"
                     />
                     {% endblock %}
 
@@ -197,7 +197,7 @@
                         v-if="!isLoading"
                         v-model:entity-collection="shippingMethod.tags"
                         :disabled="!acl.can('shipping.editor') || undefined"
-                        :placeholder="$tc('sw-product.categoryForm.placeholderTags')"
+                        :placeholder="$t('sw-product.categoryForm.placeholderTags')"
                     />
                     {% endblock %}
                 </mt-card>
@@ -207,7 +207,7 @@
                 <mt-card
                     position-identifier="sw-settings-shipping-detail-condition-container"
                     class="sw-settings-shipping-detail__condition_container"
-                    :title="$tc('sw-settings-shipping.detail.topRule')"
+                    :title="$t('sw-settings-shipping.detail.topRule')"
                 >
                     {% block sw_settings_shipping_detail_top_rule_select %}
                     <sw-select-rule-create
@@ -215,8 +215,8 @@
                         :rule-filter="ruleFilter"
                         :disabled="!acl.can('shipping.editor') || undefined"
                         :error="shippingMethodAvailabilityRuleIdError"
-                        :label="$tc('sw-settings-shipping.detail.topRule')"
-                        :placeholder="$tc('sw-settings-shipping.detail.placeholderTopRule')"
+                        :label="$t('sw-settings-shipping.detail.topRule')"
+                        :placeholder="$t('sw-settings-shipping.detail.placeholderTopRule')"
                         class="sw-settings-shipping-detail__top-rule"
                         rule-aware-group-key="shippingMethods"
                         @save-rule="onSaveRule"
@@ -246,7 +246,7 @@
                 <mt-card
                     v-if="showCustomFields"
                     position-identifier="sw-settings-shipping-detail-custom-fields"
-                    :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                    :title="$t('sw-settings-custom-field.general.mainMenuItemGeneral')"
                     :is-loading="isLoading"
                 >
                     <sw-custom-field-set-renderer
@@ -270,7 +270,7 @@
                     #context-menu-items="media"
                 >
                     <sw-context-menu-item @click="setMediaFromSidebar(media.mediaItem)">
-                        {{ $tc('sw-settings-shipping.sidebar.labelUseAsLogo') }}
+                        {{ $t('sw-settings-shipping.sidebar.labelUseAsLogo') }}
                     </sw-context-menu-item>
                 </template>
             </sw-sidebar-media-item>

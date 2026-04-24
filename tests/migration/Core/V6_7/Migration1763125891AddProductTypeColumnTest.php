@@ -38,6 +38,20 @@ class Migration1763125891AddProductTypeColumnTest extends TestCase
         static::assertTrue(TableHelper::indexExists($this->connection, 'product', 'idx.product.type'));
     }
 
+    public function testUpdateAddsMissingIndexWhenTypeColumnAlreadyExists(): void
+    {
+        $this->ensureStatesColumnExists();
+        $this->ensureTypeColumnExistsWithoutIndex();
+
+        $migration = new Migration1763125891AddProductTypeColumn();
+        $migration->update($this->connection);
+        $migration->update($this->connection);
+
+        $typeColumn = TableHelper::getColumnOfTable($this->connection, 'product', 'type');
+        static::assertSame('physical', $typeColumn->defaultValue);
+        static::assertTrue(TableHelper::indexExists($this->connection, 'product', 'idx.product.type'));
+    }
+
     private function dropTypeColumnIfExists(): void
     {
         if (TableHelper::indexExists($this->connection, 'product', 'idx.product.type')) {
@@ -56,5 +70,14 @@ class Migration1763125891AddProductTypeColumnTest extends TestCase
         }
 
         $this->connection->executeStatement('ALTER TABLE `product` ADD COLUMN `states` JSON NULL');
+    }
+
+    private function ensureTypeColumnExistsWithoutIndex(): void
+    {
+        $this->dropTypeColumnIfExists();
+
+        $this->connection->executeStatement(
+            'ALTER TABLE `product` ADD COLUMN `type` VARCHAR(32) NOT NULL DEFAULT \'physical\''
+        );
     }
 }

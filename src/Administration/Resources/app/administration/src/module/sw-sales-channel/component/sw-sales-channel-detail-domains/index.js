@@ -97,14 +97,14 @@ export default {
         hreflangLocalisationOptions() {
             return [
                 {
-                    name: this.$tc('sw-sales-channel.detail.hreflang.domainSettings.byIso'),
+                    name: this.$t('sw-sales-channel.detail.hreflang.domainSettings.byIso'),
                     value: false,
-                    helpText: this.$tc('sw-sales-channel.detail.hreflang.domainSettings.byIsoHelpText'),
+                    helpText: this.$t('sw-sales-channel.detail.hreflang.domainSettings.byIsoHelpText'),
                 },
                 {
-                    name: this.$tc('sw-sales-channel.detail.hreflang.domainSettings.byAbbreviation'),
+                    name: this.$t('sw-sales-channel.detail.hreflang.domainSettings.byAbbreviation'),
                     value: true,
-                    helpText: this.$tc('sw-sales-channel.detail.hreflang.domainSettings.byAbbreviationHelpText'),
+                    helpText: this.$t('sw-sales-channel.detail.hreflang.domainSettings.byAbbreviationHelpText'),
                 },
             ];
         },
@@ -354,7 +354,7 @@ export default {
         onConfirmDeleteDomain(domain) {
             if (domain.productExports.length > 0) {
                 this.createNotificationError({
-                    message: this.$tc(
+                    message: this.$t(
                         'sw-sales-channel.detail.messageDeleteDomainError',
                         {
                             url: this.unicodeUriFilter(domain.url),

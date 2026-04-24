@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Storefront\Controller;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -558,6 +559,35 @@ class CheckoutControllerTest extends TestCase
         static::assertArrayHasKey(CheckoutConfirmPageLoadedHook::HOOK_NAME, $traces);
     }
 
+    public function testCheckoutConfirmPageConstraintViolationErrorWithInvalidAddress(): void
+    {
+        $contextToken = Uuid::randomHex();
+
+        $cart = $this->fillCart($contextToken);
+        $customerId = $this->createCustomer();
+
+        static::getContainer()->get(Connection::class)->executeStatement(
+            'UPDATE `customer_address` SET `city` = " " WHERE `customer_id` = :customerId',
+            ['customerId' => Uuid::fromHexToBytes($customerId)]
+        );
+
+        $salesChannelContext = $this->createSalesChannelContext($contextToken, null, $customerId);
+        static::getContainer()->get(CartPersister::class)->save($cart, $salesChannelContext);
+
+        $request = $this->createRequest($salesChannelContext);
+
+        $response = static::getContainer()->get(CheckoutController::class)->confirmPage($request, $salesChannelContext);
+        $crawler = new Crawler();
+        $crawler->addHtmlContent((string) $response->getContent());
+
+        $translatedMessage = static::getContainer()->get('translator')->trans('checkout.billing-address-invalid', [
+            '%url%' => static::getContainer()->get('router')->generate('frontend.account.address.edit.page', ['addressId' => $customerId]),
+        ]);
+        $errorContent = $crawler->filterXPath('//div[@class="flashbags"]//div[@class="alert-content-container"]')->html();
+
+        static::assertStringContainsString($translatedMessage, $errorContent);
+    }
+
     public function testJsonCart(): void
     {
         $browser = $this->getBrowserWithLoggedInCustomer();
@@ -893,11 +923,11 @@ class CheckoutControllerTest extends TestCase
         return new RequestDataBag(['tos' => true, OrderService::CUSTOMER_COMMENT_KEY => $customerComment]);
     }
 
-    private function createSalesChannelContext(string $contextToken, ?string $paymentMethodId = null): SalesChannelContext
+    private function createSalesChannelContext(string $contextToken, ?string $paymentMethodId = null, ?string $customerId = null): SalesChannelContext
     {
         $this->updateSalesChannel(TestDefaults::SALES_CHANNEL);
         $salesChannelData = [
-            SalesChannelContextService::CUSTOMER_ID => $this->createCustomer(),
+            SalesChannelContextService::CUSTOMER_ID => $customerId ?? $this->createCustomer(),
         ];
         if ($paymentMethodId !== null) {
             $salesChannelData[SalesChannelContextService::PAYMENT_METHOD_ID] = $paymentMethodId;

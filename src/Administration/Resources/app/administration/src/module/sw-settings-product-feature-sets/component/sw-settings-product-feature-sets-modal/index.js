@@ -43,55 +43,55 @@ export default {
                 {
                     id: 'fc472b0728ce4000969214a0fa61f2df',
                     type: 'product',
-                    label: this.$tc('sw-settings-product-feature-sets.modal.label.description'),
+                    label: this.$t('sw-settings-product-feature-sets.modal.label.description'),
                     name: 'description',
                 },
                 {
                     id: 'f64801aad24a4de7bfea4d312f957258',
                     type: 'product',
-                    label: this.$tc('sw-settings-product-feature-sets.modal.label.releaseDate'),
+                    label: this.$t('sw-settings-product-feature-sets.modal.label.releaseDate'),
                     name: 'releaseDate',
                 },
                 {
                     id: 'f4a361187eac4f6ea4507ebf20c2e9d7',
                     type: 'product',
-                    label: this.$tc('sw-settings-product-feature-sets.modal.label.manufacturerNumber'),
+                    label: this.$t('sw-settings-product-feature-sets.modal.label.manufacturerNumber'),
                     name: 'manufacturerNumber',
                 },
                 {
                     id: 'eb6c8ec9b6e24811a176be5a5c9871cf',
                     type: 'product',
-                    label: this.$tc('sw-settings-product-feature-sets.modal.label.ean'),
+                    label: this.$t('sw-settings-product-feature-sets.modal.label.ean'),
                     name: 'ean',
                 },
                 {
                     id: '09110f8260804f009ab4536a1ffbc938',
                     type: 'product',
-                    label: this.$tc('sw-settings-product-feature-sets.modal.label.width'),
+                    label: this.$t('sw-settings-product-feature-sets.modal.label.width'),
                     name: 'width',
                 },
                 {
                     id: 'e8a48d5fce2f402e8696477b03d7e8e7',
                     type: 'product',
-                    label: this.$tc('sw-settings-product-feature-sets.modal.label.height'),
+                    label: this.$t('sw-settings-product-feature-sets.modal.label.height'),
                     name: 'height',
                 },
                 {
                     id: 'e4cf3f607a704f569c3912fb85ada9ad',
                     type: 'product',
-                    label: this.$tc('sw-settings-product-feature-sets.modal.label.length'),
+                    label: this.$t('sw-settings-product-feature-sets.modal.label.length'),
                     name: 'length',
                 },
                 {
                     id: 'e06c53dc014a4130a8850fe64e395046',
                     type: 'product',
-                    label: this.$tc('sw-settings-product-feature-sets.modal.label.weight'),
+                    label: this.$t('sw-settings-product-feature-sets.modal.label.weight'),
                     name: 'weight',
                 },
                 {
                     id: 'd6eb6d4fbd754b0e9958ecc77abee3de',
                     type: 'product',
-                    label: this.$tc('sw-settings-product-feature-sets.modal.label.packUnit'),
+                    label: this.$t('sw-settings-product-feature-sets.modal.label.packUnit'),
                     name: 'packUnit',
                 },
             ],
@@ -172,22 +172,22 @@ export default {
                 {
                     value: 'property',
                     disabled: this.propertyGroups.length < 1,
-                    name: this.$tc('sw-settings-product-feature-sets.modal.textPropertyLabel'),
+                    name: this.$t('sw-settings-product-feature-sets.modal.textPropertyLabel'),
                 },
                 {
                     value: 'customField',
                     disabled: this.customFields.length < 1,
-                    name: this.$tc('sw-settings-product-feature-sets.modal.textCustomFieldLabel'),
+                    name: this.$t('sw-settings-product-feature-sets.modal.textCustomFieldLabel'),
                 },
                 {
                     value: 'product',
                     disabled: this.productInfo.length < 1,
-                    name: this.$tc('sw-settings-product-feature-sets.modal.textProductInfoLabel'),
+                    name: this.$t('sw-settings-product-feature-sets.modal.textProductInfoLabel'),
                 },
                 {
                     value: 'referencePrice',
                     disabled: this.checkIfReferencePriceSelected,
-                    name: this.$tc('sw-settings-product-feature-sets.modal.textReferencePriceLabel'),
+                    name: this.$t('sw-settings-product-feature-sets.modal.textReferencePriceLabel'),
                 },
             ];
         },
@@ -345,8 +345,8 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        title: this.$tc('global.default.error'),
-                        message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                        title: this.$t('global.default.error'),
+                        message: this.$t('global.notification.unspecifiedSaveErrorMessage'),
                     });
                 })
                 .finally(() => {

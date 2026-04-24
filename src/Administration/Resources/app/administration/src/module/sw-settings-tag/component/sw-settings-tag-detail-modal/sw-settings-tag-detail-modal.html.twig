@@ -17,21 +17,21 @@
         <template #default="{ active }">
             {% block sw_settings_tag_detail_modal_tabs_general %}
             <sw-tabs-item
-                :title="$tc('sw-settings-tag.detail.generalTab')"
+                :title="$t('sw-settings-tag.detail.generalTab')"
                 :active-tab="active"
                 name="general"
             >
-                {{ $tc('sw-settings-tag.detail.generalTab') }}
+                {{ $t('sw-settings-tag.detail.generalTab') }}
             </sw-tabs-item>
             {% endblock %}
 
             {% block sw_settings_tag_detail_modal_tabs_assignments %}
             <sw-tabs-item
-                :title="$tc('sw-settings-tag.detail.assignmentsTab')"
+                :title="$t('sw-settings-tag.detail.assignmentsTab')"
                 :active-tab="active"
                 name="assignments"
             >
-                {{ $tc('sw-settings-tag.detail.assignmentsTab') }}
+                {{ $t('sw-settings-tag.detail.assignmentsTab') }}
             </sw-tabs-item>
             {% endblock %}
         </template>
@@ -45,8 +45,8 @@
                         id="sw-field--tag-name"
                         v-model="tag.name"
                         name="sw-field--tag-name"
-                        :label="$tc('sw-settings-tag.list.columnName')"
-                        :placeholder="$tc('sw-settings-tag.list.placeholderTagName')"
+                        :label="$t('sw-settings-tag.list.columnName')"
+                        :placeholder="$t('sw-settings-tag.list.placeholderTagName')"
                         :error="tagNameError"
                         maxlength="255"
                         required
@@ -81,7 +81,7 @@
             variant="secondary"
             @click="$emit('close')"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -93,7 +93,7 @@
             :is-loading="isLoading"
             @click="onSave"
         >
-            {{ $tc('sw-settings-tag.detail.buttonSave') }}
+            {{ $t('sw-settings-tag.detail.buttonSave') }}
         </mt-button>
         {% endblock %}
     </template>

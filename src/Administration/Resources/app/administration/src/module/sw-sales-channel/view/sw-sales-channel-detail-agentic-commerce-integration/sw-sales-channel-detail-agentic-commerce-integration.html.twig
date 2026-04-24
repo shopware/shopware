@@ -5,17 +5,17 @@
         v-if="!isLoading"
         position-identifier="sw-sales-channel-detail-agentic-commerce-integration"
         :is-loading="isLoading"
-        :title="$tc(integrationSnippetPrefix + '.cardTitle')"
+        :title="$t(integrationSnippetPrefix + '.cardTitle')"
     >
         <sw-container>
             {% block sw_sales_channel_detail_agentic_commerce_integration_introduction %}
             <div class="sw-sales-channel-detail-agentic-commerce-integration__introduction">
                 <h6 class="sw-sales-channel-detail-agentic-commerce-integration__introduction-title">
-                    {{ $tc(integrationSnippetPrefix + '.introduction.title') }}
+                    {{ $t(integrationSnippetPrefix + '.introduction.title') }}
                 </h6>
 
                 <p class="sw-sales-channel-detail-agentic-commerce-integration__introduction-description">
-                    {{ $tc(integrationSnippetPrefix + '.introduction.description') }}
+                    {{ $t(integrationSnippetPrefix + '.introduction.description') }}
                 </p>
             </div>
             {% endblock %}
@@ -23,12 +23,12 @@
             {% block sw_sales_channel_detail_agentic_commerce_integration_steps %}
             <div class="sw-sales-channel-detail-agentic-commerce-integration__step-by-step">
                 <h6 class="sw-sales-channel-detail-agentic-commerce-integration__step-by-step-title">
-                    {{ $tc('sw-sales-channel.detail.agenticCommerce.integration.stepByStepTitle') }}
+                    {{ $t('sw-sales-channel.detail.agenticCommerce.integration.stepByStepTitle') }}
                 </h6>
 
                 <ol
                     class="sw-sales-channel-detail-agentic-commerce-integration__step-by-step-list"
-                    v-html="$tc(integrationSnippetPrefix + '.stepByStep')"
+                    v-html="$t(integrationSnippetPrefix + '.stepByStep')"
                 ></ol>
             </div>
             {% endblock %}
@@ -37,7 +37,7 @@
             <mt-text-field
                 v-if="feedUrl"
                 v-model="feedUrl"
-                :label="$tc('sw-sales-channel.detail.agenticCommerce.integration.feedUrlLabel')"
+                :label="$t('sw-sales-channel.detail.agenticCommerce.integration.feedUrlLabel')"
                 :disabled="true"
                 :copyable="true"
             />

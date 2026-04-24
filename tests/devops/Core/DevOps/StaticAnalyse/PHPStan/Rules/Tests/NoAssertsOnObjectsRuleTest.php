@@ -24,7 +24,7 @@ class NoAssertsOnObjectsRuleTest extends RuleTestCase
             ],
             [
                 'Asserting for equality with Response Objects is not allowed. Responses contain a date time as header, and thus those comparisons are time sensitive and thus flaky. Please assert on the properties of the Response you are interested in directly or use the `AssertResponseHelper`.',
-                41,
+                44,
             ],
         ]);
     }

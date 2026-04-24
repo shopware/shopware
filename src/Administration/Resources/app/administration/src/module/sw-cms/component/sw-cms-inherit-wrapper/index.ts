@@ -133,6 +133,10 @@ export default Shopware.Component.wrapComponentConfig({
             unset(this.childConfig, this.field);
 
             if (isEmpty(this.childConfig)) {
+                unset(this.contentEntity!.slotConfig, this.element.id);
+            }
+
+            if (isEmpty(this.contentEntity!.slotConfig)) {
                 set(this.contentEntity!, 'slotConfig', null);
             }
 

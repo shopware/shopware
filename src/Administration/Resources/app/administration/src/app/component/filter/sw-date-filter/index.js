@@ -147,12 +147,7 @@ export default {
                 ...(lte ? { to: lte } : {}),
             };
 
-            this.$emit(
-                'filter-update',
-                this.filter.name,
-                [Criteria.range(this.filter.property, rangeParams)],
-                emittedValue,
-            );
+            this.$emit('filter-update', this.filter.name, [Criteria.range(this.filter.property, rangeParams)], emittedValue);
         },
 
         onTimeframeSelect(timeframe) {

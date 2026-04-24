@@ -12,6 +12,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
 use Shopware\Core\Test\Assert\Serialization;
+use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Shopware\Storefront\Framework\Routing\Exception\ErrorRedirectRequestEvent;
 use Shopware\Storefront\Framework\Routing\NotFound\NotFoundSubscriber;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
@@ -19,13 +20,12 @@ use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -35,99 +35,35 @@ class NotFoundSubscriberTest extends TestCase
 {
     public function testDebugIsOnDoesNothing(): void
     {
-        $subscriber = new NotFoundSubscriber(
-            $this->createMock(HttpKernelInterface::class),
-            $this->createMock(SalesChannelContextServiceInterface::class),
-            true,
-            $this->createMock(CacheInterface::class),
-            $this->createMock(EntityCacheKeyGenerator::class),
-            $this->createMock(CacheInvalidator::class),
-            new EventDispatcher()
-        );
+        $event = $this->createExceptionEvent();
 
-        $event = new ExceptionEvent(
-            $this->createMock(Kernel::class),
-            new Request(),
-            0,
-            new \Exception()
-        );
-        $subscriber->onError($event);
+        $this->createNotFoundSubscriber(debug: true)->onError($event);
 
         static::assertNull($event->getResponse());
     }
 
     public function testErrorHandled(): void
     {
-        $httpKernel = $this->createMock(HttpKernelInterface::class);
-        $httpKernel
-            ->expects($this->once())
-            ->method('handle')
-            ->willReturn(new Response());
+        $event = $this->createExceptionEvent();
 
-        $requestStack = $this->createMock(RequestStack::class);
-        $requestStack->method('getMainRequest')->willReturn(new Request());
-
-        $subscriber = new NotFoundSubscriber(
-            $httpKernel,
-            $this->createMock(SalesChannelContextServiceInterface::class),
-            false,
-            new TagAwareAdapter(new ArrayAdapter(), new ArrayAdapter()),
-            $this->createMock(EntityCacheKeyGenerator::class),
-            $this->createMock(CacheInvalidator::class),
-            new EventDispatcher()
-        );
-
-        $request = new Request();
-
-        $event = new ExceptionEvent(
-            $this->createMock(Kernel::class),
-            $request,
-            0,
-            new HttpException(Response::HTTP_NOT_FOUND)
-        );
-        $subscriber->onError($event);
+        $kernelResponse = new Response();
+        $this->createNotFoundSubscriber($kernelResponse)->onError($event);
 
         $response = $event->getResponse();
 
-        static::assertInstanceOf(Response::class, $response);
+        static::assertSame($kernelResponse, $response);
+        static::assertTrue($event->isPropagationStopped());
     }
 
     public function testCookiesAreNotPersistedToNotFoundPages(): void
     {
-        $httpKernel = $this->createMock(HttpKernelInterface::class);
         $response = new Response();
         $response->headers->setCookie(new Cookie('extension-cookie', '1'));
         $response->headers->setCookie(new Cookie(PlatformRequest::FALLBACK_SESSION_NAME, '1'));
-        $httpKernel
-            ->expects($this->once())
-            ->method('handle')
-            ->willReturn($response);
-
-        $requestStack = $this->createMock(RequestStack::class);
-        $requestStack->method('getMainRequest')->willReturn(new Request());
 
         $arrayAdapter = new ArrayAdapter();
-        $subscriber = new NotFoundSubscriber(
-            $httpKernel,
-            $this->createMock(SalesChannelContextServiceInterface::class),
-            false,
-            new TagAwareAdapter($arrayAdapter, $arrayAdapter),
-            $this->createMock(EntityCacheKeyGenerator::class),
-            $this->createMock(CacheInvalidator::class),
-            new EventDispatcher(),
-            []
-        );
 
-        $request = new Request();
-
-        $event = new ExceptionEvent(
-            $this->createMock(Kernel::class),
-            $request,
-            0,
-            new HttpException(Response::HTTP_NOT_FOUND)
-        );
-
-        $subscriber->onError($event);
+        $this->createNotFoundSubscriber($response, adapter: $arrayAdapter)->onError($this->createExceptionEvent());
 
         $writtenCaches = array_values($arrayAdapter->getValues());
 
@@ -143,80 +79,34 @@ class NotFoundSubscriberTest extends TestCase
 
     public function testOtherExceptionsDoNotGetCached(): void
     {
-        $httpKernel = $this->createMock(HttpKernelInterface::class);
-        $httpKernel
-            ->expects($this->once())
-            ->method('handle')
-            ->willReturn(new Response());
-
-        $requestStack = $this->createMock(RequestStack::class);
-        $requestStack->method('getMainRequest')->willReturn(new Request());
-
-        $subscriber = new NotFoundSubscriber(
-            $httpKernel,
-            $this->createMock(SalesChannelContextServiceInterface::class),
-            false,
-            new TagAwareAdapter(new ArrayAdapter(), new ArrayAdapter()),
-            $this->createMock(EntityCacheKeyGenerator::class),
-            $this->createMock(CacheInvalidator::class),
-            new EventDispatcher()
-        );
-
-        $request = new Request();
-
-        $event = new ExceptionEvent(
-            $this->createMock(Kernel::class),
-            $request,
-            0,
-            new \Exception()
-        );
-        $subscriber->onError($event);
-
-        static::assertInstanceOf(Response::class, $event->getResponse());
-
-        $subscriber->reset();
-    }
-
-    public function testErrorRedirectIsModifiableAndNotCaptchaValidated(): void
-    {
-        $httpKernel = $this->createMock(HttpKernelInterface::class);
-        $httpKernel
-            ->expects($this->once())
-            ->method('handle')
-            ->with(static::callback(static function (Request $request) {
-                return $request->attributes->get(PlatformRequest::ATTRIBUTE_CAPTCHA) === false;
-            }))
-            ->willReturn(new Response());
-
-        $requestStack = $this->createMock(RequestStack::class);
-        $requestStack->method('getMainRequest')->willReturn(new Request());
-
-        $eventDispatcher = $this->createMock(EventDispatcher::class);
-        $eventDispatcher
-            ->expects($this->once())
-            ->method('dispatch')
-            ->with(static::isInstanceOf(ErrorRedirectRequestEvent::class));
-
-        $subscriber = new NotFoundSubscriber(
-            $httpKernel,
-            $this->createMock(SalesChannelContextServiceInterface::class),
-            false,
-            new TagAwareAdapter(new ArrayAdapter(), new ArrayAdapter()),
-            $this->createMock(EntityCacheKeyGenerator::class),
-            $this->createMock(CacheInvalidator::class),
-            $eventDispatcher,
-        );
-
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CAPTCHA, true);
 
-        $event = new ExceptionEvent(
-            $this->createMock(Kernel::class),
-            $request,
-            0,
-            new \Exception()
+        $exception = new \RuntimeException('test');
+
+        $event = $this->createExceptionEvent($request, $exception);
+
+        $kernelResponse = new Response();
+        $eventDispatcher = new CollectingEventDispatcher();
+        $subscriber = $this->createNotFoundSubscriber(
+            $kernelResponse,
+            static::callback(static function (Request $request) {
+                return $request->attributes->get(PlatformRequest::ATTRIBUTE_CAPTCHA) === false;
+            }),
+            eventDispatcher: $eventDispatcher
         );
+
         $subscriber->onError($event);
+
+        static::assertSame($kernelResponse, $event->getResponse());
+
+        $dispatchedEvents = $eventDispatcher->getEvents();
+        static::assertCount(1, $dispatchedEvents);
+        $dispatchedEvent = $dispatchedEvents[0];
+        static::assertInstanceOf(ErrorRedirectRequestEvent::class, $dispatchedEvent);
+        $dispatchedException = $dispatchedEvent->getRequest()->attributes->get('exception');
+        static::assertSame($exception, $dispatchedException);
+
         $subscriber->reset();
     }
 
@@ -228,15 +118,7 @@ class NotFoundSubscriberTest extends TestCase
             ->expects($shouldInvalidate ? $this->once() : $this->never())
             ->method('invalidate');
 
-        $subscriber = new NotFoundSubscriber(
-            $this->createMock(HttpKernelInterface::class),
-            $this->createMock(SalesChannelContextServiceInterface::class),
-            true,
-            $this->createMock(CacheInterface::class),
-            $this->createMock(EntityCacheKeyGenerator::class),
-            $cacheInvalidator,
-            new EventDispatcher()
-        );
+        $subscriber = $this->createNotFoundSubscriber(cacheInvalidator: $cacheInvalidator);
 
         $subscriber->onSystemConfigChanged(new SystemConfigChangedEvent($key, 'foo', null));
     }
@@ -262,5 +144,50 @@ class NotFoundSubscriberTest extends TestCase
         static::assertArrayHasKey(SystemConfigChangedEvent::class, NotFoundSubscriber::getSubscribedEvents());
 
         static::assertArrayHasKey(KernelEvents::EXCEPTION, NotFoundSubscriber::getSubscribedEvents());
+    }
+
+    private function createNotFoundSubscriber(
+        ?Response $kernelResponse = null,
+        mixed $kernelCallback = null,
+        bool $debug = false,
+        ArrayAdapter $adapter = new ArrayAdapter(),
+        ?CacheInvalidator $cacheInvalidator = null,
+        EventDispatcherInterface $eventDispatcher = new EventDispatcher(),
+    ): NotFoundSubscriber {
+        $kernel = $this->createMock(HttpKernelInterface::class);
+        if ($kernelResponse !== null) {
+            $kernel
+                ->expects($this->once())
+                ->method('handle')
+                ->willReturn($kernelResponse);
+        }
+
+        if ($kernelCallback !== null) {
+            $kernel->method('handle')->with($kernelCallback);
+        }
+
+        $cacheInvalidator ??= static::createStub(CacheInvalidator::class);
+
+        return new NotFoundSubscriber(
+            $kernel,
+            static::createStub(SalesChannelContextServiceInterface::class),
+            $debug,
+            new TagAwareAdapter($adapter, $adapter),
+            static::createStub(EntityCacheKeyGenerator::class),
+            $cacheInvalidator,
+            $eventDispatcher
+        );
+    }
+
+    private function createExceptionEvent(
+        Request $request = new Request(),
+        \Exception $exception = new HttpException(Response::HTTP_NOT_FOUND),
+    ): ExceptionEvent {
+        return new ExceptionEvent(
+            static::createStub(Kernel::class),
+            $request,
+            0,
+            $exception,
+        );
     }
 }

@@ -65,7 +65,7 @@ describe('src/app/component/filter/sw-date-filter', () => {
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'releaseDate',
-            [Criteria.range('releaseDate', { gte: '2021-01-22' })],
+            [Criteria.range('releaseDate', { gte: '2021-01-22T00:00:00.000Z' })],
             { from: '2021-01-22T00:00:00.000Z', to: null, timeframe: 'custom' },
         ]);
     });
@@ -80,8 +80,8 @@ describe('src/app/component/filter/sw-date-filter', () => {
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'releaseDate',
-            [Criteria.range('releaseDate', { lte: '2021-01-25' })],
-            { from: null, to: '2021-01-25T23:59:59.000Z', timeframe: 'custom' },
+            [Criteria.range('releaseDate', { lte: '2021-01-25T23:59:59.999Z' })],
+            { from: null, to: '2021-01-25T23:59:59.999Z', timeframe: 'custom' },
         ]);
     });
 
@@ -96,13 +96,6 @@ describe('src/app/component/filter/sw-date-filter', () => {
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'releaseDate',
-            [Criteria.range('releaseDate', { gte: '2021-01-19' })],
-            { from: '2021-01-19T00:00:00.000Z', to: null, timeframe: 'custom' },
-        ]);
-
-        // [1] is a duplicate emission from sw-date-filter mutating dateValue.from to ISO (triggers sw-range-filter watch again)
-        expect(wrapper.emitted()['filter-update'][1]).toEqual([
-            'releaseDate',
             [Criteria.range('releaseDate', { gte: '2021-01-19T00:00:00.000Z' })],
             { from: '2021-01-19T00:00:00.000Z', to: null, timeframe: 'custom' },
         ]);
@@ -113,20 +106,62 @@ describe('src/app/component/filter/sw-date-filter', () => {
         await toInput.trigger('input');
         await flushPromises();
 
-        expect(wrapper.emitted()['filter-update'][2]).toEqual([
+        expect(wrapper.emitted()['filter-update'][1]).toEqual([
             'releaseDate',
             [
                 Criteria.range('releaseDate', {
                     gte: '2021-01-19T00:00:00.000Z',
-                    lte: '2021-01-25',
+                    lte: '2021-01-25T23:59:59.999Z',
                 }),
             ],
             {
                 from: '2021-01-19T00:00:00.000Z',
-                to: '2021-01-25T23:59:59.000Z',
+                to: '2021-01-25T23:59:59.999Z',
                 timeframe: 'custom',
             },
         ]);
+    });
+
+    it('should snap day bounds to user timezone calendar day when picker emits non-midnight instants', async () => {
+        Shopware.Store.get('session').setCurrentUser({
+            firstName: 'John',
+            lastName: 'Doe',
+            timeZone: 'America/Los_Angeles',
+        });
+
+        try {
+            const wrapper = await createWrapper();
+
+            // 2021-01-22T15:30:00Z = 07:30 PST on Jan 22 — picker may emit any instant on the picked day
+            const fromInput = wrapper.find('.sw-date-filter__from').find('input');
+            await fromInput.setValue('2021-01-22T15:30:00.000Z');
+            await fromInput.trigger('input');
+            await flushPromises();
+
+            // 2021-01-23T03:00:00Z = 19:00 PST on Jan 22 — also lands on Jan 22 in LA
+            const toInput = wrapper.find('.sw-date-filter__to').find('input');
+            await toInput.setValue('2021-01-23T03:00:00.000Z');
+            await toInput.trigger('input');
+            await flushPromises();
+
+            const lastEmit = wrapper.emitted()['filter-update'].at(-1);
+            expect(lastEmit).toEqual([
+                'releaseDate',
+                [
+                    Criteria.range('releaseDate', {
+                        gte: '2021-01-22T08:00:00.000Z',
+                        lte: '2021-01-23T07:59:59.999Z',
+                    }),
+                ],
+                {
+                    from: '2021-01-22T08:00:00.000Z',
+                    to: '2021-01-23T07:59:59.999Z',
+                    timeframe: 'custom',
+                },
+            ]);
+        } finally {
+            Shopware.Store.get('session').removeCurrentUser();
+        }
     });
 
     it('should emit `filter-reset` event when user clicks Reset button when from value exists', async () => {

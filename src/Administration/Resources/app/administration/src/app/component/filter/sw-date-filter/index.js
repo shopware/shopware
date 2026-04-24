@@ -121,7 +121,7 @@ export default {
             return label;
         },
 
-        updateFilter(params) {
+        updateFilter() {
             if (!this.dateValue.from && !this.dateValue.to) {
                 this.$emit('filter-reset', this.filter.name);
                 return;
@@ -132,19 +132,27 @@ export default {
                 return;
             }
 
-            if (this.dateValue.from) {
-                const from = new Date(this.dateValue.from);
-                from.setHours(0, 0, 0);
-                this.dateValue.from = from.toISOString();
-            }
+            const tz = this.userTimeZone();
+            const gte = this.dateValue.from ? this.dayBoundsInTz(this.dateValue.from, tz).gte : null;
+            const lte = this.dateValue.to ? this.dayBoundsInTz(this.dateValue.to, tz).lte : null;
 
-            if (this.dateValue.to) {
-                const to = new Date(this.dateValue.to);
-                to.setHours(23, 59, 59);
-                this.dateValue.to = to.toISOString();
-            }
+            const rangeParams = {
+                ...(gte ? { gte } : {}),
+                ...(lte ? { lte } : {}),
+            };
 
-            this.$emit('filter-update', this.filter.name, params, this.dateValue);
+            const emittedValue = {
+                ...this.dateValue,
+                ...(gte ? { from: gte } : {}),
+                ...(lte ? { to: lte } : {}),
+            };
+
+            this.$emit(
+                'filter-update',
+                this.filter.name,
+                [Criteria.range(this.filter.property, rangeParams)],
+                emittedValue,
+            );
         },
 
         onTimeframeSelect(timeframe) {
@@ -206,6 +214,47 @@ export default {
             return {
                 startDate: startDate,
                 endDate: endDate,
+            };
+        },
+
+        userTimeZone() {
+            return Shopware?.Store?.get('session')?.currentUser?.timeZone ?? 'UTC';
+        },
+
+        /**
+         * mt-datepicker in date-only mode may emit an ISO instant whose wall-clock
+         * time is not midnight (e.g. it carries over the current time on the
+         * picked day). Snap to the start of the picked day in the given timezone
+         * and derive the end of that same day so filter bounds cover the full
+         * intended calendar day as the list's date formatter displays it.
+         */
+        dayBoundsInTz(iso, tz) {
+            const instant = new Date(iso);
+            const parts = new Intl.DateTimeFormat('en-GB', {
+                timeZone: tz,
+                hour12: false,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+            }).formatToParts(instant);
+
+            const read = (type) => parseInt(parts.find((p) => p.type === type)?.value ?? '0', 10);
+
+            let hour = read('hour');
+            if (hour === 24) {
+                hour = 0;
+            }
+            const minute = read('minute');
+            const second = read('second');
+            const ms = instant.getUTCMilliseconds();
+
+            const offsetIntoDayMs = ((hour * 60 + minute) * 60 + second) * 1000 + ms;
+            const startMs = instant.getTime() - offsetIntoDayMs;
+            const oneDayMs = 24 * 60 * 60 * 1000;
+
+            return {
+                gte: new Date(startMs).toISOString(),
+                lte: new Date(startMs + oneDayMs - 1).toISOString(),
             };
         },
     },

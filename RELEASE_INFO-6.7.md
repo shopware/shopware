@@ -153,6 +153,10 @@ New Agentic Commerce sales channels types can be created.
 These sales channels have dedicated configuration options in the administration for property mapping, and usage insights.
 New entities for monitoring orders and customers for Agentic Commerce sales channels are included.
 
+### Date filter respects user timezone for day boundaries
+
+The `sw-date-filter` component (used in listing filter panels) now snaps `from`/`to` bounds to the start and end of the picked day in the current user's profile timezone. Previously the bounds were derived in UTC, so for non-UTC users the filter range did not align with the calendar day shown in list date columns. The component also no longer mutates its internal `dateValue` during emit, which prevented a duplicate `filter-update` event when a single field changed.
+
 ## Storefront
 
 ### Order cancellation only shown for open orders

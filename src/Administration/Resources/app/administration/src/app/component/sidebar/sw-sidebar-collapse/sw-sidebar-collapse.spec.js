@@ -13,7 +13,7 @@ async function createWrapper() {
                 'sw-collapse': true,
             },
             mocks: {
-                $tc: (snippetPath, count, values) => snippetPath + count + JSON.stringify(values),
+                $t: (snippetPath, count, values) => snippetPath + count + JSON.stringify(values),
             },
         },
     });

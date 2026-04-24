@@ -9,9 +9,11 @@ use Psr\Http\Message\StreamInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator;
 use Shopware\Core\Content\Media\Core\Params\UrlParams;
+use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaService;
+use Shopware\Core\Content\Media\Util\PathHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -149,12 +151,18 @@ class DownloadResponseGenerator
     {
         $filename = $media->getFileName() . '.' . $media->getFileExtension();
 
+        try {
+            $filenameFallback = PathHelper::stripNonAsciiAndControlChars($filename);
+        } catch (IllegalFileNameException) {
+            $filenameFallback = '';
+        }
+
         return [
             'Content-Disposition' => HeaderUtils::makeDisposition(
                 HeaderUtils::DISPOSITION_ATTACHMENT,
                 $filename,
                 // only printable ascii
-                preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $filename) ?? ''
+                $filenameFallback
             ),
             'Content-Length' => $media->getFileSize() ?? 0,
             'Content-Type' => 'application/octet-stream',

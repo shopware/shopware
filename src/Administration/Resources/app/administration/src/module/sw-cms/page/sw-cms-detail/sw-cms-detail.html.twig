@@ -29,7 +29,7 @@
                             class="sw-cms-detail__back-btn"
                             role="link"
                             tabindex="0"
-                            :aria-label="$tc('global.default.back')"
+                            :aria-label="$t('global.default.back')"
                             @click="onClickBack"
                             @keyup.enter="onClickBack"
                         >
@@ -48,7 +48,7 @@
                             v-if="page.type"
                             class="sw-cms-detail__page-type"
                         >
-                            {{ $tc(pageType?.title ?? '') }}
+                            {{ $t(pageType?.title ?? '') }}
                         </div>
                         {% endblock %}
 
@@ -56,7 +56,7 @@
                             v-if="isDefaultLayout"
                             class="sw-cms-detail__page-defaults"
                         >
-                            {{ $tc('sw-cms.detail.label.defaultLayout') }}
+                            {{ $t('sw-cms.detail.label.defaultLayout') }}
                         </div>
                     </div>
                 </template>
@@ -118,7 +118,7 @@
                             @update:process-success="saveFinish"
                             @click="onSave"
                         >
-                            {{ $tc('sw-cms.detail.label.buttonSave') }}
+                            {{ $t('sw-cms.detail.label.buttonSave') }}
                         </sw-button-process>
                         {% endblock %}
                     </div>
@@ -149,7 +149,7 @@
                             class="sw-cms-detail__page-notification-alert"
                             variant="info"
                         >
-                            {{ $tc('sw-cms.detail.label.lockedNotification') }}
+                            {{ $t('sw-cms.detail.label.lockedNotification') }}
                         </mt-banner>
                     </div>
                     {% endblock %}
@@ -177,7 +177,7 @@
                             class="sw-cms-detail__page-notification-alert is--error"
                             variant="critical"
                         >
-                            {{ $tc('sw-cms.detail.notification.errorCollectionText') }}
+                            {{ $t('sw-cms.detail.notification.errorCollectionText') }}
                             <li
                                 v-for="(error, index) in pageErrors"
                                 :key="index"
@@ -197,7 +197,7 @@
                             class="sw-cms-detail__page-notification-alert is--warning"
                             variant="attention"
                         >
-                            {{ $tc('sw-cms.detail.notification.warningCollectionText') }}
+                            {{ $t('sw-cms.detail.notification.warningCollectionText') }}
                             <li
                                 v-for="(warning, index) in validationWarnings"
                                 :key="index"
@@ -217,7 +217,7 @@
                             class="sw-cms-detail__page-notification-alert"
                             variant="info"
                         >
-                            {{ $tc('sw-cms.detail.label.lockedNotification') }}
+                            {{ $t('sw-cms.detail.label.lockedNotification') }}
                         </mt-banner>
                     </div>
                     {% endblock %}
@@ -229,13 +229,15 @@
                         class="sw-cms-detail__empty-stage"
                     >
 
+                        {% block sw_cms_detail_stage_empty_stage_content %}
+                        {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_cms_detail_stage_empty_stage_content` instead. #}
                         {% block sw_cms_detail_stage_empty_stade_content %}
                         <div class="sw-cms-detail__empty-stage-content">
                             <h2 class="sw-cms-detail__empty-stage-headline">
-                                {{ $tc('sw-cms.detail.label.headlineEmptyState') }}
+                                {{ $t('sw-cms.detail.label.headlineEmptyState') }}
                             </h2>
                             <p class="sw-cms-detail__empty-stage-claim">
-                                {{ $tc('sw-cms.detail.label.claimEmptyState') }}
+                                {{ $t('sw-cms.detail.label.claimEmptyState') }}
                             </p>
                             <sw-cms-stage-add-section
                                 :key="0"
@@ -244,6 +246,7 @@
                                 @stage-section-add="onAddSection($event, 0, true)"
                             />
                         </div>
+                        {% endblock %}
                         {% endblock %}
                     </div>
                     {% endblock %}
@@ -329,8 +332,8 @@
                 <sw-confirm-modal
                     v-if="showLayoutSetAsDefaultModal"
                     class="sw-cms-detail__confirm-set-as-default-modal"
-                    :title="$tc('sw-cms.components.setDefaultLayoutModal.title')"
-                    :text="$tc('sw-cms.components.setDefaultLayoutModal.infoText', {}, page.type === 'product_detail')"
+                    :title="$t('sw-cms.components.setDefaultLayoutModal.title')"
+                    :text="$t('sw-cms.components.setDefaultLayoutModal.infoText', {}, page.type === 'product_detail')"
                     @confirm="onConfirmLayoutSetAsDefault"
                     @cancel="onCloseLayoutSetAsDefault"
                     @close="onCloseLayoutSetAsDefault"

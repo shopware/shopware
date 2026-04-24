@@ -9,7 +9,7 @@ async function createWrapper(loginSuccessfull, useDefault = true, ssoUrl = 'http
     const wrapper = mount(await wrapTestComponent('sw-login-login', { sync: true }), {
         global: {
             mocks: {
-                $tc: (...args) => JSON.stringify([...args]),
+                $t: (...args) => JSON.stringify([...args]),
             },
             provide: {
                 loginService: {
@@ -151,7 +151,7 @@ describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
         mount(component, {
             global: {
                 mocks: {
-                    $tc: (...args) => JSON.stringify([...args]),
+                    $t: (...args) => JSON.stringify([...args]),
                 },
                 provide: {
                     loginService: {

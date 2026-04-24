@@ -530,6 +530,39 @@ class OutboxEventRepositoryTest extends TestCase
         static::assertNull($second);
     }
 
+    public function testBackfillDeliveryRefusesNonQueuedEventLog(): void
+    {
+        // Backfilling a RUNNING / PENDING_RETRY row would rewrite execution_count and
+        // next_retry_at back to fresh-dispatch values — the ladder is load-bearing for
+        // retry backoff. Only QUEUED (never-attempted) event logs are repair-worthy.
+        $this->createWebhook('wh-1');
+
+        foreach ([WebhookEventLogDefinition::STATUS_RUNNING, WebhookEventLogDefinition::STATUS_PENDING_RETRY] as $status) {
+            $this->connection->executeStatement('DELETE FROM webhook_event_log');
+
+            $eventKey = 'evt-' . $status;
+            $message = $this->createMessage($eventKey, 'wh-1');
+
+            $this->connection->insert('webhook_event_log', [
+                'id' => $this->ids->getBytes($eventKey),
+                'delivery_status' => $status,
+                'webhook_name' => 'test-hook',
+                'event_name' => 'product.written',
+                'url' => 'https://example.com/webhook',
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]);
+
+            $entry = $this->repository->backfillDelivery($this->toEntry($message));
+
+            static::assertNull($entry, \sprintf('backfillDelivery must refuse status %s', $status));
+            $deliveryCount = (int) $this->connection->fetchOne(
+                'SELECT COUNT(*) FROM webhook_delivery WHERE webhook_event_log_id = :id',
+                ['id' => $this->ids->getBytes($eventKey)]
+            );
+            static::assertSame(0, $deliveryCount);
+        }
+    }
+
     public function testSerializedWebhookMessageIsStoredInEventLog(): void
     {
         $this->createWebhook('wh-1');
@@ -662,7 +695,7 @@ class OutboxEventRepositoryTest extends TestCase
         static::assertSame(1, $count, 'execution_count must not increment on the no-op second call');
     }
 
-    public function testMarkRunningTransitionsPendingRetryToRunning(): void
+    public function testMarkRunningTransitionsDuePendingRetryToRunning(): void
     {
         $this->createWebhook('wh-1');
         $message = $this->createMessage('evt-1', 'wh-1');
@@ -670,7 +703,7 @@ class OutboxEventRepositoryTest extends TestCase
 
         // First attempt: QUEUED → RUNNING → PENDING_RETRY
         $this->repository->markRunning($this->ids->get('evt-1'));
-        $this->repository->markPendingRetry($this->ids->get('evt-1'), new \DateTimeImmutable('+5 minutes'));
+        $this->repository->markPendingRetry($this->ids->get('evt-1'), new \DateTimeImmutable('-5 minutes'));
 
         $this->assertEventLogStatus('evt-1', WebhookEventLogDefinition::STATUS_PENDING_RETRY);
 
@@ -690,6 +723,200 @@ class OutboxEventRepositoryTest extends TestCase
         static::assertSame(2, (int) $delivery['execution_count']);
 
         // event_log must also be RUNNING
+        $this->assertEventLogStatus('evt-1', WebhookEventLogDefinition::STATUS_RUNNING);
+    }
+
+    public function testMarkRunningSkipsPendingRetryUntilRetryAtIsDue(): void
+    {
+        $this->createWebhook('wh-1');
+        $message = $this->createMessage('evt-1', 'wh-1');
+        $this->repository->ensureOutboxEntry($this->toEntry($message));
+
+        $this->repository->markRunning($this->ids->get('evt-1'));
+        $retryAt = new \DateTimeImmutable('+5 minutes');
+        $this->repository->markPendingRetry($this->ids->get('evt-1'), $retryAt);
+
+        static::assertNull($this->repository->markRunning($this->ids->get('evt-1')));
+
+        $delivery = $this->connection->fetchAssociative(
+            'SELECT delivery_status, execution_count, next_retry_at FROM webhook_delivery WHERE webhook_event_log_id = :id',
+            ['id' => $this->ids->getBytes('evt-1')]
+        );
+        static::assertNotFalse($delivery);
+        static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $delivery['delivery_status']);
+        static::assertSame(1, (int) $delivery['execution_count']);
+        static::assertSame($retryAt->format(Defaults::STORAGE_DATE_TIME_FORMAT), $delivery['next_retry_at']);
+
+        $this->assertEventLogStatus('evt-1', WebhookEventLogDefinition::STATUS_PENDING_RETRY);
+    }
+
+    public function testMarkRunningIgnoresStrayDeliveryRowForTerminalEventLog(): void
+    {
+        $this->createWebhook('wh-1');
+        $message = $this->createMessage('evt-1', 'wh-1');
+        $this->repository->ensureOutboxEntry($this->toEntry($message));
+
+        $entry = $this->repository->markRunning($this->ids->get('evt-1'));
+        static::assertInstanceOf(OutboxEntry::class, $entry);
+        static::assertTrue($this->repository->markSuccess($this->ids->get('evt-1'), null, $entry->executionCount, $entry->sequence));
+
+        $this->connection->insert('webhook_delivery', [
+            'webhook_event_log_id' => $this->ids->getBytes('evt-1'),
+            'webhook_id' => $this->ids->getBytes('wh-1'),
+            'partition_key' => Hasher::hashBinary($message->getPartitionKey(), 'xxh128'),
+            'delivery_status' => WebhookEventLogDefinition::STATUS_QUEUED,
+            'execution_count' => 0,
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        static::assertNull($this->repository->markRunning($this->ids->get('evt-1')));
+
+        $this->assertEventLogStatus('evt-1', WebhookEventLogDefinition::STATUS_SUCCESS);
+
+        $delivery = $this->connection->fetchAssociative(
+            'SELECT delivery_status, execution_count FROM webhook_delivery WHERE webhook_event_log_id = :id',
+            ['id' => $this->ids->getBytes('evt-1')]
+        );
+        static::assertNotFalse($delivery);
+        static::assertSame(WebhookEventLogDefinition::STATUS_QUEUED, $delivery['delivery_status']);
+        static::assertSame(0, (int) $delivery['execution_count']);
+    }
+
+    public function testStaleAttemptCannotMarkSuccessAfterCrashRecoveryStartsNextAttempt(): void
+    {
+        $this->createWebhook('wh-1');
+        $message = $this->createMessage('evt-1', 'wh-1');
+        $this->repository->ensureOutboxEntry($this->toEntry($message));
+
+        $firstAttempt = $this->repository->markRunning($this->ids->get('evt-1'));
+        static::assertInstanceOf(OutboxEntry::class, $firstAttempt);
+
+        $partitionKey = Hasher::hashBinary($message->getPartitionKey(), 'xxh128');
+        $this->repository->resetRunningForPartition($partitionKey, 0);
+
+        $secondAttempt = $this->repository->markRunning($this->ids->get('evt-1'));
+        static::assertInstanceOf(OutboxEntry::class, $secondAttempt);
+        static::assertSame(2, $secondAttempt->executionCount);
+
+        $changed = $this->repository->markSuccess(
+            $this->ids->get('evt-1'),
+            null,
+            $firstAttempt->executionCount,
+            $firstAttempt->sequence,
+        );
+
+        static::assertFalse($changed);
+
+        $delivery = $this->connection->fetchAssociative(
+            'SELECT delivery_status, execution_count FROM webhook_delivery WHERE webhook_event_log_id = :id',
+            ['id' => $this->ids->getBytes('evt-1')]
+        );
+        static::assertNotFalse($delivery, 'stale success must not delete the active second attempt');
+        static::assertSame(WebhookEventLogDefinition::STATUS_RUNNING, $delivery['delivery_status']);
+        static::assertSame(2, (int) $delivery['execution_count']);
+        $this->assertEventLogStatus('evt-1', WebhookEventLogDefinition::STATUS_RUNNING);
+    }
+
+    public function testStaleAttemptCannotScheduleRetryAfterCrashRecoveryStartsNextAttempt(): void
+    {
+        $this->createWebhook('wh-1');
+        $message = $this->createMessage('evt-1', 'wh-1');
+        $this->repository->ensureOutboxEntry($this->toEntry($message));
+
+        $firstAttempt = $this->repository->markRunning($this->ids->get('evt-1'));
+        static::assertInstanceOf(OutboxEntry::class, $firstAttempt);
+
+        $partitionKey = Hasher::hashBinary($message->getPartitionKey(), 'xxh128');
+        $this->repository->resetRunningForPartition($partitionKey, 0);
+
+        $secondAttempt = $this->repository->markRunning($this->ids->get('evt-1'));
+        static::assertInstanceOf(OutboxEntry::class, $secondAttempt);
+
+        $changed = $this->repository->markPendingRetry(
+            $this->ids->get('evt-1'),
+            new \DateTimeImmutable('+5 minutes'),
+            null,
+            $firstAttempt->executionCount,
+            $firstAttempt->sequence,
+        );
+
+        static::assertFalse($changed);
+
+        $delivery = $this->connection->fetchAssociative(
+            'SELECT delivery_status, execution_count FROM webhook_delivery WHERE webhook_event_log_id = :id',
+            ['id' => $this->ids->getBytes('evt-1')]
+        );
+        static::assertNotFalse($delivery);
+        static::assertSame(WebhookEventLogDefinition::STATUS_RUNNING, $delivery['delivery_status']);
+        static::assertSame(2, (int) $delivery['execution_count']);
+        $this->assertEventLogStatus('evt-1', WebhookEventLogDefinition::STATUS_RUNNING);
+    }
+
+    public function testStaleAttemptCannotResetForRetryAfterCrashRecoveryStartsNextAttempt(): void
+    {
+        $this->createWebhook('wh-1');
+        $message = $this->createMessage('evt-1', 'wh-1');
+        $this->repository->ensureOutboxEntry($this->toEntry($message));
+
+        $firstAttempt = $this->repository->markRunning($this->ids->get('evt-1'));
+        static::assertInstanceOf(OutboxEntry::class, $firstAttempt);
+
+        $partitionKey = Hasher::hashBinary($message->getPartitionKey(), 'xxh128');
+        $this->repository->resetRunningForPartition($partitionKey, 0);
+
+        $secondAttempt = $this->repository->markRunning($this->ids->get('evt-1'));
+        static::assertInstanceOf(OutboxEntry::class, $secondAttempt);
+
+        $changed = $this->repository->resetForRetry(
+            $this->ids->get('evt-1'),
+            null,
+            $firstAttempt->executionCount,
+            $firstAttempt->sequence,
+        );
+
+        static::assertFalse($changed);
+
+        $delivery = $this->connection->fetchAssociative(
+            'SELECT delivery_status, execution_count FROM webhook_delivery WHERE webhook_event_log_id = :id',
+            ['id' => $this->ids->getBytes('evt-1')]
+        );
+        static::assertNotFalse($delivery);
+        static::assertSame(WebhookEventLogDefinition::STATUS_RUNNING, $delivery['delivery_status']);
+        static::assertSame(2, (int) $delivery['execution_count']);
+        $this->assertEventLogStatus('evt-1', WebhookEventLogDefinition::STATUS_RUNNING);
+    }
+
+    public function testStaleAttemptCannotMarkFailedAfterCrashRecoveryStartsNextAttempt(): void
+    {
+        $this->createWebhook('wh-1');
+        $message = $this->createMessage('evt-1', 'wh-1');
+        $this->repository->ensureOutboxEntry($this->toEntry($message));
+
+        $firstAttempt = $this->repository->markRunning($this->ids->get('evt-1'));
+        static::assertInstanceOf(OutboxEntry::class, $firstAttempt);
+
+        $partitionKey = Hasher::hashBinary($message->getPartitionKey(), 'xxh128');
+        $this->repository->resetRunningForPartition($partitionKey, 0);
+
+        $secondAttempt = $this->repository->markRunning($this->ids->get('evt-1'));
+        static::assertInstanceOf(OutboxEntry::class, $secondAttempt);
+
+        $changed = $this->repository->markFailed(
+            $this->ids->get('evt-1'),
+            null,
+            $firstAttempt->executionCount,
+            $firstAttempt->sequence,
+        );
+
+        static::assertFalse($changed);
+
+        $delivery = $this->connection->fetchAssociative(
+            'SELECT delivery_status, execution_count FROM webhook_delivery WHERE webhook_event_log_id = :id',
+            ['id' => $this->ids->getBytes('evt-1')]
+        );
+        static::assertNotFalse($delivery);
+        static::assertSame(WebhookEventLogDefinition::STATUS_RUNNING, $delivery['delivery_status']);
+        static::assertSame(2, (int) $delivery['execution_count']);
         $this->assertEventLogStatus('evt-1', WebhookEventLogDefinition::STATUS_RUNNING);
     }
 
@@ -901,6 +1128,42 @@ class OutboxEventRepositoryTest extends TestCase
         static::assertNotFalse($eventLog);
         static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $eventLog['delivery_status']);
         static::assertGreaterThan(0, (int) $eventLog['timestamp']);
+    }
+
+    public function testResetRunningForPartitionDoesNotResurrectTerminalEventLog(): void
+    {
+        $this->createWebhook('wh-1');
+        $message = $this->createMessage('evt-1', 'wh-1');
+        $this->repository->ensureOutboxEntry($this->toEntry($message));
+
+        $entry = $this->repository->markRunning($this->ids->get('evt-1'));
+        static::assertInstanceOf(OutboxEntry::class, $entry);
+        static::assertTrue($this->repository->markSuccess($this->ids->get('evt-1'), null, $entry->executionCount, $entry->sequence));
+
+        $partitionKey = Hasher::hashBinary($message->getPartitionKey(), 'xxh128');
+        $this->connection->insert('webhook_delivery', [
+            'webhook_event_log_id' => $this->ids->getBytes('evt-1'),
+            'webhook_id' => $this->ids->getBytes('wh-1'),
+            'partition_key' => $partitionKey,
+            'delivery_status' => WebhookEventLogDefinition::STATUS_RUNNING,
+            'execution_count' => 1,
+            'last_attempt_at' => (new \DateTimeImmutable('-5 minutes'))->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $this->repository->resetRunningForPartition($partitionKey, 0);
+
+        $this->assertEventLogStatus('evt-1', WebhookEventLogDefinition::STATUS_SUCCESS);
+
+        $delivery = $this->connection->fetchAssociative(
+            'SELECT delivery_status FROM webhook_delivery WHERE webhook_event_log_id = :id',
+            ['id' => $this->ids->getBytes('evt-1')]
+        );
+        static::assertNotFalse($delivery);
+        static::assertSame(WebhookEventLogDefinition::STATUS_RUNNING, $delivery['delivery_status']);
+
+        static::assertSame([], $this->repository->fetchDue($partitionKey, [WebhookEventLogDefinition::STATUS_QUEUED, WebhookEventLogDefinition::STATUS_PENDING_RETRY], 10));
+        static::assertNull($this->repository->markRunning($this->ids->get('evt-1')));
     }
 
     public function testResetRunningForPartitionIsPartitionScoped(): void

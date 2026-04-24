@@ -87,7 +87,7 @@ class InfoControllerTest extends TestCase
             'adminWorker' => [
                 'enableAdminWorker' => true,
                 'enableNotificationWorker' => true,
-                'transports' => ['async', 'low_priority'],
+                'transports' => ['webhook', 'async', 'low_priority'],
                 'enableQueueStatsWorker' => true,
             ],
             'bundles' => [],

@@ -14,7 +14,6 @@ use Shopware\Core\Framework\Webhook\Outbox\OutboxEntry;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository;
 use Shopware\Core\Framework\Webhook\Outbox\StreamLease;
 use Shopware\Core\Framework\Webhook\Outbox\StreamLockService;
-use Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Exception\TransportException;
 use Symfony\Component\Messenger\Stamp\TransportMessageIdStamp;
@@ -68,7 +67,6 @@ class MySQLWebhookReceiver implements ReceiverInterface, KeepaliveReceiverInterf
     public function __construct(
         private readonly StreamLockService $lockService,
         private readonly OutboxEventRepository $outbox,
-        private readonly WebhookDeliveryService $deliveryService,
         private readonly ClockInterface $clock,
         private readonly LoggerInterface $logger,
     ) {
@@ -81,7 +79,7 @@ class MySQLWebhookReceiver implements ReceiverInterface, KeepaliveReceiverInterf
             yield from $this->fetch();
             $this->consecutiveDeadlocks = 0;
         } catch (RetryableException $e) {
-            $this->logger->info('Webhook receiver hit a transient DB contention; retrying next tick', [
+            $this->logger->warning('Webhook receiver hit a transient DB contention; retrying next tick', [
                 'consecutiveDeadlocks' => $this->consecutiveDeadlocks + 1,
                 'workerId' => $this->workerId,
                 'exception' => $e,
@@ -110,18 +108,23 @@ class MySQLWebhookReceiver implements ReceiverInterface, KeepaliveReceiverInterf
     {
         $message = $envelope->getMessage();
         if (!$message instanceof WebhookEventMessage) {
+            $this->logger->error('Unexpected envelope message on webhook transport', [
+                'messageClass' => $message::class,
+            ]);
+
             return;
         }
 
-        try {
-            $this->deliveryService->handleRejectedDelivery($message->getWebhookEventId());
-        } catch (\Throwable $e) {
-            $this->logger->warning('Failed to reset rejected webhook delivery', [
-                'webhookEventId' => $message->getWebhookEventId(),
-                'workerId' => $this->workerId,
-                'exception' => $e,
-            ]);
-        }
+        // The webhook transport is single-handler: retries are already recorded on the
+        // outbox row by `WebhookDeliveryService::deliver`. An exception surfacing here means
+        // the handler itself (or the runtime) blew up mid-flight, leaving the row in RUNNING.
+        // Leave it alone — the next partition claim runs crash recovery and transitions
+        // stale RUNNING rows back to PENDING_RETRY.
+        $this->logger->error('Webhook handler rejected unexpectedly; leaving row for crash recovery', [
+            'webhookEventId' => $message->getWebhookEventId(),
+            'webhookId' => $message->getWebhookId(),
+            'workerId' => $this->workerId,
+        ]);
     }
 
     public function keepalive(Envelope $envelope, ?int $seconds = null): void
@@ -130,10 +133,11 @@ class MySQLWebhookReceiver implements ReceiverInterface, KeepaliveReceiverInterf
             return;
         }
 
-        // Honour Symfony's minimum-duration contract without ever shrinking the lease.
+        // Honour Symfony's minimum-duration contract without shrinking the lease.
         // The common case (5s SIGALRM vs a healthy 240s lease) becomes a no-op — skipping
         // the DB round-trip for the ~47 same-value UPDATEs that would otherwise fire per
         // lease lifetime. Null falls back to LEASE_SECONDS.
+        // This will not make the receiver run forever, as it operates under messages budget.
         $remaining = $this->currentLease->expiresAt->getTimestamp() - $this->clock->now()->getTimestamp();
         $desired = $seconds ?? self::LEASE_SECONDS;
         if ($desired <= $remaining) {
@@ -171,7 +175,10 @@ class MySQLWebhookReceiver implements ReceiverInterface, KeepaliveReceiverInterf
         }
 
         // 2. Claim or renew the lease. Heartbeat on reuse catches theft from a long handler.
-        $lease = $this->currentLease !== null ? $this->renewCurrentLease() : $this->acquireLease();
+        $lease = $this->currentLease !== null ? $this->ensureLeaseOwnership() : null;
+        if ($lease === null) {
+            $lease = $this->acquireLease();
+        }
         if ($lease === null) {
             return;
         }
@@ -188,44 +195,43 @@ class MySQLWebhookReceiver implements ReceiverInterface, KeepaliveReceiverInterf
 
         // 4. Yield one envelope per readable entry. Broken payloads are failed and skipped.
         foreach ($entries as $entry) {
-            // Signal-driven `keepalive()` on --keepalive workers can null currentLease
-            // mid-batch when the heartbeat detects a stolen lease. Stop yielding a
-            // snapshot we no longer own.
+            // Signal-driven `keepalive()` on --keepalive workers can remove the lease midbatch
+            // Stop yielding a snapshot we no longer own.
             if ($this->currentLease === null) {
                 return;
             }
-            // Also guard against the lease naturally expiring without a heartbeat firing
-            // (--keepalive off or slow worker). The DB lease is what gates partition
-            // ownership; if it's past, another worker may already be draining this partition.
+
+            // The DB lease is what gates partition ownership; if it's past, another worker may already be draining this partition.
             if ($this->clock->now() >= $this->currentLease->expiresAt) {
                 $this->abandonLease();
 
                 return;
             }
+
+            ++$this->messagesDeliveredInLease;
             $envelope = $this->toEnvelope($entry);
             if ($envelope === null) {
                 continue;
             }
-            ++$this->messagesDeliveredInLease;
             yield $envelope;
         }
     }
 
-    private function renewCurrentLease(): ?StreamLease
+    private function ensureLeaseOwnership(): ?StreamLease
     {
-        \assert($this->currentLease !== null);
+        if ($this->currentLease === null) {
+            return null;
+        }
 
-        // Past our own expiry — the local lease is stale. Drop it and let the next tick
-        // re-acquire fresh. This is the same outcome a zero-affected-rows UPDATE would
-        // give us, but without the round-trip; under single-worker deployments this just
-        // means we fell behind on heartbeats, not that someone else took the partition.
-        if ($this->clock->now() >= $this->currentLease->expiresAt) {
+        // Verify we still own the lease without extending its window.
+        $remaining = $this->currentLease->expiresAt->getTimestamp() - $this->clock->now()->getTimestamp();
+        if ($remaining <= 0) {
             $this->abandonLease();
 
             return null;
         }
 
-        $renewed = $this->lockService->heartbeat($this->currentLease, self::LEASE_SECONDS);
+        $renewed = $this->lockService->heartbeat($this->currentLease, $remaining);
         if ($renewed === null) {
             $this->abandonLease();
 
@@ -278,33 +284,43 @@ class MySQLWebhookReceiver implements ReceiverInterface, KeepaliveReceiverInterf
         // fetchDue always populates the blob; the nullable is only for markRunning's
         // state-query return.
         \assert($entry->serializedWebhookMessage !== null);
-
         // Payload was serialized by us in WebhookTransport::send(). @ silences the
         // invalid-input warning; we handle a false return explicitly below. The
         // allowed_classes allowlist defense-in-depths the DB blob against object-injection
-        // if an attacker ever gains SQL-write: a spoofed class deserializes as
-        // __PHP_Incomplete_Class, which the instanceof check below rejects.
-        /** @phpstan-ignore shopware.unserializeUsage */
-        $message = @unserialize($entry->serializedWebhookMessage, ['allowed_classes' => [WebhookEventMessage::class]]);
-        if ($message instanceof WebhookEventMessage) {
-            // TransportMessageIdStamp enables framework tooling (messenger:failed:show,
-            // profiler, SendFailedMessageToFailureTransportMiddleware) to correlate the
-            // message with its transport-side identity.
-            return (new Envelope($message))->with(new TransportMessageIdStamp($entry->webhookEventId));
+        // if an attacker ever gains SQL-write. PHP 8+ throws \Error (TypeError) during
+        // unserialize when a typed property is missing or type-mismatched — catch \Error
+        // so a malformed row doesn't kill the worker, but let genuinely exceptional runtime
+        // errors (e.g. \OutOfMemoryError) bubble.
+        try {
+            /** @phpstan-ignore shopware.unserializeUsage */
+            $message = @unserialize($entry->serializedWebhookMessage, ['allowed_classes' => [WebhookEventMessage::class]]);
+        } catch (\Error $e) {
+            $this->logger->warning('Failed to unserialize webhook event message; dropping row', [
+                'webhookEventId' => $entry->webhookEventId,
+                'workerId' => $this->workerId,
+                'exception' => $e,
+            ]);
+            $this->dropBrokenEntry($entry);
+
+            return null;
         }
 
-        $this->dropBrokenEntry($entry);
+        // Cross-check the blob against the DB row before trusting any field on it.
+        if (!$message instanceof WebhookEventMessage || $message->getWebhookEventId() !== $entry->webhookEventId) {
+            $this->dropBrokenEntry($entry);
 
-        return null;
+            return null;
+        }
+
+        return (new Envelope($message))->with(new TransportMessageIdStamp($entry->webhookEventId));
     }
 
     private function dropBrokenEntry(OutboxEntry $entry): void
     {
-        // Claim the row first so markFailed can transition it; skip if another worker already has it.
-        if ($this->outbox->markRunning($entry->webhookEventId) === null) {
-            return;
-        }
-
+        // markFailed is unconditional and the partition lease already gives us exclusive
+        // ownership. Don't call markRunning here: it would bump
+        // execution_count and stamp last_attempt_at for a row that never left the transport,
+        // polluting the audit trail.
         $this->outbox->markFailed($entry->webhookEventId);
 
         $this->logger->error('Discarded unreadable webhook delivery', [

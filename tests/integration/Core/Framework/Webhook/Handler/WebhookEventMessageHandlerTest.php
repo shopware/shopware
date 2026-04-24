@@ -603,6 +603,104 @@ class WebhookEventMessageHandlerTest extends TestCase
         static::assertSame(WebhookEventLogDefinition::STATUS_QUEUED, $deliveryStatus, 'webhook_delivery row should be preserved with QUEUED status after failure');
     }
 
+    public function testFailurePathWithUnserializableResponseResetsToQueued(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $appId = Uuid::randomHex();
+        $this->createAppWithWebhook($appId, $webhookId);
+
+        $webhookEventLogRepository = static::getContainer()->get('webhook_event_log.repository');
+        $webhookEventId = Uuid::randomHex();
+        $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId);
+
+        $webhookEventLogRepository->create([[
+            'id' => $webhookEventId,
+            'appName' => 'SwagApp',
+            'deliveryStatus' => WebhookEventLogDefinition::STATUS_QUEUED,
+            'webhookName' => 'hook1',
+            'eventName' => 'order',
+            'appVersion' => '0.0.1',
+            'url' => 'https://test.com',
+            'serializedWebhookMessage' => serialize($webhookEventMessage),
+        ]], Context::createDefaultContext());
+
+        $connection = static::getContainer()->get(Connection::class);
+        $this->insertWebhookDelivery($connection, $webhookEventId, $webhookId);
+
+        $this->appendNewResponse(new Response(500, [], pack('C*', 0xB1)));
+
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($webhookEventMessage): void {
+            $caught = null;
+            try {
+                ($this->webhookEventMessageHandler)($webhookEventMessage);
+                static::fail('Malformed failure response should still throw for Messenger retry.');
+            } catch (WebhookException $e) {
+                $caught = $e;
+            }
+
+            static::assertSame(1, $this->getRequestCount());
+            static::assertSame(WebhookException::WEBHOOK_FAILED, $caught->getErrorCode());
+            static::assertInstanceOf(\JsonException::class, $caught->getPrevious());
+        });
+
+        $eventLogStatus = $connection->fetchOne(
+            'SELECT delivery_status FROM webhook_event_log WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($webhookEventId)]
+        );
+        static::assertSame(WebhookEventLogDefinition::STATUS_QUEUED, $eventLogStatus);
+
+        $deliveryStatus = $connection->fetchOne(
+            'SELECT delivery_status FROM webhook_delivery WHERE webhook_event_log_id = :id',
+            ['id' => Uuid::fromHexToBytes($webhookEventId)]
+        );
+        static::assertSame(WebhookEventLogDefinition::STATUS_QUEUED, $deliveryStatus);
+    }
+
+    public function testSuccessPathWithUnserializableResponseMarksSuccessWithoutRetry(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $appId = Uuid::randomHex();
+        $this->createAppWithWebhook($appId, $webhookId);
+
+        $webhookEventLogRepository = static::getContainer()->get('webhook_event_log.repository');
+        $webhookEventId = Uuid::randomHex();
+        $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId);
+
+        $webhookEventLogRepository->create([[
+            'id' => $webhookEventId,
+            'appName' => 'SwagApp',
+            'deliveryStatus' => WebhookEventLogDefinition::STATUS_QUEUED,
+            'webhookName' => 'hook1',
+            'eventName' => 'order',
+            'appVersion' => '0.0.1',
+            'url' => 'https://test.com',
+            'serializedWebhookMessage' => serialize($webhookEventMessage),
+        ]], Context::createDefaultContext());
+
+        $connection = static::getContainer()->get(Connection::class);
+        $this->insertWebhookDelivery($connection, $webhookEventId, $webhookId);
+
+        $this->appendNewResponse(new Response(200, ['X-Bad-Audit-Header' => pack('C*', 0xB1)], '{"ok":true}'));
+
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($webhookEventMessage): void {
+            ($this->webhookEventMessageHandler)($webhookEventMessage);
+        });
+
+        static::assertSame(1, $this->getRequestCount());
+
+        $eventLogStatus = $connection->fetchOne(
+            'SELECT delivery_status FROM webhook_event_log WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($webhookEventId)]
+        );
+        static::assertSame(WebhookEventLogDefinition::STATUS_SUCCESS, $eventLogStatus);
+
+        $deliveryExists = $connection->fetchOne(
+            'SELECT 1 FROM webhook_delivery WHERE webhook_event_log_id = :id',
+            ['id' => Uuid::fromHexToBytes($webhookEventId)]
+        );
+        static::assertFalse($deliveryExists);
+    }
+
     /**
      * Tests that on a network error (no response at all), the handler still transitions
      * to QUEUED and preserves the request content from the RUNNING phase, but does not
@@ -1184,11 +1282,10 @@ class WebhookEventMessageHandlerTest extends TestCase
             $request = $this->getLastRequest();
             static::assertInstanceOf(RequestInterface::class, $request);
 
-            // Orphan path skips the sequence/attempt headers — there is no delivery row
-            // to read the sequence from; a regression that stamped sequence=0 would
-            // otherwise pass silently.
-            static::assertFalse($request->hasHeader(WebhookDeliveryService::HEADER_SEQUENCE));
-            static::assertFalse($request->hasHeader(WebhookDeliveryService::HEADER_ATTEMPT));
+            // Legacy event logs are backfilled into webhook_delivery before delivery, so
+            // they get the same consumer metadata as freshly persisted outbox entries.
+            static::assertTrue($request->hasHeader(WebhookDeliveryService::HEADER_SEQUENCE));
+            static::assertSame('0', $request->getHeaderLine(WebhookDeliveryService::HEADER_ATTEMPT));
 
             $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->first();
             static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
@@ -1254,7 +1351,79 @@ class WebhookEventMessageHandlerTest extends TestCase
         Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($webhookEventMessage): void {
             ($this->webhookEventMessageHandler)($webhookEventMessage);
 
-            static::assertNull($this->getLastRequest(), 'new-shape message must not be re-delivered after successful completion');
+            static::assertSame(0, $this->getRequestCount(), 'new-shape message must not be re-delivered after successful completion');
+        });
+    }
+
+    public function testFlagOffHandlerDoesNotAckRunningNewShapeRedelivery(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $appId = Uuid::randomHex();
+        $this->createAppWithWebhook($appId, $webhookId);
+
+        $webhookEventLogRepository = static::getContainer()->get('webhook_event_log.repository');
+        $webhookEventId = Uuid::randomHex();
+        $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId, partitionKey: $appId);
+
+        $webhookEventLogRepository->create([[
+            'id' => $webhookEventId,
+            'appName' => 'SwagApp',
+            'deliveryStatus' => WebhookEventLogDefinition::STATUS_RUNNING,
+            'webhookName' => 'hook1',
+            'eventName' => 'order',
+            'appVersion' => '0.0.1',
+            'url' => 'http://test.com',
+            'serializedWebhookMessage' => serialize($webhookEventMessage),
+        ]], Context::createDefaultContext());
+
+        $connection = static::getContainer()->get(Connection::class);
+        $this->insertWebhookDelivery($connection, $webhookEventId, $webhookId);
+        $connection->executeStatement(
+            'UPDATE webhook_delivery SET delivery_status = :status, execution_count = 1 WHERE webhook_event_log_id = :id',
+            [
+                'status' => WebhookEventLogDefinition::STATUS_RUNNING,
+                'id' => Uuid::fromHexToBytes($webhookEventId),
+            ]
+        );
+
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($webhookEventMessage): void {
+            try {
+                ($this->webhookEventMessageHandler)($webhookEventMessage);
+                static::fail('A flag-off redelivery of an already RUNNING new-shape message must not be ACKed silently.');
+            } catch (WebhookException) {
+                static::assertSame(0, $this->getRequestCount(), 'RUNNING duplicate redelivery must fail before sending another HTTP request');
+            }
+        });
+    }
+
+    public function testFlagOffHandlerDoesNotAckNonTerminalNewShapeRedeliveryWithoutDeliveryRow(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $appId = Uuid::randomHex();
+        $this->createAppWithWebhook($appId, $webhookId);
+
+        $webhookEventLogRepository = static::getContainer()->get('webhook_event_log.repository');
+        $webhookEventId = Uuid::randomHex();
+        $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId, partitionKey: $appId);
+
+        $webhookEventLogRepository->create([[
+            'id' => $webhookEventId,
+            'appName' => 'SwagApp',
+            'deliveryStatus' => WebhookEventLogDefinition::STATUS_RUNNING,
+            'webhookName' => 'hook1',
+            'eventName' => 'order',
+            'appVersion' => '0.0.1',
+            'url' => 'http://test.com',
+            'serializedWebhookMessage' => serialize($webhookEventMessage),
+        ]], Context::createDefaultContext());
+
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($webhookEventMessage): void {
+            try {
+                ($this->webhookEventMessageHandler)($webhookEventMessage);
+                static::fail('A flag-off redelivery of a non-terminal new-shape message must not be ACKed silently.');
+            } catch (WebhookException) {
+                static::assertSame(0, $this->getRequestCount(), 'non-terminal duplicate redelivery must fail before sending another HTTP request');
+            }
         });
     }
 

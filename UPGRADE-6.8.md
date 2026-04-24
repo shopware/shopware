@@ -7,8 +7,9 @@
 ## Webhook Messenger transport — explicit receiver configuration required
 
 The `WebhookConsumeMessagesSubscriber` introduced in v6.7 auto-injected the `webhook` receiver
-before `async` in every `messenger:consume` invocation that included `async`. The subscriber
-is removed in v6.8.
+before `async` in `messenger:consume async …` invocations (only when `async` was explicitly
+present; specialty workers such as `messenger:consume failed` were left untouched). The
+subscriber is removed in v6.8.
 
 Operators must now configure the `webhook` transport explicitly:
 
@@ -17,6 +18,16 @@ Operators must now configure the `webhook` transport explicitly:
 
 Shops that ran the default `messenger:consume async` without updating to include `webhook`
 will stop consuming webhook deliveries after upgrading.
+
+### `messenger:consume --queues=X` deployments
+
+Operators who run queue-filtered workers (for example `messenger:consume async --queues=high`
+to shard across priority queues) must add a dedicated `messenger:consume webhook` worker.
+The `webhook` transport does not implement Symfony's `QueueReceiverInterface`, so mixing it
+into a `--queues=...` command raises `Receiver for "webhook" does not implement …` at
+startup. This replaces the v6.7 subscriber's silent no-op on `--queues=...`, which would have
+left webhook deliveries piling up in `webhook_delivery` behind a healthy-looking worker. The
+loud startup failure is the right signal to add the dedicated webhook consumer.
 
 ## Webhook delivery path under `admin_worker.enable_admin_worker=true` (default)
 

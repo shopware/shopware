@@ -50,7 +50,9 @@ class StreamLockService
                 WHERE (s.locked_by IS NULL OR s.lock_expires_at <= :now)
                   AND EXISTS (
                       SELECT 1 FROM webhook_delivery d
+                      JOIN webhook_event_log el ON el.id = d.webhook_event_log_id
                       WHERE d.partition_key = s.partition_key
+                        AND el.delivery_status NOT IN (:successStatus, :failedStatus)
                         AND (
                             (d.delivery_status IN (:statuses) AND (d.next_retry_at IS NULL OR d.next_retry_at <= :now))
                             OR (d.delivery_status = :running AND d.last_attempt_at <= :staleCutoff)
@@ -68,6 +70,8 @@ class StreamLockService
                     'statuses' => $statuses,
                     'running' => WebhookEventLogDefinition::STATUS_RUNNING,
                     'staleCutoff' => $staleCutoff,
+                    'successStatus' => WebhookEventLogDefinition::STATUS_SUCCESS,
+                    'failedStatus' => WebhookEventLogDefinition::STATUS_FAILED,
                 ],
                 [
                     'statuses' => ArrayParameterType::STRING,

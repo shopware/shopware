@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Hasher;
@@ -15,16 +14,11 @@ use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxInsert;
-use Shopware\Core\Framework\Webhook\Outbox\RetryDelayCalculator;
 use Shopware\Core\Framework\Webhook\Outbox\StreamLockService;
-use Shopware\Core\Framework\Webhook\Service\WebhookClient;
-use Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService;
-use Shopware\Core\Framework\Webhook\Service\WebhookStateRepository;
 use Shopware\Core\Framework\Webhook\Transport\MySQLWebhookReceiver;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Messenger\Envelope;
-use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @internal
@@ -52,21 +46,9 @@ class MySQLWebhookReceiverTest extends TestCase
         $this->clock = new MockClock(new \DateTimeImmutable('2026-04-20 10:00:00'));
         $this->outbox = new OutboxEventRepository($this->connection, $this->clock);
         $this->lockService = new StreamLockService($this->connection, $this->clock);
-        // Wire a delivery service with the mock clock so reject()'s retry-at computation
-        // stays predictable; the other deps we don't exercise in this test class.
-        $container = static::getContainer();
-        $deliveryService = new WebhookDeliveryService(
-            $container->get(WebhookClient::class),
-            $container->get(AppPayloadServiceHelper::class),
-            $this->outbox,
-            new RetryDelayCalculator($this->clock),
-            $container->get(MessageBusInterface::class),
-            $container->get(WebhookStateRepository::class),
-            new NullLogger(),
-            false,
-        );
-        $this->receiver = new MySQLWebhookReceiver($this->lockService, $this->outbox, $deliveryService, $this->clock, new NullLogger());
+        $this->receiver = new MySQLWebhookReceiver($this->lockService, $this->outbox, $this->clock, new NullLogger());
         $this->ids = new IdsCollection();
+        $this->truncateHarnessTables();
     }
 
     public function testGetClaimsPartitionAndYieldsEnvelope(): void
@@ -166,6 +148,45 @@ class MySQLWebhookReceiverTest extends TestCase
         static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $eventLog['delivery_status']);
     }
 
+    public function testTerminalOnlyStaleRunningDeliveryDoesNotMakePartitionClaimable(): void
+    {
+        $this->createWebhook('wh-1');
+        $this->outbox->ensureOutboxEntry($this->entryFor('evt-terminal', 'wh-1'));
+
+        $entry = $this->outbox->markRunning($this->ids->get('evt-terminal'));
+        static::assertNotNull($entry);
+        static::assertTrue($this->outbox->markSuccess($this->ids->get('evt-terminal'), null, $entry->executionCount, $entry->sequence));
+
+        $partitionKey = Hasher::hashBinary(WebhookEventMessage::DEFAULT_PARTITION_KEY, 'xxh128');
+        $this->connection->insert('webhook_delivery', [
+            'webhook_event_log_id' => $this->ids->getBytes('evt-terminal'),
+            'webhook_id' => $this->ids->getBytes('wh-1'),
+            'partition_key' => $partitionKey,
+            'delivery_status' => WebhookEventLogDefinition::STATUS_RUNNING,
+            'execution_count' => 1,
+            'last_attempt_at' => $this->clock->now()->modify(\sprintf('-%d seconds', MySQLWebhookReceiver::LEASE_SECONDS + 10))->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $lease = $this->lockService->claimNext(
+            'worker-1',
+            MySQLWebhookReceiver::LEASE_SECONDS,
+            [
+                WebhookEventLogDefinition::STATUS_QUEUED,
+                WebhookEventLogDefinition::STATUS_PENDING_RETRY,
+            ],
+        );
+
+        static::assertNull($lease);
+        static::assertSame(
+            WebhookEventLogDefinition::STATUS_SUCCESS,
+            $this->connection->fetchOne(
+                'SELECT delivery_status FROM webhook_event_log WHERE id = :id',
+                ['id' => $this->ids->getBytes('evt-terminal')]
+            )
+        );
+    }
+
     public function testKeepaliveRenewsLease(): void
     {
         $this->createWebhook('wh-1');
@@ -240,75 +261,36 @@ class MySQLWebhookReceiverTest extends TestCase
         ));
     }
 
-    public function testRejectResetsRowWithBackoff(): void
+    public function testRejectLeavesRowForCrashRecovery(): void
     {
+        // The webhook transport is single-handler — WebhookDeliveryService owns retry state
+        // persistence. A Messenger reject() therefore signals only an exceptional bubble out
+        // of the handler: the row is left in RUNNING and recovered by resetRunningForPartition
+        // on the next claim.
         $this->createWebhook('wh-1');
         $this->outbox->ensureOutboxEntry($this->entryFor('evt-1', 'wh-1'));
         $envelopes = iterator_to_array($this->asGenerator($this->receiver->get()));
         static::assertCount(1, $envelopes);
 
         $this->outbox->markRunning($this->ids->get('evt-1'));
-
         $this->receiver->reject($envelopes[0]);
 
         $row = $this->connection->fetchAssociative(
-            'SELECT delivery_status, next_retry_at FROM webhook_delivery WHERE webhook_event_log_id = :id',
+            'SELECT delivery_status FROM webhook_delivery WHERE webhook_event_log_id = :id',
             ['id' => $this->ids->getBytes('evt-1')]
         );
         static::assertNotFalse($row);
-        static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $row['delivery_status']);
-        static::assertNotNull($row['next_retry_at']);
-
-        $expected = $this->clock->now()->modify('+5 seconds')->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-        static::assertSame($expected, $row['next_retry_at']);
+        static::assertSame(WebhookEventLogDefinition::STATUS_RUNNING, $row['delivery_status']);
     }
 
-    public function testRejectMarksFailedOnceExecutionCountPastMaxRetries(): void
+    public function testRejectSkipsUnexpectedEnvelope(): void
     {
-        $this->createWebhook('wh-1');
-        $message = new WebhookEventMessage(
-            $this->ids->get('evt-1'),
-            ['body' => 'payload'],
-            null,
-            $this->ids->get('wh-1'),
-            '6.7.0',
-            'https://example.com/webhook',
-            'test-secret',
-            Defaults::LANGUAGE_SYSTEM,
-            'en-GB',
-            [],
-            WebhookEventMessage::DEFAULT_PARTITION_KEY,
-        );
-        $this->outbox->ensureOutboxEntry(new OutboxInsert(
-            $message->getWebhookEventId(),
-            $message->getWebhookId(),
-            Hasher::hashBinary($message->getPartitionKey(), 'xxh128'),
-            serialize($message),
-        ));
+        // Defensive: if Symfony ever routes a non-WebhookEventMessage envelope through this
+        // transport, the receiver must not fatal on a missing method call.
+        $this->expectNotToPerformAssertions();
+        $receiver = new MySQLWebhookReceiver($this->lockService, $this->outbox, $this->clock, new NullLogger());
 
-        // Burn through MAX_RETRIES attempts so the next reject tips over the threshold.
-        $this->connection->executeStatement(
-            'UPDATE webhook_delivery SET execution_count = :count, delivery_status = :status WHERE webhook_event_log_id = :id',
-            [
-                'count' => WebhookDeliveryService::MAX_RETRIES + 1,
-                'status' => WebhookEventLogDefinition::STATUS_RUNNING,
-                'id' => $this->ids->getBytes('evt-1'),
-            ]
-        );
-
-        $this->receiver->reject(new Envelope($message));
-
-        $eventLogStatus = $this->connection->fetchOne(
-            'SELECT delivery_status FROM webhook_event_log WHERE id = :id',
-            ['id' => $this->ids->getBytes('evt-1')]
-        );
-        static::assertSame(WebhookEventLogDefinition::STATUS_FAILED, $eventLogStatus);
-
-        $deliveryCount = (int) $this->connection->fetchOne(
-            'SELECT COUNT(*) FROM webhook_delivery WHERE webhook_event_log_id = :id',
-            ['id' => $this->ids->getBytes('evt-1')]
-        );
-        static::assertSame(0, $deliveryCount, 'delivery row must be deleted after terminal markFailed');
+        $receiver->reject(new Envelope(new \stdClass()));
     }
 
     public function testFetchStopsYieldingWhenLeaseAbandonedMidBatch(): void
@@ -477,6 +459,12 @@ class MySQLWebhookReceiverTest extends TestCase
         $first = iterator_to_array($this->asGenerator($this->receiver->get()));
         static::assertCount(MySQLWebhookReceiver::MAX_MESSAGES_PER_LEASE, $first, 'one batch must cap at MAX_MESSAGES_PER_LEASE');
 
+        foreach ($first as $envelope) {
+            $message = $envelope->getMessage();
+            static::assertInstanceOf(WebhookEventMessage::class, $message);
+            $this->outbox->markSuccess($message->getWebhookEventId());
+        }
+
         // The batch budget is used up — the next fetch releases and re-claims before draining
         // the remaining entries.
         $partitionKey = Hasher::hashBinary(WebhookEventMessage::DEFAULT_PARTITION_KEY, 'xxh128');
@@ -533,6 +521,159 @@ class MySQLWebhookReceiverTest extends TestCase
             ['id' => $eventLogId]
         );
         static::assertSame(WebhookEventLogDefinition::STATUS_FAILED, $status);
+    }
+
+    public function testBlobEventIdMismatchIsDropped(): void
+    {
+        // A well-formed serialized WebhookEventMessage whose internal eventId does not match
+        // the row we leased it from must be dropped — otherwise markSuccess/markFailed on the
+        // blob's id could mutate a completely different event's state (migration-corrupted
+        // blob, SQL-write tampering).
+        $this->truncateHarnessTables();
+        $this->createWebhook('wh-1');
+
+        $rowEventId = $this->ids->get('row-evt');
+        $blobEventId = $this->ids->get('blob-evt');
+        static::assertNotSame($rowEventId, $blobEventId);
+
+        $blobMessage = new WebhookEventMessage(
+            $blobEventId,
+            ['body' => 'payload'],
+            null,
+            $this->ids->get('wh-1'),
+            '6.7.0',
+            'https://example.com/webhook',
+            'test-secret',
+            Defaults::LANGUAGE_SYSTEM,
+            'en-GB',
+            [],
+            WebhookEventMessage::DEFAULT_PARTITION_KEY,
+        );
+
+        $this->connection->insert('webhook_event_log', [
+            'id' => Uuid::fromHexToBytes($rowEventId),
+            'app_name' => null,
+            'delivery_status' => WebhookEventLogDefinition::STATUS_QUEUED,
+            'webhook_name' => 'hook',
+            'event_name' => 'product.written',
+            'url' => 'https://example.com/webhook',
+            'created_at' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'serialized_webhook_message' => serialize($blobMessage),
+        ]);
+        $partitionKey = Hasher::hashBinary(WebhookEventMessage::DEFAULT_PARTITION_KEY, 'xxh128');
+        $this->connection->insert('webhook_delivery', [
+            'webhook_event_log_id' => Uuid::fromHexToBytes($rowEventId),
+            'webhook_id' => $this->ids->getBytes('wh-1'),
+            'partition_key' => $partitionKey,
+            'delivery_status' => WebhookEventLogDefinition::STATUS_QUEUED,
+            'created_at' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+        $this->connection->executeStatement(
+            'INSERT IGNORE INTO webhook_stream (id, partition_key, created_at) VALUES (:id, :pk, :now)',
+            [
+                'id' => Uuid::randomBytes(),
+                'pk' => $partitionKey,
+                'now' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]
+        );
+
+        $envelopes = iterator_to_array($this->asGenerator($this->receiver->get()));
+        static::assertSame([], $envelopes);
+
+        $rowStatus = $this->connection->fetchOne(
+            'SELECT delivery_status FROM webhook_event_log WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($rowEventId)]
+        );
+        static::assertSame(WebhookEventLogDefinition::STATUS_FAILED, $rowStatus);
+
+        $blobRowExists = $this->connection->fetchOne(
+            'SELECT id FROM webhook_event_log WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($blobEventId)]
+        );
+        static::assertFalse($blobRowExists, 'the unrelated blob event must not have been created by the mismatch path');
+
+        $deliveryCount = (int) $this->connection->fetchOne(
+            'SELECT COUNT(*) FROM webhook_delivery WHERE webhook_event_log_id = :id',
+            ['id' => Uuid::fromHexToBytes($rowEventId)]
+        );
+        static::assertSame(0, $deliveryCount, 'delivery row of the leased event must be deleted');
+    }
+
+    public function testTypedPropertyMismatchBlobIsDropped(): void
+    {
+        // PHP 8+ throws \TypeError when unserialize assigns a wrong-typed value to a typed
+        // readonly property. Without the `catch (\Error)` in toEnvelope(), a single
+        // migration-corrupted blob would kill the worker process (Symfony Messenger treats
+        // the receiver's generator as the worker boundary) and stall the partition.
+        $this->truncateHarnessTables();
+        $this->createWebhook('wh-1');
+
+        $eventId = $this->ids->get('evt-type-mismatch');
+        $validMessage = new WebhookEventMessage(
+            $eventId,
+            ['body' => 'payload'],
+            null,
+            $this->ids->get('wh-1'),
+            '6.7.0',
+            'https://example.com/webhook',
+            'test-secret',
+            Defaults::LANGUAGE_SYSTEM,
+            'en-GB',
+            [],
+            WebhookEventMessage::DEFAULT_PARTITION_KEY,
+        );
+        $blob = serialize($validMessage);
+
+        // `url` is a non-nullable `string` on WebhookEventMessage. Swapping its serialized
+        // value for `N;` (null) forces unserialize's typed-property check to throw.
+        $urlValue = 'https://example.com/webhook';
+        $needle = \sprintf('s:%d:"%s";', \strlen($urlValue), $urlValue);
+        static::assertStringContainsString($needle, $blob, 'serialize output shape changed; test needs rework');
+        $tamperedBlob = str_replace($needle, 'N;', $blob);
+        static::assertNotSame($blob, $tamperedBlob);
+
+        $this->connection->insert('webhook_event_log', [
+            'id' => Uuid::fromHexToBytes($eventId),
+            'app_name' => null,
+            'delivery_status' => WebhookEventLogDefinition::STATUS_QUEUED,
+            'webhook_name' => 'hook',
+            'event_name' => 'product.written',
+            'url' => 'https://example.com/webhook',
+            'created_at' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'serialized_webhook_message' => $tamperedBlob,
+        ]);
+        $partitionKey = Hasher::hashBinary(WebhookEventMessage::DEFAULT_PARTITION_KEY, 'xxh128');
+        $this->connection->insert('webhook_delivery', [
+            'webhook_event_log_id' => Uuid::fromHexToBytes($eventId),
+            'webhook_id' => $this->ids->getBytes('wh-1'),
+            'partition_key' => $partitionKey,
+            'delivery_status' => WebhookEventLogDefinition::STATUS_QUEUED,
+            'created_at' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+        $this->connection->executeStatement(
+            'INSERT IGNORE INTO webhook_stream (id, partition_key, created_at) VALUES (:id, :pk, :now)',
+            [
+                'id' => Uuid::randomBytes(),
+                'pk' => $partitionKey,
+                'now' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]
+        );
+
+        // Must not throw — the contract is "drop the row, keep the worker alive".
+        $envelopes = iterator_to_array($this->asGenerator($this->receiver->get()));
+        static::assertSame([], $envelopes);
+
+        $status = $this->connection->fetchOne(
+            'SELECT delivery_status FROM webhook_event_log WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($eventId)]
+        );
+        static::assertSame(WebhookEventLogDefinition::STATUS_FAILED, $status);
+
+        $deliveryCount = (int) $this->connection->fetchOne(
+            'SELECT COUNT(*) FROM webhook_delivery WHERE webhook_event_log_id = :id',
+            ['id' => Uuid::fromHexToBytes($eventId)]
+        );
+        static::assertSame(0, $deliveryCount);
     }
 
     /**

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\DeliveryResponse;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository;
@@ -69,12 +70,41 @@ final readonly class WebhookEventMessageHandler
         $context = Context::createDefaultContext();
 
         $entry = $this->outboxEventRepository->markRunning($message->getWebhookEventId());
-        // Only legacy pre-transport messages have no partitionKey. For any new-shape message,
-        // `markRunning === null` means the row was either claimed by another worker or already
-        // finalized, thus we don't need to do anything here.
+        if ($entry === null) {
+            $status = $this->outboxEventRepository->loadEventLogStatus($message->getWebhookEventId());
+            if (\in_array($status, [
+                WebhookEventLogDefinition::STATUS_SUCCESS,
+                WebhookEventLogDefinition::STATUS_FAILED,
+            ], true)) {
+                return;
+            }
+        }
+
+        // Only legacy pre-transport messages have no partitionKey. A new-shape message with
+        // no delivery row is already finalized; a new-shape message with an active delivery row
+        // is still owned elsewhere and must not be ACKed under the flag-OFF Messenger retry path.
         if ($entry === null && $message->partitionKey !== null) {
+            if ($this->outboxEventRepository->hasDeliveryRow($message->getWebhookEventId())) {
+                throw WebhookException::webhookFailedException(
+                    $message->getWebhookId(),
+                    new \RuntimeException('Webhook delivery is already running.')
+                );
+            }
+
+            if (\in_array($status, [
+                WebhookEventLogDefinition::STATUS_QUEUED,
+                WebhookEventLogDefinition::STATUS_RUNNING,
+                WebhookEventLogDefinition::STATUS_PENDING_RETRY,
+            ], true)) {
+                throw WebhookException::webhookFailedException(
+                    $message->getWebhookId(),
+                    new \RuntimeException('Webhook delivery is not terminal but has no delivery row.')
+                );
+            }
+
             return;
         }
+
         $request = $this->webhookDeliveryService->buildRequest($message, $entry);
 
         try {
@@ -89,25 +119,77 @@ final readonly class WebhookEventMessageHandler
                 exception: $e,
             ));
 
-            $this->outboxEventRepository->resetForRetry($message->getWebhookEventId(), $response);
+            $this->outboxEventRepository->resetForRetry(
+                $message->getWebhookEventId(),
+                $response,
+                $entry?->executionCount,
+                $entry?->sequence,
+            );
 
             throw WebhookException::webhookFailedException($message->getWebhookId(), $e);
         }
 
-        $response = DeliveryResponse::from($request, $result);
+        try {
+            $response = DeliveryResponse::from($request, $result);
+        } catch (\JsonException $e) {
+            $this->logger->error('Webhook delivery response serialization failed for event {eventId}', [
+                'eventId' => $message->getWebhookEventId(),
+                'webhookId' => $message->getWebhookId(),
+                'exception' => $e,
+            ]);
+
+            if ($result->successful()) {
+                $successRecorded = $this->outboxEventRepository->markSuccess(
+                    $message->getWebhookEventId(),
+                    null,
+                    $entry?->executionCount,
+                    $entry?->sequence,
+                );
+
+                if ($successRecorded) {
+                    try {
+                        $this->relatedWebhooks->updateRelated($message->getWebhookId(), ['error_count' => 0], $context);
+                    } catch (AppNotFoundException|WriteTypeIntendException) {
+                    }
+                }
+
+                return;
+            }
+
+            $this->outboxEventRepository->resetForRetry(
+                $message->getWebhookEventId(),
+                null,
+                $entry?->executionCount,
+                $entry?->sequence,
+            );
+
+            throw WebhookException::webhookFailedException($message->getWebhookId(), $e);
+        }
 
         if ($result->successful()) {
-            $this->outboxEventRepository->markSuccess($message->getWebhookEventId(), $response);
+            $successRecorded = $this->outboxEventRepository->markSuccess(
+                $message->getWebhookEventId(),
+                $response,
+                $entry?->executionCount,
+                $entry?->sequence,
+            );
 
-            try {
-                $this->relatedWebhooks->updateRelated($message->getWebhookId(), ['error_count' => 0], $context);
-            } catch (AppNotFoundException|WriteTypeIntendException) {
+            if ($successRecorded) {
+                try {
+                    $this->relatedWebhooks->updateRelated($message->getWebhookId(), ['error_count' => 0], $context);
+                } catch (AppNotFoundException|WriteTypeIntendException) {
+                }
             }
 
             return;
         }
 
-        $this->outboxEventRepository->resetForRetry($message->getWebhookEventId(), $response);
+        $this->outboxEventRepository->resetForRetry(
+            $message->getWebhookEventId(),
+            $response,
+            $entry?->executionCount,
+            $entry?->sequence,
+        );
 
         $exception = $result->exception;
         if ($exception instanceof BadResponseException && $message->getAppId() !== null) {

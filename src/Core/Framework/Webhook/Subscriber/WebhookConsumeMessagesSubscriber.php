@@ -9,10 +9,17 @@ use Symfony\Component\Console\Event\ConsoleCommandEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Prepends the `webhook` receiver to every `messenger:consume` invocation during the
- * WEBHOOKS_REWORK rollout so operators don't need to update their existing consume
- * command. Webhook goes first; fairness with other receivers relies on natural
- * partition drain between `get()` batches.
+ * Prepends the `webhook` receiver in front of `async` so operators running the default
+ * `messenger:consume async` pick up webhook deliveries without changing their command.
+ * Only fires when `async` is explicitly requested — specialty workers (e.g.
+ * `messenger:consume failed` or a custom priority queue) are left untouched so webhooks
+ * don't silently ride along into a scope they weren't meant for.
+ *
+ * Operators running `messenger:consume async --queues=X` will see Symfony's own
+ * RuntimeException at worker startup because WebhookTransport does not implement
+ * QueueReceiverInterface — by design. That deployment needs a dedicated
+ * `messenger:consume webhook` command anyway (the webhook transport stops forwarding
+ * to async under the flag), so the crash is the right signal.
  *
  * @internal
  *
@@ -23,6 +30,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class WebhookConsumeMessagesSubscriber implements EventSubscriberInterface
 {
     public const WEBHOOK_QUEUE = 'webhook';
+    private const DEFAULT_ASYNC_QUEUE = 'async';
 
     public static function getSubscribedEvents(): array
     {
@@ -39,17 +47,12 @@ class WebhookConsumeMessagesSubscriber implements EventSubscriberInterface
             return;
         }
 
-        // `messenger:consume --queues=X` requires every receiver to implement
-        // QueueReceiverInterface (Symfony Worker::run). WebhookTransport does not. Prepending
-        // it would crash the worker at startup with a RuntimeException, so leave commands that
-        // opt into queue filtering alone.
-        if ($event->getInput()->getOption('queues') !== []) {
-            return;
-        }
-
         /** @var list<string> $receivers */
         $receivers = $event->getInput()->getArgument('receivers');
-        if ($receivers === [] || \in_array(self::WEBHOOK_QUEUE, $receivers, true)) {
+        if (!\in_array(self::DEFAULT_ASYNC_QUEUE, $receivers, true)) {
+            return;
+        }
+        if (\in_array(self::WEBHOOK_QUEUE, $receivers, true)) {
             return;
         }
 

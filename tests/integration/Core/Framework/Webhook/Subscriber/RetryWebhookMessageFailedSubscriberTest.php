@@ -390,6 +390,138 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
         static::assertFalse($webhook->isActive());
     }
 
+    public function testFlagOffTerminalFailureDoesNotDeleteActiveNewShapeRunningDelivery(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $appId = Uuid::randomHex();
+        $webhookEventId = Uuid::randomHex();
+
+        $this->createAppWithWebhook($appId, $webhookId, 0);
+        $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId, partitionKey: $appId);
+        $this->createOutboxEntry($webhookEventMessage, $webhookId);
+
+        $entry = $this->outboxEventRepository->markRunning($webhookEventId);
+        static::assertNotNull($entry);
+
+        $event = new WorkerMessageFailedEvent(
+            new Envelope($webhookEventMessage),
+            'async',
+            new ClientException('test', new Request('GET', 'https://test.com'), new Response(500))
+        );
+
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($event, $webhookEventId, $webhookId): void {
+            static::getContainer()->get(RetryWebhookMessageFailedSubscriber::class)
+                ->failed($event);
+
+            $eventLogStatus = $this->connection->fetchOne(
+                'SELECT delivery_status FROM webhook_event_log WHERE id = :id',
+                ['id' => Uuid::fromHexToBytes($webhookEventId)]
+            );
+            static::assertSame(WebhookEventLogDefinition::STATUS_RUNNING, $eventLogStatus);
+
+            $deliveryStatus = $this->connection->fetchOne(
+                'SELECT delivery_status FROM webhook_delivery WHERE webhook_event_log_id = :id',
+                ['id' => Uuid::fromHexToBytes($webhookEventId)]
+            );
+            static::assertSame(WebhookEventLogDefinition::STATUS_RUNNING, $deliveryStatus);
+
+            $webhookRepository = static::getContainer()->get('webhook.repository');
+            $webhook = $webhookRepository->search(new Criteria([$webhookId]), $this->context)->first();
+            static::assertInstanceOf(WebhookEntity::class, $webhook);
+            static::assertSame(0, $webhook->getErrorCount());
+            static::assertTrue($webhook->isActive());
+        });
+    }
+
+    public function testFlagOffTerminalFailureDoesNotDeleteFuturePendingRetryNewShapeDelivery(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $appId = Uuid::randomHex();
+        $webhookEventId = Uuid::randomHex();
+
+        $this->createAppWithWebhook($appId, $webhookId, 0);
+        $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId, partitionKey: $appId);
+        $this->createOutboxEntry($webhookEventMessage, $webhookId);
+
+        $this->outboxEventRepository->markRunning($webhookEventId);
+        $retryAt = new \DateTimeImmutable('+5 minutes');
+        $this->outboxEventRepository->markPendingRetry($webhookEventId, $retryAt);
+
+        $event = new WorkerMessageFailedEvent(
+            new Envelope($webhookEventMessage),
+            'async',
+            new ClientException('test', new Request('GET', 'https://test.com'), new Response(500))
+        );
+
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($event, $webhookEventId, $webhookId, $retryAt): void {
+            static::getContainer()->get(RetryWebhookMessageFailedSubscriber::class)
+                ->failed($event);
+
+            $delivery = $this->connection->fetchAssociative(
+                'SELECT delivery_status, next_retry_at FROM webhook_delivery WHERE webhook_event_log_id = :id',
+                ['id' => Uuid::fromHexToBytes($webhookEventId)]
+            );
+            static::assertNotFalse($delivery);
+            static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $delivery['delivery_status']);
+            static::assertSame($retryAt->format(Defaults::STORAGE_DATE_TIME_FORMAT), $delivery['next_retry_at']);
+
+            $eventLogStatus = $this->connection->fetchOne(
+                'SELECT delivery_status FROM webhook_event_log WHERE id = :id',
+                ['id' => Uuid::fromHexToBytes($webhookEventId)]
+            );
+            static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $eventLogStatus);
+
+            $webhookRepository = static::getContainer()->get('webhook.repository');
+            $webhook = $webhookRepository->search(new Criteria([$webhookId]), $this->context)->first();
+            static::assertInstanceOf(WebhookEntity::class, $webhook);
+            static::assertSame(0, $webhook->getErrorCount());
+            static::assertTrue($webhook->isActive());
+        });
+    }
+
+    public function testFlagOffTerminalFailureMarksResetNewShapeQueuedDeliveryFailed(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $appId = Uuid::randomHex();
+        $webhookEventId = Uuid::randomHex();
+
+        $this->createAppWithWebhook($appId, $webhookId, 0);
+        $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId, partitionKey: $appId);
+        $this->createOutboxEntry($webhookEventMessage, $webhookId);
+
+        $this->outboxEventRepository->markRunning($webhookEventId);
+        $this->outboxEventRepository->resetForRetry($webhookEventId);
+
+        $event = new WorkerMessageFailedEvent(
+            new Envelope($webhookEventMessage),
+            'async',
+            new ClientException('test', new Request('GET', 'https://test.com'), new Response(500))
+        );
+
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($event, $webhookEventId, $webhookId): void {
+            static::getContainer()->get(RetryWebhookMessageFailedSubscriber::class)
+                ->failed($event);
+
+            $eventLogStatus = $this->connection->fetchOne(
+                'SELECT delivery_status FROM webhook_event_log WHERE id = :id',
+                ['id' => Uuid::fromHexToBytes($webhookEventId)]
+            );
+            static::assertSame(WebhookEventLogDefinition::STATUS_FAILED, $eventLogStatus);
+
+            $deliveryExists = $this->connection->fetchOne(
+                'SELECT 1 FROM webhook_delivery WHERE webhook_event_log_id = :id',
+                ['id' => Uuid::fromHexToBytes($webhookEventId)]
+            );
+            static::assertFalse($deliveryExists);
+
+            $webhookRepository = static::getContainer()->get('webhook.repository');
+            $webhook = $webhookRepository->search(new Criteria([$webhookId]), $this->context)->first();
+            static::assertInstanceOf(WebhookEntity::class, $webhook);
+            static::assertSame(1, $webhook->getErrorCount());
+            static::assertTrue($webhook->isActive());
+        });
+    }
+
     public function testNoOpWhenOutboxRetriesEnabled(): void
     {
         $webhookId = Uuid::randomHex();
@@ -619,7 +751,58 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
         static::assertTrue($webhook->isActive());
     }
 
-    private function createWebhookEventMessage(string $webhookEventId, string $appId, string $webhookId): WebhookEventMessage
+    public function testTerminalFailureForAlreadySuccessfulEventDoesNotApplyFailureStrategy(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $appId = Uuid::randomHex();
+        $webhookEventId = Uuid::randomHex();
+
+        $this->createAppWithWebhook($appId, $webhookId, 0);
+        $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId, partitionKey: $appId);
+
+        /** @var EntityRepository<WebhookEventLogCollection> $webhookEventLogRepository */
+        $webhookEventLogRepository = static::getContainer()->get('webhook_event_log.repository');
+        $webhookEventLogRepository->create([[
+            'id' => $webhookEventId,
+            'appName' => 'SwagApp',
+            'deliveryStatus' => WebhookEventLogDefinition::STATUS_SUCCESS,
+            'webhookName' => 'hook1',
+            'eventName' => 'order',
+            'appVersion' => '0.0.1',
+            'url' => 'https://test.com',
+            'serializedWebhookMessage' => serialize($webhookEventMessage),
+        ]], $this->context);
+
+        $event = new WorkerMessageFailedEvent(
+            new Envelope($webhookEventMessage),
+            'async',
+            new ClientException('test', new Request('GET', 'https://test.com'), new Response(500))
+        );
+
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($event, $webhookId, $webhookEventId): void {
+            static::getContainer()->get(RetryWebhookMessageFailedSubscriber::class)
+                ->failed($event);
+
+            $status = $this->connection->fetchOne(
+                'SELECT delivery_status FROM webhook_event_log WHERE id = :id',
+                ['id' => Uuid::fromHexToBytes($webhookEventId)]
+            );
+            static::assertSame(WebhookEventLogDefinition::STATUS_SUCCESS, $status);
+
+            $webhookRepository = static::getContainer()->get('webhook.repository');
+            $webhook = $webhookRepository->search(new Criteria([$webhookId]), $this->context)->first();
+            static::assertInstanceOf(WebhookEntity::class, $webhook);
+            static::assertSame(0, $webhook->getErrorCount());
+            static::assertTrue($webhook->isActive());
+        });
+    }
+
+    private function createWebhookEventMessage(
+        string $webhookEventId,
+        string $appId,
+        string $webhookId,
+        ?string $partitionKey = null,
+    ): WebhookEventMessage
     {
         return new WebhookEventMessage(
             $webhookEventId,
@@ -631,6 +814,7 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
             's3cr3t',
             Defaults::LANGUAGE_SYSTEM,
             'en-GB',
+            partitionKey: $partitionKey,
         );
     }
 

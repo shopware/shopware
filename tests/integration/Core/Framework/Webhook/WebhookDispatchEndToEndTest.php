@@ -58,6 +58,18 @@ class WebhookDispatchEndToEndTest extends TestCase
     protected function setUp(): void
     {
         $this->connection = static::getContainer()->get(Connection::class);
+        $this->connection->executeStatement('DELETE FROM webhook_stream');
+        $this->connection->executeStatement('DELETE FROM webhook_delivery');
+        $this->connection->executeStatement('DELETE FROM webhook_event_log');
+        $this->connection->executeStatement('DELETE FROM webhook');
+    }
+
+    protected function tearDown(): void
+    {
+        $this->connection->executeStatement('DELETE FROM webhook_stream');
+        $this->connection->executeStatement('DELETE FROM webhook_delivery');
+        $this->connection->executeStatement('DELETE FROM webhook_event_log');
+        $this->connection->executeStatement('DELETE FROM webhook');
     }
 
     /**

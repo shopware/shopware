@@ -44,6 +44,7 @@ class OutboxEventRepository
             );
         }
 
+        // an old message before the rework, would have only an event_log record. We need to handle that gracefully.
         return RetryableTransaction::retryable($this->connection, function () use ($insert, $initialStatus): ?OutboxEntry {
             $eventLogId = Uuid::fromHexToBytes($insert->webhookEventId);
 
@@ -62,13 +63,14 @@ class OutboxEventRepository
     }
 
     /**
-     * Creates the missing webhook_delivery and webhook_stream rows for an existing
-     * non-terminal webhook_event_log. No-op if the event log is missing, terminal,
-     * or already has a delivery row. Returns the inserted entry on success.
+     * Creates the missing webhook_delivery and webhook_stream rows for a legacy
+     * webhook_event_log that is still in its initial QUEUED state. No-op for any other
+     * status (RUNNING / PENDING_RETRY / SUCCESS / FAILED) or if a delivery row already
+     * exists. QUEUED-only because backfilling a non-queued row would rewrite
+     * execution_count and next_retry_at, bypassing the retry ladder.
      *
      * @deprecated tag:v6.8.0 — rollout-compat for `async` envelopes that were
-     * serialized before WEBHOOKS_REWORK or before Migration1775570251 shipped.
-     * Remove alongside the flag-OFF path in WebhookEventMessageHandler.
+     * serialized before WEBHOOKS_REWORK shipped. Remove alongside the flag-OFF path in WebhookEventMessageHandler.
      */
     public function backfillDelivery(OutboxInsert $insert): ?OutboxEntry
     {
@@ -80,13 +82,10 @@ class OutboxEventRepository
             }
 
             $elStatus = $this->connection->fetchOne(
-                'SELECT delivery_status FROM webhook_event_log WHERE id = :id',
+                'SELECT delivery_status FROM webhook_event_log WHERE id = :id FOR UPDATE',
                 ['id' => $eventLogId]
             );
-            if ($elStatus === false
-                || $elStatus === WebhookEventLogDefinition::STATUS_SUCCESS
-                || $elStatus === WebhookEventLogDefinition::STATUS_FAILED
-            ) {
+            if ($elStatus !== WebhookEventLogDefinition::STATUS_QUEUED) {
                 return null;
             }
 
@@ -125,6 +124,7 @@ class OutboxEventRepository
             JOIN webhook_event_log el ON el.id = d.webhook_event_log_id
             WHERE d.partition_key = :pk
               AND d.delivery_status IN (:statuses) AND (d.next_retry_at IS NULL OR d.next_retry_at <= :now)
+              AND el.delivery_status NOT IN (:successStatus, :failedStatus)
             ORDER BY d.id ASC
             LIMIT :budget
             SQL;
@@ -136,6 +136,8 @@ class OutboxEventRepository
                 'now' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'budget' => max(1, $budget),
                 'statuses' => $statuses,
+                'successStatus' => WebhookEventLogDefinition::STATUS_SUCCESS,
+                'failedStatus' => WebhookEventLogDefinition::STATUS_FAILED,
             ],
             [
                 'budget' => Types::INTEGER,
@@ -177,6 +179,16 @@ class OutboxEventRepository
         return $value === false ? null : (int) $value;
     }
 
+    public function loadEventLogStatus(string $eventLogId): ?string
+    {
+        $value = $this->connection->fetchOne(
+            'SELECT delivery_status FROM webhook_event_log WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($eventLogId)]
+        );
+
+        return $value === false ? null : (string) $value;
+    }
+
     /**
      * Transitions the delivery row to RUNNING and returns the updated entry. Returns
      * null when the transition did not happen — either the row doesn't exist, or it
@@ -191,9 +203,32 @@ class OutboxEventRepository
 
         $affected = RetryableTransaction::retryable($this->connection, function () use ($id, $now, $nowFormatted): int {
             $affected = (int) $this->connection->executeStatement(
-                'UPDATE webhook_delivery SET delivery_status = :status, execution_count = execution_count + 1, last_attempt_at = :now, updated_at = :now WHERE webhook_event_log_id = :id AND delivery_status != :status',
+                'UPDATE webhook_delivery
+                 SET delivery_status = :runningStatus,
+                     execution_count = execution_count + 1,
+                     next_retry_at = NULL,
+                     last_attempt_at = :now,
+                     updated_at = :now
+                 WHERE webhook_event_log_id = :id
+	                   AND (
+	                       delivery_status = :queuedStatus
+	                       OR (
+	                           delivery_status = :pendingRetryStatus
+	                           AND (next_retry_at IS NULL OR next_retry_at <= :now)
+	                       )
+	                   )
+	                   AND EXISTS (
+	                       SELECT 1
+	                       FROM webhook_event_log el
+	                       WHERE el.id = webhook_delivery.webhook_event_log_id
+	                         AND el.delivery_status NOT IN (:successStatus, :failedStatus)
+	                   )',
                 [
-                    'status' => WebhookEventLogDefinition::STATUS_RUNNING,
+                    'runningStatus' => WebhookEventLogDefinition::STATUS_RUNNING,
+                    'queuedStatus' => WebhookEventLogDefinition::STATUS_QUEUED,
+                    'pendingRetryStatus' => WebhookEventLogDefinition::STATUS_PENDING_RETRY,
+                    'successStatus' => WebhookEventLogDefinition::STATUS_SUCCESS,
+                    'failedStatus' => WebhookEventLogDefinition::STATUS_FAILED,
                     'now' => $nowFormatted,
                     'id' => $id,
                 ]
@@ -232,11 +267,20 @@ class OutboxEventRepository
         );
     }
 
-    public function markSuccess(string $eventLogId, ?DeliveryResponse $response = null): void
+    public function markSuccess(string $eventLogId, ?DeliveryResponse $response = null, ?int $expectedExecutionCount = null, ?int $expectedSequence = null): bool
     {
-        RetryableTransaction::retryable($this->connection, function () use ($eventLogId, $response): void {
-            $this->updateEventLog($eventLogId, WebhookEventLogDefinition::STATUS_SUCCESS, $response);
+        return RetryableTransaction::retryable($this->connection, function () use ($eventLogId, $response, $expectedExecutionCount, $expectedSequence): bool {
+            if (!$this->ownsRunningAttempt($eventLogId, $expectedExecutionCount, $expectedSequence)) {
+                return false;
+            }
+
+            if (!$this->updateEventLog($eventLogId, WebhookEventLogDefinition::STATUS_SUCCESS, $response)) {
+                return false;
+            }
+
             $this->deleteDelivery($eventLogId);
+
+            return true;
         });
     }
 
@@ -244,10 +288,17 @@ class OutboxEventRepository
      * Schedules a retry at the given time. The caller owns delay computation;
      * the repository just persists the state.
      */
-    public function markPendingRetry(string $eventLogId, \DateTimeImmutable $retryAt, ?DeliveryResponse $response = null): void
+    public function markPendingRetry(string $eventLogId, \DateTimeImmutable $retryAt, ?DeliveryResponse $response = null, ?int $expectedExecutionCount = null, ?int $expectedSequence = null): bool
     {
-        RetryableTransaction::retryable($this->connection, function () use ($eventLogId, $retryAt, $response): void {
-            $this->updateEventLog($eventLogId, WebhookEventLogDefinition::STATUS_PENDING_RETRY, $response);
+        return RetryableTransaction::retryable($this->connection, function () use ($eventLogId, $retryAt, $response, $expectedExecutionCount, $expectedSequence): bool {
+            if (!$this->ownsRunningAttempt($eventLogId, $expectedExecutionCount, $expectedSequence)) {
+                return false;
+            }
+
+            if (!$this->updateEventLog($eventLogId, WebhookEventLogDefinition::STATUS_PENDING_RETRY, $response)) {
+                return false;
+            }
+
             $this->connection->executeStatement(
                 'UPDATE webhook_delivery SET delivery_status = :status, next_retry_at = :nextRetryAt, updated_at = :now WHERE webhook_event_log_id = :id',
                 [
@@ -257,6 +308,8 @@ class OutboxEventRepository
                     'id' => Uuid::fromHexToBytes($eventLogId),
                 ]
             );
+
+            return true;
         });
     }
 
@@ -264,10 +317,17 @@ class OutboxEventRepository
      * Resets delivery to QUEUED so the next markRunning() can claim it.
      * Used while Messenger owns the retry lifecycle (feature flag OFF).
      */
-    public function resetForRetry(string $eventLogId, ?DeliveryResponse $response = null): void
+    public function resetForRetry(string $eventLogId, ?DeliveryResponse $response = null, ?int $expectedExecutionCount = null, ?int $expectedSequence = null): bool
     {
-        RetryableTransaction::retryable($this->connection, function () use ($eventLogId, $response): void {
-            $this->updateEventLog($eventLogId, WebhookEventLogDefinition::STATUS_QUEUED, $response);
+        return RetryableTransaction::retryable($this->connection, function () use ($eventLogId, $response, $expectedExecutionCount, $expectedSequence): bool {
+            if (!$this->ownsRunningAttempt($eventLogId, $expectedExecutionCount, $expectedSequence)) {
+                return false;
+            }
+
+            if (!$this->updateEventLog($eventLogId, WebhookEventLogDefinition::STATUS_QUEUED, $response)) {
+                return false;
+            }
+
             $this->connection->executeStatement(
                 'UPDATE webhook_delivery SET delivery_status = :status, updated_at = :now WHERE webhook_event_log_id = :id',
                 [
@@ -276,14 +336,63 @@ class OutboxEventRepository
                     'id' => Uuid::fromHexToBytes($eventLogId),
                 ]
             );
+
+            return true;
         });
     }
 
-    public function markFailed(string $eventLogId, ?DeliveryResponse $response = null): void
+    public function markFailed(string $eventLogId, ?DeliveryResponse $response = null, ?int $expectedExecutionCount = null, ?int $expectedSequence = null): bool
     {
-        RetryableTransaction::retryable($this->connection, function () use ($eventLogId, $response): void {
-            $this->updateEventLog($eventLogId, WebhookEventLogDefinition::STATUS_FAILED, $response);
+        return RetryableTransaction::retryable($this->connection, function () use ($eventLogId, $response, $expectedExecutionCount, $expectedSequence): bool {
+            if (!$this->ownsRunningAttempt($eventLogId, $expectedExecutionCount, $expectedSequence)) {
+                return false;
+            }
+
+            if (!$this->updateEventLog($eventLogId, WebhookEventLogDefinition::STATUS_FAILED, $response)) {
+                return false;
+            }
+
             $this->deleteDelivery($eventLogId);
+
+            return true;
+        });
+    }
+
+    public function markFailedAfterFinalMessengerRetry(string $eventLogId, bool $protectActiveDelivery): bool
+    {
+        return RetryableTransaction::retryable($this->connection, function () use ($eventLogId, $protectActiveDelivery): bool {
+            $id = Uuid::fromHexToBytes($eventLogId);
+
+            if ($protectActiveDelivery) {
+                $delivery = $this->connection->fetchAssociative(
+                    'SELECT delivery_status, next_retry_at FROM webhook_delivery WHERE webhook_event_log_id = :id FOR UPDATE',
+                    ['id' => $id]
+                );
+
+                if ($delivery !== false) {
+                    $deliveryStatus = (string) $delivery['delivery_status'];
+                    $nextRetryAt = $delivery['next_retry_at'];
+
+                    if ($deliveryStatus === WebhookEventLogDefinition::STATUS_RUNNING) {
+                        return false;
+                    }
+
+                    if ($deliveryStatus === WebhookEventLogDefinition::STATUS_PENDING_RETRY
+                        && $nextRetryAt !== null
+                        && $nextRetryAt > $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT)
+                    ) {
+                        return false;
+                    }
+                }
+            }
+
+            if (!$this->updateEventLog($eventLogId, WebhookEventLogDefinition::STATUS_FAILED, null)) {
+                return false;
+            }
+
+            $this->deleteDelivery($eventLogId);
+
+            return true;
         });
     }
 
@@ -314,9 +423,10 @@ class OutboxEventRepository
                      d.updated_at      = :now,
                      el.delivery_status = :new,
                      el.timestamp       = :ts
-                 WHERE d.partition_key = :pk
-                   AND d.delivery_status = :old
-                   AND d.last_attempt_at <= :cutoff',
+	                 WHERE d.partition_key = :pk
+	                   AND d.delivery_status = :old
+	                   AND d.last_attempt_at <= :cutoff
+	                   AND el.delivery_status NOT IN (:successStatus, :failedStatus)',
                 [
                     'old' => WebhookEventLogDefinition::STATUS_RUNNING,
                     'new' => WebhookEventLogDefinition::STATUS_PENDING_RETRY,
@@ -324,6 +434,8 @@ class OutboxEventRepository
                     'ts' => $now->getTimestamp(),
                     'pk' => $partitionKey,
                     'cutoff' => $cutoff,
+                    'successStatus' => WebhookEventLogDefinition::STATUS_SUCCESS,
+                    'failedStatus' => WebhookEventLogDefinition::STATUS_FAILED,
                 ]
             )
         );
@@ -375,7 +487,7 @@ class OutboxEventRepository
      * or retry write that races a concurrent markSuccess / markFailed must not overwrite
      * the winner's outcome.
      */
-    private function updateEventLog(string $eventLogId, string $status, ?DeliveryResponse $response): void
+    private function updateEventLog(string $eventLogId, string $status, ?DeliveryResponse $response): bool
     {
         $id = Uuid::fromHexToBytes($eventLogId);
 
@@ -387,7 +499,7 @@ class OutboxEventRepository
             array_keys($data)
         );
 
-        $this->connection->executeStatement(
+        $affected = (int) $this->connection->executeStatement(
             \sprintf(
                 'UPDATE webhook_event_log SET %s WHERE id = :id AND delivery_status NOT IN (:successStatus, :failedStatus)',
                 implode(', ', $setClauses)
@@ -396,6 +508,48 @@ class OutboxEventRepository
                 'id' => $id,
                 'successStatus' => WebhookEventLogDefinition::STATUS_SUCCESS,
                 'failedStatus' => WebhookEventLogDefinition::STATUS_FAILED,
+            ]
+        );
+
+        if ($affected > 0) {
+            return true;
+        }
+
+        $currentStatus = $this->loadEventLogStatus($eventLogId);
+
+        return $currentStatus !== null && !\in_array($currentStatus, [
+            WebhookEventLogDefinition::STATUS_SUCCESS,
+            WebhookEventLogDefinition::STATUS_FAILED,
+        ], true);
+    }
+
+    private function ownsRunningAttempt(string $eventLogId, ?int $expectedExecutionCount, ?int $expectedSequence): bool
+    {
+        if ($expectedExecutionCount === null && $expectedSequence === null) {
+            return true;
+        }
+
+        if ($expectedExecutionCount === null || $expectedSequence === null) {
+            return false;
+        }
+
+        return (bool) $this->connection->fetchOne(
+            'SELECT 1
+             FROM webhook_delivery
+             WHERE webhook_event_log_id = :id
+               AND id = :sequence
+               AND execution_count = :executionCount
+               AND delivery_status = :status
+             FOR UPDATE',
+            [
+                'id' => Uuid::fromHexToBytes($eventLogId),
+                'sequence' => $expectedSequence,
+                'executionCount' => $expectedExecutionCount,
+                'status' => WebhookEventLogDefinition::STATUS_RUNNING,
+            ],
+            [
+                'sequence' => Types::INTEGER,
+                'executionCount' => Types::INTEGER,
             ]
         );
     }

@@ -58,7 +58,9 @@ class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $this->outboxEventRepository->markFailed($message->getWebhookEventId());
+        if (!$this->outboxEventRepository->markFailedAfterFinalMessengerRetry($message->getWebhookEventId(), $message->partitionKey !== null)) {
+            return;
+        }
 
         $webhookId = $message->getWebhookId();
 

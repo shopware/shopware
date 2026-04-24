@@ -12,7 +12,6 @@ use Symfony\Component\Console\Event\ConsoleCommandEvent;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\NullOutput;
 
 /**
@@ -54,15 +53,29 @@ class WebhookConsumeMessagesSubscriberTest extends TestCase
         static::assertSame(['webhook', 'async'], $event->getInput()->getArgument('receivers'));
     }
 
-    public function testPrependsWebhookEvenWhenAsyncAbsent(): void
+    public function testNoOpWhenAsyncAbsent(): void
     {
+        // Specialty workers (e.g. `messenger:consume failed` or a priority-queue worker)
+        // must not be widened to pick up webhooks — the operator chose that scope deliberately.
         $event = $this->makeConsumeEvent(['low_priority']);
 
         Feature::withFeatureDisabled('v6.8.0.0', function () use ($event): void {
             (new WebhookConsumeMessagesSubscriber())->onMessengerConsume($event);
         });
 
-        static::assertSame(['webhook', 'low_priority'], $event->getInput()->getArgument('receivers'));
+        static::assertSame(['low_priority'], $event->getInput()->getArgument('receivers'));
+    }
+
+    public function testNoOpWhenOnlyFailedReceiver(): void
+    {
+        // `messenger:consume failed` is the dedicated failure-transport worker.
+        $event = $this->makeConsumeEvent(['failed']);
+
+        Feature::withFeatureDisabled('v6.8.0.0', function () use ($event): void {
+            (new WebhookConsumeMessagesSubscriber())->onMessengerConsume($event);
+        });
+
+        static::assertSame(['failed'], $event->getInput()->getArgument('receivers'));
     }
 
     public function testNoOpWhenReceiversEmpty(): void
@@ -79,20 +92,6 @@ class WebhookConsumeMessagesSubscriberTest extends TestCase
     public function testNoOpForUnrelatedCommands(): void
     {
         $event = $this->makeConsumeEvent(['async'], commandName: 'cache:clear');
-
-        Feature::withFeatureDisabled('v6.8.0.0', function () use ($event): void {
-            (new WebhookConsumeMessagesSubscriber())->onMessengerConsume($event);
-        });
-
-        static::assertSame(['async'], $event->getInput()->getArgument('receivers'));
-    }
-
-    public function testNoOpWhenQueuesOptionIsSet(): void
-    {
-        // --queues=X requires every receiver to implement QueueReceiverInterface, which the
-        // webhook transport does not. Prepending would crash the worker at startup with a
-        // Symfony Messenger RuntimeException.
-        $event = $this->makeConsumeEvent(['async'], queues: ['high']);
 
         Feature::withFeatureDisabled('v6.8.0.0', function () use ($event): void {
             (new WebhookConsumeMessagesSubscriber())->onMessengerConsume($event);
@@ -127,27 +126,19 @@ class WebhookConsumeMessagesSubscriberTest extends TestCase
 
     /**
      * @param list<string> $receivers
-     * @param list<string> $queues
      */
     private function makeConsumeEvent(
         array $receivers,
         string $commandName = 'messenger:consume',
-        array $queues = [],
     ): ConsoleCommandEvent {
         $command = new Command($commandName);
         $command->setDefinition(new InputDefinition([
             new InputArgument('receivers', InputArgument::IS_ARRAY),
-            new InputOption('queues', null, InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, '', []),
         ]));
-
-        $inputArgs = ['receivers' => $receivers];
-        if ($queues !== []) {
-            $inputArgs['--queues'] = $queues;
-        }
 
         return new ConsoleCommandEvent(
             $command,
-            new ArrayInput($inputArgs, $command->getDefinition()),
+            new ArrayInput(['receivers' => $receivers], $command->getDefinition()),
             new NullOutput(),
         );
     }

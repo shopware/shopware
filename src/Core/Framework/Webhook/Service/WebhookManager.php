@@ -191,6 +191,8 @@ class WebhookManager implements ResetInterface
         string $userLocale
     ): void {
         $requests = [];
+        /** @var array<string, OutboxEntry> $entries */
+        $entries = [];
 
         foreach ($webhooksForEvent as $webhook) {
             $message = $this->createWebhookMessage($webhook, $event, $languageId, $userLocale);
@@ -205,6 +207,7 @@ class WebhookManager implements ResetInterface
             }
 
             $requests[$message->getWebhookEventId()] = $this->webhookDeliveryService->buildRequest($message, $entry);
+            $entries[$message->getWebhookEventId()] = $entry;
         }
 
         $results = $this->webhookClient->sendBatch($requests);
@@ -212,12 +215,24 @@ class WebhookManager implements ResetInterface
         foreach ($results as $eventId => $result) {
             try {
                 $request = $requests[$eventId];
-                $response = DeliveryResponse::from($request, $result);
+                $entry = $entries[$eventId];
+
+                try {
+                    $response = DeliveryResponse::from($request, $result);
+                } catch (\JsonException) {
+                    if ($result->successful()) {
+                        $this->outboxEventRepository->markSuccess($eventId, null, $entry->executionCount, $entry->sequence);
+                    } else {
+                        $this->outboxEventRepository->markFailed($eventId, null, $entry->executionCount, $entry->sequence);
+                    }
+
+                    continue;
+                }
 
                 if ($result->successful()) {
-                    $this->outboxEventRepository->markSuccess($eventId, $response);
+                    $this->outboxEventRepository->markSuccess($eventId, $response, $entry->executionCount, $entry->sequence);
                 } else {
-                    $this->outboxEventRepository->markFailed($eventId, $response);
+                    $this->outboxEventRepository->markFailed($eventId, $response, $entry->executionCount, $entry->sequence);
                 }
             } catch (\Throwable) {
                 // Don't let one entry block the rest — failed entries stay in 'running'

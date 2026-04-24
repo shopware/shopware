@@ -62,6 +62,8 @@ class WebhookManagerTest extends TestCase
 
     private CollectingMessageBus $bus;
 
+    private OutboxEventRepository&MockObject $outboxEventRepository;
+
     protected function setUp(): void
     {
         $this->webhookLoader = $this->createMock(WebhookLoader::class);
@@ -73,6 +75,13 @@ class WebhookManagerTest extends TestCase
         $this->webhookClient = new WebhookClient($guzzle, new NativeClock());
         $this->eventFactory = $this->createMock(HookableEventFactory::class);
         $this->bus = new CollectingMessageBus();
+        $this->outboxEventRepository = $this->createMock(OutboxEventRepository::class);
+        $this->outboxEventRepository->method('markRunning')->willReturn(new OutboxEntry(
+            webhookEventId: 'stub',
+            sequence: 1,
+            executionCount: 1,
+            deliveryStatus: 'running',
+        ));
     }
 
     public function testDispatchesTwoConsecutiveEventsCorrectly(): void
@@ -99,7 +108,57 @@ class WebhookManagerTest extends TestCase
         $event = $this->prepareEvent();
         $webhook = $this->prepareWebhook($event->getName());
 
+        $this->outboxEventRepository->expects($this->once())->method('markSuccess')
+            ->with(
+                static::isString(),
+                static::anything(),
+                1,
+                1,
+            );
+
         $this->assertSyncWebhookIsSent($webhook, $event);
+    }
+
+    public function testSyncDispatchMarksFailedWhenFailureResponseCannotBeSerialized(): void
+    {
+        $event = $this->prepareEvent();
+        $this->prepareWebhook($event->getName());
+
+        $this->clientMock->reset();
+        $this->clientMock->append(new Response(500, [], pack('C*', 0xB1)));
+
+        $this->outboxEventRepository->expects($this->once())->method('markFailed')
+            ->with(
+                static::isString(),
+                null,
+                1,
+                1,
+            )
+            ->willReturn(true);
+        $this->outboxEventRepository->expects($this->never())->method('markSuccess');
+
+        $this->getWebhookManager(true)->dispatch($event);
+    }
+
+    public function testSyncDispatchMarksSuccessWhenSuccessfulResponseCannotBeSerialized(): void
+    {
+        $event = $this->prepareEvent();
+        $this->prepareWebhook($event->getName());
+
+        $this->clientMock->reset();
+        $this->clientMock->append(new Response(200, ['x-bad' => pack('C*', 0xB1)], '{}'));
+
+        $this->outboxEventRepository->expects($this->once())->method('markSuccess')
+            ->with(
+                static::isString(),
+                null,
+                1,
+                1,
+            )
+            ->willReturn(true);
+        $this->outboxEventRepository->expects($this->never())->method('markFailed');
+
+        $this->getWebhookManager(true)->dispatch($event);
     }
 
     public function testDispatchWithWebhooksAsync(): void
@@ -438,14 +497,6 @@ class WebhookManagerTest extends TestCase
         $appPayloadServiceHelper->method('buildSource')->willReturn(new Source('https://example.com', 'foobar', '0.0.0'));
         $appPayloadServiceHelper->method('createWebhookRequest')->willReturnCallback($this->buildWebhookRequest(...));
 
-        $outboxEventRepository = $this->createMock(OutboxEventRepository::class);
-        $outboxEventRepository->method('markRunning')->willReturn(new OutboxEntry(
-            webhookEventId: 'stub',
-            sequence: 1,
-            executionCount: 1,
-            deliveryStatus: 'running',
-        ));
-
         $deliveryService = $this->createMock(WebhookDeliveryService::class);
         $deliveryService->method('buildRequest')->willReturnCallback(
             fn (WebhookEventMessage $message, OutboxEntry $entry): WebhookRequest => $this->buildWebhookRequestFromMessage($message, $entry, $appPayloadServiceHelper),
@@ -463,7 +514,7 @@ class WebhookManagerTest extends TestCase
             '0.0.0',
             $isAdminWorkerEnabled,
             $deliveryService,
-            $outboxEventRepository,
+            $this->outboxEventRepository,
         );
     }
 

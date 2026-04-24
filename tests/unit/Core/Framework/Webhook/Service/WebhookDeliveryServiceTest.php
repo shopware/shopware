@@ -29,7 +29,6 @@ use Shopware\Core\Framework\Webhook\Service\WebhookClient;
 use Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService;
 use Shopware\Core\Framework\Webhook\Service\WebhookRequest;
 use Shopware\Core\Framework\Webhook\Service\WebhookStateRepository;
-use Shopware\Core\Framework\Webhook\WebhookException;
 use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use Symfony\Component\Clock\MockClock;
@@ -108,7 +107,8 @@ class WebhookDeliveryServiceTest extends TestCase
 
         $this->queueGuzzleResponse(new Response(200, ['Content-Type' => 'application/json'], '{"status":"ok"}'));
 
-        $this->outboxEventRepository->expects($this->once())->method('markSuccess');
+        $this->outboxEventRepository->expects($this->once())->method('markSuccess')
+            ->willReturn(true);
         $this->webhookStateRepository->expects($this->once())->method('resetErrorCount');
 
         $service = $this->createService(isAdminWorkerEnabled: true);
@@ -130,7 +130,8 @@ class WebhookDeliveryServiceTest extends TestCase
 
         $this->queueGuzzleResponse(new Response(200, [], '{"status":"ok"}'));
 
-        $this->outboxEventRepository->expects($this->once())->method('markSuccess');
+        $this->outboxEventRepository->expects($this->once())->method('markSuccess')
+            ->willReturn(true);
 
         $service = $this->createService(isAdminWorkerEnabled: false);
         $service->process([$msg], forceSynchronous: true);
@@ -151,11 +152,33 @@ class WebhookDeliveryServiceTest extends TestCase
         $this->queueGuzzleResponse(new Response(200, ['Content-Type' => 'application/json'], '{"status":"ok"}'));
 
         $this->outboxEventRepository->expects($this->once())->method('markSuccess')
-            ->with($msg->getWebhookEventId(), static::anything());
+            ->with($msg->getWebhookEventId(), static::anything(), 1, 1)
+            ->willReturn(true);
         $this->webhookStateRepository->expects($this->once())->method('resetErrorCount')
             ->with($msg->getWebhookId());
         $this->outboxEventRepository->expects($this->never())->method('markPendingRetry');
         $this->outboxEventRepository->expects($this->never())->method('markFailed');
+
+        $service = $this->createService();
+        $service->deliver($msg);
+    }
+
+    public function testDeliverDoesNotResetErrorCountWhenSuccessWriteLosesAttemptOwnership(): void
+    {
+        $msg = $this->createMessage();
+        $webhookRequest = $this->createWebhookRequest();
+
+        $this->appPayloadServiceHelper->method('createWebhookRequest')->willReturn($webhookRequest);
+        $this->outboxEventRepository->expects($this->once())->method('markRunning')
+            ->with($msg->getWebhookEventId())
+            ->willReturn(new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 1, deliveryStatus: 'running'));
+
+        $this->queueGuzzleResponse(new Response(200, ['Content-Type' => 'application/json'], '{"status":"ok"}'));
+
+        $this->outboxEventRepository->expects($this->once())->method('markSuccess')
+            ->with($msg->getWebhookEventId(), static::anything(), 1, 1)
+            ->willReturn(false);
+        $this->webhookStateRepository->expects($this->never())->method('resetErrorCount');
 
         $service = $this->createService();
         $service->deliver($msg);
@@ -175,7 +198,29 @@ class WebhookDeliveryServiceTest extends TestCase
         $this->webhookStateRepository->expects($this->once())->method('recordFailure')
             ->with($msg->getWebhookId(), WebhookFailureStrategy::DisableOnThreshold);
         $this->outboxEventRepository->expects($this->once())->method('markPendingRetry')
-            ->with($msg->getWebhookEventId(), static::isInstanceOf(\DateTimeImmutable::class), static::anything());
+            ->with($msg->getWebhookEventId(), static::isInstanceOf(\DateTimeImmutable::class), static::anything(), 2, 1)
+            ->willReturn(true);
+        $this->outboxEventRepository->expects($this->never())->method('markFailed');
+
+        $service = $this->createService();
+        $service->deliver($msg);
+    }
+
+    public function testDeliverDoesNotRecordFailureWhenRetryWriteLosesAttemptOwnership(): void
+    {
+        $msg = $this->createMessage();
+        $webhookRequest = $this->createWebhookRequest();
+
+        $this->appPayloadServiceHelper->method('createWebhookRequest')->willReturn($webhookRequest);
+        $this->outboxEventRepository->expects($this->once())->method('markRunning')
+            ->willReturn(new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 2, deliveryStatus: 'running'));
+
+        $this->queueGuzzleResponse(new Response(500, [], '{"error":"fail"}'));
+
+        $this->outboxEventRepository->expects($this->once())->method('markPendingRetry')
+            ->with($msg->getWebhookEventId(), static::isInstanceOf(\DateTimeImmutable::class), static::anything(), 2, 1)
+            ->willReturn(false);
+        $this->webhookStateRepository->expects($this->never())->method('recordFailure');
         $this->outboxEventRepository->expects($this->never())->method('markFailed');
 
         $service = $this->createService();
@@ -194,7 +239,8 @@ class WebhookDeliveryServiceTest extends TestCase
         $this->queueGuzzleResponse(new Response(500, [], '{"error":"fail"}'));
 
         $this->outboxEventRepository->expects($this->once())->method('markFailed')
-            ->with($msg->getWebhookEventId(), static::anything());
+            ->with($msg->getWebhookEventId(), static::anything(), 6, 1)
+            ->willReturn(true);
         $this->webhookStateRepository->expects($this->once())->method('recordFailure')
             ->with($msg->getWebhookId(), WebhookFailureStrategy::DisableOnThreshold);
         $this->outboxEventRepository->expects($this->never())->method('markPendingRetry');
@@ -214,11 +260,33 @@ class WebhookDeliveryServiceTest extends TestCase
 
         $this->queueGuzzleResponse(new Response(500, [], '{"error":"fail"}'));
 
-        $this->outboxEventRepository->expects($this->once())->method('markFailed');
+        $this->outboxEventRepository->expects($this->once())->method('markFailed')
+            ->willReturn(true);
         $this->webhookStateRepository->expects($this->once())->method('recordFailure')
             ->with($msg->getWebhookId(), WebhookFailureStrategy::Ignore);
 
         $service = $this->createService(failureStrategy: WebhookFailureStrategy::Ignore->value);
+        $service->deliver($msg);
+    }
+
+    public function testDeliverDoesNotRecordFailureWhenTerminalWriteLosesAttemptOwnership(): void
+    {
+        $msg = $this->createMessage();
+        $webhookRequest = $this->createWebhookRequest();
+
+        $this->appPayloadServiceHelper->method('createWebhookRequest')->willReturn($webhookRequest);
+        $this->outboxEventRepository->expects($this->once())->method('markRunning')
+            ->willReturn(new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 6, deliveryStatus: 'running'));
+
+        $this->queueGuzzleResponse(new Response(500, [], '{"error":"fail"}'));
+
+        $this->outboxEventRepository->expects($this->once())->method('markFailed')
+            ->with($msg->getWebhookEventId(), static::anything(), 6, 1)
+            ->willReturn(false);
+        $this->webhookStateRepository->expects($this->never())->method('recordFailure');
+        $this->outboxEventRepository->expects($this->never())->method('markPendingRetry');
+
+        $service = $this->createService();
         $service->deliver($msg);
     }
 
@@ -240,8 +308,11 @@ class WebhookDeliveryServiceTest extends TestCase
                     static::assertInstanceOf(DeliveryResponse::class, $response);
 
                     return $response->processingTimeSeconds >= 0;
-                })
-            );
+                }),
+                1,
+                1,
+            )
+            ->willReturn(true);
 
         $service = $this->createService();
         $service->deliver($msg);
@@ -259,26 +330,25 @@ class WebhookDeliveryServiceTest extends TestCase
             ->willReturnOnConsecutiveCalls($webhookRequest1, $webhookRequest2);
 
         $this->outboxEventRepository->method('ensureOutboxEntry')
-            ->willReturn(new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 1, deliveryStatus: 'running'));
+            ->willReturnOnConsecutiveCalls(
+                new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 2, deliveryStatus: 'running'),
+                new OutboxEntry(webhookEventId: 'stub', sequence: 2, executionCount: 1, deliveryStatus: 'running'),
+            );
         $this->outboxEventRepository->expects($this->never())->method('markRunning');
 
-        // Queue two successful Guzzle responses for the batch
-        $this->queueGuzzleResponse(new Response(200, [], '{"status":"ok"}'));
+        $this->queueGuzzleResponse(new Response(500, [], pack('C*', 0xB1)));
         $this->queueGuzzleResponse(new Response(200, [], '{"status":"ok"}'));
 
-        // Simulate JsonException during handleResult for msg1 by making markSuccess throw on first call
-        $callCount = 0;
-        $this->outboxEventRepository->expects($this->exactly(2))->method('markSuccess')
-            ->willReturnCallback(function () use (&$callCount): void {
-                ++$callCount;
-                if ($callCount === 1) {
-                    throw new \JsonException('Malformed UTF-8 characters');
-                }
-            });
+        $this->outboxEventRepository->expects($this->once())->method('markPendingRetry')
+            ->with($msg1->getWebhookEventId(), static::isInstanceOf(\DateTimeImmutable::class), null, 2, 1)
+            ->willReturn(true);
+        $this->outboxEventRepository->expects($this->once())->method('markSuccess')
+            ->with($msg2->getWebhookEventId(), static::anything(), 1, 2)
+            ->willReturn(true);
 
         $this->logger->expects($this->once())->method('error')
             ->with(
-                'Webhook delivery result handling failed for event {eventId}',
+                'Webhook delivery response serialization failed for event {eventId}',
                 static::callback(function (array $context) use ($msg1) {
                     return $context['eventId'] === $msg1->getWebhookEventId()
                         && $context['webhookId'] === $msg1->getWebhookId()
@@ -286,7 +356,8 @@ class WebhookDeliveryServiceTest extends TestCase
                 })
             );
 
-        // msg2 should still be processed despite msg1's failure
+        $this->webhookStateRepository->expects($this->once())->method('recordFailure')
+            ->with($msg1->getWebhookId(), WebhookFailureStrategy::DisableOnThreshold);
         $this->webhookStateRepository->expects($this->once())->method('resetErrorCount')
             ->with($msg2->getWebhookId());
 
@@ -294,12 +365,75 @@ class WebhookDeliveryServiceTest extends TestCase
         $service->process([$msg1, $msg2]);
     }
 
-    public function testDeliverReThrowsDBALFromMarkSuccessSoMessengerCanRejectInsteadOfAcking(): void
+    public function testDeliverSchedulesRetryWhenFailureResponseCannotBeSerialized(): void
     {
-        // Swallowing DBAL after a 2xx send would let Messenger ack the envelope with a stuck
-        // RUNNING row; crash recovery later resurrects it as a duplicate HTTP delivery.
-        // Re-throwing a domain exception routes through reject() → handleRejectedDelivery,
-        // which schedules a controlled PENDING_RETRY instead.
+        $msg = $this->createMessage();
+        $webhookRequest = $this->createWebhookRequest();
+
+        $this->appPayloadServiceHelper->method('createWebhookRequest')->willReturn($webhookRequest);
+        $this->outboxEventRepository->expects($this->once())->method('markRunning')
+            ->willReturn(new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 2, deliveryStatus: 'running'));
+
+        $this->queueGuzzleResponse(new Response(500, [], pack('C*', 0xB1)));
+
+        $this->outboxEventRepository->expects($this->once())->method('markPendingRetry')
+            ->with($msg->getWebhookEventId(), static::isInstanceOf(\DateTimeImmutable::class), null, 2, 1)
+            ->willReturn(true);
+        $this->webhookStateRepository->expects($this->once())->method('recordFailure')
+            ->with($msg->getWebhookId(), WebhookFailureStrategy::DisableOnThreshold);
+        $this->logger->expects($this->once())->method('error')
+            ->with(
+                'Webhook delivery response serialization failed for event {eventId}',
+                static::callback(function (array $context) use ($msg) {
+                    return $context['eventId'] === $msg->getWebhookEventId()
+                        && $context['webhookId'] === $msg->getWebhookId()
+                        && $context['exception'] instanceof \JsonException;
+                })
+            );
+
+        $service = $this->createService();
+        $service->deliver($msg);
+    }
+
+    public function testDeliverMarksSuccessWhenSuccessfulResponseCannotBeSerialized(): void
+    {
+        $msg = $this->createMessage();
+        $webhookRequest = $this->createWebhookRequest();
+
+        $this->appPayloadServiceHelper->method('createWebhookRequest')->willReturn($webhookRequest);
+        $this->outboxEventRepository->expects($this->once())->method('markRunning')
+            ->willReturn(new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 1, deliveryStatus: 'running'));
+
+        $this->queueGuzzleResponse(new Response(200, ['X-Bad-Audit-Header' => pack('C*', 0xB1)], '{"ok":true}'));
+
+        $this->outboxEventRepository->expects($this->once())->method('markSuccess')
+            ->with($msg->getWebhookEventId(), null, 1, 1)
+            ->willReturn(true);
+        $this->outboxEventRepository->expects($this->never())->method('markPendingRetry');
+        $this->outboxEventRepository->expects($this->never())->method('markFailed');
+        $this->webhookStateRepository->expects($this->once())->method('resetErrorCount')
+            ->with($msg->getWebhookId());
+        $this->webhookStateRepository->expects($this->never())->method('recordFailure');
+        $this->logger->expects($this->once())->method('error')
+            ->with(
+                'Webhook delivery response serialization failed for event {eventId}',
+                static::callback(function (array $context) use ($msg) {
+                    return $context['eventId'] === $msg->getWebhookEventId()
+                        && $context['webhookId'] === $msg->getWebhookId()
+                        && $context['exception'] instanceof \JsonException;
+                })
+            );
+
+        $service = $this->createService();
+        $service->deliver($msg);
+    }
+
+    public function testDeliverSwallowsDBALFromMarkSuccessAndLeavesRowForCrashRecovery(): void
+    {
+        // DBAL mid-flight leaves the row stuck in RUNNING. The receiver's partition-claim
+        // crash recovery transitions stale RUNNING rows back to PENDING_RETRY on the next
+        // tick, so we log and return here instead of re-throwing (which would make Messenger
+        // call reject(), another no-op under the single-handler transport).
         $msg = $this->createMessage();
         $webhookRequest = $this->createWebhookRequest();
 
@@ -324,16 +458,10 @@ class WebhookDeliveryServiceTest extends TestCase
             );
 
         $service = $this->createService();
-
-        try {
-            $service->deliver($msg);
-            static::fail('Expected WebhookException');
-        } catch (WebhookException $e) {
-            static::assertSame($dbalException, $e->getPrevious());
-        }
+        $service->deliver($msg);
     }
 
-    public function testDeliverReThrowsDBALFromMarkPendingRetrySoMessengerCanReject(): void
+    public function testDeliverSwallowsDBALFromMarkPendingRetryAndLeavesRowForCrashRecovery(): void
     {
         $msg = $this->createMessage();
         $webhookRequest = $this->createWebhookRequest();
@@ -359,13 +487,7 @@ class WebhookDeliveryServiceTest extends TestCase
             );
 
         $service = $this->createService();
-
-        try {
-            $service->deliver($msg);
-            static::fail('Expected WebhookException');
-        } catch (WebhookException $e) {
-            static::assertSame($dbalException, $e->getPrevious());
-        }
+        $service->deliver($msg);
     }
 
     private function queueGuzzleResponse(Response $response): void

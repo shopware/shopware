@@ -1166,6 +1166,28 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     });
 
     // -------------------------------------------------------------------------
+    it('preserves object-form emits validators', () => {
+        const js = `Shopware.Component.register('sw-test', {
+            template,
+            emits: {
+                save(payload) {
+                    return payload !== null;
+                },
+            },
+            methods: {
+                onSave(payload) { this.$emit('save', payload); }
+            },
+        });`;
+        const result = transformScript(js);
+
+        expect(result.status).toBe('fully-migratable');
+        expect(result.script).toContain('const emit = defineEmits({');
+        expect(result.script).toContain('save(payload)');
+        expect(result.script).toContain('return payload !== null;');
+        expect(result.script).not.toContain("const emit = defineEmits(['save']);");
+    });
+
+    // -------------------------------------------------------------------------
     it('replaces this.$store with a throwing IIFE, not a bare this.$store reference', () => {
         const js = `
         Shopware.Component.register('sw-store-user', {

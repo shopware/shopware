@@ -89,6 +89,11 @@ interface ExtractWatchPropsResult {
     unsupportedEntries: string[];
 }
 
+interface EmitsDefinition {
+    keys: string[];
+    objectText: string | null;
+}
+
 interface MethodProp {
     name: string;
     /** Full parameter list text including types and defaults */
@@ -774,35 +779,36 @@ function extractPropsText(optionsObj: ObjectLiteralExpression): string | null {
     return initializer?.getText() ?? null;
 }
 
-/**
- * Returns the list of event names from `emits: ['event1', 'event2']`.
- * Returns an empty array when the property is absent.
- */
-function extractEmitsKeys(optionsObj: ObjectLiteralExpression): string[] {
+function extractEmitsDefinition(optionsObj: ObjectLiteralExpression): EmitsDefinition {
     const prop = optionsObj.getProperty('emits');
-    if (!prop?.isKind(SyntaxKind.PropertyAssignment)) return [];
+    if (!prop?.isKind(SyntaxKind.PropertyAssignment)) return { keys: [], objectText: null };
 
     const pa = prop.asKindOrThrow(SyntaxKind.PropertyAssignment);
 
     const arrayInit = pa.getInitializerIfKind(SyntaxKind.ArrayLiteralExpression);
     if (arrayInit) {
-        return arrayInit
-            .getElements()
-            .filter((el) => el.isKind(SyntaxKind.StringLiteral))
-            .map((el) => el.asKindOrThrow(SyntaxKind.StringLiteral).getLiteralValue());
+        return {
+            keys: arrayInit
+                .getElements()
+                .filter((el) => el.isKind(SyntaxKind.StringLiteral))
+                .map((el) => el.asKindOrThrow(SyntaxKind.StringLiteral).getLiteralValue()),
+            objectText: null,
+        };
     }
 
-    // Object form: emits: { save: validator }
     const objInit = pa.getInitializerIfKind(SyntaxKind.ObjectLiteralExpression);
     if (objInit) {
-        return objInit.getProperties()
-            .filter((p) => p.isKind(SyntaxKind.PropertyAssignment) || p.isKind(SyntaxKind.MethodDeclaration))
-            .map((p) => p.isKind(SyntaxKind.MethodDeclaration)
-                ? p.asKindOrThrow(SyntaxKind.MethodDeclaration).getName()
-                : p.asKindOrThrow(SyntaxKind.PropertyAssignment).getName());
+        return {
+            keys: objInit.getProperties()
+                .filter((p) => p.isKind(SyntaxKind.PropertyAssignment) || p.isKind(SyntaxKind.MethodDeclaration))
+                .map((p) => p.isKind(SyntaxKind.MethodDeclaration)
+                    ? p.asKindOrThrow(SyntaxKind.MethodDeclaration).getName()
+                    : p.asKindOrThrow(SyntaxKind.PropertyAssignment).getName()),
+            objectText: objInit.getText(),
+        };
     }
 
-    return [];
+    return { keys: [], objectText: null };
 }
 
 /**
@@ -1018,7 +1024,7 @@ function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componen
     const methodProps = extractMethodProps(optionsObj);
     const lifecycleHooks = extractLifecycleHooks(optionsObj);
     const propsText = extractPropsText(optionsObj);
-    const emitsKeys = extractEmitsKeys(optionsObj);
+    const emitsDefinition = extractEmitsDefinition(optionsObj);
     const inheritAttrs = extractInheritAttrs(optionsObj);
     const moduleLevelCode = extractModuleLevelCode(sourceFile);
     const manualMigrationReasons: string[] = [];
@@ -1099,7 +1105,9 @@ function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componen
     // Determine the final emits list: prefer explicit `emits: [...]`, fall back to
     // scanning method bodies for `this.$emit('eventName', ...)` calls.
     const effectiveEmitsKeys =
-        emitsKeys.length > 0 ? emitsKeys : collectEmittedEventNames(allBodies);
+        emitsDefinition.keys.length > 0 || emitsDefinition.objectText !== null
+            ? emitsDefinition.keys
+            : collectEmittedEventNames(allBodies);
 
     const supportedWatchProps = watchProps.filter((watchProp) => {
         if (watchProp.name.includes('.')) {
@@ -1194,7 +1202,9 @@ function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componen
         lines.push(`const props = defineProps({});`);
     }
 
-    if (effectiveEmitsKeys.length > 0) {
+    if (emitsDefinition.objectText !== null) {
+        lines.push(`const emit = defineEmits(${emitsDefinition.objectText});`);
+    } else if (effectiveEmitsKeys.length > 0) {
         const emitsList = effectiveEmitsKeys.map((k) => `'${k}'`).join(', ');
         lines.push(`const emit = defineEmits([${emitsList}]);`);
     } else if (usedComposables.needsEmit) {

@@ -14,14 +14,10 @@ describe('sw-theme-manager-list', () => {
 
     beforeAll(() => {
         ensureThemeMixinRegistered();
-
-        jest.isolateModules(() => {
-            require('./index');
-        });
     });
 
     async function createWrapper({ aclCan = true, searchResult = null } = {}) {
-        const component = await Shopware.Component.build('sw-theme-manager-list');
+        const component = await wrapTestComponent('sw-theme-manager-list', { sync: true });
         const themes = searchResult || (() => {
             const result = [{ id: 'theme-id', salesChannels: [] }];
             result.total = 1;

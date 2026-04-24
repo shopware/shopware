@@ -2,11 +2,10 @@
  * @sw-package framework
  */
 import { shallowMount } from '@vue/test-utils';
-import './index';
 
 describe('sw-settings-storefront-index', () => {
     async function createWrapper({ getValues = null, saveValues = null } = {}) {
-        const component = await Shopware.Component.build('sw-settings-storefront-index');
+        const component = await wrapTestComponent('sw-settings-storefront-index', { sync: true });
         component.methods.createdComponent = jest.fn();
 
         return shallowMount(component, {

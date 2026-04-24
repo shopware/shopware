@@ -2,11 +2,10 @@
  * @sw-package discovery
  */
 import { shallowMount } from '@vue/test-utils';
-import './index';
 
 describe('sw-theme-modal', () => {
     async function createWrapper({ repositorySearch = null, selectedThemeId = null } = {}) {
-        const component = await Shopware.Component.build('sw-theme-modal');
+        const component = await wrapTestComponent('sw-theme-modal', { sync: true });
         const themeRepository = {
             search: repositorySearch || jest.fn(() => Promise.resolve({ total: 0, length: 0 })),
         };

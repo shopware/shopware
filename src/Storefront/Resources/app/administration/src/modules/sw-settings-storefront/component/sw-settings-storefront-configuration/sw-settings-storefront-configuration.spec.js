@@ -2,11 +2,10 @@
  * @sw-package framework
  */
 import { shallowMount } from '@vue/test-utils';
-import './index';
 
 describe('sw-settings-storefront-configuration', () => {
     it('renders with required storefront settings', async () => {
-        const component = await Shopware.Component.build('sw-settings-storefront-configuration');
+        const component = await wrapTestComponent('sw-settings-storefront-configuration', { sync: true });
 
         const wrapper = shallowMount(component, {
             props: {

@@ -131,6 +131,7 @@ module.exports = {
     moduleNameMapper: {
         '\\.(css|less|scss)$': '<rootDir>/test/_mocks_/styleMock.js',
         '^src(.*)$': '<rootDir>/src$1',
+        '^storefront-admin(.*)$': '<rootDir>/../../../../Storefront/Resources/app/administration$1',
         '^lodash-es/debounce$': '<rootDir>/test/_mocks_/lodash-es-debounce.js',
         '^test(.*)$': '<rootDir>/test$1',
         '^\@shopware-ag\/admin-extension-sdk\/es\/(.*)': '<rootDir>/node_modules/@shopware-ag/admin-extension-sdk/umd/$1',

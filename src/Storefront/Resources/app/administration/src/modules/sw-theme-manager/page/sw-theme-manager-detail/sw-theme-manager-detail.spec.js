@@ -14,14 +14,10 @@ describe('sw-theme-manager-detail', () => {
 
     beforeAll(() => {
         ensureThemeMixinRegistered();
-
-        jest.isolateModules(() => {
-            require('./index');
-        });
     });
 
     async function createWrapper({ aclCan = true, themeServiceOverrides = {}, themeOverrides = {} } = {}) {
-        const component = await Shopware.Component.build('sw-theme-manager-detail');
+        const component = await wrapTestComponent('sw-theme-manager-detail', { sync: true });
         component.methods.createdComponent = jest.fn();
 
         const themeRepository = {

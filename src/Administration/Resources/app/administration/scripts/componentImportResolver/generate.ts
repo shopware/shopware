@@ -11,12 +11,23 @@ const project = new Project({
     skipAddingFilesFromTsConfig: true,
 });
 
-// load all the source files from the "src" directory
-project.addSourceFilesAtPaths([
+// load all the source files from the Administration "src" directory
+const sourceGlobs = [
     "src/**/*{.js,.ts}",
     "!src/**/*{.spec.js,.spec.vue2.js,.d.ts,.types.ts}",
     "!src/meta/**/*",
-]);
+];
+
+// Optionally include Storefront-admin-modules — Shopware may run headless without a Storefront.
+const storefrontAdminPath = path.resolve(__dirname, '../../../../../../Storefront/Resources/app/administration/src');
+if (fs.existsSync(storefrontAdminPath)) {
+    sourceGlobs.push(
+        "../../../../Storefront/Resources/app/administration/src/**/*{.js,.ts}",
+        "!../../../../Storefront/Resources/app/administration/src/**/*{.spec.js,.spec.vue2.js,.d.ts,.types.ts}",
+    );
+}
+
+project.addSourceFilesAtPaths(sourceGlobs);
 
 type componentInfo = {
     p: string, // path to import
@@ -56,6 +67,13 @@ function throwIfComponentIsAlreadyRegistered(componentName: string, sourceFile: 
 
 function buildRelativePathForSourceFile(sourceFile: SourceFile): string {
     const parentDirectory = sourceFile.getDirectoryPath();
+
+    // Storefront-admin-modules live outside the Administration tree; give them a distinct
+    // alias prefix so jest's moduleNameMapper can resolve them separately from Administration's
+    // own "src/" alias.
+    if (parentDirectory.includes('/Storefront/Resources/app/administration/')) {
+        return parentDirectory.replace(/.*\/Storefront\/Resources\/app\/administration\//, 'storefront-admin/');
+    }
 
     // Remove everything before and including "/app/administration/" from the parent directory
     return parentDirectory.replace(/.*\/app\/administration\//, '');
@@ -128,11 +146,8 @@ function procsessComponentRegisterCall(sourceFile: SourceFile, call: CallExpress
 
     // If the secondArgument is a ObjectLiteralExpression
     if (secondArgument.getKind() === ts.SyntaxKind.ObjectLiteralExpression) {
-        // Get the path of the parent directory of this file
-        const path = sourceFile.getDirectoryPath().replace(/.*\/app\/administration\//, '');
-
         componentImportMap[componentName] = {
-            p: path,
+            p: buildRelativePathForSourceFile(sourceFile),
             r: false,
         };
     }
@@ -157,12 +172,8 @@ function procsessComponentExtendCall(sourceFile: SourceFile, call: CallExpressio
         // Check if the import path is relative
         let aliasPath = '';
         if (importPath.includes('./')) {
-            // Get the path of the parent directory of this file
-            const parentDirectory = sourceFile.getDirectoryPath();
-            // Remove everything before and including "/app/administration/" from the parent directory
-            const relativePath = parentDirectory.replace(/.*\/app\/administration\//, '');
             // Combine the relative path with the import path
-            aliasPath = path.join(relativePath, importPath);
+            aliasPath = path.join(buildRelativePathForSourceFile(sourceFile), importPath);
         } else {
             aliasPath = importPath;
         }
@@ -179,11 +190,8 @@ function procsessComponentExtendCall(sourceFile: SourceFile, call: CallExpressio
 
     // If the thirdArgument is a ObjectLiteralExpression
     if (thirdArgument.getKind() === ts.SyntaxKind.ObjectLiteralExpression) {
-        // Get the path of the parent directory of this file
-        const path = sourceFile.getDirectoryPath().replace(/.*\/app\/administration\//, '');
-
         componentImportMap[componentName] = {
-            p: path,
+            p: buildRelativePathForSourceFile(sourceFile),
             r: false,
             en: extendedComponentName,
             e: false,

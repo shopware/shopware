@@ -1203,6 +1203,33 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     });
 
     // -------------------------------------------------------------------------
+    it('does not rewrite this references inside strings, comments, or static template text', () => {
+        const js = [
+            "Shopware.Component.register('sw-test', {",
+            "    data() { return { title: 'Title' }; },",
+            '    methods: {',
+            "        literalRoute() { return 'this.$route'; },",
+            '        staticTemplate(label) { return `debug: ${label} this.title`; },',
+            '        commentedEmit() {',
+            "            // this.$emit('save') must stay a comment",
+            "            return 'done';",
+            '        },',
+            '        executableTemplate() { return `${this.title}`; },',
+            '    },',
+            '});',
+        ].join('\n');
+        const result = transformScript(js);
+
+        expect(result.status).toBe('fully-migratable');
+        expect(result.script).toContain("return 'this.$route';");
+        expect(result.script).toContain('return `debug: ${label} this.title`;');
+        expect(result.script).toContain("// this.$emit('save') must stay a comment");
+        expect(result.script).toContain('return `${title.value}`;');
+        expect(result.script).not.toContain('useRoute');
+        expect(result.script).not.toContain('defineEmits');
+    });
+
+    // -------------------------------------------------------------------------
     describe('block-component with useDataScope=true: reactive is in the vue import, not appended', () => {
         let result: ReturnType<typeof transformScript>;
 

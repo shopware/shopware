@@ -114,6 +114,13 @@ interface LifecycleHook {
     bodyText: string;
 }
 
+type RewriteSnippetKind = 'body' | 'expression';
+
+interface CodeSnippet {
+    text: string;
+    kind: RewriteSnippetKind;
+}
+
 interface RewriteContext {
     propNames: Set<string>;
     dataNames: Set<string>;
@@ -200,6 +207,59 @@ function sanitizeTodoCommentText(value: string): string {
 
 function buildPropertyAccess(target: string, name: string): string {
     return isSafeIdentifier(name) ? `${target}.${name}` : `${target}[${quoteString(name)}]`;
+}
+
+function createWrappedSnippetSource(
+    text: string,
+    kind: RewriteSnippetKind,
+): { sourceFile: SourceFile; snippetStart: number; snippetEnd: number } {
+    const project = new Project({
+        useInMemoryFileSystem: true,
+        compilerOptions: { allowJs: true },
+        skipAddingFilesFromTsConfig: true,
+    });
+    const prefix = kind === 'body' ? 'function __rewrite__() {\n' : 'const __rewrite__ = (';
+    const suffix = kind === 'body' ? '\n}' : ');';
+
+    return {
+        sourceFile: project.createSourceFile('snippet.js', `${prefix}${text}${suffix}`, { scriptKind: ScriptKind.JS }),
+        snippetStart: prefix.length,
+        snippetEnd: prefix.length + text.length,
+    };
+}
+
+function isNodeInsideSnippet(node: Node, snippetStart: number, snippetEnd: number): boolean {
+    return node.getStart() >= snippetStart && node.getEnd() <= snippetEnd;
+}
+
+function getDirectThisPropertyName(node: import('ts-morph').PropertyAccessExpression): string | null {
+    return node.getExpression().isKind(SyntaxKind.ThisKeyword) ? node.getName() : null;
+}
+
+function getThisRefName(node: import('ts-morph').PropertyAccessExpression): string | null {
+    const expression = node.getExpression();
+
+    if (!Node.isPropertyAccessExpression(expression)) {
+        return null;
+    }
+
+    return getDirectThisPropertyName(expression) === '$refs' ? node.getName() : null;
+}
+
+function getSnippetPropertyAccesses(snippet: CodeSnippet): import('ts-morph').PropertyAccessExpression[] {
+    const { sourceFile, snippetStart, snippetEnd } = createWrappedSnippetSource(snippet.text, snippet.kind);
+
+    return sourceFile
+        .getDescendantsOfKind(SyntaxKind.PropertyAccessExpression)
+        .filter((node) => isNodeInsideSnippet(node, snippetStart, snippetEnd));
+}
+
+function getSnippetCallExpressions(snippet: CodeSnippet): import('ts-morph').CallExpression[] {
+    const { sourceFile, snippetStart, snippetEnd } = createWrappedSnippetSource(snippet.text, snippet.kind);
+
+    return sourceFile
+        .getDescendantsOfKind(SyntaxKind.CallExpression)
+        .filter((node) => isNodeInsideSnippet(node, snippetStart, snippetEnd));
 }
 
 function buildWatchSource(name: string, propNames: Set<string>, injectNames: Set<string>): string {
@@ -802,7 +862,7 @@ function extractEmitsDefinition(optionsObj: ObjectLiteralExpression): EmitsDefin
             keys: objInit.getProperties()
                 .filter((p) => p.isKind(SyntaxKind.PropertyAssignment) || p.isKind(SyntaxKind.MethodDeclaration))
                 .map((p) => p.isKind(SyntaxKind.MethodDeclaration)
-                    ? p.asKindOrThrow(SyntaxKind.MethodDeclaration).getName()
+                        ? p.asKindOrThrow(SyntaxKind.MethodDeclaration).getName()
                     : p.asKindOrThrow(SyntaxKind.PropertyAssignment).getName()),
             objectText: objInit.getText(),
         };
@@ -853,18 +913,19 @@ function extractModuleLevelCode(sourceFile: SourceFile): string {
 }
 
 /**
- * Scans a list of code snippets for `this.$refs.NAME` patterns and returns the
- * unique ref names. These need a `const NAME = ref(null)` declaration in setup.
+ * Scans executable code snippets for `this.$refs.NAME` references and returns
+ * the unique ref names. These need a `const NAME = ref(null)` declaration in setup.
  */
-function collectThisRefNames(bodies: string[]): string[] {
+function collectThisRefNames(snippets: CodeSnippet[]): string[] {
     const names = new Set<string>();
-    const RE = /\bthis\.\$refs\.(\w+)/g;
 
-    for (const body of bodies) {
-        let match: RegExpExecArray | null;
-        RE.lastIndex = 0;
-        while ((match = RE.exec(body)) !== null) {
-            names.add(match[1]);
+    for (const snippet of snippets) {
+        for (const node of getSnippetPropertyAccesses(snippet)) {
+            const refName = getThisRefName(node);
+
+            if (refName) {
+                names.add(refName);
+            }
         }
     }
 
@@ -873,19 +934,51 @@ function collectThisRefNames(bodies: string[]): string[] {
 
 /**
  * Inspects a list of code snippets and reports which Vue Router / I18n / DOM
- * composables are needed (based on `this.$xxx` patterns found).
+ * composables are needed based on executable `this.$xxx` references.
  */
-function detectUsedComposables(bodies: string[], watchProps: WatchProp[]): UsedComposables {
-    const combined = bodies.join('\n');
-    return {
-        needsRouter: /\bthis\.\$router\b/.test(combined),
-        needsRoute: /\bthis\.\$route\b/.test(combined) || watchProps.some((prop) => prop.name === '$route'),
-        needsNextTick: /\bthis\.\$nextTick\b/.test(combined),
-        needsSlots: /\bthis\.\$slots\b/.test(combined),
-        needsI18n: /\bthis\.\$tc\b|\bthis\.\$t\b/.test(combined),
-        needsEmit: /\bthis\.\$emit\b/.test(combined),
-        needsAttrs: /\bthis\.\$attrs\b/.test(combined),
+function detectUsedComposables(snippets: CodeSnippet[], watchProps: WatchProp[]): UsedComposables {
+    const usedComposables: UsedComposables = {
+        needsRouter: false,
+        needsRoute: watchProps.some((prop) => prop.name === '$route'),
+        needsNextTick: false,
+        needsSlots: false,
+        needsI18n: false,
+        needsEmit: false,
+        needsAttrs: false,
     };
+
+    for (const snippet of snippets) {
+        for (const node of getSnippetPropertyAccesses(snippet)) {
+            switch (getDirectThisPropertyName(node)) {
+                case '$router':
+                    usedComposables.needsRouter = true;
+                    break;
+                case '$route':
+                    usedComposables.needsRoute = true;
+                    break;
+                case '$nextTick':
+                    usedComposables.needsNextTick = true;
+                    break;
+                case '$slots':
+                    usedComposables.needsSlots = true;
+                    break;
+                case '$tc':
+                case '$t':
+                    usedComposables.needsI18n = true;
+                    break;
+                case '$emit':
+                    usedComposables.needsEmit = true;
+                    break;
+                case '$attrs':
+                    usedComposables.needsAttrs = true;
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    return usedComposables;
 }
 
 /**
@@ -893,15 +986,21 @@ function detectUsedComposables(bodies: string[], watchProps: WatchProp[]): UsedC
  * unique event name strings. Used to auto-populate `defineEmits` when the
  * Options API component did not declare an explicit `emits: […]` array.
  */
-function collectEmittedEventNames(bodies: string[]): string[] {
+function collectEmittedEventNames(snippets: CodeSnippet[]): string[] {
     const names = new Set<string>();
-    const RE = /\bthis\.\$emit\(\s*['"]([^'"]+)['"]/g;
 
-    for (const body of bodies) {
-        let match: RegExpExecArray | null;
-        RE.lastIndex = 0;
-        while ((match = RE.exec(body)) !== null) {
-            names.add(match[1]);
+    for (const snippet of snippets) {
+        for (const node of getSnippetCallExpressions(snippet)) {
+            const expression = node.getExpression();
+            const firstArgument = node.getArguments()[0];
+
+            if (
+                Node.isPropertyAccessExpression(expression) &&
+                getDirectThisPropertyName(expression) === '$emit' &&
+                firstArgument?.isKind(SyntaxKind.StringLiteral)
+            ) {
+                names.add(firstArgument.asKindOrThrow(SyntaxKind.StringLiteral).getLiteralValue());
+            }
         }
     }
 
@@ -909,72 +1008,109 @@ function collectEmittedEventNames(bodies: string[]): string[] {
 }
 
 /**
- * Rewrites `this.xxx` references in a method/computed/watch/lifecycle body so
- * they are valid in a `<script setup>` Composition API context.
+ * Rewrites executable `this.xxx` references in a method/computed/watch/lifecycle
+ * body or expression so they are valid in a `<script setup>` Composition API context.
  *
  * Replacement order matters: special `$`-prefixed properties are handled first
  * to avoid conflicts with the named lookup loop that follows.
  */
-function rewriteThisInBody(bodyText: string, ctx: RewriteContext): string {
+function rewriteThisInBody(bodyText: string, ctx: RewriteContext, kind: RewriteSnippetKind = 'body'): string {
+    const { sourceFile, snippetStart, snippetEnd } = createWrappedSnippetSource(bodyText, kind);
+    const replacements = sourceFile
+        .getDescendantsOfKind(SyntaxKind.PropertyAccessExpression)
+        .filter((node) => isNodeInsideSnippet(node, snippetStart, snippetEnd))
+        .map((node) => {
+            const replacement = buildThisReplacement(node, ctx);
+
+            if (!replacement) {
+                return undefined;
+            }
+
+            return {
+                start: node.getStart() - snippetStart,
+                end: node.getEnd() - snippetStart,
+                replacement,
+            };
+        })
+        .filter(isDefined)
+        .sort((a, b) => b.start - a.start || b.end - a.end);
+
     let result = bodyText;
+    let lastReplacedStart = bodyText.length + 1;
 
-    // `this.$refs.NAME` → `NAME.value`  (must come before generic $refs handling)
-    result = result.replace(/\bthis\.\$refs\.(\w+)/g, (_, name) => `${name}.value`);
+    for (const { start, end, replacement } of replacements) {
+        if (end > lastReplacedStart) {
+            continue;
+        }
 
-    // Special Vue instance properties
-    result = result.replace(/\bthis\.\$emit\b/g, 'emit');
-    result = result.replace(/\bthis\.\$router\b/g, 'router');
-    result = result.replace(/\bthis\.\$route\b/g, 'route');
-    result = result.replace(/\bthis\.\$nextTick\b/g, 'nextTick');
-    result = result.replace(/\bthis\.\$slots\b/g, 'slots');
-    result = result.replace(/\bthis\.\$props\b/g, 'props');
-    result = result.replace(/\bthis\.\$attrs\b/g, 'attrs');
-    result = result.replace(/\bthis\.\$tc\b/g, 'tc');
-    result = result.replace(/\bthis\.\$t\b/g, 't');
-    // `this.$el` has no clean composition-API equivalent; mark for manual follow-up
-    result = result.replace(/\bthis\.\$el\b/g, '/* TODO: $el */ getCurrentInstance()?.proxy?.$el');
-
-    // Vuex store — mark for manual migration to Pinia/composable
-    result = result.replace(
-        /\bthis\.\$store\b/g,
-        "/* TODO: migrate $store to composable */\n        (() => { throw new Error('$store used here — replace with the appropriate Pinia store or composable before shipping'); })()",
-    );
-    // $parent / $root / $options / $forceUpdate — no composition API equivalent
-    result = result.replace(/\bthis\.\$parent\b/g, '/* TODO: $parent */ undefined');
-    result = result.replace(/\bthis\.\$root\b/g, '/* TODO: $root */ undefined');
-    result = result.replace(/\bthis\.\$options\b/g, '/* TODO: $options */ {}');
-    result = result.replace(/\bthis\.\$forceUpdate\b/g, '/* TODO: $forceUpdate */ (() => {})');
-
-    // Named props → `props.NAME`
-    for (const name of ctx.propNames) {
-        result = result.replace(new RegExp(`\\bthis\\.${escapeRegExp(name)}\\b`, 'g'), buildPropertyAccess('props', name));
-    }
-
-    // Named data refs → `NAME.value`
-    for (const name of ctx.dataNames) {
-        result = result.replace(new RegExp(`\\bthis\\.${escapeRegExp(name)}\\b`, 'g'), `${name}.value`);
-    }
-
-    // Named computed refs → `NAME.value`
-    for (const name of ctx.computedNames) {
-        result = result.replace(new RegExp(`\\bthis\\.${escapeRegExp(name)}\\b`, 'g'), `${name}.value`);
-    }
-
-    // Named methods → plain `NAME` (no `.value`)
-    for (const name of ctx.methodNames) {
-        result = result.replace(new RegExp(`\\bthis\\.${escapeRegExp(name)}\\b`, 'g'), name);
-    }
-
-    // Inject keys → plain `NAME` (they are regular constants in Composition API)
-    for (const name of ctx.injectNames) {
-        result = result.replace(new RegExp(`\\bthis\\.${escapeRegExp(name)}\\b`, 'g'), name);
+        result = result.slice(0, start) + replacement + result.slice(end);
+        lastReplacedStart = start;
     }
 
     return result;
 }
 
-function escapeRegExp(s: string): string {
-    return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+function buildThisReplacement(node: import('ts-morph').PropertyAccessExpression, ctx: RewriteContext): string | null {
+    const refName = getThisRefName(node);
+
+    if (refName) {
+        return `${refName}.value`;
+    }
+
+    const name = getDirectThisPropertyName(node);
+
+    if (!name) {
+        return null;
+    }
+
+    switch (name) {
+        case '$emit':
+            return 'emit';
+        case '$router':
+            return 'router';
+        case '$route':
+            return 'route';
+        case '$nextTick':
+            return 'nextTick';
+        case '$slots':
+            return 'slots';
+        case '$props':
+            return 'props';
+        case '$attrs':
+            return 'attrs';
+        case '$tc':
+            return 'tc';
+        case '$t':
+            return 't';
+        case '$el':
+            return '/* TODO: $el */ getCurrentInstance()?.proxy?.$el';
+        case '$store':
+            return "/* TODO: migrate $store to composable */\n        (() => { throw new Error('$store used here — replace with the appropriate Pinia store or composable before shipping'); })()";
+        case '$parent':
+            return '/* TODO: $parent */ undefined';
+        case '$root':
+            return '/* TODO: $root */ undefined';
+        case '$options':
+            return '/* TODO: $options */ {}';
+        case '$forceUpdate':
+            return '/* TODO: $forceUpdate */ (() => {})';
+        default:
+            break;
+    }
+
+    if (ctx.propNames.has(name)) {
+        return buildPropertyAccess('props', name);
+    }
+
+    if (ctx.dataNames.has(name) || ctx.computedNames.has(name)) {
+        return `${name}.value`;
+    }
+
+    if (ctx.methodNames.has(name) || ctx.injectNames.has(name)) {
+        return name;
+    }
+
+    return null;
 }
 
 /**
@@ -1088,26 +1224,34 @@ function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componen
 
     const ctx: RewriteContext = { propNames, dataNames, computedNames, methodNames, injectNames };
 
-    // Collect all body texts to scan for composable usage and template refs
-    const allBodies = [
-        ...supportedDataProps.map((p) => p.valueText),
-        ...supportedComputedProps.map((p) =>
-            p.kind === 'getter' ? p.bodyText : p.getterBodyText + '\n' + p.setterBodyText,
+    // Collect all executable snippets to scan for composable usage and template refs.
+    const allSnippets = [
+        ...supportedDataProps.map((p) => ({ text: p.valueText, kind: 'expression' as const })),
+        ...supportedComputedProps.flatMap((p) =>
+            p.kind === 'getter'
+                ? [{ text: p.bodyText, kind: 'body' as const }]
+                : [
+                      { text: p.getterBodyText, kind: 'body' as const },
+                      { text: p.setterBodyText, kind: 'body' as const },
+                  ],
         ),
-        ...watchProps.map((p) => p.bodyText),
-        ...supportedMethodProps.map((p) => p.bodyText),
-        ...lifecycleHooks.map((h) => h.bodyText),
+        ...watchProps.map((p) => (p.bodyText ? { text: p.bodyText, kind: 'body' as const } : undefined)),
+        ...supportedMethodProps.map((p) => ({
+            text: p.bodyText,
+            kind: p.rawText === undefined ? ('body' as const) : ('expression' as const),
+        })),
+        ...lifecycleHooks.map((h) => ({ text: h.bodyText, kind: 'body' as const })),
     ].filter(isDefined);
 
-    const usedComposables = detectUsedComposables(allBodies, watchProps);
-    const templateRefNames = collectThisRefNames(allBodies);
+    const usedComposables = detectUsedComposables(allSnippets, watchProps);
+    const templateRefNames = collectThisRefNames(allSnippets);
 
     // Determine the final emits list: prefer explicit `emits: [...]`, fall back to
     // scanning method bodies for `this.$emit('eventName', ...)` calls.
     const effectiveEmitsKeys =
         emitsDefinition.keys.length > 0 || emitsDefinition.objectText !== null
             ? emitsDefinition.keys
-            : collectEmittedEventNames(allBodies);
+            : collectEmittedEventNames(allSnippets);
 
     const supportedWatchProps = watchProps.filter((watchProp) => {
         if (watchProp.name.includes('.')) {
@@ -1138,8 +1282,10 @@ function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componen
     if (usedComposables.needsNextTick) vueImports.push('nextTick');
     if (usedComposables.needsSlots) vueImports.push('useSlots');
     if (usedComposables.needsAttrs) vueImports.push('useAttrs');
-    // Check whether we need getCurrentInstance for $el handling
-    const needsGetCurrentInstance = allBodies.some((b) => /\bthis\.\$el\b/.test(b));
+    // Check whether we need getCurrentInstance for executable $el handling
+    const needsGetCurrentInstance = allSnippets.some((snippet) =>
+        getSnippetPropertyAccesses(snippet).some((node) => getDirectThisPropertyName(node) === '$el'),
+    );
     if (needsGetCurrentInstance) vueImports.push('getCurrentInstance');
     if (useDataScope) vueImports.push('reactive');
 
@@ -1289,7 +1435,7 @@ function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componen
     // ── data → ref() ─────────────────────────────────────────────────────────
     supportedDataProps.forEach(({ name, valueText }) => {
         // Data initializers may reference props via `this.propName` — rewrite those
-        const rewrittenValue = rewriteThisInBody(valueText, ctx);
+        const rewrittenValue = rewriteThisInBody(valueText, ctx, 'expression');
         lines.push(`        const ${name} = ref(${rewrittenValue});`);
     });
     if (supportedDataProps.length > 0) lines.push('');
@@ -1320,7 +1466,7 @@ function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componen
     supportedMethodProps.forEach(({ name, paramsText, bodyText, isAsync, rawText }) => {
         if (rawText !== undefined) {
             // Property-assignment method (e.g. `debounce(...)`): emit verbatim after this-rewriting.
-            let rewritten = rewriteThisInBody(rawText, ctx);
+            let rewritten = rewriteThisInBody(rawText, ctx, 'expression');
             rewritten = rewritten.replace(/\bfunction\s+\w*\s*\(([^)]*)\)\s*\{/g, '($1) => {');
             lines.push(`        const ${name} = ${rewritten};`);
         } else {
@@ -1483,9 +1629,9 @@ function buildOptionsApiBackoff(sourceFile: SourceFile): string {
  *   `mixins` prevent automatic migration.
  * - An empty string for components with hard blockers (`render()`).
  *
- * All JS analysis is done via the TypeScript compiler's AST (through ts-morph)
- * to handle edge cases that regex cannot: template literals, brace-in-strings,
- * comments, default parameters, async methods, etc.
+ * JS analysis and `this.*` rewrites use the TypeScript compiler's AST (through
+ * ts-morph) so executable code can be transformed without touching strings,
+ * comments, or static template-literal text.
  */
 export function transformScript(jsContent: string, useDataScope = false): TransformScriptResult {
     const sourceFile = parseSource(jsContent);

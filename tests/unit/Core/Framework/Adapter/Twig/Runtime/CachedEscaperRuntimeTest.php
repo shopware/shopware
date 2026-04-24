@@ -4,10 +4,8 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig\Runtime;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\Runtime\CachedEscaperRuntime;
-use Shopware\Core\Test\Assert\StrictEmpty;
 use Twig\Error\RuntimeError;
 use Twig\Runtime\EscaperRuntime;
 
@@ -17,7 +15,7 @@ use Twig\Runtime\EscaperRuntime;
 #[CoversClass(CachedEscaperRuntime::class)]
 class CachedEscaperRuntimeTest extends TestCase
 {
-    private CachedEscaperRuntime $escaper;
+    private EscaperRuntime $ogEscaperRuntime;
 
     /**
      * All character encodings supported by htmlspecialchars().
@@ -175,7 +173,7 @@ class CachedEscaperRuntimeTest extends TestCase
     protected function setUp(): void
     {
         CachedEscaperRuntime::resetEscapeCache();
-        $this->escaper = new CachedEscaperRuntime(new EscaperRuntime());
+        $this->ogEscaperRuntime = new EscaperRuntime();
     }
 
     protected function tearDown(): void
@@ -183,39 +181,24 @@ class CachedEscaperRuntimeTest extends TestCase
         CachedEscaperRuntime::resetEscapeCache();
     }
 
-    #[TestDox('stays in sync with upstream EscaperRuntime public methods')]
-    public function testAllPublicMethodsAreMimicked(): void
-    {
-        $originalMethodNames = get_class_methods(EscaperRuntime::class);
-        $cachedMethodNames = get_class_methods(CachedEscaperRuntime::class);
-
-        $missingMethods = array_diff($originalMethodNames, $cachedMethodNames);
-
-        // Will fail, if methods are added upstream
-        StrictEmpty::assertEmpty(
-            $missingMethods,
-            \sprintf('%s is missing following methods: %s', CachedEscaperRuntime::class, implode(', ', $missingMethods))
-        );
-    }
-
     public function testHtmlEscapingConvertsSpecialChars(): void
     {
         foreach (self::$htmlSpecialChars as $key => $value) {
-            static::assertSame($value, $this->escaper->escape($key), 'Failed to escape: ' . $key);
+            static::assertSame($value, CachedEscaperRuntime::escape($this->ogEscaperRuntime, $key), 'Failed to escape: ' . $key);
         }
     }
 
     public function testHtmlAttributeEscapingConvertsSpecialChars(): void
     {
         foreach (self::$htmlAttrSpecialChars as $key => $value) {
-            static::assertSame($value, $this->escaper->escape($key, 'html_attr'), 'Failed to escape: ' . $key);
+            static::assertSame($value, CachedEscaperRuntime::escape($this->ogEscaperRuntime, $key, 'html_attr'), 'Failed to escape: ' . $key);
         }
     }
 
     public function testJavascriptEscapingConvertsSpecialChars(): void
     {
         foreach (self::$jsSpecialChars as $key => $value) {
-            static::assertSame($value, $this->escaper->escape($key, 'js'), 'Failed to escape: ' . $key);
+            static::assertSame($value, CachedEscaperRuntime::escape($this->ogEscaperRuntime, $key, 'js'), 'Failed to escape: ' . $key);
         }
     }
 
@@ -226,7 +209,7 @@ class CachedEscaperRuntimeTest extends TestCase
         try {
             mb_internal_encoding('ISO-8859-1');
             foreach (self::$jsSpecialChars as $key => $value) {
-                static::assertSame($value, $this->escaper->escape($key, 'js'), 'Failed to escape: ' . $key);
+                static::assertSame($value, CachedEscaperRuntime::escape($this->ogEscaperRuntime, $key, 'js'), 'Failed to escape: ' . $key);
             }
         } finally {
             if ($previousInternalEncoding !== false) {
@@ -237,35 +220,35 @@ class CachedEscaperRuntimeTest extends TestCase
 
     public function testJavascriptEscapingReturnsStringIfZeroLength(): void
     {
-        static::assertSame('', $this->escaper->escape('', 'js'));
+        static::assertSame('', CachedEscaperRuntime::escape($this->ogEscaperRuntime, '', 'js'));
     }
 
     public function testJavascriptEscapingReturnsStringIfContainsOnlyDigits(): void
     {
-        static::assertSame('123', $this->escaper->escape('123', 'js'));
+        static::assertSame('123', CachedEscaperRuntime::escape($this->ogEscaperRuntime, '123', 'js'));
     }
 
     public function testCssEscapingConvertsSpecialChars(): void
     {
         foreach (self::$cssSpecialChars as $key => $value) {
-            static::assertSame($value, $this->escaper->escape($key, 'css'), 'Failed to escape: ' . $key);
+            static::assertSame($value, CachedEscaperRuntime::escape($this->ogEscaperRuntime, $key, 'css'), 'Failed to escape: ' . $key);
         }
     }
 
     public function testCssEscapingReturnsStringIfZeroLength(): void
     {
-        static::assertSame('', $this->escaper->escape('', 'css'));
+        static::assertSame('', CachedEscaperRuntime::escape($this->ogEscaperRuntime, '', 'css'));
     }
 
     public function testCssEscapingReturnsStringIfContainsOnlyDigits(): void
     {
-        static::assertSame('123', $this->escaper->escape('123', 'css'));
+        static::assertSame('123', CachedEscaperRuntime::escape($this->ogEscaperRuntime, '123', 'css'));
     }
 
     public function testUrlEscapingConvertsSpecialChars(): void
     {
         foreach (self::$urlSpecialChars as $key => $value) {
-            static::assertSame($value, $this->escaper->escape($key, 'url'), 'Failed to escape: ' . $key);
+            static::assertSame($value, CachedEscaperRuntime::escape($this->ogEscaperRuntime, $key, 'url'), 'Failed to escape: ' . $key);
         }
     }
 
@@ -294,15 +277,15 @@ class CachedEscaperRuntimeTest extends TestCase
                 || ($chr >= 0x41 && $chr <= 0x5A)
                 || ($chr >= 0x61 && $chr <= 0x7A)) {
                 $literal = $this->codepointToUtf8($chr);
-                static::assertSame($literal, $this->escaper->escape($literal, 'js'));
+                static::assertSame($literal, CachedEscaperRuntime::escape($this->ogEscaperRuntime, $literal, 'js'));
             } else {
                 $literal = $this->codepointToUtf8($chr);
                 if (\in_array($literal, $immune, true)) {
-                    static::assertSame($literal, $this->escaper->escape($literal, 'js'));
+                    static::assertSame($literal, CachedEscaperRuntime::escape($this->ogEscaperRuntime, $literal, 'js'));
                 } else {
                     static::assertNotSame(
                         $literal,
-                        $this->escaper->escape($literal, 'js'),
+                        CachedEscaperRuntime::escape($this->ogEscaperRuntime, $literal, 'js'),
                         "$literal should be escaped!"
                     );
                 }
@@ -318,15 +301,15 @@ class CachedEscaperRuntimeTest extends TestCase
                 || ($chr >= 0x41 && $chr <= 0x5A)
                 || ($chr >= 0x61 && $chr <= 0x7A)) {
                 $literal = $this->codepointToUtf8($chr);
-                static::assertSame($literal, $this->escaper->escape($literal, 'html_attr'));
+                static::assertSame($literal, CachedEscaperRuntime::escape($this->ogEscaperRuntime, $literal, 'html_attr'));
             } else {
                 $literal = $this->codepointToUtf8($chr);
                 if (\in_array($literal, $immune, true)) {
-                    static::assertSame($literal, $this->escaper->escape($literal, 'html_attr'));
+                    static::assertSame($literal, CachedEscaperRuntime::escape($this->ogEscaperRuntime, $literal, 'html_attr'));
                 } else {
                     static::assertNotSame(
                         $literal,
-                        $this->escaper->escape($literal, 'html_attr'),
+                        CachedEscaperRuntime::escape($this->ogEscaperRuntime, $literal, 'html_attr'),
                         "$literal should be escaped!"
                     );
                 }
@@ -342,12 +325,12 @@ class CachedEscaperRuntimeTest extends TestCase
                 || ($chr >= 0x41 && $chr <= 0x5A)
                 || ($chr >= 0x61 && $chr <= 0x7A)) {
                 $literal = $this->codepointToUtf8($chr);
-                static::assertSame($literal, $this->escaper->escape($literal, 'css'));
+                static::assertSame($literal, CachedEscaperRuntime::escape($this->ogEscaperRuntime, $literal, 'css'));
             } else {
                 $literal = $this->codepointToUtf8($chr);
                 static::assertNotSame(
                     $literal,
-                    $this->escaper->escape($literal, 'css'),
+                    CachedEscaperRuntime::escape($this->ogEscaperRuntime, $literal, 'css'),
                     "$literal should be escaped!"
                 );
             }
@@ -357,11 +340,10 @@ class CachedEscaperRuntimeTest extends TestCase
     #[DataProvider('provideCustomEscaperCases')]
     public function testCustomEscaper(string $expected, string $string, string $strategy): void
     {
-        $escapeRuntime = new EscaperRuntime();
-        $escapeRuntime->setEscaper('foo', foo_escaper_for_test(...));
-        $cachedEscaper = new CachedEscaperRuntime($escapeRuntime);
+        $runtime = new EscaperRuntime();
+        $runtime->setEscaper('foo', foo_escaper_for_test(...));
 
-        static::assertSame($expected, $cachedEscaper->escape($string, $strategy));
+        static::assertSame($expected, CachedEscaperRuntime::escape($runtime, $string, $strategy));
     }
 
     /**
@@ -377,7 +359,7 @@ class CachedEscaperRuntimeTest extends TestCase
     public function testUnknownCustomEscaper(): void
     {
         $this->expectExceptionObject(new RuntimeError('Invalid escaping strategy "bar" (valid ones: "html", "js", "url", "css", "html_attr", "html_attr_relaxed")'));
-        $this->escaper->escape('foo', 'bar');
+        CachedEscaperRuntime::escape($this->ogEscaperRuntime, 'foo', 'bar');
     }
 
     /**
@@ -387,13 +369,11 @@ class CachedEscaperRuntimeTest extends TestCase
     public function testObjectEscaping(string $escapedHtml, string $escapedJs, array $safeClasses): void
     {
         $obj = new Extension_TestClass();
-        $escapeRuntime = new EscaperRuntime();
-        $escapeRuntime->setSafeClasses($safeClasses);
+        $runtime = new EscaperRuntime();
+        $runtime->setSafeClasses($safeClasses);
 
-        $cachedEscaper = new CachedEscaperRuntime($escapeRuntime);
-
-        static::assertSame($escapedHtml, $cachedEscaper->escape($obj, 'html', null, true));
-        static::assertSame($escapedJs, $cachedEscaper->escape($obj, 'js', null, true));
+        static::assertSame($escapedHtml, CachedEscaperRuntime::escape($runtime, $obj, 'html', null, true));
+        static::assertSame($escapedJs, CachedEscaperRuntime::escape($runtime, $obj, 'js', null, true));
     }
 
     /**
@@ -449,7 +429,7 @@ class CachedEscaperRuntimeTest extends TestCase
     #[DataProvider('EscapeDataProvider')]
     public function testEscapeWithVariousInputs(array|int|float|string|null $input, array|int|float|string|null $expected): void
     {
-        $result = $this->escaper->escape($input);
+        $result = CachedEscaperRuntime::escape($this->ogEscaperRuntime, $input);
 
         static::assertSame($expected, $result);
     }
@@ -464,11 +444,9 @@ class CachedEscaperRuntimeTest extends TestCase
             return strtoupper($string);
         });
 
-        $escaper = new CachedEscaperRuntime($runtime);
-
-        static::assertSame('FOO', $escaper->escape('foo', 'test'));
-        static::assertSame('FOO', $escaper->escape('foo', 'test'));
-        static::assertSame('FOO', $escaper->escape('foo', 'test'));
+        static::assertSame('FOO', CachedEscaperRuntime::escape($runtime, 'foo', 'test'));
+        static::assertSame('FOO', CachedEscaperRuntime::escape($runtime, 'foo', 'test'));
+        static::assertSame('FOO', CachedEscaperRuntime::escape($runtime, 'foo', 'test'));
 
         static::assertSame(1, $callCount);
     }
@@ -488,12 +466,10 @@ class CachedEscaperRuntimeTest extends TestCase
             return strtolower($string);
         });
 
-        $escaper = new CachedEscaperRuntime($runtime);
-
-        static::assertSame('FOO', $escaper->escape('Foo', 'upper'));
-        static::assertSame('foo', $escaper->escape('Foo', 'lower'));
-        static::assertSame('FOO', $escaper->escape('Foo', 'upper'));
-        static::assertSame('foo', $escaper->escape('Foo', 'lower'));
+        static::assertSame('FOO', CachedEscaperRuntime::escape($runtime, 'Foo', 'upper'));
+        static::assertSame('foo', CachedEscaperRuntime::escape($runtime, 'Foo', 'lower'));
+        static::assertSame('FOO', CachedEscaperRuntime::escape($runtime, 'Foo', 'upper'));
+        static::assertSame('foo', CachedEscaperRuntime::escape($runtime, 'Foo', 'lower'));
 
         static::assertSame(2, $callCount);
     }
@@ -508,15 +484,13 @@ class CachedEscaperRuntimeTest extends TestCase
             return strtoupper($string);
         });
 
-        $escaper = new CachedEscaperRuntime($runtime);
-
         $stringable = new Extension_TestClass('foo1');
 
-        static::assertSame('FOO1', $escaper->escape($stringable, 'test'));
+        static::assertSame('FOO1', CachedEscaperRuntime::escape($runtime, $stringable, 'test'));
 
         $stringable->string = 'foo2';
 
-        static::assertSame('FOO2', $escaper->escape($stringable, 'test'));
+        static::assertSame('FOO2', CachedEscaperRuntime::escape($runtime, $stringable, 'test'));
 
         static::assertSame(2, $callCount);
     }
@@ -531,11 +505,10 @@ class CachedEscaperRuntimeTest extends TestCase
             return $string;
         });
 
-        $escaper = new CachedEscaperRuntime($runtime);
-        static::assertTrue($escaper->escape(true, 'test'));
-        static::assertTrue($escaper->escape(true, 'test'));
-        static::assertFalse($escaper->escape(false, 'test'));
-        static::assertFalse($escaper->escape(false, 'test'));
+        static::assertTrue(CachedEscaperRuntime::escape($runtime, true, 'test'));
+        static::assertTrue(CachedEscaperRuntime::escape($runtime, true, 'test'));
+        static::assertFalse(CachedEscaperRuntime::escape($runtime, false, 'test'));
+        static::assertFalse(CachedEscaperRuntime::escape($runtime, false, 'test'));
 
         static::assertSame(4, $callCount);
     }

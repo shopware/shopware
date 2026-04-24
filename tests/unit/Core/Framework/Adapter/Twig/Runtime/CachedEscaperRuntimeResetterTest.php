@@ -35,15 +35,13 @@ class CachedEscaperRuntimeResetterTest extends TestCase
             return $string;
         });
 
-        $escaper = new CachedEscaperRuntime($runtime);
-
-        $escaper->escape('foo', 'test');
-        $escaper->escape('foo', 'test');
+        CachedEscaperRuntime::escape($runtime, 'foo', 'test');
+        CachedEscaperRuntime::escape($runtime, 'foo', 'test');
 
         (new CachedEscaperRuntimeResetter())->reset();
 
-        $escaper->escape('foo', 'test');
-        $escaper->escape('foo', 'test');
+        CachedEscaperRuntime::escape($runtime, 'foo', 'test');
+        CachedEscaperRuntime::escape($runtime, 'foo', 'test');
 
         static::assertSame(2, $callCount, 'The inner runtime should be called once before and once after the reset');
     }

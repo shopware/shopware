@@ -134,16 +134,17 @@
                     v-if="!feature.isActive('V6_8_0_0')"
                     #default="{ active }"
                 >
-                    <sw-tabs-item
-                        v-for="(tab, tabName) in orderedTabs"
-                        v-if="hasMoreThanOneTab"
-                        :key="tabName"
-                        :title="getTabLabel(tab.labelSnippetKey, tab.label)"
-                        :name="tabName"
-                        :active="active === tabName"
-                    >
-                        {{ getTabLabel(tab.labelSnippetKey, tab.label) }}
-                    </sw-tabs-item>
+                    <template v-if="hasMoreThanOneTab">
+                        <sw-tabs-item
+                            v-for="(tab, tabName) in orderedTabs"
+                            :key="tabName"
+                            :title="getTabLabel(tab.labelSnippetKey, tab.label)"
+                            :name="tabName"
+                            :active="active === tabName"
+                        >
+                            {{ getTabLabel(tab.labelSnippetKey, tab.label) }}
+                        </sw-tabs-item>
+                    </template>
                 </template>
 
                 <template #content="{ active }">
@@ -152,7 +153,7 @@
                             {% block sw_theme_manager_detail_content_inheritance %}
                             <div class="sw-theme-manager-detail__inheritance">
                                 {% block sw_theme_manager_detail_content_inheritance_icon %}
-                                <sw-icon size="20" name="regular-link-horizontal"/>
+                                <mt-icon size="20" name="regular-link-horizontal"/>
                                 {% endblock %}
 
                                 {% block sw_theme_manager_detail_content_inheritance_text %}
@@ -168,7 +169,7 @@
                         </template>
 
                         {% block sw_theme_manager_detail_content_info %}
-                        <sw-card
+                        <mt-card
                             class="sw-theme-manager-detail__info-card"
                             position-identifier="theme-manager-detail-info"
                         >
@@ -257,14 +258,14 @@
                                 {% endblock %}
                             </sw-context-button>
                             {% endblock %}
-                        </sw-card>
+                        </mt-card>
                         {% endblock %}
                     </template>
 
                     <template v-for="(tab, tabName) in structuredThemeFields.tabs">
                         <template v-if="tabName === active">
                             {% block sw_theme_manager_detail_content_areas %}
-                            <sw-card
+                            <mt-card
                                 v-for="(block, blockName) in tab.blocks"
                                 :key="blockName"
                                 class="sw-theme-manager-detail__area"
@@ -288,10 +289,11 @@
                                     {% block sw_theme_manager_detail_content_fields %}
                                     <sw-container class="sw-theme-manager-detail__content-section-field">
                                         <template v-for="(field, fieldName) in section.fields">
-                                            <div v-if="themeConfig[fieldName] && baseThemeConfig[fieldName] && themeConfig[fieldName].editable !== false"
-                                                 :key="fieldName"
-                                                 class="sw-theme-manager-detail__content-section-field"
-                                                 :class="{'sw-theme-manager-detail__content-section-field-full-width': field.fullWidth}"
+                                            <div
+                                                v-if="themeConfig[fieldName] && baseThemeConfig[fieldName] && themeConfig[fieldName].editable !== false"
+                                                :key="fieldName"
+                                                class="sw-theme-manager-detail__content-section-field"
+                                                :class="{'sw-theme-manager-detail__content-section-field-full-width': field.fullWidth}"
                                             >
 
                                                 <template v-if="mapSwFieldTypes(field.type) === 'select'">
@@ -307,12 +309,12 @@
                                                         @update:value="handleInheritanceInput($event, fieldName)"
                                                     >
                                                         <template #content="{ currentValue, updateCurrentValue, isInherited }">
-                                                            <sw-select-field
-                                                                v-model:value="currentValue"
+                                                            <mt-select
+                                                                :model-value="currentValue"
                                                                 :placeholder="field.placeholder"
                                                                 :options="field.options"
                                                                 :disabled="isInherited || !acl.can('theme.editor')"
-                                                                @update:value="updateCurrentValue"
+                                                                @update:model-value="updateCurrentValue"
                                                             />
                                                         </template>
                                                     </sw-inherit-wrapper>
@@ -331,10 +333,10 @@
                                                         @update:value="handleInheritanceInput($event, fieldName)"
                                                     >
                                                         <template #content="{ currentValue, updateCurrentValue, isInherited }">
-                                                            <sw-url-field
-                                                                v-model:value="currentValue"
+                                                            <mt-url-field
+                                                                :model-value="currentValue"
                                                                 :disabled="isInherited || !acl.can('theme.editor')"
-                                                                @update:value="updateCurrentValue"
+                                                                @update:model-value="updateCurrentValue"
                                                             />
                                                         </template>
                                                     </sw-inherit-wrapper>
@@ -386,13 +388,13 @@
                                                         @update:value="handleInheritanceInput($event, fieldName)"
                                                     >
                                                         <template #content="{ currentValue, updateCurrentValue, isInherited }">
-                                                            <sw-colorpicker
+                                                            <mt-colorpicker
                                                                 v-if="mapSwFieldTypes(field.type) === 'colorpicker'"
                                                                 :disabled="isInherited || !acl.can('theme.editor') || themeConfig[fieldName].editable === false"
-                                                                :value="currentValue"
+                                                                :model-value="currentValue"
                                                                 :error="themeConfigErrors[fieldName]"
                                                                 :z-index="100"
-                                                                @update:value="updateCurrentValue"
+                                                                @update:model-value="updateCurrentValue"
                                                             />
 
                                                             <mt-text-field
@@ -436,7 +438,7 @@
                                     {% endblock %}
                                 </sw-card-section>
                                 {% endblock %}
-                            </sw-card>
+                            </mt-card>
                             {% endblock %}
                         </template>
                     </template>
@@ -544,9 +546,9 @@
             {% endblock %}
 
             {% block sw_theme_manager_detail_save_modal_already_assigned_warning %}
-            <sw-alert
+            <mt-banner
                 v-if="overwrittenSalesChannelAssignments.length > 0"
-                variant="warning"
+                variant="attention"
             >
 
                 <div v-if="overwrittenSalesChannelAssignments.length === 1" class="sw-theme-manager-detail__sales-channel-warning">
@@ -557,16 +559,16 @@
                     <span v-html="$t('sw-theme-manager.modal.salesChannelAlreadyAssignedModal.descriptionMultiple', { newThemeName: theme.name })"></span>
                 </div>
 
-                <div v-for="salesChannel in overwrittenSalesChannelAssignments">
+                <div v-for="salesChannel in overwrittenSalesChannelAssignments" :key="salesChannel.id">
                     <b>{{ salesChannel.oldThemeName }}</b> ({{ salesChannel.salesChannelName }})
                 </div>
-            </sw-alert>
+            </mt-banner>
             {% endblock %}
 
             {% block sw_theme_manager_detail_save_modal_removed_warning %}
-            <sw-alert
+            <mt-banner
                 v-if="removedSalesChannels.length > 0"
-                variant="warning"
+                variant="attention"
             >
                 <div v-if="removedSalesChannels.length === 1" class="sw-theme-manager-detail__sales-channel-warning">
                     <span v-html="$t('sw-theme-manager.modal.salesChannelRemovedModal.descriptionSingle', { defaultThemeName: defaultTheme.name })"></span>
@@ -579,7 +581,7 @@
                 <div v-for="salesChannel in removedSalesChannels" :key="salesChannel.id">
                     <b>{{ theme.name }}</b> ({{ salesChannel.name }})
                 </div>
-            </sw-alert>
+            </mt-banner>
             {% endblock %}
 
             {% block sw_theme_manager_detail_save_modal_footer %}
@@ -622,8 +624,8 @@
                 {{ $t('sw-theme-manager.modal.textDuplicateInfo') }}
             </div>
 
-            <sw-text-field
-                v-model:value="newThemeName"
+            <mt-text-field
+                v-model="newThemeName"
                 name="sw-field--duplicate-theme-name"
                 :label="$t('sw-theme-manager.modal.labelDuplicateThemeName')"
                 :placeholder="$t('sw-theme-manager.modal.placeholderDuplicateThemeName')"
@@ -671,8 +673,8 @@
                 {{ $t('sw-theme-manager.modal.textRenameInfo') }}
             </div>
 
-            <sw-text-field
-                v-model:value="newThemeName"
+            <mt-text-field
+                v-model="newThemeName"
                 name="sw-field--rename-theme-name"
                 :label="$t('sw-theme-manager.modal.labelRenameThemeName')"
                 :placeholder="$t('sw-theme-manager.modal.placeholderRenameThemeName')"

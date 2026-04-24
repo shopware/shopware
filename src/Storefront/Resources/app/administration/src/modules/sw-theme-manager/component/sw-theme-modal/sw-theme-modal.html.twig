@@ -64,12 +64,12 @@
 
     {% block sw_theme_modal_footer %}
     <template #modal-footer>
-        <sw-button @click="closeModal">
+        <mt-button variant="secondary" @click="closeModal">
             {{ $t('global.default.cancel') }}
-        </sw-button>
-        <sw-button variant="primary" @click="selectLayout">
+        </mt-button>
+        <mt-button variant="primary" @click="selectLayout">
             {{ $t('sw-theme-manager.themeModal.actionConfirm') }}
-        </sw-button>
+        </mt-button>
     </template>
     {% endblock %}
 

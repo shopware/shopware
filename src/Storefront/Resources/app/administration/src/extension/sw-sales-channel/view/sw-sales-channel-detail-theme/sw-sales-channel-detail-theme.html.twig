@@ -1,5 +1,5 @@
 {% block sw_sales_channel_detail_theme %}
-<sw-card :title="$t('sales-channel-theme.title')" :is-loading="isLoading">
+<mt-card :title="$t('sales-channel-theme.title')" :is-loading="isLoading">
     <div class="sw-sales-channel-detail-theme">
 
         {% block sw_sales_channel_detail_theme_preview %}
@@ -58,30 +58,30 @@
             <div class="sw-sales-channel-detail-theme__info-actions">
 
                 {% block sw_sales_channel_detail_theme_info_actions_theme %}
-                <sw-button
+                <mt-button
                     size="small"
                     :disabled="!acl.can('sales_channel.editor')"
                     variant="secondary"
                     @click="openThemeModal"
                 >
                     {{ theme ? $t('sales-channel-theme.changeTheme') : $t('sales-channel-theme.changeThemeEmpty') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_theme_info_actions_manager %}
-                <sw-button
+                <mt-button
                     size="small"
                     :disabled="!acl.can('sales_channel.editor')"
                     variant="secondary"
                     @click="openInThemeManager"
                 >
                     {{ theme ? $t('sales-channel-theme.editContent'): $t('sales-channel-theme.createTheme') }}
-                </sw-button>
+                </mt-button>
                 {% endblock %}
             </div>
             {% endblock %}
         </div>
         {% endblock %}
     </div>
-</sw-card>
+</mt-card>
 {% endblock %}

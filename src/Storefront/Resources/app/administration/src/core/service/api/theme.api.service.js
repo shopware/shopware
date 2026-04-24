@@ -112,4 +112,7 @@ class ThemeApiService extends ApiService {
     }
 }
 
+/**
+ * @deprecated tag:v6.8.0 - Will be @private
+ */
 export default ThemeApiService;

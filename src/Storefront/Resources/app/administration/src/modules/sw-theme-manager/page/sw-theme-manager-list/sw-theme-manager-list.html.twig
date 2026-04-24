@@ -3,9 +3,10 @@
 
     {% block sw_theme_manager_list_search_bar %}
     <template #search-bar>
-        <sw-search-bar :placeholder="$t('sw-theme-manager.general.placeholderSearchBar')"
-                       :initial-search-type="$t('sw-theme-manager.general.mainMenuItemGeneral')"
-                       @search="onSearch"
+        <sw-search-bar
+            :placeholder="$t('sw-theme-manager.general.placeholderSearchBar')"
+            :initial-search-type="$t('sw-theme-manager.general.mainMenuItemGeneral')"
+            @search="onSearch"
         />
     </template>
     {% endblock %}
@@ -64,7 +65,7 @@
                 <div class="sw-theme-list__list">
 
                     {% block sw_theme_list_listing_list_card %}
-                    <sw-card v-if="listMode === 'list'" class="sw-theme-list__list-card">
+                    <mt-card v-if="listMode === 'list'" class="sw-theme-list__list-card">
                         <template #grid>
 
                             {% block sw_theme_list_listing_list_data_grid %}
@@ -86,7 +87,7 @@
 
                                 {% block sw_theme_list_listing_list_data_grid_column_name %}
                                 <template #column-name="{ item }">
-                                    <sw-icon
+                                    <mt-icon
                                         v-if="item.technicalName"
                                         v-tooltip="lockToolTip"
                                         name="regular-lock"
@@ -173,7 +174,7 @@
                             </sw-data-grid>
                             {% endblock %}
                         </template>
-                    </sw-card>
+                    </mt-card>
                     {% endblock %}
 
                     {% block sw_theme_list_listing_list_grid %}
@@ -355,8 +356,8 @@
                     {{ $t('sw-theme-manager.modal.textDuplicateInfo') }}
                 </div>
 
-                <sw-text-field
-                    v-model:value="newThemeName"
+                <mt-text-field
+                    v-model="newThemeName"
                     name="sw-field--duplicate-theme-name"
                     :label="$t('sw-theme-manager.modal.labelDuplicateThemeName')"
                     :placeholder="$t('sw-theme-manager.modal.placeholderDuplicateThemeName')"
@@ -404,8 +405,8 @@
                     {{ $t('sw-theme-manager.modal.textRenameInfo') }}
                 </div>
 
-                <sw-text-field
-                    v-model:value="newThemeName"
+                <mt-text-field
+                    v-model="newThemeName"
                     name="sw-field--rename-theme-name"
                     :label="$t('sw-theme-manager.modal.labelRenameThemeName')"
                     :placeholder="$t('sw-theme-manager.modal.placeholderRenameThemeName')"

@@ -127,7 +127,6 @@ describe('sw-theme-manager-detail', () => {
                 },
                 mocks: {
                     $t: (key) => key,
-                    $t: (key) => key,
                     $route: { params: { id: 'theme-id' } },
                     $router: { push: jest.fn() },
                     $createTitle: jest.fn(() => 'title'),

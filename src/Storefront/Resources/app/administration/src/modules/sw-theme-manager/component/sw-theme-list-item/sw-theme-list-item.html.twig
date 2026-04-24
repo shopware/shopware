@@ -14,7 +14,7 @@
     >
     </div>
 
-    <div class="sw-theme-list-item__image is--empty" v-else>
+    <div v-else class="sw-theme-list-item__image is--empty">
         {{ $t('sw-theme-manager.themeListItem.emptyText') }}
     </div>
     {% endblock %}
@@ -31,7 +31,7 @@
             class="sw-theme-list-item__title"
             @click="onThemeClick"
         >{{ theme.name }}</div>
-        <sw-icon
+        <mt-icon
             v-if="theme && theme.technicalName"
             v-tooltip="lockToolTip"
             class="sw-theme-list-item__locked"

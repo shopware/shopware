@@ -55,10 +55,16 @@ let unregisterPublishDataIds: string[] = [];
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /**
- * Deep clone with custom handling for entities and entity collections
+ * Deep clone with custom handling for entities and entity collections.
+ * Tracks entities currently being cloned so back-references (e.g. orderLineItem.order → order)
+ * break the recursion instead of blowing the call stack.
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function deepCloneWithEntity(data: any): any {
+    return cloneWithEntity(data, new WeakSet<object>());
+}
+
+function cloneWithEntity(data: any, inProgress: WeakSet<object>): any {
     return cloneDeepWith(
         data,
         (value: {
@@ -75,40 +81,58 @@ export function deepCloneWithEntity(data: any): any {
             _isDirty?: boolean;
             _isNew?: boolean;
         }) => {
+            if (value === null || typeof value !== 'object') {
+                return undefined;
+            }
+
+            if (inProgress.has(value)) {
+                return value;
+            }
+
             // If value is a entity collection, we need to clone it custom
             if (
                 value?.__identifier__ &&
                 typeof value.__identifier__ === 'function' &&
                 value.__identifier__() === 'EntityCollection'
             ) {
-                return new EntityCollection(
-                    value.source!,
-                    value.entity!,
-                    // @ts-expect-error - we don't want to provide a context
-                    {},
-                    value.criteria === null ? value.criteria : Criteria.fromCriteria(value.criteria!),
-                    // @ts-expect-error - value is an array inside a entity collection
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                    deepCloneWithEntity(Array.from(value)),
-                    value.total,
-                    value.aggregations,
-                );
+                inProgress.add(value);
+                try {
+                    return new EntityCollection(
+                        value.source!,
+                        value.entity!,
+                        // @ts-expect-error - we don't want to provide a context
+                        {},
+                        value.criteria === null ? value.criteria : Criteria.fromCriteria(value.criteria!),
+                        // @ts-expect-error - value is an array inside a entity collection
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                        cloneWithEntity(Array.from(value), inProgress),
+                        value.total,
+                        value.aggregations,
+                    );
+                } finally {
+                    inProgress.delete(value);
+                }
             }
 
             // If value is a entity, we need to clone it custom
             if (value?.__identifier__ && typeof value.__identifier__ === 'function' && value.__identifier__() === 'Entity') {
-                return new Entity(
-                    value.id!,
-                    value._entityName!,
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                    deepCloneWithEntity(value._draft),
-                    {
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                        originData: deepCloneWithEntity(value._origin),
-                        isDirty: value._isDirty,
-                        isNew: value._isNew,
-                    },
-                );
+                inProgress.add(value);
+                try {
+                    return new Entity(
+                        value.id!,
+                        value._entityName!,
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                        cloneWithEntity(value._draft, inProgress),
+                        {
+                            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                            originData: cloneWithEntity(value._origin, inProgress),
+                            isDirty: value._isDirty,
+                            isNew: value._isNew,
+                        },
+                    );
+                } finally {
+                    inProgress.delete(value);
+                }
             }
 
             return undefined;

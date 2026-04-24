@@ -513,6 +513,29 @@ describe('core/service/extension-api-data.service.ts', () => {
         expect(clonedValue.mediaCollection.context.auth).toBeUndefined();
     });
 
+    it('should deepClone entities with circular references without blowing the stack', () => {
+        // Repro for shopware/shopware#14317 — order.lineItems[i].order points back to order.
+        const order = new Entity('order1', 'order', {
+            orderNumber: '10001',
+            lineItems: new EntityCollection('/order/order1/line-items', 'order_line_item', {}, null, []),
+        });
+
+        const lineItem = new Entity('li1', 'order_line_item', {
+            label: 'Custom T-Shirt',
+            order,
+            children: new EntityCollection('/order/order1/line-items/li1/children', 'order_line_item', {}, null, []),
+        });
+        order.lineItems.push(lineItem);
+
+        expect(() => deepCloneWithEntity(order)).not.toThrow();
+
+        const cloned = deepCloneWithEntity(order);
+        expect(cloned).not.toBe(order);
+        expect(cloned.lineItems[0]).not.toBe(lineItem);
+        // The back-reference is preserved (shared with original) to break the cycle.
+        expect(cloned.lineItems[0].order).toBe(order);
+    });
+
     it('should not update value after component gets unmounted', async () => {
         const wrapper = mount({
             template: '<h1>jest</h1>',

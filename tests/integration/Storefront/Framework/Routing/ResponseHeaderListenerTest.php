@@ -4,18 +4,19 @@ namespace Shopware\Tests\Integration\Storefront\Framework\Routing;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\TestDefaults;
-use Shopware\Storefront\Framework\Routing\NotFound\NotFoundSubscriber;
 
 /**
  * @internal
  */
 class ResponseHeaderListenerTest extends TestCase
 {
+    use EnvTestBehaviour;
     use SalesChannelFunctionalTestBehaviour;
 
     public function testHomeController(): void
@@ -34,22 +35,20 @@ class ResponseHeaderListenerTest extends TestCase
 
     public function testNotFoundPage(): void
     {
-        try {
-            $this->toggleNotFoundSubscriber(false);
-            $browser = KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel());
-            $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_CONTEXT_TOKEN, '1234');
-            $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_VERSION_ID, '1234');
-            $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM);
+        $this->setEnvVars(['APP_DEBUG' => false]);
+        $kernel = KernelLifecycleManager::bootKernel();
 
-            $browser->request('GET', $_SERVER['APP_URL'] . '/not-found');
-            $response = $browser->getResponse();
+        $browser = KernelLifecycleManager::createBrowser($kernel);
+        $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_CONTEXT_TOKEN, '1234');
+        $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_VERSION_ID, '1234');
+        $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM);
 
-            static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
-            static::assertFalse($response->headers->has(PlatformRequest::HEADER_VERSION_ID));
-            static::assertTrue($response->headers->has(PlatformRequest::HEADER_LANGUAGE_ID));
-        } finally {
-            $this->toggleNotFoundSubscriber(true);
-        }
+        $browser->request('GET', $_SERVER['APP_URL'] . '/not-found');
+        $response = $browser->getResponse();
+
+        static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertFalse($response->headers->has(PlatformRequest::HEADER_VERSION_ID));
+        static::assertTrue($response->headers->has(PlatformRequest::HEADER_LANGUAGE_ID));
     }
 
     public function testStoreApiPresent(): void
@@ -67,15 +66,5 @@ class ResponseHeaderListenerTest extends TestCase
         static::assertTrue($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
         static::assertTrue($response->headers->has(PlatformRequest::HEADER_VERSION_ID));
         static::assertTrue($response->headers->has(PlatformRequest::HEADER_LANGUAGE_ID));
-    }
-
-    /**
-     * we need to enable the not found subscriber so the 404 page is rendered,
-     * that is not enabled by default in the test environment as `APP_DEBUG` is set to false
-     */
-    private function toggleNotFoundSubscriber(bool $debug): void
-    {
-        $subscriber = static::getContainer()->get(NotFoundSubscriber::class);
-        (new \ReflectionProperty($subscriber::class, 'kernelDebug'))->setValue($subscriber, $debug);
     }
 }

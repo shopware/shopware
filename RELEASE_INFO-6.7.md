@@ -58,6 +58,10 @@ Product exports now support `ProductExportEntity::FILE_FORMAT_JSONL` as a third 
 
 The new `AbstractAgenticCommerceProductExportProvider` can be used to implement custom Agentic Commerce export providers.
 
+### Backward compatible invalid locales
+
+Added and deprecated `BackwardCompatibleNumberFormatter` to temporarily allow invalid locale strings without throwing exceptions in PHP >=8.4. It will be removed in Shopware 6.8.
+
 ## Administration
 
 ### [Internal] Twig to Native Block Runtime Adapter

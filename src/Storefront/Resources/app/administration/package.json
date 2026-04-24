@@ -2,5 +2,9 @@
   "name": "storefront-admin-extension",
   "version": "1.0.0",
   "description": "Adding the storefront related changes to the administration.",
-  "main": "./src/main.js"
+  "main": "./src/main.js",
+  "scripts": {
+    "lint": "../../../../Administration/Resources/app/administration/node_modules/.bin/eslint src --cache",
+    "lint:fix": "npm run lint -- --fix"
+  }
 }

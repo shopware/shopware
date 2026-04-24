@@ -2,13 +2,15 @@ import template from './sw-theme-list-item.html.twig';
 import './sw-theme-list-item.scss';
 
 /**
- * @package discovery
+ * @sw-package discovery
  */
 
 const { Component, Application } = Shopware;
 
 Component.register('sw-theme-list-item', {
     template,
+
+emits: ['preview-image-change', 'item-click', 'theme-delete'],
 
     props: {
         theme: {

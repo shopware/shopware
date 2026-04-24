@@ -2,7 +2,7 @@ import template from './sw-theme-modal.html.twig';
 import './sw-theme-modal.scss';
 
 /**
- * @package discovery
+ * @sw-package discovery
  */
 
 const { Component, Mixin } = Shopware;
@@ -12,6 +12,8 @@ Component.register('sw-theme-modal', {
     template,
 
     inject: ['repositoryFactory'],
+
+    emits: ['modal-theme-select', 'modal-close'],
 
     mixins: [
         Mixin.getByName('listing')

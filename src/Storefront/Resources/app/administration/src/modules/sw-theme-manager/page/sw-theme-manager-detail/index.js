@@ -2,7 +2,7 @@ import template from './sw-theme-manager-detail.html.twig';
 import './sw-theme-manager-detail.scss';
 
 /**
- * @package discovery
+ * @sw-package discovery
  */
 
 const { Component, Mixin } = Shopware;

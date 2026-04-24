@@ -4,6 +4,10 @@
 
 <details>
 
+### Minimum value constraints added to quantity fields in ProductPriceDefinition
+
+The fields `quantityStart` and `quantityEnd` of ProductPriceDefinition now require a minimum value of `1`.
+
 ## Default CMS page ID now persisted for categories
 
 The default CMS page ID is now automatically written to the database when a category is saved without a `cmsPageId`.

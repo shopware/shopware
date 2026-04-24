@@ -78,7 +78,7 @@ jobs:
 
       - name: Get changed files
         id: changed-files
-        uses: tj-actions/changed-files@8cba46e29c11878d930bca7870bb54394d3e8b21 # v46
+        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v46
         with:
           files: |
             tests/acceptance/tests/**/*.spec.ts
@@ -251,16 +251,16 @@ jobs:
           fetch-depth: 2
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@9e907b5e64f6b83e7804b09294d44122997950d6 #  v4.32.3
+        uses: github/codeql-action/init@95e58e9a2cdfd71adc6e0353d5c52f41a045d225 #  v4.35.2
 
         with:
           languages: ${{ matrix.language }}
 
       - name: Autobuild
-        uses: github/codeql-action/autobuild@9e907b5e64f6b83e7804b09294d44122997950d6 #  v4.32.3
+        uses: github/codeql-action/autobuild@95e58e9a2cdfd71adc6e0353d5c52f41a045d225 #  v4.35.2
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@9e907b5e64f6b83e7804b09294d44122997950d6 #  v4.32.3
+        uses: github/codeql-action/analyze@95e58e9a2cdfd71adc6e0353d5c52f41a045d225 #  v4.35.2
 
   tested-update-versions:
     name: tested-versions
@@ -366,7 +366,7 @@ jobs:
         working-directory: old-shopware
         run: symfony server:start -d
 
-      - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # 4
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # 4
         with:
           node-version: 22
 
@@ -389,7 +389,7 @@ jobs:
         working-directory: new-shopware/tests/acceptance
         run: npx playwright test --project=Update --trace=on
 
-      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # 6.0.0
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # 7.0.1
         if: always()
         with:
           name: playwright-report-update-${{ matrix.update.type }}-${{ matrix.update.version }}

@@ -36,7 +36,7 @@ jobs:
           coverage: none
           extensions: gd, xml, dom, curl, pdo, mysqli, mbstring, pdo_mysql, bcmath
 
-      - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # 4
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # 4
         with:
           node-version: 22
 
@@ -44,7 +44,7 @@ jobs:
         run: |
           composer setup
 
-      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # 6.0.0
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # 7.0.1
         with:
           name: context
           include-hidden-files: true
@@ -100,7 +100,7 @@ jobs:
       GIT_COMMITTER_NAME: "shopwareBot"
       DEBUG: ${{ github.event.act && '1' || '' }}
     steps:
-      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # 4
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # 4
         with:
           name: context
 

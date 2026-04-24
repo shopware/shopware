@@ -37,7 +37,7 @@ final class CachedEscaperRuntime
      * @throws RuntimeError
      */
     public static function escape(
-        EscaperRuntime $escaper,
+        EscaperRuntime $originalEscaperRuntime,
         mixed $string,
         string $strategy = 'html',
         ?string $charset = null,
@@ -52,7 +52,7 @@ final class CachedEscaperRuntime
             }
         }
 
-        $result = $escaper->escape($string, $strategy, $charset, $autoescape);
+        $result = $originalEscaperRuntime->escape($string, $strategy, $charset, $autoescape);
 
         if ($cacheKey === null) {
             return $result;

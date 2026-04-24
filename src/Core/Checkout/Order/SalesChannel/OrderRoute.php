@@ -44,12 +44,13 @@ class OrderRoute extends AbstractOrderRoute
      * @param EntityRepository<PromotionCollection> $promotionRepository
      */
     public function __construct(
-        private readonly EntityRepository $orderRepository,
-        private readonly EntityRepository $promotionRepository,
-        private readonly RateLimiter $rateLimiter,
+        private readonly EntityRepository         $orderRepository,
+        private readonly EntityRepository         $promotionRepository,
+        private readonly RateLimiter              $rateLimiter,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly AccountService $accountService,
-        private readonly GuestAuthenticator $guestAuthenticator,
+        private readonly AccountService           $accountService,
+        private readonly GuestAuthenticator       $guestAuthenticator,
+        private readonly int                      $deepLinkExpireDays = 30,
     ) {
     }
 
@@ -229,7 +230,7 @@ class OrderRoute extends AbstractOrderRoute
     private function filterOldOrders(OrderCollection $orders): OrderCollection
     {
         // Search with deepLinkCode needs updatedAt Filter
-        $latestOrderDate = (new \DateTime())->setTimezone(new \DateTimeZone('UTC'))->modify(-abs(30) . ' Day');
+        $latestOrderDate = (new \DateTime())->setTimezone(new \DateTimeZone('UTC'))->modify(-abs($this->deepLinkExpireDays) . ' Day');
 
         return $orders->filter(static fn (OrderEntity $order) => $order->getCreatedAt() > $latestOrderDate || $order->getUpdatedAt() > $latestOrderDate);
     }

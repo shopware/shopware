@@ -5,11 +5,15 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Routing\NotFound;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
+use Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber;
+use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Kernel;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
 use Shopware\Core\Test\Assert\Serialization;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
@@ -144,6 +148,72 @@ class NotFoundSubscriberTest extends TestCase
         static::assertArrayHasKey(SystemConfigChangedEvent::class, NotFoundSubscriber::getSubscribedEvents());
 
         static::assertArrayHasKey(KernelEvents::EXCEPTION, NotFoundSubscriber::getSubscribedEvents());
+    }
+
+    public function testNoStoreAttributeIsSetForPersonalized404RequestWithCustomer(): void
+    {
+        $subscriber = $this->createNotFoundSubscriber(
+            kernelCallback: static::callback(static function (Request $request) {
+                return $request->attributes->get(PlatformRequest::ATTRIBUTE_NO_STORE) === true;
+            })
+        );
+
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext->expects($this->once())->method('getCustomer')->willReturn(new CustomerEntity());
+        $request = new Request(attributes: [
+            PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => $salesChannelContext,
+        ]);
+        $event = $this->createExceptionEvent($request);
+
+        $subscriber->onError($event);
+    }
+
+    public function testNoStoreAttributeIsSetForPersonalized404RequestWithCacheCookie(): void
+    {
+        $subscriber = $this->createNotFoundSubscriber(
+            kernelCallback: static::callback(static function (Request $request) {
+                return $request->attributes->get(PlatformRequest::ATTRIBUTE_NO_STORE) === true;
+            })
+        );
+
+        $request = new Request(cookies: [
+            HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE => 'foo',
+        ]);
+        $event = $this->createExceptionEvent($request);
+
+        $subscriber->onError($event);
+    }
+
+    public function testNoStoreAttributeIsSetForPersonalized404RequestWithStateCookieLoggedIn(): void
+    {
+        $subscriber = $this->createNotFoundSubscriber(
+            kernelCallback: static::callback(static function (Request $request) {
+                return $request->attributes->get(PlatformRequest::ATTRIBUTE_NO_STORE) === true;
+            })
+        );
+
+        $request = new Request(cookies: [
+            HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE => CacheStateSubscriber::STATE_LOGGED_IN,
+        ]);
+        $event = $this->createExceptionEvent($request);
+
+        $subscriber->onError($event);
+    }
+
+    public function testNoStoreAttributeIsSetForPersonalized404RequestWithStateCookieCartFilled(): void
+    {
+        $subscriber = $this->createNotFoundSubscriber(
+            kernelCallback: static::callback(static function (Request $request) {
+                return $request->attributes->get(PlatformRequest::ATTRIBUTE_NO_STORE) === true;
+            })
+        );
+
+        $request = new Request(cookies: [
+            HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE => CacheStateSubscriber::STATE_CART_FILLED,
+        ]);
+        $event = $this->createExceptionEvent($request);
+
+        $subscriber->onError($event);
     }
 
     private function createNotFoundSubscriber(

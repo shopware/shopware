@@ -3,6 +3,8 @@
 namespace Shopware\Storefront\Framework\Routing\NotFound;
 
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
+use Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber;
+use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\Log\Package;
@@ -51,7 +53,7 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
     public function __construct(
         private readonly HttpKernelInterface $httpKernel,
         private readonly SalesChannelContextServiceInterface $contextService,
-        private bool $kernelDebug, // Do not change to readonly, as it is used in tests
+        private readonly bool $kernelDebug,
         private readonly CacheInterface $cache,
         private readonly EntityCacheKeyGenerator $generator,
         private readonly CacheInvalidator $cacheInvalidator,
@@ -97,19 +99,19 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
             $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StorefrontRouteScope::ID]);
         }
 
-        $is404StatusCode = $event->getThrowable() instanceof HttpException && $event->getThrowable()->getStatusCode() === Response::HTTP_NOT_FOUND;
+        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
+        \assert($context instanceof SalesChannelContext);
+        $throwable = $event->getThrowable();
 
-        // If the exception is not a 404 status code, we don't need to cache it.
-        if (!$is404StatusCode) {
-            /** @var Context|null $context */
-            $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
-            $event->setResponse($this->renderErrorPage($request, $event->getThrowable(), $context ?? Context::createDefaultContext()));
+        $is404StatusCode = $throwable instanceof HttpException && $throwable->getStatusCode() === Response::HTTP_NOT_FOUND;
+        // Do not cache if exception is not 404 or if personalized data is in the request
+        if (!$is404StatusCode || $this->isPersonalized404Request($request, $context)) {
+            $request->attributes->set(PlatformRequest::ATTRIBUTE_NO_STORE, true);
+
+            $event->setResponse($this->renderErrorPage($request, $throwable, $context->getContext()));
 
             return;
         }
-
-        /** @var SalesChannelContext $context */
-        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
 
         $name = self::buildName($salesChannelId, $domainId, $languageId);
         $key = $this->generateKey($salesChannelId, $domainId, $languageId, $request, $context);
@@ -144,6 +146,30 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
     public function reset(): void
     {
         $this->handled = false;
+    }
+
+    private function isPersonalized404Request(Request $request, SalesChannelContext $context): bool
+    {
+        if ($context->getCustomer() !== null) {
+            return true;
+        }
+
+        if ($request->cookies->has(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE)) {
+            return true;
+        }
+
+        $states = array_filter(
+            explode(',', $request->cookies->getString(HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE))
+        );
+        if ($states === []) {
+            return false;
+        }
+
+        if (\in_array(CacheStateSubscriber::STATE_LOGGED_IN, $states, true)) {
+            return true;
+        }
+
+        return \in_array(CacheStateSubscriber::STATE_CART_FILLED, $states, true);
     }
 
     private static function buildName(string $salesChannelId, string $domainId, string $languageId): string
@@ -197,7 +223,7 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
      */
     private function renderErrorPage(Request $request, \Throwable $e, Context $context): Response
     {
-        $errorRequest = $request->duplicate(null, null, [
+        $errorRequest = $request->duplicate(attributes: [
             ...$request->attributes->all(),
             '_controller' => '\Shopware\Storefront\Controller\ErrorController::error',
             PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,

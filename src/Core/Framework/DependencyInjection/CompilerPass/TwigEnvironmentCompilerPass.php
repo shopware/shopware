@@ -16,7 +16,7 @@ class TwigEnvironmentCompilerPass implements CompilerPassInterface
     public function process(ContainerBuilder $container): void
     {
         $twigEnvironment = $container->findDefinition('twig');
-        // symfony service subscriber somehow don't work, therefore the service has to be public
+        // Symfony service subscriber somehow doesn't work. Therefore, the service has to be public
         $twigEnvironment->setPublic(true);
         $twigEnvironment->setClass(TwigEnvironment::class);
 

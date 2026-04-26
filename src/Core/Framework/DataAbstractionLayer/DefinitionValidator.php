@@ -65,6 +65,7 @@ class DefinitionValidator
         'media',
         'productMedia',
         'mailTemplateMedia',
+        'categoryTranslationLinkMedia',
     ];
 
     private const CUSTOM_PREFIXED_NAMED = [

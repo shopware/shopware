@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
+use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationCollection;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionCollection;
@@ -81,6 +82,8 @@ class MediaEntity extends Entity
     protected ?MediaTranslationCollection $translations = null;
 
     protected ?CategoryCollection $categories = null;
+
+    protected ?CategoryTranslationCollection $categoryTranslationLinkMedia = null;
 
     protected ?ProductManufacturerCollection $productManufacturers = null;
 
@@ -289,6 +292,16 @@ class MediaEntity extends Entity
     public function setCategories(CategoryCollection $categories): void
     {
         $this->categories = $categories;
+    }
+
+    public function getCategoryTranslationLinkMedia(): ?CategoryTranslationCollection
+    {
+        return $this->categoryTranslationLinkMedia;
+    }
+
+    public function setCategoryTranslationLinkMedia(CategoryTranslationCollection $categoryTranslationLinkMedia): void
+    {
+        $this->categoryTranslationLinkMedia = $categoryTranslationLinkMedia;
     }
 
     public function getProductManufacturers(): ?ProductManufacturerCollection

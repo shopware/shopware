@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
+use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionDefinition;
@@ -115,6 +116,7 @@ class MediaDefinition extends EntityDefinition
             // reverse side of the associations, not available in store-api
             new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, 'id', false),
             (new OneToManyAssociationField('categories', CategoryDefinition::class, 'media_id', 'id'))->addFlags(new SetNullOnDelete()),
+            new OneToManyAssociationField('categoryTranslationLinkMedia', CategoryTranslationDefinition::class, 'link_media_id', 'id'),
             (new OneToManyAssociationField('productManufacturers', ProductManufacturerDefinition::class, 'media_id', 'id'))->addFlags(new SetNullOnDelete()),
             (new OneToManyAssociationField('productMedia', ProductMediaDefinition::class, 'media_id', 'id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('productDownloads', ProductDownloadDefinition::class, 'media_id', 'id'))->addFlags(new RestrictDelete()),

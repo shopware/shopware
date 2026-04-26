@@ -105,9 +105,7 @@ export default {
         },
 
         isInternal() {
-            return !!this.category.linkType
-                && this.category.linkType !== 'external'
-                && this.category.linkType !== 'media';
+            return !!this.category.linkType && this.category.linkType !== 'external' && this.category.linkType !== 'media';
         },
 
         productCriteria() {

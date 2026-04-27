@@ -3,7 +3,7 @@
  */
 import { mount } from '@vue/test-utils';
 
-async function createWrapper() {
+async function createWrapper(props = {}) {
     return mount(await wrapTestComponent('sw-mail-template-preview-modal', { sync: true }), {
         props: {
             isLoading: false,
@@ -17,6 +17,7 @@ async function createWrapper() {
                 contentHtml: { type: 'success', content: '<div>Content</div>' },
                 footerHtml: { type: 'success', content: '<div>Footer</div>' },
             },
+            ...props,
         },
         global: {
             stubs: {
@@ -48,6 +49,13 @@ describe('modules/sw-mail-template/component/sw-mail-template-preview-modal', ()
         expect(wrapper.emitted()['modal-close']).toHaveLength(1);
     });
 
+    it('hides preview content while loading', async () => {
+        const wrapper = await createWrapper({ isLoading: true });
+
+        expect(wrapper.find('.sw-mail-template-preview-modal__subject').exists()).toBe(false);
+        expect(wrapper.findAll('iframe.sw-mail-template-preview-modal__html-frame')).toHaveLength(0);
+    });
+
     it('renders html preview in sandboxed iframes', async () => {
         const wrapper = await createWrapper();
 
@@ -56,5 +64,40 @@ describe('modules/sw-mail-template/component/sw-mail-template-preview-modal', ()
         expect(htmlFrames).toHaveLength(3);
         expect(htmlFrames.at(0).attributes('sandbox')).toBeDefined();
         expect(htmlFrames.at(0).attributes('srcdoc')).toContain('<div>Header</div>');
+    });
+
+    it('renders error banners instead of success content for error branches', async () => {
+        const wrapper = await createWrapper({
+            mailPreview: {
+                subject: {
+                    type: 'error',
+                    errorTitle: 'Twig syntax error',
+                    errorMessage: 'subject failed.',
+                },
+                senderName: { type: 'success', content: 'Sender' },
+                headerPlain: { type: 'success', content: 'Header plain' },
+                contentPlain: {
+                    type: 'error',
+                    errorTitle: 'Twig syntax error',
+                    errorMessage: 'plain content failed.',
+                },
+                footerPlain: { type: 'success', content: 'Footer plain' },
+                headerHtml: { type: 'success', content: '<div>Header</div>' },
+                contentHtml: {
+                    type: 'error',
+                    errorTitle: 'Twig syntax error',
+                    errorMessage: 'html content failed.',
+                },
+                footerHtml: { type: 'success', content: '<div>Footer</div>' },
+            },
+        });
+
+        expect(wrapper.find('.sw-mail-template-preview-modal__subject-error').exists()).toBe(true);
+        expect(wrapper.find('.sw-mail-template-preview-modal__subject-content').exists()).toBe(false);
+        expect(wrapper.findAll('.sw-mail-template-preview-modal__plain-text-error')).toHaveLength(1);
+        expect(wrapper.find('.sw-mail-template-preview-modal__plain-text').text()).toContain('plain content failed.');
+        expect(wrapper.findAll('.sw-mail-template-preview-modal__html-error')).toHaveLength(1);
+        expect(wrapper.find('.sw-mail-template-preview-modal__html').text()).toContain('html content failed.');
+        expect(wrapper.findAll('iframe.sw-mail-template-preview-modal__html-frame')).toHaveLength(2);
     });
 });

@@ -152,7 +152,7 @@ class CustomerDefinition extends EntityDefinition
             new OneToOneAssociationField('recoveryCustomer', 'id', 'customer_id', CustomerRecoveryDefinition::class, false),
             (new RemoteAddressField('remote_address', 'remoteAddress'))->setDescription('Anonymous IP address of the customer for last session.'),
             (new ManyToManyIdField('tag_ids', 'tagIds', 'tags'))->addFlags(new ApiAware())->setDescription('Unique identity of tag.'),
-            (new FkField('requested_customer_group_id', 'requestedGroupId', CustomerGroupDefinition::class))->setDescription('Unique identity of requested group.'),
+            (new FkField('requested_customer_group_id', 'requestedGroupId', CustomerGroupDefinition::class))->addFlags(new ApiAware())->setDescription('Unique identity of requested group.'),
             new ManyToOneAssociationField('requestedGroup', 'requested_customer_group_id', CustomerGroupDefinition::class, 'id', false),
             (new FkField('bound_sales_channel_id', 'boundSalesChannelId', SalesChannelDefinition::class))->setDescription('Unique identity of bonus sales channel.'),
             (new StringField('account_type', 'accountType'))->addFlags(new ApiAware(), new Required(), new IgnoreInOpenapiSchema())->setDescription('Account type can be personal or business.'),

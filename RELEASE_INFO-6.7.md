@@ -77,9 +77,16 @@ This fixes stale iframe content when switching locations in Meteor Admin SDK int
 The Administration order list now shows internal order comments via a dedicated tooltip icon.
 This helps merchants spot internal notes directly from the list view without opening the order detail page.
 
+<<<<<<< fix/admin-menu-flyout-overflow
+### Admin menu flyout no longer overflows the viewport
+
+When the sidebar is collapsed, hovering a menu entry near the bottom of the sidebar could cause the flyout submenu to extend beyond the viewport, making lower entries inaccessible.
+The flyout now calculates a dynamic `max-height` from the remaining viewport space and scrolls vertically when its content exceeds that limit.
+=======
 ### [Experimental] Agentic Commerce sales channel views and tracking entities
 
 New Agentic Commerce sales channels types can be created. These sales channels have dedicated configuration options in the administration for property mapping, and usage insights. New entities for monitoring orders and customers for Agentic Commerce sales channels are included.
+>>>>>>> trunk
 
 ## Storefront
 

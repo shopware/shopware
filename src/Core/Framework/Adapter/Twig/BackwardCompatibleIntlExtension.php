@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Adapter\Twig;
 
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Locale\Util\LocaleHelper;
 use Twig\Extension\AbstractExtension;
 use Twig\Extra\Intl\IntlExtension;
 use Twig\TwigFilter;
@@ -43,10 +44,7 @@ class BackwardCompatibleIntlExtension extends AbstractExtension
             return $this->intlExtension->formatCurrency($amount, $currency, $attrs, $locale);
         }
 
-        try {
-            /** @phpstan-ignore new.resultUnused (just called to "validate" the locale) */
-            new \NumberFormatter($locale, \NumberFormatter::CURRENCY);
-        } catch (\ValueError) {
+        if (!LocaleHelper::isLocale($locale)) {
             Feature::triggerDeprecationOrThrow(
                 'v6.8.0.0',
                 'The locale "' . $locale . '" passed to "format_currency" twig filter is no valid PHP locale. Please use a valid locale.'
@@ -67,10 +65,7 @@ class BackwardCompatibleIntlExtension extends AbstractExtension
             return $this->intlExtension->formatNumber($number, $attrs, $style, $type, $locale);
         }
 
-        try {
-            /** @phpstan-ignore new.resultUnused (just called to "validate" the locale) */
-            new \NumberFormatter($locale, \NumberFormatter::DECIMAL);
-        } catch (\ValueError) {
+        if (!LocaleHelper::isLocale($locale)) {
             Feature::triggerDeprecationOrThrow(
                 'v6.8.0.0',
                 'The locale "' . $locale . '" passed to "format_number" twig filter is no valid PHP locale. Please use a valid locale.'

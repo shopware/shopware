@@ -47,4 +47,14 @@ describe('modules/sw-mail-template/component/sw-mail-template-preview-modal', ()
 
         expect(wrapper.emitted()['modal-close']).toHaveLength(1);
     });
+
+    it('renders html preview in sandboxed iframes', async () => {
+        const wrapper = await createWrapper();
+
+        const htmlFrames = wrapper.findAll('iframe.sw-mail-template-preview-modal__html-frame');
+
+        expect(htmlFrames).toHaveLength(3);
+        expect(htmlFrames.at(0).attributes('sandbox')).toBeDefined();
+        expect(htmlFrames.at(0).attributes('srcdoc')).toContain('<div>Header</div>');
+    });
 });

@@ -379,41 +379,47 @@
                                     v-if="mailPreview.headerHtml.type === 'error'"
                                     class="sw-mail-template-preview-modal__html-error"
                                     variant="critical"
-                                    :title="`Mail header (HTML): ${mailPreview.headerHtml.errorTitle}`"
+                                    :title="`${$t('sw-mail-template.detail.previewModalMailHeaderHtmlLabel')}: ${mailPreview.headerHtml.errorTitle}`"
                                 >
                                     {{ mailPreview.headerHtml.errorMessage }}
                                 </mt-banner>
-                                <div
+                                <iframe
                                     v-else
-                                    class="sw-mail-template-preview-modal__html-content"
-                                    v-html="mailPreview.headerHtml.content"
-                                ></div>
+                                    class="sw-mail-template-preview-modal__html-frame"
+                                    sandbox=""
+                                    referrerpolicy="no-referrer"
+                                    :srcdoc="buildPreviewHtmlDocument(mailPreview.headerHtml.content)"
+                                ></iframe>
                                 <mt-banner
                                     v-if="mailPreview.contentHtml.type === 'error'"
                                     class="sw-mail-template-preview-modal__html-error"
                                     variant="critical"
-                                    :title="`Mail content (HTML): ${mailPreview.contentHtml.errorTitle}`"
+                                    :title="`${$t('sw-mail-template.detail.previewModalMailContentHtmlLabel')}: ${mailPreview.contentHtml.errorTitle}`"
                                 >
                                     {{ mailPreview.contentHtml.errorMessage }}
                                 </mt-banner>
-                                <div
+                                <iframe
                                     v-else
-                                    class="sw-mail-template-preview-modal__html-content"
-                                    v-html="mailPreview.contentHtml.content"
-                                ></div>
+                                    class="sw-mail-template-preview-modal__html-frame"
+                                    sandbox=""
+                                    referrerpolicy="no-referrer"
+                                    :srcdoc="buildPreviewHtmlDocument(mailPreview.contentHtml.content)"
+                                ></iframe>
                                 <mt-banner
                                     v-if="mailPreview.footerHtml.type === 'error'"
                                     class="sw-mail-template-preview-modal__html-error"
                                     variant="critical"
-                                    :title="`Mail footer (HTML): ${mailPreview.footerHtml.errorTitle}`"
+                                    :title="`${$t('sw-mail-template.detail.previewModalMailFooterHtmlLabel')}: ${mailPreview.footerHtml.errorTitle}`"
                                 >
                                     {{ mailPreview.footerHtml.errorMessage }}
                                 </mt-banner>
-                                <div
+                                <iframe
                                     v-else
-                                    class="sw-mail-template-preview-modal__html-content"
-                                    v-html="mailPreview.footerHtml.content"
-                                ></div>
+                                    class="sw-mail-template-preview-modal__html-frame"
+                                    sandbox=""
+                                    referrerpolicy="no-referrer"
+                                    :srcdoc="buildPreviewHtmlDocument(mailPreview.footerHtml.content)"
+                                ></iframe>
                             </div>
                         </template>
 

@@ -1,3 +1,12 @@
+# 6.7.11.0 (upcoming)
+
+## API
+
+### Customer group registration config now returns a stable company-registration flag
+
+The Store API endpoint `GET /store-api/customer-group-registration/config/{customerGroupId}` now exposes `registrationOnlyCompanyRegistration` as a top-level response field.
+For backward compatibility, `translated.registrationOnlyCompanyRegistration` is still present but deprecated. If the value is not set for a customer group yet, the endpoint now returns `false` instead of `null`.
+
 # 6.7.10.0 (upcoming)
 
 ## Features
@@ -6,13 +15,6 @@
 
 A new "Agentic Commerce" sales channel type is available in this release. The OpenAI Merchant Center integration is the first supported provider for AI-powered product feed exports.
 The Administration includes dedicated views for configuration, product mapping, and usage insights.
-
-## API
-
-### Customer group registration config now returns a stable company-registration flag
-
-The Store API endpoint `GET /store-api/customer-group-registration/config/{customerGroupId}` now exposes `registrationOnlyCompanyRegistration` as a top-level response field.
-For backward compatibility, `translated.registrationOnlyCompanyRegistration` is still present but deprecated. If the value is not set for a customer group yet, the endpoint now returns `false` instead of `null`.
 
 ### Per-user and per-IP rate limiters for login and OAuth
 

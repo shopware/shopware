@@ -3,19 +3,22 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
-use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
+use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
 /**
- * @extends StoreApiResponse<ArrayStruct<array<string, mixed>>>
+ * @extends StoreApiResponse<Struct>
  */
 #[Package('checkout')]
 class CustomerGroupRegistrationSettingsRouteResponse extends StoreApiResponse
 {
     private CustomerGroupEntity $registration;
 
+    /**
+     * @param CustomerGroupEntity $object
+     */
     public function __construct(
         Struct $object,
     ) {

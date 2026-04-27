@@ -9,6 +9,11 @@ The Administration includes dedicated views for configuration, product mapping, 
 
 ## API
 
+### Customer group registration config now returns a stable company-registration flag
+
+The Store API endpoint `GET /store-api/customer-group-registration/config/{customerGroupId}` now exposes `registrationOnlyCompanyRegistration` as a top-level response field.
+For backward compatibility, `translated.registrationOnlyCompanyRegistration` is still present but deprecated. If the value is not set for a customer group yet, the endpoint now returns `false` instead of `null`.
+
 ### Per-user and per-IP rate limiters for login and OAuth
 
 The login and OAuth token endpoints now support optional per user (`login_user`, `oauth_user`) and per IP (`login_client`, `oauth_client`) rate limiters, in addition to the existing combined user and IP limiter.

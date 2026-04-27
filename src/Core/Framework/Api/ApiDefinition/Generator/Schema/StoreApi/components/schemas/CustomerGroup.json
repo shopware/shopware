@@ -7,6 +7,12 @@
             "CustomerGroup": {
                 "required": ["translated"],
                 "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "registrationOnlyCompanyRegistration": {
+                        "type": "boolean"
+                    },
                     "translated": {
                         "type": "object",
                         "properties": {
@@ -18,6 +24,10 @@
                             },
                             "registrationSeoMetaDescription": {
                                 "type": "string"
+                            },
+                            "registrationOnlyCompanyRegistration": {
+                                "type": "boolean",
+                                "deprecated": true
                             },
                             "registrationTitle": {
                                 "type": "string"

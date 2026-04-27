@@ -61,6 +61,7 @@ class CustomerGroupRegistrationSettingsRouteTest extends TestCase
                 'name' => 'foo',
                 'registrationActive' => true,
                 'registrationTitle' => 'test',
+                'registrationOnlyCompanyRegistration' => true,
                 'registrationSalesChannels' => [['id' => $this->getSalesChannelApiSalesChannelId()]],
             ],
         ], Context::createDefaultContext());
@@ -76,5 +77,36 @@ class CustomerGroupRegistrationSettingsRouteTest extends TestCase
 
         static::assertSame($this->ids->get('group'), $response['id']);
         static::assertSame('test', $response['registrationTitle']);
+        static::assertTrue($response['registrationOnlyCompanyRegistration']);
+        static::assertArrayHasKey('translated', $response);
+        static::assertTrue($response['translated']['registrationOnlyCompanyRegistration']);
+    }
+
+    public function testWithValidConfigWithoutCompanyRegistrationFlagDoesNotCrash(): void
+    {
+        $customerGroupRepository = static::getContainer()->get('customer_group.repository');
+        $customerGroupRepository->create([
+            [
+                'id' => $this->ids->create('group-without-flag'),
+                'name' => 'foo',
+                'registrationActive' => true,
+                'registrationTitle' => 'test',
+                'registrationSalesChannels' => [['id' => $this->getSalesChannelApiSalesChannelId()]],
+            ],
+        ], Context::createDefaultContext());
+
+        $this->browser
+            ->request(
+                'GET',
+                '/store-api/customer-group-registration/config/' . $this->ids->get('group-without-flag')
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+
+        static::assertSame($this->ids->get('group-without-flag'), $response['id']);
+        static::assertFalse($response['registrationOnlyCompanyRegistration']);
+        static::assertArrayHasKey('translated', $response);
+        static::assertFalse($response['translated']['registrationOnlyCompanyRegistration']);
     }
 }

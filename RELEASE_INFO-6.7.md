@@ -1,3 +1,35 @@
+# 6.7.11.0 (upcoming)
+
+## Features
+
+## API
+
+## Core
+
+### Backward compatible invalid locales
+
+Added and deprecated `BackwardCompatibleNumberFormatter` to temporarily allow invalid locale strings without throwing exceptions in PHP >=8.4. It will be removed in Shopware 6.8.
+
+## Administration
+
+### Fixed "Last Quarter" timeframe returning the wrong year in `sw-date-filter`
+
+Selecting the "Last Quarter" timeframe in any listing's date filter (orders, documents, customers, etc.) between January and March now produces a three-month range in the previous year instead of a ~15-month range that spanned both years.
+The end boundary is now derived from the quarter's start year rather than the current year.
+
+### Admin menu flyout no longer overflows the viewport
+
+When the sidebar is collapsed, hovering a menu entry near the bottom of the sidebar could cause the flyout submenu to extend beyond the viewport, making lower entries inaccessible.
+The flyout now calculates a dynamic `max-height` from the remaining viewport space and scrolls vertically when its content exceeds that limit.
+
+## Storefront
+
+## App System
+
+## Hosting & Configuration
+
+## Critical Fixes
+
 # 6.7.10.0
 
 ## Features

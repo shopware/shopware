@@ -1,12 +1,32 @@
 import template from './sw-order-send-document-modal.html.twig';
 import './sw-order-send-document-modal.scss';
-
-/**
- * @sw-package checkout
- */
+import { DOCUMENT_TYPES } from '../../order.types';
 
 const { Filter } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
+
+const DOCUMENT_MAIL_TEMPLATES = {
+    INVOICE: 'invoice_mail',
+    DELIVERY_NOTE: 'delivery_mail',
+    CREDIT_NOTE: 'credit_note_mail',
+    CANCELLATION_INVOICE: 'cancellation_mail',
+};
+
+/**
+ * @private
+ */
+export const DOCUMENT_MAIL_TEMPLATE_MAPPING = {
+    [DOCUMENT_TYPES.INVOICE]: DOCUMENT_MAIL_TEMPLATES.INVOICE,
+    [DOCUMENT_TYPES.ZUGFERD_INVOICE]: DOCUMENT_MAIL_TEMPLATES.INVOICE,
+    [DOCUMENT_TYPES.ZUGFERD_EMBEDDED_INVOICE]: DOCUMENT_MAIL_TEMPLATES.INVOICE,
+    [DOCUMENT_TYPES.DELIVERY_NOTE]: DOCUMENT_MAIL_TEMPLATES.DELIVERY_NOTE,
+    [DOCUMENT_TYPES.CREDIT_NOTE]: DOCUMENT_MAIL_TEMPLATES.CREDIT_NOTE,
+    [DOCUMENT_TYPES.ZUGFERD_CREDIT_NOTE]: DOCUMENT_MAIL_TEMPLATES.CREDIT_NOTE,
+    [DOCUMENT_TYPES.ZUGFERD_EMBEDDED_CREDIT_NOTE]: DOCUMENT_MAIL_TEMPLATES.CREDIT_NOTE,
+    [DOCUMENT_TYPES.CANCELLATION_INVOICE]: DOCUMENT_MAIL_TEMPLATES.CANCELLATION_INVOICE,
+    [DOCUMENT_TYPES.ZUGFERD_CANCELLATION_INVOICE]: DOCUMENT_MAIL_TEMPLATES.CANCELLATION_INVOICE,
+    [DOCUMENT_TYPES.ZUGFERD_EMBEDDED_CANCELLATION_INVOICE]: DOCUMENT_MAIL_TEMPLATES.CANCELLATION_INVOICE,
+};
 
 /**
  * @sw-package checkout
@@ -113,35 +133,33 @@ export default {
         },
 
         setEmailTemplateAccordingToDocumentType() {
-            const documentMailTemplateMapping = {
-                invoice: 'invoice_mail',
-                credit_note: 'credit_note_mail',
-                delivery_note: 'delivery_mail',
-                storno: 'cancellation_mail',
-            };
+            const type = this.document.documentType.technicalName;
 
-            if (!documentMailTemplateMapping.hasOwnProperty(this.document.documentType.technicalName)) {
+            if (!(type in DOCUMENT_MAIL_TEMPLATE_MAPPING)) {
                 return;
             }
 
-            this.mailTemplateRepository
-                .search(this.mailTemplateCriteria, { ...Shopware.Context.api, languageId: this.order.languageId })
-                .then((result) => {
-                    const mailTemplate = result
-                        .filter(
-                            (t) =>
-                                t.mailTemplateType.technicalName ===
-                                documentMailTemplateMapping[this.document.documentType.technicalName],
-                        )
-                        .first();
+            const template = DOCUMENT_MAIL_TEMPLATE_MAPPING[type];
 
-                    if (!mailTemplate) {
-                        return;
-                    }
+            const criteria = new Criteria(1, 1)
+                .addAssociation('mailTemplateType')
+                .addFilter(Criteria.equals('mailTemplateType.technicalName', template));
 
-                    this.mailTemplateId = mailTemplate.id;
-                    this.onMailTemplateChange(mailTemplate.id, mailTemplate);
-                });
+            const context = {
+                ...Shopware.Context.api,
+                languageId: this.order.languageId,
+            };
+
+            this.mailTemplateRepository.search(criteria, context).then((result) => {
+                if (result?.length !== 1) {
+                    return;
+                }
+
+                const mailTemplate = result.first();
+
+                this.mailTemplateId = mailTemplate.id;
+                this.onMailTemplateChange(mailTemplate.id, mailTemplate);
+            });
         },
 
         onMailTemplateChange(mailTemplateId, mailTemplate) {

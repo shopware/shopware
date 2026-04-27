@@ -1,307 +1,280 @@
-import { isSaaSInstance, test } from '@fixtures/AcceptanceTest';
-import { expect } from '@playwright/test';
-import type { Route, Request } from '@playwright/test';
+import { isSaaSInstance, test, expect, Page, Actor, AdminPageObjects, createNewAdminPageContext, loginToAdministration, User } from '@fixtures/AcceptanceTest';
+import { parseCapturedRequests, setupConsentInterceptor,
+    setupProductAnalyticsInterceptor, waitForEventCount,
+} from '@helpers/productanalytics-helpers';
 
-interface CapturedRequest {
-    postData: string;
-}
+const TRACKING_EVENT_ENDPOINT = 'event';
+const CONSENTS_ENDPOINT = 'consents';
 
-interface ProductAnalyticsContext {
-    sw_version: string;
-    sw_app_url: string;
-    sw_browser_url: string;
-    sw_user_agent: string;
-    sw_default_language: string;
-    sw_default_currency: string;
-    sw_screen_width: number;
-    sw_screen_height: number;
-    sw_screen_orientation: string;
-}
+test.describe('Product Analytics - Validate events.',
+    { tag: '@ProductAnalytics' }, () => {
+    test('As a merchant, I want to make sure admin events are sent correctly.', { tag: '@ProductAnalytics' }, async ({
+        TestDataService,
+        browser,
+        SalesChannelBaseConfig,
+        InstanceMeta,
+    }) => {
 
-interface ProductAnalyticsUser {
-    shop_id: string;
-    id: string;
-}
+        const { capturedTrackingEventRequests, trackingEventHandler } = setupProductAnalyticsInterceptor();
 
-export interface ProductAnalyticsEvent {
-    name: string;
-    properties: Record<string, string | number | null>;
-    timestamp: number;
-    insert_id: string;
-    device_id: string;
-    session_id: number;
-}
+        const page: Page = await createNewAdminPageContext(browser, SalesChannelBaseConfig);
 
-export interface ProductAnalyticsRequestPayload {
-    context: ProductAnalyticsContext;
-    events: ProductAnalyticsEvent[];
-    user: ProductAnalyticsUser;
-}
+        const product = await TestDataService.createBasicProduct();
+        const customer = await TestDataService.createCustomer();
+        const order = await TestDataService.createOrder([{ product: product, quantity: 1 }], customer);
 
-const PRODUCT_ANALYTICS_ENDPOINT = 'httpapi';
+        const ShopAdmin = new Actor('Shop administrator', page, SalesChannelBaseConfig.adminUrl );
+        const AdminDashboard = new AdminPageObjects['Dashboard'](page);
+        const AdminOrderListing = new AdminPageObjects['OrderListing'](page, InstanceMeta);
+        const AdminOrderDetail = new AdminPageObjects['OrderDetail'](page, InstanceMeta);
 
-// Annotate entire file as serial.
-test.describe.configure({ mode: 'serial' });
+        await test.step('Intercept all API calls to product analytics', async () => {
 
-test('As a merchant, I want to make sure admin events are sent correctly.', { tag: '@ProductAnalytics' }, async ({
-    ShopAdmin,
-    AdminDashboard,
-    AdminOrderListing,
-    AdminOrderDetail,
-    TestDataService,
-}) => {
+            const { consentHandler } = setupConsentInterceptor({ backend_data: 'declined', product_analytics: 'accepted' });
 
-    const captured: CapturedRequest[] = [];
-    const requestHandler = async (route: Route) => {
-        const req: Request = route.request();
-        captured.push({
-            postData: req.postData(),
+            // Intercept event and event/anonymous requests
+            await page.route(`**/${TRACKING_EVENT_ENDPOINT}**`, trackingEventHandler);
+            await page.route(`**/${CONSENTS_ENDPOINT}`, consentHandler);
         });
-        await route.fulfill(
-            {
-                status: 200,
-                headers: {
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Credentials': 'true',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    'code': 200,
-                }),
+
+        await test.step('Login to shopware administration', async () => {
+
+            const user: User = await TestDataService.createUser();
+
+            await loginToAdministration(
+                page,
+                user,
+                TestDataService.AdminApiClient,
+            );
+        });
+
+        await test.step('Navigate via link to order page from dashboard', async () => {
+
+            await AdminDashboard.adminMenuOrder.click();
+            await AdminDashboard.adminMenuOrderOverview.click();
+            await ShopAdmin.expects(AdminOrderListing.addOrderButton).toBeVisible();
+        });
+
+        await test.step('Navigate via link to detail order page', async () => {
+
+            const orderRow = await AdminOrderListing.getLineItemByOrderNumber(order.orderNumber);
+            await ShopAdmin.expects(orderRow.orderNumberText).toBeVisible()
+            await orderRow.orderNumberText.click();
+        });
+
+        await test.step('Navigate via button to save order', async () => {
+
+            await ShopAdmin.expects(AdminOrderDetail.saveButton).toBeVisible();
+            await ShopAdmin.expects(AdminOrderDetail.contextMenuButton).toBeVisible()
+            await AdminOrderDetail.saveButton.click();
+            await ShopAdmin.expects(AdminOrderDetail.contextMenuButton).toBeVisible()
+        });
+
+        await test.step('Navigate via page view to dashboard page', async () => {
+
+            await ShopAdmin.goesTo(AdminDashboard.url());
+
+            await ShopAdmin.expects(AdminDashboard.adminMenuOrder).toBeVisible();
+            // eslint-disable-next-line playwright/no-conditional-in-test
+            if (!await isSaaSInstance(TestDataService.AdminApiClient)) {
+                await ShopAdmin.expects(AdminDashboard.welcomeHeadline).toBeVisible();
             }
-        )
-    };
-
-    test.skip(true, 'Temporarily skipped after removing the PRODUCT_ANALYTICS feature flag.');
-
-    const product = await TestDataService.createBasicProduct();
-    const customer = await TestDataService.createCustomer();
-    const order = await TestDataService.createOrder([{ product: product, quantity: 1 }], customer);
-
-    await test.step('Intercept all the API calls to product analytics', async () => {
-
-        await AdminDashboard.page.route(`**/${PRODUCT_ANALYTICS_ENDPOINT}`, requestHandler);
-    });
-
-    await test.step('Set consent for product analytics', async () => {
-        // TO-DO: implement via UI once available and Feature flag is disabled by default
-    });
-
-    await test.step('Navigate via link to order page from dashboard', async () => {
-
-        const requestPromise = AdminDashboard.page.waitForRequest(`**/${PRODUCT_ANALYTICS_ENDPOINT}`);
-        await AdminDashboard.adminMenuOrder.click();
-        await AdminDashboard.adminMenuOrderOverview.click();
-        const request = await requestPromise;
-        expect(request.url()).toContain(PRODUCT_ANALYTICS_ENDPOINT);
-
-        await ShopAdmin.expects(AdminOrderListing.addOrderButton).toBeVisible();
-    });
-
-    await test.step('Navigate via link to detail order page', async () => {
-
-        const requestPromise = AdminDashboard.page.waitForRequest(`**/${PRODUCT_ANALYTICS_ENDPOINT}`);
-        const orderRow = await AdminOrderListing.getLineItemByOrderNumber(order.orderNumber);
-        await ShopAdmin.expects(orderRow.orderNumberText).toBeVisible()
-        await orderRow.orderNumberText.click();
-        const request = await requestPromise;
-        expect(request.url()).toContain(PRODUCT_ANALYTICS_ENDPOINT);
-    });
-
-    await test.step('Navigate via button to save order', async () => {
-
-        const requestPromise = AdminDashboard.page.waitForRequest(`**/${PRODUCT_ANALYTICS_ENDPOINT}`);
-        await ShopAdmin.expects(AdminOrderDetail.saveButton).toBeVisible();
-        await ShopAdmin.expects(AdminOrderDetail.contextMenuButton).toBeVisible()
-        await AdminOrderDetail.saveButton.click();
-        const request = await requestPromise;
-        expect(request.url()).toContain(PRODUCT_ANALYTICS_ENDPOINT);
-
-        await ShopAdmin.expects(AdminOrderDetail.contextMenuButton).toBeVisible()
-    });
-
-    await test.step('Navigate via page view to dashboard page', async () => {
-
-        const requestPromise = AdminDashboard.page.waitForRequest(`**/${PRODUCT_ANALYTICS_ENDPOINT}`);
-        await ShopAdmin.goesTo(AdminDashboard.url());
-        const request = await requestPromise;
-        expect(request.url()).toContain(PRODUCT_ANALYTICS_ENDPOINT);
-
-        await ShopAdmin.expects(AdminDashboard.adminMenuOrder).toBeVisible();
-        // eslint-disable-next-line playwright/no-conditional-in-test
-        if (!await isSaaSInstance(TestDataService.AdminApiClient)) {
-            await ShopAdmin.expects(AdminDashboard.welcomeHeadline).toBeVisible();
-        }
-    });
-
-    await test.step('Validate captured requests for product analytics', async () => {
-        const requests = parseCapturedRequests(captured);
-        expect(requests).toHaveLength(6);
-
-        const events = requests.flatMap((request) => request.events);
-        expect(events).toHaveLength(6);
-
-        const eventNames = events.map(e => e.name);
-        expect(eventNames).toEqual([
-            'link_visited',
-            'page_viewed',
-            'link_visited',
-            'page_viewed',
-            'button_click',
-            'page_viewed',
-        ]);
-
-        requests.forEach((request) => {
-            expect(request.user.shop_id).toBeTruthy();
-            expect(request.user.id).toBeTruthy();
-            expect(request.context.sw_version).toBeTruthy();
-            expect(request.context.sw_app_url).toBeTruthy();
-            expect(request.context.sw_browser_url).toBeTruthy();
-            expect(request.context.sw_user_agent).toBeTruthy();
-            expect(request.context.sw_default_language).toBeTruthy();
-            expect(request.context.sw_default_currency).toBeTruthy();
-            expect(request.context.sw_screen_width).toBeGreaterThan(0);
-            expect(request.context.sw_screen_height).toBeGreaterThan(0);
-            expect(request.context.sw_screen_orientation).toBeTruthy();
-
-            request.events.forEach((event) => {
-                expect(event.timestamp).toBeGreaterThan(0);
-                expect(event.insert_id).toBeTruthy();
-                expect(event.device_id).toBeTruthy();
-                expect(event.session_id).toBeGreaterThan(0);
-            });
         });
 
-        const [
-            firstLinkVisited,
-            pageViewed,
-            linkVisited,
-            pageViewedDetail,
-            buttonClicked,
-            pageViewedBackToDash,
-        ] = events;
+        await test.step('Validate captured requests for product analytics', async () => {
 
-        const firstLinkVisitedProps = firstLinkVisited.properties;
+            // We expect 10 events in total, but they can be in multiple requests
+            // Login > Page View (Dashboard) > Link Click (Order) >
+            // Page View (Order listing) > Page View (Order listing with filters) >
+            // Page View (Order listing with filters and grid filter null) >
+            // Link Click (Order detail) > Page View (Order detail) >
+            // Button Click (Save) > Page View (Dashboard)
+            const requests = parseCapturedRequests(capturedTrackingEventRequests);
+            expect(requests.length).toBeGreaterThanOrEqual(1);
 
-        expect(firstLinkVisitedProps.sw_link_href).toBe('#/sw/order/index');
-        expect(firstLinkVisitedProps.sw_link_type).toBe('internal');
-        expect(firstLinkVisitedProps.sw_page_path).toBe('/sw/dashboard/index');
-        expect(firstLinkVisitedProps.sw_page_name).toBe('sw.dashboard.index');
+            const getAnalyticsEvents = () =>
+                parseCapturedRequests(capturedTrackingEventRequests).flatMap(request => request.events);
 
-        const pageViewEventProps = pageViewed.properties;
+            await waitForEventCount(getAnalyticsEvents, 10);
 
-        expect(pageViewEventProps.sw_route_from_name).toBe('sw.dashboard.index');
-        expect(pageViewEventProps.sw_route_from_href).toBe('/sw/dashboard/index');
-        expect(pageViewEventProps.sw_route_to_name).toBe('sw.order.index');
-        expect(pageViewEventProps.sw_route_to_href).toBe('/sw/order/index');
-        expect(pageViewEventProps.sw_page_name).toBe('sw.order.index');
-        expect(pageViewEventProps.sw_page_path).toBe('/sw/order/index');
-        expect(pageViewEventProps.sw_page_full_path).toContain('/sw/order/index?limit=25&page=1&sortBy=orderDateTime&sortDirection=DESC&naturalSorting=false');
+            const events = getAnalyticsEvents();
 
-        const linkVisitedProps = linkVisited.properties;
+            const loginEvents = events.filter(e => e.name === 'login');
+            const pageViewed = events.filter(e => e.name === 'page_viewed');
+            const linkVisited = events.filter(e => e.name === 'link_visited');
+            const buttonClicked = events.filter(e => e.name === 'button_click');
 
-        expect(linkVisitedProps.sw_link_href).toContain(`#/sw/order/detail/${order.id}`);
-        expect(linkVisitedProps.sw_page_full_path).toContain('/sw/order/index?limit=25&page=1&sortBy=orderDateTime&sortDirection=DESC&naturalSorting=false&grid.filter.order=null')
-        expect(linkVisitedProps.sw_link_type).toBe('internal');
-        expect(linkVisitedProps.sw_page_path).toBe('/sw/order/index');
-        expect(linkVisitedProps.sw_page_name).toBe('sw.order.index');
+            expect(loginEvents).toHaveLength(1);
+            expect(pageViewed).toHaveLength(6);
+            expect(linkVisited).toHaveLength(2);
+            expect(buttonClicked).toHaveLength(1);
 
-        const pageViewedDetailProps = pageViewedDetail.properties;
+            const authenticatedRequests = requests.filter((request) => request.user?.id != null);
 
-        expect(pageViewedDetailProps.sw_route_from_name).toBe('sw.order.index');
-        expect(pageViewedDetailProps.sw_route_from_href).toBe('/sw/order/index');
-        expect(pageViewedDetailProps.sw_route_to_name).toBe('sw.order.detail.general');
-        expect(pageViewedDetailProps.sw_route_to_href).toContain('/sw/order/detail/');
-        expect(pageViewedDetailProps.sw_page_name).toBe('sw.order.detail.general');
-        expect(pageViewedDetailProps.sw_page_path).toContain('/sw/order/detail/');
-        expect(pageViewedDetailProps.sw_page_full_path).toBe(`/sw/order/detail/${order.id}/general`);
+            for (const request of authenticatedRequests) {
+                expect(request.user.shop_id).toBeTruthy();
+                expect(request.user.id).toBeTruthy();
+                expect(request.context.sw_version).toBeTruthy();
+                expect(request.context.sw_app_url).toBeTruthy();
+                expect(request.context.sw_browser_url).toBeTruthy();
+                expect(request.context.sw_user_agent).toBeTruthy();
+                expect(request.context.sw_default_language).toBeTruthy();
+                expect(request.context.sw_default_currency).toBeTruthy();
+                expect(request.context.sw_screen_width).toBeGreaterThan(0);
+                expect(request.context.sw_screen_height).toBeGreaterThan(0);
+                expect(request.context.sw_screen_orientation).toBeTruthy();
 
-        const buttonEventProps = buttonClicked.properties;
+                for (const event of request.events) {
+                    expect(event.timestamp).toBeGreaterThan(0);
+                    expect(event.insert_id).toBeTruthy();
+                    expect(event.device_id).toBeTruthy();
+                    expect(event.session_id).toBeGreaterThan(0);
+                }
+            }
 
-        expect(buttonEventProps.sw_element_id).toBe('sw-order-detail.save-edits');
-        expect(buttonEventProps.sw_page_full_path).toBe(`/sw/order/detail/${order.id}/general`);
-        expect(buttonEventProps.sw_page_path).toBe(`/sw/order/detail/${order.id}/general`);
-        expect(buttonEventProps.sw_page_name).toBe('sw.order.detail.general');
+            expect(loginEvents[0].properties.sw_page_name).toBe('sw.dashboard.index');
+            expect(loginEvents[0].properties.sw_page_path).toBe('/sw/dashboard/index');
+            expect(loginEvents[0].properties.sw_page_full_path).toBe('/sw/dashboard/index');
 
-        const pageViewedBackToDashProps = pageViewedBackToDash.properties;
+            const pageViewedEvents = events.filter(e => e.name === 'page_viewed');
 
-        expect(pageViewedBackToDashProps.sw_route_from_name).toBe('sw.order.detail.general');
-        expect(pageViewedBackToDashProps.sw_route_from_href).toBe(`/sw/order/detail/${order.id}/general`);
-        expect(pageViewedBackToDashProps.sw_route_to_name).toBe('sw.dashboard.index');
-        expect(pageViewedBackToDashProps.sw_route_to_href).toBe('/sw/dashboard/index');
-        expect(pageViewedBackToDashProps.sw_page_name).toBe('sw.dashboard.index');
-        expect(pageViewedBackToDashProps.sw_page_path).toBe('/sw/dashboard/index');
+            expect(pageViewedEvents).toHaveLength(6);
+
+            expect(pageViewedEvents).toEqual(
+                expect.arrayContaining([
+                    // initial dashboard
+                    expect.objectContaining({
+                        properties: {
+                            source: 'admin',
+                            sw_route_from_name: null,
+                            sw_route_from_href: '/',
+                            sw_route_to_name: 'sw.dashboard.index',
+                            sw_route_to_href: '/sw/dashboard/index',
+                            sw_page_name: 'sw.dashboard.index',
+                            sw_page_path: '/sw/dashboard/index',
+                            sw_page_full_path: '/sw/dashboard/index',
+                        },
+                    }),
+
+                    // dashboard -> order index
+                    expect.objectContaining({
+                        properties: {
+                            source: 'admin',
+                            sw_route_from_name: 'sw.dashboard.index',
+                            sw_route_from_href: '/sw/dashboard/index',
+                            sw_route_to_name: 'sw.order.index',
+                            sw_route_to_href: '/sw/order/index',
+                            sw_page_name: 'sw.order.index',
+                            sw_page_path: '/sw/order/index',
+                            sw_page_full_path: '/sw/order/index',
+                        },
+                    }),
+
+                    // order index (query #1)
+                    expect.objectContaining({
+                        properties: expect.objectContaining({
+                            source: 'admin',
+                            sw_route_from_name: 'sw.order.index',
+                            sw_route_from_href: '/sw/order/index',
+                            sw_route_to_name: 'sw.order.index',
+                            sw_route_to_href: '/sw/order/index',
+                            sw_page_name: 'sw.order.index',
+                            sw_page_path: '/sw/order/index',
+                            sw_page_full_path: expect.stringContaining('/sw/order/index?'),
+                        }),
+                    }),
+
+                    // order index (query #2 with filter)
+                    expect.objectContaining({
+                        properties: expect.objectContaining({
+                            source: 'admin',
+                            sw_route_from_name: 'sw.order.index',
+                            sw_route_from_href: '/sw/order/index',
+                            sw_route_to_name: 'sw.order.index',
+                            sw_route_to_href: '/sw/order/index',
+                            sw_page_name: 'sw.order.index',
+                            sw_page_path: '/sw/order/index',
+                            sw_page_full_path: expect.stringContaining('grid.filter.order'),
+                        }),
+                    }),
+
+                    // order index -> order detail
+                    expect.objectContaining({
+                        properties: {
+                            source: 'admin',
+                            sw_route_from_name: 'sw.order.index',
+                            sw_route_from_href: '/sw/order/index',
+                            sw_route_to_name: 'sw.order.detail.general',
+                            sw_route_to_href: expect.stringContaining('/sw/order/detail/'),
+                            sw_page_name: 'sw.order.detail.general',
+                            sw_page_path: expect.stringContaining('/sw/order/detail/'),
+                            sw_page_full_path: expect.stringContaining('/sw/order/detail/'),
+                        },
+                    }),
+
+                    // back to dashboard
+                    expect.objectContaining({
+                        properties: {
+                            source: 'admin',
+                            sw_route_from_name: 'sw.order.detail.general',
+                            sw_route_from_href: expect.stringContaining('/sw/order/detail/'),
+                            sw_route_to_name: 'sw.dashboard.index',
+                            sw_route_to_href: '/sw/dashboard/index',
+                            sw_page_name: 'sw.dashboard.index',
+                            sw_page_path: '/sw/dashboard/index',
+                            sw_page_full_path: '/sw/dashboard/index',
+                        },
+                    }),
+                ])
+            );
+
+            const linkVisitedEvents = events.filter(e => e.name === 'link_visited');
+
+            expect(linkVisitedEvents).toHaveLength(2);
+
+            expect(linkVisitedEvents).toEqual(
+                expect.arrayContaining([
+                    expect.objectContaining({
+                        properties: expect.objectContaining({
+                            source: 'admin',
+                            sw_link_href: '#/sw/order/index',
+                            sw_link_type: 'internal',
+                            sw_page_name: 'sw.dashboard.index',
+                            sw_page_path: '/sw/dashboard/index',
+                            sw_page_full_path: '/sw/dashboard/index',
+                        }),
+                    }),
+
+                    expect.objectContaining({
+                        properties: expect.objectContaining({
+                            source: 'admin',
+                            sw_link_href: expect.stringContaining('#/sw/order/detail/'),
+                            sw_link_type: 'internal',
+                            sw_page_name: 'sw.order.index',
+                            sw_page_path: '/sw/order/index',
+                            sw_page_full_path: expect.stringContaining('/sw/order/index?'),
+                        }),
+                    }),
+                ])
+            );
+
+            const buttonClickedEvents = events.filter(e => e.name === 'button_click');
+
+            expect(buttonClickedEvents).toHaveLength(1);
+
+            expect(buttonClickedEvents).toEqual(
+                expect.arrayContaining([
+                    expect.objectContaining({
+                        properties: expect.objectContaining({
+                            source: 'admin',
+                            sw_element_id: 'sw-order-detail.save-edits',
+                            sw_page_name: 'sw.order.detail.general',
+                            sw_page_path: expect.stringContaining('/sw/order/detail/'),
+                            sw_page_full_path: expect.stringContaining('/sw/order/detail/'),
+                        }),
+                    }),
+                ])
+            );
+        });
     });
 });
-
-test('As a merchant, I want to make sure no admin events are sent when I do not consent.', { tag: '@ProductAnalytics' }, async ({
-    ShopAdmin,
-    AdminDashboard,
-    AdminOrderListing,
-}) => {
-    test.skip(true, 'Temporarily skipped after removing the PRODUCT_ANALYTICS feature flag.');
-
-    const captured: CapturedRequest[] = [];
-    const requestHandler = async (route: Route) => {
-        const req: Request = route.request();
-        captured.push({
-            postData: req.postData(),
-        });
-        await route.fulfill(
-            {
-                status: 200,
-                headers: {
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Credentials': 'true',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    'code': 200,
-                }),
-            }
-        )
-    };
-
-    await test.step('Do not set consent for product analytics', async () => {
-        // TO-DO: implement via UI once available and Feature flag is disabled by default
-    });
-
-   await test.step('Intercept all the API calls to product analytics', async () => {
-
-        await AdminDashboard.page.route(`**/${PRODUCT_ANALYTICS_ENDPOINT}`, requestHandler);
-    });
-
-    await test.step('Navigate via link to order page from dashboard', async () => {
-
-        await AdminDashboard.adminMenuOrder.click();
-        await AdminDashboard.adminMenuOrderOverview.click();
-        await ShopAdmin.expects(AdminOrderListing.addOrderButton).toBeVisible();
-    });
-
-    await test.step('Validate no captured requests for product analytics', async () => {
-
-        // we want to check that something does NOT happen, so we need a hard waitForTimeout, as there is nothing we can actually wait for.
-        // so we wait for 3s to ensure that product analytics events would have been captured
-        // eslint-disable-next-line playwright/no-wait-for-timeout
-        await AdminDashboard.page.waitForTimeout(3000);
-        expect(captured.length).toBe(0);
-    });
-});
-
-function parseCapturedRequests(captured: CapturedRequest[]): ProductAnalyticsRequestPayload[] {
-    const requests: ProductAnalyticsRequestPayload[] = [];
-
-    for (const c of captured) {
-        if (!c.postData) continue;
-        try {
-            const parsed: ProductAnalyticsRequestPayload = JSON.parse(c.postData);
-            if (parsed && typeof parsed.context === 'object' && Array.isArray(parsed.events)) {
-                requests.push(parsed);
-            }
-        } catch {
-            // If not JSON, ignore for now
-        }
-    }
-
-    return requests;
-}

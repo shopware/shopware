@@ -18,5 +18,9 @@
 
             <tag name="kernel.reset" method="reset"/>
         </service>
+
+        <service id="Shopware\Core\System\Locale\Subscriber\LocaleValidator">
+            <tag name="kernel.event_subscriber"/>
+        </service>
     </services>
 </container>

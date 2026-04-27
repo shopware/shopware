@@ -223,6 +223,10 @@ The admin menu only supports up to three levels of nesting.`,
         isExpanded() {
             this.toggleSidebar();
         },
+
+        $route() {
+            this.closeOffCanvas();
+        },
     },
 
     created() {
@@ -232,11 +236,13 @@ The admin menu only supports up to three levels of nesting.`,
     mounted() {
         this.mountedComponent();
         document.addEventListener('mouseleave', this.onFlyoutLeave);
+        document.addEventListener('click', this.onClickOutsideOffCanvas, true);
     },
 
     beforeUnmount() {
         document.removeEventListener('mousemove', this.onMouseMoveDocument.bind(this));
         document.removeEventListener('mouseleave', this.onFlyoutLeave);
+        document.removeEventListener('click', this.onClickOutsideOffCanvas, true);
 
         this.beforeUnmountedComponent();
     },
@@ -259,6 +265,15 @@ The admin menu only supports up to three levels of nesting.`,
 
         onToggleCanvas(state) {
             this.isOffCanvasShown = state;
+        },
+
+        closeOffCanvas() {
+            if (!this.isOffCanvasShown) {
+                return;
+            }
+
+            this.onToggleCanvas(false);
+            Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', false);
         },
 
         initNavigation() {
@@ -317,6 +332,10 @@ The admin menu only supports up to three levels of nesting.`,
             if (this.$device.getViewportWidth() <= 500) {
                 this.expandAdminMenu();
             }
+        },
+
+        isMobileViewport() {
+            return this.$device.getViewportWidth() <= 500;
         },
 
         isActiveItem(menuItem) {
@@ -429,6 +448,14 @@ The admin menu only supports up to three levels of nesting.`,
                 window.clearTimeout(this.subMenuTimer);
             }
 
+            if (!target) {
+                return;
+            }
+
+            if (this.shouldCloseOffCanvasOnMenuItemClick(target)) {
+                this.closeOffCanvas();
+            }
+
             if (level > 1 || !target.classList.contains('navigation-list-item__has-children') || !this.isExpanded) {
                 return;
             }
@@ -472,6 +499,32 @@ The admin menu only supports up to three levels of nesting.`,
             if (this.flyoutEntries.length) {
                 this.flyoutEntries = [];
             }
+        },
+
+        shouldCloseOffCanvasOnMenuItemClick(target) {
+            if (!this.isMobileViewport() || !this.isOffCanvasShown || !target) {
+                return false;
+            }
+
+            return !target.classList.contains('navigation-list-item__has-children');
+        },
+
+        onClickOutsideOffCanvas(event) {
+            if (!this.isMobileViewport() || !this.isOffCanvasShown) {
+                return;
+            }
+
+            const { target } = event;
+
+            if (!(target instanceof Element)) {
+                return;
+            }
+
+            if (this.$el.contains(target) || target.closest('.sw-search-bar')) {
+                return;
+            }
+
+            this.closeOffCanvas();
         },
 
         onMenuLeave() {

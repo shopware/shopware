@@ -121,7 +121,20 @@
         "promotionGroupRules": "Promotion set group rules",
         "shippingMethodAvailabilityRule": "Shipping method availability rules",
         "flows": "Flow Builders",
-        "taxProviders": "Tax Providers"
+        "taxProviders": "Tax Providers",
+        "columns": {
+          "name": "Name",
+          "manufacturer": "Manufacturer",
+          "description": "Description",
+          "taxCalculation": "Tax calculation",
+          "active": "Active",
+          "extension": "Extension",
+          "position": "Position",
+          "validFrom": "Valid from",
+          "validTo": "Valid to",
+          "flow": "Flow",
+          "trigger": "Trigger"
+        }
       },
       "typeHasNoAssociations": "No rules assigned",
       "hasNoAssociations": "This rule is not in use",

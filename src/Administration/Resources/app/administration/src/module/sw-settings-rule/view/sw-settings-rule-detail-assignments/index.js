@@ -245,8 +245,56 @@ export default {
                 });
         },
 
-        getRouterLink(entity, item) {
-            return { name: entity.detailRoute, params: { id: item.id } };
+        getRouterLink(item, detailRoute, column = null) {
+            const defaultRoute = {
+                name: detailRoute,
+                params: { id: item.id },
+            };
+
+            if (!column?.routerLink) {
+                return defaultRoute;
+            }
+
+            const route = {
+                name: column.routerLink,
+            };
+
+            if (column?.routerParameters?.length > 0) {
+                column.routerParameters.forEach((param) => {
+                    const { key, path } = param;
+
+                    if (!key || !path || !Utils.object.has(item, path)) {
+                        return;
+                    }
+
+                    route.params = {
+                        ...route.params,
+                        [key]: Utils.object.get(item, path),
+                    };
+                });
+            } else {
+                return defaultRoute;
+            }
+
+            return route;
+        },
+
+        hasRoute(item, column) {
+            if (!column?.routerLink) {
+                return false;
+            }
+
+            if (!column?.routerParameters?.length) {
+                return true;
+            }
+
+            return column.routerParameters.every((param) => {
+                if (!param.path || !Utils.object.has(item, param.path)) {
+                    return false;
+                }
+
+                return !!Utils.object.get(item, param.path);
+            });
         },
 
         loadAssociationData() {

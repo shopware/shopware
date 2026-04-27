@@ -3,8 +3,8 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
-use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
 /**
@@ -16,6 +16,7 @@ class CustomerGroupRegistrationSettingsRouteResponse extends StoreApiResponse
     public function __construct(
         private readonly CustomerGroupEntity $registration,
     ) {
+        /** @var array<string, mixed> $payload */
         $payload = $registration->getVars();
         $translated = $payload['translated'] ?? [];
 
@@ -29,7 +30,10 @@ class CustomerGroupRegistrationSettingsRouteResponse extends StoreApiResponse
         $payload['translated'] = $translated;
         $payload['registrationOnlyCompanyRegistration'] = (bool) $registrationOnlyCompanyRegistration;
 
-        parent::__construct(new ArrayStruct($payload, $registration->getApiAlias()));
+        /** @var ArrayStruct<array<string, mixed>> $response */
+        $response = new ArrayStruct($payload, $registration->getApiAlias());
+
+        parent::__construct($response);
     }
 
     public function getRegistration(): CustomerGroupEntity

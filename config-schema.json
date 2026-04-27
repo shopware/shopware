@@ -1415,7 +1415,9 @@
                         "expiration_minutes": {
                             "type": "integer",
                             "default": 5,
-                            "description": "Time in minutes before the presigned upload URL expires."
+                            "minimum": 1,
+                            "maximum": 10080,
+                            "description": "Time in minutes before the presigned upload URL expires. Bounded by the AWS S3 presigned URL maximum of 7 days (10080 minutes)."
                         }
                     }
                 }

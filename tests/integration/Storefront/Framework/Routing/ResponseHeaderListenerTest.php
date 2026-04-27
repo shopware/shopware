@@ -2,9 +2,9 @@
 
 namespace Shopware\Tests\Integration\Storefront\Framework\Routing;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -18,6 +18,7 @@ use Shopware\Core\Test\TestDefaults;
  */
 class ResponseHeaderListenerTest extends TestCase
 {
+    use DatabaseTransactionBehaviour;
     use EnvTestBehaviour;
     use KernelTestBehaviour;
     use SalesChannelApiTestBehaviour;
@@ -38,6 +39,8 @@ class ResponseHeaderListenerTest extends TestCase
 
     public function testNotFoundPage(): void
     {
+        // Make sure the kernel is correctly loaded with debug setting
+        KernelLifecycleManager::ensureKernelShutdown();
         $this->setEnvVars(['APP_DEBUG' => false]);
 
         $browser = KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel());
@@ -55,10 +58,6 @@ class ResponseHeaderListenerTest extends TestCase
 
     public function testStoreApiPresent(): void
     {
-        // Instead of using DatabaseTransactionBehaviour, connection is rolled-back manually.
-        // Otherwise, the DB trait would start the kernel before the `testNotFoundPage` test could set the `APP_DEBUG` value to `false` and would then fail.
-        $this->getContainer()->get(Connection::class)->beginTransaction();
-
         $browser = $this->createCustomSalesChannelBrowser([
             'id' => TestDefaults::SALES_CHANNEL,
             'languages' => [],
@@ -72,7 +71,5 @@ class ResponseHeaderListenerTest extends TestCase
         static::assertTrue($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
         static::assertTrue($response->headers->has(PlatformRequest::HEADER_VERSION_ID));
         static::assertTrue($response->headers->has(PlatformRequest::HEADER_LANGUAGE_ID));
-
-        $this->getContainer()->get(Connection::class)->rollBack();
     }
 }

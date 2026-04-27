@@ -124,6 +124,8 @@ class MailTemplateServiceTest extends TestCase
         static::assertInstanceOf(MailTemplateRenderResult::class, $contentHtml);
         static::assertSame(MailTemplateRenderResult::TYPE_ERROR, $contentHtml->getType());
         static::assertSame('broken template', $contentHtml->getContent());
+        static::assertSame('Error', $contentHtml->getErrorTitle());
+        static::assertSame('broken template', $contentHtml->getErrorMessage());
     }
 
     public function testSimulateUsesSelectedSalesChannelAndDoesNotUseTestModeInStrictMode(): void

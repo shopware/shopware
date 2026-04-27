@@ -29,7 +29,7 @@ class MailTemplateException extends HttpException
     public static function templateNotFound(): self
     {
         return new self(
-            Response::HTTP_BAD_REQUEST,
+            Response::HTTP_NOT_FOUND,
             self::MAIL_TEMPLATE_NOT_FOUND,
             'Mail Template not found.'
         );

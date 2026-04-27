@@ -522,27 +522,6 @@ export default {
                     this.triggerEvent.name,
                     this.testMailSalesChannelId,
                 )
-                .then((response) => {
-                    Object.keys(response).forEach((key) => {
-                        const entry = response[key];
-
-                        if (entry.type === 'error') {
-                            const separatorIndex = entry.content.search(': ');
-
-                            if (separatorIndex === -1) {
-                                entry.errorTitle = 'Error';
-                                entry.errorMessage = entry.content;
-                            } else {
-                                entry.errorTitle = entry.content.substring(0, separatorIndex);
-                                entry.errorMessage = entry.content.substring(separatorIndex + 2);
-                            }
-
-                            entry.content = undefined;
-                        }
-                    });
-
-                    return response;
-                })
                 .catch((error) => {
                     if (!error.response?.data?.errors?.[0]?.detail) {
                         this.createNotificationError({

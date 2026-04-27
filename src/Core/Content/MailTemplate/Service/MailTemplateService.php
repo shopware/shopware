@@ -71,7 +71,7 @@ class MailTemplateService
 
                 $renderedResult[$key] = MailTemplateRenderResult::success($rendered);
             } catch (\Throwable $e) {
-                $renderedResult[$key] = MailTemplateRenderResult::error($e->getMessage());
+                $renderedResult[$key] = MailTemplateRenderResult::errorFromThrowable($e);
             }
         }
 
@@ -120,7 +120,7 @@ class MailTemplateService
 
                 $renderedResult[$key] = MailTemplateRenderResult::success($rendered);
             } catch (\Throwable $e) {
-                $renderedResult[$key] = MailTemplateRenderResult::error($e->getMessage());
+                $renderedResult[$key] = MailTemplateRenderResult::errorFromThrowable($e);
             }
         }
 

@@ -840,6 +840,8 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                 contentHtml: {
                     type: 'error',
                     content: 'Twig syntax error: unexpected end of template.',
+                    errorTitle: 'Twig syntax error',
+                    errorMessage: 'unexpected end of template.',
                 },
             }),
         );
@@ -889,10 +891,14 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                 footerPlain: {
                     type: 'error',
                     content: 'Twig syntax error: plain footer failed.',
+                    errorTitle: 'Twig syntax error',
+                    errorMessage: 'plain footer failed.',
                 },
                 headerHtml: {
                     type: 'error',
                     content: 'Twig syntax error: html header failed.',
+                    errorTitle: 'Twig syntax error',
+                    errorMessage: 'html header failed.',
                 },
                 contentHtml: {
                     type: 'success',

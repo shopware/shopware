@@ -68,18 +68,40 @@ interface MetricTransportInterface
 }
 ```
 
-`Meter::flush()` is called at `kernel.terminate` (after the response is sent). It delegates to all transports.
+An internal `TelemetryFlushListener` listens on `kernel.terminate` and `console.terminate`
+to call `flush()` on all transports. These Symfony events fire once for the main
+request (not for sub-requests like inline ESI) and once at the end of CLI commands respectively.
+`flush()` is not exposed on the `Meter` — it is a lifecycle concern managed by the framework, not
+something emitters should call.
+
 Push transports can batch emissions and send on flush. Pull transports can write aggregated values to
-storage. Transports that don't need lifecycle management implement `flush()` as a no-op. It gives the framework control
-over the emission lifecycle — guaranteeing all metrics are emitted before any transport flushes,
-regardless of `kernel.terminate` listener ordering.
+storage. Transports that don't need lifecycle management implement `flush()` as a no-op.
+
+For long-running workers (Symfony Messenger), `kernel.terminate` and `console.terminate` do not fire
+per message — flush happens when the worker process exits. If the need emerges to flush worker metrics
+more often, it can be implemented in the listener (e.g. listening on worker events), as transports
+already support `flush()`. This is outside the current scope.
 
 **Considered alternative — no `flush()`, transports manage their own lifecycle:**
-  - OTel SDK manages its own flush internally, so for the primary transport this is unnecessary.
-  - But the framework cannot guarantee emission order. A transport's own `kernel.terminate` listener
+  - OTel SDK manages its own flush via `register_shutdown_function` internally.
+  - But the framework cannot guarantee emission order. A transport's own flush
     might fire before all metrics are emitted by other listeners.
   - Future transports would need to register their own shutdown hooks, duplicating the pattern.
-  - Adding the method after stabilization would be a BC break.
+  - Adding the method after stabilization would be a BC break (or separate interface).
+
+**Considered alternative — `register_shutdown_function` instead of Symfony events:**
+  - Universal: fires for HTTP, CLI, and on process exit regardless of Symfony lifecycle.
+  - Used by OTel PHP SDK as its primary flush mechanism.
+  - But less controlled: runs after Symfony lifecycle, order depends on registration sequence.
+  - `kernel.terminate` and `console.terminate` integrate natively with Symfony, support event
+    priority, and are testable.
+
+**Considered alternative — flush per worker message (`WorkerMessageHandledEvent`):**
+  - Ensures metrics are visible promptly in long-running workers.
+  - But excessive: each flush is a potential network call for push transports. Workers processing
+    100+ messages/second would generate 100+ flush calls. OTel PHP SDK does not implement
+    per-message flushing either — it relies on process-exit shutdown.
+  - If needed, transport-level activity-based batching is more appropriate.
 
 ### 3. Keep `MetricTransportFactoryInterface`
 

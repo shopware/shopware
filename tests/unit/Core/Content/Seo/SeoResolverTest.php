@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Seo;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -125,6 +126,19 @@ class SeoResolverTest extends TestCase
         static::assertSame($expected, $resolvedSeoUrl['canonicalPathInfo']);
     }
 
+    public function testResolveIgnoresDeletedSeoUrls(): void
+    {
+        $languageId = Uuid::randomHex();
+        $salesChannelId = Uuid::randomHex();
+        $seoResolver = new SeoResolver($this->createSqliteConnectionWithDeletedSeoUrl($languageId, $salesChannelId));
+
+        /** @var array{pathInfo: string, isCanonical: bool|string} $resolvedSeoUrl */
+        $resolvedSeoUrl = $seoResolver->resolve($languageId, $salesChannelId, 'awesome-product');
+
+        static::assertSame('/default', $resolvedSeoUrl['pathInfo']);
+        static::assertTrue((bool) $resolvedSeoUrl['isCanonical']);
+    }
+
     private function getMockConnection(string $salesChannelId, bool $isCanonical, string $pathInfo): Connection&MockObject
     {
         $mock = $this->createMock(Connection::class);
@@ -148,5 +162,56 @@ class SeoResolverTest extends TestCase
             ->willReturn($this->createMock(AbstractPlatform::class));
 
         return $mock;
+    }
+
+    private function createSqliteConnectionWithDeletedSeoUrl(string $languageId, string $salesChannelId): Connection
+    {
+        $connection = DriverManager::getConnection([
+            'driver' => 'pdo_sqlite',
+            'memory' => true,
+        ]);
+
+        $connection->executeStatement('
+            CREATE TABLE seo_url (
+                id BLOB PRIMARY KEY NOT NULL,
+                sales_channel_id BLOB NULL,
+                language_id BLOB NOT NULL,
+                foreign_key BLOB NOT NULL,
+                route_name VARCHAR(50) NOT NULL,
+                path_info VARCHAR(750) NOT NULL,
+                seo_path_info VARCHAR(750) NOT NULL,
+                is_canonical INTEGER NULL,
+                is_modified INTEGER NOT NULL,
+                is_deleted INTEGER NOT NULL
+            )
+        ');
+
+        $connection->insert('seo_url', [
+            'id' => Uuid::fromHexToBytes(Uuid::randomHex()),
+            'sales_channel_id' => null,
+            'language_id' => Uuid::fromHexToBytes($languageId),
+            'foreign_key' => Uuid::fromHexToBytes(Uuid::randomHex()),
+            'route_name' => 'r',
+            'path_info' => '/default',
+            'seo_path_info' => 'awesome-product',
+            'is_canonical' => 1,
+            'is_modified' => 0,
+            'is_deleted' => 0,
+        ]);
+
+        $connection->insert('seo_url', [
+            'id' => Uuid::fromHexToBytes(Uuid::randomHex()),
+            'sales_channel_id' => Uuid::fromHexToBytes($salesChannelId),
+            'language_id' => Uuid::fromHexToBytes($languageId),
+            'foreign_key' => Uuid::fromHexToBytes(Uuid::randomHex()),
+            'route_name' => 'r',
+            'path_info' => '/deleted-sales-channel',
+            'seo_path_info' => 'awesome-product',
+            'is_canonical' => 1,
+            'is_modified' => 0,
+            'is_deleted' => 1,
+        ]);
+
+        return $connection;
     }
 }

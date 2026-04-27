@@ -327,7 +327,7 @@ class OrderRouteTest extends TestCase
     }
 
     /**
-     * @return array
+     * @return array<string, array{int, int, bool}>
      */
     public static function deeplinkExpireDaysProvider(): array
     {

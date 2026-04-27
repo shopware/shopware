@@ -49,8 +49,7 @@
         "labelSubject": "Subject",
         "placeholderSenderMail": "shop{'@'}example.com...",
         "placeholderSenderName": "Example shop...",
-        "placeholderSubject": "Enter email template subject...",
-
+        "placeholderSubject": "Enter email template subject..."
       },
       "mailText": {
         "titleCard": "Mail text",

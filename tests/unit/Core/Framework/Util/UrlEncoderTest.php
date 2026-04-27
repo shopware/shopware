@@ -105,4 +105,12 @@ class UrlEncoderTest extends TestCase
             UrlEncoder::encodeUrl('../media/file name.jpg')
         );
     }
+
+    public function testItHandlesDoubleEncodedPaths(): void
+    {
+        static::assertSame(
+            'https://shopware.com/path/file%20name.jpg',
+            UrlEncoder::encodeUrl('https://shopware.com/path/file%20name.jpg')
+        );
+    }
 }

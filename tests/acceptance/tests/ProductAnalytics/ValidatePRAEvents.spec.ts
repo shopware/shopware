@@ -2,7 +2,7 @@ import { isSaaSInstance, test, expect, Page, Actor, AdminPageObjects, createNewA
 import { parseCapturedRequests, setupConsentInterceptor,
     setupProductAnalyticsInterceptor, waitForEventCount,
 } from '@helpers/productanalytics-helpers';
-import {satisfies} from "compare-versions";
+import { satisfies } from 'compare-versions';
 
 const TRACKING_EVENT_ENDPOINT = 'event';
 const CONSENTS_ENDPOINT = 'consents';

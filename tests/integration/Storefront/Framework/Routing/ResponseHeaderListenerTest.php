@@ -2,11 +2,13 @@
 
 namespace Shopware\Tests\Integration\Storefront\Framework\Routing;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\TestDefaults;
@@ -17,7 +19,8 @@ use Shopware\Core\Test\TestDefaults;
 class ResponseHeaderListenerTest extends TestCase
 {
     use EnvTestBehaviour;
-    use SalesChannelFunctionalTestBehaviour;
+    use KernelTestBehaviour;
+    use SalesChannelApiTestBehaviour;
 
     public function testHomeController(): void
     {
@@ -36,9 +39,8 @@ class ResponseHeaderListenerTest extends TestCase
     public function testNotFoundPage(): void
     {
         $this->setEnvVars(['APP_DEBUG' => false]);
-        $kernel = KernelLifecycleManager::bootKernel();
 
-        $browser = KernelLifecycleManager::createBrowser($kernel);
+        $browser = KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel());
         $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_CONTEXT_TOKEN, '1234');
         $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_VERSION_ID, '1234');
         $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM);
@@ -53,6 +55,10 @@ class ResponseHeaderListenerTest extends TestCase
 
     public function testStoreApiPresent(): void
     {
+        // Instead of using DatabaseTransactionBehaviour, connection is rolled-back manually.
+        // Otherwise, the DB trait would start the kernel before the `testNotFoundPage` test could set the `APP_DEBUG` value to `false` and would then fail.
+        $this->getContainer()->get(Connection::class)->beginTransaction();
+
         $browser = $this->createCustomSalesChannelBrowser([
             'id' => TestDefaults::SALES_CHANNEL,
             'languages' => [],
@@ -66,5 +72,7 @@ class ResponseHeaderListenerTest extends TestCase
         static::assertTrue($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
         static::assertTrue($response->headers->has(PlatformRequest::HEADER_VERSION_ID));
         static::assertTrue($response->headers->has(PlatformRequest::HEADER_LANGUAGE_ID));
+
+        $this->getContainer()->get(Connection::class)->rollBack();
     }
 }

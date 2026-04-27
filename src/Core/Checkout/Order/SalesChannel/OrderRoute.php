@@ -44,13 +44,13 @@ class OrderRoute extends AbstractOrderRoute
      * @param EntityRepository<PromotionCollection> $promotionRepository
      */
     public function __construct(
-        private readonly EntityRepository         $orderRepository,
-        private readonly EntityRepository         $promotionRepository,
-        private readonly RateLimiter              $rateLimiter,
+        private readonly EntityRepository $orderRepository,
+        private readonly EntityRepository $promotionRepository,
+        private readonly RateLimiter $rateLimiter,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly AccountService           $accountService,
-        private readonly GuestAuthenticator       $guestAuthenticator,
-        private readonly int                      $deepLinkExpireDays = 30,
+        private readonly AccountService $accountService,
+        private readonly GuestAuthenticator $guestAuthenticator,
+        private readonly int $deepLinkExpireDays = 30,
     ) {
     }
 

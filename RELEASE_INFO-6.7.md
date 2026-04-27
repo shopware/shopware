@@ -19,6 +19,12 @@ These are optional and can be enabled via `shopware.api.rate_limiter` in `shopwa
 The generated Admin API and Store API `Price` schemas now include property descriptions for `percentage`, `listPrice`, `regulationPrice`, and their nested values.
 This improves the generated OpenAPI and Stoplight documentation for integrations that inspect raw price payloads and need to distinguish between the current price, list price, discount percentage, and regulation price fields.
 
+### `POST /api/search/*` now respects query pagination parameters
+
+The Admin API search endpoints now apply pagination parameters from the query string for `POST` requests, while still letting JSON body parameters take precedence.
+
+This fixes cases where integrations followed `links.next` from a search response and the next request repeated the same page because `page` from the query string was not applied to the search criteria.
+
 ## Core
 
 ### Product `display_group` values use SHA-256

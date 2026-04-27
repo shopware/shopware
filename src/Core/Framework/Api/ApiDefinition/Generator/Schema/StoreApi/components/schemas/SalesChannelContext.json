@@ -222,6 +222,10 @@
                         "enum": [
                             "sales_channel_context"
                         ]
+                    },
+                    "imitated": {
+                        "type": "boolean",
+                        "description": "Indicates whether the current customer session is being impersonated by an admin user."
                     }
                 },
                 "required": [
@@ -229,7 +233,8 @@
                     "apiAlias",
                     "itemRounding",
                     "totalRounding",
-                    "languageInfo"
+                    "languageInfo",
+                    "imitated"
                 ]
             }
         }

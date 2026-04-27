@@ -24,6 +24,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\CartRestorer;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\TestDefaults;
@@ -98,6 +99,7 @@ class AccountServiceTest extends TestCase
             $this->createMock(LegacyPasswordVerifier::class),
             $this->createMock(AbstractSwitchDefaultAddressRoute::class),
             $cartRestorer,
+            $this->createMock(SalesChannelContextPersister::class),
         );
 
         $token = $accountService->loginByCredentials('foo@bar.de', 'shopware', $salesChannelContext);
@@ -145,6 +147,7 @@ class AccountServiceTest extends TestCase
             $this->createMock(LegacyPasswordVerifier::class),
             $this->createMock(AbstractSwitchDefaultAddressRoute::class),
             $cartRestorer,
+            $this->createMock(SalesChannelContextPersister::class),
         );
 
         $this->expectException(BadCredentialsException::class);
@@ -173,6 +176,7 @@ class AccountServiceTest extends TestCase
             $this->createMock(LegacyPasswordVerifier::class),
             $this->createMock(AbstractSwitchDefaultAddressRoute::class),
             $this->createMock(CartRestorer::class),
+            $this->createMock(SalesChannelContextPersister::class),
         );
 
         $this->expectException(BadCredentialsException::class);
@@ -227,6 +231,7 @@ class AccountServiceTest extends TestCase
             $legacyPasswordVerifier,
             $this->createMock(AbstractSwitchDefaultAddressRoute::class),
             $this->createMock(CartRestorer::class),
+            $this->createMock(SalesChannelContextPersister::class),
         );
 
         $this->expectException(PasswordPoliciesUpdatedException::class);
@@ -282,6 +287,7 @@ class AccountServiceTest extends TestCase
             $legacyPasswordVerifier,
             $this->createMock(AbstractSwitchDefaultAddressRoute::class),
             $this->createMock(CartRestorer::class),
+            $this->createMock(SalesChannelContextPersister::class),
         );
 
         $this->expectException(WriteException::class);
@@ -307,6 +313,7 @@ class AccountServiceTest extends TestCase
             $this->createMock(LegacyPasswordVerifier::class),
             $switcher,
             $this->createMock(CartRestorer::class),
+            $this->createMock(SalesChannelContextPersister::class),
         );
 
         $accountService->setDefaultBillingAddress('billing-address-id', $context, $customer);
@@ -331,6 +338,7 @@ class AccountServiceTest extends TestCase
             $this->createMock(LegacyPasswordVerifier::class),
             $switcher,
             $this->createMock(CartRestorer::class),
+            $this->createMock(SalesChannelContextPersister::class),
         );
 
         $accountService->setDefaultShippingAddress('shipping-address-id', $context, $customer);
@@ -386,6 +394,7 @@ class AccountServiceTest extends TestCase
             $this->createMock(LegacyPasswordVerifier::class),
             $this->createMock(AbstractSwitchDefaultAddressRoute::class),
             $this->createMock(CartRestorer::class),
+            $this->createMock(SalesChannelContextPersister::class),
         );
 
         $accountService->loginById($customer->getId(), $context);
@@ -401,6 +410,7 @@ class AccountServiceTest extends TestCase
             $this->createMock(LegacyPasswordVerifier::class),
             $this->createMock(AbstractSwitchDefaultAddressRoute::class),
             $this->createMock(CartRestorer::class),
+            $this->createMock(SalesChannelContextPersister::class),
         );
 
         $this->expectException(BadCredentialsException::class);
@@ -431,6 +441,7 @@ class AccountServiceTest extends TestCase
             $this->createMock(LegacyPasswordVerifier::class),
             $this->createMock(AbstractSwitchDefaultAddressRoute::class),
             $this->createMock(CartRestorer::class),
+            $this->createMock(SalesChannelContextPersister::class),
         );
 
         $this->expectException(CustomerNotFoundByIdException::class);
@@ -447,6 +458,7 @@ class AccountServiceTest extends TestCase
             $this->createMock(LegacyPasswordVerifier::class),
             $this->createMock(AbstractSwitchDefaultAddressRoute::class),
             $this->createMock(CartRestorer::class),
+            $this->createMock(SalesChannelContextPersister::class),
         );
 
         static::expectException(BadCredentialsException::class);

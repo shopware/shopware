@@ -46,6 +46,7 @@ use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInt
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
@@ -230,6 +231,9 @@ class RegisterRoute extends AbstractRegisterRoute
                 'billingAddressId' => null,
                 'shippingAddressId' => null,
                 'domainId' => $context->getDomainId(),
+                // Registration is not an admin imitation: drop any stale value
+                // carried over from a prior session sharing this context token.
+                SalesChannelContextService::IMITATING_USER_ID => null,
             ],
             $context->getSalesChannelId(),
             $customerEntity->getId()

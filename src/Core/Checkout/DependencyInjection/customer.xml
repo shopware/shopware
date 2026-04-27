@@ -48,6 +48,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\SwitchDefaultAddressRoute"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\CartRestorer"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory">

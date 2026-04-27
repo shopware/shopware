@@ -24,6 +24,8 @@ use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\CartRestorer;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\PasswordHasher\Hasher\CheckPasswordLengthTrait;
@@ -44,7 +46,8 @@ class AccountService
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly LegacyPasswordVerifier $legacyPasswordVerifier,
         private readonly AbstractSwitchDefaultAddressRoute $switchDefaultAddressRoute,
-        private readonly CartRestorer $restorer
+        private readonly CartRestorer $restorer,
+        private readonly SalesChannelContextPersister $contextPersister
     ) {
     }
 
@@ -103,6 +106,12 @@ class AccountService
         $this->eventDispatcher->dispatch($event);
 
         $customer = $this->getCustomerByLogin($email, $password, $context);
+
+        // A regular credentials login is by definition not an admin imitation.
+        // Drop any imitating-user-id propagated by a previous session attached
+        // to the same context token before handing off to loginByCustomer, so
+        // CartRestorer's current → customer sync does not carry it forward.
+        $context->setImitatingUserId(null);
 
         return $this->loginByCustomer($customer, $context);
     }
@@ -178,6 +187,18 @@ class AccountService
 
         $context = $this->restorer->restore($customer->getId(), $context);
         $newToken = $context->getToken();
+
+        // Persist the imitating-user-id on the new customer's context payload so
+        // headless clients carrying only `sw-context-token` can detect imitation
+        // (or its absence) on subsequent /store-api/context calls. Writing the
+        // current value, including null, also clears any stale value left in the
+        // DB row from a prior imitation that shared this token.
+        $this->contextPersister->save(
+            $newToken,
+            [SalesChannelContextService::IMITATING_USER_ID => $context->getImitatingUserId()],
+            $context->getSalesChannelId(),
+            $customer->getId(),
+        );
 
         $event = new CustomerLoginEvent($context, $customer, $newToken);
         $this->eventDispatcher->dispatch($event);

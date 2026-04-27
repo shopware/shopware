@@ -110,6 +110,11 @@ class ImitateCustomerRouteTest extends TestCase
         $response = $route->imitateCustomerLogin($dataBag, $salesChannelContext);
 
         static::assertSame('newToken', $response->getToken());
+        static::assertSame(
+            $tokenStruct->iss,
+            $salesChannelContext->getImitatingUserId(),
+            'imitate route must set imitatingUserId on the context before delegating to AccountService::loginById; AccountService is then responsible for persisting it'
+        );
     }
 
     public function testImitateCustomerWithLoggedInUser(): void

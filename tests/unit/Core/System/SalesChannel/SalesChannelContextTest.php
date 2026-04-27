@@ -159,4 +159,35 @@ class SalesChannelContextTest extends TestCase
         $this->expectExceptionObject(SalesChannelException::contextTokenNotAccessible());
         $salesChannelContext->getToken();
     }
+
+    public function testIsImitatedReflectsImitatingUserId(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        static::assertFalse($salesChannelContext->isImitated());
+
+        $salesChannelContext->setImitatingUserId(Uuid::randomHex());
+        static::assertTrue($salesChannelContext->isImitated());
+
+        $salesChannelContext->setImitatingUserId(null);
+        static::assertFalse($salesChannelContext->isImitated());
+    }
+
+    public function testJsonSerializeExposesImitatedFlagAndMasksUuid(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        $serialized = $salesChannelContext->jsonSerialize();
+        static::assertArrayHasKey('imitated', $serialized);
+        static::assertFalse($serialized['imitated']);
+        static::assertArrayHasKey('imitatingUserId', $serialized);
+        static::assertNull($serialized['imitatingUserId']);
+
+        $salesChannelContext->setImitatingUserId(Uuid::randomHex());
+
+        $serialized = $salesChannelContext->jsonSerialize();
+        static::assertTrue($serialized['imitated']);
+        // the UUID must never reach the API surface, even when set internally
+        static::assertNull($serialized['imitatingUserId']);
+    }
 }

@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -93,6 +94,9 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
                 'customerId' => $customer->getId(),
                 'billingAddressId' => null,
                 'shippingAddressId' => null,
+                // Double-opt-in confirmation is not an admin imitation: drop any
+                // stale value carried over from a prior session sharing this token.
+                SalesChannelContextService::IMITATING_USER_ID => null,
             ],
             $context->getSalesChannelId(),
             $customer->getId()

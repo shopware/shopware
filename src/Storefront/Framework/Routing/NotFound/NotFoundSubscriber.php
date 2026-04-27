@@ -89,9 +89,12 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
         $domainId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_ID, '');
         $languageId = $request->attributes->get(PlatformRequest::HEADER_LANGUAGE_ID, '');
 
-        if (!$request->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT)) {
-            // When no sales-channel context is resolved, we need to resolve it now.
-            $this->setSalesChannelContext($request);
+        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
+        if (!$context instanceof SalesChannelContext) {
+            // When no sales-channel context is on the request, we need to resolve it now.
+            $context = $this->createSalesChannelContext($request);
+            // Set created context to request
+            $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
         }
 
         // Set missing route scope, so the kernel.response event has it triggered by setResponse.
@@ -99,8 +102,6 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
             $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StorefrontRouteScope::ID]);
         }
 
-        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
-        \assert($context instanceof SalesChannelContext);
         $throwable = $event->getThrowable();
 
         $is404StatusCode = $throwable instanceof HttpException && $throwable->getStatusCode() === Response::HTTP_NOT_FOUND;
@@ -200,11 +201,11 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
         return array_unique(array_filter($event->getTags()));
     }
 
-    private function setSalesChannelContext(Request $request): void
+    private function createSalesChannelContext(Request $request): SalesChannelContext
     {
         $salesChannelId = (string) $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
 
-        $context = $this->contextService->get(
+        return $this->contextService->get(
             new SalesChannelContextServiceParameters(
                 $salesChannelId,
                 Uuid::randomHex(),
@@ -213,8 +214,6 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
                 $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_ID)
             )
         );
-
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
     }
 
     /**

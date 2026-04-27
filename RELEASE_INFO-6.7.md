@@ -1,6 +1,44 @@
-# 6.7.10.0 (upcoming)
+# 6.7.11.0 (upcoming)
 
 ## Features
+
+## API
+
+## Core
+
+### Backward compatible invalid locales
+
+Added and deprecated `BackwardCompatibleNumberFormatter` to temporarily allow invalid locale strings without throwing exceptions in PHP >=8.4. It will be removed in Shopware 6.8.
+
+## Administration
+
+### Fixed "Last Quarter" timeframe returning the wrong year in `sw-date-filter`
+
+Selecting the "Last Quarter" timeframe in any listing's date filter (orders, documents, customers, etc.) between January and March now produces a three-month range in the previous year instead of a ~15-month range that spanned both years.
+The end boundary is now derived from the quarter's start year rather than the current year.
+
+### Admin menu flyout no longer overflows the viewport
+
+When the sidebar is collapsed, hovering a menu entry near the bottom of the sidebar could cause the flyout submenu to extend beyond the viewport, making lower entries inaccessible.
+The flyout now calculates a dynamic `max-height` from the remaining viewport space and scrolls vertically when its content exceeds that limit.
+
+## Storefront
+
+## App System
+
+## Hosting & Configuration
+
+## Critical Fixes
+
+# 6.7.10.0
+
+## Features
+
+### [Experimental] Agentic Commerce sales channel
+
+A new "Agentic Commerce" sales channel type is available in this release.
+The OpenAI Merchant Center integration is the first supported provider for AI-powered product feed exports.
+The Administration includes dedicated views for configuration, product mapping, and usage insights.
 
 ## API
 
@@ -8,6 +46,11 @@
 
 The login and OAuth token endpoints now support optional per user (`login_user`, `oauth_user`) and per IP (`login_client`, `oauth_client`) rate limiters, in addition to the existing combined user and IP limiter.
 These are optional and can be enabled via `shopware.api.rate_limiter` in `shopware.yaml`.
+
+### `Price` schemas now describe percentage and reference price fields
+
+The generated Admin API and Store API `Price` schemas now include property descriptions for `percentage`, `listPrice`, `regulationPrice`, and their nested values.
+This improves the generated OpenAPI and Stoplight documentation for integrations that inspect raw price payloads and need to distinguish between the current price, list price, discount percentage, and regulation price fields.
 
 ## Core
 
@@ -31,17 +74,29 @@ Use `permissionsLocked` property or the new `SalesChannelContext::isPermissionsL
 
 ### Salutation ordering
 
-A new `position` column was added to the `salutation` entity so merchants can control the order in which salutations appear in forms (registration, address, checkout, and CMS forms). Salutations are sorted ascending, meaning lower values appear first.
+A new `position` column was added to the `salutation` entity so merchants can control the order in which salutations appear in forms (registration, address, checkout, and CMS forms).
+Salutations are sorted ascending, meaning lower values appear first.
 
-This replaces the previous alphabetical sorting. Default salutations (`not_specified`, `mrs`, `mr`) are migrated automatically to positions `1`, `2`, and `3`.
+This replaces the previous alphabetical sorting.
+Default salutations (`not_specified`, `mrs`, `mr`) are migrated automatically to positions `1`, `2`, and `3`.
 Custom salutations keep the default value of `100` - review them in Administration → Settings → Shop → Salutations after upgrading and assign explicit positions, otherwise they will appear grouped together at the end.
 
 ### Deprecated non-used `MAIL_TEMPLATE_SALES_CHANNEL_*_EVENT` constants
 
 Deprecated the constants `Shopware\Core\Content\MailTemplate\MAIL_TEMPLATE_SALES_CHANNEL_{WRITTEN,DELETED,LOADED,SEARCH_RESULT_LOADED,AGGREGATION_LOADED,ID_SEARCH_RESULT_LOADED}_EVENT` as the entity has been removed with Shopware 6.5 and the events were not fired anymore.
 
+### JSONL product export format
+
+Product exports now support `ProductExportEntity::FILE_FORMAT_JSONL` as a third file format.
+
+### [Experimental] Agentic Commerce product export provider abstraction
+
+The new `AbstractAgenticCommerceProductExportProvider` can be used to implement custom Agentic Commerce export providers.
+
 ## Administration
 
+### [Internal] Twig to Native Block Runtime Adapter
+A runtime adapter has been added that bridges legacy Twig block overrides (`{% block %}` / `{% parent %}`) with the new native `<sw-block>` / `<sw-block-parent />` system. When core components migrate from `.html.twig` blocks to `<sw-block name="...">`, existing plugin overrides continue to work automatically. A deprecation warning is emitted to guide plugin developers toward the new native syntax.
 ### Fixed mixin-based route guards for lazy-loaded administration routes
 
 Mixin-defined route guards such as `beforeRouteLeave` are now executed reliably for lazy-loaded Administration route components.
@@ -57,6 +112,12 @@ This fixes stale iframe content when switching locations in Meteor Admin SDK int
 The Administration order list now shows internal order comments via a dedicated tooltip icon.
 This helps merchants spot internal notes directly from the list view without opening the order detail page.
 
+### [Experimental] Agentic Commerce sales channel views and tracking entities
+
+New Agentic Commerce sales channels types can be created.
+These sales channels have dedicated configuration options in the administration for property mapping, and usage insights.
+New entities for monitoring orders and customers for Agentic Commerce sales channels are included.
+
 ## Storefront
 
 ### Order cancellation only shown for open orders
@@ -66,7 +127,8 @@ This prevents customers from being offered an invalid cancel action for complete
 
 ### Earlier focus for cookie bar
 
-To improve the accessibility of the cookie bar, it receives automatic focus when it is shown. This improves discoverability for screenreader and keyboard users.
+To improve the accessibility of the cookie bar, it receives automatic focus when it is shown.
+This improves discoverability for screenreader and keyboard users.
 A new option `autoFocus` (default: `true`) was added to the `cookie-permission.html.twig` template and `CookiePermissionPlugin`.
 
 In addition to this the cookie bar will be moved to the top of the body element.
@@ -116,8 +178,6 @@ Unknown requirements are ignored and logged as warnings.
 
 The new configuration key `shopware.product.search_keyword.indexing` can be used to disable the product search keyword indexing.
 This is helpful for stores that do not require search keywords and want to avoid the overhead of maintaining those indices while still having basic search functionality or using third-party search solutions.
-
-## Critical Fixes
 
 # 6.7.9.0
 
@@ -275,17 +335,6 @@ shopware:
 
 When `bin/console system:setup:staging` is executed, the configured keys are written to the database via `SystemConfigService`.
 
-### [Experimental] Agentic Commerce sales channel
-
-A new "Agentic Commerce" sales channel type is available in this release. The OpenAI Merchant Center integration is the first supported provider for AI-powered product feed exports.
-The Administration includes dedicated views for configuration, product mapping, and usage insights.
-
-## API
-
-### Minimum value constraints added to quantity fields in ProductPriceDefinition
-
-The fields `quantityStart` and `quantityEnd` of ProductPriceDefinition now require a minimum value of `1`.
-
 ### Deprecation of newsletter route methods
 
 The following methods are deprecated and will be removed with the next major version:
@@ -424,23 +473,11 @@ public ?string $url = null;
 
 A value of `0` disables length validation entirely. This is pre-existing `StringFieldSerializer` behavior where any value below `1` is treated as unconstrained.
 
-### JSONL product export format
-
-Product exports now support `ProductExportEntity::FILE_FORMAT_JSONL` as a third file format.
-
-### [Experimental] Agentic Commerce product export provider abstraction
-
-The new `AbstractAgenticCommerceProductExportProvider` can be used to implement custom Agentic Commerce export providers.
-
 ## Administration
 
 ### CMS data mapping source for media custom fields
 
 Fixed media custom fields not being available as data mapping source for image elements in category and product CMS layouts. Shop Administrators can now reliably bind media custom fields to images in CMS pages without workarounds.
-
-### [Experimental] Agentic Commerce sales channel views and tracking entities
-
-New Agentic Commerce sales channels types can be created. These sales channels have dedicated configuration options in the administration for property mapping, and usage insights. New entities for monitoring orders and customers for Agentic Commerce sales channels are included.
 
 ## Storefront
 
@@ -514,8 +551,6 @@ shopware:
                     attributes:
                         - custom-attribute
 ```
-
-## Critical Fixes
 
 # 6.7.8.2
 

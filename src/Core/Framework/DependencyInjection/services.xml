@@ -364,7 +364,7 @@ frame-ancestors 'none';
             <tag name="kernel.reset" method="reset"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Adapter\Twig\SwTwigFunctionResetter" public="true">
+        <service id="Shopware\Core\Framework\Adapter\Twig\Runtime\CachedEscaperRuntimeResetter" public="true">
             <tag name="kernel.reset" method="reset"/>
         </service>
 

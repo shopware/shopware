@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
+use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelEntity;
@@ -19,6 +20,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Country\CountryCollection;
+use Shopware\Core\System\Country\CountryDefinition;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
@@ -104,13 +108,11 @@ class DocumentConfigLoaderTest extends TestCase
     {
         $document = new DocumentBaseConfigEntity();
         $document->setId($this->ids->get('document'));
-        $document->setUniqueIdentifier($this->ids->get('document'));
         $document->setGlobal(true);
 
         if ($logoUrl !== null) {
             $logo = new MediaEntity();
 
-            $logo->setUniqueIdentifier($this->ids->get('logo'));
             $logo->setId($this->ids->get('logo'));
             $logo->setUrl($logoUrl);
 
@@ -118,22 +120,28 @@ class DocumentConfigLoaderTest extends TestCase
         }
 
         $context = Context::createDefaultContext();
-        $result = new EntitySearchResult(
-            'document_base_config',
-            1,
-            new DocumentBaseConfigCollection([$document]),
-            null,
-            new Criteria(),
-            $context
+
+        /** @var StaticEntityRepository<DocumentBaseConfigCollection> $configRepository */
+        $configRepository = new StaticEntityRepository(
+            [new EntitySearchResult(
+                'document_base_config',
+                1,
+                new DocumentBaseConfigCollection([$document]),
+                null,
+                new Criteria(),
+                $context
+            )],
+            new DocumentBaseConfigDefinition(),
         );
 
-        $repo = $this->createMock(EntityRepository::class);
-        $repo->expects($this->once())
-            ->method('search')
-            ->willReturn($result);
+        Feature::fake($activeFeatures, function () use ($configRepository, $context, $expectedLogoUrl): void {
+            /** @var StaticEntityRepository<CountryCollection> $countryRepository */
+            $countryRepository = new StaticEntityRepository([], new CountryDefinition());
 
-        Feature::fake($activeFeatures, function () use ($repo, $context, $expectedLogoUrl): void {
-            $loader = new DocumentConfigLoader($repo, $this->createMock(EntityRepository::class));
+            $loader = new DocumentConfigLoader(
+                $configRepository,
+                $countryRepository,
+            );
 
             $config = $loader->load('invoice', $this->ids->get('sales-channel-id'), $context);
             $cachedConfig = $loader->load('invoice', $this->ids->get('sales-channel-id'), $context);

@@ -113,4 +113,20 @@ class UrlEncoderTest extends TestCase
             UrlEncoder::encodeUrl('https://shopware.com/path/file%20name.jpg')
         );
     }
+
+    public function testEncodePathSegmentsEncodesSpecialCharacters(): void
+    {
+        static::assertSame(
+            'media/foo/my%20file.jpg',
+            UrlEncoder::encodePathSegments('media/foo/my file.jpg')
+        );
+    }
+
+    public function testEncodePathSegmentsIsIdempotent(): void
+    {
+        static::assertSame(
+            'media/foo/my%20file.jpg',
+            UrlEncoder::encodePathSegments('media/foo/my%20file.jpg')
+        );
+    }
 }

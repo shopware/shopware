@@ -19,15 +19,7 @@ class UrlEncoder
             return null;
         }
 
-        $segments = explode('/', $urlInfo['path'] ?? '');
-
-        foreach ($segments as $index => $segment) {
-            $segments[$index] = rawurlencode(
-                rawurldecode($segment)
-            );
-        }
-
-        $path = implode('/', $segments);
+        $path = self::encodePathSegments($urlInfo['path'] ?? '');
 
         if (isset($urlInfo['query'])) {
             $path .= "?{$urlInfo['query']}";
@@ -48,5 +40,18 @@ class UrlEncoder
         }
 
         return $encodedPath . $path;
+    }
+
+    public static function encodePathSegments(string $path): string
+    {
+        $segments = explode('/', $path);
+
+        foreach ($segments as $index => $segment) {
+            $segments[$index] = rawurlencode(
+                rawurldecode($segment)
+            );
+        }
+
+        return implode('/', $segments);
     }
 }

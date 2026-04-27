@@ -61,7 +61,7 @@ async function createWrapper(options = {}) {
                     'sw-icon': true,
                 },
                 mocks: {
-                    $tc: (key) => `$t_${key}`,
+                    $t: (key) => `$t_${key}`,
                 },
             },
         },

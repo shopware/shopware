@@ -100,7 +100,7 @@ describe('src/app/init-post/worker.init.ts', () => {
                 { name, size: 1 },
             ],
             $root: {
-                $tc: (msg) => msg,
+                $t: (msg) => msg,
             },
             notification: {
                 create: createMock,
@@ -142,7 +142,7 @@ describe('src/app/init-post/worker.init.ts', () => {
                 },
             ],
             $root: {
-                $tc: (msg) => msg,
+                $t: (msg) => msg,
             },
             notification: {
                 create: createMock,
@@ -162,7 +162,6 @@ describe('src/app/init-post/worker.init.ts', () => {
             ],
             $root: {
                 $t: (msg) => msg,
-                $tc: (msg) => msg,
             },
             notification: {
                 create: createMock,

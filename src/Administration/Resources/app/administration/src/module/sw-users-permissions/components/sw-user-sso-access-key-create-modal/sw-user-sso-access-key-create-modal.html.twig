@@ -3,7 +3,7 @@
     v-if="isOpen"
     class="sw-settings-sso-user-create-access-key-modal"
     size="550px"
-    :title="$tc('global.default.warning')"
+    :title="$t('global.default.warning')"
     :is-loading="isLoading"
     @modal-close="onCancel()"
 >
@@ -11,7 +11,7 @@
     {% block sw_settings_sso_user_create_access_key_modal_inner_field_access_key %}
     <mt-text-field
         v-model="accessKey"
-        :label="$tc('sw-users-permissions.users.user-detail.modal.idFieldLabel')"
+        :label="$t('sw-users-permissions.users.user-detail.modal.idFieldLabel')"
         :disabled="true"
         :copyable="true"
         :copyable-tooltip="true"
@@ -23,7 +23,7 @@
     <mt-password-field
         v-if="mode === 'view'"
         v-model="secretAccessKey"
-        :label="$tc('sw-users-permissions.users.user-detail.modal.secretFieldLabel')"
+        :label="$t('sw-users-permissions.users.user-detail.modal.secretFieldLabel')"
         :disabled="true"
         :toggable="false"
         autocomplete="off"
@@ -33,7 +33,7 @@
     <mt-text-field
         v-else
         v-model="secretAccessKey"
-        :label="$tc('sw-users-permissions.users.user-detail.modal.secretFieldLabel')"
+        :label="$t('sw-users-permissions.users.user-detail.modal.secretFieldLabel')"
         :disabled="true"
         :copyable="true"
         :copyable-tooltip="true"
@@ -46,14 +46,14 @@
         v-if="mode === 'view'"
         variant="attention"
     >
-        {{ $tc('sw-users-permissions.users.user-detail.modal.hintCreateNewApiKeys') }}
+        {{ $t('sw-users-permissions.users.user-detail.modal.hintCreateNewApiKeys') }}
     </mt-banner>
 
     <mt-banner
         v-else
         variant="attention"
     >
-        {{ $tc('sw-users-permissions.users.user-detail.modal.secretHelpText') }}
+        {{ $t('sw-users-permissions.users.user-detail.modal.secretHelpText') }}
     </mt-banner>
     {% endblock %}
 
@@ -65,7 +65,7 @@
         class="sso-user-Integrations-modal-field--generate-access-key"
         @click="onGenerateNewAccessKey()"
     >
-        {{ $tc('sw-users-permissions.users.user-detail.modal.buttonCreateNewApiKeys') }}
+        {{ $t('sw-users-permissions.users.user-detail.modal.buttonCreateNewApiKeys') }}
     </mt-button>
     {% endblock %}
 
@@ -79,7 +79,7 @@
             :disabled="isLoading"
             @click="onCancel()"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -91,7 +91,7 @@
             :is-loading="isLoading"
             @click="onSave()"
         >
-            {{ $tc('sw-users-permissions.users.user-detail.modal.buttonApply') }}
+            {{ $t('sw-users-permissions.users.user-detail.modal.buttonApply') }}
         </mt-button>
         {% endblock %}
     </template>

@@ -19,12 +19,12 @@
         >
             <div class="sw-help-sidebar__header">
                 <h3 class="sw-help-sidebar__headline">
-                    {{ $tc('help-center.sidebar.title') }}
+                    {{ $t('help-center.sidebar.title') }}
                 </h3>
 
                 <button
                     class="sw-help-sidebar__button-close"
-                    :aria-label="$tc('help-center.sidebar.ariaLabelButtonClose')"
+                    :aria-label="$t('help-center.sidebar.ariaLabelButtonClose')"
                     @click="closeHelpSidebar"
                 >
                     <mt-icon
@@ -44,7 +44,7 @@
 
                 <div class="sw-help-sidebar__support">
                     <h4 class="sw-help-sidebar__support-title">
-                        {{ $tc('help-center.sidebar.support.title') }}
+                        {{ $t('help-center.sidebar.support.title') }}
                     </h4>
 
                     {% block sw_help_sidebar_support_content %}
@@ -55,9 +55,9 @@
                                 class="sw-help-sidebar__support-item-link"
                                 as="a"
                                 type="external"
-                                :to="$tc('help-center.sidebar.support.documentation.href')"
+                                :to="$t('help-center.sidebar.support.documentation.href')"
                             >
-                                <span>{{ $tc('help-center.sidebar.support.documentation.text') }}</span>
+                                <span>{{ $t('help-center.sidebar.support.documentation.text') }}</span>
                             </mt-link>
                         </li>
                         {% endblock %}
@@ -68,9 +68,9 @@
                                 class="sw-help-sidebar__support-item-link"
                                 as="a"
                                 type="external"
-                                :to="$tc('help-center.sidebar.support.createSupportRequest.href')"
+                                :to="$t('help-center.sidebar.support.createSupportRequest.href')"
                             >
-                                {{ $tc('help-center.sidebar.support.createSupportRequest.text') }}
+                                {{ $t('help-center.sidebar.support.createSupportRequest.text') }}
                             </mt-link>
                         </li>
                         {% endblock %}
@@ -86,13 +86,13 @@
                 <div class="sw-help-sidebar__shortcut">
                     <mt-button
                         v-tooltip="{
-                            message: $tc('sw-shortcut-overview.iconTooltip', { key: 'Shift + ?' }, 0),
+                            message: $t('sw-shortcut-overview.iconTooltip', { key: 'Shift + ?' }, 0),
                             appearance: 'light',
                             position: 'top',
                             zIndex: 1600,
                         }"
                         class="sw-help-sidebar__shortcut-button"
-                        :aria-label="$tc('help-center.sidebar.ariaLabelButtonShortcut')"
+                        :aria-label="$t('help-center.sidebar.ariaLabelButtonShortcut')"
                         variant="secondary"
                         @click="openShortcutModal"
                     >
@@ -101,7 +101,7 @@
                             color="var(--color-icon-primary-default)"
                             size="var(--scale-size-16)"
                         />
-                        {{ $tc('sw-shortcut-overview.title') }}
+                        {{ $t('sw-shortcut-overview.title') }}
                     </mt-button>
                 </div>
             </div>

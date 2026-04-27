@@ -109,8 +109,8 @@ export default {
 
         toggleButtonLabel() {
             return this.showUploadField
-                ? this.$tc('global.sw-media-field.labelToggleSearchExisting')
-                : this.$tc('global.sw-media-field.labelToggleUploadNew');
+                ? this.$t('global.sw-media-field.labelToggleSearchExisting')
+                : this.$t('global.sw-media-field.labelToggleUploadNew');
         },
 
         suggestionCriteria() {

@@ -4,6 +4,10 @@
 
 <details>
 
+### Minimum value constraints added to quantity fields in ProductPriceDefinition
+
+The fields `quantityStart` and `quantityEnd` of ProductPriceDefinition now require a minimum value of `1`.
+
 ## Default CMS page ID now persisted for categories
 
 The default CMS page ID is now automatically written to the database when a category is saved without a `cmsPageId`.
@@ -946,6 +950,7 @@ Use the parent blocks instead
 
 ## The following template blocks have been replaced due to a typo in their name
 * `sw_condiiton_date_range_field_to_date` -> `sw_condition_date_range_field_to_date`
+* `sw_cms_detail_stage_empty_stade_content` -> `sw_cms_detail_stage_empty_stage_content`
 
 ## Removed .png and .jpg images
 
@@ -1072,6 +1077,10 @@ The following templates no longer contain any microdata attributes:
 | `page/error/error-maintenance.html.twig` | `WebPage` on `<html>` |
 
 If your plugin or theme adds structured data by extending blocks in the templates above, migrate your overrides to the new JSON-LD template extension points described below.
+
+## Cookie bar moved to the top of the page
+
+The default cookie bar (block `base_cookie_permission`) has been moved from the bottom of the page to the top of the page (after the opening `<body>` element).
 
 ## New JSON-LD structured data block system
 

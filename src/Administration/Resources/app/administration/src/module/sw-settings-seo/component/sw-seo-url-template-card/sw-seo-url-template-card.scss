@@ -1,8 +1,3 @@
-@import "~scss/variables";
-
-$sw-seo-url-template-card-color-preview: $color-darkgray-200;
-$sw-seo-url-template-card-font-size-preview: $font-size-xs;
-
 .sw-seo-url-template-card {
     .sw-sales-channel-switch {
         width: 100%;
@@ -13,21 +8,21 @@ $sw-seo-url-template-card-font-size-preview: $font-size-xs;
     }
 
     .sw-seo-url-template-card__preview {
-        color: $sw-seo-url-template-card-color-preview;
-        font-size: $sw-seo-url-template-card-font-size-preview;
+        color: var(--color-darkgray-200);
+        font-size: var(--font-size-xs);
     }
 
     .sw-seo-url-template-card__preview-label {
-        margin: 10px 0 8px;
+        margin: var(--scale-size-10) 0 var(--scale-size-8);
         display: block;
-        line-height: 16px;
-        font-weight: normal;
+        line-height: var(--scale-size-16);
+        font-weight: var(--font-weight-regular);
         user-select: none;
     }
 }
 
 .sw-seo-url-template-card__seo-url {
-    margin-bottom: 32px;
+    margin-bottom: var(--scale-size-32);
 
     &:last-child {
         margin-bottom: 0;
@@ -38,21 +33,21 @@ $sw-seo-url-template-card-font-size-preview: $font-size-xs;
     }
 
     .sw-field__addition .mt-icon {
-        width: $font-size-s;
-        height: $font-size-s;
-        line-height: $font-size-s;
+        width: var(--font-size-s);
+        height: var(--font-size-s);
+        line-height: var(--font-size-s);
 
         &.icon--regular {
             &-checkmark {
-                color: $color-emerald-500;
+                color: var(--color-emerald-500);
             }
 
             &-exclamation-triangle {
-                color: $color-pumpkin-spice-500;
+                color: var(--color-pumpkin-spice-500);
             }
 
             &-times {
-                color: $color-crimson-500;
+                color: var(--color-crimson-500);
             }
         }
     }

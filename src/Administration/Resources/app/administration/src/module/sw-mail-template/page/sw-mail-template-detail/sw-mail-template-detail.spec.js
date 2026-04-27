@@ -547,7 +547,19 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         const wrapper = await createWrapper();
 
         wrapper.vm.testMailSalesChannelId = 'sales-channel-id';
-        await wrapper.vm.onTriggerEventChange('checkout.order.placed');
+        await wrapper.setData({
+            triggerEvents: [
+                {
+                    name: 'checkout.order.placed',
+                },
+            ],
+        });
+
+        const triggerEventSelect = wrapper.findAllComponents({ name: 'mt-select' })
+            .find((component) => component.props('options') === wrapper.vm.triggerEvents);
+
+        triggerEventSelect.vm.$emit('update:model-value', 'checkout.order.placed');
+        await flushPromises();
         await wrapper.vm.simulateMailPreview();
 
         expect(wrapper.vm.mailService.simulateMailTemplate).toHaveBeenCalledWith(

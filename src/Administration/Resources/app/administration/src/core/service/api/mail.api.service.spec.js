@@ -100,12 +100,6 @@ describe('mailApiService', () => {
     });
 
     describe('previewMailTemplate', () => {
-        it('is defined', async () => {
-            const { mailApiService } = getMailApiService();
-
-            expect(mailApiService.previewMailTemplate).toBeDefined();
-        });
-
         it('calls the correct endpoint', async () => {
             const { mailApiService, clientMock } = getMailApiService();
 
@@ -133,12 +127,6 @@ describe('mailApiService', () => {
     });
 
     describe('getDataAndSendMailTemplate', () => {
-        it('is defined', async () => {
-            const { mailApiService } = getMailApiService();
-
-            expect(mailApiService.getDataAndSendMailTemplate).toBeDefined();
-        });
-
         it('calls the correct endpoint', async () => {
             const { mailApiService, clientMock } = getMailApiService();
 
@@ -158,12 +146,6 @@ describe('mailApiService', () => {
     });
 
     describe('simulateMailTemplate', () => {
-        it('is defined', async () => {
-            const { mailApiService } = getMailApiService();
-
-            expect(mailApiService.simulateMailTemplate).toBeDefined();
-        });
-
         it('calls the correct endpoint', async () => {
             const { mailApiService, clientMock } = getMailApiService();
 

@@ -22,8 +22,8 @@
 
     &__plain-text-content {
         font-family: var(--font-family-default);
-        font-size: 12px;
-        line-height: 1.5;
+        font-size: var(--font-size-2xs);
+        line-height: var(--font-line-height-2xs);
         white-space: pre-wrap;
         overflow-wrap: anywhere;
     }

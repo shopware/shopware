@@ -77,6 +77,12 @@
         "selectTriggerEventHint": "Wird zur Ermittlung der verfügbaren Daten genutzt."
       },
       "previewModalTitle": "Vorschau",
+      "previewModalMailHeaderPlainLabel": "Mail-Kopfzeile (Klartext)",
+      "previewModalMailContentPlainLabel": "Mail-Inhalt (Klartext)",
+      "previewModalMailFooterPlainLabel": "Mail-Fußzeile (Klartext)",
+      "previewModalMailHeaderHtmlLabel": "Mail-Kopfzeile (HTML)",
+      "previewModalMailContentHtmlLabel": "Mail-Inhalt (HTML)",
+      "previewModalMailFooterHtmlLabel": "Mail-Fußzeile (HTML)",
       "buttonSave": "Speichern",
       "textHeadline": "Neues E-Mail-Template",
       "textHeadlineEdit": "E-Mail-Template bearbeiten",

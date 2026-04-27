@@ -39,24 +39,13 @@ To partly comply with old behaviour, primary deliveries are ordered first and pr
 
 ## Deprecated `imitatingUserId` on Store API `sales_channel_context` response
 
-The `imitatingUserId` field on the Store API `sales_channel_context` response is deprecated and will be removed in v6.8.0.
-The field is now always serialized as `null` over the API surface and no longer leaks the admin UUID to API consumers.
-
-A new boolean field `imitated` has been added at the root of the response. Use it to detect whether the current customer
-session is being impersonated by an admin user. The flag is now also persisted to the `sales_channel_api_context` payload,
-which means headless clients (those that only carry `sw-context-token` and no Symfony session cookie) can detect
-imitation reliably across requests.
+The `imitatingUserId` field is deprecated and will be removed in v6.8.0; it is now always serialized as `null`.
+Use the new `imitated: boolean` field at the root of the response instead.
 
 ```diff
 - if (response.imitatingUserId !== null) { /* impersonated */ }
 + if (response.imitated) { /* impersonated */ }
 ```
-
-`imitatingUserId` is now persisted into the context payload exclusively by the imitation login. The regular login,
-registration and double-opt-in confirmation routes explicitly clear the value on the new customer's context, so a
-context token previously used for imitation can no longer leak `imitated: true` into a subsequent unrelated login.
-A `SalesChannelContext::isImitated(): bool` helper is available for server-side code that needs to branch on the
-current state.
 
 ## Changed returned status code for `/store-api/document/download/` when no documents are found
 

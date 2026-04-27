@@ -10,7 +10,6 @@
 
 Added and deprecated `BackwardCompatibleNumberFormatter` to temporarily allow invalid locale strings without throwing exceptions in PHP >=8.4. It will be removed in Shopware 6.8.
 
-
 ## Administration
 
 ### Fixed "Last Quarter" timeframe returning the wrong year in `sw-date-filter`

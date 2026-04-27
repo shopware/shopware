@@ -102,9 +102,13 @@ readonly class PresignedMediaUploadService
         $media = $this->findMediaWithThumbnails($mediaId, $context);
         $isReplace = $media->hasFile();
 
-        $this->validateFinalizeRequest($mediaId, $payload, $media, $isReplace, $context);
+        $this->validateFinalizeRequest($mediaId, $payload, $media, $context);
 
         try {
+            if (!$isReplace) {
+                $this->ensureFileNameIsUnique($mediaId, $payload->fileName, $payload->extension, $media->isPrivate(), $context);
+            }
+
             $s3Metadata = $this->verifyFileOnStorage($mediaId, $payload->path);
 
             if ($isReplace) {
@@ -195,14 +199,14 @@ readonly class PresignedMediaUploadService
         return $media;
     }
 
-    private function validateFinalizeRequest(string $mediaId, PresignedUploadFinalizePayload $payload, MediaEntity $media, bool $isReplace, Context $context): void
+    /**
+     * Runs the attacker-controllable validations that must NOT trigger storage cleanup on failure.
+     * The caller must keep this invocation outside the try/catch that deletes $payload->path.
+     */
+    private function validateFinalizeRequest(string $mediaId, PresignedUploadFinalizePayload $payload, MediaEntity $media, Context $context): void
     {
         $this->extensionValidator->validate($payload->extension, $media->isPrivate(), $context, $mediaId);
         $this->validateExpectedPath($mediaId, $payload, $media);
-
-        if (!$isReplace) {
-            $this->ensureFileNameIsUnique($mediaId, $payload->fileName, $payload->extension, $media->isPrivate(), $context);
-        }
     }
 
     private function verifyFileOnStorage(string $mediaId, string $path): FileMetadataResult

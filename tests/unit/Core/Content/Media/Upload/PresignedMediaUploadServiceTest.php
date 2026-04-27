@@ -267,6 +267,59 @@ class PresignedMediaUploadServiceTest extends TestCase
         static::assertSame(\IMAGETYPE_JPEG, $update['metaData']['type']);
     }
 
+    public function testFinalizeRollsBackOrphanUploadOnDuplicateFileName(): void
+    {
+        // Two concurrent prepares for the same filename both pass isFileNameTaken (neither had a
+        // file yet). The slower finalize is the "loser" of the race — ensureFileNameIsUnique must
+        // throw AND the already-uploaded S3 object + the orphan media entity must be cleaned up.
+        $mediaId = '0189b0a1-0000-0000-0000-00000000cccc';
+        $path = 'media/ab/cd/collision.jpg';
+
+        $media = $this->buildMedia($mediaId);
+
+        $collidingMedia = $this->buildMedia('0189b0a1-0000-0000-0000-0000000000cc');
+        $collidingMedia->assign([
+            'path' => 'media/existing/collision.jpg',
+            'fileName' => 'collision',
+            'fileExtension' => 'jpg',
+        ]);
+
+        [$repo, $service] = $this->createService([
+            // 1st search: findMediaWithThumbnails.
+            new MediaCollection([$media]),
+            // 2nd search: ensureFileNameIsUnique (the winner is already persisted with this name).
+            new MediaCollection([$collidingMedia]),
+        ]);
+
+        $this->mediaPathStrategy->method('generate')->willReturn([$mediaId => $path]);
+
+        // Finalize never reaches verifyFileOnStorage/persistMediaData because uniqueness rejects first.
+        $this->presignedUrlGenerator->expects($this->never())->method('getFileMetadata');
+
+        // The last S3 object AND media entity must be cleaned up. Path has been validated, so
+        // deleting on the submitted path is safe.
+        $this->presignedUrlGenerator->expects($this->once())
+            ->method('deleteFromStorage')
+            ->with($path);
+
+        $this->expectException(MediaException::class);
+
+        $payload = new PresignedUploadFinalizePayload(
+            fileName: 'collision',
+            extension: 'jpg',
+            mimeType: 'image/jpeg',
+            path: $path,
+        );
+
+        try {
+            $service->finalize($mediaId, $payload, Context::createDefaultContext());
+        } finally {
+            static::assertCount(1, $repo->deletes, 'orphan media entity must be removed on race loss');
+            $deleted = $repo->deletes[0][0] ?? [];
+            static::assertSame($mediaId, $deleted['id'] ?? null);
+        }
+    }
+
     public function testFinalizeThrowsWhenFileNotFoundInS3(): void
     {
         $mediaId = '0189b0a1-0000-0000-0000-000000000002';

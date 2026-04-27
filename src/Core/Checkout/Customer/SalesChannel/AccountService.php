@@ -107,10 +107,7 @@ class AccountService
 
         $customer = $this->getCustomerByLogin($email, $password, $context);
 
-        // A regular credentials login is by definition not an admin imitation.
-        // Drop any imitating-user-id propagated by a previous session attached
-        // to the same context token before handing off to loginByCustomer, so
-        // CartRestorer's current → customer sync does not carry it forward.
+        // Credentials login is never an imitation; drop any stale value before CartRestorer syncs it forward.
         $context->setImitatingUserId(null);
 
         return $this->loginByCustomer($customer, $context);
@@ -188,11 +185,7 @@ class AccountService
         $context = $this->restorer->restore($customer->getId(), $context);
         $newToken = $context->getToken();
 
-        // Persist the imitating-user-id on the new customer's context payload so
-        // headless clients carrying only `sw-context-token` can detect imitation
-        // (or its absence) on subsequent /store-api/context calls. Writing the
-        // current value, including null, also clears any stale value left in the
-        // DB row from a prior imitation that shared this token.
+        // Persist imitating state to the new token so headless clients can detect it on later requests.
         $this->contextPersister->save(
             $newToken,
             [SalesChannelContextService::IMITATING_USER_ID => $context->getImitatingUserId()],

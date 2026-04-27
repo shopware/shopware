@@ -128,10 +128,7 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
 
             $requestSession = $currentRequest?->hasSession() ? $currentRequest->getSession() : null;
 
-            // Remove imitating user id when there is no customer logged in.
-            // Clearing the persister payload as well ensures headless clients
-            // (which never had a Symfony session entry) do not keep reporting
-            // `imitated: true` after the imitated customer has logged out.
+            // Stale imitating value without a logged-in customer: clear from session and persister payload.
             if ($context->getImitatingUserId() && !$context->getCustomerId()) {
                 $requestSession?->remove(PlatformRequest::ATTRIBUTE_IMITATING_USER_ID);
                 $this->contextPersister->save(

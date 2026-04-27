@@ -106,9 +106,6 @@ class ImitateCustomerRoute extends AbstractImitateCustomerRoute
 
         $context->setImitatingUserId($token->iss);
 
-        // AccountService::loginByCustomer persists imitatingUserId into the
-        // sales_channel_api_context payload after the customer is logged in,
-        // so the value is reachable by headless clients on subsequent requests.
         $newToken = $this->accountService->loginById($token->customerId, $context);
 
         return new ContextTokenResponse($newToken);

@@ -94,8 +94,6 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
                 'customerId' => $customer->getId(),
                 'billingAddressId' => null,
                 'shippingAddressId' => null,
-                // Double-opt-in confirmation is not an admin imitation: drop any
-                // stale value carried over from a prior session sharing this token.
                 SalesChannelContextService::IMITATING_USER_ID => null,
             ],
             $context->getSalesChannelId(),

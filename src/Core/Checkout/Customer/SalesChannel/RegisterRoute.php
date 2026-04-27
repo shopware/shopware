@@ -231,8 +231,6 @@ class RegisterRoute extends AbstractRegisterRoute
                 'billingAddressId' => null,
                 'shippingAddressId' => null,
                 'domainId' => $context->getDomainId(),
-                // Registration is not an admin imitation: drop any stale value
-                // carried over from a prior session sharing this context token.
                 SalesChannelContextService::IMITATING_USER_ID => null,
             ],
             $context->getSalesChannelId(),

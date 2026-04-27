@@ -42,7 +42,7 @@ class SalesChannelContext extends Struct
     protected bool $permissionsLocked = false;
 
     /**
-     * @deprecated tag:v6.8.0 - reason:visibility-change - Will become private. The UUID of the imitating admin user is no longer exposed via the Store API JSON response; consumers should use the `imitated` boolean instead.
+     * @deprecated tag:v6.8.0 - reason:visibility-change - Will become private; consumers should use the `imitated` flag from the JSON response.
      */
     protected ?string $imitatingUserId = null;
 
@@ -424,8 +424,7 @@ class SalesChannelContext extends Struct
 
         $data['imitated'] = $this->isImitated();
 
-        // Never expose the imitating admin UUID over the API surface.
-        // @deprecated tag:v6.8.0 - The `imitatingUserId` field will be removed; use `imitated` instead.
+        // @deprecated tag:v6.8.0 - field will be removed; use `imitated` instead.
         $data['imitatingUserId'] = null;
 
         return $data;

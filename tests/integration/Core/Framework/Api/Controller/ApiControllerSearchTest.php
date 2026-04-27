@@ -259,6 +259,58 @@ class ApiControllerSearchTest extends TestCase
         static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
     }
 
+    public function testPostSearchUsesQueryPageForPaginationLinks(): void
+    {
+        $products = [];
+        foreach (['a', 'b', 'c'] as $suffix) {
+            $id = Uuid::randomHex();
+            $products[] = $id;
+
+            $this->getBrowser()->jsonRequest('POST', '/api/product', [
+                'id' => $id,
+                'productNumber' => 'SW-API-PAGINATION-' . $suffix,
+                'stock' => 1,
+                'name' => 'Pagination Product ' . $suffix,
+                'tax' => ['name' => 'test', 'taxRate' => 10],
+                'manufacturer' => ['name' => 'Shopware AG'],
+                'price' => [[
+                    'currencyId' => Defaults::CURRENCY,
+                    'gross' => 50,
+                    'net' => 25,
+                    'linked' => false,
+                ]],
+            ]);
+            static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode());
+        }
+
+        $this->getBrowser()->jsonRequest('POST', '/api/search/product?page=2', [
+            'limit' => 1,
+            'total-count-mode' => Criteria::TOTAL_COUNT_MODE_EXACT,
+            'sort' => [[
+                'field' => 'product.productNumber',
+                'order' => 'asc',
+            ]],
+            'filter' => [[
+                'type' => 'equalsAny',
+                'field' => 'product.id',
+                'value' => implode('|', $products),
+            ]],
+        ]);
+
+        $content = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        parse_str((string) parse_url($content['links']['self'], \PHP_URL_QUERY), $selfParams);
+        parse_str((string) parse_url($content['links']['next'], \PHP_URL_QUERY), $nextParams);
+        parse_str((string) parse_url($content['links']['last'], \PHP_URL_QUERY), $lastParams);
+
+        static::assertSame(3, $content['meta']['total']);
+        static::assertSame('2', $selfParams['page']);
+        static::assertSame('3', $nextParams['page']);
+        static::assertSame('1', $nextParams['limit']);
+        static::assertSame('3', $lastParams['page']);
+        static::assertSame('1', $lastParams['limit']);
+        static::assertSame('SW-API-PAGINATION-b', $content['data'][0]['attributes']['productNumber']);
+    }
+
     /**
      * Tests the API search endpoint. Asserts that an entity can be both part of the result data as well as the
      * associations when the entity is fetched as a top level entity result and through circular associations.

@@ -234,6 +234,39 @@ class RequestCriteriaBuilderTest extends TestCase
         static::assertCount(1, $nested->getSorting());
     }
 
+    public function testPostRequestUsesQueryPaginationWhenBodyDoesNotDefineIt(): void
+    {
+        $request = new Request(['limit' => 25, 'page' => 2], ['total-count-mode' => 'exact']);
+        $request->setMethod(Request::METHOD_POST);
+
+        $criteria = $this->requestCriteriaBuilder->handleRequest(
+            $request,
+            new Criteria(),
+            $this->staticDefinitionRegistry->get(ProductDefinition::class),
+            Context::createDefaultContext()
+        );
+
+        static::assertSame(25, $criteria->getLimit());
+        static::assertSame(25, $criteria->getOffset());
+        static::assertSame(Criteria::TOTAL_COUNT_MODE_EXACT, $criteria->getTotalCountMode());
+    }
+
+    public function testPostRequestBodyParametersOverrideQueryParameters(): void
+    {
+        $request = new Request(['limit' => 10, 'page' => 2], ['limit' => 25, 'page' => 3]);
+        $request->setMethod(Request::METHOD_POST);
+
+        $criteria = $this->requestCriteriaBuilder->handleRequest(
+            $request,
+            new Criteria(),
+            $this->staticDefinitionRegistry->get(ProductDefinition::class),
+            Context::createDefaultContext()
+        );
+
+        static::assertSame(25, $criteria->getLimit());
+        static::assertSame(50, $criteria->getOffset());
+    }
+
     public function testCriteriaToArray(): void
     {
         $criteria = (new Criteria())

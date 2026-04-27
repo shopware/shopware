@@ -84,7 +84,12 @@ class RequestCriteriaBuilder
             }
             $criteria = $this->fromArray($request->query->all(), $criteria, $definition, $context);
         } else {
-            $criteria = $this->fromArray($request->request->all(), $criteria, $definition, $context);
+            $criteria = $this->fromArray(
+                array_replace($request->query->all(), $request->request->all()),
+                $criteria,
+                $definition,
+                $context
+            );
         }
 
         // @deprecated tag:v6.8.0 - switch the default to 0

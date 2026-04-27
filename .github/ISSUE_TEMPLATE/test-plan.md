@@ -57,10 +57,6 @@ Describe everything required before testing starts.
 
 - [ ] TBD
 
-### Test data
-
-- [ ] TBD
-
 ## Test scenario overview
 
 Create and link dedicated sub-issues for manual and/or automated test cases where needed.

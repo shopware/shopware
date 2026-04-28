@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Search\AbstractProductSearchRoute;
 use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
@@ -30,8 +31,6 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Package('inventory')]
 class SearchController extends StorefrontController
 {
-    private const SUPPORTED_REDIRECT_FIELDS = ['productNumber', 'ean', 'manufacturerNumber'];
-
     /**
      * @internal
      *
@@ -41,7 +40,8 @@ class SearchController extends StorefrontController
         private readonly SearchPageLoader $searchPageLoader,
         private readonly SuggestPageLoader $suggestPageLoader,
         private readonly AbstractProductSearchRoute $productSearchRoute,
-        private readonly array $redirectOnSingleHitFields = self::SUPPORTED_REDIRECT_FIELDS
+        private readonly ProductDefinition $productDefinition,
+        private readonly array $redirectOnSingleHitFields = ['productNumber', 'ean', 'manufacturerNumber']
     ) {
     }
 
@@ -173,14 +173,12 @@ class SearchController extends StorefrontController
         }
 
         foreach ($this->redirectOnSingleHitFields as $field) {
-            $value = match ($field) {
-                'productNumber' => $product->getProductNumber(),
-                'ean' => $product->getEan(),
-                'manufacturerNumber' => $product->getManufacturerNumber(),
-                default => null,
-            };
+            if ($this->productDefinition->getField($field) === null || !$product->has($field)) {
+                continue;
+            }
 
-            if ($value === null || $value === '') {
+            $value = $product->get($field);
+            if (!\is_string($value) || $value === '') {
                 continue;
             }
 

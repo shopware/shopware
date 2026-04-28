@@ -27,11 +27,11 @@ The flyout now calculates a dynamic `max-height` from the remaining viewport spa
 ### Single-hit search redirect now matches EAN and manufacturer number
 
 The storefront search already redirected to the product detail page when a search term exactly matched a product's number and produced a single result.
-The same redirect now triggers when the term exactly matches the product's `ean` or `manufacturerNumber`, mirroring the behaviour requested in [shopware/shopware#15633](https://github.com/shopware/shopware/issues/15633).
+The same redirect now triggers when the term exactly matches the product's `ean` or `manufacturerNumber`.
 The condition still requires exactly one matching product, so listings with multiple hits remain unaffected.
 
 The set of fields that trigger the redirect is configurable via the `shopware.storefront.redirect_on_single_hit_fields` container parameter (defaults to `['productNumber', 'ean', 'manufacturerNumber']`).
-Only `productNumber`, `ean`, and `manufacturerNumber` are recognised — unknown values are ignored.
+Any string-valued field declared on the `ProductDefinition` may be configured — unknown or non-string fields are skipped.
 Set the parameter to a narrower list (for example `['productNumber']`) to restore the previous behaviour.
 
 ## App System

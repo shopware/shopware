@@ -131,13 +131,13 @@ export default {
         },
 
         placeholderSearchInput() {
-            let placeholder = this.$tc('global.sw-search-bar.placeholderSearchField');
+            let placeholder = this.$t('global.sw-search-bar.placeholderSearchField');
 
             if (this.currentSearchType) {
                 if (this.placeholder !== '') {
                     placeholder = this.placeholder;
                 } else if (Object.keys(this.searchTypes).includes(this.currentSearchType)) {
-                    placeholder = this.$tc(this.searchTypes[this.currentSearchType].placeholderSnippet);
+                    placeholder = this.$t(this.searchTypes[this.currentSearchType].placeholderSnippet);
                 }
             }
 
@@ -318,14 +318,14 @@ export default {
 
             if (type.startsWith('custom_entity_') || type.startsWith('ce_')) {
                 const snippetKey = `${type}.moduleTitle`;
-                return this.$te(snippetKey) ? this.$tc(snippetKey) : type;
+                return this.$te(snippetKey) ? this.$t(snippetKey) : type;
             }
 
             if (!this.$te(`global.entities.${type}`)) {
                 return this.currentSearchType;
             }
 
-            return this.$tc(`global.entities.${type}`, 2);
+            return this.$t(`global.entities.${type}`, 2);
         },
 
         setFocus() {
@@ -443,7 +443,7 @@ export default {
             this.typeSelectResults = [];
 
             Object.keys(this.searchTypes).forEach((key) => {
-                const snippet = this.$tc(`global.entities.${this.searchTypes[key].entityName}`, 2);
+                const snippet = this.$t(`global.entities.${this.searchTypes[key].entityName}`, 2);
                 if (snippet.toLowerCase().includes(term.toLowerCase()) || term === '') {
                     this.typeSelectResults.push(this.searchTypes[key]);
                 }
@@ -882,7 +882,7 @@ export default {
                         ? module.manifest.searchMatcher
                         : this.getDefaultMatchSearchableModules;
 
-                const moduleType = this.$te(`${module.manifest.title}`) && this.$tc(`${module.manifest.title}`, 2);
+                const moduleType = this.$te(`${module.manifest.title}`) && this.$t(`${module.manifest.title}`, 2);
 
                 if (!moduleType) {
                     return;
@@ -906,7 +906,7 @@ export default {
 
         getDefaultMatchSearchableModules(regex, label, manifest) {
             const match = label.toLowerCase().match(regex);
-            const matchAddNew = `${this.$tc('global.sw-search-bar.addNew')} ${label}`.toLowerCase().match(regex);
+            const matchAddNew = `${this.$t('global.sw-search-bar.addNew')} ${label}`.toLowerCase().match(regex);
 
             if ((!match && !matchAddNew) || (!manifest?.routes?.index && !manifest?.routes?.list)) {
                 return false;
@@ -1110,8 +1110,8 @@ export default {
             if (typeof manifest.searchMatcher === 'function') {
                 // get metadata in searchMatcher
                 const metadata = manifest.searchMatcher(
-                    new RegExp(`^${this.$tc(manifest.title).toLowerCase()}(.*)`),
-                    this.$tc(manifest.title, 2),
+                    new RegExp(`^${this.$t(manifest.title).toLowerCase()}(.*)`),
+                    this.$t(manifest.title, 2),
                     module.manifest,
                 );
 

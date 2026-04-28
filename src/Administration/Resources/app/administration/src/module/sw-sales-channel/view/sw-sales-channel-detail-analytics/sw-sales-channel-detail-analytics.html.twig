@@ -1,20 +1,20 @@
 {% block sw_sales_channel_detail_analytics %}
 <mt-card
     position-identifier="sw-sales-channel-detail-analytics"
-    :title="$tc('sw-sales-channel.detail.analytics.cardTitle')"
+    :title="$t('sw-sales-channel.detail.analytics.cardTitle')"
     :is-loading="isLoading"
 >
     <template v-if="salesChannel && salesChannel.analytics">
         {% block sw_sales_channel_detail_analytics_headline %}
         <div class="sw-sales-channel-detail-analytics__headline-text">
-            {{ $tc('sw-sales-channel.detail.analytics.headline') }}
+            {{ $t('sw-sales-channel.detail.analytics.headline') }}
         </div>
         {% endblock %}
 
         {% block sw_sales_channel_detail_analytics_description %}
         <p
             class="sw-sales-channel-detail-analytics__description"
-            v-html="$tc('sw-sales-channel.detail.analytics.description')"
+            v-html="$t('sw-sales-channel.detail.analytics.description')"
         ></p>
         {% endblock %}
 
@@ -22,11 +22,11 @@
 
         <mt-text-field
             v-model="salesChannel.analytics.trackingId"
-            :label="$tc('sw-sales-channel.detail.analytics.fields.trackingId.label')"
-            :placeholder="$tc('sw-sales-channel.detail.analytics.fields.trackingId.placeHolder')"
+            :label="$t('sw-sales-channel.detail.analytics.fields.trackingId.label')"
+            :placeholder="$t('sw-sales-channel.detail.analytics.fields.trackingId.placeHolder')"
             name="trackingId"
             :disabled="!acl.can('sales_channel.editor')"
-            :help-text="$tc('sw-sales-channel.detail.analytics.fields.trackingId.helpText')"
+            :help-text="$t('sw-sales-channel.detail.analytics.fields.trackingId.helpText')"
         />
         {% endblock %}
 
@@ -39,7 +39,7 @@
 
             <mt-switch
                 v-model="salesChannel.analytics.active"
-                :label="$tc('sw-sales-channel.detail.analytics.fields.active.label')"
+                :label="$t('sw-sales-channel.detail.analytics.fields.active.label')"
                 name="analyticsActive"
                 :disabled="!acl.can('sales_channel.editor')"
             />
@@ -49,7 +49,7 @@
 
             <mt-switch
                 v-model="salesChannel.analytics.trackOrders"
-                :label="$tc('sw-sales-channel.detail.analytics.fields.trackOrders.label')"
+                :label="$t('sw-sales-channel.detail.analytics.fields.trackOrders.label')"
                 name="trackOrders"
                 :disabled="!acl.can('sales_channel.editor')"
             />
@@ -59,7 +59,7 @@
 
             <mt-switch
                 v-model="salesChannel.analytics.anonymizeIp"
-                :label="$tc('sw-sales-channel.detail.analytics.fields.anonymizeIp.label')"
+                :label="$t('sw-sales-channel.detail.analytics.fields.anonymizeIp.label')"
                 name="anonymizeIp"
                 :disabled="!acl.can('sales_channel.editor')"
             />
@@ -69,8 +69,8 @@
 
             <mt-switch
                 v-model="salesChannel.analytics.trackOffcanvasCart"
-                :label="$tc('sw-sales-channel.detail.analytics.fields.trackOffcanvasCart.label')"
-                :help-text="$tc('sw-sales-channel.detail.analytics.fields.trackOffcanvasCart.helpText')"
+                :label="$t('sw-sales-channel.detail.analytics.fields.trackOffcanvasCart.label')"
+                :help-text="$t('sw-sales-channel.detail.analytics.fields.trackOffcanvasCart.helpText')"
                 name="trackOffcanvasCart"
                 :disabled="!acl.can('sales_channel.editor')"
             />

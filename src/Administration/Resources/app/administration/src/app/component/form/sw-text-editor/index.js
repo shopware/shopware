@@ -448,7 +448,7 @@ export default {
             if (!this.$options.buttonConfig) {
                 this.buttonConfig.push({
                     type: 'table',
-                    title: this.$tc('sw-text-editor-toolbar.title.insert-table'),
+                    title: this.$t('sw-text-editor-toolbar.title.insert-table'),
                     icon: 'regular-table-xs',
                     tag: 'table',
                     expanded: false,
@@ -458,7 +458,7 @@ export default {
                 if (!this.isInlineEdit) {
                     this.buttonConfig.push({
                         type: 'codeSwitch',
-                        title: this.$tc('sw-text-editor-toolbar.title.code-switch'),
+                        title: this.$t('sw-text-editor-toolbar.title.code-switch'),
                         icon: 'regular-code-xs',
                         expanded: this.isCodeEdit,
                         handler: this.toggleCodeEditor,
@@ -469,7 +469,7 @@ export default {
                 if (this.allowInlineDataMapping && this.availableDataMappings.length > 0) {
                     const dataMappingButton = {
                         type: 'data-mapping',
-                        title: this.$tc('sw-text-editor-toolbar.title.data-mapping'),
+                        title: this.$t('sw-text-editor-toolbar.title.data-mapping'),
                         icon: 'regular-variables-xs',
                         position: 'left',
                         dropdownPosition: 'left',

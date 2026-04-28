@@ -75,7 +75,7 @@
         >
             <mt-button
                 v-tooltip="{
-                    message: $tc('sw-sales-channel.modal.messageNoProductStreams'),
+                    message: $t('sw-sales-channel.modal.messageNoProductStreams'),
                     showOnDisabledElements: true,
                     disabled: !addChannelAction.disabled(item.id)
                 }"
@@ -88,7 +88,7 @@
                 :data-analytics-sales-channel-type-id="item.id"
                 @click="onAddChannel(item.id)"
             >
-                {{ $tc('sw-sales-channel.modal.buttonAddChannel') }}
+                {{ $t('sw-sales-channel.modal.buttonAddChannel') }}
             </mt-button>
         </sw-grid-column>
         {% endblock %}

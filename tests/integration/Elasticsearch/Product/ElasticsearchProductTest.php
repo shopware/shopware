@@ -3008,7 +3008,7 @@ class ElasticsearchProductTest extends TestCase
                     'parentId' => $parentId,
                     'active' => true,
                     'translationCode' => [
-                        'code' => Uuid::randomHex(),
+                        'code' => 'de-DE-' . Uuid::randomHex(),
                         'name' => 'Test locale',
                         'territory' => 'test',
                     ],

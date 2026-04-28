@@ -107,11 +107,11 @@ elasticsearch:
             sw_whitespace_word_delimiter_index_analyzer:
                 type: custom
                 tokenizer: whitespace
-                filter: ['sw_word_delimiter_filter', 'flatten_graph', 'lowercase', 'remove_duplicates']
+                filter: ['sw_word_delimiter_filter', 'flatten_graph', 'lowercase', 'sw_length_min', 'remove_duplicates']
             sw_whitespace_word_delimiter_search_analyzer:
                 type: custom
                 tokenizer: whitespace
-                filter: ['sw_word_delimiter_filter', 'lowercase', 'remove_duplicates']
+                filter: ['sw_word_delimiter_filter', 'lowercase', 'sw_length_min', 'remove_duplicates', 'sw_unique_filter']
             sw_ngram_analyzer:
                 type: custom
                 tokenizer: whitespace
@@ -123,11 +123,11 @@ elasticsearch:
             sw_english_word_delimiter_index_analyzer:
                 type: custom
                 tokenizer: whitespace
-                filter: ['sw_word_delimiter_filter', 'flatten_graph', 'lowercase', 'remove_duplicates', 'sw_english_stop_filter']
+                filter: ['sw_word_delimiter_filter', 'flatten_graph', 'lowercase', 'sw_length_min', 'remove_duplicates', 'sw_english_stop_filter']
             sw_english_word_delimiter_search_analyzer:
                 type: custom
                 tokenizer: whitespace
-                filter: ['sw_word_delimiter_filter', 'lowercase', 'remove_duplicates', 'sw_english_stop_filter']
+                filter: ['sw_word_delimiter_filter', 'lowercase', 'sw_length_min', 'remove_duplicates', 'sw_english_stop_filter', 'sw_unique_filter']
             sw_german_analyzer:
                 type: custom
                 tokenizer: whitespace
@@ -135,11 +135,11 @@ elasticsearch:
             sw_german_word_delimiter_index_analyzer:
                 type: custom
                 tokenizer: whitespace
-                filter: ['sw_word_delimiter_filter', 'flatten_graph', 'lowercase', 'remove_duplicates', 'sw_german_stop_filter']
+                filter: ['sw_word_delimiter_filter', 'flatten_graph', 'lowercase', 'sw_length_min', 'remove_duplicates', 'sw_german_stop_filter']
             sw_german_word_delimiter_search_analyzer:
                 type: custom
                 tokenizer: whitespace
-                filter: ['sw_word_delimiter_filter', 'lowercase', 'remove_duplicates', 'sw_german_stop_filter']
+                filter: ['sw_word_delimiter_filter', 'lowercase', 'sw_length_min', 'remove_duplicates', 'sw_german_stop_filter', 'sw_unique_filter']
         filter:
             sw_ngram_filter:
                 type: ngram
@@ -152,7 +152,13 @@ elasticsearch:
                 catenate_words: true
                 split_on_case_change: true
                 generate_word_parts: true
-                split_on_numerics: false
+                split_on_numerics: true
+            sw_length_min:
+                type: length
+                min: 2
+            sw_unique_filter:
+                type: unique
+                only_on_same_position: false
             sw_english_stop_filter:
                 type: 'stop'
                 stopwords: '_english_'

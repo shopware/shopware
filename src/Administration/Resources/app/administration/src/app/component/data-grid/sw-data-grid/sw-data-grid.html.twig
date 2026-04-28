@@ -15,13 +15,13 @@
             class="sw-data-grid__bulk"
         >
             {% block sw_data_grid_bulk_selected_count %}
-            <span class="sw-data-grid__bulk-selected sw-data-grid__bulk-selected-label">{{ $tc('global.sw-data-grid.labelSelectionCount') }}</span>
+            <span class="sw-data-grid__bulk-selected sw-data-grid__bulk-selected-label">{{ $t('global.sw-data-grid.labelSelectionCount') }}</span>
             <span class="sw-data-grid__bulk-selected sw-data-grid__bulk-selected-count">{{ selectionCount }}</span>
             <span
                 v-if="reachMaximumSelectionExceed"
                 class="sw-data-grid__bulk-selected sw-data-grid__bulk-max-selection"
             >
-                {{ $tc('global.sw-data-grid.maximumSelectionExceed') }}
+                {{ $t('global.sw-data-grid.maximumSelectionExceed') }}
             </span>
             {% endblock %}
 
@@ -35,7 +35,7 @@
                     @click="resetSelection"
                     @keydown.enter="resetSelection"
                 >
-                    {{ $tc('global.sw-data-grid.labelDeSelectAll') }}
+                    {{ $t('global.sw-data-grid.labelDeSelectAll') }}
                 </a>
                 <slot name="bulk">
                 {% block sw_data_grid_bulk_selected_actions_content %}{% endblock %}
@@ -79,7 +79,7 @@
                             {% block sw_data_grid_select_all_checkbox %}
                             <mt-checkbox
                                 v-if="records && records.length > 0"
-                                :aria-label="$tc(allSelectedChecked ? 'global.sw-data-grid.labelDeSelectAll' : 'global.sw-data-grid.labelSelectAll')"
+                                :aria-label="$t(allSelectedChecked ? 'global.sw-data-grid.labelDeSelectAll' : 'global.sw-data-grid.labelSelectAll')"
                                 :disabled="isSelectAllDisabled"
                                 class="sw-data-grid__select-all"
                                 :checked="allSelectedChecked"
@@ -117,20 +117,20 @@
                                     v-tooltip="column.iconTooltip"
                                     :name="column.iconLabel"
                                 >
-                                    {{ $te((column.label ?? 'undefined')) ? $tc(column.label) : column.label }}
+                                    {{ $te((column.label ?? 'undefined')) ? $t(column.label) : column.label }}
                                 </mt-icon>
 
                                 <mt-icon
                                     v-else-if="column.iconLabel"
                                     :name="column.iconLabel"
                                 >
-                                    {{ $te((column.label ?? 'undefined')) ? $tc(column.label) : column.label }}
+                                    {{ $te((column.label ?? 'undefined')) ? $t(column.label) : column.label }}
                                 </mt-icon>
                                 {% endblock %}
 
                                 {% block sw_data_grid_header_columns_label %}
                                 <template v-else>
-                                    {{ $te((column.label ?? 'undefined')) ? $tc(column.label) : column.label }}
+                                    {{ $te((column.label ?? 'undefined')) ? $t(column.label) : column.label }}
                                 </template>
                                 {% endblock %}
                             </slot>
@@ -147,7 +147,7 @@
                                     variant="danger"
                                     @click="hideColumn(columnIndex)"
                                 >
-                                    {{ $tc('global.sw-data-grid.labelColumnHide') }}
+                                    {{ $t('global.sw-data-grid.labelColumnHide') }}
                                 </sw-context-menu-item>
                                 {% endblock %}
                             </sw-context-button>
@@ -282,7 +282,7 @@
                                 {% block sw_data_grid_select_item_checkbox %}
 
                                 <mt-checkbox
-                                    :aria-label="$tc('global.sw-data-grid.labelSelected')"
+                                    :aria-label="$t('global.sw-data-grid.labelSelected')"
                                     :disabled="!isRecordSelectable(item)"
                                     :checked="isSelected(item[itemIdentifierProperty])"
                                     @update:checked="selectItem($event, item)"
@@ -398,8 +398,8 @@
                                 <mt-button
                                     class="sw-data-grid__inline-edit-cancel"
                                     size="x-small"
-                                    :title="$tc('global.default.cancel')"
-                                    :aria-label="$tc('global.default.cancel')"
+                                    :title="$t('global.default.cancel')"
+                                    :aria-label="$t('global.default.cancel')"
                                     square
                                     variant="secondary"
                                     @click="onClickCancelInlineEdit(item)"
@@ -418,8 +418,8 @@
                                     class="sw-data-grid__inline-edit-save"
                                     variant="primary"
                                     size="x-small"
-                                    :title="$tc('global.default.save')"
-                                    :aria-label="$tc('global.default.save')"
+                                    :title="$t('global.default.save')"
+                                    :aria-label="$t('global.default.save')"
                                     square
                                     @click="onClickSaveInlineEdit(item)"
                                 >

@@ -33,7 +33,7 @@ export default {
 
     computed: {
         typeText() {
-            return this.$tc(`sw-import-export.activity.logInfo.${this.logEntity.activity}Label`);
+            return this.$t(`sw-import-export.activity.logInfo.${this.logEntity.activity}Label`);
         },
 
         stateClass() {
@@ -62,7 +62,7 @@ export default {
         getStateLabel(state) {
             const translationKey = `sw-import-export.activity.status.${state}`;
 
-            return this.$te(translationKey) ? this.$tc(translationKey) : state;
+            return this.$te(translationKey) ? this.$t(translationKey) : state;
         },
     },
 };

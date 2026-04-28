@@ -70,19 +70,19 @@ export default Shopware.Component.wrapComponentConfig({
 
         orderValidateErrorMessage(): string | null {
             if (!this.customer) {
-                return this.$tc('sw-order.create.saveError.noCustomer');
+                return this.$t('sw-order.create.saveError.noCustomer');
             }
 
             if (!this.cart.token) {
-                return this.$tc('sw-order.create.saveError.noCart');
+                return this.$t('sw-order.create.saveError.noCart');
             }
 
             if (this.cart.lineItems.length === 0) {
-                return this.$tc('sw-order.create.saveError.noLineItems');
+                return this.$t('sw-order.create.saveError.noLineItems');
             }
 
             if (this.invalidPromotionCodes.length > 0) {
-                return this.$tc('sw-order.create.saveError.invalidPromotionCodes');
+                return this.$t('sw-order.create.saveError.invalidPromotionCodes');
             }
 
             return null;
@@ -154,7 +154,7 @@ export default Shopware.Component.wrapComponentConfig({
                 const [transaction] = data?.transactions || [];
 
                 if (!transaction) {
-                    throw new Error(this.$tc('sw-order.create.saveError.noTransactionReturned'));
+                    throw new Error(this.$t('sw-order.create.saveError.noTransactionReturned'));
                 }
 
                 this.orderId = data?.id;
@@ -205,7 +205,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             this.createNotificationError({
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                message: errorMessage || this.$tc('sw-order.create.messageSaveError'),
+                message: errorMessage || this.$t('sw-order.create.messageSaveError'),
             });
         },
 

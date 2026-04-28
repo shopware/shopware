@@ -1,7 +1,7 @@
 {% block sw_flow_set_entity_custom_field_modal %}
 <sw-modal
     class="sw-flow-set-entity-custom-field-modal"
-    :title="$tc('sw-flow.modals.setEntityCustomField.title')"
+    :title="$t('sw-flow.modals.setEntityCustomField.title')"
     :closable="false"
     @modal-close="onClose"
 >
@@ -14,8 +14,8 @@
             class="sw-flow-set-entity-custom-field-modal__entity-field"
             required
             show-clearable-button
-            :label="$tc('sw-flow.modals.setEntityCustomField.labelToField')"
-            :placeholder="$tc('sw-flow.modals.setEntityCustomField.placeholderToField')"
+            :label="$t('sw-flow.modals.setEntityCustomField.labelToField')"
+            :placeholder="$t('sw-flow.modals.setEntityCustomField.placeholderToField')"
             :error="entityError"
             :options="entityOptions"
             @update:value="onEntityChange()"
@@ -32,8 +32,8 @@
             :label-property="labelProperty"
             :disabled="!entity"
             :criteria="customFieldSetCriteria"
-            :label="$tc('sw-flow.modals.setEntityCustomField.customFieldSet')"
-            :placeholder="$tc('sw-flow.modals.setEntityCustomField.customFieldSetPlaceHolder')"
+            :label="$t('sw-flow.modals.setEntityCustomField.customFieldSet')"
+            :placeholder="$t('sw-flow.modals.setEntityCustomField.customFieldSetPlaceHolder')"
             :error="customFieldSetError"
             @update:value="(id, customFieldSet) => onCustomFieldSetChange(id, customFieldSet)"
         >
@@ -55,10 +55,10 @@
             entity="custom_field"
             required
             :label-property="labelProperty"
-            :label="$tc('sw-flow.modals.setEntityCustomField.customField')"
+            :label="$t('sw-flow.modals.setEntityCustomField.customField')"
             :disabled="!customFieldSetId"
             :criteria="customFieldCriteria"
-            :placeholder="$tc('sw-flow.modals.setEntityCustomField.customFieldPlaceHolder')"
+            :placeholder="$t('sw-flow.modals.setEntityCustomField.customFieldPlaceHolder')"
             :error="customFieldError"
             @update:value="(id, customField) => onCustomFieldChange(id, customField)"
         >
@@ -79,7 +79,7 @@
             name="sw-field--fieldOptionSelected"
             class="sw-flow-set-entity-custom-field-modal__custom-field-value-options"
             :options="fieldOptions"
-            :label="$tc('sw-flow.modals.setEntityCustomField.customFieldOption')"
+            :label="$t('sw-flow.modals.setEntityCustomField.customFieldOption')"
             :highlight-search-term="false"
         />
         {% endblock %}
@@ -94,7 +94,7 @@
             bordered
         >
             <template #label>
-                <span>{{ $tc('sw-flow.modals.setEntityCustomField.prefixFieldName') }}</span>
+                <span>{{ $t('sw-flow.modals.setEntityCustomField.prefixFieldName') }}</span>
                 <span>{{ getInlineSnippet(customField.config.label) || customField.name }}</span>
             </template>
         </sw-form-field-renderer>
@@ -114,7 +114,7 @@
             variant="secondary"
             @click="onClose"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -124,7 +124,7 @@
             variant="primary"
             @click="onAddAction"
         >
-            {{ sequence.id ? $tc('sw-flow.modals.buttonSaveAction') : $tc('sw-flow.modals.buttonAddAction') }}
+            {{ sequence.id ? $t('sw-flow.modals.buttonSaveAction') : $t('sw-flow.modals.buttonAddAction') }}
         </mt-button>
         {% endblock %}
     </template>

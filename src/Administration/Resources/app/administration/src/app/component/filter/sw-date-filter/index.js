@@ -41,27 +41,27 @@ export default {
             },
             timeframeOptions: [
                 {
-                    label: this.$tc('sw-order.filters.orderDateFilter.options.lastYear'),
+                    label: this.$t('sw-order.filters.orderDateFilter.options.lastYear'),
                     value: -365,
                 },
                 {
-                    label: this.$tc('sw-order.filters.orderDateFilter.options.lastQuarter'),
+                    label: this.$t('sw-order.filters.orderDateFilter.options.lastQuarter'),
                     value: 'lastQuarter',
                 },
                 {
-                    label: this.$tc('sw-order.filters.orderDateFilter.options.lastMonth'),
+                    label: this.$t('sw-order.filters.orderDateFilter.options.lastMonth'),
                     value: -30,
                 },
                 {
-                    label: this.$tc('sw-order.filters.orderDateFilter.options.lastWeek'),
+                    label: this.$t('sw-order.filters.orderDateFilter.options.lastWeek'),
                     value: -7,
                 },
                 {
-                    label: this.$tc('sw-order.filters.orderDateFilter.options.lastDay'),
+                    label: this.$t('sw-order.filters.orderDateFilter.options.lastDay'),
                     value: -1,
                 },
                 {
-                    label: this.$tc('sw-order.filters.orderDateFilter.options.custom'),
+                    label: this.$t('sw-order.filters.orderDateFilter.options.custom'),
                     value: 'custom',
                     hidden: true,
                 },
@@ -109,7 +109,7 @@ export default {
             const key = `${type}FieldLabel`;
 
             if (!this.filter.hasOwnProperty(key)) {
-                return this.$tc(`global.default.${type}`);
+                return this.$t(`global.default.${type}`);
             }
 
             const label = this.filter[key];
@@ -201,7 +201,7 @@ export default {
             const quarter = Math.floor(date.getMonth() / 3);
 
             const startDate = new Date(date.getFullYear(), quarter * 3 - 3, 1, 0, 0, 0);
-            const endDate = new Date(date.getFullYear(), startDate.getMonth() + 3, 0, 23, 59, 59);
+            const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 3, 0, 23, 59, 59);
 
             return {
                 startDate: startDate,

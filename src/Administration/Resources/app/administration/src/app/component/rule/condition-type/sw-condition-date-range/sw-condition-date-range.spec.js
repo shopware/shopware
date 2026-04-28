@@ -122,7 +122,7 @@ describe('component/rule/sw-condition-date-range', () => {
         await flushPromises();
 
         expect(fromDateInput.attributes('value')).toBe('1900/01/01');
-        expect(wrapper.vm.fromDate).toBe('1900-01-01T00:00:00+00:00');
+        expect(wrapper.vm.fromDate).toBe('1900-01-01T00:00:00.000Z');
     });
 
     it('should select a fromDate with time', async () => {
@@ -163,7 +163,7 @@ describe('component/rule/sw-condition-date-range', () => {
         await flushPromises();
 
         expect(fromDateInput.attributes('value')).toBe('1900/01/01, 12:30');
-        expect(wrapper.vm.fromDate).toBe('1900-01-01T12:30:00+00:00');
+        expect(wrapper.vm.fromDate).toBe('1900-01-01T12:30:00.000Z');
     });
 
     it('should select a toDate without time', async () => {
@@ -192,7 +192,7 @@ describe('component/rule/sw-condition-date-range', () => {
         await flushPromises();
 
         expect(fromDateInput.attributes('value')).toBe('1900/01/01');
-        expect(wrapper.vm.toDate).toBe('1900-01-01T23:59:59+00:00');
+        expect(wrapper.vm.toDate).toBe('1900-01-01T23:59:59.000Z');
     });
 
     it('should select a toDate with time', async () => {
@@ -233,6 +233,6 @@ describe('component/rule/sw-condition-date-range', () => {
         await flushPromises();
 
         expect(fromDateInput.attributes('value')).toBe('1900/01/01, 12:30');
-        expect(wrapper.vm.toDate).toBe('1900-01-01T12:30:00+00:00');
+        expect(wrapper.vm.toDate).toBe('1900-01-01T12:30:00.000Z');
     });
 });

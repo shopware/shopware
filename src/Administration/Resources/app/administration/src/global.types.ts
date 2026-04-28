@@ -5,7 +5,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 import type { default as Bottle, Decorator } from 'bottlejs';
-import type { NavigationGuardNext, RouteLocationNormalizedLoaded, RouteLocationRaw, Router } from 'vue-router';
+import type { NavigationGuardNext, RouteLocationNormalized, RouteLocationNormalizedLoaded, Router } from 'vue-router';
 // Import explicitly global types from meteor-admin-sdk
 import '@shopware-ag/meteor-admin-sdk';
 import type FeatureService from 'src/app/service/feature.service';
@@ -544,8 +544,16 @@ declare module '@vue/runtime-core' {
             helpText?: string;
         };
 
-        beforeRouteEnter?: (to: RouteLocationRaw, from: RouteLocationRaw, next: NavigationGuardNext) => void;
-        beforeRouteLeave?: (to: RouteLocationRaw, from: RouteLocationRaw, next: NavigationGuardNext) => void;
+        beforeRouteEnter?: (
+            to: RouteLocationNormalized,
+            from: RouteLocationNormalizedLoaded,
+            next: NavigationGuardNext,
+        ) => void;
+        beforeRouteLeave?: (
+            to: RouteLocationNormalized,
+            from: RouteLocationNormalizedLoaded,
+            next: NavigationGuardNext,
+        ) => void;
     }
 
     interface PropOptions {

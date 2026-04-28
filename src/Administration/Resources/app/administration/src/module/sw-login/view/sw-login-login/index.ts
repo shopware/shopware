@@ -189,7 +189,7 @@ export default Component.wrapComponentConfig({
             // @ts-expect-error
             if (!response.response) {
                 this.createNotificationError({
-                    message: this.$tc('sw-login.index.messageGeneralRequestError'),
+                    message: this.$t('sw-login.index.messageGeneralRequestError'),
                 });
                 return;
             }
@@ -204,7 +204,7 @@ export default Component.wrapComponentConfig({
             // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             if (parseInt(error.status, 10) === 429) {
                 const seconds = error?.meta?.parameters?.seconds;
-                this.loginAlertMessage = this.$tc('sw-login.index.messageAuthThrottled', { seconds }, 0);
+                this.loginAlertMessage = this.$t('sw-login.index.messageAuthThrottled', { seconds }, 0);
 
                 setTimeout(() => {
                     this.loginAlertMessage = '';
@@ -219,9 +219,9 @@ export default Component.wrapComponentConfig({
                 };
 
                 this.createNotificationError({
-                    title: this.$tc(title),
+                    title: this.$t(title),
                     // @ts-expect-error
-                    message: this.$tc(message, 0, { url }),
+                    message: this.$t(message, 0, { url }),
                 });
             }
             /* eslint-enable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */

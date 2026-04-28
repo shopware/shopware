@@ -1,7 +1,7 @@
 {% block sw_settings_currency_country_modal %}
 <sw-modal
     class="sw-settings-currency-country-modal"
-    :title="$tc('sw-settings-currency.currency-country-modal.titleNewCurrencyCountry')"
+    :title="$t('sw-settings-currency.currency-country-modal.titleNewCurrencyCountry')"
     @modal-close="onCancel"
 >
     {% block sw_settings_currency_country_modal_country_select %}
@@ -10,7 +10,7 @@
         required
         show-clearable-button
         class="sw-settings-currency-country-modal__select-country"
-        :label="$tc('sw-settings-currency.currency-country-modal.labelCountrySelect')"
+        :label="$t('sw-settings-currency.currency-country-modal.labelCountrySelect')"
         entity="country"
         :criteria="countryCriteria"
         :error="currencyCountryRoundingCountryIdError"
@@ -20,7 +20,7 @@
                 v-tooltip="{
                     showDelay: 300,
                     showOnDisabledElements: true,
-                    message: $tc('sw-settings-currency.currency-country-modal.countryAlreadyAssigned'),
+                    message: $t('sw-settings-currency.currency-country-modal.countryAlreadyAssigned'),
                     disabled: !shouldDisableCountry(item)
                 }"
                 :selected="isSelected(item)"
@@ -61,7 +61,7 @@
             variant="secondary"
             @click="onCancel"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -72,7 +72,7 @@
             class="sw-settings-currency-country-modal__button-save"
             @click="onSave"
         >
-            {{ $tc('global.default.save') }}
+            {{ $t('global.default.save') }}
         </mt-button>
         {% endblock %}
     </template>

@@ -6,7 +6,7 @@
     <template #search-bar>
         <sw-search-bar
             initial-search-type="country"
-            :placeholder="$tc('sw-settings-country.general.placeholderSearchBar')"
+            :placeholder="$t('sw-settings-country.general.placeholderSearchBar')"
             :initial-search="term"
             @search="onSearch"
         />
@@ -18,11 +18,11 @@
         {% block sw_settings_country_list_smart_bar_header_title %}
         <h2>
             {% block sw_settings_country_list_smart_bar_header_title_text %}
-            {{ $tc('sw-settings.index.title') }}
+            {{ $t('sw-settings.index.title') }}
             <mt-icon
                 name="regular-chevron-right-xs"
                 size="12px"
-            /> {{ $tc('sw-settings-country.list.textHeadline') }}
+            /> {{ $t('sw-settings-country.list.textHeadline') }}
             {% endblock %}
 
             {% block sw_settings_country_list_smart_bar_header_amount %}
@@ -43,7 +43,7 @@
         {% block sw_settings_country_list_smart_bar_actions_add %}
         <mt-button
             v-tooltip.bottom="{
-                message: $tc('sw-privileges.tooltip.warning'),
+                message: $t('sw-privileges.tooltip.warning'),
                 disabled: acl.can('country.creator'),
                 showOnDisabledElements: true
             }"
@@ -53,7 +53,7 @@
             size="default"
             @click="$router.push({ name: 'sw.settings.country.create' })"
         >
-            {{ $tc('sw-settings-country.list.buttonAddCountry') }}
+            {{ $t('sw-settings-country.list.buttonAddCountry') }}
         </mt-button>
         {% endblock %}
     </template>
@@ -138,7 +138,7 @@
                                 :disabled="!acl.can('country.deleter') || undefined"
                                 @click="onDelete(item.id)"
                             >
-                                {{ $tc('sw-settings-country.list.contextMenuDelete') }}
+                                {{ $t('sw-settings-country.list.contextMenuDelete') }}
                             </sw-context-menu-item>
                             {% endblock %}
                         </template>
@@ -149,13 +149,13 @@
                             {% block sw_settings_country_list_delete_modal %}
                             <sw-modal
                                 v-if="showDeleteModal === item.id"
-                                :title="$tc('global.default.warning')"
+                                :title="$t('global.default.warning')"
                                 variant="small"
                                 @modal-close="onCloseDeleteModal"
                             >
                                 {% block sw_settings_country_list_delete_modal_confirm_delete_text %}
                                 <p class="sw-settings-country-list__confirm-delete-text">
-                                    {{ $tc('sw-settings-country.list.textDeleteConfirm', { name: item.name }, 0) }}
+                                    {{ $t('sw-settings-country.list.textDeleteConfirm', { name: item.name }, 0) }}
                                 </p>
                                 {% endblock %}
 
@@ -167,7 +167,7 @@
                                         variant="secondary"
                                         @click="onCloseDeleteModal"
                                     >
-                                        {{ $tc('global.default.cancel') }}
+                                        {{ $t('global.default.cancel') }}
                                     </mt-button>
                                     {% endblock %}
 
@@ -177,7 +177,7 @@
                                         size="small"
                                         @click="onConfirmDelete(item.id)"
                                     >
-                                        {{ $tc('sw-settings-country.list.buttonDelete') }}
+                                        {{ $t('sw-settings-country.list.buttonDelete') }}
                                     </mt-button>
                                     {% endblock %}
                                 </template>

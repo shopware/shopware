@@ -321,6 +321,22 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         emitSpy.mockRestore();
     });
 
+    it('should not close off-canvas menu when clicking a navigation item on desktop', async () => {
+        const emitSpy = jest.spyOn(Shopware.Utils.EventBus, 'emit');
+        const target = document.createElement('li');
+        target.classList.add('sw-admin-menu__navigation-list-item');
+
+        wrapper.vm.$device.getViewportWidth.mockReturnValue(1920);
+        await wrapper.setData({ isOffCanvasShown: true });
+
+        wrapper.vm.onMenuItemClick({ level: 1 }, target);
+
+        expect(wrapper.vm.isOffCanvasShown).toBe(true);
+        expect(emitSpy).not.toHaveBeenCalledWith('sw-admin-menu/toggle-offcanvas', false);
+
+        emitSpy.mockRestore();
+    });
+
     it('should close off-canvas menu when clicking outside on mobile', async () => {
         const emitSpy = jest.spyOn(Shopware.Utils.EventBus, 'emit');
         const outsideElement = document.createElement('button');

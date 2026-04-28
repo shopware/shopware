@@ -1,6 +1,6 @@
 import { computed } from 'vue';
 
-import { getMeteorInheritanceConfig } from 'src/app/component/form/utils/meteor-inheritance.utils';
+import { getMeteorInheritanceConfig } from 'src/core/service/utils/meteor-inheritance.utils';
 import template from './sw-custom-field-set-renderer.html.twig';
 import './sw-custom-field-set-renderer.scss';
 

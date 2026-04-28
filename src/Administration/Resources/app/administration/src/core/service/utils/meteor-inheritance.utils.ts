@@ -3,7 +3,15 @@
  * @private
  */
 
-export function getMeteorInheritanceConfig(inheritance = null, inheritedValue = null) {
+type InheritanceSlotProps = {
+    isInheritField?: boolean;
+    isInherited?: boolean;
+    removeInheritance?: () => void;
+    restoreInheritance?: () => void;
+};
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export function getMeteorInheritanceConfig(inheritance: InheritanceSlotProps | null = null, inheritedValue: unknown = null) {
     if (!inheritance) {
         return {};
     }

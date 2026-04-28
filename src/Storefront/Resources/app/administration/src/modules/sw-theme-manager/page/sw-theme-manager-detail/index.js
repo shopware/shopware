@@ -1,4 +1,3 @@
-import { getMeteorInheritanceConfig } from 'src/app/component/form/utils/meteor-inheritance.utils';
 import template from './sw-theme-manager-detail.html.twig';
 import './sw-theme-manager-detail.scss';
 
@@ -8,6 +7,7 @@ import './sw-theme-manager-detail.scss';
 
 const { Component, Mixin } = Shopware;
 const Criteria = Shopware.Data.Criteria;
+const { getMeteorInheritanceConfig } = Shopware.Utils;
 const { getObjectDiff, cloneDeep, deepMergeObject } = Shopware.Utils.object;
 const { isArray } = Shopware.Utils.types;
 

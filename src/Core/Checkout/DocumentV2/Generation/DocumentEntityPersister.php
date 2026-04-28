@@ -47,6 +47,7 @@ final readonly class DocumentEntityPersister
     {
         $documentId = Uuid::randomHex();
 
+        // TODO: Keep this guard until the reused document table can enforce document_number + document_type_id uniqueness.
         $this->assertDocumentNumberIsUnique($generationContext, $input->documentNumber);
 
         $this->documentRepository->create([
@@ -108,6 +109,7 @@ final readonly class DocumentEntityPersister
      */
     private function getDocumentTypeId(DocumentGenerationContext $generationContext): string
     {
+        // TODO: Remove this lookup once document generation no longer stores document types and formats in the database.
         $documentType = $generationContext->documentType;
         $context = $generationContext->apiContext;
 

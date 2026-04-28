@@ -51,11 +51,13 @@ class FileSaverTest extends TestCase
 
     private MockObject&AbstractMediaPathStrategy $mediaPathStrategy;
 
+    private MockObject&FilesystemOperator $filesystemPublic;
+
     protected function setUp(): void
     {
         $this->mediaRepository = new StaticEntityRepository([], new MediaDefinition());
 
-        $filesystemPublic = $this->createMock(FilesystemOperator::class);
+        $this->filesystemPublic = $this->createMock(FilesystemOperator::class);
         $thumbnailService = $this->createMock(ThumbnailService::class);
         $this->messageBus = new CollectingMessageBus();
         $metadataLoader = $this->createMock(MetadataLoader::class);
@@ -67,7 +69,7 @@ class FileSaverTest extends TestCase
 
         $this->fileSaver = new FileSaver(
             $this->mediaRepository,
-            $filesystemPublic,
+            $this->filesystemPublic,
             $filesystemPrivate,
             $thumbnailService,
             $metadataLoader,
@@ -285,7 +287,8 @@ class FileSaverTest extends TestCase
     public function testRenameMedia(): void
     {
         $mediaId = Uuid::randomHex();
-        $thumbnailId = Uuid::randomHex();
+        $thumbnail1Id = Uuid::randomHex();
+        $thumbnail2Id = Uuid::randomHex();
 
         $mediaLocation = new MediaLocationStruct(
             Uuid::randomHex(),
@@ -299,7 +302,13 @@ class FileSaverTest extends TestCase
         ]);
 
         $this->locationBuilder->method('thumbnails')->willReturn([
-            $thumbnailId => new ThumbnailLocationStruct(
+            $thumbnail1Id => new ThumbnailLocationStruct(
+                Uuid::randomHex(),
+                100,
+                100,
+                $mediaLocation
+            ),
+            $thumbnail2Id => new ThumbnailLocationStruct(
                 Uuid::randomHex(),
                 100,
                 100,
@@ -309,24 +318,47 @@ class FileSaverTest extends TestCase
 
         $this->mediaPathStrategy->method('generate')->willReturn(
             [
-                $mediaId => 'foo.png',
+                $mediaId => 'foobar.png',
             ],
             [
-                $thumbnailId => 'foo.png',
+                $thumbnail1Id => 'foobar_100x100.png',
+                $thumbnail2Id => 'foobar_100x100.png',
             ]
         );
 
-        $thumbnail = new MediaThumbnailEntity();
-        $thumbnail->setId($thumbnailId);
+        $matcher = $this->exactly(2);
+        $this->filesystemPublic->expects($matcher)
+            ->method('move')
+            ->willReturnCallback(static function (string $from, string $to) use ($matcher): void {
+                if ($matcher->numberOfInvocations() === 1) {
+                    static::assertSame('foo.png', $from);
+                    static::assertSame('foobar.png', $to);
+
+                    return;
+                }
+
+                static::assertSame('foo_100x100.png', $from);
+                static::assertSame('foobar_100x100.png', $to);
+            });
+
+        $thumbnail1 = new MediaThumbnailEntity();
+        $thumbnail1->setId($thumbnail1Id);
+        $thumbnail1->setPath('foo_100x100.png');
+
+        $thumbnail2 = new MediaThumbnailEntity();
+        $thumbnail2->setId(Uuid::randomHex());
+        $thumbnail2->setPath('foo_100x100.png');
 
         $thumbnails = new MediaThumbnailCollection();
-        $thumbnails->add($thumbnail);
+        $thumbnails->add($thumbnail1);
+        $thumbnails->add($thumbnail2);
 
         $media = new MediaEntity();
         $media->setId($mediaId);
         $media->setMimeType('image/png');
         $media->setFileName('foo');
         $media->setFileExtension('png');
+        $media->setPath('foo.png');
         $media->setPrivate(false);
         $media->setThumbnails($thumbnails);
 

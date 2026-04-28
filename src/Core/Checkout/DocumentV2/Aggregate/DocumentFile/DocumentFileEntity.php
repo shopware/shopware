@@ -24,7 +24,7 @@ class DocumentFileEntity extends Entity
 
     protected ?DocumentEntity $document = null;
 
-    protected ?MediaEntity $media = null;
+    protected MediaEntity $media;
 
     public function getDocumentId(): string
     {
@@ -66,7 +66,7 @@ class DocumentFileEntity extends Entity
         $this->document = $document;
     }
 
-    public function getMedia(): ?MediaEntity
+    public function getMedia(): MediaEntity
     {
         return $this->media;
     }

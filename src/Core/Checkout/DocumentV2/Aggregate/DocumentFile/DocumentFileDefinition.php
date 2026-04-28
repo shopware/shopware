@@ -71,7 +71,7 @@ class DocumentFileDefinition extends EntityDefinition
             (new StringField('document_format', 'documentFormat', 255))->addFlags(new Required()),
 
             new ManyToOneAssociationField('document', 'document_id', DocumentDefinition::class, 'id', false),
-            new OneToOneAssociationField('media', 'media_id', 'id', MediaDefinition::class, false),
+            new OneToOneAssociationField('media', 'media_id', 'id', MediaDefinition::class),
 
             new CreatedAtField(),
             new UpdatedAtField(),

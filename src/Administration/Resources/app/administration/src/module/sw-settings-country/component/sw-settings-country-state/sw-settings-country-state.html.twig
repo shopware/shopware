@@ -21,7 +21,7 @@
             {% block sw_settings_country_state_list_toolbar_delete %}
             <mt-button
                 v-tooltip.bottom="{
-                    message: $tc('sw-privileges.tooltip.warning'),
+                    message: $t('sw-privileges.tooltip.warning'),
                     disabled: acl.can('country.editor'),
                     showOnDisabledElements: true
                 }"
@@ -42,7 +42,7 @@
             {% block sw_settings_country_state_list_toolbar_add %}
             <mt-button
                 v-tooltip.bottom="{
-                    message: $tc('sw-privileges.tooltip.warning'),
+                    message: $t('sw-privileges.tooltip.warning'),
                     disabled: acl.can('country.editor'),
                     showOnDisabledElements: true
                 }"
@@ -52,7 +52,7 @@
                 :disabled="!acl.can('country.editor') || undefined"
                 @click="onAddCountryState"
             >
-                {{ $tc('sw-settings-country.detail.buttonAddCountryState') }}
+                {{ $t('sw-settings-country.detail.buttonAddCountryState') }}
             </mt-button>
             {% endblock %}
 
@@ -72,7 +72,7 @@
             :columns="stateColumns"
             :allow-delete="acl.can('country.editor')"
             :tooltip-delete="{
-                message: $tc('sw-privileges.tooltip.warning'),
+                message: $t('sw-privileges.tooltip.warning'),
                 disabled: acl.can('country.editor'),
                 showOnDisabledElements: true
             }"
@@ -100,7 +100,7 @@
                 {% block sw_settings_country_state_list_listing_action_edit %}
                 <sw-context-menu-item
                     v-tooltip.top="{
-                        message: $tc('sw-privileges.tooltip.warning'),
+                        message: $t('sw-privileges.tooltip.warning'),
                         disabled: acl.can('country.editor'),
                         showOnDisabledElements: true
                     }"
@@ -108,7 +108,7 @@
                     :disabled="!acl.can('country.editor') || undefined"
                     @click="onClickCountryState(item)"
                 >
-                    {{ $tc('sw-settings-country.detail.editAction') }}
+                    {{ $t('sw-settings-country.detail.editAction') }}
                 </sw-context-menu-item>
                 {% endblock %}
             </template>
@@ -118,8 +118,8 @@
         <mt-empty-state
             v-if="showEmptyState"
             :icon="$route.meta.$module.icon"
-            :headline="$tc('sw-country-state-detail.emptyTitle')"
-            :description="$tc('sw-country-state-detail.emptySubline')"
+            :headline="$t('sw-country-state-detail.emptyTitle')"
+            :description="$t('sw-country-state-detail.emptySubline')"
         />
         {% endblock %}
     </template>

@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 #[Package('inventory')]
 class AvailableCombinationLoader extends AbstractAvailableCombinationLoader
@@ -20,7 +21,8 @@ class AvailableCombinationLoader extends AbstractAvailableCombinationLoader
      */
     public function __construct(
         private readonly Connection $connection,
-        private readonly AbstractStockStorage $stockStorage
+        private readonly AbstractStockStorage $stockStorage,
+        private readonly SystemConfigService $systemConfigService,
     ) {
     }
 
@@ -43,6 +45,11 @@ class AvailableCombinationLoader extends AbstractAvailableCombinationLoader
         );
 
         $result = new AvailableCombinationResult();
+        $hideCloseoutProductsWhenOutOfStock = $this->systemConfigService->getBool(
+            'core.listing.hideCloseoutProductsWhenOutOfStock',
+            $salesChannelContext->getSalesChannelId()
+        );
+
         foreach ($combinations as $id => $combination) {
             try {
                 $options = json_decode((string) $combination['options'], true, 512, \JSON_THROW_ON_ERROR);
@@ -51,10 +58,15 @@ class AvailableCombinationLoader extends AbstractAvailableCombinationLoader
             }
 
             $available = (bool) $combination['available'];
+            $isCloseout = (bool) $combination['isCloseout'];
             $stockData = $stocks->getStockForProductId($id);
 
             if ($stockData !== null) {
                 $available = $stockData->available;
+            }
+
+            if ($hideCloseoutProductsWhenOutOfStock && $isCloseout && !$available) {
+                continue;
             }
 
             $result->addCombination($options, $available);
@@ -64,7 +76,7 @@ class AvailableCombinationLoader extends AbstractAvailableCombinationLoader
     }
 
     /**
-     * @return array<string, array{options: string, available: string, productNumber: string}>
+     * @return array<string, array{options: string, available: string, productNumber: string, isCloseout: string}>
      */
     private function getCombinations(string $productId, Context $context, string $salesChannelId): array
     {
@@ -90,11 +102,12 @@ class AvailableCombinationLoader extends AbstractAvailableCombinationLoader
             'product.option_ids as options',
             'product.product_number as productNumber',
             'product.available',
+            'IFNULL(product.is_closeout, parent.is_closeout) as isCloseout',
         );
 
         $combinations = $query->executeQuery()->fetchAllAssociative();
 
-        /** @var array<string, array{options: string, available: string, productNumber: string}> $unique */
+        /** @var array<string, array{options: string, available: string, productNumber: string, isCloseout: string}> $unique */
         $unique = FetchModeHelper::groupUnique($combinations);
 
         return $unique;

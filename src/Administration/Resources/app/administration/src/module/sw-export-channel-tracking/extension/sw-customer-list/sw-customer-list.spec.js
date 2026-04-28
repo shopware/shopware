@@ -64,7 +64,6 @@ async function createWrapper(repositoryFactory = createMockRepositoryFactory()) 
                 feature: { isActive: jest.fn(() => true) },
             },
             mocks: {
-                $tc: (key) => key,
                 $t: (key) => key,
                 $route: {
                     query: {},

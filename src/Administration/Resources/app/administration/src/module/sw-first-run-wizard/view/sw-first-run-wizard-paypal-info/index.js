@@ -48,14 +48,14 @@ export default {
         },
 
         setTitle() {
-            this.$emit('frw-set-title', this.$tc('sw-first-run-wizard.paypalInfo.modalTitle'));
+            this.$emit('frw-set-title', this.$t('sw-first-run-wizard.paypalInfo.modalTitle'));
         },
 
         updateButtons() {
             const buttonConfig = [
                 {
                     key: 'back',
-                    label: this.$tc('sw-first-run-wizard.general.buttonBack'),
+                    label: this.$t('sw-first-run-wizard.general.buttonBack'),
                     position: 'left',
                     variant: 'secondary',
                     action: 'sw.first.run.wizard.index.mailer.selection',
@@ -63,7 +63,7 @@ export default {
                 },
                 {
                     key: 'skip',
-                    label: this.$tc('sw-first-run-wizard.general.buttonSkip'),
+                    label: this.$t('sw-first-run-wizard.general.buttonSkip'),
                     position: 'right',
                     variant: 'secondary',
                     action: 'sw.first.run.wizard.index.plugins',
@@ -71,7 +71,7 @@ export default {
                 },
                 {
                     key: 'configure',
-                    label: this.$tc('sw-first-run-wizard.general.buttonNextPayPalInfo'),
+                    label: this.$t('sw-first-run-wizard.general.buttonNextPayPalInfo'),
                     position: 'right',
                     variant: 'primary',
                     action: this.activatePayPalAndRedirect.bind(this),

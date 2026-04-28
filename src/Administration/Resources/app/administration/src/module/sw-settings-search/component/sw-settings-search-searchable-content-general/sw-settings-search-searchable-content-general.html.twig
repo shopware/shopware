@@ -3,7 +3,7 @@
     {% block sw_settings_search_searchable_content_general_empty_state %}
     <sw-empty-state
         v-if="isEmpty"
-        :title="$tc('sw-settings-search.generalTab.textEmptyStateSearchableContent')"
+        :title="$t('sw-settings-search.generalTab.textEmptyStateSearchableContent')"
         :show-description="false"
         :has-action-slot="true"
         :absolute="false"
@@ -12,7 +12,7 @@
             {% block sw_settings_search_searchable_content_general_state_image %}
             <img
                 :src="assetFilter('administration/administration/static/img/empty-states/settings-empty-state.svg')"
-                :alt="$tc('sw-settings-search.generalTab.textEmptyStateSearchableContent')"
+                :alt="$t('sw-settings-search.generalTab.textEmptyStateSearchableContent')"
             >
             {% endblock %}
         </template>
@@ -116,7 +116,7 @@
                 :disabled="!acl.can('product_search_config.editor')"
                 @click="onInlineEditItem(item)"
             >
-                {{ $tc('global.default.edit') }}
+                {{ $t('global.default.edit') }}
             </sw-context-menu-item>
 
             {% block sw_settings_search_searchable_content_general_columns_actions_edit %}
@@ -125,7 +125,7 @@
                 :disabled="!acl.can('product_search_config.editor')"
                 @click="onResetRanking(item)"
             >
-                {{ $tc('sw-settings-search.generalTab.list.textResetRanking') }}
+                {{ $t('sw-settings-search.generalTab.list.textResetRanking') }}
             </sw-context-menu-item>
             {% endblock %}
         </template>

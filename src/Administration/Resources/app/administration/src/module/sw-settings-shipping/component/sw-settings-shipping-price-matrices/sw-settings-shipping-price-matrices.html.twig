@@ -18,7 +18,7 @@
             v-tooltip="{
                 showDelay: 300,
                 showOnDisabledElements: true,
-                message: $tc('sw-settings-shipping.priceMatrix.newMatrixAlreadyExists'),
+                message: $t('sw-settings-shipping.priceMatrix.newMatrixAlreadyExists'),
                 disabled: !newPriceMatrixExists
             }"
             :disabled="newPriceMatrixExists || disabled || undefined"
@@ -26,7 +26,7 @@
             variant="secondary"
             @click="onAddNewPriceGroup"
         >
-            {{ $tc('sw-settings-shipping.priceMatrix.buttonAddAdditionalPriceMatrix') }}
+            {{ $t('sw-settings-shipping.priceMatrix.buttonAddAdditionalPriceMatrix') }}
         </mt-button>
         {% endblock %}
     </div>

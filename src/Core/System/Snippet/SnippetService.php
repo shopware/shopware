@@ -306,14 +306,14 @@ class SnippetService
     }
 
     /**
-     * Collects snippet files for each given locale, with a canonical-form fallback.
+     * Collects snippet files for each given locale, with canonical-form and country agnostic fallbacks.
      *
-     *  For each locale (e.g., "es-AR"), the method first tries to load files
-     *  that match the exact locale. If that locale contains a region separator ("-"),
-     *  it will also load files for the base language (e.g., "es").
+     * For each locale (e.g., "de-AT"), files are loaded in ascending priority order:
+     * 1. Country agnostic language files (e.g. "de") as the lowest-priority base
+     * 2. Canonical-locale files (e.g. "de-DE") to pick up plugin files registered for the canonical variant
+     * 3. Exact-locale files (e.g. "de-AT") as the highest-priority override
      *
-     *  The base language snippet files are prepended, ensuring country-specific
-     *  snippets (e.g. "es-AR") override more general ones ("es").
+     * For locales without a region (e.g. "de"), only the exact files are returned.
      *
      * @param array<string, string> $isoList
      *
@@ -323,7 +323,15 @@ class SnippetService
     {
         $result = [];
         foreach ($isoList as $iso) {
-            $result[$iso] = $this->snippetFileCollection->getSnippetFilesWithLocaleFallback($iso);
+            $files = $this->snippetFileCollection->getSnippetFilesWithLocaleFallback($iso);
+
+            preg_match(SnippetPatterns::COMPLETE_LOCALE_PATTERN, $iso, $matches, \PREG_UNMATCHED_AS_NULL);
+            if (($matches['region'] ?? '') !== '') {
+                $bareFiles = $this->snippetFileCollection->getSnippetFilesByIso($matches['language']);
+                $files = [...$bareFiles, ...$files];
+            }
+
+            $result[$iso] = $files;
         }
 
         return $result;

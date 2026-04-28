@@ -6,12 +6,12 @@
         {% block sw_settings_cache_smart_bar_header_title %}
         <h2>
             {% block sw_settings_cache_smart_bar_header_title_text %}
-            {{ $tc('sw-settings.index.title') }}
+            {{ $t('sw-settings.index.title') }}
             <mt-icon
                 name="regular-chevron-right-xs"
                 size="12px"
             />
-            {{ $tc('sw-settings-cache.general.mainMenuItemGeneral') }}
+            {{ $t('sw-settings-cache.general.mainMenuItemGeneral') }}
             {% endblock %}
         </h2>
     {% endblock %}
@@ -29,7 +29,7 @@
             <mt-card
                 v-else
                 position-identifier="sw-settings-cache-content"
-                :title="$tc('sw-settings-cache.general.mainMenuItemGeneral')"
+                :title="$t('sw-settings-cache.general.mainMenuItemGeneral')"
                 :is-loading="isLoading"
             >
 
@@ -47,7 +47,7 @@
 
                                 {% block sw_settings_cache_content_toolbar_environment_heading %}
                                 <p class="sw-settings-cache__card-toolbar-heading">
-                                    {{ $tc('sw-settings-cache.toolbar.environment') }}
+                                    {{ $t('sw-settings-cache.toolbar.environment') }}
                                 </p>
                                 {% endblock %}
 
@@ -62,7 +62,7 @@
 
                                 {% block sw_settings_cache_content_toolbar_http_cache_heading %}
                                 <p class="sw-settings-cache__card-toolbar-heading">
-                                    {{ $tc('sw-settings-cache.toolbar.httpCache') }}
+                                    {{ $t('sw-settings-cache.toolbar.httpCache') }}
                                 </p>
                                 {% endblock %}
 
@@ -77,7 +77,7 @@
 
                                 {% block sw_settings_cache_content_toolbar_cache_adapter_heading %}
                                 <p class="sw-settings-cache__card-toolbar-heading">
-                                    {{ $tc('sw-settings-cache.toolbar.cacheAdapter') }}
+                                    {{ $t('sw-settings-cache.toolbar.cacheAdapter') }}
                                 </p>
                                 {% endblock %}
 
@@ -101,12 +101,12 @@
                         <div>
                             {% block sw_settings_cache_content_clear_data_cache_row_heading %}
                             <p class="sw-settings-cache__card-section-heading">
-                                {{ $tc('sw-settings-cache.section.clearDataCachesHeadline') }}
+                                {{ $t('sw-settings-cache.section.clearDataCachesHeadline') }}
                             </p>
                             {% endblock %}
 
                             {% block sw_settings_cache_content_clear_data_cache_row_text %}
-                            <p>{{ $tc('sw-settings-cache.section.clearDataCachesText') }}</p>
+                            <p>{{ $t('sw-settings-cache.section.clearDataCachesText') }}</p>
                             {% endblock %}
                         </div>
 
@@ -118,7 +118,7 @@
                             @update:process-success="resetButtons"
                             @click="clearDataCache"
                         >
-                            {{ $tc('sw-settings-cache.section.clearDataCachesButton') }}
+                            {{ $t('sw-settings-cache.section.clearDataCachesButton') }}
                         </sw-button-process>
                         {% endblock %}
                     </sw-container>
@@ -136,12 +136,12 @@
 
                             {% block sw_settings_cache_content_clear_cache_row_heading %}
                             <p class="sw-settings-cache__card-section-heading">
-                                {{ $tc('sw-settings-cache.section.clearCachesHeadline') }}
+                                {{ $t('sw-settings-cache.section.clearCachesHeadline') }}
                             </p>
                             {% endblock %}
 
                             {% block sw_settings_cache_content_clear_cache_row_text %}
-                            <p>{{ $tc('sw-settings-cache.section.clearCachesText') }}</p>
+                            <p>{{ $t('sw-settings-cache.section.clearCachesText') }}</p>
                             {% endblock %}
                         </div>
 
@@ -153,7 +153,7 @@
                             @update:process-success="resetButtons"
                             @click="clearCache"
                         >
-                            {{ $tc('sw-settings-cache.section.clearCachesButton') }}
+                            {{ $t('sw-settings-cache.section.clearCachesButton') }}
                         </sw-button-process>
                         {% endblock %}
                     </sw-container>
@@ -165,12 +165,12 @@
                     <sw-container>
                         {% block sw_settings_cache_content_indexes_row_heading %}
                         <p class="sw-settings-cache__card-section-heading">
-                            {{ $tc('sw-settings-cache.section.indexesHeadline') }}
+                            {{ $t('sw-settings-cache.section.indexesHeadline') }}
                         </p>
                         {% endblock %}
 
                         {% block sw_settings_cache_content_indexes_row_text %}
-                        <p>{{ $tc('sw-settings-cache.section.indexesText') }}</p>
+                        <p>{{ $t('sw-settings-cache.section.indexesText') }}</p>
                         {% endblock %}
                     </sw-container>
                     <sw-container
@@ -183,7 +183,7 @@
                             v-model="indexingMethod"
                             name="indexingMethod"
                             class="sw-settings-cache__skip-indexers-select"
-                            :label="$tc('sw-settings-cache.section.indexingModeLabel')"
+                            :label="$t('sw-settings-cache.section.indexingModeLabel')"
                             :disabled="processes.updateIndexes"
                             :options="indexingMethodOptions"
                         />
@@ -191,7 +191,7 @@
                         {% block sw_settings_cache_content_indexes_row_skip_select %}
                         <sw-select-base
                             class="sw-settings-cache__indexers-select"
-                            :label="indexingMethod === 'skip' ? $tc('sw-settings-cache.section.indexesSkipSelectLabel') : $tc('sw-settings-cache.section.indexesOnlySelectLabel')"
+                            :label="indexingMethod === 'skip' ? $t('sw-settings-cache.section.indexesSkipSelectLabel') : $t('sw-settings-cache.section.indexesOnlySelectLabel')"
                             :disabled="processes.updateIndexes"
                         >
                             <template #sw-select-selection>
@@ -206,7 +206,7 @@
                                     ghost
                                     class="sw-settings-cache__indexers-placeholder"
                                 >
-                                    {{ indexingMethod === 'skip' ? $tc('sw-settings-cache.section.indexesSkipSelectPlaceholder') : $tc('sw-settings-cache.section.indexesOnlySelectPlaceholder') }}
+                                    {{ indexingMethod === 'skip' ? $t('sw-settings-cache.section.indexesSkipSelectPlaceholder') : $t('sw-settings-cache.section.indexesOnlySelectPlaceholder') }}
                                 </sw-label>
                             </template>
                             <template #results-list>
@@ -263,7 +263,7 @@
                             @update:process-success="resetButtons"
                             @click="updateIndexes"
                         >
-                            {{ $tc('sw-settings-cache.section.indexesButton') }}
+                            {{ $t('sw-settings-cache.section.indexesButton') }}
                         </sw-button-process>
                     {% endblock %}
                     </sw-container>

@@ -108,7 +108,7 @@ export default {
 
                 if (number !== this.documentConfig.documentNumber) {
                     this.createNotificationInfo({
-                        message: this.$tc('sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED'),
+                        message: this.$t('sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED'),
                     });
                 }
 

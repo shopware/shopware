@@ -1,20 +1,20 @@
 {% block sw_agentic_commerce_tracking_config %}
 <mt-card
-    :title="$tc('sw-sales-channel.agenticCommerceTracking.cardTitle')"
+    :title="$t('sw-sales-channel.agenticCommerceTracking.cardTitle')"
     class="sw-agentic-commerce-tracking-config"
     position-identifier="sw-agentic-commerce-tracking-config"
 >
     {% block sw_agentic_commerce_tracking_config_description %}
     <p class="sw-agentic-commerce-tracking-config__description">
-        {{ $tc('sw-sales-channel.agenticCommerceTracking.description') }}
+        {{ $t('sw-sales-channel.agenticCommerceTracking.description') }}
     </p>
     {% endblock %}
 
     {% block sw_agentic_commerce_tracking_config_affiliate %}
     <mt-text-field
         :model-value="trackingConfig.affiliateCode"
-        :label="$tc('sw-sales-channel.agenticCommerceTracking.affiliateCodeLabel')"
-        :placeholder="$tc('sw-sales-channel.agenticCommerceTracking.affiliateCodePlaceholder')"
+        :label="$t('sw-sales-channel.agenticCommerceTracking.affiliateCodeLabel')"
+        :placeholder="$t('sw-sales-channel.agenticCommerceTracking.affiliateCodePlaceholder')"
         :disabled="disabled || undefined"
         @update:model-value="onAffiliateCodeChange"
     />
@@ -23,8 +23,8 @@
     {% block sw_agentic_commerce_tracking_config_campaign %}
     <mt-text-field
         :model-value="trackingConfig.campaignCode"
-        :label="$tc('sw-sales-channel.agenticCommerceTracking.campaignCodeLabel')"
-        :placeholder="$tc('sw-sales-channel.agenticCommerceTracking.campaignCodePlaceholder')"
+        :label="$t('sw-sales-channel.agenticCommerceTracking.campaignCodeLabel')"
+        :placeholder="$t('sw-sales-channel.agenticCommerceTracking.campaignCodePlaceholder')"
         :disabled="disabled || undefined"
         @update:model-value="onCampaignCodeChange"
     />

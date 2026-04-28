@@ -55,7 +55,6 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
                     },
                     mocks: {
                         $t: (v) => v,
-                        $tc: (v) => v,
                     },
                     provide: {
                         repositoryFactory: {

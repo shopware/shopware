@@ -166,7 +166,7 @@ export default {
             }
 
             // return name
-            return this.placeholder(this.product, 'name', this.$tc('sw-product.detail.textHeadline'));
+            return this.placeholder(this.product, 'name', this.$t('sw-product.detail.textHeadline'));
         },
 
         productRepository() {
@@ -644,7 +644,7 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                        message: this.$t('global.notification.unspecifiedSaveErrorMessage'),
                     });
                 });
         },
@@ -1055,7 +1055,7 @@ export default {
         onSave() {
             if (!this.validateProductPurchase()) {
                 this.createNotificationError({
-                    message: this.$tc('sw-product.detail.errorMinMaxPurchase'),
+                    message: this.$t('sw-product.detail.errorMinMaxPurchase'),
                 });
 
                 return new Promise((resolve) => {
@@ -1081,8 +1081,8 @@ export default {
             }
 
             if (!this.entityValidationService.validate(this.product, this.customValidate, this.ignoreFieldsValidation)) {
-                const titleSaveError = this.$tc('global.default.error');
-                const messageSaveError = this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid');
+                const titleSaveError = this.$t('global.default.error');
+                const messageSaveError = this.$t('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid');
 
                 this.createNotificationError({
                     title: titleSaveError,
@@ -1148,7 +1148,7 @@ export default {
                 const errorCode = response?.response?.data?.errors?.[0]?.code;
 
                 if (errorCode === 'CONTENT__DUPLICATE_PRODUCT_NUMBER') {
-                    const titleSaveError = this.$tc('global.default.error');
+                    const titleSaveError = this.$t('global.default.error');
                     const messageSaveError = this.$t('sw-product.notification.notificationSaveErrorProductNoAlreadyExists', {
                         productNo: response.response.data.errors[0].meta.parameters.number,
                     });
@@ -1161,9 +1161,9 @@ export default {
                 }
 
                 const errorDetail = response?.response?.data?.errors?.[0]?.detail;
-                const titleSaveError = this.$tc('global.default.error');
+                const titleSaveError = this.$t('global.default.error');
                 const messageSaveError =
-                    errorDetail ?? this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid');
+                    errorDetail ?? this.$t('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid');
 
                 this.createNotificationError({
                     title: titleSaveError,

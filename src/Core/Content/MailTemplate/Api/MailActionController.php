@@ -4,9 +4,12 @@ namespace Shopware\Core\Content\MailTemplate\Api;
 
 use Shopware\Core\Content\Mail\Payload\MailPayloadFactory;
 use Shopware\Core\Content\MailTemplate\MailTemplateException;
-use Shopware\Core\Content\MailTemplate\Request\GetDataAndSendRequestFactory;
-use Shopware\Core\Content\MailTemplate\Request\PreviewRequestFactory;
-use Shopware\Core\Content\MailTemplate\Request\SimulateRequestFactory;
+use Shopware\Core\Content\MailTemplate\Request\GetDataAndSendRequest;
+use Shopware\Core\Content\MailTemplate\Request\PreviewRequest;
+use Shopware\Core\Content\MailTemplate\Request\SimulateRequest;
+use Shopware\Core\Content\MailTemplate\Request\Resolver\GetDataAndSendRequestResolver;
+use Shopware\Core\Content\MailTemplate\Request\Resolver\PreviewRequestResolver;
+use Shopware\Core\Content\MailTemplate\Request\Resolver\SimulateRequestResolver;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateSendService;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
@@ -21,6 +24,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
@@ -35,9 +39,6 @@ class MailActionController extends AbstractController
         private readonly MailTemplateService $mailTemplateService,
         private readonly MailTemplateSendService $mailTemplateSendService,
         private readonly MailPayloadFactory $mailPayloadFactory,
-        private readonly PreviewRequestFactory $previewRequestFactory,
-        private readonly GetDataAndSendRequestFactory $getDataAndSendRequestFactory,
-        private readonly SimulateRequestFactory $simulateRequestFactory,
     ) {
     }
 
@@ -141,10 +142,10 @@ class MailActionController extends AbstractController
         defaults: [PlatformRequest::ATTRIBUTE_ACL => ['mail_template:read']],
         methods: [Request::METHOD_POST]
     )]
-    public function simulate(RequestDataBag $post, Context $context): JsonResponse
-    {
-        $simulateRequest = $this->simulateRequestFactory->make($post, $context);
-
+    public function simulate(
+        #[MapRequestPayload(resolver: SimulateRequestResolver::class)] SimulateRequest $simulateRequest,
+        Context $context
+    ): JsonResponse {
         $renderedTemplate = $this->mailTemplateService->simulate($simulateRequest, $context);
 
         return new JsonResponse($renderedTemplate);
@@ -160,10 +161,11 @@ class MailActionController extends AbstractController
         defaults: [PlatformRequest::ATTRIBUTE_ACL => ['mail_template:read']],
         methods: [Request::METHOD_POST]
     )]
-    public function preview(RequestDataBag $post, Context $context): JsonResponse
+    public function preview(
+        #[MapRequestPayload(resolver: PreviewRequestResolver::class)] PreviewRequest $previewRequest,
+        Context $context
+    ): JsonResponse
     {
-        $previewRequest = $this->previewRequestFactory->make($post, $context);
-
         $renderedTemplate = $this->mailTemplateService->preview($previewRequest, $context);
 
         return new JsonResponse($renderedTemplate);
@@ -180,10 +182,11 @@ class MailActionController extends AbstractController
         defaults: [PlatformRequest::ATTRIBUTE_ACL => ['api_send_email']],
         methods: [Request::METHOD_POST]
     )]
-    public function getDataAndSend(RequestDataBag $post, Context $context): JsonResponse
+    public function getDataAndSend(
+        #[MapRequestPayload(resolver: GetDataAndSendRequestResolver::class)] GetDataAndSendRequest $request,
+        Context $context
+    ): JsonResponse
     {
-        $request = $this->getDataAndSendRequestFactory->make($post, $context);
-
         $message = $this->mailTemplateSendService->getTemplateDataAndSend($request, $context);
 
         return new JsonResponse(['size' => mb_strlen($message ? $message->toString() : '')]);

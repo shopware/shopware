@@ -10,18 +10,21 @@ use Shopware\Core\Content\Mail\Payload\MailPayloadFactory;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateException;
-use Shopware\Core\Content\MailTemplate\Request\GetDataAndSendRequestFactory;
+use Shopware\Core\Content\MailTemplate\Request\GetDataAndSendRequest;
+use Shopware\Core\Content\MailTemplate\Request\Resolver\GetDataAndSendRequestResolver;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\PlatformRequest;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 
 /**
  * @internal
  */
 #[Package('after-sales')]
-#[CoversClass(GetDataAndSendRequestFactory::class)]
-class GetDataAndSendRequestFactoryTest extends TestCase
+#[CoversClass(GetDataAndSendRequestResolver::class)]
+class GetDataAndSendRequestResolverTest extends TestCase
 {
     private MailTemplateService&MockObject $mailTemplateService;
 
@@ -35,13 +38,13 @@ class GetDataAndSendRequestFactoryTest extends TestCase
         $this->mailPayloadFactory = $this->createMock(MailPayloadFactory::class);
     }
 
-    public function testMakeBuildsRequestAndFiltersUnknownEntities(): void
+    public function testResolveBuildsRequestAndFiltersUnknownEntities(): void
     {
         $context = Context::createDefaultContext();
         $mailTemplate = $this->createMailTemplate();
         $mailPayload = new MailPayload(subject: 'payload subject');
 
-        $request = new RequestDataBag([
+        $request = $this->createRequest($context, [
             'mailTemplateId' => 'template-id',
             'entities' => [
                 'order' => 'order-id',
@@ -60,7 +63,16 @@ class GetDataAndSendRequestFactoryTest extends TestCase
         $this->mailPayloadFactory->expects($this->once())
             ->method('make')
             ->with(
-                $request,
+                $this->callback(static fn ($requestDataBag) => $requestDataBag->all() === [
+                    'mailTemplateId' => 'template-id',
+                    'entities' => [
+                        'order' => 'order-id',
+                        'customer' => 'customer-id',
+                    ],
+                    'templateData' => [
+                        'foo' => 'bar',
+                    ],
+                ]),
                 [
                     'contentHtml' => '<p>html</p>',
                     'contentPlain' => 'plain',
@@ -70,9 +82,7 @@ class GetDataAndSendRequestFactoryTest extends TestCase
             )
             ->willReturn($mailPayload);
 
-        $factory = new GetDataAndSendRequestFactory($this->mailTemplateService, $this->mailPayloadFactory);
-
-        $result = $factory->make($request, $context);
+        $result = $this->resolveRequest($request);
 
         static::assertSame($mailTemplate, $result->mailTemplate);
         static::assertSame(['order' => 'order-id'], $result->entityMapping);
@@ -80,12 +90,11 @@ class GetDataAndSendRequestFactoryTest extends TestCase
         static::assertSame($mailPayload, $result->mailPayload);
     }
 
-    public function testMakeThrowsForInvalidEntities(): void
+    public function testResolveThrowsForInvalidEntities(): void
     {
         $context = Context::createDefaultContext();
         $mailTemplate = $this->createMailTemplate();
-        $mailPayload = new MailPayload();
-        $request = new RequestDataBag([
+        $request = $this->createRequest($context, [
             'mailTemplateId' => 'template-id',
             'entities' => 'invalid',
         ]);
@@ -102,14 +111,14 @@ class GetDataAndSendRequestFactoryTest extends TestCase
             MailTemplateException::invalidRequestParameterType('entities', 'array|object', 'string')
         );
 
-        (new GetDataAndSendRequestFactory($this->mailTemplateService, $this->mailPayloadFactory))->make($request, $context);
+        $this->resolveRequest($request);
     }
 
-    public function testMakeThrowsForInvalidTemplateData(): void
+    public function testResolveThrowsForInvalidTemplateData(): void
     {
         $context = Context::createDefaultContext();
         $mailTemplate = $this->createMailTemplate();
-        $request = new RequestDataBag([
+        $request = $this->createRequest($context, [
             'mailTemplateId' => 'template-id',
             'templateData' => 'invalid',
         ]);
@@ -126,16 +135,16 @@ class GetDataAndSendRequestFactoryTest extends TestCase
             MailTemplateException::invalidRequestParameterType('templateData', 'array|object', 'string')
         );
 
-        (new GetDataAndSendRequestFactory($this->mailTemplateService, $this->mailPayloadFactory))->make($request, $context);
+        $this->resolveRequest($request);
     }
 
-    public function testMakeKeepsEntitiesWhenMailTemplateTypeIsMissing(): void
+    public function testResolveKeepsEntitiesWhenMailTemplateTypeIsMissing(): void
     {
         $context = Context::createDefaultContext();
         $mailTemplate = new MailTemplateEntity();
         $mailPayload = new MailPayload();
 
-        $request = new RequestDataBag([
+        $request = $this->createRequest($context, [
             'mailTemplateId' => 'template-id',
             'entities' => [
                 'order' => 'order-id',
@@ -146,9 +155,7 @@ class GetDataAndSendRequestFactoryTest extends TestCase
         $this->mailTemplateService->method('loadTemplate')->willReturn($mailTemplate);
         $this->mailPayloadFactory->method('make')->willReturn($mailPayload);
 
-        $factory = new GetDataAndSendRequestFactory($this->mailTemplateService, $this->mailPayloadFactory);
-
-        $result = $factory->make($request, $context);
+        $result = $this->resolveRequest($request);
 
         static::assertSame(
             [
@@ -159,12 +166,12 @@ class GetDataAndSendRequestFactoryTest extends TestCase
         );
     }
 
-    public function testMakeAcceptsPlainArrayValuesFromRequest(): void
+    public function testResolveAcceptsPlainArrayValuesFromRequest(): void
     {
         $context = Context::createDefaultContext();
         $mailTemplate = $this->createMailTemplate();
         $mailPayload = new MailPayload(subject: 'payload subject');
-        $request = new RequestDataBag([
+        $request = $this->createRequest($context, [
             'mailTemplateId' => 'template-id',
             'entities' => ['order' => 'order-id', 'customer' => 'customer-id'],
             'templateData' => ['foo' => 'bar'],
@@ -178,7 +185,11 @@ class GetDataAndSendRequestFactoryTest extends TestCase
         $this->mailPayloadFactory->expects($this->once())
             ->method('make')
             ->with(
-                $request,
+                $this->callback(static fn ($requestDataBag) => $requestDataBag->all() === [
+                    'mailTemplateId' => 'template-id',
+                    'entities' => ['order' => 'order-id', 'customer' => 'customer-id'],
+                    'templateData' => ['foo' => 'bar'],
+                ]),
                 [
                     'contentHtml' => '<p>html</p>',
                     'contentPlain' => 'plain',
@@ -188,9 +199,7 @@ class GetDataAndSendRequestFactoryTest extends TestCase
             )
             ->willReturn($mailPayload);
 
-        $factory = new GetDataAndSendRequestFactory($this->mailTemplateService, $this->mailPayloadFactory);
-
-        $result = $factory->make($request, $context);
+        $result = $this->resolveRequest($request);
 
         static::assertSame(['order' => 'order-id'], $result->entityMapping);
         static::assertSame(['foo' => 'bar'], $result->templateData);
@@ -212,5 +221,25 @@ class GetDataAndSendRequestFactoryTest extends TestCase
         $mailTemplate->setSenderName('template sender');
 
         return $mailTemplate;
+    }
+
+    private function resolveRequest(Request $request): GetDataAndSendRequest
+    {
+        $resolver = new GetDataAndSendRequestResolver($this->mailTemplateService, $this->mailPayloadFactory);
+
+        return iterator_to_array(
+            $resolver->resolve($request, new ArgumentMetadata('request', GetDataAndSendRequest::class, false, false, null))
+        )[0];
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    private function createRequest(Context $context, array $payload): Request
+    {
+        $request = new Request([], $payload);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context);
+
+        return $request;
     }
 }

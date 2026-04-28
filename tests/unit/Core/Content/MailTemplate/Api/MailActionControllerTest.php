@@ -11,18 +11,14 @@ use Shopware\Core\Content\MailTemplate\Api\MailActionController;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateException;
 use Shopware\Core\Content\MailTemplate\Request\GetDataAndSendRequest;
-use Shopware\Core\Content\MailTemplate\Request\GetDataAndSendRequestFactory;
 use Shopware\Core\Content\MailTemplate\Request\PreviewRequest;
-use Shopware\Core\Content\MailTemplate\Request\PreviewRequestFactory;
 use Shopware\Core\Content\MailTemplate\Request\SimulateRequest;
-use Shopware\Core\Content\MailTemplate\Request\SimulateRequestFactory;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateSendService;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
 use Shopware\Core\Content\MailTemplate\Validation\MailTemplateRenderResult;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Mime\Email;
@@ -42,21 +38,12 @@ class MailActionControllerTest extends TestCase
 
     private MailPayloadFactory&MockObject $mailPayloadFactory;
 
-    private PreviewRequestFactory&MockObject $previewRequestFactory;
-
-    private GetDataAndSendRequestFactory&MockObject $getDataAndSendRequestFactory;
-
-    private SimulateRequestFactory&MockObject $simulateRequestFactory;
-
     protected function setUp(): void
     {
         $this->stringTemplateRenderer = $this->createMock(StringTemplateRenderer::class);
         $this->mailTemplateService = $this->createMock(MailTemplateService::class);
         $this->mailTemplateSendService = $this->createMock(MailTemplateSendService::class);
         $this->mailPayloadFactory = $this->createMock(MailPayloadFactory::class);
-        $this->previewRequestFactory = $this->createMock(PreviewRequestFactory::class);
-        $this->getDataAndSendRequestFactory = $this->createMock(GetDataAndSendRequestFactory::class);
-        $this->simulateRequestFactory = $this->createMock(SimulateRequestFactory::class);
     }
 
     public function testSendSuccess(): void
@@ -171,14 +158,6 @@ class MailActionControllerTest extends TestCase
     public function testSimulate(): void
     {
         $context = Context::createDefaultContext();
-        $request = new RequestDataBag([
-            'templateParts' => new DataBag([
-                'contentHtml' => 'Hello {{ email }}',
-            ]),
-            'eventName' => 'checkout.customer.before.login',
-            'strictRendering' => true,
-            'salesChannelId' => 'sales-channel-id',
-        ]);
         $simulateRequest = new SimulateRequest(
             templateParts: ['contentHtml' => 'Hello {{ email }}'],
             eventName: 'checkout.customer.before.login',
@@ -189,17 +168,12 @@ class MailActionControllerTest extends TestCase
             'contentHtml' => MailTemplateRenderResult::success('Hello test@example.com'),
         ];
 
-        $this->simulateRequestFactory->expects($this->once())
-            ->method('make')
-            ->with($request, $context)
-            ->willReturn($simulateRequest);
-
         $this->mailTemplateService->expects($this->once())
             ->method('simulate')
             ->with($simulateRequest, $context)
             ->willReturn($result);
 
-        $response = $this->createController()->simulate($request, $context);
+        $response = $this->createController()->simulate($simulateRequest, $context);
 
         static::assertSame(
             [
@@ -215,27 +189,18 @@ class MailActionControllerTest extends TestCase
     public function testPreview(): void
     {
         $context = Context::createDefaultContext();
-        $request = new RequestDataBag([
-            'salesChannelId' => 'sales-channel-id',
-            'strictRendering' => false,
-        ]);
         $previewRequest = new PreviewRequest(new MailTemplateEntity(), strictRendering: false);
 
         $result = [
             'subject' => MailTemplateRenderResult::success('Subject'),
         ];
 
-        $this->previewRequestFactory->expects($this->once())
-            ->method('make')
-            ->with($request, $context)
-            ->willReturn($previewRequest);
-
         $this->mailTemplateService->expects($this->once())
             ->method('preview')
             ->with($previewRequest, $context)
             ->willReturn($result);
 
-        $response = $this->createController()->preview($request, $context);
+        $response = $this->createController()->preview($previewRequest, $context);
 
         static::assertSame(
             [
@@ -251,17 +216,11 @@ class MailActionControllerTest extends TestCase
     public function testGetDataAndSend(): void
     {
         $context = Context::createDefaultContext();
-        $request = new RequestDataBag();
-        $sendRequest = new GetDataAndSendRequest(new MailTemplateEntity());
-
-        $this->getDataAndSendRequestFactory->expects($this->once())
-            ->method('make')
-            ->with($request, $context)
-            ->willReturn($sendRequest);
+        $request = new GetDataAndSendRequest(new MailTemplateEntity());
 
         $this->mailTemplateSendService->expects($this->once())
             ->method('getTemplateDataAndSend')
-            ->with($sendRequest, $context)
+            ->with($request, $context)
             ->willReturn($this->createEmail());
 
         $response = $this->createController()->getDataAndSend($request, $context);
@@ -294,9 +253,6 @@ class MailActionControllerTest extends TestCase
             $this->mailTemplateService,
             $this->mailTemplateSendService,
             $this->mailPayloadFactory,
-            $this->previewRequestFactory,
-            $this->getDataAndSendRequestFactory,
-            $this->simulateRequestFactory,
         );
     }
 

@@ -40,9 +40,6 @@
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailTemplateService"/>
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailTemplateSendService"/>
             <argument type="service" id="Shopware\Core\Content\Mail\Payload\MailPayloadFactory"/>
-            <argument type="service" id="Shopware\Core\Content\MailTemplate\Request\PreviewRequestFactory"/>
-            <argument type="service" id="Shopware\Core\Content\MailTemplate\Request\GetDataAndSendRequestFactory"/>
-            <argument type="service" id="Shopware\Core\Content\MailTemplate\Request\SimulateRequestFactory"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -75,18 +72,21 @@
             <argument type="tagged" tag="shopware.mail.data_provider" index-by="key"/>
         </service>
 
-        <service id="Shopware\Core\Content\MailTemplate\Request\PreviewRequestFactory">
+        <service id="Shopware\Core\Content\MailTemplate\Request\Resolver\PreviewRequestResolver">
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailTemplateService"/>
             <argument type="service" id="Shopware\Core\Content\Shared\MailFlow\DataProvider\SalesChannelProvider"/>
+            <tag name="controller.argument_value_resolver"/>
         </service>
 
-        <service id="Shopware\Core\Content\MailTemplate\Request\GetDataAndSendRequestFactory">
+        <service id="Shopware\Core\Content\MailTemplate\Request\Resolver\GetDataAndSendRequestResolver">
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailTemplateService"/>
             <argument type="service" id="Shopware\Core\Content\Mail\Payload\MailPayloadFactory"/>
+            <tag name="controller.argument_value_resolver"/>
         </service>
 
-        <service id="Shopware\Core\Content\MailTemplate\Request\SimulateRequestFactory">
+        <service id="Shopware\Core\Content\MailTemplate\Request\Resolver\SimulateRequestResolver">
             <argument type="service" id="Shopware\Core\Content\Shared\MailFlow\DataProvider\SalesChannelProvider"/>
+            <tag name="controller.argument_value_resolver"/>
         </service>
     </services>
 </container>

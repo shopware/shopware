@@ -6,20 +6,23 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\MailTemplate\MailTemplateException;
-use Shopware\Core\Content\MailTemplate\Request\SimulateRequestFactory;
+use Shopware\Core\Content\MailTemplate\Request\SimulateRequest;
+use Shopware\Core\Content\MailTemplate\Request\Resolver\SimulateRequestResolver;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\SalesChannelProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 
 /**
  * @internal
  */
 #[Package('after-sales')]
-#[CoversClass(SimulateRequestFactory::class)]
-class SimulateRequestFactoryTest extends TestCase
+#[CoversClass(SimulateRequestResolver::class)]
+class SimulateRequestResolverTest extends TestCase
 {
     private SalesChannelProvider&MockObject $salesChannelProvider;
 
@@ -30,11 +33,11 @@ class SimulateRequestFactoryTest extends TestCase
         $this->salesChannelProvider = $this->createMock(SalesChannelProvider::class);
     }
 
-    public function testMakeBuildsRequest(): void
+    public function testResolveBuildsRequest(): void
     {
         $context = Context::createDefaultContext();
         $salesChannel = new SalesChannelEntity();
-        $request = new RequestDataBag([
+        $request = $this->createRequest($context, [
             'templateParts' => new DataBag([
                 'contentHtml' => 'Hello {{ email }}',
             ]),
@@ -48,7 +51,7 @@ class SimulateRequestFactoryTest extends TestCase
             ->with('sales-channel-id', $context)
             ->willReturn($salesChannel);
 
-        $result = (new SimulateRequestFactory($this->salesChannelProvider))->make($request, $context);
+        $result = $this->resolveRequest($request);
 
         static::assertSame(['contentHtml' => 'Hello {{ email }}'], $result->templateParts);
         static::assertSame('checkout.customer.before.login', $result->eventName);
@@ -56,15 +59,15 @@ class SimulateRequestFactoryTest extends TestCase
         static::assertFalse($result->strictRendering);
     }
 
-    public function testMakeAcceptsArrayMailTemplateContent(): void
+    public function testResolveAcceptsArrayMailTemplateContent(): void
     {
         $context = Context::createDefaultContext();
-        $request = new RequestDataBag([
+        $request = $this->createRequest($context, [
             'templateParts' => ['contentHtml' => 'Hello {{ email }}'],
             'eventName' => 'checkout.customer.before.login',
         ]);
 
-        $result = (new SimulateRequestFactory($this->salesChannelProvider))->make($request, $context);
+        $result = $this->resolveRequest($request);
 
         static::assertSame(['contentHtml' => 'Hello {{ email }}'], $result->templateParts);
         static::assertSame('checkout.customer.before.login', $result->eventName);
@@ -72,10 +75,10 @@ class SimulateRequestFactoryTest extends TestCase
         static::assertTrue($result->strictRendering);
     }
 
-    public function testMakeThrowsForInvalidMailTemplateContent(): void
+    public function testResolveThrowsForInvalidMailTemplateContent(): void
     {
         $context = Context::createDefaultContext();
-        $request = new RequestDataBag([
+        $request = $this->createRequest($context, [
             'templateParts' => 'invalid',
             'eventName' => 'checkout.customer.before.login',
         ]);
@@ -84,13 +87,13 @@ class SimulateRequestFactoryTest extends TestCase
             MailTemplateException::invalidRequestParameterType('templateParts', 'array|object', 'string')
         );
 
-        (new SimulateRequestFactory($this->salesChannelProvider))->make($request, $context);
+        $this->resolveRequest($request);
     }
 
-    public function testMakeThrowsForInvalidStrict(): void
+    public function testResolveThrowsForInvalidStrict(): void
     {
         $context = Context::createDefaultContext();
-        $request = new RequestDataBag([
+        $request = $this->createRequest($context, [
             'templateParts' => ['contentHtml' => 'Hello {{ email }}'],
             'eventName' => 'checkout.customer.before.login',
             'strictRendering' => 'invalid',
@@ -100,13 +103,13 @@ class SimulateRequestFactoryTest extends TestCase
             MailTemplateException::invalidRequestParameterType('strictRendering', 'bool', 'string')
         );
 
-        (new SimulateRequestFactory($this->salesChannelProvider))->make($request, $context);
+        $this->resolveRequest($request);
     }
 
-    public function testMakeThrowsForInvalidSalesChannelIdType(): void
+    public function testResolveThrowsForInvalidSalesChannelIdType(): void
     {
         $context = Context::createDefaultContext();
-        $request = new RequestDataBag([
+        $request = $this->createRequest($context, [
             'templateParts' => ['contentHtml' => 'Hello {{ email }}'],
             'eventName' => 'checkout.customer.before.login',
             'salesChannelId' => 1,
@@ -116,13 +119,13 @@ class SimulateRequestFactoryTest extends TestCase
             MailTemplateException::invalidRequestParameterType('salesChannelId', 'string', 'int')
         );
 
-        (new SimulateRequestFactory($this->salesChannelProvider))->make($request, $context);
+        $this->resolveRequest($request);
     }
 
-    public function testMakeThrowsForUnknownSalesChannelId(): void
+    public function testResolveThrowsForUnknownSalesChannelId(): void
     {
         $context = Context::createDefaultContext();
-        $request = new RequestDataBag([
+        $request = $this->createRequest($context, [
             'templateParts' => ['contentHtml' => 'Hello {{ email }}'],
             'eventName' => 'checkout.customer.before.login',
             'salesChannelId' => 'sales-channel-id',
@@ -135,6 +138,26 @@ class SimulateRequestFactoryTest extends TestCase
 
         $this->expectExceptionObject(MailTemplateException::invalidSalesChannelId('sales-channel-id'));
 
-        (new SimulateRequestFactory($this->salesChannelProvider))->make($request, $context);
+        $this->resolveRequest($request);
+    }
+
+    private function resolveRequest(Request $request): SimulateRequest
+    {
+        $resolver = new SimulateRequestResolver($this->salesChannelProvider);
+
+        return iterator_to_array(
+            $resolver->resolve($request, new ArgumentMetadata('simulateRequest', SimulateRequest::class, false, false, null))
+        )[0];
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    private function createRequest(Context $context, array $payload): Request
+    {
+        $request = new Request([], $payload);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context);
+
+        return $request;
     }
 }

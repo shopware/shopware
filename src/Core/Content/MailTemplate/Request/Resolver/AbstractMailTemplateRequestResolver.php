@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\MailTemplate\Request;
+namespace Shopware\Core\Content\MailTemplate\Request\Resolver;
 
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateException;
@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Validation\DataBag\DataBag;
  * @internal
  */
 #[Package('after-sales')]
-abstract readonly class AbstractMailTemplateRequestFactory
+abstract readonly class AbstractMailTemplateRequestResolver
 {
     /**
      * @return array<string, mixed>

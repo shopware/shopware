@@ -8,20 +8,23 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateException;
-use Shopware\Core\Content\MailTemplate\Request\PreviewRequestFactory;
+use Shopware\Core\Content\MailTemplate\Request\PreviewRequest;
+use Shopware\Core\Content\MailTemplate\Request\Resolver\PreviewRequestResolver;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\SalesChannelProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 
 /**
  * @internal
  */
 #[Package('after-sales')]
-#[CoversClass(PreviewRequestFactory::class)]
-class PreviewRequestFactoryTest extends TestCase
+#[CoversClass(PreviewRequestResolver::class)]
+class PreviewRequestResolverTest extends TestCase
 {
     private MailTemplateService&MockObject $mailTemplateService;
 
@@ -35,13 +38,13 @@ class PreviewRequestFactoryTest extends TestCase
         $this->salesChannelProvider = $this->createMock(SalesChannelProvider::class);
     }
 
-    public function testMakeBuildsRequestAndFiltersUnknownEntities(): void
+    public function testResolveBuildsRequestAndFiltersUnknownEntities(): void
     {
         $context = Context::createDefaultContext();
         $mailTemplate = $this->createMailTemplate();
         $salesChannel = new SalesChannelEntity();
 
-        $request = new RequestDataBag([
+        $request = $this->createRequest($context, [
             'mailTemplateId' => 'template-id',
             'entities' => [
                 'order' => 'order-id',
@@ -65,9 +68,7 @@ class PreviewRequestFactoryTest extends TestCase
             ->with('sales-channel-id', $context)
             ->willReturn($salesChannel);
 
-        $factory = new PreviewRequestFactory($this->mailTemplateService, $this->salesChannelProvider);
-
-        $result = $factory->make($request, $context);
+        $result = $this->resolveRequest($request);
 
         static::assertSame($mailTemplate, $result->mailTemplate);
         static::assertSame($salesChannel, $result->salesChannel);
@@ -77,12 +78,12 @@ class PreviewRequestFactoryTest extends TestCase
         static::assertTrue($result->strictRendering);
     }
 
-    public function testMakeKeepsEntitiesWhenMailTemplateTypeIsMissing(): void
+    public function testResolveKeepsEntitiesWhenMailTemplateTypeIsMissing(): void
     {
         $context = Context::createDefaultContext();
         $mailTemplate = new MailTemplateEntity();
 
-        $request = new RequestDataBag([
+        $request = $this->createRequest($context, [
             'mailTemplateId' => 'template-id',
             'entities' => [
                 'order' => 'order-id',
@@ -92,9 +93,7 @@ class PreviewRequestFactoryTest extends TestCase
 
         $this->mailTemplateService->method('loadTemplate')->willReturn($mailTemplate);
 
-        $factory = new PreviewRequestFactory($this->mailTemplateService, $this->salesChannelProvider);
-
-        $result = $factory->make($request, $context);
+        $result = $this->resolveRequest($request);
 
         static::assertSame(
             [
@@ -105,11 +104,11 @@ class PreviewRequestFactoryTest extends TestCase
         );
     }
 
-    public function testMakeAcceptsPlainArrayValuesFromRequest(): void
+    public function testResolveAcceptsPlainArrayValuesFromRequest(): void
     {
         $context = Context::createDefaultContext();
         $mailTemplate = $this->createMailTemplate();
-        $request = new RequestDataBag([
+        $request = $this->createRequest($context, [
             'mailTemplateId' => 'template-id',
             'entities' => ['order' => 'order-id', 'customer' => 'customer-id'],
             'templateData' => ['foo' => 'bar'],
@@ -121,20 +120,18 @@ class PreviewRequestFactoryTest extends TestCase
             ->with('template-id', $context)
             ->willReturn($mailTemplate);
 
-        $factory = new PreviewRequestFactory($this->mailTemplateService, $this->salesChannelProvider);
-
-        $result = $factory->make($request, $context);
+        $result = $this->resolveRequest($request);
 
         static::assertSame(['order' => 'order-id'], $result->entityMapping);
         static::assertSame(['foo' => 'bar'], $result->templateData);
         static::assertTrue($result->strictRendering);
     }
 
-    public function testMakeAcceptsStringBooleanValuesFromFormRequests(): void
+    public function testResolveAcceptsStringBooleanValuesFromFormRequests(): void
     {
         $context = Context::createDefaultContext();
         $mailTemplate = $this->createMailTemplate();
-        $request = new RequestDataBag([
+        $request = $this->createRequest($context, [
             'mailTemplateId' => 'template-id',
             'includeHeaderFooter' => '1',
             'strictRendering' => '0',
@@ -145,19 +142,17 @@ class PreviewRequestFactoryTest extends TestCase
             ->with('template-id', $context)
             ->willReturn($mailTemplate);
 
-        $factory = new PreviewRequestFactory($this->mailTemplateService, $this->salesChannelProvider);
-
-        $result = $factory->make($request, $context);
+        $result = $this->resolveRequest($request);
 
         static::assertTrue($result->includeHeaderFooter);
         static::assertFalse($result->strictRendering);
     }
 
-    public function testMakeThrowsForInvalidEntities(): void
+    public function testResolveThrowsForInvalidEntities(): void
     {
         $context = Context::createDefaultContext();
         $mailTemplate = $this->createMailTemplate();
-        $request = new RequestDataBag([
+        $request = $this->createRequest($context, [
             'mailTemplateId' => 'template-id',
             'entities' => 'invalid',
         ]);
@@ -171,14 +166,14 @@ class PreviewRequestFactoryTest extends TestCase
             MailTemplateException::invalidRequestParameterType('entities', 'array|object', 'string')
         );
 
-        (new PreviewRequestFactory($this->mailTemplateService, $this->salesChannelProvider))->make($request, $context);
+        $this->resolveRequest($request);
     }
 
-    public function testMakeThrowsForInvalidTemplateData(): void
+    public function testResolveThrowsForInvalidTemplateData(): void
     {
         $context = Context::createDefaultContext();
         $mailTemplate = $this->createMailTemplate();
-        $request = new RequestDataBag([
+        $request = $this->createRequest($context, [
             'mailTemplateId' => 'template-id',
             'templateData' => 'invalid',
         ]);
@@ -192,14 +187,14 @@ class PreviewRequestFactoryTest extends TestCase
             MailTemplateException::invalidRequestParameterType('templateData', 'array|object', 'string')
         );
 
-        (new PreviewRequestFactory($this->mailTemplateService, $this->salesChannelProvider))->make($request, $context);
+        $this->resolveRequest($request);
     }
 
-    public function testMakeThrowsForInvalidSalesChannelIdType(): void
+    public function testResolveThrowsForInvalidSalesChannelIdType(): void
     {
         $context = Context::createDefaultContext();
         $mailTemplate = $this->createMailTemplate();
-        $request = new RequestDataBag([
+        $request = $this->createRequest($context, [
             'mailTemplateId' => 'template-id',
             'salesChannelId' => 1,
         ]);
@@ -213,14 +208,14 @@ class PreviewRequestFactoryTest extends TestCase
             MailTemplateException::invalidRequestParameterType('salesChannelId', 'string', 'int')
         );
 
-        (new PreviewRequestFactory($this->mailTemplateService, $this->salesChannelProvider))->make($request, $context);
+        $this->resolveRequest($request);
     }
 
-    public function testMakeThrowsForUnknownSalesChannelId(): void
+    public function testResolveThrowsForUnknownSalesChannelId(): void
     {
         $context = Context::createDefaultContext();
         $mailTemplate = $this->createMailTemplate();
-        $request = new RequestDataBag([
+        $request = $this->createRequest($context, [
             'mailTemplateId' => 'template-id',
             'salesChannelId' => 'sales-channel-id',
         ]);
@@ -239,14 +234,14 @@ class PreviewRequestFactoryTest extends TestCase
             MailTemplateException::invalidSalesChannelId('sales-channel-id')
         );
 
-        (new PreviewRequestFactory($this->mailTemplateService, $this->salesChannelProvider))->make($request, $context);
+        $this->resolveRequest($request);
     }
 
-    public function testMakeThrowsForInvalidIncludeHeaderFooter(): void
+    public function testResolveThrowsForInvalidIncludeHeaderFooter(): void
     {
         $context = Context::createDefaultContext();
         $mailTemplate = $this->createMailTemplate();
-        $request = new RequestDataBag([
+        $request = $this->createRequest($context, [
             'mailTemplateId' => 'template-id',
             'includeHeaderFooter' => 'invalid',
         ]);
@@ -260,14 +255,14 @@ class PreviewRequestFactoryTest extends TestCase
             MailTemplateException::invalidRequestParameterType('includeHeaderFooter', 'bool', 'string')
         );
 
-        (new PreviewRequestFactory($this->mailTemplateService, $this->salesChannelProvider))->make($request, $context);
+        $this->resolveRequest($request);
     }
 
-    public function testMakeThrowsForInvalidStrict(): void
+    public function testResolveThrowsForInvalidStrict(): void
     {
         $context = Context::createDefaultContext();
         $mailTemplate = $this->createMailTemplate();
-        $request = new RequestDataBag([
+        $request = $this->createRequest($context, [
             'mailTemplateId' => 'template-id',
             'strictRendering' => 'invalid',
         ]);
@@ -281,7 +276,27 @@ class PreviewRequestFactoryTest extends TestCase
             MailTemplateException::invalidRequestParameterType('strictRendering', 'bool', 'string')
         );
 
-        (new PreviewRequestFactory($this->mailTemplateService, $this->salesChannelProvider))->make($request, $context);
+        $this->resolveRequest($request);
+    }
+
+    private function resolveRequest(Request $request): PreviewRequest
+    {
+        $resolver = new PreviewRequestResolver($this->mailTemplateService, $this->salesChannelProvider);
+
+        return iterator_to_array(
+            $resolver->resolve($request, new ArgumentMetadata('previewRequest', PreviewRequest::class, false, false, null))
+        )[0];
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    private function createRequest(Context $context, array $payload): Request
+    {
+        $request = new Request([], $payload);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context);
+
+        return $request;
     }
 
     private function createMailTemplate(): MailTemplateEntity

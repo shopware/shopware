@@ -41,8 +41,12 @@ final readonly class DocumentGenerator
     /**
      * Generates one logical document with one or more persisted document_file artifacts.
      *
+     * The request must contain at least one format and a non-live order version id.
+     *
      * For example, if the caller requests only `pdf` and the PDF renderer depends on `html`,
      * both formats are rendered, but only the PDF result is persisted as a document_file.
+     *
+     * @throws DocumentV2Exception
      */
     public function generate(DocumentGenerationRequest $generationRequest): DocumentEntity
     {

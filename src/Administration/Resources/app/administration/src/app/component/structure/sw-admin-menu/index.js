@@ -325,12 +325,13 @@ The admin menu only supports up to three levels of nesting.`,
         },
 
         collapseMenuOnSmallViewports() {
-            if (this.$device.getViewportWidth() <= 1200 && this.$device.getViewportWidth() >= 500) {
-                this.collapseAdminMenu();
+            if (this.isMobileViewport()) {
+                this.expandAdminMenu();
+                return;
             }
 
-            if (this.$device.getViewportWidth() <= 500) {
-                this.expandAdminMenu();
+            if (this.$device.getViewportWidth() <= 1200) {
+                this.collapseAdminMenu();
             }
         },
 
@@ -509,22 +510,16 @@ The admin menu only supports up to three levels of nesting.`,
             return !target.classList.contains('navigation-list-item__has-children');
         },
 
-        onClickOutsideOffCanvas(event) {
-            if (!this.isMobileViewport() || !this.isOffCanvasShown) {
-                return;
+        onClickOutsideOffCanvas({ target }) {
+            if (
+                this.isMobileViewport() &&
+                this.isOffCanvasShown &&
+                target instanceof Element &&
+                !this.$el.contains(target) &&
+                !target.closest('.sw-search-bar')
+            ) {
+                this.closeOffCanvas();
             }
-
-            const { target } = event;
-
-            if (!(target instanceof Element)) {
-                return;
-            }
-
-            if (this.$el.contains(target) || target.closest('.sw-search-bar')) {
-                return;
-            }
-
-            this.closeOffCanvas();
         },
 
         onMenuLeave() {

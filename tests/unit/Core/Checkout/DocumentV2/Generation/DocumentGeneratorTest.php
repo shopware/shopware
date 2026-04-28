@@ -55,8 +55,8 @@ class DocumentGeneratorTest extends TestCase
         $generationRequest = new DocumentGenerationRequest(
             $orderId,
             $orderVersionId,
-            DocumentType::INVOICE->value,
-            [DocumentFormat::PDF->value],
+            DocumentType::INVOICE,
+            [DocumentFormat::PDF],
             $context,
         );
 
@@ -136,8 +136,10 @@ class DocumentGeneratorTest extends TestCase
     }
 
     #[DataProvider('invalidGenerationRequestProvider')]
-    public function testGenerateThrowsExceptionOnInvalidGenerationRequest(DocumentGenerationRequest $generationRequest, DocumentV2Exception $exception): void
-    {
+    public function testGenerateThrowsExceptionOnInvalidGenerationRequest(
+        DocumentGenerationRequest $generationRequest,
+        DocumentV2Exception $exception
+    ): void {
         /** @var StaticEntityRepository<OrderCollection> $orderRepository */
         $orderRepository = new StaticEntityRepository([], new OrderDefinition());
 
@@ -162,7 +164,7 @@ class DocumentGeneratorTest extends TestCase
             'generationRequest' => new DocumentGenerationRequest(
                 Uuid::randomHex(),
                 Uuid::randomHex(),
-                DocumentType::INVOICE->value,
+                DocumentType::INVOICE,
                 [],
                 Context::createDefaultContext(),
             ),
@@ -173,8 +175,8 @@ class DocumentGeneratorTest extends TestCase
             'generationRequest' => new DocumentGenerationRequest(
                 Uuid::randomHex(),
                 Defaults::LIVE_VERSION,
-                DocumentType::INVOICE->value,
-                [DocumentFormat::PDF->value],
+                DocumentType::INVOICE,
+                [DocumentFormat::PDF],
                 Context::createDefaultContext(),
             ),
             'exception' => DocumentV2Exception::liveVersionNotAllowed(),
@@ -222,8 +224,16 @@ class DocumentGeneratorTest extends TestCase
         ]);
 
         $rendererRegistry = new DocumentRendererRegistry([
-            new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value], []),
-            new StaticDocumentRenderer(DocumentFormat::PDF, [DocumentType::INVOICE->value], [DocumentFormat::HTML->value]),
+            new StaticDocumentRenderer(
+                DocumentFormat::HTML,
+                [DocumentType::INVOICE->value],
+                []
+            ),
+            new StaticDocumentRenderer(
+                DocumentFormat::PDF,
+                [DocumentType::INVOICE->value],
+                [DocumentFormat::HTML->value]
+            ),
         ]);
 
         $generator = new DocumentGenerator(

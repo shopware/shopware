@@ -30,8 +30,8 @@ class DocumentNumberGeneratorTest extends TestCase
         $generationRequest = new DocumentGenerationRequest(
             orderId: Uuid::randomHex(),
             orderVersionId: Uuid::randomHex(),
-            documentType: DocumentType::INVOICE->value,
-            requestedFormats: [DocumentFormat::PDF->value],
+            documentType: DocumentType::INVOICE,
+            requestedFormats: [DocumentFormat::PDF],
             apiContext: $context,
         );
 

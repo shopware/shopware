@@ -6,7 +6,21 @@
 
 ## Core
 
+### Backward compatible invalid locales
+
+Added and deprecated `BackwardCompatibleNumberFormatter` to temporarily allow invalid locale strings without throwing exceptions in PHP >=8.4. It will be removed in Shopware 6.8.
+
 ## Administration
+
+### Fixed "Last Quarter" timeframe returning the wrong year in `sw-date-filter`
+
+Selecting the "Last Quarter" timeframe in any listing's date filter (orders, documents, customers, etc.) between January and March now produces a three-month range in the previous year instead of a ~15-month range that spanned both years.
+The end boundary is now derived from the quarter's start year rather than the current year.
+
+### Admin menu flyout no longer overflows the viewport
+
+When the sidebar is collapsed, hovering a menu entry near the bottom of the sidebar could cause the flyout submenu to extend beyond the viewport, making lower entries inaccessible.
+The flyout now calculates a dynamic `max-height` from the remaining viewport space and scrolls vertically when its content exceeds that limit.
 
 ## Storefront
 
@@ -79,10 +93,6 @@ Product exports now support `ProductExportEntity::FILE_FORMAT_JSONL` as a third 
 
 The new `AbstractAgenticCommerceProductExportProvider` can be used to implement custom Agentic Commerce export providers.
 
-### Backward compatible invalid locales
-
-Added and deprecated `BackwardCompatibleNumberFormatter` to temporarily allow invalid locale strings without throwing exceptions in PHP >=8.4. It will be removed in Shopware 6.8.
-
 ## Administration
 
 ### [Internal] Twig to Native Block Runtime Adapter
@@ -91,10 +101,6 @@ A runtime adapter has been added that bridges legacy Twig block overrides (`{% b
 
 Mixin-defined route guards such as `beforeRouteLeave` are now executed reliably for lazy-loaded Administration route components.
 This fixes cases where cleanup logic in shared mixins, for example in listing pages, was skipped during navigation to detail pages.
-
-### Fixed "Last Quarter" timeframe returning the wrong year in `sw-date-filter`
-
-Selecting the "Last Quarter" timeframe in any listing's date filter (orders, documents, customers, etc.) between January and March now produces a three-month range in the previous year instead of a ~15-month range that spanned both years. The end boundary is now derived from the quarter's start year rather than the current year.
 
 ### Re-render iframe integrations when location changes
 
@@ -105,11 +111,6 @@ This fixes stale iframe content when switching locations in Meteor Admin SDK int
 
 The Administration order list now shows internal order comments via a dedicated tooltip icon.
 This helps merchants spot internal notes directly from the list view without opening the order detail page.
-
-### Admin menu flyout no longer overflows the viewport
-
-When the sidebar is collapsed, hovering a menu entry near the bottom of the sidebar could cause the flyout submenu to extend beyond the viewport, making lower entries inaccessible.
-The flyout now calculates a dynamic `max-height` from the remaining viewport space and scrolls vertically when its content exceeds that limit.
 
 ### [Experimental] Agentic Commerce sales channel views and tracking entities
 

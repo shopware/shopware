@@ -145,7 +145,10 @@ class DocumentDependencyResolverTest extends TestCase
                     [DocumentFormat::PDF->value]
                 ),
             ],
-            'exception' => DocumentV2Exception::circularRenderDependency(),
+            'exception' => DocumentV2Exception::circularRenderDependency([
+                DocumentFormat::PDF->value,
+                DocumentFormat::HTML->value,
+            ]),
         ];
 
         yield 'self dependency' => [
@@ -157,7 +160,9 @@ class DocumentDependencyResolverTest extends TestCase
                     [DocumentFormat::PDF->value]
                 ),
             ],
-            'exception' => DocumentV2Exception::circularRenderDependency(),
+            'exception' => DocumentV2Exception::circularRenderDependency([
+                DocumentFormat::PDF->value,
+            ]),
         ];
     }
 

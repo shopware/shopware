@@ -161,7 +161,15 @@ final readonly class DocumentDependencyResolver
         }
 
         if (\count($sorted) !== \count($neededFormats)) {
-            throw DocumentV2Exception::circularRenderDependency();
+            $remaining = [];
+
+            foreach ($inDegree as $format => $degree) {
+                if ($degree > 0) {
+                    $remaining[] = $format;
+                }
+            }
+
+            throw DocumentV2Exception::circularRenderDependency($remaining);
         }
 
         return array_reverse($sorted);

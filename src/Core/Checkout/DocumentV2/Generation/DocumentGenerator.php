@@ -65,11 +65,11 @@ final readonly class DocumentGenerator
             $provider->enrichOrderCriteria($criteria);
         }
 
-        $orderContext = $this->createOrderContext($generationRequest);
+        $orderVersionContext = $this->createOrderVersionContext($generationRequest);
 
         $order = $this->loadOrder(
             $criteria,
-            $orderContext,
+            $orderVersionContext,
             $generationRequest->orderId
         );
 
@@ -150,7 +150,7 @@ final readonly class DocumentGenerator
     /**
      * @throws DocumentV2Exception
      */
-    private function createOrderContext(DocumentGenerationRequest $generationRequest): Context
+    private function createOrderVersionContext(DocumentGenerationRequest $generationRequest): Context
     {
         $orderContext = $generationRequest->apiContext
             ->createWithVersionId($generationRequest->orderVersionId);
@@ -169,7 +169,7 @@ final readonly class DocumentGenerator
     /**
      * @throws DocumentV2Exception
      */
-    private function loadOrder(Criteria $criteria, Context $context, string $orderId): OrderEntity
+    private function loadOrder(Criteria $criteria, Context $orderVersionContext, string $orderId): OrderEntity
     {
         $criteria->setTitle('document-v2-generator::load-order');
         $criteria->addAssociation('currency');
@@ -179,7 +179,10 @@ final readonly class DocumentGenerator
         $criteria->addAssociation('transactions.paymentMethod');
         $criteria->addAssociation('deliveries.shippingMethod');
 
-        $order = $this->orderRepository->search($criteria, $context)->getEntities()->first();
+        $order = $this->orderRepository->search(
+            $criteria,
+            $orderVersionContext
+        )->getEntities()->first();
 
         if (!$order instanceof OrderEntity) {
             throw DocumentV2Exception::orderNotFound($orderId);

@@ -187,8 +187,17 @@ class AdminSearcherTest extends TestCase
                             'should' => [
                                 [
                                     'match' => [
-                                        'text.ngram' => [
+                                        'completion' => [
                                             'query' => $originalTerm,
+                                            'boost' => SearchRanking::HIGH_SEARCH_RANKING,
+                                        ],
+                                    ],
+                                ],
+                                [
+                                    'match' => [
+                                        'completion.ngram' => [
+                                            'query' => $originalTerm,
+                                            'boost' => SearchRanking::MIDDLE_SEARCH_RANKING,
                                         ],
                                     ],
                                 ],
@@ -197,14 +206,6 @@ class AdminSearcherTest extends TestCase
                                         'query' => $query,
                                         'fields' => ['text'],
                                         'lenient' => true,
-                                    ],
-                                ],
-                                [
-                                    'match' => [
-                                        'textBoosted.ngram' => [
-                                            'query' => $originalTerm,
-                                            'boost' => SearchRanking::HIGH_SEARCH_RANKING,
-                                        ],
                                     ],
                                 ],
                                 [

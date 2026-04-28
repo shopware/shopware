@@ -119,6 +119,7 @@ class ProductAdminSearchIndexerTest extends TestCase
         static::assertSame($id, $document['id']);
         static::assertSame('tag 809c1844f4734243b6aa04aba860cd45', $document['text']);
         static::assertSame('product sw1000299 keywords', $document['textBoosted']);
+        static::assertSame(['product'], $document['completion']);
         static::assertSame('SW1000299', $document['productNumber']);
         static::assertTrue($document['active']);
         static::assertSame(10, $document['sales']);
@@ -177,21 +178,17 @@ class ProductAdminSearchIndexerTest extends TestCase
         $boolQueryArray = $boolQuery->toArray();
         $shouldQueries = $boolQueryArray['bool']['should'];
 
-        static::assertCount(2, $shouldQueries);
+        // The product indexer only adds the `textBoosted` prefix clause; the
+        // shared `completion` / `completion.ngram` clauses live in
+        // `AdminSearcher::buildSearch` so every indexer benefits from them.
+        static::assertCount(1, $shouldQueries);
 
-        $matchQuery = null;
         $simpleQueryStringQuery = null;
         foreach ($shouldQueries as $query) {
-            if (isset($query['match']['textBoosted.ngram'])) {
-                $matchQuery = $query['match']['textBoosted.ngram'];
-            } elseif (isset($query['simple_query_string'])) {
+            if (isset($query['simple_query_string'])) {
                 $simpleQueryStringQuery = $query['simple_query_string'];
             }
         }
-
-        static::assertNotNull($matchQuery, 'MatchQuery for textBoosted.ngram should be present');
-        static::assertSame('test', $matchQuery['query']);
-        static::assertSame(SearchRanking::HIGH_SEARCH_RANKING, $matchQuery['boost']);
 
         static::assertNotNull($simpleQueryStringQuery, 'SimpleQueryStringQuery for textBoosted should be present');
         static::assertSame(['textBoosted'], $simpleQueryStringQuery['fields']);

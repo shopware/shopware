@@ -5,7 +5,6 @@ namespace Shopware\Elasticsearch\Admin\Indexer;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use OpenSearchDSL\Query\Compound\BoolQuery;
-use OpenSearchDSL\Query\FullText\MatchQuery;
 use OpenSearchDSL\Query\FullText\SimpleQueryStringQuery;
 use OpenSearchDSL\Search;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
@@ -128,22 +127,18 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
         $splitTerms = explode(' ', $term);
         $lastPart = end($splitTerms);
 
-        $ngramQuery = new MatchQuery('textBoosted.ngram', $term, [
-            'boost' => SearchRanking::HIGH_SEARCH_RANKING,
-        ]);
-        $criteria->addQuery($ngramQuery, BoolQuery::SHOULD);
-
-        // If the end of the search term is not a symbol, apply the prefix search query
         if (preg_match('/^[\p{L}0-9]+$/u', $lastPart)) {
             $term .= '*';
         }
 
-        $query = new SimpleQueryStringQuery($term, [
-            'fields' => ['textBoosted'],
-            'boost' => SearchRanking::HIGH_SEARCH_RANKING,
-            'lenient' => true,
-        ]);
-        $criteria->addQuery($query, BoolQuery::SHOULD);
+        $criteria->addQuery(
+            new SimpleQueryStringQuery($term, [
+                'fields' => ['textBoosted'],
+                'boost' => SearchRanking::HIGH_SEARCH_RANKING,
+                'lenient' => true,
+            ]),
+            BoolQuery::SHOULD
+        );
 
         return $criteria;
     }
@@ -184,8 +179,7 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
             ]),
         ];
 
-        $mapping['properties'] ??= [];
-        $mapping['properties'] = array_merge($mapping['properties'], $override);
+        $mapping['properties'] = array_merge($mapping['properties'] ?? [], $override);
 
         $mapping['dynamic_templates'][] = [
             'price_fields' => [
@@ -209,11 +203,11 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
         }
 
         $data = $this->connection->fetchAllAssociative(
-            '
+            "
             SELECT LOWER(HEX(product.id)) as id,
-                   GROUP_CONCAT(DISTINCT translation.name SEPARATOR " ") as name,
-                   CONCAT("[", GROUP_CONCAT(translation.custom_search_keywords), "]") as custom_search_keywords,
-                   GROUP_CONCAT(DISTINCT tag.name SEPARATOR " ") as tags,
+                   GROUP_CONCAT(DISTINCT translation.name ORDER BY NULL SEPARATOR '\n') as name,
+                   CONCAT('[', GROUP_CONCAT(translation.custom_search_keywords), ']') as custom_search_keywords,
+                   GROUP_CONCAT(DISTINCT tag.name SEPARATOR ' ') as tags,
                    product.product_number,
                    product.ean,
                    product.manufacturer_number
@@ -227,7 +221,7 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
             WHERE product.id IN (:ids)
             AND product.version_id = :versionId
             GROUP BY product.id
-        ',
+        ",
             [
                 'ids' => Uuid::fromHexToBytesList($ids),
                 'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
@@ -239,7 +233,8 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
 
         $mapped = [];
         foreach ($data as $row) {
-            $textBoosted = $row['name'] . ' ' . $row['product_number'];
+            $names = $this->splitTranslatedNames(\is_string($row['name'] ?? null) ? $row['name'] : '');
+            $textBoosted = implode(' ', $names) . ' ' . $row['product_number'];
 
             if ($row['custom_search_keywords']) {
                 $row['custom_search_keywords'] = json_decode((string) $row['custom_search_keywords'], true, 512, \JSON_THROW_ON_ERROR);
@@ -249,10 +244,30 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
             $id = (string) $row['id'];
             unset($row['name'],  $row['product_number'], $row['custom_search_keywords']);
             $text = \implode(' ', array_filter(array_unique(array_values($row))));
-            $mapped[$id] = ['id' => $id, 'textBoosted' => \strtolower($textBoosted), 'text' => \strtolower($text)];
+            $mapped[$id] = [
+                'id' => $id,
+                'textBoosted' => \strtolower($textBoosted),
+                'text' => \strtolower($text),
+                'completion' => $this->buildCompletion($names),
+            ];
         }
 
         return $mapped;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function splitTranslatedNames(string $concat): array
+    {
+        if ($concat === '') {
+            return [];
+        }
+
+        return array_values(array_filter(
+            array_map('trim', explode("\n", $concat)),
+            static fn (string $name): bool => $name !== ''
+        ));
     }
 
     /**
@@ -545,6 +560,7 @@ SQL,
                 'id' => $id,
                 'textBoosted' => \strtolower($textBoosted),
                 'text' => \strtolower(trim($tags . ' ' . $id)),
+                'completion' => $this->buildCompletion(array_values($translatedNames)),
                 'name' => $translatedNames,
                 'parentId' => $parentId,
                 'productNumber' => \is_string($row['productNumber'] ?? null) ? $row['productNumber'] : null,

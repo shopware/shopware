@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Feature;
@@ -178,19 +179,23 @@ class AdminSearcher
         $splitTerms = explode(' ', $term);
         $lastPart = end($splitTerms);
 
-        $ngramQuery = new MatchQuery('text.ngram', $term);
-        $search->addQuery($ngramQuery, BoolQuery::SHOULD);
+        $search->addQuery(
+            new MatchQuery('completion', $term, ['boost' => SearchRanking::HIGH_SEARCH_RANKING]),
+            BoolQuery::SHOULD
+        );
+        $search->addQuery(
+            new MatchQuery('completion.ngram', $term, ['boost' => SearchRanking::MIDDLE_SEARCH_RANKING]),
+            BoolQuery::SHOULD
+        );
 
-        // If the end of the search term is not a symbol, apply the prefix search query
         if (preg_match('/^[\p{L}0-9]+$/u', $lastPart)) {
             $term .= '*';
         }
 
-        $query = new SimpleQueryStringQuery($term, [
-            'fields' => ['text'],
-            'lenient' => true,
-        ]);
-        $search->addQuery($query, BoolQuery::SHOULD);
+        $search->addQuery(
+            new SimpleQueryStringQuery($term, ['fields' => ['text'], 'lenient' => true]),
+            BoolQuery::SHOULD
+        );
 
         return $search;
     }

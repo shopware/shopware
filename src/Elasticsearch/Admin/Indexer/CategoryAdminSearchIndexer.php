@@ -160,22 +160,23 @@ SQL,
         foreach ($data as $row) {
             $id = (string) $row['id'];
             $text = \implode(' ', array_filter([$row['name'] ?? '', $row['tags'] ?? '', $id]));
+            $translatedNames = $this->decodeTranslatedValues((string) ($row['translatedNames'] ?? ''));
 
             if (!Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
                 $mapped[$id] = [
                     'id' => $id,
                     'text' => \strtolower($text),
+                    'completion' => $this->buildCompletion(array_values($translatedNames) ?: [(string) ($row['name'] ?? '')]),
                 ];
 
                 continue;
             }
 
-            $translatedNames = $this->decodeTranslatedValues((string) $row['translatedNames']);
-
             $mapped[$id] = [
                 'id' => $id,
                 'parentId' => $row['parentId'] ?? null,
                 'text' => \strtolower($text),
+                'completion' => $this->buildCompletion(array_values($translatedNames)),
                 'name' => $translatedNames,
                 'active' => (bool) $row['active'],
                 'visible' => (bool) $row['visible'],

@@ -12,11 +12,30 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class DocumentRendererRegistry
 {
     /**
+     * @var array<string, array<string, AbstractDocumentRenderer>>
+     */
+    private array $renderersByDocumentType;
+
+    /**
      * @param iterable<AbstractDocumentRenderer> $documentRenderers
      */
-    public function __construct(
-        private iterable $documentRenderers,
-    ) {
+    public function __construct(iterable $documentRenderers)
+    {
+        $renderersByDocumentType = [];
+
+        foreach ($documentRenderers as $renderer) {
+            $format = $renderer->getFormat();
+
+            foreach ($renderer->getDocumentTypes() as $documentType) {
+                if (isset($renderersByDocumentType[$documentType][$format])) {
+                    throw DocumentV2Exception::duplicateRenderer($format, $documentType);
+                }
+
+                $renderersByDocumentType[$documentType][$format] = $renderer;
+            }
+        }
+
+        $this->renderersByDocumentType = $renderersByDocumentType;
     }
 
     /**
@@ -42,22 +61,6 @@ final readonly class DocumentRendererRegistry
      */
     public function mapRenderersByFormat(string $documentType): array
     {
-        $renderers = [];
-
-        foreach ($this->documentRenderers as $renderer) {
-            if (!$renderer->supports($documentType)) {
-                continue;
-            }
-
-            $format = $renderer->getFormat();
-
-            if (isset($renderers[$format])) {
-                throw DocumentV2Exception::duplicateRenderer($format, $documentType);
-            }
-
-            $renderers[$format] = $renderer;
-        }
-
-        return $renderers;
+        return $this->renderersByDocumentType[$documentType] ?? [];
     }
 }

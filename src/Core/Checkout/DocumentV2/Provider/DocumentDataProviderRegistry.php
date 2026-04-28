@@ -12,11 +12,30 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class DocumentDataProviderRegistry
 {
     /**
+     * @var array<string, array<string, AbstractDocumentDataProvider>>
+     */
+    private array $providersByDocumentType;
+
+    /**
      * @param iterable<AbstractDocumentDataProvider> $documentDataProviders
      */
-    public function __construct(
-        private iterable $documentDataProviders
-    ) {
+    public function __construct(iterable $documentDataProviders)
+    {
+        $providersByDocumentType = [];
+
+        foreach ($documentDataProviders as $provider) {
+            $key = $provider->getKey();
+
+            foreach ($provider->getDocumentTypes() as $documentType) {
+                if (isset($providersByDocumentType[$documentType][$key])) {
+                    throw DocumentV2Exception::duplicateProviderKey($key, $documentType);
+                }
+
+                $providersByDocumentType[$documentType][$key] = $provider;
+            }
+        }
+
+        $this->providersByDocumentType = $providersByDocumentType;
     }
 
     /**
@@ -26,22 +45,6 @@ final readonly class DocumentDataProviderRegistry
      */
     public function getByDocumentType(string $documentType): array
     {
-        $providers = [];
-
-        foreach ($this->documentDataProviders as $provider) {
-            if (!\in_array($documentType, $provider->getDocumentTypes(), true)) {
-                continue;
-            }
-
-            $key = $provider->getKey();
-
-            if (isset($providers[$key])) {
-                throw DocumentV2Exception::duplicateProviderKey($key, $documentType);
-            }
-
-            $providers[$key] = $provider;
-        }
-
-        return array_values($providers);
+        return array_values($this->providersByDocumentType[$documentType] ?? []);
     }
 }

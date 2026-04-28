@@ -30,11 +30,21 @@ abstract class AbstractDocumentRenderer
     abstract public function getFormat(): string;
 
     /**
-     * Returns whether this renderer can render the given document type.
+     * Returns the document types this renderer can render.
      *
      * @see DocumentType
+     *
+     * @return list<string>
      */
-    abstract public function supports(string $type): bool;
+    abstract public function getDocumentTypes(): array;
+
+    /**
+     * Returns whether this renderer can render the given document type.
+     */
+    public function supports(string $type): bool
+    {
+        return \in_array($type, $this->getDocumentTypes(), true);
+    }
 
     /**
      * Returns prerequisite formats that must exist in RenderState before this renderer runs.

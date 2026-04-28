@@ -85,30 +85,34 @@ class DocumentRendererRegistryTest extends TestCase
 
     public function testGetRendererThrowsOnDuplicateRendererRegistration(): void
     {
-        $registry = new DocumentRendererRegistry([
-            new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value]),
-            new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value]),
-        ]);
-
         static::expectExceptionObject(
             DocumentV2Exception::duplicateRenderer(DocumentFormat::HTML->value, DocumentType::INVOICE->value)
         );
 
-        $registry->getRenderer(DocumentFormat::HTML->value, DocumentType::INVOICE->value);
+        new DocumentRendererRegistry([
+            new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value]),
+            new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value]),
+        ]);
     }
 
     public function testMapRenderersByFormatThrowsOnDuplicateRendererRegistration(): void
     {
-        $registry = new DocumentRendererRegistry([
-            new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value]),
-            new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value]),
-        ]);
-
         static::expectExceptionObject(
             DocumentV2Exception::duplicateRenderer(DocumentFormat::HTML->value, DocumentType::INVOICE->value)
         );
 
-        $registry->mapRenderersByFormat(DocumentType::INVOICE->value);
+        new DocumentRendererRegistry([
+            new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value]),
+            new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value]),
+        ]);
+    }
+
+    public function testMapRenderersByFormatCanBeCalledMultipleTimesWithGeneratorInput(): void
+    {
+        $registry = new DocumentRendererRegistry(self::createRendererGenerator());
+
+        static::assertCount(1, $registry->mapRenderersByFormat(DocumentType::INVOICE->value));
+        static::assertCount(1, $registry->mapRenderersByFormat(DocumentType::INVOICE->value));
     }
 
     private static function createRegistry(): DocumentRendererRegistry
@@ -117,5 +121,15 @@ class DocumentRendererRegistryTest extends TestCase
             new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value]),
             new StaticDocumentRenderer(DocumentFormat::PDF, [DocumentType::CREDIT_NOTE->value]),
         ]);
+    }
+
+    /**
+     * @return \Generator<StaticDocumentRenderer>
+     */
+    private static function createRendererGenerator(): \Generator
+    {
+        yield new StaticDocumentRenderer(DocumentFormat::HTML, [DocumentType::INVOICE->value]);
+
+        yield new StaticDocumentRenderer(DocumentFormat::PDF, [DocumentType::CREDIT_NOTE->value]);
     }
 }

@@ -28,9 +28,9 @@ class StaticDocumentRenderer extends AbstractDocumentRenderer
     ) {
     }
 
-    public function supports(string $type): bool
+    public function getDocumentTypes(): array
     {
-        return \in_array($type, $this->documentTypes, true);
+        return $this->documentTypes;
     }
 
     public function getFormat(): string

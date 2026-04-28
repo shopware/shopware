@@ -33,16 +33,14 @@ class DocumentDataProviderRegistryTest extends TestCase
 
     public function testGetProvidersByDocumentTypeThrowsOnDuplicateProviderKeys(): void
     {
-        $registry = new DocumentDataProviderRegistry([
-            new StaticDocumentDataProvider([DocumentType::INVOICE->value], 'duplicate'),
-            new StaticDocumentDataProvider([DocumentType::INVOICE->value], 'duplicate'),
-        ]);
-
         static::expectExceptionObject(
             DocumentV2Exception::duplicateProviderKey('duplicate', DocumentType::INVOICE->value)
         );
 
-        $registry->getByDocumentType(DocumentType::INVOICE->value);
+        new DocumentDataProviderRegistry([
+            new StaticDocumentDataProvider([DocumentType::INVOICE->value], 'duplicate'),
+            new StaticDocumentDataProvider([DocumentType::INVOICE->value], 'duplicate'),
+        ]);
     }
 
     public function testGetProvidersByDocumentTypeAllowsSameKeyForDifferentDocumentTypes(): void
@@ -56,6 +54,14 @@ class DocumentDataProviderRegistryTest extends TestCase
         static::assertCount(1, $registry->getByDocumentType(DocumentType::CREDIT_NOTE->value));
     }
 
+    public function testGetProvidersByDocumentTypeCanBeCalledMultipleTimesWithGeneratorInput(): void
+    {
+        $registry = new DocumentDataProviderRegistry($this->createProviderGenerator());
+
+        static::assertCount(2, $registry->getByDocumentType(DocumentType::INVOICE->value));
+        static::assertCount(2, $registry->getByDocumentType(DocumentType::INVOICE->value));
+    }
+
     private function createRegistry(): DocumentDataProviderRegistry
     {
         return new DocumentDataProviderRegistry([
@@ -67,5 +73,20 @@ class DocumentDataProviderRegistryTest extends TestCase
                 DocumentType::INVOICE->value,
             ], 'cancellation'),
         ]);
+    }
+
+    /**
+     * @return \Generator<StaticDocumentDataProvider>
+     */
+    private function createProviderGenerator(): \Generator
+    {
+        yield new StaticDocumentDataProvider([
+            DocumentType::INVOICE->value,
+        ], 'invoice');
+
+        yield new StaticDocumentDataProvider([
+            DocumentType::CANCELLATION_INVOICE->value,
+            DocumentType::INVOICE->value,
+        ], 'cancellation');
     }
 }

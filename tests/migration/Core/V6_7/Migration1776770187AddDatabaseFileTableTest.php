@@ -41,9 +41,15 @@ class Migration1776770187AddDatabaseFileTableTest extends TestCase
         static::assertCount(6, TableHelper::getTable($this->connection, DocumentFileDefinition::ENTITY_NAME)->columns);
         static::assertTrue(TableHelper::foreignKeyExists($this->connection, DocumentFileDefinition::ENTITY_NAME, 'fk.document_file.document_id'));
         static::assertTrue(TableHelper::foreignKeyExists($this->connection, DocumentFileDefinition::ENTITY_NAME, 'fk.document_file.media_id'));
+
         static::assertSame(
             IndexType::UNIQUE->name,
             TableHelper::getIndexOfTable($this->connection, DocumentFileDefinition::ENTITY_NAME, 'uniq.document_file.media_id')->type
+        );
+
+        static::assertSame(
+            IndexType::UNIQUE->name,
+            TableHelper::getIndexOfTable($this->connection, DocumentFileDefinition::ENTITY_NAME, 'uniq.document_file.document_id__document_format')->type
         );
     }
 }

@@ -11,45 +11,14 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('after-sales')]
 class MailDataSimulatorFieldEvent extends Event
 {
-    private mixed $value = null;
+    public mixed $value = null;
 
-    private bool $hasValue = false;
+    public bool $hasValue = false;
 
     public function __construct(
-        private readonly Field $field,
-        private readonly Context $context,
-        private readonly Generator $faker,
+        public readonly Field $field,
+        public readonly Context $context,
+        public readonly Generator $faker,
     ) {
-    }
-
-    public function getField(): Field
-    {
-        return $this->field;
-    }
-
-    public function getContext(): Context
-    {
-        return $this->context;
-    }
-
-    public function getFaker(): Generator
-    {
-        return $this->faker;
-    }
-
-    public function setValue(mixed $value): void
-    {
-        $this->value = $value;
-        $this->hasValue = true;
-    }
-
-    public function hasValue(): bool
-    {
-        return $this->hasValue;
-    }
-
-    public function getValue(): mixed
-    {
-        return $this->value;
     }
 }

@@ -150,8 +150,9 @@ class MailDataSimulatorTest extends TestCase
             if ($event instanceof MailDataSimulatorFieldEvent) {
                 $capturedEvent = $event;
 
-                if ($event->getField() instanceof CustomStringField) {
-                    $event->setValue('event-value');
+                if ($event->field instanceof CustomStringField) {
+                    $event->value = 'event-value';
+                    $event->hasValue = true;
                 }
             }
 
@@ -178,8 +179,8 @@ class MailDataSimulatorTest extends TestCase
         static::assertInstanceOf(ArrayEntity::class, $result['testEntity']);
         static::assertSame('event-value', $result['testEntity']->get('customString'));
         static::assertInstanceOf(MailDataSimulatorFieldEvent::class, $capturedEvent);
-        static::assertInstanceOf(CustomStringField::class, $capturedEvent->getField());
-        static::assertSame($capturedEvent->getFaker()::class, Generator::class);
+        static::assertInstanceOf(CustomStringField::class, $capturedEvent->field);
+        static::assertSame($capturedEvent->faker::class, Generator::class);
     }
 
     public function testGenerateEventDataTypeDataStillSimulatesScalarFloat(): void

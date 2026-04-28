@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractTokenFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\TokenizerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Elasticsearch\AbstractTokenQueryBuilder;
@@ -28,7 +27,6 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
     public function __construct(
         private readonly EntityDefinition $productDefinition,
         private readonly AbstractTokenFilter $tokenFilter,
-        private readonly TokenizerInterface $tokenizer,
         private readonly SearchConfigLoader $configLoader,
         private readonly AbstractTokenQueryBuilder $tokenQueryBuilder,
         private readonly float $dismaxTieBreaker = 0.2,
@@ -46,8 +44,11 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
 
         $searchConfig = $this->configLoader->load($context);
 
-        /** @phpstan-ignore arguments.count (This ignore should be removed when the deprecated method signature is updated) */
-        $tokens = $this->tokenizer->tokenize($originalTerm, $searchConfig[0]['min_search_length'] ?? null);
+        $minSearchLength = $searchConfig[0]['min_search_length'] ?? AbstractTokenFilter::DEFAULT_MIN_SEARCH_TERM_LENGTH;
+        $tokens = array_values(array_unique(array_filter(
+            preg_split('/\s+/u', $originalTerm, -1, \PREG_SPLIT_NO_EMPTY) ?: [],
+            static fn (string $token): bool => mb_strlen($token) >= $minSearchLength
+        )));
         $tokens = $this->tokenFilter->filter($tokens, $context);
 
         if (array_filter($tokens) === []) {

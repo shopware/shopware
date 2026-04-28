@@ -27,7 +27,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractTokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -552,7 +551,6 @@ class ProductSearchQueryBuilderTest extends TestCase
         $builder = new ProductSearchQueryBuilder(
             $this->getDefinition(),
             $this->createMock(TokenFilter::class),
-            new Tokenizer(2),
             $this->createMock(SearchConfigLoader::class),
             $this->tokenQueryBuilder
         );
@@ -601,7 +599,6 @@ class ProductSearchQueryBuilderTest extends TestCase
         return new ProductSearchQueryBuilder(
             $this->getDefinition(),
             $tokenFilter,
-            new Tokenizer(2),
             $configLoader,
             $this->tokenQueryBuilder
         );

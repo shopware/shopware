@@ -173,10 +173,13 @@ test.describe('Product Analytics - Consent Modal Validation',
         'Existing backend-data consent is checked before rendering consent modal',
         { tag: '@ProductAnalytics' },
         async ({
-                   SalesChannelBaseConfig,
-                   browser,
-                   TestDataService,
+            SalesChannelBaseConfig,
+            browser,
+            TestDataService,
+            InstanceMeta,
                }) => {
+
+            test.skip(satisfies(InstanceMeta.version, '<6.7.9.0'), 'Data sharing consent modal only available since version 6.7.9.0');
 
             const page: Page = await createNewAdminPageContext(browser, SalesChannelBaseConfig);
             const user: User = await TestDataService.createUser();
@@ -223,7 +226,10 @@ test.describe('Product Analytics - Consent Modal Validation',
         TestDataService,
         SalesChannelBaseConfig,
         browser,
+        InstanceMeta,
     }) => {
+
+        test.skip(satisfies(InstanceMeta.version, '<6.7.9.0'), 'Data sharing consent modal only available since version 6.7.9.0');
 
         const page: Page = await createNewAdminPageContext(browser, SalesChannelBaseConfig);
         const user: User = await TestDataService.createUser({ admin: false });
@@ -294,10 +300,13 @@ test.describe('Product Analytics - Consent Modal Validation',
         'Each user can only manage their own user-data consent.',
         { tag: '@ProductAnalytics' },
         async ({
-                   SalesChannelBaseConfig,
-                   browser,
-                   TestDataService,
+            SalesChannelBaseConfig,
+            browser,
+            TestDataService,
+            InstanceMeta,
                }) => {
+
+            test.skip(satisfies(InstanceMeta.version, '<6.7.9.0'), 'Data sharing consent modal only available since version 6.7.9.0');
 
             const page: Page = await createNewAdminPageContext(browser, SalesChannelBaseConfig);
             const AdminConsentModal = new AdminPageObjects['DataSharingConsentModal'](page);

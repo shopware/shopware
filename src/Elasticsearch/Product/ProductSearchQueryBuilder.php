@@ -61,7 +61,7 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
                 (bool) $item['tokenize'],
                 (bool) $item['and_logic'],
                 true,
-                (bool) ($item['use_exact_subfield'] ?? 0),
+                (bool) $item['use_exact_subfield'],
             );
         }, $searchConfig);
 

@@ -176,6 +176,28 @@ class ElasticsearchProductDefinitionTest extends TestCase
         ],
     ];
 
+    private const EXACT_SEARCHABLE_MAPPING = [
+        'type' => 'keyword',
+        'ignore_above' => 10000,
+        'normalizer' => 'sw_lowercase_normalizer',
+        'fields' => [
+            'exact' => [
+                'type' => 'text',
+                'analyzer' => 'sw_whitespace_analyzer',
+                'search_analyzer' => 'sw_whitespace_analyzer',
+                'norms' => false,
+            ],
+            'search' => [
+                'type' => 'text',
+                'analyzer' => 'sw_whitespace_analyzer',
+            ],
+            'ngram' => [
+                'type' => 'text',
+                'analyzer' => 'sw_ngram_analyzer',
+            ],
+        ],
+    ];
+
     private readonly IdsCollection $ids;
 
     protected function setUp(): void
@@ -275,12 +297,12 @@ class ElasticsearchProductDefinitionTest extends TestCase
                 'autoIncrement' => [
                     'type' => 'long',
                 ],
-                'manufacturerNumber' => self::SEARCHABLE_MAPPING,
+                'manufacturerNumber' => self::EXACT_SEARCHABLE_MAPPING,
                 'description' => self::TRANSLATABLE_SEARCHABLE_LENGTH_NORM_MAPPING,
                 'metaTitle' => self::TRANSLATABLE_SEARCHABLE_MAPPING,
                 'metaDescription' => self::TRANSLATABLE_SEARCHABLE_LENGTH_NORM_MAPPING,
                 'displayGroup' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
-                'ean' => self::SEARCHABLE_MAPPING,
+                'ean' => self::EXACT_SEARCHABLE_MAPPING,
                 'height' => [
                     'type' => 'double',
                 ],
@@ -312,7 +334,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
                         ],
                     ],
                 ],
-                'productNumber' => self::SEARCHABLE_MAPPING,
+                'productNumber' => self::EXACT_SEARCHABLE_MAPPING,
                 'properties' => [
                     'type' => 'nested',
                     'properties' => [

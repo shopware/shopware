@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
 use Shopware\Elasticsearch\Product\SearchFieldConfig;
 use Shopware\Elasticsearch\Query\MatchBoolPrefixQuery;
 
@@ -131,7 +132,7 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
             ];
 
             if (!$this->useLanguageAnalyzer) {
-                $matchQueryParams['analyzer'] = 'sw_whitespace_analyzer';
+                $matchQueryParams['analyzer'] = ElasticsearchFieldBuilder::ANALYZER_WHITESPACE;
             }
 
             return new MatchQuery($config->getField() . '.search', $token, $matchQueryParams);
@@ -164,7 +165,7 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
         ];
 
         if (!$this->useLanguageAnalyzer) {
-            $matchQueryParams['analyzer'] = 'sw_whitespace_analyzer';
+            $matchQueryParams['analyzer'] = ElasticsearchFieldBuilder::ANALYZER_WHITESPACE;
         }
 
         return new MatchQuery($searchField, $token, $matchQueryParams);
@@ -189,7 +190,7 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
             ];
 
             if (!$this->useLanguageAnalyzer) {
-                $matchPhrasePrefixParams['analyzer'] = 'sw_whitespace_analyzer';
+                $matchPhrasePrefixParams['analyzer'] = ElasticsearchFieldBuilder::ANALYZER_WHITESPACE;
             }
 
             return new MatchPhrasePrefixQuery($searchField, $token, $matchPhrasePrefixParams);
@@ -198,7 +199,7 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
         $matchBoolPrefixParams = ['boost' => 0.4];
 
         if (!$this->useLanguageAnalyzer) {
-            $matchBoolPrefixParams['analyzer'] = 'sw_whitespace_analyzer';
+            $matchBoolPrefixParams['analyzer'] = ElasticsearchFieldBuilder::ANALYZER_WHITESPACE;
         }
 
         return new MatchBoolPrefixQuery($searchField, $token, $matchBoolPrefixParams);

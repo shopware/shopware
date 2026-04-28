@@ -16,7 +16,6 @@ use Shopware\Core\Checkout\DocumentV2\Config\DocumentNumberGenerator;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
-use Shopware\Core\Checkout\DocumentV2\Event\DocumentGeneratedEvent;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentDependencyResolver;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentEntityPersister;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationContext;
@@ -36,7 +35,6 @@ use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInt
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentDataProvider;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentRenderer;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -115,17 +113,9 @@ class DocumentGeneratorTest extends TestCase
 
         $document = new DocumentEntity();
 
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $eventDispatcher
-            ->expects($this->once())
-            ->method('dispatch')
-            ->with(static::isInstanceOf(DocumentGeneratedEvent::class))
-            ->willReturnArgument(0);
-
         [$generator, $documentRepository, $documentFileRepository] = $this->createGenerator(
             $orderRepository,
             $numberRangeValueGenerator,
-            $eventDispatcher,
             $documentTypeId,
             $document,
         );
@@ -154,7 +144,6 @@ class DocumentGeneratorTest extends TestCase
         [$generator] = $this->createGenerator(
             $orderRepository,
             $this->createMock(NumberRangeValueGeneratorInterface::class),
-            $this->createMock(EventDispatcherInterface::class),
             Uuid::randomHex(),
             new DocumentEntity(),
         );
@@ -204,7 +193,6 @@ class DocumentGeneratorTest extends TestCase
     private function createGenerator(
         StaticEntityRepository $orderRepository,
         NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
-        EventDispatcherInterface $eventDispatcher,
         string $documentTypeId,
         DocumentEntity $document,
     ): array {
@@ -248,7 +236,6 @@ class DocumentGeneratorTest extends TestCase
                 $documentTypeRepository,
             ),
             new DocumentDependencyResolver($rendererRegistry),
-            $eventDispatcher,
             $orderRepository,
         );
 

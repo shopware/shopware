@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\DocumentV2\Generation;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentNumberGenerator;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
-use Shopware\Core\Checkout\DocumentV2\Event\DocumentGeneratedEvent;
 use Shopware\Core\Checkout\DocumentV2\Provider\AbstractDocumentDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
@@ -19,7 +18,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -36,7 +34,6 @@ final readonly class DocumentGenerator
         private DocumentNumberGenerator $documentNumberGenerator,
         private DocumentEntityPersister $documentEntityPersister,
         private DocumentDependencyResolver $dependencyResolver,
-        private EventDispatcherInterface $eventDispatcher,
         private EntityRepository $orderRepository,
     ) {
     }
@@ -122,17 +119,11 @@ final readonly class DocumentGenerator
             $persistedFiles[$format] = $mediaId;
         }
 
-        $document = $this->documentEntityPersister->persist(
+        return $this->documentEntityPersister->persist(
             $generationContext,
             $renderInput,
             $persistedFiles,
         );
-
-        $this->eventDispatcher->dispatch(
-            new DocumentGeneratedEvent($document, $generationContext)
-        );
-
-        return $document;
     }
 
     /**

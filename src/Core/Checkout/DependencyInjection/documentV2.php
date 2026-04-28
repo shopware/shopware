@@ -63,7 +63,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DocumentNumberGenerator::class),
             service(DocumentEntityPersister::class),
             service(DocumentDependencyResolver::class),
-            service('event_dispatcher'),
             service('order.repository'),
         ]);
 };

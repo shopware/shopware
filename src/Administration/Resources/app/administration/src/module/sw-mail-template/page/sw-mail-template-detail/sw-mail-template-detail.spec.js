@@ -175,6 +175,7 @@ async function createWrapper(privileges = []) {
             },
             mocks: {
                 $route: { params: { id: Shopware.Utils.createId() } },
+                $sanitize: (value) => value,
             },
             stubs: {
                 'sw-page': {

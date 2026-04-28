@@ -1,5 +1,6 @@
 import camelCase from 'lodash-es/camelCase';
 import { dom } from 'src/core/service/util.service';
+import previewSanitizeConfig from '../../component/sw-mail-template-preview-modal/mail-preview-sanitize.config';
 import template from './sw-mail-template-detail.html.twig';
 import './sw-mail-template-detail.scss';
 import '../../component/sw-mail-template-preview-modal/sw-mail-template-preview-modal.scss';
@@ -57,6 +58,7 @@ export default {
             mailTemplateMediaSelected: {},
             fileAccept: 'application/pdf, image/*',
             testMailSalesChannelId: null,
+            previewSanitizeConfig,
             availableVariables: {},
             entitySchema: Object.fromEntries(Shopware.EntityDefinition.getDefinitionRegistry()),
             showLanguageNotAssignedToSalesChannelWarning: false,

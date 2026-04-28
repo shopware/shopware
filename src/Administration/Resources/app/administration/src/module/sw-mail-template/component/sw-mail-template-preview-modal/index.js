@@ -1,5 +1,6 @@
 import template from './sw-mail-template-preview-modal.html.twig';
 import './sw-mail-template-preview-modal.scss';
+import previewSanitizeConfig from './mail-preview-sanitize.config';
 
 /**
  * @sw-package after-sales
@@ -8,6 +9,12 @@ import './sw-mail-template-preview-modal.scss';
  */
 export default {
     template,
+
+    data() {
+        return {
+            previewSanitizeConfig,
+        };
+    },
 
     emits: [
         'modal-close',

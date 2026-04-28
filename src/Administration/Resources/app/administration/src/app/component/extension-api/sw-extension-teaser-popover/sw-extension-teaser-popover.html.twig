@@ -24,12 +24,12 @@
                     size="12px"
                 />
 
-                {{ $tc(popoverComponent.props?.label) }}
+                {{ $t(popoverComponent.props?.label) }}
             </mt-button>
 
             <mt-switch
                 v-else-if="popoverComponent.component === 'switch-field'"
-                :label="$tc(popoverComponent.props?.label)"
+                :label="$t(popoverComponent.props?.label)"
                 disabled
             />
 

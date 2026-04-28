@@ -57,7 +57,7 @@
             ref="swSelectResultList"
             :options="resultCollection"
             :is-loading="isLoading"
-            :empty-message="$tc('global.sw-entity-many-to-many-select.messageNoResults', { term: searchTerm }, 0)"
+            :empty-message="$t('global.sw-entity-many-to-many-select.messageNoResults', { term: searchTerm }, 0)"
             :focus-el="$refs.selectionList.getFocusEl()"
             @paginate="paginateResult"
             @item-select="addItem"
@@ -72,7 +72,7 @@
                     class="sw-many-to-many-select-filtering__advanced-selection sw-select-result"
                     @click="openAdvancedSelectionModal"
                 >
-                    {{ $tc('global.sw-entity-advanced-selection-modal.link') }}
+                    {{ $t('global.sw-entity-advanced-selection-modal.link') }}
                 </div>
                 {% endblock %}
 

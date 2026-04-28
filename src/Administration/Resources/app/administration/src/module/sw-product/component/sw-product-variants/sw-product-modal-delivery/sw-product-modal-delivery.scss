@@ -2,15 +2,15 @@
 
 .sw-modal.sw-modal--default.sw-product-modal-delivery {
     .sw-modal__dialog {
-        max-width: 1280px;
+        max-width: calc(var(--scale-size-224) * 5 + var(--scale-size-160));
 
         .sw-modal__body {
             display: flex;
             padding: 0;
-            height: 520px;
+            height: calc(var(--scale-size-224) + var(--scale-size-56) + var(--scale-size-40) * 6);
 
             .sw-tabs .sw-tabs__custom-Content {
-                padding: 10px 0;
+                padding: var(--scale-size-10) 0;
             }
 
             .sw-product-modal-delivery__main {
@@ -18,14 +18,14 @@
             }
 
             .sw-product-modal-delivery__sidebar {
-                padding: 20px 30px;
-                flex-basis: 400px;
-                border-right: 1px solid $color-gray-300;
+                padding: var(--scale-size-20) var(--scale-size-30);
+                flex-basis: calc(var(--scale-size-224) + var(--scale-size-56) + var(--scale-size-40) * 3);
+                border-right: var(--scale-size-1) solid var(--color-gray-300);
             }
         }
 
         .sw-modal__footer {
-            border-top: 1px solid $color-gray-300;
+            border-top: var(--scale-size-1) solid var(--color-gray-300);
         }
     }
 }

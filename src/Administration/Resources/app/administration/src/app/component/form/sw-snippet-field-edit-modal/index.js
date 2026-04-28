@@ -72,7 +72,7 @@ export default {
 
     computed: {
         modalTitle() {
-            const title = this.$tc('global.sw-snippet-field-edit-modal.title');
+            const title = this.$t('global.sw-snippet-field-edit-modal.title');
 
             return `${title}: ${this.translationKey}`;
         },
@@ -142,7 +142,7 @@ export default {
                 appearance: 'dark',
                 showOnDisabledElements: true,
                 disabled: this.acl.can(role),
-                message: this.$tc('sw-privileges.tooltip.warning'),
+                message: this.$t('sw-privileges.tooltip.warning'),
             };
         },
 

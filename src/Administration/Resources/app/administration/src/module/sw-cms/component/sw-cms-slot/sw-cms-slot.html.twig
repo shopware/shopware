@@ -128,7 +128,7 @@
                 variant="primary"
                 @click="onCloseSettingsModal"
             >
-                {{ $tc('sw-cms.detail.label.buttonElementSettingsConfirm') }}
+                {{ $t('sw-cms.detail.label.buttonElementSettingsConfirm') }}
             </mt-button>
             {% endblock %}
         </template>
@@ -139,7 +139,7 @@
     {% block sw_cms_slot_content_element_modal %}
     <sw-modal
         v-if="showElementSelection"
-        :title="$tc('sw-cms.detail.title.elementChangeModal')"
+        :title="$t('sw-cms.detail.title.elementChangeModal')"
         @modal-close="onCloseElementModal"
     >
         {% block sw_cms_slot_content_element_modal_selection %}
@@ -152,7 +152,7 @@
                 expand-chevron-direction="up"
             >
                 <template #header>
-                    {{ $tc(cmsElementGroup.title) }}
+                    {{ $t(cmsElementGroup.title) }}
                 </template>
 
                 <template #content>
@@ -217,8 +217,8 @@
                                 </div>
 
                                 {% block sw_cms_slot_content_element_modal_selection_element_label %}
-                                <span class="element-selection__label">{{ $tc(element.label) }}</span>
-                            {% endblock %}
+                                <span class="element-selection__label">{{ $t(element.label) }}</span>
+                                {% endblock %}
                             </div>
                         </template>
                         {% endblock %}
@@ -237,7 +237,7 @@
                 variant="secondary"
                 @click="onCloseElementModal"
             >
-                {{ $tc('global.default.cancel') }}
+                {{ $t('global.default.cancel') }}
             </mt-button>
             {% endblock %}
         </template>

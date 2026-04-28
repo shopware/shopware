@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field\Flag;
 
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * Excludes a technical media association from being treated as real media usage by `media:delete-unused`.
+ */
 #[Package('framework')]
 class IgnoreInUnusedMediaSearch extends Flag
 {

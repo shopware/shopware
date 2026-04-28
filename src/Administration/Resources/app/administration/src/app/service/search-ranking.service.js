@@ -239,6 +239,10 @@ export default function createSearchRankingService() {
         }
         cacheDefaultUserSearchPreference = {};
         Module.getModuleRegistry().forEach(({ manifest }) => {
+            if (!manifest.entity) {
+                return;
+            }
+
             cacheDefaultUserSearchPreference[manifest.entity] = _getDefaultSearchFieldsByEntity(manifest);
         });
 
@@ -327,6 +331,10 @@ export default function createSearchRankingService() {
     }
 
     /**
+     * Removes stale fields from persisted search preferences by comparing them with
+     * the current default search configuration. Persisted values keep precedence for
+     * valid fields while internal defaults such as `_searchable` are restored if missing.
+     *
      * @private
      * @param {Object} searchFields
      * @param {Object} defaultSearchFields
@@ -338,7 +346,7 @@ export default function createSearchRankingService() {
         }
 
         const sanitizedFields = Object.keys(searchFields).reduce((accumulator, field) => {
-            if (!defaultSearchFields.hasOwnProperty(field)) {
+            if (!Object.hasOwn(defaultSearchFields, field)) {
                 return accumulator;
             }
 
@@ -358,7 +366,7 @@ export default function createSearchRankingService() {
                 return accumulator;
             }
 
-            if (defaultNestedSearchFields.hasOwnProperty('_searchable')) {
+            if (Object.hasOwn(defaultNestedSearchFields, '_searchable')) {
                 accumulator[field] = {
                     _searchable:
                         typeof nestedSearchFields._searchable === 'boolean'
@@ -383,7 +391,7 @@ export default function createSearchRankingService() {
         }, {});
 
         Object.keys(defaultSearchFields).forEach((field) => {
-            if (!field.startsWith('_') || sanitizedFields.hasOwnProperty(field)) {
+            if (!field.startsWith('_') || Object.hasOwn(sanitizedFields, field)) {
                 return;
             }
 

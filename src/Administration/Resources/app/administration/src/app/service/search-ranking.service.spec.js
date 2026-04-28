@@ -507,6 +507,44 @@ describe('app/service/search-ranking.service.js', () => {
         });
     });
 
+    it('Should ignore modules without an entity when current user search preferences exist', async () => {
+        const commonSearchConfigurations = {
+            _searchable: true,
+            name: {
+                _searchable: true,
+                _score: searchRankingPoint.HIGH_SEARCH_RANKING,
+            },
+        };
+
+        createModules([
+            {
+                ...defaultModule,
+                defaultSearchConfiguration: commonSearchConfigurations,
+            },
+            {
+                name: 'dashboard-module',
+                routes: {
+                    index: {
+                        path: 'index',
+                        component: 'sw-index',
+                    },
+                },
+            },
+        ]);
+        addDataToRegisterUserConfigService([
+            {
+                product: { ...commonSearchConfigurations },
+            },
+        ]);
+
+        const service = new SearchRankingService();
+        const actual = await service.getUserSearchPreference();
+
+        expect(actual).toEqual({
+            product: { 'product.name': searchRankingPoint.HIGH_SEARCH_RANKING },
+        });
+    });
+
     it('Should remove stale leaf fields from current user search preferences', async () => {
         const module = {
             ...defaultModule,

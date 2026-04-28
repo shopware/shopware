@@ -88,9 +88,13 @@ abstract class AbstractElasticsearchDefinition
     /**
      * @return array<string, mixed>
      */
-    protected static function getTextFieldConfig(bool $withExact = false, bool $technicalTerms = false): array
+    protected static function getTextFieldConfig(bool $withExact = false, bool $technicalTerms = false, bool $lengthNorm = false): array
     {
         $fieldConfig = $technicalTerms ? self::TECHNICAL_TERM_SEARCH_FIELD : self::SEARCH_FIELD;
+
+        if ($lengthNorm) {
+            $fieldConfig['fields']['search']['similarity'] = 'sw_length_norm';
+        }
 
         if ($withExact) {
             $fieldConfig['fields'] = self::EXACT_FIELD + $fieldConfig['fields'];

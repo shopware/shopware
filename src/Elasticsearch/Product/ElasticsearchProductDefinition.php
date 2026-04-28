@@ -56,6 +56,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         $languageFields = $this->fieldBuilder->translated(self::getTextFieldConfig());
         $languageFieldsWithLengthNorm = $this->fieldBuilder->translated(self::getTextFieldWithLengthNormConfig());
         $technicalLanguageFieldsWithExact = $this->fieldBuilder->translatedTechnicalTerms(self::getTextFieldConfig(withExact: true, technicalTerms: true));
+        $technicalLanguageFieldsWithExactAndLengthNorm = $this->fieldBuilder->translatedTechnicalTerms(self::getTextFieldConfig(withExact: true, technicalTerms: true, lengthNorm: true));
         $salesChannelByLanguage = $this->salesChannelLanguageLoader->loadLanguages();
         $allSalesChannels = array_values(array_unique(array_merge(...array_values($salesChannelByLanguage))));
 
@@ -75,7 +76,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             'description' => $languageFieldsWithLengthNorm,
             'metaTitle' => $languageFields,
             'metaDescription' => $languageFieldsWithLengthNorm,
-            'customSearchKeywords' => $technicalLanguageFieldsWithExact,
+            'customSearchKeywords' => $technicalLanguageFieldsWithExactAndLengthNorm,
             'categories' => ElasticsearchFieldBuilder::nested([
                 'name' => $languageFields,
             ]),

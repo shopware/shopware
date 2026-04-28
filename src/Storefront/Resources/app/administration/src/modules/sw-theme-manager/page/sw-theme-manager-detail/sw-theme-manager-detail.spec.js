@@ -260,6 +260,97 @@ describe('sw-theme-manager-detail', () => {
         expect(selectBind.config.componentName).toBe('sw-single-select');
     });
 
+    it('passes inheritance bindings to boolean theme config fields', async () => {
+        const wrapper = await createWrapper();
+        const inheritance = {
+            currentValue: true,
+            isInheritField: true,
+            isInherited: true,
+            removeInheritance: jest.fn(),
+            restoreInheritance: jest.fn(),
+        };
+
+        const bind = wrapper.vm.getBind({
+            type: 'switch',
+            label: 'Switch',
+            helpText: 'Switch help',
+        }, inheritance, false);
+
+        expect(bind).toEqual({
+            type: 'switch',
+            config: expect.objectContaining({
+                label: 'Switch',
+                helpText: 'Switch help',
+                mapInheritance: inheritance,
+                isInheritanceField: true,
+                isInherited: true,
+                inheritanceRemove: inheritance.removeInheritance,
+                inheritanceRestore: inheritance.restoreInheritance,
+                inheritedValue: false,
+            }),
+        });
+    });
+
+    it('attaches inheritance event listeners to boolean theme config fields', async () => {
+        const wrapper = await createWrapper();
+        const inheritance = {
+            removeInheritance: jest.fn(),
+            restoreInheritance: jest.fn(),
+        };
+
+        const eventListeners = wrapper.vm.getElementEventListeners({ type: 'checkbox' }, inheritance);
+
+        expect(eventListeners).toEqual({
+            'inheritance-remove': inheritance.removeInheritance,
+            'inheritance-restore': inheritance.restoreInheritance,
+        });
+    });
+
+    it('does not pass inheritance bindings to non-boolean theme config fields', async () => {
+        const wrapper = await createWrapper();
+        const inheritance = {
+            currentValue: 'parent',
+            isInheritField: true,
+            isInherited: true,
+            removeInheritance: jest.fn(),
+            restoreInheritance: jest.fn(),
+        };
+
+        const textBind = wrapper.vm.getBind({ type: 'text' }, inheritance, 'parent');
+
+        expect(textBind.config.mapInheritance).toBeUndefined();
+    });
+
+    it('does not attach inheritance event listeners to non-boolean theme config fields', async () => {
+        const wrapper = await createWrapper();
+        const inheritance = {
+            removeInheritance: jest.fn(),
+            restoreInheritance: jest.fn(),
+        };
+
+        expect(wrapper.vm.getElementEventListeners({ type: 'text' }, inheritance)).toEqual({});
+    });
+
+    it('keeps the inheritance toggle enabled for inherited boolean theme config fields', async () => {
+        const wrapper = await createWrapper();
+        const inheritance = {
+            isInherited: true,
+        };
+
+        expect(wrapper.vm.getFieldDisabled({ type: 'switch' }, inheritance)).toBe(false);
+        expect(wrapper.vm.getFieldDisabled({ type: 'checkbox' }, inheritance)).toBe(false);
+        expect(wrapper.vm.getFieldDisabled({ type: 'text' }, inheritance)).toBe(true);
+    });
+
+    it('disables boolean theme config fields when theme editor permission is missing', async () => {
+        const inheritance = {
+            isInherited: true,
+        };
+        const disabledWrapper = await createWrapper({ aclCan: false });
+
+        expect(disabledWrapper.vm.getFieldDisabled({ type: 'switch' }, inheritance)).toBe(true);
+    });
+
     it('gets snippets with prefix fallback and warns when missing', async () => {
         const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
         const wrapper = await createWrapper();

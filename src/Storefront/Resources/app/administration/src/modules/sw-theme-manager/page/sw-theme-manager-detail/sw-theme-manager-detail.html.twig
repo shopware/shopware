@@ -412,14 +412,15 @@
                                                                             :customInheritationCheckFunction="checkInheritanceFunction(fieldName)"
                                                                             @update:value="handleInheritanceInput($event, fieldName)"
                                                                         >
-                                                                            <template #content="{ currentValue, updateCurrentValue, isInherited }">
+                                                                            <template #content="inheritance">
                                                                                 <sw-form-field-renderer
-                                                                                    v-bind="getBind(field)"
-                                                                                    :value="currentValue"
-                                                                                    :disabled="isInherited || !acl.can('theme.editor')"
+                                                                                    v-bind="getBind(field, inheritance, baseThemeConfig[fieldName].value)"
+                                                                                    :value="inheritance.currentValue"
+                                                                                    :disabled="getFieldDisabled(field, inheritance)"
                                                                                     :error="themeConfigErrors[fieldName]"
                                                                                     bordered
-                                                                                    @update:value="updateCurrentValue"
+                                                                                    v-on="getElementEventListeners(field, inheritance)"
+                                                                                    @update:value="inheritance.updateCurrentValue"
                                                                                 ></sw-form-field-renderer>
                                                                             </template>
                                                                         </sw-inherit-wrapper>

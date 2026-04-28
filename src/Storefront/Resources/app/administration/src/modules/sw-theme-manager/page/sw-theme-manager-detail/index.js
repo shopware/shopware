@@ -694,7 +694,7 @@ Component.register('sw-theme-manager-detail', {
          *      config: anything else from field, including field.custom
          *  }
          */
-        getBind(field) {
+        getBind(field, inheritance = null, inheritedValue = null) {
             const config = Object.assign({}, field);
 
             if (!this.isFieldHandlingLabelAndHelpText(field)) {
@@ -719,7 +719,36 @@ Component.register('sw-theme-manager-detail', {
                 delete config.custom;
             }
 
+            if (inheritance && this.isFieldHandlingLabelAndHelpText(field)) {
+                // component will be a meteor component -> needs special config
+                config.mapInheritance = inheritance;
+                config.isInheritanceField = inheritance.isInheritField;
+                config.isInherited = inheritance.isInherited;
+                config.inheritanceRemove = inheritance.removeInheritance;
+                config.inheritanceRestore = inheritance.restoreInheritance;
+                config.inheritedValue = inheritance.isInheritField ? inheritedValue : null;
+            }
+
             return { type: field.type, config };
+        },
+
+        getElementEventListeners(field, inheritance = null) {
+            if (!inheritance || !this.isFieldHandlingLabelAndHelpText(field)) {
+                return {};
+            }
+
+            return {
+                'inheritance-remove': inheritance.removeInheritance,
+                'inheritance-restore': inheritance.restoreInheritance,
+            };
+        },
+
+        getFieldDisabled(field, inheritance) {
+            if (this.isFieldHandlingLabelAndHelpText(field)) {
+                return !this.acl.can('theme.editor');
+            }
+
+            return inheritance.isInherited || !this.acl.can('theme.editor');
         },
 
         /**
@@ -746,7 +775,7 @@ Component.register('sw-theme-manager-detail', {
 
         isFieldHandlingLabelAndHelpText(field) {
             return ['switch', 'checkbox'].includes(field.type) ||
-                    ['sw-switch-field', 'sw-checkbox-field'].includes(field.custom?.componentName);
+                    ['sw-switch-field', 'sw-checkbox-field', 'mt-switch', 'mt-checkbox'].includes(field.custom?.componentName);
         },
 
         /**

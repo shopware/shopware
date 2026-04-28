@@ -22,6 +22,10 @@ The end boundary is now derived from the quarter's start year rather than the cu
 When the sidebar is collapsed, hovering a menu entry near the bottom of the sidebar could cause the flyout submenu to extend beyond the viewport, making lower entries inaccessible.
 The flyout now calculates a dynamic `max-height` from the remaining viewport space and scrolls vertically when its content exceeds that limit.
 
+### Fix theme manager inheritance for boolean fields
+
+Switch and checkbox fields in theme configuration now render and handle inheritance consistently. Before they wouldn't have shown the inheritance switch.
+
 ## Storefront
 
 ## App System

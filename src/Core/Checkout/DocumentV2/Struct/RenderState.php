@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * RenderState exists only for the duration of one generation run and lets dependent renderers
  * reuse already rendered formats without persisting every intermediate artifact.
+ * Renderers must declare every format they read from this state as a dependency.
  *
  * @internal
  */
@@ -33,6 +34,7 @@ final class RenderState
 
     /**
      * Returns the result for a format or throws if it was not rendered before.
+     * The requested format must be declared as a renderer dependency before calling this method.
      *
      * @throws DocumentV2Exception
      */

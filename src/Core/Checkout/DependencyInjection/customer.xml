@@ -172,6 +172,11 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\SalesChannel\LogoutAllRoute" public="true">
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute" public="true">
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="customer_recovery.repository"/>

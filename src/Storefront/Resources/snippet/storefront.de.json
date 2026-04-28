@@ -225,6 +225,7 @@
     "ordersTitle": "Bestellungen",
     "ordersMetaTitle": "Bestellungen",
     "logout": "Abmelden",
+    "logoutAll": "Von allen Geräten abmelden",
     "guestAbort": "Gastsitzung beenden",
     "logoutSucceeded": "Sie haben sich erfolgreich abgemeldet.",
     "overviewInfo": "Hier haben Sie direkten Zugriff auf Ihre Profilinformationen, hinterlegte Adressen und die Standard-Zahlungsart.",

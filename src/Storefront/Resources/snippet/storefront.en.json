@@ -225,6 +225,7 @@
     "ordersTitle": "Orders",
     "ordersMetaTitle": "Orders",
     "logout": "Log out",
+    "logoutAll": "Log out of all devices",
     "guestAbort": "Close guest session",
     "logoutSucceeded": "Successfully logged out.",
     "overviewInfo": "Directly access your profile information, the default payment method and given addresses.",

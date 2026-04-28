@@ -106,7 +106,7 @@ export default Shopware.Component.wrapComponentConfig({
                 this.$emit('login-success');
 
                 this.createNotificationSuccess({
-                    message: this.$tc('sw-extension.my-extensions.account.loginNotificationMessage'),
+                    message: this.$t('sw-extension.my-extensions.account.loginNotificationMessage'),
                 });
             } catch (errorResponse) {
                 this.commitErrors(
@@ -134,7 +134,7 @@ export default Shopware.Component.wrapComponentConfig({
 
                     // Methods from mixins are not recognized
                     this.createNotificationError({
-                        message: this.$tc(error.message),
+                        message: this.$t(error.message),
                     });
                 });
             });
@@ -142,7 +142,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         showApiNotification(error: MappedError) {
             // @ts-expect-error
-            const docLink = this.$tc('sw-extension.errors.messageToTheShopwareDocumentation', error.parameters, 0);
+            const docLink = this.$t('sw-extension.errors.messageToTheShopwareDocumentation', error.parameters, 0);
 
             // Methods from mixins are not recognized
             this.createNotificationError({

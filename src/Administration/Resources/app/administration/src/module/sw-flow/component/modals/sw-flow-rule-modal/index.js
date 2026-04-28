@@ -52,8 +52,8 @@ export default {
     computed: {
         modalTitle() {
             return this.ruleId
-                ? this.$tc('sw-flow.modals.rule.labelEditRule')
-                : this.$tc('sw-flow.modals.rule.labelAddNewRule');
+                ? this.$t('sw-flow.modals.rule.labelEditRule')
+                : this.$t('sw-flow.modals.rule.labelAddNewRule');
         },
 
         ruleRepository() {
@@ -305,7 +305,7 @@ export default {
 
         showErrorNotification() {
             this.createNotificationError({
-                message: this.$tc('sw-settings-rule.detail.messageSaveError', { name: this.rule.name }, 0),
+                message: this.$t('sw-settings-rule.detail.messageSaveError', { name: this.rule.name }, 0),
             });
         },
 

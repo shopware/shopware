@@ -30,12 +30,12 @@ export default {
 
     computed: {
         removeHint() {
-            return this.$tc(
+            return this.$t(
                 'sw-extension-store.component.sw-extension-deactivation-modal.descriptionCancel',
                 {
                     removeLabel: this.isLicensed
-                        ? this.$tc('sw-extension-store.component.sw-extension-card-base.contextMenu.cancelAndRemoveLabel')
-                        : this.$tc('sw-extension-store.component.sw-extension-card-base.contextMenu.removeLabel'),
+                        ? this.$t('sw-extension-store.component.sw-extension-card-base.contextMenu.cancelAndRemoveLabel')
+                        : this.$t('sw-extension-store.component.sw-extension-card-base.contextMenu.removeLabel'),
                 },
                 0,
             );

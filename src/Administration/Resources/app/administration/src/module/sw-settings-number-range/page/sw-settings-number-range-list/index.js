@@ -133,7 +133,7 @@ export default {
             promise
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc(
+                        message: this.$t(
                             'sw-settings-number-range.detail.messageSaveSuccess',
                             {
                                 name: numberRange.name,
@@ -145,7 +145,7 @@ export default {
                 .catch(() => {
                     this.getList();
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-number-range.detail.messageSaveError'),
+                        message: this.$t('sw-settings-number-range.detail.messageSaveError'),
                     });
                 });
         },

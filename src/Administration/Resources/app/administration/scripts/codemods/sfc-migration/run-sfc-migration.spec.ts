@@ -118,6 +118,31 @@ describe('normaliseJsContent', () => {
     });
 });
 
+describe('runMigration — target validation', () => {
+    let tmpDir: string;
+
+    beforeEach(() => {
+        tmpDir = createTempDir();
+    });
+
+    afterEach(() => {
+        rmSync(tmpDir, { recursive: true, force: true });
+    });
+
+    it('throws when the target path does not exist', () => {
+        const missingPath = join(tmpDir, 'missing');
+
+        expect(() => runMigration(missingPath, { dryRun: true })).toThrow(`Target path does not exist: ${missingPath}`);
+    });
+
+    it('throws when the target path is a file', () => {
+        const filePath = join(tmpDir, 'component.js');
+        writeFileSync(filePath, 'export default {};', 'utf-8');
+
+        expect(() => runMigration(filePath, { dryRun: true })).toThrow(`Target path must be a directory: ${filePath}`);
+    });
+});
+
 describe('runMigration — dry-run (default)', () => {
     let tmpDir: string;
     let componentDir: string;
@@ -507,10 +532,19 @@ describe('runMigration — delete-originals (fully-migrated)', () => {
         rmSync(tmpDir, { recursive: true, force: true });
     });
 
-    it('deletes index.js and .html.twig after writing the .vue file', () => {
+    it('replaces index.js with an SFC entry point and deletes .html.twig after writing the .vue file', () => {
         runMigration(tmpDir, { dryRun: false, deleteOriginals: true });
-        expect(existsSync(join(componentDir, 'index.js'))).toBe(false);
+        expect(existsSync(join(componentDir, 'index.js'))).toBe(true);
         expect(existsSync(join(componentDir, 'sw-simple-card.html.twig'))).toBe(false);
+    });
+
+    it('keeps directory imports working through the generated index.js entry point', () => {
+        writeFileSync(join(tmpDir, 'consumer.js'), "import './sw-simple-card';\n", 'utf-8');
+
+        runMigration(tmpDir, { dryRun: false, deleteOriginals: true });
+
+        const entrypoint = readFileSync(join(componentDir, 'index.js'), 'utf-8');
+        expect(entrypoint).toBe("import component from './sw-simple-card.vue';\n\nShopware.Component.register('sw-simple-card', component);\n");
     });
 
     it('writes the .vue file before deleting originals', () => {
@@ -524,12 +558,10 @@ describe('runMigration — delete-originals (fully-migrated)', () => {
         expect(stats.fullyMigrated).toBe(1);
     });
 
-    it('report includes deletion lines for both original files', () => {
+    it('report includes entrypoint replacement and twig deletion lines', () => {
         const { report } = runMigration(tmpDir, { dryRun: false, deleteOriginals: true });
-        const deletionLines = report.filter((l) => l.includes('deleted originals'));
-        expect(deletionLines).toHaveLength(2);
-        expect(deletionLines.some((l) => l.includes('index.js'))).toBe(true);
-        expect(deletionLines.some((l) => l.includes('.html.twig'))).toBe(true);
+        expect(report.some((l) => l.includes('replaced entrypoint') && l.includes('index.js'))).toBe(true);
+        expect(report.some((l) => l.includes('deleted original') && l.includes('.html.twig'))).toBe(true);
     });
 
     it('does not delete originals in dry-run mode even when deleteOriginals is true', () => {
@@ -568,10 +600,12 @@ describe('runMigration — delete-originals (partially-migrated)', () => {
         rmSync(tmpDir, { recursive: true, force: true });
     });
 
-    it('deletes originals for a partially-migrated component', () => {
+    it('replaces index.js with a side-effect SFC entry point and deletes twig for a partially-migrated component', () => {
         runMigration(tmpDir, { dryRun: false, deleteOriginals: true });
-        expect(existsSync(join(componentDir, 'index.js'))).toBe(false);
         expect(existsSync(join(componentDir, 'sw-mixin-list.html.twig'))).toBe(false);
+
+        const entrypoint = readFileSync(join(componentDir, 'index.js'), 'utf-8');
+        expect(entrypoint).toBe("import './sw-mixin-list.vue';\n");
     });
 
     it('increments deletedOriginals stat for partially-migrated component', () => {

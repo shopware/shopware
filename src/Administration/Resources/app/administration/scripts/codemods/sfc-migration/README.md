@@ -4,7 +4,8 @@ Automatically converts Shopware Administration components from the Options API (
 
 ## Requirements
 
-- Node.js 18+
+- Node.js 20+
+- npm 10+
 - Access to the `administration` package (for `ts-morph`, `glob`, etc.)
 
 ## Usage
@@ -22,7 +23,7 @@ npm run codemod:sfc-migration -- --write <path>
 # Overwrite existing .vue files
 npm run codemod:sfc-migration -- --write --force <path>
 
-# Write .vue files and delete the source index.js + .html.twig afterwards
+# Write .vue files, replace source index.js with an SFC entry point, and delete .html.twig afterwards
 npm run codemod:sfc-migration -- --write --delete-originals <path>
 ```
 
@@ -94,14 +95,15 @@ if (result.status === 'fully-migrated') {
 
 ## ⚠ Destructive Operations
 
-`--delete-originals` is **irreversible**. It deletes both `index.js` and `.html.twig`
-for every component that produces a `.vue` file — including **partially-migrated**
-components (those with unresolved blockers that still use Options API).
+`--delete-originals` is **irreversible**. It replaces `index.js` with a generated
+entry point that imports the new `.vue` file, and deletes `.html.twig` for every
+component that produces a `.vue` file — including **partially-migrated** components
+(those with unresolved blockers that still use Options API).
 
 Before using `--delete-originals`:
 1. Commit or stash all current changes to git.
 2. Run with `--dry-run` first to review what would be written.
-3. Verify the generated `.vue` files are correct before deletion.
+3. Verify the generated `.vue` files and replacement `index.js` entry points are correct before deletion.
 
 ## What needs manual review
 

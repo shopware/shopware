@@ -74,6 +74,11 @@ type ComputedProp =
     | { name: string; kind: 'getter'; bodyText: string }
     | { name: string; kind: 'getter-setter'; getterBodyText: string; setterParam: string; setterBodyText: string };
 
+interface ExtractComputedPropsResult {
+    computedProps: ComputedProp[];
+    unsupportedEntries: string[];
+}
+
 interface WatchProp {
     name: string;
     paramsText: string;
@@ -585,16 +590,19 @@ function extractDataProps(optionsObj: ObjectLiteralExpression): DataProp[] {
  * A property assignment whose value is an object with `get`/`set` methods →
  * getter+setter computed.
  */
-function extractComputedProps(optionsObj: ObjectLiteralExpression): ComputedProp[] {
+function extractComputedProps(optionsObj: ObjectLiteralExpression): ExtractComputedPropsResult {
     const computedProp = optionsObj.getProperty('computed');
-    if (!computedProp?.isKind(SyntaxKind.PropertyAssignment)) return [];
+    if (!computedProp?.isKind(SyntaxKind.PropertyAssignment)) return { computedProps: [], unsupportedEntries: [] };
 
     const computedObj = computedProp
         .asKindOrThrow(SyntaxKind.PropertyAssignment)
         .getInitializerIfKind(SyntaxKind.ObjectLiteralExpression);
-    if (!computedObj) return [];
+    if (!computedObj) {
+        return { computedProps: [], unsupportedEntries: ['computed must be an object literal'] };
+    }
 
     const result: ComputedProp[] = [];
+    const unsupportedEntries: string[] = [];
 
     for (const prop of computedObj.getProperties()) {
         if (prop.isKind(SyntaxKind.MethodDeclaration)) {
@@ -607,8 +615,19 @@ function extractComputedProps(optionsObj: ObjectLiteralExpression): ComputedProp
         if (prop.isKind(SyntaxKind.PropertyAssignment)) {
             // label: { get() {…}, set(val) {…} }
             const pa = prop.asKindOrThrow(SyntaxKind.PropertyAssignment);
+            const initializer = pa.getInitializer();
+
+            if (initializer?.isKind(SyntaxKind.FunctionExpression) || initializer?.isKind(SyntaxKind.ArrowFunction)) {
+                const { bodyText } = extractInlineFunctionHandler(initializer);
+                result.push({ name: pa.getName(), kind: 'getter', bodyText });
+                continue;
+            }
+
             const innerObj = pa.getInitializerIfKind(SyntaxKind.ObjectLiteralExpression);
-            if (!innerObj) continue;
+            if (!innerObj) {
+                unsupportedEntries.push(`${pa.getName()}: unsupported computed definition`);
+                continue;
+            }
 
             const getterProp = innerObj.getProperty('get');
             const setterProp = innerObj.getProperty('set');
@@ -635,11 +654,17 @@ function extractComputedProps(optionsObj: ObjectLiteralExpression): ComputedProp
                     kind: 'getter',
                     bodyText: getter.getBodyText() ?? '',
                 });
+            } else {
+                unsupportedEntries.push(`${pa.getName()}: unsupported computed definition`);
             }
+
+            continue;
         }
+
+        unsupportedEntries.push(`${prop.getText()}: unsupported computed entry`);
     }
 
-    return result;
+    return { computedProps: result, unsupportedEntries };
 }
 
 /**
@@ -981,6 +1006,12 @@ function detectUsedComposables(snippets: CodeSnippet[], watchProps: WatchProp[])
     return usedComposables;
 }
 
+function hasDirectThisPropertyUsage(snippets: CodeSnippet[], propertyName: string): boolean {
+    return snippets.some((snippet) =>
+        getSnippetPropertyAccesses(snippet).some((node) => getDirectThisPropertyName(node) === propertyName),
+    );
+}
+
 /**
  * Scans method bodies for `this.$emit('eventName', …)` patterns and returns the
  * unique event name strings. Used to auto-populate `defineEmits` when the
@@ -1155,7 +1186,7 @@ function analyzeUnsupportedInjectEntries(optionsObj: ObjectLiteralExpression): U
 function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componentName: string, sourceFile: SourceFile, useDataScope: boolean): { script: string; publicNames: string[]; manualMigrationReasons: string[] } {
     const { injectProps, unsupportedEntries: unsupportedInjectEntries } = extractInjectProps(optionsObj);
     const dataProps = extractDataProps(optionsObj);
-    const computedProps = extractComputedProps(optionsObj);
+    const { computedProps, unsupportedEntries: unsupportedComputedEntries } = extractComputedProps(optionsObj);
     const { watchProps, unsupportedEntries: unsupportedWatchEntries } = extractWatchProps(optionsObj);
     const methodProps = extractMethodProps(optionsObj);
     const lifecycleHooks = extractLifecycleHooks(optionsObj);
@@ -1205,6 +1236,12 @@ function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componen
         return false;
     });
 
+    unsupportedComputedEntries.forEach((entry) => {
+        const reason = `computed: ${sanitizeTodoCommentText(entry)}`;
+        manualMigrationReasons.push(reason);
+        todoComments.push(`// TODO: migrate computed entry manually: ${sanitizeTodoCommentText(reason)}`);
+    });
+
     const supportedMethodProps = methodProps.filter(({ name }) => {
         if (isSafeIdentifier(name)) {
             return true;
@@ -1246,6 +1283,10 @@ function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componen
     const usedComposables = detectUsedComposables(allSnippets, watchProps);
     const templateRefNames = collectThisRefNames(allSnippets);
 
+    if (hasDirectThisPropertyUsage(allSnippets, '$store')) {
+        manualMigrationReasons.push('$store usage requires manual migration to the appropriate Pinia store or composable');
+    }
+
     // Determine the final emits list: prefer explicit `emits: [...]`, fall back to
     // scanning method bodies for `this.$emit('eventName', ...)` calls.
     const effectiveEmitsKeys =
@@ -1259,8 +1300,18 @@ function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componen
             return false;
         }
 
-        if (watchProp.name !== '$route' && !propNames.has(watchProp.name) && !injectNames.has(watchProp.name) && !isSafeIdentifier(watchProp.name)) {
-            unsupportedWatchEntries.push(`${watchProp.name}: watch targets that are not valid identifiers must be migrated manually`);
+        const isKnownWatchTarget = propNames.has(watchProp.name)
+            || dataNames.has(watchProp.name)
+            || computedNames.has(watchProp.name)
+            || injectNames.has(watchProp.name);
+
+        if (watchProp.name !== '$route' && !isKnownWatchTarget) {
+            if (!isSafeIdentifier(watchProp.name)) {
+                unsupportedWatchEntries.push(`${watchProp.name}: watch targets that are not valid identifiers must be migrated manually`);
+            } else {
+                unsupportedWatchEntries.push(`${watchProp.name}: watch target is not declared in props, data, computed, or inject`);
+            }
+
             return false;
         }
 
@@ -1303,15 +1354,19 @@ function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componen
     ];
 
     if (optionsObj.getProperty('provide')) {
+        manualMigrationReasons.push('provide option requires manual migration');
         todoComments.push('// TODO: migrate `provide` manually — map each key to provide(key, value) calls');
     }
     if (optionsObj.getProperty('components')) {
+        manualMigrationReasons.push('components option requires manual verification');
         todoComments.push('// TODO: verify local component registrations in `components:` — remove if globally registered');
     }
     if (optionsObj.getProperty('directives')) {
+        manualMigrationReasons.push('directives option requires manual migration');
         todoComments.push('// TODO: migrate `directives` manually');
     }
     if (optionsObj.getProperty('beforeCreate')) {
+        manualMigrationReasons.push('beforeCreate hook requires manual migration');
         todoComments.push('// TODO: `beforeCreate` was dropped — move logic to top of setup if needed');
     }
 

@@ -752,6 +752,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     it('surfaces missing string handler methods with a TODO comment', () => {
         const js = `Shopware.Component.register('sw-test', {
             template,
+            data() { return { items: [] }; },
             watch: {
                 items: 'updateCount'
             },
@@ -778,10 +779,28 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     });
 
     // -------------------------------------------------------------------------
+    it('surfaces undeclared watch targets with a TODO comment instead of generating undeclared refs', () => {
+        const js = `Shopware.Component.register('sw-test', {
+            template,
+            watch: {
+                items(newItems) {
+                    return newItems.length;
+                }
+            },
+        });`;
+        const result = transformScript(js);
+
+        expect(result.status).toBe('partially-migratable');
+        expect(result.blockers).toContain('watch: items: watch target is not declared in props, data, computed, or inject');
+        expect(result.script).toContain('TODO: migrate watch entry manually: items: watch target is not declared in props, data, computed, or inject');
+        expect(result.script).not.toContain('watch(() => items.value');
+    });
+
+    // -------------------------------------------------------------------------
     it('preserves async object-form inline watcher handlers', () => {
         const js = `Shopware.Component.register('sw-test', {
             template,
-            data() { return { count: 0 }; },
+            data() { return { items: [], count: 0 }; },
             watch: {
                 items: {
                     async handler(newItems) {
@@ -1113,7 +1132,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     it('supports object-form watcher handlers declared as function expressions', () => {
         const js = `Shopware.Component.register('sw-test', {
             template,
-            data() { return { count: 0 }; },
+            data() { return { externalCount: 0, count: 0 }; },
             watch: {
                 externalCount: {
                     handler: function(newVal, oldVal) {
@@ -1135,7 +1154,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     it('supports object-form watcher handlers declared as arrow functions', () => {
         const js = `Shopware.Component.register('sw-test', {
             template,
-            data() { return { count: 0 }; },
+            data() { return { externalCount: 0, count: 0 }; },
             watch: {
                 externalCount: {
                     handler: (newVal) => {
@@ -1197,9 +1216,88 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         });
     `;
         const result = transformScript(js);
+        expect(result.status).toBe('partially-migratable');
+        expect(result.blockers).toContain('$store usage requires manual migration to the appropriate Pinia store or composable');
         expect(result.script).not.toContain('this.$store');
         expect(result.script).toContain('throw new Error');
         expect(result.script).toContain('TODO: migrate $store');
+    });
+
+    // -------------------------------------------------------------------------
+    it('marks unsupported top-level Options API options as partially migratable', () => {
+        const js = `Shopware.Component.register('sw-test', {
+            template,
+            provide() { return { foo: this.foo }; },
+            components: { 'sw-child': swChild },
+            directives: { focus },
+            beforeCreate() { this.bootstrap(); },
+            methods: {
+                bootstrap() {},
+            },
+        });`;
+        const result = transformScript(js);
+
+        expect(result.status).toBe('partially-migratable');
+        expect(result.blockers).toContain('provide option requires manual migration');
+        expect(result.blockers).toContain('components option requires manual verification');
+        expect(result.blockers).toContain('directives option requires manual migration');
+        expect(result.blockers).toContain('beforeCreate hook requires manual migration');
+        expect(result.script).toContain('TODO: migrate `provide` manually');
+        expect(result.script).toContain('TODO: verify local component registrations in `components:`');
+        expect(result.script).toContain('TODO: migrate `directives` manually');
+        expect(result.script).toContain('TODO: `beforeCreate` was dropped');
+    });
+
+    // -------------------------------------------------------------------------
+    it('marks unsupported computed spread entries as partially migratable', () => {
+        const js = `Shopware.Component.register('sw-test', {
+            template,
+            computed: {
+                ...mapPropertyErrors('product', ['name']),
+                title() {
+                    return 'Title';
+                },
+            },
+        });`;
+        const result = transformScript(js);
+
+        expect(result.status).toBe('partially-migratable');
+        expect(result.blockers).toContain("computed: ...mapPropertyErrors('product', ['name']): unsupported computed entry");
+        expect(result.script).toContain("TODO: migrate computed entry manually: computed: ...mapPropertyErrors('product', ['name']): unsupported computed entry");
+        expect(result.script).toContain('const title = computed(() => {');
+    });
+
+    // -------------------------------------------------------------------------
+    it('migrates function-valued computed entries instead of dropping them', () => {
+        const js = `Shopware.Component.register('sw-test', {
+            template,
+            data() { return { title: 'Title' }; },
+            computed: {
+                label: function() {
+                    return this.title;
+                },
+            },
+        });`;
+        const result = transformScript(js);
+
+        expect(result.status).toBe('fully-migratable');
+        expect(result.script).toContain('const label = computed(() => {');
+        expect(result.script).toContain('return title.value;');
+    });
+
+    // -------------------------------------------------------------------------
+    it('migrates arrow-function computed entries instead of dropping them', () => {
+        const js = `Shopware.Component.register('sw-test', {
+            template,
+            computed: {
+                label: () => 'Title',
+            },
+        });`;
+        const result = transformScript(js);
+
+        expect(result.status).toBe('fully-migratable');
+        expect(result.script).toContain('const label = computed(() => {');
+        expect(result.script).toContain("return 'Title';");
     });
 
     // -------------------------------------------------------------------------

@@ -12,7 +12,7 @@
  *   --dry-run          (default) Preview what would be written without writing files
  *   --write            Write .vue files to disk
  *   --force            Overwrite existing .vue files (default: skip if already exists)
- *   --delete-originals Delete the source index.js and .html.twig after writing the .vue file
+ *   --delete-originals Replace the source index.js with an SFC entry point and delete .html.twig
  *                      (only applies to fully- and partially-migrated components in --write mode)
  *
  * Examples:
@@ -22,7 +22,7 @@
  *   npm run codemod:sfc-migration -- --write --delete-originals src/Resources/app/administration/src
  */
 
-import { existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { globSync } from 'glob';
 import { Project, ScriptKind } from 'ts-morph';
@@ -108,8 +108,41 @@ export function normaliseJsContent(jsContent: string, componentName: string): st
     );
 }
 
+function quoteJsString(value: string): string {
+    return `'${value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
+}
+
+function buildIndexShim(componentName: string, sfc: string): string {
+    const vueImportPath = `./${componentName}.vue`;
+
+    if (/Shopware\.Component\.(register|extend)\s*\(/.test(sfc)) {
+        return `import ${quoteJsString(vueImportPath)};\n`;
+    }
+
+    return [
+        `import component from ${quoteJsString(vueImportPath)};`,
+        '',
+        `Shopware.Component.register(${quoteJsString(componentName)}, component);`,
+        '',
+    ].join('\n');
+}
+
+function replaceOriginalsWithEntryPoint(indexPath: string, twigPath: string, componentName: string, sfc: string): void {
+    writeFileSync(indexPath, buildIndexShim(componentName, sfc), 'utf-8');
+    rmSync(twigPath);
+}
+
 export function runMigration(targetDir: string, options: RunOptions): RunResult {
     const { dryRun = true, force = false, deleteOriginals = false } = options;
+
+    if (!existsSync(targetDir)) {
+        throw new Error(`Target path does not exist: ${targetDir}`);
+    }
+
+    if (!statSync(targetDir).isDirectory()) {
+        throw new Error(`Target path must be a directory: ${targetDir}`);
+    }
+
     const indexFiles = globSync('**/index.js', { cwd: targetDir, absolute: true });
 
     const stats: RunStats = {
@@ -160,11 +193,10 @@ export function runMigration(targetDir: string, options: RunOptions): RunResult 
                     if (!dryRun) {
                         writeFileSync(vuePath, result.sfc, 'utf-8');
                         if (deleteOriginals) {
-                            rmSync(indexPath);
-                            rmSync(twigPath);
+                            replaceOriginalsWithEntryPoint(indexPath, twigPath, componentName, result.sfc);
                             stats.deletedOriginals++;
-                            report.push(`  deleted originals    ${indexPath}`);
-                            report.push(`  deleted originals    ${twigPath}`);
+                            report.push(`  replaced entrypoint  ${indexPath}`);
+                            report.push(`  deleted original     ${twigPath}`);
                         }
                     }
                     stats.fullyMigrated++;
@@ -186,11 +218,10 @@ export function runMigration(targetDir: string, options: RunOptions): RunResult 
                     if (!dryRun) {
                         writeFileSync(vuePath, result.sfc, 'utf-8');
                         if (deleteOriginals) {
-                            rmSync(indexPath);
-                            rmSync(twigPath);
+                            replaceOriginalsWithEntryPoint(indexPath, twigPath, componentName, result.sfc);
                             stats.deletedOriginals++;
-                            report.push(`  deleted originals    ${indexPath}`);
-                            report.push(`  deleted originals    ${twigPath}`);
+                            report.push(`  replaced entrypoint  ${indexPath}`);
+                            report.push(`  deleted original     ${twigPath}`);
                         }
                     }
                     stats.partiallyMigrated++;
@@ -230,7 +261,7 @@ if (process.argv[1] === __filename) {
         console.log('  --dry-run            (default) Preview what would be written without writing files');
         console.log('  --write              Write .vue files to disk');
         console.log('  --force              Overwrite existing .vue files (default: skip if already exists)');
-        console.log('  --delete-originals   Delete source index.js and .html.twig after writing the .vue file');
+        console.log('  --delete-originals   Replace source index.js with an SFC entry point and delete .html.twig');
         process.exit(0);
     }
 
@@ -242,7 +273,7 @@ if (process.argv[1] === __filename) {
         console.error('  --dry-run            (default) Preview what would be written without writing files');
         console.error('  --write              Write .vue files to disk');
         console.error('  --force              Overwrite existing .vue files (default: skip if already exists)');
-        console.error('  --delete-originals   Delete source index.js and .html.twig after writing the .vue file');
+        console.error('  --delete-originals   Replace source index.js with an SFC entry point and delete .html.twig');
         process.exit(1);
     }
 
@@ -255,10 +286,11 @@ if (process.argv[1] === __filename) {
         console.warn('WARNING: --delete-originals will permanently delete source files. Ensure git is clean.');
     }
 
-    const { stats, report } = runMigration(TARGET_DIR, { dryRun, force, deleteOriginals });
+    try {
+        const { stats, report } = runMigration(TARGET_DIR, { dryRun, force, deleteOriginals });
 
-    console.log(report.join('\n'));
-    console.log(`
+        console.log(report.join('\n'));
+        console.log(`
 Migration Summary
 =================
 Fully migrated:      ${stats.fullyMigrated}
@@ -272,11 +304,15 @@ Components (extends): ${stats.extendsComponents}
 Errors:              ${stats.errors}
 `);
 
-    if (dryRun) {
-        console.log('[DRY RUN] No files were written. Run with --write to apply.');
-    }
+        if (dryRun) {
+            console.log('[DRY RUN] No files were written. Run with --write to apply.');
+        }
 
-    if (stats.errors > 0 || stats.notMigratable > 0) {
+        if (stats.errors > 0 || stats.notMigratable > 0) {
+            process.exit(1);
+        }
+    } catch (err) {
+        console.error(`ERROR: ${err instanceof Error ? err.message : String(err)}`);
         process.exit(1);
     }
 }

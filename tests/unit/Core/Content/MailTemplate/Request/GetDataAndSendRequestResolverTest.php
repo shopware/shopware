@@ -63,7 +63,7 @@ class GetDataAndSendRequestResolverTest extends TestCase
         $this->mailPayloadFactory->expects($this->once())
             ->method('make')
             ->with(
-                $this->callback(static fn ($requestDataBag) => $requestDataBag->all() === [
+                static::callback(static fn ($requestDataBag) => $requestDataBag->all() === [
                     'mailTemplateId' => 'template-id',
                     'entities' => [
                         'order' => 'order-id',
@@ -185,7 +185,7 @@ class GetDataAndSendRequestResolverTest extends TestCase
         $this->mailPayloadFactory->expects($this->once())
             ->method('make')
             ->with(
-                $this->callback(static fn ($requestDataBag) => $requestDataBag->all() === [
+                static::callback(static fn ($requestDataBag) => $requestDataBag->all() === [
                     'mailTemplateId' => 'template-id',
                     'entities' => ['order' => 'order-id', 'customer' => 'customer-id'],
                     'templateData' => ['foo' => 'bar'],

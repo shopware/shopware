@@ -6,10 +6,10 @@ use Shopware\Core\Content\Mail\Payload\MailPayloadFactory;
 use Shopware\Core\Content\MailTemplate\MailTemplateException;
 use Shopware\Core\Content\MailTemplate\Request\GetDataAndSendRequest;
 use Shopware\Core\Content\MailTemplate\Request\PreviewRequest;
-use Shopware\Core\Content\MailTemplate\Request\SimulateRequest;
 use Shopware\Core\Content\MailTemplate\Request\Resolver\GetDataAndSendRequestResolver;
 use Shopware\Core\Content\MailTemplate\Request\Resolver\PreviewRequestResolver;
 use Shopware\Core\Content\MailTemplate\Request\Resolver\SimulateRequestResolver;
+use Shopware\Core\Content\MailTemplate\Request\SimulateRequest;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateSendService;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
@@ -143,7 +143,8 @@ class MailActionController extends AbstractController
         methods: [Request::METHOD_POST]
     )]
     public function simulate(
-        #[MapRequestPayload(resolver: SimulateRequestResolver::class)] SimulateRequest $simulateRequest,
+        #[MapRequestPayload(resolver: SimulateRequestResolver::class)]
+        SimulateRequest $simulateRequest,
         Context $context
     ): JsonResponse {
         $renderedTemplate = $this->mailTemplateService->simulate($simulateRequest, $context);
@@ -162,10 +163,10 @@ class MailActionController extends AbstractController
         methods: [Request::METHOD_POST]
     )]
     public function preview(
-        #[MapRequestPayload(resolver: PreviewRequestResolver::class)] PreviewRequest $previewRequest,
+        #[MapRequestPayload(resolver: PreviewRequestResolver::class)]
+        PreviewRequest $previewRequest,
         Context $context
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $renderedTemplate = $this->mailTemplateService->preview($previewRequest, $context);
 
         return new JsonResponse($renderedTemplate);
@@ -183,10 +184,10 @@ class MailActionController extends AbstractController
         methods: [Request::METHOD_POST]
     )]
     public function getDataAndSend(
-        #[MapRequestPayload(resolver: GetDataAndSendRequestResolver::class)] GetDataAndSendRequest $request,
+        #[MapRequestPayload(resolver: GetDataAndSendRequestResolver::class)]
+        GetDataAndSendRequest $request,
         Context $context
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $message = $this->mailTemplateSendService->getTemplateDataAndSend($request, $context);
 
         return new JsonResponse(['size' => mb_strlen($message ? $message->toString() : '')]);

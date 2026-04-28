@@ -21,4 +21,10 @@ class MailDataSimulatorFieldEvent extends Event
         public readonly Generator $faker,
     ) {
     }
+
+    public function setValue(mixed $value): void
+    {
+        $this->value = $value;
+        $this->hasValue = true;
+    }
 }

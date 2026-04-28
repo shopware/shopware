@@ -367,7 +367,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 
                 foreach ($pathDefinition[$key]['parameters'] as $param) {
                     if (
-                        (isset($param['name']) && $param['name'] === 'sw-language-id')
+                        (isset($param['name']) && strtolower((string) $param['name']) === 'sw-language-id')
                         || (isset($param['$ref']) && $param['$ref'] === '#/components/parameters/swLanguageId')
                     ) {
                         continue 2;

@@ -1123,6 +1123,18 @@ class StoreApiGeneratorTest extends TestCase
             static fn (string $ref): bool => $ref === '#/components/parameters/swLanguageId'
         );
         static::assertCount(1, $byRefMatches, 'sw-language-id $ref should not be duplicated when already present');
+
+        $mixedCase = $schema['paths']['/predeclared-by-name-mixed-case']['get'];
+        $mixedCaseNames = array_filter(
+            $mixedCase['parameters'],
+            static fn (array $param): bool => isset($param['name']) && strtolower((string) $param['name']) === 'sw-language-id'
+        );
+        $mixedCaseRefs = array_filter(
+            $mixedCase['parameters'],
+            static fn (array $param): bool => ($param['$ref'] ?? null) === '#/components/parameters/swLanguageId'
+        );
+        static::assertCount(1, $mixedCaseNames, 'Mixed-case sw-language-id declaration should remain');
+        static::assertCount(0, $mixedCaseRefs, 'No $ref should be injected next to a mixed-case sw-language-id declaration');
     }
 
     public function testGetAssociationsDocumentationSupportsOptionalDescription(): void

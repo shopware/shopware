@@ -12,6 +12,10 @@ Added and deprecated `BackwardCompatibleNumberFormatter` to temporarily allow in
 
 ## Administration
 
+### Custom fields respect read-only permissions in Administration detail views
+
+Custom fields on category, landing page, sales channel, customer address, and order address detail views are now disabled when the current user only has read permissions.
+
 ### Fixed "Last Quarter" timeframe returning the wrong year in `sw-date-filter`
 
 Selecting the "Last Quarter" timeframe in any listing's date filter (orders, documents, customers, etc.) between January and March now produces a three-month range in the previous year instead of a ~15-month range that spanned both years.

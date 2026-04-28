@@ -189,7 +189,7 @@ class HeaderPageletLoaderTest extends TestCase
                 'name' => $name,
                 'locale' => [
                     'id' => $localeId,
-                    'code' => $localeId,
+                    'code' => 'de-DE-' . $localeId,
                     'name' => 'test name',
                     'territory' => 'test territory',
                 ],

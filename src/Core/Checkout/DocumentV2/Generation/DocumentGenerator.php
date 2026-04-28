@@ -172,12 +172,6 @@ final readonly class DocumentGenerator
     private function loadOrder(Criteria $criteria, Context $orderVersionContext, string $orderId): OrderEntity
     {
         $criteria->setTitle('document-v2-generator::load-order');
-        $criteria->addAssociation('currency');
-        $criteria->addAssociation('language');
-        $criteria->addAssociation('salesChannel');
-        $criteria->addAssociation('addresses');
-        $criteria->addAssociation('transactions.paymentMethod');
-        $criteria->addAssociation('deliveries.shippingMethod');
 
         $order = $this->orderRepository->search(
             $criteria,

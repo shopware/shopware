@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Util\Database\TableHelper;
  * @internal
  */
 #[Package('after-sales')]
-class Migration1776770187AddDatabaseFileTable extends MigrationStep
+class Migration1776770187AddDocumentFileTable extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {

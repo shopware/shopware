@@ -9,13 +9,13 @@ use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileDefinit
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Util\Database\TableHelper;
-use Shopware\Core\Migration\V6_7\Migration1776770187AddDatabaseFileTable;
+use Shopware\Core\Migration\V6_7\Migration1776770187AddDocumentFileTable;
 
 /**
  * @internal
  */
 #[Package('after-sales')]
-#[CoversClass(Migration1776770187AddDatabaseFileTable::class)]
+#[CoversClass(Migration1776770187AddDocumentFileTable::class)]
 class Migration1776770187AddDatabaseFileTableTest extends TestCase
 {
     private Connection $connection;
@@ -31,7 +31,7 @@ class Migration1776770187AddDatabaseFileTableTest extends TestCase
     {
         static::assertFalse(TableHelper::tableExists($this->connection, DocumentFileDefinition::ENTITY_NAME));
 
-        $migration = new Migration1776770187AddDatabaseFileTable();
+        $migration = new Migration1776770187AddDocumentFileTable();
 
         $migration->update($this->connection);
         $migration->update($this->connection);

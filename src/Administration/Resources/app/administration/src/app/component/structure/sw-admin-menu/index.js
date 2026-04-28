@@ -240,7 +240,7 @@ The admin menu only supports up to three levels of nesting.`,
     },
 
     beforeUnmount() {
-        document.removeEventListener('mousemove', this.onMouseMoveDocument.bind(this));
+        document.removeEventListener('mousemove', this.onMouseMoveDocument);
         document.removeEventListener('mouseleave', this.onFlyoutLeave);
         document.removeEventListener('click', this.onClickOutsideOffCanvas, true);
 
@@ -306,7 +306,7 @@ The admin menu only supports up to three levels of nesting.`,
                 component: this,
             });
 
-            document.addEventListener('mousemove', this.onMouseMoveDocument.bind(this));
+            document.addEventListener('mousemove', this.onMouseMoveDocument);
 
             this.addScrollbarOffset();
         },

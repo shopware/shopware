@@ -255,28 +255,25 @@ export default {
                 return defaultRoute;
             }
 
-            const route = {
-                name: column.routerLink,
-            };
-
-            if (column?.routerParameters?.length > 0) {
-                column.routerParameters.forEach((param) => {
-                    const { key, path } = param;
-
-                    if (!key || !path || !Utils.object.has(item, path)) {
-                        return;
-                    }
-
-                    route.params = {
-                        ...route.params,
-                        [key]: Utils.object.get(item, path),
-                    };
-                });
-            } else {
+            if (!Array.isArray(column.routerParameters)) {
                 return defaultRoute;
             }
 
-            return route;
+            const params = column.routerParameters.reduce((acc, { key, path }) => {
+                if (!key || !path) {
+                    return acc;
+                }
+
+                const value = Utils.object.get(item, path);
+
+                if (value) {
+                    acc[key] = value;
+                }
+
+                return acc;
+            }, {});
+
+            return { name: column.routerLink, params };
         },
 
         hasRoute(item, column) {
@@ -284,16 +281,12 @@ export default {
                 return false;
             }
 
-            if (!column?.routerParameters?.length) {
+            if (!column.routerParameters?.length) {
                 return true;
             }
 
-            return column.routerParameters.every((param) => {
-                if (!param.path || !Utils.object.has(item, param.path)) {
-                    return false;
-                }
-
-                return !!Utils.object.get(item, param.path);
+            return column.routerParameters.every(({ path }) => {
+                return path && !!Utils.object.get(item, path);
             });
         },
 

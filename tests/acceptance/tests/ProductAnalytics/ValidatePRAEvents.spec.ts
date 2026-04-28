@@ -2,6 +2,7 @@ import { isSaaSInstance, test, expect, Page, Actor, AdminPageObjects, createNewA
 import { parseCapturedRequests, setupConsentInterceptor,
     setupProductAnalyticsInterceptor, waitForEventCount,
 } from '@helpers/productanalytics-helpers';
+import { satisfies } from 'compare-versions';
 
 const TRACKING_EVENT_ENDPOINT = 'event';
 const CONSENTS_ENDPOINT = 'consents';
@@ -14,6 +15,8 @@ test.describe('Product Analytics - Validate events.',
         SalesChannelBaseConfig,
         InstanceMeta,
     }) => {
+
+        test.skip(satisfies(InstanceMeta.version, '<6.7.9.0'), 'Product Analytics is only available since version 6.7.9.0');
 
         const { capturedTrackingEventRequests, trackingEventHandler } = setupProductAnalyticsInterceptor();
 

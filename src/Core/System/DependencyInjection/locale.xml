@@ -22,5 +22,11 @@
         <service id="Shopware\Core\System\Locale\Subscriber\LocaleValidator">
             <tag name="kernel.event_subscriber"/>
         </service>
+
+        <service id="Shopware\Core\System\Locale\SystemCheck\LocalesReadinessCheck">
+            <argument type="service" id="locale.repository"/>
+
+            <tag name="shopware.system_check"/>
+        </service>
     </services>
 </container>

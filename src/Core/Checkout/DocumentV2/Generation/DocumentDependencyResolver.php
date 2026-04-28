@@ -125,7 +125,7 @@ final readonly class DocumentDependencyResolver
                 }
 
                 if (!isset($inDegree[$dependency])) {
-                    continue;
+                    throw DocumentV2Exception::missingRenderPlanDependency($dependency);
                 }
 
                 ++$inDegree[$dependency];
@@ -149,7 +149,7 @@ final readonly class DocumentDependencyResolver
 
             foreach ($renderers[$topFormat]->getDependencies() as $dependency) {
                 if (!isset($inDegree[$dependency])) {
-                    continue;
+                    throw DocumentV2Exception::missingRenderPlanDependency($dependency);
                 }
 
                 --$inDegree[$dependency];

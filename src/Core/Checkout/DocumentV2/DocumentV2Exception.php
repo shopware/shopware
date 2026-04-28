@@ -30,6 +30,8 @@ class DocumentV2Exception extends HttpException
 
     public const CIRCULAR_DEPENDENCY_CYCLE = 'DOCUMENT_V2__CIRCULAR_DEPENDENCY_CYCLE';
 
+    public const MISSING_RENDER_PLAN_DEPENDENCY = 'DOCUMENT_V2__MISSING_RENDER_PLAN_DEPENDENCY';
+
     public const DOCUMENT_NOT_PERSISTED = 'DOCUMENT_V2__DOCUMENT_NOT_PERSISTED';
 
     public const DOCUMENT_NUMBER_ALREADY_EXISTS = 'DOCUMENT_V2__DOCUMENT_NUMBER_ALREADY_EXISTS';
@@ -114,6 +116,16 @@ class DocumentV2Exception extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::CIRCULAR_DEPENDENCY_CYCLE,
             'Circular render dependency cycled for document generation.',
+        );
+    }
+
+    public static function missingRenderPlanDependency(string $format): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MISSING_RENDER_PLAN_DEPENDENCY,
+            'Dependency format "{{ format }}" is missing from the resolved render plan.',
+            ['format' => $format],
         );
     }
 

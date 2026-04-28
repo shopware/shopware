@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Migration\Core\V6_7;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileDefinition;
@@ -40,5 +41,9 @@ class Migration1776770187AddDatabaseFileTableTest extends TestCase
         static::assertCount(6, TableHelper::getTable($this->connection, DocumentFileDefinition::ENTITY_NAME)->columns);
         static::assertTrue(TableHelper::foreignKeyExists($this->connection, DocumentFileDefinition::ENTITY_NAME, 'fk.document_file.document_id'));
         static::assertTrue(TableHelper::foreignKeyExists($this->connection, DocumentFileDefinition::ENTITY_NAME, 'fk.document_file.media_id'));
+        static::assertSame(
+            IndexType::UNIQUE->name,
+            TableHelper::getIndexOfTable($this->connection, DocumentFileDefinition::ENTITY_NAME, 'uniq.document_file.media_id')->type
+        );
     }
 }

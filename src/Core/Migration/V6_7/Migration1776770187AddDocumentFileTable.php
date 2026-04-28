@@ -38,7 +38,7 @@ class Migration1776770187AddDocumentFileTable extends MigrationStep
 
                 PRIMARY KEY (`id`),
                 KEY `idx.document_file.document_id` (`document_id`),
-                KEY `idx.document_file.media_id` (`media_id`),
+                UNIQUE KEY `uniq.document_file.media_id` (`media_id`),
 
                 CONSTRAINT `fk.document_file.document_id`
                     FOREIGN KEY (`document_id`)

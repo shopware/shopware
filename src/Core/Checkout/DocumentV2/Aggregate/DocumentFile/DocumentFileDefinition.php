@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -51,7 +52,8 @@ class DocumentFileDefinition extends EntityDefinition
     }
 
     /**
-     * TODO: Intentionally disable default timestamps for now so `createdAt` / `updatedAt` stay non-ApiAware while `document_file` is still internal.
+     * TODO: Intentionally disabled default timestamps for now so `createdAt` / `updatedAt` stay non-ApiAware while `document_file` is still internal.
+     * Remove this override `defaultFields()` and remove explicit timestamp fields (CreatedAtField, UpdatedAtField) once the public API fields are finalized.
      */
     protected function defaultFields(): array
     {
@@ -69,7 +71,7 @@ class DocumentFileDefinition extends EntityDefinition
             (new StringField('document_format', 'documentFormat', 255))->addFlags(new Required()),
 
             new ManyToOneAssociationField('document', 'document_id', DocumentDefinition::class, 'id', false),
-            new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', false),
+            new OneToOneAssociationField('media', 'media_id', 'id', MediaDefinition::class, false),
 
             new CreatedAtField(),
             new UpdatedAtField(),

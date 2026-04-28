@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Media;
 
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
 use Shopware\Core\Checkout\Document\DocumentCollection;
-use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
@@ -137,7 +137,7 @@ class MediaEntity extends Entity
     /**
      * @internal
      */
-    protected ?DocumentFileCollection $documentFiles = null;
+    protected ?DocumentFileEntity $documentFile = null;
 
     protected ?AppPaymentMethodCollection $appPaymentMethods = null;
 
@@ -260,17 +260,17 @@ class MediaEntity extends Entity
     /**
      * @internal
      */
-    public function getDocumentFiles(): ?DocumentFileCollection
+    public function getDocumentFile(): ?DocumentFileEntity
     {
-        return $this->documentFiles;
+        return $this->documentFile;
     }
 
     /**
      * @internal
      */
-    public function setDocumentFiles(DocumentFileCollection $documentFiles): void
+    public function setDocumentFile(?DocumentFileEntity $documentFile): void
     {
-        $this->documentFiles = $documentFiles;
+        $this->documentFile = $documentFile;
     }
 
     public function getAlt(): ?string

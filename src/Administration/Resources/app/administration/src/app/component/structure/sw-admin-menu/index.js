@@ -503,11 +503,11 @@ The admin menu only supports up to three levels of nesting.`,
         },
 
         shouldCloseOffCanvasOnMenuItemClick(target) {
-            if (!this.isMobileViewport() || !this.isOffCanvasShown || !target) {
-                return false;
+            if (this.isMobileViewport() && this.isOffCanvasShown && target) {
+                return !target.classList.contains('navigation-list-item__has-children');
             }
 
-            return !target.classList.contains('navigation-list-item__has-children');
+            return false;
         },
 
         onClickOutsideOffCanvas({ target }) {

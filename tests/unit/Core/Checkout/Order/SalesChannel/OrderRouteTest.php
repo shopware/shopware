@@ -255,4 +255,87 @@ class OrderRouteTest extends TestCase
             'deeplink prefix' => [new PrefixFilter('deepLinkCode', 'deep')],
         ];
     }
+
+    #[DataProvider('deeplinkExpireDaysProvider')]
+    public function testDeeplinkFilterExpireDays(int $createdDaysAgo, int $expireDays, bool $expectedFiltered): void
+    {
+        $orderCustomer = new OrderCustomerEntity();
+        $orderCustomer->setId(Uuid::randomHex());
+        $orderCustomer->setEmail('test@example.com');
+        $orderCustomer->setCustomerId(Uuid::randomHex());
+
+        $guestCustomer = new CustomerEntity();
+        $guestCustomer->setId($orderCustomer->getId());
+        $guestCustomer->setGuest(true);
+        $orderCustomer->setCustomer($guestCustomer);
+
+        $billingAddress = new OrderAddressEntity();
+        $billingAddress->setZipcode('AA-345');
+
+        $order = new OrderEntity();
+        $order->setId(Uuid::randomHex());
+        $order->setCreatedAt(new \DateTime("-{$createdDaysAgo} days"));
+        $order->setUpdatedAt(new \DateTime("-{$createdDaysAgo} days"));
+        $order->setOrderCustomer($orderCustomer);
+        $order->setBillingAddress($billingAddress);
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $context
+            ->method('getCustomer')
+            ->willReturn(null);
+
+        $searchResult = new EntitySearchResult(
+            OrderDefinition::ENTITY_NAME,
+            1,
+            new OrderCollection([$order]),
+            null,
+            new Criteria(),
+            Context::createDefaultContext()
+        );
+
+        $orderRepository = $this->createMock(EntityRepository::class);
+        $orderRepository
+            ->method('search')
+            ->willReturn($searchResult);
+
+        $route = new OrderRoute(
+            $orderRepository,
+            $this->createMock(EntityRepository::class),
+            $this->createMock(RateLimiter::class),
+            $this->createMock(EventDispatcherInterface::class),
+            $this->createMock(AccountService::class),
+            new GuestAuthenticator(),
+            $expireDays
+        );
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('deepLinkCode', 'someDeepLinkCode'));
+
+        $request = new Request();
+        $request->request->set('email', 'test@example.com');
+        $request->request->set('zipcode', 'AA-345');
+
+        if ($expectedFiltered) {
+            $this->expectException(OrderException::class);
+        }
+
+        $response = $route->load($request, $context, $criteria);
+
+        if (!$expectedFiltered) {
+            static::assertSame($order->getId(), $response->getOrders()->first()?->getId());
+        }
+    }
+
+    /**
+     * @return array<string, array{int, int, bool}>
+     */
+    public static function deeplinkExpireDaysProvider(): array
+    {
+        return [
+            'order within limit' => [10, 30, false],
+            'order beyond limit' => [31, 30, true],
+            'order beyond default, within custom limit' => [40, 60, false],
+            'order beyond custom limit' => [61, 60, true],
+        ];
+    }
 }

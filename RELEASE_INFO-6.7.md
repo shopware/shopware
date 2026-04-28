@@ -16,6 +16,14 @@ These are optional and can be enabled via `shopware.api.rate_limiter` in `shopwa
 
 ## Core
 
+### Elasticsearch: Configurable minimum score threshold for search results
+
+A new system configuration key `core.search.minScore` (float, default `0.0`, per sales channel) lets merchants drop low-relevance Elasticsearch hits. When the value is above `0.0`, it is applied as the native `min_score` parameter on the product term-search query.
+
+The setting is most useful for cutting the long tail of fuzzy or ngram-only matches on single-token queries. Recommended tuning range is `0.5–1.5`; start low and increase gradually while observing noisy queries. Leave at `0.0` to disable.
+
+Adjust via the System Config API using the key `core.search.minScore`.
+
 ### Elasticsearch: Disabled BM25 field-length normalization for structured search fields
 
 Elasticsearch product search now uses a custom BM25 similarity with `b=0` (no field-length normalization) as the index default. This prevents short product names like "Sony TV" from ranking unfairly above descriptive ones like "Sony 65-inch 4K Ultra HD Smart OLED TV" when both match the same search terms.
@@ -41,24 +49,12 @@ Users can now control which representative of variant products is shown in filte
 
 The `permisionsLocked` property of the `SalesChannelContext` is deprecated.
 Use `permissionsLocked` property or the new `SalesChannelContext::isPermissionsLocked()` getter method instead.
-### Elasticsearch: Extracted field query builders from TokenQueryBuilder
-
-The `TokenQueryBuilder` has been refactored to use a decoration-based architecture for field query generation. A new `AbstractFieldQueryBuilder` abstract class serves as the public extension point, with internal implementations for:
-- 
-- base field matching (`FieldQueryBuilder`)
-- translated field handling (`TranslatedFieldQueryBuilder`)
-- nested field wrapping (`NestedFieldQueryBuilder`)
-- and explain metadata for preview mode(`ExplainFieldQueryBuilder`).
-
-Additionally, `TokenQueryBuilder` now extends a new `AbstractTokenQueryBuilder` abstract class, enabling decoration of token-level query composition. The old `Shopware\Elasticsearch\TokenQueryBuilder` service ID is preserved as an alias for backward compatibility.
-
-Plugins that need to customize Elasticsearch field query generation can now decorate either `Shopware\Elasticsearch\AbstractFieldQueryBuilder` or `Shopware\Elasticsearch\AbstractTokenQueryBuilder` instead of replacing the entire token query builder.
 
 ### Elasticsearch: Added configurable tie_breaker to dis_max queries
 
 Elasticsearch `dis_max` queries now include a `tie_breaker` parameter at the field level, translated field level, and token combination level. Previously, `dis_max` only considered the single best-matching clause. With `tie_breaker`, scores from other matching clauses contribute partially to the overall score, improving ranking for documents that match across multiple fields or language variants.
 
-The value is configurable via `elasticsearch.search.dismax_tie_breaker` in `elasticsearch.yaml`.
+The value is configurable via `elasticsearch.search.dismax_tie_breaker` in `elasticsearch.yaml` (default `0.2`).
 
 ### Salutation ordering
 

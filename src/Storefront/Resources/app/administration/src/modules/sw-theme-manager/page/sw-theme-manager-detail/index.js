@@ -1,3 +1,4 @@
+import { getMeteorInheritanceConfig } from 'src/app/component/form/utils/meteor-inheritance.utils';
 import template from './sw-theme-manager-detail.html.twig';
 import './sw-theme-manager-detail.scss';
 
@@ -720,13 +721,8 @@ Component.register('sw-theme-manager-detail', {
             }
 
             if (inheritance && this.isFieldHandlingLabelAndHelpText(field)) {
-                // component will be a meteor component -> needs special config
                 config.mapInheritance = inheritance;
-                config.isInheritanceField = inheritance.isInheritField;
-                config.isInherited = inheritance.isInherited;
-                config.inheritanceRemove = inheritance.removeInheritance;
-                config.inheritanceRestore = inheritance.restoreInheritance;
-                config.inheritedValue = inheritance.isInheritField ? inheritedValue : null;
+                Object.assign(config, getMeteorInheritanceConfig(inheritance, inheritedValue));
             }
 
             return { type: field.type, config };

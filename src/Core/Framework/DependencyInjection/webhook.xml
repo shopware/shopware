@@ -34,7 +34,7 @@
             <argument type="service" id="Symfony\Component\Clock\ClockInterface"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository">
+        <service id="Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Symfony\Component\Clock\ClockInterface"/>
         </service>
@@ -55,14 +55,14 @@
 
         <service id="Shopware\Core\Framework\Webhook\Transport\MySQLWebhookReceiver">
             <argument type="service" id="Shopware\Core\Framework\Webhook\Outbox\StreamLockService"/>
-            <argument type="service" id="Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore"/>
             <argument type="service" id="Symfony\Component\Clock\ClockInterface"/>
             <argument type="service" id="logger"/>
             <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Framework\Webhook\Transport\WebhookTransportFactory">
-            <argument type="service" id="Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore"/>
             <argument type="service" id="messenger.transport.async"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Transport\MySQLWebhookReceiver"/>
             <tag name="messenger.transport_factory"/>
@@ -84,7 +84,7 @@
             <argument>%kernel.shopware_version%</argument>
             <argument>%shopware.admin_worker.enable_admin_worker%</argument>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService"/>
-            <argument type="service" id="Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore"/>
         </service>
 
         <service id="Shopware\Core\Framework\Webhook\WebhookCacheClearer">
@@ -131,7 +131,7 @@
         <service id="Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService">
             <argument type="service" id="Shopware\Core\Framework\Webhook\Service\WebhookClient"/>
             <argument type="service" id="Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper"/>
-            <argument type="service" id="Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Outbox\RetryDelayCalculator"/>
             <argument type="service" id="Symfony\Component\Messenger\MessageBusInterface"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Service\WebhookStateRepository"/>
@@ -143,7 +143,7 @@
         <service id="Shopware\Core\Framework\Webhook\Handler\WebhookEventMessageHandler">
             <argument type="service" id="Shopware\Core\Framework\Webhook\Service\WebhookClient"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Service\RelatedWebhooks"/>
-            <argument type="service" id="Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService"/>
             <argument type="service" id="logger"/>
 
@@ -152,7 +152,7 @@
 
         <service id="Shopware\Core\Framework\Webhook\Subscriber\RetryWebhookMessageFailedSubscriber">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Service\RelatedWebhooks"/>
             <argument>%shopware.webhook.failure_strategy%</argument>
 

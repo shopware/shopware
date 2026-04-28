@@ -28,8 +28,9 @@ use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
+use Shopware\Core\Framework\Webhook\Outbox\DeliveryResponse;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxEntry;
-use Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository;
+use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
 use Shopware\Core\Framework\Webhook\Service\WebhookClient;
 use Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
@@ -62,7 +63,7 @@ class WebhookManagerTest extends TestCase
 
     private CollectingMessageBus $bus;
 
-    private OutboxEventRepository&MockObject $outboxEventRepository;
+    private WebhookOutboxStore&MockObject $webhookOutboxStore;
 
     protected function setUp(): void
     {
@@ -75,8 +76,8 @@ class WebhookManagerTest extends TestCase
         $this->webhookClient = new WebhookClient($guzzle, new NativeClock());
         $this->eventFactory = $this->createMock(HookableEventFactory::class);
         $this->bus = new CollectingMessageBus();
-        $this->outboxEventRepository = $this->createMock(OutboxEventRepository::class);
-        $this->outboxEventRepository->method('markRunning')->willReturn(new OutboxEntry(
+        $this->webhookOutboxStore = $this->createMock(WebhookOutboxStore::class);
+        $this->webhookOutboxStore->method('markRunning')->willReturn(new OutboxEntry(
             webhookEventId: 'stub',
             sequence: 1,
             executionCount: 1,
@@ -108,18 +109,16 @@ class WebhookManagerTest extends TestCase
         $event = $this->prepareEvent();
         $webhook = $this->prepareWebhook($event->getName());
 
-        $this->outboxEventRepository->expects($this->once())->method('markSuccess')
+        $this->webhookOutboxStore->expects($this->once())->method('markSuccess')
             ->with(
-                static::isString(),
+                static::isInstanceOf(OutboxEntry::class),
                 static::anything(),
-                1,
-                1,
             );
 
         $this->assertSyncWebhookIsSent($webhook, $event);
     }
 
-    public function testSyncDispatchMarksFailedWhenFailureResponseCannotBeSerialized(): void
+    public function testSyncDispatchMarksFailedOnNonUtf8FailureBody(): void
     {
         $event = $this->prepareEvent();
         $this->prepareWebhook($event->getName());
@@ -127,20 +126,18 @@ class WebhookManagerTest extends TestCase
         $this->clientMock->reset();
         $this->clientMock->append(new Response(500, [], pack('C*', 0xB1)));
 
-        $this->outboxEventRepository->expects($this->once())->method('markFailed')
+        $this->webhookOutboxStore->expects($this->once())->method('markFailed')
             ->with(
-                static::isString(),
-                null,
-                1,
-                1,
+                static::isInstanceOf(OutboxEntry::class),
+                static::callback(static fn (DeliveryResponse $r): bool => $r->responseContent === null && $r->responseStatusCode === 500),
             )
             ->willReturn(true);
-        $this->outboxEventRepository->expects($this->never())->method('markSuccess');
+        $this->webhookOutboxStore->expects($this->never())->method('markSuccess');
 
         $this->getWebhookManager(true)->dispatch($event);
     }
 
-    public function testSyncDispatchMarksSuccessWhenSuccessfulResponseCannotBeSerialized(): void
+    public function testSyncDispatchMarksSuccessOnNonUtf8ResponseHeaders(): void
     {
         $event = $this->prepareEvent();
         $this->prepareWebhook($event->getName());
@@ -148,15 +145,13 @@ class WebhookManagerTest extends TestCase
         $this->clientMock->reset();
         $this->clientMock->append(new Response(200, ['x-bad' => pack('C*', 0xB1)], '{}'));
 
-        $this->outboxEventRepository->expects($this->once())->method('markSuccess')
+        $this->webhookOutboxStore->expects($this->once())->method('markSuccess')
             ->with(
-                static::isString(),
-                null,
-                1,
-                1,
+                static::isInstanceOf(OutboxEntry::class),
+                static::callback(static fn (DeliveryResponse $r): bool => $r->responseContent === null && $r->responseStatusCode === 200),
             )
             ->willReturn(true);
-        $this->outboxEventRepository->expects($this->never())->method('markFailed');
+        $this->webhookOutboxStore->expects($this->never())->method('markFailed');
 
         $this->getWebhookManager(true)->dispatch($event);
     }
@@ -514,7 +509,7 @@ class WebhookManagerTest extends TestCase
             '0.0.0',
             $isAdminWorkerEnabled,
             $deliveryService,
-            $this->outboxEventRepository,
+            $this->webhookOutboxStore,
         );
     }
 

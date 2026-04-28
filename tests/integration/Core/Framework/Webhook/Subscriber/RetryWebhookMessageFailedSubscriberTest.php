@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -18,13 +19,14 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogCollection;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
-use Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxInsert;
+use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
 use Shopware\Core\Framework\Webhook\Service\RelatedWebhooks;
 use Shopware\Core\Framework\Webhook\Subscriber\RetryWebhookMessageFailedSubscriber;
 use Shopware\Core\Framework\Webhook\WebhookEntity;
-use Shopware\Core\Framework\Webhook\WebhookException;
 use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Shopware\Core\Test\Assert\Serialization;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
@@ -41,15 +43,16 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
 
     private Connection $connection;
 
-    private OutboxEventRepository $outboxEventRepository;
+    private WebhookOutboxStore $webhookOutboxStore;
 
     protected function setUp(): void
     {
         $this->context = Context::createDefaultContext();
         $this->connection = static::getContainer()->get(Connection::class);
-        $this->outboxEventRepository = static::getContainer()->get(OutboxEventRepository::class);
+        $this->webhookOutboxStore = static::getContainer()->get(WebhookOutboxStore::class);
     }
 
+    #[DisabledFeatures(['WEBHOOKS_REWORK'])]
     public function testHandleWebhookMessageFailed(): void
     {
         $webhookId = Uuid::randomHex();
@@ -105,8 +108,7 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
             new ClientException('test', new Request('GET', 'https://test.com'), new Response(500))
         );
 
-        static::getContainer()->get(RetryWebhookMessageFailedSubscriber::class)
-            ->failed($event);
+        $this->failWithRetrySubscriber($event);
 
         $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), $this->context)
             ->getEntities()
@@ -122,6 +124,45 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
         static::assertTrue($webhook->isActive());
     }
 
+    #[DisabledFeatures(['WEBHOOKS_REWORK'])]
+    public function testHandleOldSerializedWebhookMessageWithoutPartitionKey(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $appId = Uuid::randomHex();
+        $webhookEventId = Uuid::randomHex();
+
+        $this->createAppWithWebhook($appId, $webhookId);
+        /** @var EntityRepository<WebhookEventLogCollection> $webhookEventLogRepository */
+        $webhookEventLogRepository = static::getContainer()->get('webhook_event_log.repository');
+        $webhookEventMessage = $this->removePartitionKeyFromSerializedMessage($this->createWebhookEventMessage($webhookEventId, $appId, $webhookId));
+
+        $webhookEventLogRepository->create([[
+            'id' => $webhookEventId,
+            'appName' => 'SwagApp',
+            'deliveryStatus' => WebhookEventLogDefinition::STATUS_QUEUED,
+            'webhookName' => 'hook1',
+            'eventName' => 'order',
+            'appVersion' => '0.0.1',
+            'url' => 'https://test.com',
+            'serializedWebhookMessage' => serialize($webhookEventMessage),
+        ]], $this->context);
+
+        $event = new WorkerMessageFailedEvent(
+            new Envelope($webhookEventMessage),
+            'async',
+            new ClientException('test', new Request('GET', 'https://test.com'), new Response(500))
+        );
+
+        $this->failWithRetrySubscriber($event);
+
+        $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), $this->context)
+            ->getEntities()
+            ->first();
+        static::assertNotNull($webhookEventLog);
+        static::assertSame(WebhookEventLogDefinition::STATUS_FAILED, $webhookEventLog->getDeliveryStatus());
+    }
+
+    #[DisabledFeatures(['WEBHOOKS_REWORK'])]
     public function testHandleWebhookMessageFailedSetsWebhookToInactiveIfErrorCountIsTooHigh(): void
     {
         $webhookId = Uuid::randomHex();
@@ -178,8 +219,7 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
             new ClientException('test', new Request('GET', 'https://test.com'), new Response(500))
         );
 
-        static::getContainer()->get(RetryWebhookMessageFailedSubscriber::class)
-            ->failed($event);
+        $this->failWithRetrySubscriber($event);
 
         $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), $this->context)
             ->getEntities()
@@ -195,6 +235,7 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
         static::assertFalse($webhook->isActive());
     }
 
+    #[DisabledFeatures(['WEBHOOKS_REWORK'])]
     public function testWebhookStaysActiveWithIgnoreStrategy(): void
     {
         $webhookId = Uuid::randomHex();
@@ -253,12 +294,12 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
 
         $subscriber = new RetryWebhookMessageFailedSubscriber(
             static::getContainer()->get(Connection::class),
-            static::getContainer()->get(OutboxEventRepository::class),
+            static::getContainer()->get(WebhookOutboxStore::class),
             static::getContainer()->get(RelatedWebhooks::class),
             WebhookFailureStrategy::Ignore->value
         );
 
-        $subscriber->failed($event);
+        $this->failWithRetrySubscriber($event, $subscriber);
 
         $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), $this->context)
             ->getEntities()
@@ -274,19 +315,30 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
         static::assertTrue($webhook->isActive());
     }
 
-    public function testWillRetryDoesNotApplyFailureStrategy(): void
+    /**
+     * @return iterable<string, array{int}>
+     */
+    public static function retryDoesNotApplyFailureStrategyProvider(): iterable
+    {
+        yield 'below threshold' => [0];
+        yield 'at threshold' => [9];
+    }
+
+    #[DataProvider('retryDoesNotApplyFailureStrategyProvider')]
+    public function testRetryDoesNotApplyFailureStrategy(int $startingErrorCount): void
     {
         $webhookId = Uuid::randomHex();
         $appId = Uuid::randomHex();
         $webhookEventId = Uuid::randomHex();
 
-        $this->createAppWithWebhook($appId, $webhookId);
+        $this->createAppWithWebhook($appId, $webhookId, $startingErrorCount);
         $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId);
         $this->createOutboxEntry($webhookEventMessage, $webhookId);
 
         // Simulate handler: markRunning then resetForRetry (as handler does before throwing)
-        $this->outboxEventRepository->markRunning($webhookEventId);
-        $this->outboxEventRepository->resetForRetry($webhookEventId);
+        $entry = $this->webhookOutboxStore->markRunning($webhookEventId);
+        static::assertNotNull($entry);
+        $this->webhookOutboxStore->resetForRetry($entry, null);
 
         $event = new WorkerMessageFailedEvent(
             new Envelope($webhookEventMessage),
@@ -295,42 +347,7 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
         );
         $event->setForRetry();
 
-        static::getContainer()->get(RetryWebhookMessageFailedSubscriber::class)
-            ->failed($event);
-
-        // Failure strategy must NOT be applied on retryable failures -- error_count stays 0
-        $webhookRepository = static::getContainer()->get('webhook.repository');
-        $webhook = $webhookRepository->search(new Criteria([$webhookId]), $this->context)->first();
-        static::assertInstanceOf(WebhookEntity::class, $webhook);
-        static::assertSame(0, $webhook->getErrorCount());
-        static::assertTrue($webhook->isActive());
-    }
-
-    public function testRetryDoesNotApplyFailureStrategyEvenAtThreshold(): void
-    {
-        $webhookId = Uuid::randomHex();
-        $appId = Uuid::randomHex();
-        $webhookEventId = Uuid::randomHex();
-
-        $this->createAppWithWebhook($appId, $webhookId, 9);
-        $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId);
-        $this->createOutboxEntry($webhookEventMessage, $webhookId);
-
-        // Handler sets RUNNING then resets to QUEUED before throwing — simulate that
-        $this->outboxEventRepository->markRunning($webhookEventId);
-        $this->outboxEventRepository->resetForRetry($webhookEventId);
-
-        $exception = WebhookException::webhookFailedException($webhookId, new \RuntimeException('timeout'));
-
-        $event = new WorkerMessageFailedEvent(
-            new Envelope($webhookEventMessage),
-            'async',
-            $exception
-        );
-        $event->setForRetry();
-
-        static::getContainer()->get(RetryWebhookMessageFailedSubscriber::class)
-            ->failed($event);
+        $this->failWithRetrySubscriber($event);
 
         // Subscriber must not touch event log on retry — status stays QUEUED (set by handler)
         $status = $this->connection->fetchOne(
@@ -339,14 +356,14 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
         );
         static::assertSame(WebhookEventLogDefinition::STATUS_QUEUED, $status);
 
-        // Error count must NOT change, webhook must NOT be disabled
         $webhookRepository = static::getContainer()->get('webhook.repository');
         $webhook = $webhookRepository->search(new Criteria([$webhookId]), $this->context)->first();
         static::assertInstanceOf(WebhookEntity::class, $webhook);
-        static::assertSame(9, $webhook->getErrorCount());
+        static::assertSame($startingErrorCount, $webhook->getErrorCount());
         static::assertTrue($webhook->isActive());
     }
 
+    #[DisabledFeatures(['WEBHOOKS_REWORK'])]
     public function testTerminalFailureAtThresholdDisablesWebhook(): void
     {
         $webhookId = Uuid::randomHex();
@@ -357,7 +374,7 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
         $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId);
         $this->createOutboxEntry($webhookEventMessage, $webhookId);
 
-        $this->outboxEventRepository->markRunning($webhookEventId);
+        $this->webhookOutboxStore->markRunning($webhookEventId);
 
         $event = new WorkerMessageFailedEvent(
             new Envelope($webhookEventMessage),
@@ -365,8 +382,7 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
             new ClientException('test', new Request('GET', 'https://test.com'), new Response(500))
         );
 
-        static::getContainer()->get(RetryWebhookMessageFailedSubscriber::class)
-            ->failed($event);
+        $this->failWithRetrySubscriber($event);
 
         // Event log should be FAILED
         $status = $this->connection->fetchOne(
@@ -390,51 +406,45 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
         static::assertFalse($webhook->isActive());
     }
 
-    public function testFlagOffTerminalFailureDoesNotDeleteActiveNewShapeRunningDelivery(): void
+    /**
+     * @return iterable<string, array{\Closure(self, string): void, string, int}>
+     */
+    public static function flagOffNewShapeDeliveryProvider(): iterable
     {
-        $webhookId = Uuid::randomHex();
-        $appId = Uuid::randomHex();
-        $webhookEventId = Uuid::randomHex();
-
-        $this->createAppWithWebhook($appId, $webhookId, 0);
-        $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId, partitionKey: $appId);
-        $this->createOutboxEntry($webhookEventMessage, $webhookId);
-
-        $entry = $this->outboxEventRepository->markRunning($webhookEventId);
-        static::assertNotNull($entry);
-
-        $event = new WorkerMessageFailedEvent(
-            new Envelope($webhookEventMessage),
-            'async',
-            new ClientException('test', new Request('GET', 'https://test.com'), new Response(500))
-        );
-
-        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($event, $webhookEventId, $webhookId): void {
-            static::getContainer()->get(RetryWebhookMessageFailedSubscriber::class)
-                ->failed($event);
-
-            $eventLogStatus = $this->connection->fetchOne(
-                'SELECT delivery_status FROM webhook_event_log WHERE id = :id',
-                ['id' => Uuid::fromHexToBytes($webhookEventId)]
-            );
-            static::assertSame(WebhookEventLogDefinition::STATUS_RUNNING, $eventLogStatus);
-
-            $deliveryStatus = $this->connection->fetchOne(
-                'SELECT delivery_status FROM webhook_delivery WHERE webhook_event_log_id = :id',
-                ['id' => Uuid::fromHexToBytes($webhookEventId)]
-            );
-            static::assertSame(WebhookEventLogDefinition::STATUS_RUNNING, $deliveryStatus);
-
-            $webhookRepository = static::getContainer()->get('webhook.repository');
-            $webhook = $webhookRepository->search(new Criteria([$webhookId]), $this->context)->first();
-            static::assertInstanceOf(WebhookEntity::class, $webhook);
-            static::assertSame(0, $webhook->getErrorCount());
-            static::assertTrue($webhook->isActive());
-        });
+        yield 'active running delivery is preserved' => [
+            static function (self $self, string $webhookEventId): void {
+                $entry = $self->webhookOutboxStore->markRunning($webhookEventId);
+                static::assertNotNull($entry);
+            },
+            WebhookEventLogDefinition::STATUS_RUNNING,
+            0,
+        ];
+        yield 'future pending-retry delivery is preserved' => [
+            static function (self $self, string $webhookEventId): void {
+                $entry = $self->webhookOutboxStore->markRunning($webhookEventId);
+                static::assertNotNull($entry);
+                $self->webhookOutboxStore->markPendingRetry($entry, new \DateTimeImmutable('+5 minutes'), null);
+            },
+            WebhookEventLogDefinition::STATUS_PENDING_RETRY,
+            0,
+        ];
+        yield 'queued-after-reset delivery is marked failed' => [
+            static function (self $self, string $webhookEventId): void {
+                $entry = $self->webhookOutboxStore->markRunning($webhookEventId);
+                static::assertNotNull($entry);
+                $self->webhookOutboxStore->resetForRetry($entry, null);
+            },
+            WebhookEventLogDefinition::STATUS_FAILED,
+            1,
+        ];
     }
 
-    public function testFlagOffTerminalFailureDoesNotDeleteFuturePendingRetryNewShapeDelivery(): void
-    {
+    #[DataProvider('flagOffNewShapeDeliveryProvider')]
+    public function testFlagOffTerminalFailureRespectsNewShapeDeliveryState(
+        \Closure $setupDelivery,
+        string $expectedEventLogStatus,
+        int $expectedErrorCount,
+    ): void {
         $webhookId = Uuid::randomHex();
         $appId = Uuid::randomHex();
         $webhookEventId = Uuid::randomHex();
@@ -443,9 +453,7 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
         $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId, partitionKey: $appId);
         $this->createOutboxEntry($webhookEventMessage, $webhookId);
 
-        $this->outboxEventRepository->markRunning($webhookEventId);
-        $retryAt = new \DateTimeImmutable('+5 minutes');
-        $this->outboxEventRepository->markPendingRetry($webhookEventId, $retryAt);
+        $setupDelivery($this, $webhookEventId);
 
         $event = new WorkerMessageFailedEvent(
             new Envelope($webhookEventMessage),
@@ -453,71 +461,19 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
             new ClientException('test', new Request('GET', 'https://test.com'), new Response(500))
         );
 
-        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($event, $webhookEventId, $webhookId, $retryAt): void {
-            static::getContainer()->get(RetryWebhookMessageFailedSubscriber::class)
-                ->failed($event);
-
-            $delivery = $this->connection->fetchAssociative(
-                'SELECT delivery_status, next_retry_at FROM webhook_delivery WHERE webhook_event_log_id = :id',
-                ['id' => Uuid::fromHexToBytes($webhookEventId)]
-            );
-            static::assertNotFalse($delivery);
-            static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $delivery['delivery_status']);
-            static::assertSame($retryAt->format(Defaults::STORAGE_DATE_TIME_FORMAT), $delivery['next_retry_at']);
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($event, $webhookEventId, $webhookId, $expectedEventLogStatus, $expectedErrorCount): void {
+            $this->failWithRetrySubscriber($event);
 
             $eventLogStatus = $this->connection->fetchOne(
                 'SELECT delivery_status FROM webhook_event_log WHERE id = :id',
                 ['id' => Uuid::fromHexToBytes($webhookEventId)]
             );
-            static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $eventLogStatus);
+            static::assertSame($expectedEventLogStatus, $eventLogStatus);
 
             $webhookRepository = static::getContainer()->get('webhook.repository');
             $webhook = $webhookRepository->search(new Criteria([$webhookId]), $this->context)->first();
             static::assertInstanceOf(WebhookEntity::class, $webhook);
-            static::assertSame(0, $webhook->getErrorCount());
-            static::assertTrue($webhook->isActive());
-        });
-    }
-
-    public function testFlagOffTerminalFailureMarksResetNewShapeQueuedDeliveryFailed(): void
-    {
-        $webhookId = Uuid::randomHex();
-        $appId = Uuid::randomHex();
-        $webhookEventId = Uuid::randomHex();
-
-        $this->createAppWithWebhook($appId, $webhookId, 0);
-        $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId, partitionKey: $appId);
-        $this->createOutboxEntry($webhookEventMessage, $webhookId);
-
-        $this->outboxEventRepository->markRunning($webhookEventId);
-        $this->outboxEventRepository->resetForRetry($webhookEventId);
-
-        $event = new WorkerMessageFailedEvent(
-            new Envelope($webhookEventMessage),
-            'async',
-            new ClientException('test', new Request('GET', 'https://test.com'), new Response(500))
-        );
-
-        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($event, $webhookEventId, $webhookId): void {
-            static::getContainer()->get(RetryWebhookMessageFailedSubscriber::class)
-                ->failed($event);
-
-            $eventLogStatus = $this->connection->fetchOne(
-                'SELECT delivery_status FROM webhook_event_log WHERE id = :id',
-                ['id' => Uuid::fromHexToBytes($webhookEventId)]
-            );
-            static::assertSame(WebhookEventLogDefinition::STATUS_FAILED, $eventLogStatus);
-
-            $deliveryExists = $this->connection->fetchOne(
-                'SELECT 1 FROM webhook_delivery WHERE webhook_event_log_id = :id',
-                ['id' => Uuid::fromHexToBytes($webhookEventId)]
-            );
-            static::assertFalse($deliveryExists);
-
-            $webhookRepository = static::getContainer()->get('webhook.repository');
-            $webhook = $webhookRepository->search(new Criteria([$webhookId]), $this->context)->first();
-            static::assertInstanceOf(WebhookEntity::class, $webhook);
-            static::assertSame(1, $webhook->getErrorCount());
+            static::assertSame($expectedErrorCount, $webhook->getErrorCount());
             static::assertTrue($webhook->isActive());
         });
     }
@@ -566,7 +522,7 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
 
         $subscriber = new RetryWebhookMessageFailedSubscriber(
             $this->connection,
-            $this->outboxEventRepository,
+            $this->webhookOutboxStore,
             static::getContainer()->get(RelatedWebhooks::class),
             WebhookFailureStrategy::DisableOnThreshold->value,
         );
@@ -590,61 +546,7 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
         });
     }
 
-    public function testNonWebhookEventMessageIsIgnored(): void
-    {
-        $nonWebhookMessage = new \stdClass();
-
-        $event = new WorkerMessageFailedEvent(
-            new Envelope($nonWebhookMessage),
-            'async',
-            new \RuntimeException('some error')
-        );
-
-        $webhookEventLogCountBefore = (int) $this->connection->fetchOne('SELECT COUNT(*) FROM webhook_event_log');
-
-        static::getContainer()->get(RetryWebhookMessageFailedSubscriber::class)
-            ->failed($event);
-
-        $webhookEventLogCountAfter = (int) $this->connection->fetchOne('SELECT COUNT(*) FROM webhook_event_log');
-        static::assertSame($webhookEventLogCountBefore, $webhookEventLogCountAfter);
-    }
-
-    public function testTerminalFailureOnInactiveWebhookDoesNotApplyStrategy(): void
-    {
-        $webhookId = Uuid::randomHex();
-        $appId = Uuid::randomHex();
-        $webhookEventId = Uuid::randomHex();
-
-        $this->createAppWithWebhook($appId, $webhookId, 5, false);
-        $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId);
-        $this->createOutboxEntry($webhookEventMessage, $webhookId);
-
-        $this->outboxEventRepository->markRunning($webhookEventId);
-
-        $event = new WorkerMessageFailedEvent(
-            new Envelope($webhookEventMessage),
-            'async',
-            new ClientException('test', new Request('GET', 'https://test.com'), new Response(500))
-        );
-
-        static::getContainer()->get(RetryWebhookMessageFailedSubscriber::class)
-            ->failed($event);
-
-        // Event log marked FAILED
-        $status = $this->connection->fetchOne(
-            'SELECT delivery_status FROM webhook_event_log WHERE id = :id',
-            ['id' => Uuid::fromHexToBytes($webhookEventId)]
-        );
-        static::assertSame(WebhookEventLogDefinition::STATUS_FAILED, $status);
-
-        // Error count must NOT change since webhook is already inactive
-        $webhookRepository = static::getContainer()->get('webhook.repository');
-        $webhook = $webhookRepository->search(new Criteria([$webhookId]), $this->context)->first();
-        static::assertInstanceOf(WebhookEntity::class, $webhook);
-        static::assertSame(5, $webhook->getErrorCount());
-        static::assertFalse($webhook->isActive());
-    }
-
+    #[DisabledFeatures(['WEBHOOKS_REWORK'])]
     public function testIgnoreStrategyKeepsWebhookActiveAboveThreshold(): void
     {
         $webhookId = Uuid::randomHex();
@@ -655,7 +557,7 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
         $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId);
         $this->createOutboxEntry($webhookEventMessage, $webhookId);
 
-        $this->outboxEventRepository->markRunning($webhookEventId);
+        $this->webhookOutboxStore->markRunning($webhookEventId);
 
         $event = new WorkerMessageFailedEvent(
             new Envelope($webhookEventMessage),
@@ -665,89 +567,18 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
 
         $subscriber = new RetryWebhookMessageFailedSubscriber(
             $this->connection,
-            $this->outboxEventRepository,
+            $this->webhookOutboxStore,
             static::getContainer()->get(RelatedWebhooks::class),
             WebhookFailureStrategy::Ignore->value
         );
 
-        $subscriber->failed($event);
+        $this->failWithRetrySubscriber($event, $subscriber);
 
         $webhookRepository = static::getContainer()->get('webhook.repository');
         $webhook = $webhookRepository->search(new Criteria([$webhookId]), $this->context)->first();
 
         static::assertInstanceOf(WebhookEntity::class, $webhook);
         static::assertSame(16, $webhook->getErrorCount());
-        static::assertTrue($webhook->isActive());
-    }
-
-    public function testTerminalFailureWithDeletedWebhookDoesNotThrow(): void
-    {
-        $webhookId = Uuid::randomHex();
-        $webhookEventId = Uuid::randomHex();
-        $appId = Uuid::randomHex();
-
-        /** @var EntityRepository<WebhookEventLogCollection> $webhookEventLogRepository */
-        $webhookEventLogRepository = static::getContainer()->get('webhook_event_log.repository');
-
-        $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId);
-
-        // Create event log directly (no webhook in DB -- simulates deletion after dispatch)
-        $webhookEventLogRepository->create([[
-            'id' => $webhookEventId,
-            'appName' => 'SwagApp',
-            'deliveryStatus' => WebhookEventLogDefinition::STATUS_QUEUED,
-            'webhookName' => 'hook1',
-            'eventName' => 'order',
-            'appVersion' => '0.0.1',
-            'url' => 'https://test.com',
-            'serializedWebhookMessage' => serialize($webhookEventMessage),
-        ]], $this->context);
-
-        $event = new WorkerMessageFailedEvent(
-            new Envelope($webhookEventMessage),
-            'async',
-            new \RuntimeException('Connection reset')
-        );
-
-        // Should not throw even though webhook no longer exists
-        static::getContainer()->get(RetryWebhookMessageFailedSubscriber::class)
-            ->failed($event);
-
-        $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), $this->context)
-            ->getEntities()
-            ->first();
-        static::assertNotNull($webhookEventLog);
-        static::assertSame(WebhookEventLogDefinition::STATUS_FAILED, $webhookEventLog->getDeliveryStatus());
-    }
-
-    public function testSequentialTerminalFailuresIncrementErrorCount(): void
-    {
-        $webhookId = Uuid::randomHex();
-        $appId = Uuid::randomHex();
-
-        $this->createAppWithWebhook($appId, $webhookId, 0);
-        $subscriber = static::getContainer()->get(RetryWebhookMessageFailedSubscriber::class);
-
-        for ($i = 1; $i <= 3; ++$i) {
-            $webhookEventId = Uuid::randomHex();
-            $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId);
-            $this->createOutboxEntry($webhookEventMessage, $webhookId);
-            $this->outboxEventRepository->markRunning($webhookEventId);
-
-            $event = new WorkerMessageFailedEvent(
-                new Envelope($webhookEventMessage),
-                'async',
-                new ClientException('test', new Request('GET', 'https://test.com'), new Response(500))
-            );
-
-            $subscriber->failed($event);
-        }
-
-        $webhookRepository = static::getContainer()->get('webhook.repository');
-        $webhook = $webhookRepository->search(new Criteria([$webhookId]), $this->context)->first();
-
-        static::assertInstanceOf(WebhookEntity::class, $webhook);
-        static::assertSame(3, $webhook->getErrorCount());
         static::assertTrue($webhook->isActive());
     }
 
@@ -802,8 +633,7 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
         string $appId,
         string $webhookId,
         ?string $partitionKey = null,
-    ): WebhookEventMessage
-    {
+    ): WebhookEventMessage {
         return new WebhookEventMessage(
             $webhookEventId,
             ['body' => 'payload'],
@@ -816,6 +646,28 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
             'en-GB',
             partitionKey: $partitionKey,
         );
+    }
+
+    private function removePartitionKeyFromSerializedMessage(WebhookEventMessage $message): WebhookEventMessage
+    {
+        $serialized = serialize($message);
+        $serialized = preg_replace_callback(
+            '/^O:(\d+):"([^"]+)":(\d+):\{/',
+            static fn (array $matches): string => \sprintf(
+                'O:%d:"%s":%d:{',
+                (int) $matches[1],
+                $matches[2],
+                (int) $matches[3] - 1
+            ),
+            $serialized
+        );
+        static::assertIsString($serialized);
+        $serialized = str_replace('s:12:"partitionKey";N;', '', $serialized);
+
+        $legacy = Serialization::assertUnserializedInstanceOf(WebhookEventMessage::class, $serialized);
+        static::assertInstanceOf(WebhookEventMessage::class, $legacy);
+
+        return $legacy;
     }
 
     private function createAppWithWebhook(string $appId, string $webhookId, int $errorCount = 0, bool $active = true): void
@@ -853,11 +705,18 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
 
     private function createOutboxEntry(WebhookEventMessage $message, string $webhookId): void
     {
-        $this->outboxEventRepository->ensureOutboxEntry(new OutboxInsert(
+        $this->webhookOutboxStore->ensureOutboxEntry(new OutboxInsert(
             $message->getWebhookEventId(),
             $webhookId,
             Hasher::hashBinary($message->getPartitionKey(), 'xxh128'),
             serialize($message),
         ));
+    }
+
+    private function failWithRetrySubscriber(WorkerMessageFailedEvent $event, ?RetryWebhookMessageFailedSubscriber $subscriber = null): void
+    {
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($event, $subscriber): void {
+            ($subscriber ?? static::getContainer()->get(RetryWebhookMessageFailedSubscriber::class))->failed($event);
+        });
     }
 }

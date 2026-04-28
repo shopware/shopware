@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Webhook\Transport;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository;
+use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
 use Shopware\Core\Framework\Webhook\Transport\MySQLWebhookReceiver;
 use Shopware\Core\Framework\Webhook\Transport\WebhookTransport;
 use Shopware\Core\Framework\Webhook\Transport\WebhookTransportFactory;
@@ -52,7 +52,7 @@ class WebhookTransportFactoryTest extends TestCase
     private function createFactory(): WebhookTransportFactory
     {
         return new WebhookTransportFactory(
-            $this->createMock(OutboxEventRepository::class),
+            $this->createMock(WebhookOutboxStore::class),
             $this->createMock(TransportInterface::class),
             $this->createMock(MySQLWebhookReceiver::class),
         );

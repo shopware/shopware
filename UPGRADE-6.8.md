@@ -6,47 +6,44 @@
 
 ## Webhook Messenger transport — explicit receiver configuration required
 
-The `WebhookConsumeMessagesSubscriber` introduced in v6.7 auto-injected the `webhook` receiver
-before `async` in `messenger:consume async …` invocations (only when `async` was explicitly
-present; specialty workers such as `messenger:consume failed` were left untouched). The
-subscriber is removed in v6.8.
+Webhook delivery now uses a dedicated `webhook` Messenger transport. During the 6.7
+minor rollout, Shopware keeps a compatibility bridge that prepends `webhook` to legacy
+`messenger:consume async` commands when the receiver is missing. In v6.8 this bridge is
+removed; worker receiver lists must be explicit.
 
-Operators must now configure the `webhook` transport explicitly:
+Operators should configure the `webhook` transport explicitly before upgrading:
 
-- Add `webhook` to your `messenger:consume` argument list: `bin/console messenger:consume webhook async`.
-  Put `webhook` first to keep the same priority the v6.7 subscriber provided.
+- Add `webhook` before your existing `messenger:consume` receiver list. For the default queue set, use `bin/console messenger:consume webhook async low_priority`.
+  Put `webhook` first so due webhook retries do not wait behind generic async backlog.
+- If you configure `shopware.admin_worker.transports`, update the list from `["async", "low_priority"]` to `["webhook", "async", "low_priority"]`:
+  ```yaml
+  shopware:
+      admin_worker:
+          transports: ["webhook", "async", "low_priority"]
+  ```
 
-Shops that ran the default `messenger:consume async` without updating to include `webhook`
-will stop consuming webhook deliveries after upgrading.
-
-### `messenger:consume --queues=X` deployments
-
-Operators who run queue-filtered workers (for example `messenger:consume async --queues=high`
-to shard across priority queues) must add a dedicated `messenger:consume webhook` worker.
-The `webhook` transport does not implement Symfony's `QueueReceiverInterface`, so mixing it
-into a `--queues=...` command raises `Receiver for "webhook" does not implement …` at
-startup. This replaces the v6.7 subscriber's silent no-op on `--queues=...`, which would have
-left webhook deliveries piling up in `webhook_delivery` behind a healthy-looking worker. The
-loud startup failure is the right signal to add the dedicated webhook consumer.
+Shops that still run `messenger:consume async` / `messenger:consume async low_priority`, or configure `shopware.admin_worker.transports` without `webhook`,
+will stop consuming webhook deliveries after upgrading to v6.8.
 
 ## Webhook delivery path under `admin_worker.enable_admin_worker=true` (default)
 
 The leased MySQL webhook receiver and the outbox-owned retry loop only run when webhooks
 flow through the Messenger `webhook` transport. With the default `admin_worker.enable_admin_worker=true`,
-`WebhookDeliveryService::process()` delivers webhooks **inline** (synchronously during the
-request that fires the event) and bypasses the MySQL receiver entirely — the admin worker is
-the fallback for installs that don't run a dedicated `messenger:consume` process, so disabling
-the inline path there would mean webhooks are never delivered.
+`WebhookDeliveryService::process()` delivers first attempts **inline** (synchronously during the
+request that fires the event) and bypasses the MySQL receiver for those first attempts — the
+admin worker is the fallback for installs that don't run a dedicated `messenger:consume`
+process, so disabling the inline path there would mean webhooks are never delivered. Failed
+inline attempts are still written as `PENDING_RETRY`; the default admin-worker transport list
+now includes `webhook` so the browser worker can drain those retries.
 
 To exercise the partitioned, leased, retry-aware receiver path:
 
 1. Set `shopware.admin_worker.enable_admin_worker: false` in `config/packages/shopware.yaml`.
-2. Run a dedicated consume process: `bin/console messenger:consume webhook async`.
+2. Run a dedicated consume process: `bin/console messenger:consume webhook async low_priority`.
 
-Installs that stay on the default `admin_worker=true` get the same webhook behavior as before
-(inline delivery on the request hot path); the MySQL receiver is available for operators who
-opt in. This trade-off is intentional: inline-on-admin-worker preserves existing deployments
-that don't run a worker, while the leased receiver serves installs that do.
+Installs that stay on the default `admin_worker=true` keep inline first attempts on the request
+hot path, with outbox-backed retries drained by the admin worker's `webhook` transport. Stream
+leasing and FIFO claims apply to worker-backed delivery, not to inline first attempts.
 
 ## Default CMS page ID now persisted for categories
 

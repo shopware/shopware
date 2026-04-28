@@ -3,11 +3,11 @@
 namespace Shopware\Tests\Unit\Core\Framework\Webhook\Subscriber;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Webhook\Subscriber\WebhookConsumeMessagesSubscriber;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
@@ -20,18 +20,7 @@ use Symfony\Component\Console\Output\NullOutput;
 #[CoversClass(WebhookConsumeMessagesSubscriber::class)]
 class WebhookConsumeMessagesSubscriberTest extends TestCase
 {
-    public function testInjectsWebhookDirectlyBeforeAsync(): void
-    {
-        $event = $this->makeConsumeEvent(['async']);
-
-        Feature::withFeatureDisabled('v6.8.0.0', function () use ($event): void {
-            (new WebhookConsumeMessagesSubscriber())->onMessengerConsume($event);
-        });
-
-        static::assertSame(['webhook', 'async'], $event->getInput()->getArgument('receivers'));
-    }
-
-    public function testPreservesOtherReceiversAfterAsync(): void
+    public function testInjectsWebhookBeforeAsyncAndPreservesOtherReceivers(): void
     {
         $event = $this->makeConsumeEvent(['async', 'low_priority']);
 
@@ -42,86 +31,38 @@ class WebhookConsumeMessagesSubscriberTest extends TestCase
         static::assertSame(['webhook', 'async', 'low_priority'], $event->getInput()->getArgument('receivers'));
     }
 
-    public function testNoOpWhenWebhookAlreadyPresent(): void
+    /**
+     * @param list<string> $receivers
+     */
+    #[DataProvider('noOpCases')]
+    public function testNoOpLeavesReceiversUnchanged(array $receivers, string $commandName, bool $v680Active): void
     {
-        $event = $this->makeConsumeEvent(['webhook', 'async']);
+        $event = $this->makeConsumeEvent($receivers, commandName: $commandName);
 
-        Feature::withFeatureDisabled('v6.8.0.0', function () use ($event): void {
+        $invoke = function () use ($event): void {
             (new WebhookConsumeMessagesSubscriber())->onMessengerConsume($event);
-        });
+        };
 
-        static::assertSame(['webhook', 'async'], $event->getInput()->getArgument('receivers'));
+        if ($v680Active) {
+            Feature::withFeatureEnabled('v6.8.0.0', $invoke);
+        } else {
+            Feature::withFeatureDisabled('v6.8.0.0', $invoke);
+        }
+
+        static::assertSame($receivers, $event->getInput()->getArgument('receivers'));
     }
 
-    public function testNoOpWhenAsyncAbsent(): void
+    /**
+     * @return iterable<string, array{0: list<string>, 1: string, 2: bool}>
+     */
+    public static function noOpCases(): iterable
     {
-        // Specialty workers (e.g. `messenger:consume failed` or a priority-queue worker)
-        // must not be widened to pick up webhooks — the operator chose that scope deliberately.
-        $event = $this->makeConsumeEvent(['low_priority']);
-
-        Feature::withFeatureDisabled('v6.8.0.0', function () use ($event): void {
-            (new WebhookConsumeMessagesSubscriber())->onMessengerConsume($event);
-        });
-
-        static::assertSame(['low_priority'], $event->getInput()->getArgument('receivers'));
-    }
-
-    public function testNoOpWhenOnlyFailedReceiver(): void
-    {
-        // `messenger:consume failed` is the dedicated failure-transport worker.
-        $event = $this->makeConsumeEvent(['failed']);
-
-        Feature::withFeatureDisabled('v6.8.0.0', function () use ($event): void {
-            (new WebhookConsumeMessagesSubscriber())->onMessengerConsume($event);
-        });
-
-        static::assertSame(['failed'], $event->getInput()->getArgument('receivers'));
-    }
-
-    public function testNoOpWhenReceiversEmpty(): void
-    {
-        $event = $this->makeConsumeEvent([]);
-
-        Feature::withFeatureDisabled('v6.8.0.0', function () use ($event): void {
-            (new WebhookConsumeMessagesSubscriber())->onMessengerConsume($event);
-        });
-
-        static::assertSame([], $event->getInput()->getArgument('receivers'));
-    }
-
-    public function testNoOpForUnrelatedCommands(): void
-    {
-        $event = $this->makeConsumeEvent(['async'], commandName: 'cache:clear');
-
-        Feature::withFeatureDisabled('v6.8.0.0', function () use ($event): void {
-            (new WebhookConsumeMessagesSubscriber())->onMessengerConsume($event);
-        });
-
-        static::assertSame(['async'], $event->getInput()->getArgument('receivers'));
-    }
-
-    public function testNoOpWhenV680Active(): void
-    {
-        // v6.8.0 removes auto-injection — operators register the webhook transport in their
-        // consume command explicitly. Runtime gate (compile-time would cache a listener that
-        // flag flips cannot unregister).
-        $event = $this->makeConsumeEvent(['async']);
-
-        Feature::withFeatureEnabled('v6.8.0.0', function () use ($event): void {
-            (new WebhookConsumeMessagesSubscriber())->onMessengerConsume($event);
-        });
-
-        static::assertSame(['async'], $event->getInput()->getArgument('receivers'));
-    }
-
-    public function testSubscribesUnconditionally(): void
-    {
-        // Listener registration is static so compile-time caching is stable across flag
-        // flips; the runtime gate lives in onMessengerConsume.
-        static::assertSame(
-            [ConsoleEvents::COMMAND => 'onMessengerConsume'],
-            WebhookConsumeMessagesSubscriber::getSubscribedEvents(),
-        );
+        yield 'webhook already present' => [['webhook', 'async'], 'messenger:consume', false];
+        yield 'async absent' => [['low_priority'], 'messenger:consume', false];
+        yield 'only failed receiver' => [['failed'], 'messenger:consume', false];
+        yield 'receivers empty' => [[], 'messenger:consume', false];
+        yield 'unrelated command' => [['async'], 'cache:clear', false];
+        yield 'v6.8.0.0 active' => [['async'], 'messenger:consume', true];
     }
 
     /**

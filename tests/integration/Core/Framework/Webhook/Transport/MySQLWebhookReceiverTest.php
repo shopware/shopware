@@ -3,7 +3,9 @@
 namespace Shopware\Tests\Integration\Core\Framework\Webhook\Transport;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
@@ -12,9 +14,9 @@ use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
-use Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxInsert;
 use Shopware\Core\Framework\Webhook\Outbox\StreamLockService;
+use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
 use Shopware\Core\Framework\Webhook\Transport\MySQLWebhookReceiver;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\Clock\MockClock;
@@ -30,7 +32,7 @@ class MySQLWebhookReceiverTest extends TestCase
 
     private Connection $connection;
 
-    private OutboxEventRepository $outbox;
+    private WebhookOutboxStore $outbox;
 
     private StreamLockService $lockService;
 
@@ -44,7 +46,7 @@ class MySQLWebhookReceiverTest extends TestCase
     {
         $this->connection = static::getContainer()->get(Connection::class);
         $this->clock = new MockClock(new \DateTimeImmutable('2026-04-20 10:00:00'));
-        $this->outbox = new OutboxEventRepository($this->connection, $this->clock);
+        $this->outbox = new WebhookOutboxStore($this->connection, $this->clock);
         $this->lockService = new StreamLockService($this->connection, $this->clock);
         $this->receiver = new MySQLWebhookReceiver($this->lockService, $this->outbox, $this->clock, new NullLogger());
         $this->ids = new IdsCollection();
@@ -76,7 +78,9 @@ class MySQLWebhookReceiverTest extends TestCase
     {
         $this->createWebhook('wh-1');
         $this->outbox->ensureOutboxEntry($this->entryFor('evt-1', 'wh-1'));
-        $this->outbox->markSuccess($this->ids->get('evt-1'));
+        $entry = $this->outbox->markRunning($this->ids->get('evt-1'));
+        static::assertNotNull($entry);
+        $this->outbox->markSuccess($entry, null);
 
         // Partition row still exists, but no due deliveries remain.
         $envelopes = iterator_to_array($this->asGenerator($this->receiver->get()));
@@ -155,7 +159,7 @@ class MySQLWebhookReceiverTest extends TestCase
 
         $entry = $this->outbox->markRunning($this->ids->get('evt-terminal'));
         static::assertNotNull($entry);
-        static::assertTrue($this->outbox->markSuccess($this->ids->get('evt-terminal'), null, $entry->executionCount, $entry->sequence));
+        static::assertTrue($this->outbox->markSuccess($entry, null));
 
         $partitionKey = Hasher::hashBinary(WebhookEventMessage::DEFAULT_PARTITION_KEY, 'xxh128');
         $this->connection->insert('webhook_delivery', [
@@ -269,11 +273,25 @@ class MySQLWebhookReceiverTest extends TestCase
         // on the next claim.
         $this->createWebhook('wh-1');
         $this->outbox->ensureOutboxEntry($this->entryFor('evt-1', 'wh-1'));
-        $envelopes = iterator_to_array($this->asGenerator($this->receiver->get()));
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('error')
+            ->with(
+                'Webhook handler rejected unexpectedly; leaving row for crash recovery',
+                static::callback(
+                    fn (array $context): bool => $context['webhookEventId'] === $this->ids->get('evt-1')
+                        && $context['webhookId'] === $this->ids->get('wh-1')
+                        && \is_string($context['workerId'])
+                        && $context['workerId'] !== ''
+                )
+            );
+        $receiver = new MySQLWebhookReceiver($this->lockService, $this->outbox, $this->clock, $logger);
+
+        $envelopes = iterator_to_array($this->asGenerator($receiver->get()));
         static::assertCount(1, $envelopes);
 
         $this->outbox->markRunning($this->ids->get('evt-1'));
-        $this->receiver->reject($envelopes[0]);
+        $receiver->reject($envelopes[0]);
 
         $row = $this->connection->fetchAssociative(
             'SELECT delivery_status FROM webhook_delivery WHERE webhook_event_log_id = :id',
@@ -283,40 +301,17 @@ class MySQLWebhookReceiverTest extends TestCase
         static::assertSame(WebhookEventLogDefinition::STATUS_RUNNING, $row['delivery_status']);
     }
 
-    public function testRejectSkipsUnexpectedEnvelope(): void
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function unprocessableBlobProvider(): iterable
     {
-        // Defensive: if Symfony ever routes a non-WebhookEventMessage envelope through this
-        // transport, the receiver must not fatal on a missing method call.
-        $this->expectNotToPerformAssertions();
-        $receiver = new MySQLWebhookReceiver($this->lockService, $this->outbox, $this->clock, new NullLogger());
-
-        $receiver->reject(new Envelope(new \stdClass()));
+        yield 'wrong-class blob' => [serialize(new \stdClass())];
+        yield 'malformed blob' => ['not-a-valid-serialized-message'];
     }
 
-    public function testFetchStopsYieldingWhenLeaseAbandonedMidBatch(): void
-    {
-        $this->truncateHarnessTables();
-
-        // Insert several messages so the generator yields more than one envelope.
-        $this->createWebhook('wh-1');
-        for ($i = 1; $i <= 3; ++$i) {
-            $this->outbox->ensureOutboxEntry($this->entryFor('evt-' . $i, 'wh-1'));
-        }
-
-        $yielded = [];
-        foreach ($this->receiver->get() as $envelope) {
-            $yielded[] = $envelope;
-            if (\count($yielded) === 1) {
-                // Simulate keepalive detecting a stolen lease — abandonLease clears currentLease.
-                $ref = new \ReflectionProperty(MySQLWebhookReceiver::class, 'currentLease');
-                $ref->setValue($this->receiver, null);
-            }
-        }
-
-        static::assertCount(1, $yielded, 'fetch() must stop yielding once the lease is abandoned');
-    }
-
-    public function testBrokenMessageIsMarkedAsFailed(): void
+    #[DataProvider('unprocessableBlobProvider')]
+    public function testUnprocessableBlobIsMarkedFailedAndPartitionContinues(string $serializedBlob): void
     {
         $this->truncateHarnessTables();
 
@@ -331,7 +326,7 @@ class MySQLWebhookReceiverTest extends TestCase
             'event_name' => 'product.written',
             'url' => 'https://example.com/webhook',
             'created_at' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            'serialized_webhook_message' => serialize(new \stdClass()),
+            'serialized_webhook_message' => $serializedBlob,
         ]);
         $partitionKey = Hasher::hashBinary(WebhookEventMessage::DEFAULT_PARTITION_KEY, 'xxh128');
         $this->connection->insert('webhook_delivery', [
@@ -362,12 +357,22 @@ class MySQLWebhookReceiverTest extends TestCase
         );
     }
 
-    public function testKeepaliveDoesNotShrinkLeaseWhenHintIsSmallerThanRemaining(): void
+    /**
+     * @return iterable<string, array{int, bool}>
+     */
+    public static function keepaliveHintProvider(): iterable
     {
         // Symfony's `--keepalive` signals with a small `$seconds` (default 5s). If we treated
         // that as an exact extension, a healthy 240s lease would collapse to 5s and leave a
-        // window for another worker to steal the partition. Keep the lease at its current
-        // expiry when the hint is smaller than what we already have.
+        // window for another worker to steal the partition. A long hint (e.g. a long-running
+        // handler signaling its own budget) must instead push the lease past current expiry.
+        yield 'small hint keeps current expiry' => [5, false];
+        yield 'large hint extends past current expiry' => [MySQLWebhookReceiver::LEASE_SECONDS * 3, true];
+    }
+
+    #[DataProvider('keepaliveHintProvider')]
+    public function testKeepaliveHonorsMinimumHintSemantics(int $hintSeconds, bool $expectExtension): void
+    {
         $this->createWebhook('wh-1');
         $this->outbox->ensureOutboxEntry($this->entryFor('evt-1', 'wh-1'));
 
@@ -381,41 +386,45 @@ class MySQLWebhookReceiverTest extends TestCase
         );
 
         $this->clock->modify('+1 seconds');
-        $this->receiver->keepalive($envelopes[0], 5);
+        $this->receiver->keepalive($envelopes[0], $hintSeconds);
 
         $expiresAfter = $this->connection->fetchOne(
             'SELECT lock_expires_at FROM webhook_stream WHERE partition_key = :pk',
             ['pk' => $partitionKey]
         );
 
-        static::assertSame($originalExpiry, $expiresAfter, 'keepalive must not shrink the lease when the hint is smaller than the remaining time');
+        if ($expectExtension) {
+            $expected = $this->clock->now()
+                ->modify(\sprintf('+%d seconds', $hintSeconds))
+                ->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+            static::assertSame($expected, $expiresAfter);
+        } else {
+            static::assertSame($originalExpiry, $expiresAfter, 'keepalive must not shrink the lease when the hint is smaller than the remaining time');
+        }
     }
 
-    public function testKeepaliveExtendsLeaseWhenHintExceedsRemaining(): void
+    public function testReusedLeaseStopsWhenOwnershipWasStolen(): void
     {
-        // Symfony's contract says `$seconds` is the minimum duration the message must stay
-        // alive. A long-running handler that signals its own budget (e.g. 720s) must push
-        // the lease out past the current expiry, not get clamped to it.
         $this->createWebhook('wh-1');
         $this->outbox->ensureOutboxEntry($this->entryFor('evt-1', 'wh-1'));
 
-        $envelopes = iterator_to_array($this->asGenerator($this->receiver->get()));
-        static::assertCount(1, $envelopes);
-
-        $longHint = MySQLWebhookReceiver::LEASE_SECONDS * 3;
-        $this->clock->modify('+1 seconds');
-        $this->receiver->keepalive($envelopes[0], $longHint);
+        $first = iterator_to_array($this->asGenerator($this->receiver->get()));
+        static::assertCount(1, $first);
 
         $partitionKey = Hasher::hashBinary(WebhookEventMessage::DEFAULT_PARTITION_KEY, 'xxh128');
-        $expiresAt = $this->connection->fetchOne(
-            'SELECT lock_expires_at FROM webhook_stream WHERE partition_key = :pk',
-            ['pk' => $partitionKey]
+        $this->connection->executeStatement(
+            'UPDATE webhook_stream SET locked_by = :worker, lock_expires_at = :expiresAt WHERE partition_key = :pk',
+            [
+                'worker' => 'other-worker',
+                'expiresAt' => $this->clock->now()->modify('+60 seconds')->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'pk' => $partitionKey,
+            ]
         );
 
-        $expected = $this->clock->now()
-            ->modify(\sprintf('+%d seconds', $longHint))
-            ->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-        static::assertSame($expected, $expiresAt);
+        $this->outbox->ensureOutboxEntry($this->entryFor('evt-2', 'wh-1'));
+
+        $second = iterator_to_array($this->asGenerator($this->receiver->get()));
+        static::assertSame([], $second);
     }
 
     public function testFetchStopsYieldingWhenLeaseExpiresMidBatch(): void
@@ -462,7 +471,9 @@ class MySQLWebhookReceiverTest extends TestCase
         foreach ($first as $envelope) {
             $message = $envelope->getMessage();
             static::assertInstanceOf(WebhookEventMessage::class, $message);
-            $this->outbox->markSuccess($message->getWebhookEventId());
+            $entry = $this->outbox->markRunning($message->getWebhookEventId());
+            static::assertNotNull($entry);
+            $this->outbox->markSuccess($entry, null);
         }
 
         // The batch budget is used up — the next fetch releases and re-claims before draining
@@ -523,17 +534,68 @@ class MySQLWebhookReceiverTest extends TestCase
         static::assertSame(WebhookEventLogDefinition::STATUS_FAILED, $status);
     }
 
-    public function testBlobEventIdMismatchIsDropped(): void
+    public function testFetchEmptyAfterClaimReleasesPartition(): void
     {
-        // A well-formed serialized WebhookEventMessage whose internal eventId does not match
-        // the row we leased it from must be dropped — otherwise markSuccess/markFailed on the
-        // blob's id could mutate a completely different event's state (migration-corrupted
-        // blob, SQL-write tampering).
+        // Race: receiver acquires (or reuses) a lease successfully, but by the time fetchDue
+        // runs another worker has drained the partition. The empty-fetch branch must release
+        // the lease so a different partition gets a turn next tick.
+        //
+        // First get() claims the partition and yields the entry. Between calls we mutate the
+        // delivery row so its predicate no longer satisfies fetchDue's claimable filter, while
+        // leaving the webhook_stream lock row intact. The second get() reuses the live lease
+        // (ensureLeaseOwnership succeeds), runs fetchDue, gets [], and falls through to
+        // releaseLease — observable by locked_by/lock_expires_at clearing on the stream row.
+        $this->createWebhook('wh-1');
+        $this->outbox->ensureOutboxEntry($this->entryFor('evt-1', 'wh-1'));
+
+        $first = iterator_to_array($this->asGenerator($this->receiver->get()));
+        static::assertCount(1, $first);
+
+        $partitionKey = Hasher::hashBinary(WebhookEventMessage::DEFAULT_PARTITION_KEY, 'xxh128');
+        $lockBefore = $this->connection->fetchAssociative(
+            'SELECT locked_by, lock_expires_at FROM webhook_stream WHERE partition_key = :pk',
+            ['pk' => $partitionKey]
+        );
+        static::assertNotFalse($lockBefore);
+        static::assertNotNull($lockBefore['locked_by']);
+        static::assertNotNull($lockBefore['lock_expires_at']);
+
+        // Move the entry's next_retry_at far into the future so fetchDue's
+        // `next_retry_at <= :now` predicate excludes it. Status remains QUEUED, so this
+        // simulates a sibling worker pushing the row out of the due-set without changing
+        // the webhook_stream lock.
+        $farFuture = $this->clock->now()->modify('+1 hour')->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $this->connection->executeStatement(
+            'UPDATE webhook_delivery SET next_retry_at = :farFuture WHERE webhook_event_log_id = :id',
+            [
+                'farFuture' => $farFuture,
+                'id' => $this->ids->getBytes('evt-1'),
+            ]
+        );
+
+        $second = iterator_to_array($this->asGenerator($this->receiver->get()));
+        static::assertSame([], $second);
+
+        $lockAfter = $this->connection->fetchAssociative(
+            'SELECT locked_by, lock_expires_at FROM webhook_stream WHERE partition_key = :pk',
+            ['pk' => $partitionKey]
+        );
+        static::assertNotFalse($lockAfter);
+        static::assertNull($lockAfter['locked_by'], 'empty fetch must release the partition lease');
+        static::assertNull($lockAfter['lock_expires_at']);
+    }
+
+    public function testEventIdMismatchInBlobIsDropped(): void
+    {
+        // DB row's webhook_event_log_id and the serialized blob's webhookEventId disagree —
+        // a botched migration or manual SQL splice. toEnvelope must refuse to trust the blob
+        // and fail the entry rather than emitting a message whose identity doesn't match the
+        // tracked row.
         $this->truncateHarnessTables();
         $this->createWebhook('wh-1');
 
-        $rowEventId = $this->ids->get('row-evt');
-        $blobEventId = $this->ids->get('blob-evt');
+        $rowEventId = $this->ids->get('evt-row');
+        $blobEventId = $this->ids->get('evt-blob');
         static::assertNotSame($rowEventId, $blobEventId);
 
         $blobMessage = new WebhookEventMessage(
@@ -577,26 +639,36 @@ class MySQLWebhookReceiverTest extends TestCase
             ]
         );
 
-        $envelopes = iterator_to_array($this->asGenerator($this->receiver->get()));
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('error')
+            ->with(
+                'Discarded unreadable webhook delivery',
+                static::callback(
+                    static fn (array $context): bool => $context['webhookEventId'] === $rowEventId
+                        && \is_string($context['workerId'])
+                        && $context['workerId'] !== ''
+                )
+            );
+        $receiver = new MySQLWebhookReceiver($this->lockService, $this->outbox, $this->clock, $logger);
+
+        $envelopes = iterator_to_array($this->asGenerator($receiver->get()));
         static::assertSame([], $envelopes);
 
-        $rowStatus = $this->connection->fetchOne(
-            'SELECT delivery_status FROM webhook_event_log WHERE id = :id',
-            ['id' => Uuid::fromHexToBytes($rowEventId)]
+        // Entry was failed against the row's id — markUndeliverableFetchedEntryFailed updates
+        // the event_log row and deletes the delivery row.
+        static::assertSame(
+            WebhookEventLogDefinition::STATUS_FAILED,
+            $this->connection->fetchOne(
+                'SELECT delivery_status FROM webhook_event_log WHERE id = :id',
+                ['id' => Uuid::fromHexToBytes($rowEventId)]
+            )
         );
-        static::assertSame(WebhookEventLogDefinition::STATUS_FAILED, $rowStatus);
-
-        $blobRowExists = $this->connection->fetchOne(
-            'SELECT id FROM webhook_event_log WHERE id = :id',
-            ['id' => Uuid::fromHexToBytes($blobEventId)]
-        );
-        static::assertFalse($blobRowExists, 'the unrelated blob event must not have been created by the mismatch path');
-
         $deliveryCount = (int) $this->connection->fetchOne(
             'SELECT COUNT(*) FROM webhook_delivery WHERE webhook_event_log_id = :id',
             ['id' => Uuid::fromHexToBytes($rowEventId)]
         );
-        static::assertSame(0, $deliveryCount, 'delivery row of the leased event must be deleted');
+        static::assertSame(0, $deliveryCount);
     }
 
     public function testTypedPropertyMismatchBlobIsDropped(): void

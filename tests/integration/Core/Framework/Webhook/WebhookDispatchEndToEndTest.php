@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Webhook;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -18,8 +19,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
-use Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository;
 use Shopware\Core\Framework\Webhook\Outbox\RetryDelayCalculator;
+use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
 use Shopware\Core\Framework\Webhook\Service\WebhookClient;
 use Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
@@ -31,19 +32,21 @@ use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 
 /**
- * End-to-end dispatch coverage asserting the functional contract holds identically
- * under `WEBHOOKS_REWORK` ON and OFF. Each test receives the target flag state via
- * #[DataProvider], so the two variants are visible in the method signature and
- * PHPUnit reports them as sibling cases (`#flag off`, `#flag on`).
+ * End-to-end dispatch coverage for the outbox transport. Two smoke tests run under
+ * both `WEBHOOKS_REWORK` ON and OFF via #[DataProvider('flagStates')] to confirm the
+ * happy-path and transient-failure contracts hold identically across transports:
+ *  - `testAsyncWebhookIsDeliveredAndPublishesConsumerContract`
+ *  - `testTransientFailureDoesNotBlockLaterMessagesOnSamePartition`
+ *
+ * The remaining tests run flag-ON only — they target outbox-specific behaviour
+ * (retry-cycle, terminal failure, recovery against stale results, sync inline path,
+ * insertion order, multi-webhook fan-out) where the flag-OFF leg either duplicates
+ * coverage already provided by the dispatcher's own suite or relies on Messenger
+ * wiring (`SendFailedMessageForRetryListener`) that `QueueTestBehaviour::runWorker()`
+ * does not provide.
  *
  * Assertions target observable end-state — the outbox (`webhook_event_log`,
  * `webhook_delivery`) and the outgoing HTTP request.
- *
- * Retry-cycle tests run flag-ON only: the outbox owns the retry loop under that
- * flag and the harness can drive it end-to-end. Flag-OFF retry is Messenger-driven
- * via `SendFailedMessageForRetryListener`, which `QueueTestBehaviour::runWorker()`
- * does not wire into its ad-hoc dispatcher; that path is covered in
- * `RetryWebhookMessageFailedSubscriberTest`.
  *
  * @internal
  */
@@ -83,71 +86,13 @@ class WebhookDispatchEndToEndTest extends TestCase
 
     /**
      * Steps:
-     * 1. Register a webhook for `CustomerBeforeLoginEvent`.
-     * 2. Dispatch the event.
-     *
-     * Expected:
-     * - Exactly one `webhook_event_log` row exists for the webhook.
-     * - Its `event_name` matches the dispatched event.
-     */
-    #[DataProvider('flagStates')]
-    public function testDispatchWritesOneOutboxEntryWithCorrectMetadata(bool $flagActive): void
-    {
-        $webhookId = Uuid::randomHex();
-        $webhookUrl = 'https://example.com/webhook';
-
-        $this->createWebhook($webhookId, 'test-webhook', CustomerBeforeLoginEvent::EVENT_NAME, $webhookUrl);
-        $this->appendNewResponse(new Response(200));
-
-        $manager = $this->getWebhookManager(isAdminWorkerEnabled: false);
-        $event = $this->createCustomerBeforeLoginEvent();
-
-        $this->withFlag($flagActive, function () use ($manager, $event): void {
-            $manager->dispatch($event);
-        });
-
-        $eventLogs = $this->connection->fetchAllAssociative(
-            'SELECT id, event_name FROM webhook_event_log WHERE webhook_name = :name',
-            ['name' => 'test-webhook']
-        );
-        static::assertCount(1, $eventLogs, 'Dispatch must persist exactly one outbox entry regardless of transport');
-        static::assertSame(CustomerBeforeLoginEvent::EVENT_NAME, $eventLogs[0]['event_name']);
-    }
-
-    /**
-     * Steps:
-     * 1. Dispatch a `CustomerBeforeLoginEvent` with no webhook registered for it.
-     *
-     * Expected:
-     * - No `webhook_event_log` rows are written for the event.
-     */
-    #[DataProvider('flagStates')]
-    public function testNoWebhookRegisteredDispatchesNoOutboxEntry(bool $flagActive): void
-    {
-        $manager = $this->getWebhookManager(isAdminWorkerEnabled: false);
-        $event = $this->createCustomerBeforeLoginEvent();
-
-        $this->withFlag($flagActive, function () use ($manager, $event): void {
-            $manager->dispatch($event);
-        });
-
-        $count = (int) $this->connection->fetchOne(
-            'SELECT COUNT(*) FROM webhook_event_log WHERE event_name = :name',
-            ['name' => CustomerBeforeLoginEvent::EVENT_NAME]
-        );
-        static::assertSame(0, $count);
-    }
-
-    /**
-     * Steps:
      * 1. Register two webhooks for the same event.
      * 2. Dispatch the event once.
      *
      * Expected:
      * - Each registered webhook produced its own `webhook_event_log` row.
      */
-    #[DataProvider('flagStates')]
-    public function testMultipleWebhooksForSameEventDispatchMultipleOutboxEntries(bool $flagActive): void
+    public function testMultipleWebhooksForSameEventDispatchMultipleOutboxEntries(): void
     {
         $webhookId1 = Uuid::randomHex();
         $webhookId2 = Uuid::randomHex();
@@ -161,7 +106,7 @@ class WebhookDispatchEndToEndTest extends TestCase
         $manager = $this->getWebhookManager(isAdminWorkerEnabled: false);
         $event = $this->createCustomerBeforeLoginEvent();
 
-        $this->withFlag($flagActive, function () use ($manager, $event): void {
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($manager, $event): void {
             $manager->dispatch($event);
         });
 
@@ -184,8 +129,7 @@ class WebhookDispatchEndToEndTest extends TestCase
      * - HTTP POST fired; `X-Shopware-Event-Id` and `X-Shopware-Sequence` match the outbox row;
      *   `X-Shopware-Attempt` is `"0"` (0-indexed first attempt).
      */
-    #[DataProvider('flagStates')]
-    public function testSyncPathDeliversWithinDispatchAndEmitsConsumerContractHeaders(bool $flagActive): void
+    public function testSyncPathDeliversWithinDispatchAndEmitsConsumerContractHeaders(): void
     {
         $webhookId = Uuid::randomHex();
         $this->createWebhook($webhookId, 'test-webhook', CustomerBeforeLoginEvent::EVENT_NAME, 'https://example.com/webhook');
@@ -195,7 +139,7 @@ class WebhookDispatchEndToEndTest extends TestCase
         $manager = $this->getWebhookManager(isAdminWorkerEnabled: true);
         $event = $this->createCustomerBeforeLoginEvent();
 
-        $this->withFlag($flagActive, function () use ($manager, $event): void {
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($manager, $event): void {
             $manager->dispatch($event);
         });
 
@@ -281,6 +225,70 @@ class WebhookDispatchEndToEndTest extends TestCase
         static::assertSame(0, $deliveryCount, 'Delivery row should be cleaned up after successful delivery');
     }
 
+    public function testStaleDeliveryResultCannotClobberRecoveredAttemptThroughDeliveryService(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $this->createWebhook($webhookId, 'test-webhook', CustomerBeforeLoginEvent::EVENT_NAME, 'https://example.com/webhook');
+        $this->connection->update('webhook', ['error_count' => 7], ['id' => Uuid::fromHexToBytes($webhookId)]);
+
+        $manager = $this->getWebhookManager(isAdminWorkerEnabled: false);
+        $event = $this->createCustomerBeforeLoginEvent();
+
+        $this->withFlag(true, function () use ($manager, $event): void {
+            $manager->dispatch($event);
+        });
+
+        $eventId = $this->fetchOutboxEventId('test-webhook');
+        $eventLogBytes = Uuid::fromHexToBytes($eventId);
+        $partitionKey = $this->connection->fetchOne(
+            'SELECT partition_key FROM webhook_delivery WHERE webhook_event_log_id = :id',
+            ['id' => $eventLogBytes]
+        );
+        static::assertIsString($partitionKey);
+
+        $outbox = static::getContainer()->get(WebhookOutboxStore::class);
+        $secondAttemptSequence = null;
+        $mockHandler = static::getContainer()->get(MockHandler::class);
+        static::assertInstanceOf(MockHandler::class, $mockHandler);
+        $mockHandler->append(function () use ($outbox, $eventId, $partitionKey, &$secondAttemptSequence): Response {
+            $outbox->resetRunningForPartition($partitionKey, 0);
+            $secondAttempt = $outbox->markRunning($eventId);
+            static::assertNotNull($secondAttempt);
+            static::assertSame(2, $secondAttempt->executionCount);
+            $secondAttemptSequence = $secondAttempt->sequence;
+
+            return new Response(200, [], '{"ok":true}');
+        });
+
+        $this->withFlag(true, function (): void {
+            $this->runWorker();
+        });
+
+        static::assertSame(1, $this->getRequestCount());
+        static::assertIsInt($secondAttemptSequence);
+
+        $delivery = $this->connection->fetchAssociative(
+            'SELECT id, delivery_status, execution_count FROM webhook_delivery WHERE webhook_event_log_id = :id',
+            ['id' => $eventLogBytes]
+        );
+        static::assertNotFalse($delivery, 'stale success must not delete the recovered active attempt');
+        static::assertSame($secondAttemptSequence, (int) $delivery['id']);
+        static::assertSame(WebhookEventLogDefinition::STATUS_RUNNING, $delivery['delivery_status']);
+        static::assertSame(2, (int) $delivery['execution_count']);
+
+        $eventLogStatus = $this->connection->fetchOne(
+            'SELECT delivery_status FROM webhook_event_log WHERE id = :id',
+            ['id' => $eventLogBytes]
+        );
+        static::assertSame(WebhookEventLogDefinition::STATUS_RUNNING, $eventLogStatus);
+
+        $errorCount = $this->connection->fetchOne(
+            'SELECT error_count FROM webhook WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($webhookId)]
+        );
+        static::assertSame(7, (int) $errorCount, 'stale success must not reset webhook error_count');
+    }
+
     /**
      * Steps:
      * 1. Register one webhook.
@@ -292,8 +300,7 @@ class WebhookDispatchEndToEndTest extends TestCase
      * - `X-Shopware-Sequence` is strictly monotonically increasing across the three
      *   requests (insertion order is preserved within the partition).
      */
-    #[DataProvider('flagStates')]
-    public function testMessagesForSameWebhookDeliverInInsertionOrder(bool $flagActive): void
+    public function testMessagesForSameWebhookDeliverInInsertionOrder(): void
     {
         $webhookId = Uuid::randomHex();
         $this->createWebhook($webhookId, 'test-webhook', CustomerBeforeLoginEvent::EVENT_NAME, 'https://example.com/webhook');
@@ -304,7 +311,7 @@ class WebhookDispatchEndToEndTest extends TestCase
 
         $manager = $this->getWebhookManager(isAdminWorkerEnabled: false);
 
-        $this->withFlag($flagActive, function () use ($manager): void {
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($manager): void {
             $manager->dispatch($this->createCustomerBeforeLoginEvent());
             $manager->dispatch($this->createCustomerBeforeLoginEvent());
             $manager->dispatch($this->createCustomerBeforeLoginEvent());
@@ -452,11 +459,12 @@ class WebhookDispatchEndToEndTest extends TestCase
             // pair bumps execution_count by 1. After 5 pairs the next markRunning (driven by the
             // worker) will bump to 6 and trip the terminal branch inside handleFailure.
             $eventId = $this->fetchOutboxEventId('test-webhook');
-            $stateService = static::getContainer()->get(OutboxEventRepository::class);
+            $stateService = static::getContainer()->get(WebhookOutboxStore::class);
             $past = new \DateTimeImmutable('-1 minute');
             for ($i = 0; $i < 5; ++$i) {
-                $stateService->markRunning($eventId);
-                $stateService->markPendingRetry($eventId, $past);
+                $entry = $stateService->markRunning($eventId);
+                static::assertNotNull($entry);
+                $stateService->markPendingRetry($entry, $past, null);
             }
 
             $this->runWorker();
@@ -552,14 +560,17 @@ class WebhookDispatchEndToEndTest extends TestCase
     }
 
     /**
-     * Re-queues the delivery for immediate pickup on the next worker tick by reusing the
-     * repository's own `markPendingRetry` seam — no schema-level UPDATE needed.
+     * Makes an already scheduled retry immediately pickable by the next worker tick.
      */
     private function makeRetryImmediatelyDue(string $webhookName): void
     {
-        static::getContainer()->get(OutboxEventRepository::class)->markPendingRetry(
-            $this->fetchOutboxEventId($webhookName),
-            new \DateTimeImmutable('-1 minute'),
+        $eventId = $this->fetchOutboxEventId($webhookName);
+        $this->connection->executeStatement(
+            'UPDATE webhook_delivery SET next_retry_at = :retryAt WHERE webhook_event_log_id = :id',
+            [
+                'retryAt' => (new \DateTimeImmutable('-1 minute'))->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'id' => Uuid::fromHexToBytes($eventId),
+            ]
         );
     }
 
@@ -576,7 +587,7 @@ class WebhookDispatchEndToEndTest extends TestCase
         $deliveryService = new WebhookDeliveryService(
             $webhookClient,
             static::getContainer()->get(AppPayloadServiceHelper::class),
-            static::getContainer()->get(OutboxEventRepository::class),
+            static::getContainer()->get(WebhookOutboxStore::class),
             static::getContainer()->get(RetryDelayCalculator::class),
             static::getContainer()->get('messenger.default_bus'),
             static::getContainer()->get(WebhookStateRepository::class),
@@ -596,7 +607,7 @@ class WebhookDispatchEndToEndTest extends TestCase
             Kernel::SHOPWARE_FALLBACK_VERSION,
             $isAdminWorkerEnabled,
             $deliveryService,
-            static::getContainer()->get(OutboxEventRepository::class),
+            static::getContainer()->get(WebhookOutboxStore::class),
         );
     }
 

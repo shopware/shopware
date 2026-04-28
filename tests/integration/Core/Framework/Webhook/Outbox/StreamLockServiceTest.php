@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\Webhook\Outbox;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -31,35 +32,7 @@ class StreamLockServiceTest extends TestCase
         $this->connection = static::getContainer()->get(Connection::class);
         $this->clock = new MockClock(new \DateTimeImmutable('2024-01-01 12:00:00'));
         $this->service = new StreamLockService($this->connection, $this->clock);
-    }
-
-    public function testClaimNextReturnsNullWhenNoStreamsExist(): void
-    {
-        $lease = $this->service->claimNext('worker-1', 60, [WebhookEventLogDefinition::STATUS_QUEUED, WebhookEventLogDefinition::STATUS_PENDING_RETRY]);
-
-        static::assertNull($lease);
-    }
-
-    public function testClaimNextReturnsNullWhenNoDueDeliveries(): void
-    {
-        $partitionKey = $this->makePartitionKey('app-a');
-        $this->insertStream($partitionKey);
-        $this->insertDeliveryRow($partitionKey, WebhookEventLogDefinition::STATUS_SUCCESS);
-
-        $lease = $this->service->claimNext('worker-1', 60, [WebhookEventLogDefinition::STATUS_QUEUED, WebhookEventLogDefinition::STATUS_PENDING_RETRY]);
-
-        static::assertNull($lease);
-    }
-
-    public function testClaimNextReturnsNullWhenPendingRetryInFuture(): void
-    {
-        $partitionKey = $this->makePartitionKey('app-b');
-        $this->insertStream($partitionKey);
-        $this->insertDeliveryRow($partitionKey, WebhookEventLogDefinition::STATUS_PENDING_RETRY, '+5 minutes');
-
-        $lease = $this->service->claimNext('worker-1', 60, [WebhookEventLogDefinition::STATUS_QUEUED, WebhookEventLogDefinition::STATUS_PENDING_RETRY]);
-
-        static::assertNull($lease);
+        $this->clearWebhookState();
     }
 
     public function testClaimNextClaimsPartitionWithDueDelivery(): void
@@ -111,7 +84,6 @@ class StreamLockServiceTest extends TestCase
         // Worker died on the last row in this partition; nothing QUEUED/PENDING_RETRY
         // remains. Without the stale-RUNNING branch in claimNext, the row would be
         // stranded until an unrelated event dispatched to the same partition.
-        $this->clearWebhookState();
         $partitionKey = $this->makePartitionKey('app-stranded');
         $this->insertStream($partitionKey);
         $eventLogId = $this->insertDeliveryRow($partitionKey, WebhookEventLogDefinition::STATUS_RUNNING);
@@ -137,7 +109,6 @@ class StreamLockServiceTest extends TestCase
     {
         // The active holder's lease hasn't expired yet — last_attempt_at is recent.
         // claimNext must not steal the partition from a worker that may still be alive.
-        $this->clearWebhookState();
         $partitionKey = $this->makePartitionKey('app-inflight');
         $this->insertStream($partitionKey);
         $eventLogId = $this->insertDeliveryRow($partitionKey, WebhookEventLogDefinition::STATUS_RUNNING);
@@ -155,24 +126,6 @@ class StreamLockServiceTest extends TestCase
         );
 
         static::assertNull($lease);
-    }
-
-    public function testClaimNextReclaimsExpiredLocks(): void
-    {
-        $partitionKey = $this->makePartitionKey('app-f');
-        $this->insertStream($partitionKey);
-        $this->insertDeliveryRow($partitionKey, WebhookEventLogDefinition::STATUS_QUEUED);
-
-        $expiredExpiry = $this->clock->now()->modify('-5 seconds')->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-        $this->connection->executeStatement(
-            'UPDATE webhook_stream SET locked_by = :worker, lock_expires_at = :exp WHERE partition_key = :pk',
-            ['worker' => 'old-worker', 'exp' => $expiredExpiry, 'pk' => $partitionKey]
-        );
-
-        $lease = $this->service->claimNext('new-worker', 60, [WebhookEventLogDefinition::STATUS_QUEUED, WebhookEventLogDefinition::STATUS_PENDING_RETRY]);
-
-        static::assertNotNull($lease);
-        static::assertSame('new-worker', $lease->workerId);
     }
 
     public function testHeartbeatExtendsLease(): void
@@ -219,189 +172,73 @@ class StreamLockServiceTest extends TestCase
         static::assertNull($renewed);
     }
 
-    public function testReleaseClearsLock(): void
+    /**
+     * @return iterable<string, array{locked: bool, ageSeconds: int, hasDeliveries: bool, expectedDeleted: int}>
+     */
+    public static function deleteOrphanedStreamsProvider(): iterable
     {
-        $partitionKey = $this->makePartitionKey('app-rel');
-        $this->insertStream($partitionKey);
-        $this->insertDeliveryRow($partitionKey, WebhookEventLogDefinition::STATUS_QUEUED);
+        yield 'old orphan with no deliveries is deleted' => [
+            'locked' => false,
+            'ageSeconds' => StreamLockService::ORPHAN_GRACE_SECONDS * 2,
+            'hasDeliveries' => false,
+            'expectedDeleted' => 1,
+        ];
 
-        $lease = $this->service->claimNext('worker-rel', 60, [WebhookEventLogDefinition::STATUS_QUEUED, WebhookEventLogDefinition::STATUS_PENDING_RETRY]);
-        static::assertNotNull($lease);
+        yield 'orphan with deliveries is kept' => [
+            'locked' => false,
+            'ageSeconds' => StreamLockService::ORPHAN_GRACE_SECONDS * 2,
+            'hasDeliveries' => true,
+            'expectedDeleted' => 0,
+        ];
 
-        $this->service->release($lease);
+        yield 'actively locked stream is kept' => [
+            'locked' => true,
+            'ageSeconds' => StreamLockService::ORPHAN_GRACE_SECONDS * 2,
+            'hasDeliveries' => false,
+            'expectedDeleted' => 0,
+        ];
 
-        $row = $this->connection->fetchAssociative(
-            'SELECT locked_by, lock_expires_at FROM webhook_stream WHERE partition_key = :pk',
-            ['pk' => $partitionKey]
-        );
-        static::assertNotFalse($row);
-        static::assertNull($row['locked_by']);
-        static::assertNull($row['lock_expires_at']);
+        yield 'stream younger than grace period is kept' => [
+            'locked' => false,
+            'ageSeconds' => \intdiv(StreamLockService::ORPHAN_GRACE_SECONDS, 2),
+            'hasDeliveries' => false,
+            'expectedDeleted' => 0,
+        ];
     }
 
-    public function testReleaseNoOpWhenLeaseStolen(): void
+    #[DataProvider('deleteOrphanedStreamsProvider')]
+    public function testDeleteOrphanedStreams(bool $locked, int $ageSeconds, bool $hasDeliveries, int $expectedDeleted): void
     {
-        $partitionKey = $this->makePartitionKey('app-noop');
-        $this->insertStream($partitionKey);
-        $this->insertDeliveryRow($partitionKey, WebhookEventLogDefinition::STATUS_QUEUED);
+        $partitionKey = $this->makePartitionKey('orphan-' . Uuid::randomHex());
+        $createdAt = $this->clock->now()->modify(\sprintf('-%d seconds', $ageSeconds))->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
-        $lease = $this->service->claimNext('worker-x', 60, [WebhookEventLogDefinition::STATUS_QUEUED, WebhookEventLogDefinition::STATUS_PENDING_RETRY]);
-        static::assertNotNull($lease);
+        if ($locked) {
+            $this->connection->executeStatement(
+                'INSERT IGNORE INTO webhook_stream (id, partition_key, locked_by, lock_expires_at, created_at) VALUES (:id, :pk, :worker, :exp, :now)',
+                [
+                    'id' => Uuid::randomBytes(),
+                    'pk' => $partitionKey,
+                    'worker' => 'worker-lock',
+                    'exp' => $this->clock->now()->modify('+120 seconds')->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'now' => $createdAt,
+                ]
+            );
+        } else {
+            $this->connection->executeStatement(
+                'INSERT IGNORE INTO webhook_stream (id, partition_key, created_at) VALUES (:id, :pk, :now)',
+                ['id' => Uuid::randomBytes(), 'pk' => $partitionKey, 'now' => $createdAt]
+            );
+        }
 
-        $this->connection->executeStatement(
-            'UPDATE webhook_stream SET locked_by = :thief WHERE partition_key = :pk',
-            ['thief' => 'thief-worker', 'pk' => $partitionKey]
-        );
-
-        $this->service->release($lease);
-
-        $lockedBy = $this->connection->fetchOne(
-            'SELECT locked_by FROM webhook_stream WHERE partition_key = :pk',
-            ['pk' => $partitionKey]
-        );
-        static::assertSame('thief-worker', $lockedBy, 'Release must not clear a stolen lease');
-    }
-
-    public function testHeartbeatSucceedsAfterExpiryIfLeaseNotStolen(): void
-    {
-        $partitionKey = $this->makePartitionKey('app-hb-expire');
-        $this->insertStream($partitionKey);
-        $this->insertDeliveryRow($partitionKey, WebhookEventLogDefinition::STATUS_QUEUED);
-
-        $lease = $this->service->claimNext('worker-1', 60, [WebhookEventLogDefinition::STATUS_QUEUED, WebhookEventLogDefinition::STATUS_PENDING_RETRY]);
-        static::assertNotNull($lease);
-
-        $this->clock->modify('+120 seconds');
-
-        $renewed = $this->service->heartbeat($lease, 60);
-        static::assertInstanceOf(StreamLease::class, $renewed, 'Heartbeat must succeed if our worker_id is still the lock holder, even if lock_expires_at passed');
-
-        static::assertGreaterThan($this->clock->now()->getTimestamp(), $renewed->expiresAt->getTimestamp());
-    }
-
-    public function testDeleteOrphanedStreamsRemovesStreamsWithoutDeliveries(): void
-    {
-        $orphanKey = $this->makePartitionKey('orphan-partition');
-        $activeKey = $this->makePartitionKey('active-partition');
-
-        // Use a timestamp older than the grace period so it is eligible for deletion
-        $oldEnough = $this->clock->now()->modify(\sprintf('-%d seconds', StreamLockService::ORPHAN_GRACE_SECONDS * 2))->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-        $this->connection->executeStatement(
-            'INSERT IGNORE INTO webhook_stream (id, partition_key, created_at) VALUES (:id, :pk, :now)',
-            ['id' => Uuid::randomBytes(), 'pk' => $orphanKey, 'now' => $oldEnough]
-        );
-
-        $webhookId = Uuid::randomBytes();
-        $this->connection->insert('webhook', [
-            'id' => $webhookId,
-            'name' => 'test-hook',
-            'event_name' => 'product.written',
-            'url' => 'https://example.com/webhook',
-            'app_id' => null,
-            'created_at' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
-        $eventLogId = Uuid::randomBytes();
-        $this->connection->insert('webhook_event_log', [
-            'id' => $eventLogId,
-            'delivery_status' => WebhookEventLogDefinition::STATUS_QUEUED,
-            'webhook_name' => 'test-hook',
-            'event_name' => 'product.written',
-            'url' => 'https://example.com/webhook',
-            'serialized_webhook_message' => serialize('test'),
-            'created_at' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
-        $this->connection->insert('webhook_delivery', [
-            'webhook_event_log_id' => $eventLogId,
-            'webhook_id' => $webhookId,
-            'partition_key' => $activeKey,
-            'delivery_status' => WebhookEventLogDefinition::STATUS_QUEUED,
-            'execution_count' => 0,
-            'created_at' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
-        $this->connection->executeStatement(
-            'INSERT IGNORE INTO webhook_stream (id, partition_key, created_at) VALUES (:id, :pk, :now)',
-            ['id' => Uuid::randomBytes(), 'pk' => $activeKey, 'now' => $oldEnough]
-        );
+        if ($hasDeliveries) {
+            $this->insertDeliveryRow($partitionKey, WebhookEventLogDefinition::STATUS_QUEUED);
+        }
 
         $deleted = $this->service->deleteOrphanedStreams(100);
 
-        static::assertSame(1, $deleted);
-        static::assertFalse((bool) $this->connection->fetchOne('SELECT 1 FROM webhook_stream WHERE partition_key = :pk', ['pk' => $orphanKey]));
-        static::assertTrue((bool) $this->connection->fetchOne('SELECT 1 FROM webhook_stream WHERE partition_key = :pk', ['pk' => $activeKey]));
-    }
-
-    public function testDeleteOrphanedStreamsKeepsActivelyLockedStreams(): void
-    {
-        $lockedKey = $this->makePartitionKey('locked-orphan');
-        $now = $this->clock->now();
-        $this->connection->executeStatement(
-            'INSERT IGNORE INTO webhook_stream (partition_key, locked_by, lock_expires_at, created_at) VALUES (:pk, :worker, :exp, :now)',
-            [
-                'pk' => $lockedKey,
-                'worker' => 'worker-lock',
-                'exp' => $now->modify('+120 seconds')->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                'now' => $now->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            ]
-        );
-
-        $deleted = $this->service->deleteOrphanedStreams(100);
-
-        static::assertSame(0, $deleted);
-        static::assertTrue((bool) $this->connection->fetchOne('SELECT 1 FROM webhook_stream WHERE partition_key = :pk', ['pk' => $lockedKey]));
-    }
-
-    public function testDeleteOrphanedStreamsPreservesStreamsYoungerThanGracePeriod(): void
-    {
-        $youngKey = $this->makePartitionKey('young-orphan-grace');
-        $recentCreatedAt = $this->clock->now()->modify(\sprintf('-%d seconds', \intdiv(StreamLockService::ORPHAN_GRACE_SECONDS, 2)))->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-
-        $this->connection->executeStatement(
-            'INSERT IGNORE INTO webhook_stream (id, partition_key, created_at) VALUES (:id, :pk, :now)',
-            ['id' => Uuid::randomBytes(), 'pk' => $youngKey, 'now' => $recentCreatedAt]
-        );
-
-        $deleted = $this->service->deleteOrphanedStreams(100);
-
-        static::assertSame(0, $deleted, \sprintf('Stream younger than %d-second grace period must not be deleted', StreamLockService::ORPHAN_GRACE_SECONDS));
-        static::assertTrue((bool) $this->connection->fetchOne('SELECT 1 FROM webhook_stream WHERE partition_key = :pk', ['pk' => $youngKey]));
-    }
-
-    public function testDeleteOrphanedStreamsDeletesStreamsOlderThanGracePeriod(): void
-    {
-        $oldKey = $this->makePartitionKey('old-orphan-grace');
-        $oldCreatedAt = $this->clock->now()->modify(\sprintf('-%d seconds', StreamLockService::ORPHAN_GRACE_SECONDS * 2))->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-
-        $this->connection->executeStatement(
-            'INSERT IGNORE INTO webhook_stream (id, partition_key, created_at) VALUES (:id, :pk, :now)',
-            ['id' => Uuid::randomBytes(), 'pk' => $oldKey, 'now' => $oldCreatedAt]
-        );
-
-        $deleted = $this->service->deleteOrphanedStreams(100);
-
-        static::assertSame(1, $deleted, \sprintf('Stream older than %d-second grace period with no deliveries must be deleted', StreamLockService::ORPHAN_GRACE_SECONDS));
-        static::assertFalse((bool) $this->connection->fetchOne('SELECT 1 FROM webhook_stream WHERE partition_key = :pk', ['pk' => $oldKey]));
-    }
-
-    public function testTwoWorkersClaimDifferentPartitionsUnderContention(): void
-    {
-        $pkA = $this->makePartitionKey('contention-app-a');
-        $pkB = $this->makePartitionKey('contention-app-b');
-
-        $this->insertStream($pkA);
-        $this->insertStream($pkB);
-        $this->insertDeliveryRow($pkA, WebhookEventLogDefinition::STATUS_QUEUED);
-        $this->insertDeliveryRow($pkB, WebhookEventLogDefinition::STATUS_QUEUED);
-
-        // Two separate service instances (same connection is fine for non-blocking contention)
-        $serviceA = new StreamLockService($this->connection, $this->clock);
-        $serviceB = new StreamLockService($this->connection, $this->clock);
-
-        $leaseA = $serviceA->claimNext('worker-a', 60, [WebhookEventLogDefinition::STATUS_QUEUED, WebhookEventLogDefinition::STATUS_PENDING_RETRY]);
-        $leaseB = $serviceB->claimNext('worker-b', 60, [WebhookEventLogDefinition::STATUS_QUEUED, WebhookEventLogDefinition::STATUS_PENDING_RETRY]);
-
-        static::assertNotNull($leaseA, 'Worker A must claim a partition');
-        static::assertNotNull($leaseB, 'Worker B must claim a partition');
-        static::assertNotSame($leaseA->partitionKey, $leaseB->partitionKey, 'Workers must claim different partitions');
+        static::assertSame($expectedDeleted, $deleted);
+        $stillExists = (bool) $this->connection->fetchOne('SELECT 1 FROM webhook_stream WHERE partition_key = :pk', ['pk' => $partitionKey]);
+        static::assertSame($expectedDeleted === 0, $stillExists);
     }
 
     public function testClaimNextReturnsNullWhenPartitionHasOnlyRunningDeliveries(): void

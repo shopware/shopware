@@ -25,8 +25,8 @@ use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\DeliveryResponse;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxEntry;
-use Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxInsert;
+use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
 use Shopware\Core\Framework\Webhook\Webhook;
 use Shopware\Core\Profiling\Profiler;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -60,7 +60,7 @@ class WebhookManager implements ResetInterface
         private readonly string $shopwareVersion,
         private readonly bool $isAdminWorkerEnabled,
         private readonly WebhookDeliveryService $webhookDeliveryService,
-        private readonly OutboxEventRepository $outboxEventRepository,
+        private readonly WebhookOutboxStore $webhookOutboxStore,
     ) {
     }
 
@@ -200,8 +200,8 @@ class WebhookManager implements ResetInterface
                 continue;
             }
 
-            $this->outboxEventRepository->ensureOutboxEntry(OutboxInsert::fromMessage($message));
-            $entry = $this->outboxEventRepository->markRunning($message->getWebhookEventId());
+            $this->webhookOutboxStore->ensureOutboxEntry(OutboxInsert::fromMessage($message));
+            $entry = $this->webhookOutboxStore->markRunning($message->getWebhookEventId());
             if ($entry === null) {
                 continue;
             }
@@ -217,22 +217,12 @@ class WebhookManager implements ResetInterface
                 $request = $requests[$eventId];
                 $entry = $entries[$eventId];
 
-                try {
-                    $response = DeliveryResponse::from($request, $result);
-                } catch (\JsonException) {
-                    if ($result->successful()) {
-                        $this->outboxEventRepository->markSuccess($eventId, null, $entry->executionCount, $entry->sequence);
-                    } else {
-                        $this->outboxEventRepository->markFailed($eventId, null, $entry->executionCount, $entry->sequence);
-                    }
-
-                    continue;
-                }
+                $response = DeliveryResponse::from($request, $result);
 
                 if ($result->successful()) {
-                    $this->outboxEventRepository->markSuccess($eventId, $response, $entry->executionCount, $entry->sequence);
+                    $this->webhookOutboxStore->markSuccess($entry, $response);
                 } else {
-                    $this->outboxEventRepository->markFailed($eventId, $response, $entry->executionCount, $entry->sequence);
+                    $this->webhookOutboxStore->markFailed($entry, $response);
                 }
             } catch (\Throwable) {
                 // Don't let one entry block the rest — failed entries stay in 'running'

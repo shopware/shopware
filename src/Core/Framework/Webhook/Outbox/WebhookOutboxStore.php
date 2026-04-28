@@ -9,7 +9,6 @@ use Doctrine\DBAL\Types\Types;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
@@ -17,10 +16,10 @@ use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 /**
  * @internal
  *
- * @codeCoverageIgnore Integration tested with \Shopware\Tests\Integration\Core\Framework\Webhook\Outbox\OutboxEventRepositoryTest
+ * @codeCoverageIgnore Integration tested with \Shopware\Tests\Integration\Core\Framework\Webhook\Outbox\WebhookOutboxStoreTest
  */
 #[Package('framework')]
-class OutboxEventRepository
+class WebhookOutboxStore
 {
     public function __construct(
         private readonly Connection $connection,
@@ -28,46 +27,27 @@ class OutboxEventRepository
     ) {
     }
 
-    /**
-     * @param WebhookEventLogDefinition::STATUS_QUEUED|WebhookEventLogDefinition::STATUS_RUNNING $initialStatus
-     *
-     * @deprecated tag:v6.8.0 - reason:remove-parameter - $initialStatus will be removed once lifecycle events move to the async retryable path.
-     */
-    public function ensureOutboxEntry(OutboxInsert $insert, string $initialStatus = WebhookEventLogDefinition::STATUS_QUEUED): ?OutboxEntry
+    public function ensureOutboxEntry(OutboxInsert $insert): ?OutboxEntry
     {
-        // Fires only for the inline-RUNNING call site. Removed with the sync path;
-        // admin_worker handling will move to the Transport layer.
-        if ($initialStatus !== WebhookEventLogDefinition::STATUS_QUEUED) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.8.0.0',
-                Feature::deprecatedMethodMessage(self::class, 'ensureOutboxEntry', 'v6.8.0.0')
-            );
-        }
+        return $this->ensureOutboxEntryWithStatus($insert, WebhookEventLogDefinition::STATUS_QUEUED);
+    }
 
-        // an old message before the rework, would have only an event_log record. We need to handle that gracefully.
-        return RetryableTransaction::retryable($this->connection, function () use ($insert, $initialStatus): ?OutboxEntry {
-            $eventLogId = Uuid::fromHexToBytes($insert->webhookEventId);
-
-            try {
-                $inserted = $this->insertEventLog($insert, $eventLogId, $initialStatus);
-            } catch (UniqueConstraintViolationException) {
-                return null;
-            }
-
-            if (!$inserted) {
-                return null;
-            }
-
-            return $this->insertDeliveryAndStream($insert, $eventLogId, $initialStatus);
-        });
+    /**
+     * Writes an inline admin-worker delivery directly as RUNNING before the HTTP call starts.
+     *
+     * @deprecated tag:v6.8.0 - Only used for the inline admin-worker delivery path that existed before WEBHOOKS_REWORK.
+     * To be removed when the admin_worker for webhooks becomes a transport concern.
+     */
+    public function ensureRunningOutboxEntry(OutboxInsert $insert): ?OutboxEntry
+    {
+        return $this->ensureOutboxEntryWithStatus($insert, WebhookEventLogDefinition::STATUS_RUNNING);
     }
 
     /**
      * Creates the missing webhook_delivery and webhook_stream rows for a legacy
      * webhook_event_log that is still in its initial QUEUED state. No-op for any other
      * status (RUNNING / PENDING_RETRY / SUCCESS / FAILED) or if a delivery row already
-     * exists. QUEUED-only because backfilling a non-queued row would rewrite
-     * execution_count and next_retry_at, bypassing the retry ladder.
+     * exists.
      *
      * @deprecated tag:v6.8.0 — rollout-compat for `async` envelopes that were
      * serialized before WEBHOOKS_REWORK shipped. Remove alongside the flag-OFF path in WebhookEventMessageHandler.
@@ -81,20 +61,29 @@ class OutboxEventRepository
                 return null;
             }
 
-            $elStatus = $this->connection->fetchOne(
+            $eventLogStatus = $this->connection->fetchOne(
                 'SELECT delivery_status FROM webhook_event_log WHERE id = :id FOR UPDATE',
                 ['id' => $eventLogId]
             );
-            if ($elStatus !== WebhookEventLogDefinition::STATUS_QUEUED) {
+
+            if ($eventLogStatus !== WebhookEventLogDefinition::STATUS_QUEUED) {
                 return null;
             }
 
             try {
-                return $this->insertDeliveryAndStream($insert, $eventLogId, WebhookEventLogDefinition::STATUS_QUEUED);
+                $entry = $this->insertDeliveryAndStream($insert, $eventLogId, WebhookEventLogDefinition::STATUS_QUEUED);
             } catch (UniqueConstraintViolationException) {
                 // Two workers racing the same backfill — first commit wins, drop the duplicate.
                 return null;
             }
+
+            // Backfilled rows have no dispatch-order sequence — null signals.
+            $this->connection->executeStatement(
+                'UPDATE webhook_event_log SET sequence = NULL WHERE id = :id',
+                ['id' => $eventLogId]
+            );
+
+            return $entry;
         });
     }
 
@@ -165,20 +154,6 @@ class OutboxEventRepository
         );
     }
 
-    /**
-     * Reads the current attempt counter without mutating state. Returns null when the
-     * delivery row no longer exists (row finalized, or never created).
-     */
-    public function loadExecutionCount(string $eventLogId): ?int
-    {
-        $value = $this->connection->fetchOne(
-            'SELECT execution_count FROM webhook_delivery WHERE webhook_event_log_id = :id',
-            ['id' => Uuid::fromHexToBytes($eventLogId)]
-        );
-
-        return $value === false ? null : (int) $value;
-    }
-
     public function loadEventLogStatus(string $eventLogId): ?string
     {
         $value = $this->connection->fetchOne(
@@ -202,6 +177,7 @@ class OutboxEventRepository
         $nowFormatted = $now->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         $affected = RetryableTransaction::retryable($this->connection, function () use ($id, $now, $nowFormatted): int {
+            // EXISTS guards blue/green deployment drift: a trunk runner can flip event_log to FAILED without touching webhook_delivery.
             $affected = (int) $this->connection->executeStatement(
                 'UPDATE webhook_delivery
                  SET delivery_status = :runningStatus,
@@ -212,10 +188,7 @@ class OutboxEventRepository
                  WHERE webhook_event_log_id = :id
 	                   AND (
 	                       delivery_status = :queuedStatus
-	                       OR (
-	                           delivery_status = :pendingRetryStatus
-	                           AND (next_retry_at IS NULL OR next_retry_at <= :now)
-	                       )
+	                       OR (delivery_status = :pendingRetryStatus AND (next_retry_at IS NULL OR next_retry_at <= :now))
 	                   )
 	                   AND EXISTS (
 	                       SELECT 1
@@ -267,18 +240,15 @@ class OutboxEventRepository
         );
     }
 
-    public function markSuccess(string $eventLogId, ?DeliveryResponse $response = null, ?int $expectedExecutionCount = null, ?int $expectedSequence = null): bool
+    public function markSuccess(OutboxEntry $entry, ?DeliveryResponse $response): bool
     {
-        return RetryableTransaction::retryable($this->connection, function () use ($eventLogId, $response, $expectedExecutionCount, $expectedSequence): bool {
-            if (!$this->ownsRunningAttempt($eventLogId, $expectedExecutionCount, $expectedSequence)) {
+        return RetryableTransaction::retryable($this->connection, function () use ($entry, $response): bool {
+            if (!$this->ownsRunningAttempt($entry)) {
                 return false;
             }
 
-            if (!$this->updateEventLog($eventLogId, WebhookEventLogDefinition::STATUS_SUCCESS, $response)) {
-                return false;
-            }
-
-            $this->deleteDelivery($eventLogId);
+            $this->updateEventLog($entry->webhookEventId, WebhookEventLogDefinition::STATUS_SUCCESS, $response);
+            $this->deleteDelivery($entry->webhookEventId);
 
             return true;
         });
@@ -288,16 +258,14 @@ class OutboxEventRepository
      * Schedules a retry at the given time. The caller owns delay computation;
      * the repository just persists the state.
      */
-    public function markPendingRetry(string $eventLogId, \DateTimeImmutable $retryAt, ?DeliveryResponse $response = null, ?int $expectedExecutionCount = null, ?int $expectedSequence = null): bool
+    public function markPendingRetry(OutboxEntry $entry, \DateTimeImmutable $retryAt, ?DeliveryResponse $response): bool
     {
-        return RetryableTransaction::retryable($this->connection, function () use ($eventLogId, $retryAt, $response, $expectedExecutionCount, $expectedSequence): bool {
-            if (!$this->ownsRunningAttempt($eventLogId, $expectedExecutionCount, $expectedSequence)) {
+        return RetryableTransaction::retryable($this->connection, function () use ($entry, $retryAt, $response): bool {
+            if (!$this->ownsRunningAttempt($entry)) {
                 return false;
             }
 
-            if (!$this->updateEventLog($eventLogId, WebhookEventLogDefinition::STATUS_PENDING_RETRY, $response)) {
-                return false;
-            }
+            $this->updateEventLog($entry->webhookEventId, WebhookEventLogDefinition::STATUS_PENDING_RETRY, $response);
 
             $this->connection->executeStatement(
                 'UPDATE webhook_delivery SET delivery_status = :status, next_retry_at = :nextRetryAt, updated_at = :now WHERE webhook_event_log_id = :id',
@@ -305,7 +273,7 @@ class OutboxEventRepository
                     'status' => WebhookEventLogDefinition::STATUS_PENDING_RETRY,
                     'nextRetryAt' => $retryAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                     'now' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                    'id' => Uuid::fromHexToBytes($eventLogId),
+                    'id' => Uuid::fromHexToBytes($entry->webhookEventId),
                 ]
             );
 
@@ -316,24 +284,26 @@ class OutboxEventRepository
     /**
      * Resets delivery to QUEUED so the next markRunning() can claim it.
      * Used while Messenger owns the retry lifecycle (feature flag OFF).
+     *
+     * @deprecated tag:v6.8.0 - Only used for the Messenger-owned retry lifecycle that existed before WEBHOOKS_REWORK. Remove alongside the flag-OFF path in WebhookEventMessageHandler.
+     *
+     * @phpstan-ignore shopware.deprecatedMethod (called on the flag-OFF retry path; deprecation notice would pollute logs)
      */
-    public function resetForRetry(string $eventLogId, ?DeliveryResponse $response = null, ?int $expectedExecutionCount = null, ?int $expectedSequence = null): bool
+    public function resetForRetry(OutboxEntry $entry, ?DeliveryResponse $response): bool
     {
-        return RetryableTransaction::retryable($this->connection, function () use ($eventLogId, $response, $expectedExecutionCount, $expectedSequence): bool {
-            if (!$this->ownsRunningAttempt($eventLogId, $expectedExecutionCount, $expectedSequence)) {
+        return RetryableTransaction::retryable($this->connection, function () use ($entry, $response): bool {
+            if (!$this->ownsRunningAttempt($entry)) {
                 return false;
             }
 
-            if (!$this->updateEventLog($eventLogId, WebhookEventLogDefinition::STATUS_QUEUED, $response)) {
-                return false;
-            }
+            $this->updateEventLog($entry->webhookEventId, WebhookEventLogDefinition::STATUS_QUEUED, $response);
 
             $this->connection->executeStatement(
                 'UPDATE webhook_delivery SET delivery_status = :status, updated_at = :now WHERE webhook_event_log_id = :id',
                 [
                     'status' => WebhookEventLogDefinition::STATUS_QUEUED,
                     'now' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                    'id' => Uuid::fromHexToBytes($eventLogId),
+                    'id' => Uuid::fromHexToBytes($entry->webhookEventId),
                 ]
             );
 
@@ -341,58 +311,110 @@ class OutboxEventRepository
         });
     }
 
-    public function markFailed(string $eventLogId, ?DeliveryResponse $response = null, ?int $expectedExecutionCount = null, ?int $expectedSequence = null): bool
+    public function markFailed(OutboxEntry $entry, ?DeliveryResponse $response): bool
     {
-        return RetryableTransaction::retryable($this->connection, function () use ($eventLogId, $response, $expectedExecutionCount, $expectedSequence): bool {
-            if (!$this->ownsRunningAttempt($eventLogId, $expectedExecutionCount, $expectedSequence)) {
+        return RetryableTransaction::retryable($this->connection, function () use ($entry, $response): bool {
+            if (!$this->ownsRunningAttempt($entry)) {
                 return false;
             }
 
-            if (!$this->updateEventLog($eventLogId, WebhookEventLogDefinition::STATUS_FAILED, $response)) {
-                return false;
-            }
-
-            $this->deleteDelivery($eventLogId);
+            $this->updateEventLog($entry->webhookEventId, WebhookEventLogDefinition::STATUS_FAILED, $response);
+            $this->deleteDelivery($entry->webhookEventId);
 
             return true;
         });
     }
 
-    public function markFailedAfterFinalMessengerRetry(string $eventLogId, bool $protectActiveDelivery): bool
+    /**
+     * Called when the retry budget is exhausted on a pre-rework envelope (no partition key).
+     * Always marks the event failed and deletes the delivery row — pre-rework messages have
+     * no other worker that could still be handling them.
+     *
+     * @deprecated tag:v6.8.0 — pre-rework envelopes are drained once WEBHOOKS_REWORK is
+     * permanent. Remove with the flag.
+     */
+    public function markLegacyFailedAfterRetryExhausted(string $eventLogId): bool
     {
-        return RetryableTransaction::retryable($this->connection, function () use ($eventLogId, $protectActiveDelivery): bool {
+        return RetryableTransaction::retryable(
+            $this->connection,
+            fn (): bool => $this->markFailedAfterRetryExhausted($eventLogId)
+        );
+    }
+
+    /**
+     * Called when the retry budget is exhausted on a rework-shape envelope during a rolling
+     * deploy. Marks the event failed only if no other worker is currently delivering or has
+     * a retry scheduled — otherwise leaves the row untouched so the other worker can finish.
+     *
+     * @deprecated tag:v6.8.0 — only used during the rollout window. Once WEBHOOKS_REWORK is
+     * permanent, the subscriber early-returns and this method is unreachable. Remove with the flag.
+     */
+    public function markFailedAfterRetryExhaustedIfIdle(string $eventLogId): bool
+    {
+        return RetryableTransaction::retryable($this->connection, function () use ($eventLogId): bool {
             $id = Uuid::fromHexToBytes($eventLogId);
 
-            if ($protectActiveDelivery) {
-                $delivery = $this->connection->fetchAssociative(
-                    'SELECT delivery_status, next_retry_at FROM webhook_delivery WHERE webhook_event_log_id = :id FOR UPDATE',
-                    ['id' => $id]
-                );
+            $delivery = $this->connection->fetchAssociative(
+                'SELECT delivery_status, next_retry_at FROM webhook_delivery WHERE webhook_event_log_id = :id FOR UPDATE',
+                ['id' => $id]
+            );
 
-                if ($delivery !== false) {
-                    $deliveryStatus = (string) $delivery['delivery_status'];
-                    $nextRetryAt = $delivery['next_retry_at'];
+            if ($delivery !== false) {
+                $deliveryStatus = (string) $delivery['delivery_status'];
+                $nextRetryAt = $delivery['next_retry_at'];
 
-                    if ($deliveryStatus === WebhookEventLogDefinition::STATUS_RUNNING) {
-                        return false;
-                    }
+                // Another worker is mid-flight on this delivery. Leave it alone.
+                // @deprecated tag:v6.8.0 — remove with the flag.
+                if ($deliveryStatus === WebhookEventLogDefinition::STATUS_RUNNING) {
+                    return false;
+                }
 
-                    if ($deliveryStatus === WebhookEventLogDefinition::STATUS_PENDING_RETRY
-                        && $nextRetryAt !== null
-                        && $nextRetryAt > $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT)
-                    ) {
-                        return false;
-                    }
+                // Another worker has already scheduled the next retry. Don't cancel it.
+                // @deprecated tag:v6.8.0 — remove with the flag.
+                if ($deliveryStatus === WebhookEventLogDefinition::STATUS_PENDING_RETRY
+                    && $nextRetryAt !== null
+                    && $nextRetryAt > $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT)
+                ) {
+                    return false;
                 }
             }
 
-            if (!$this->updateEventLog($eventLogId, WebhookEventLogDefinition::STATUS_FAILED, null)) {
+            return $this->markFailedAfterRetryExhausted($eventLogId);
+        });
+    }
+
+    public function markUndeliverableFetchedEntryFailed(OutboxEntry $entry): bool
+    {
+        return RetryableTransaction::retryable($this->connection, function () use ($entry): bool {
+            $ownsFetchedEntry = (bool) $this->connection->fetchOne(
+                'SELECT 1
+                 FROM webhook_delivery
+                 WHERE webhook_event_log_id = :id
+                   AND id = :sequence
+                   AND execution_count = :executionCount
+                   AND delivery_status IN (:queuedStatus, :pendingRetryStatus)
+                 FOR UPDATE',
+                [
+                    'id' => Uuid::fromHexToBytes($entry->webhookEventId),
+                    'sequence' => $entry->sequence,
+                    'executionCount' => $entry->executionCount,
+                    'queuedStatus' => WebhookEventLogDefinition::STATUS_QUEUED,
+                    'pendingRetryStatus' => WebhookEventLogDefinition::STATUS_PENDING_RETRY,
+                ],
+                [
+                    'sequence' => Types::INTEGER,
+                    'executionCount' => Types::INTEGER,
+                ]
+            );
+
+            if (!$ownsFetchedEntry) {
                 return false;
             }
 
-            $this->deleteDelivery($eventLogId);
+            $markedFailed = $this->updateEventLog($entry->webhookEventId, WebhookEventLogDefinition::STATUS_FAILED, null);
+            $this->deleteDelivery($entry->webhookEventId);
 
-            return true;
+            return $markedFailed;
         });
     }
 
@@ -441,6 +463,29 @@ class OutboxEventRepository
         );
     }
 
+    /**
+     * @param WebhookEventLogDefinition::STATUS_QUEUED|WebhookEventLogDefinition::STATUS_RUNNING $initialStatus
+     */
+    private function ensureOutboxEntryWithStatus(OutboxInsert $insert, string $initialStatus): ?OutboxEntry
+    {
+        // an old message before the rework, would have only an event_log record. We need to handle that gracefully.
+        return RetryableTransaction::retryable($this->connection, function () use ($insert, $initialStatus): ?OutboxEntry {
+            $eventLogId = Uuid::fromHexToBytes($insert->webhookEventId);
+
+            try {
+                $inserted = $this->insertEventLog($insert, $eventLogId, $initialStatus);
+            } catch (UniqueConstraintViolationException) {
+                return null;
+            }
+
+            if (!$inserted) {
+                return null;
+            }
+
+            return $this->insertDeliveryAndStream($insert, $eventLogId, $initialStatus);
+        });
+    }
+
     private function insertDeliveryAndStream(OutboxInsert $insert, string $eventLogId, string $initialStatus): OutboxEntry
     {
         $now = $this->clock->now();
@@ -448,9 +493,14 @@ class OutboxEventRepository
         $isRunning = $initialStatus === WebhookEventLogDefinition::STATUS_RUNNING;
         $executionCount = $isRunning ? 1 : 0;
 
+        $webhookId = $this->connection->fetchOne(
+            'SELECT id FROM webhook WHERE id = :webhookId',
+            ['webhookId' => Uuid::fromHexToBytes($insert->webhookId)]
+        );
+
         $this->connection->insert('webhook_delivery', [
             'webhook_event_log_id' => $eventLogId,
-            'webhook_id' => Uuid::fromHexToBytes($insert->webhookId),
+            'webhook_id' => $webhookId === false ? null : $webhookId,
             'partition_key' => $insert->partitionKey,
             'delivery_status' => $initialStatus,
             'execution_count' => $executionCount,
@@ -489,8 +539,6 @@ class OutboxEventRepository
      */
     private function updateEventLog(string $eventLogId, string $status, ?DeliveryResponse $response): bool
     {
-        $id = Uuid::fromHexToBytes($eventLogId);
-
         $data = $response !== null ? $response->toArray() : [];
         $data['delivery_status'] = $status;
 
@@ -505,34 +553,22 @@ class OutboxEventRepository
                 implode(', ', $setClauses)
             ),
             $data + [
-                'id' => $id,
+                'id' => Uuid::fromHexToBytes($eventLogId),
                 'successStatus' => WebhookEventLogDefinition::STATUS_SUCCESS,
                 'failedStatus' => WebhookEventLogDefinition::STATUS_FAILED,
             ]
         );
 
-        if ($affected > 0) {
-            return true;
-        }
-
-        $currentStatus = $this->loadEventLogStatus($eventLogId);
-
-        return $currentStatus !== null && !\in_array($currentStatus, [
-            WebhookEventLogDefinition::STATUS_SUCCESS,
-            WebhookEventLogDefinition::STATUS_FAILED,
-        ], true);
+        return $affected > 0;
     }
 
-    private function ownsRunningAttempt(string $eventLogId, ?int $expectedExecutionCount, ?int $expectedSequence): bool
+    /**
+     * True only if the row is still RUNNING with the same (sequence, execution_count)
+     * the caller got from markRunning(). A stuck worker whose lease was stolen and
+     * re-claimed under a higher execution_count will get false and back off here.
+     */
+    private function ownsRunningAttempt(OutboxEntry $entry): bool
     {
-        if ($expectedExecutionCount === null && $expectedSequence === null) {
-            return true;
-        }
-
-        if ($expectedExecutionCount === null || $expectedSequence === null) {
-            return false;
-        }
-
         return (bool) $this->connection->fetchOne(
             'SELECT 1
              FROM webhook_delivery
@@ -542,9 +578,9 @@ class OutboxEventRepository
                AND delivery_status = :status
              FOR UPDATE',
             [
-                'id' => Uuid::fromHexToBytes($eventLogId),
-                'sequence' => $expectedSequence,
-                'executionCount' => $expectedExecutionCount,
+                'id' => Uuid::fromHexToBytes($entry->webhookEventId),
+                'sequence' => $entry->sequence,
+                'executionCount' => $entry->executionCount,
                 'status' => WebhookEventLogDefinition::STATUS_RUNNING,
             ],
             [
@@ -560,6 +596,14 @@ class OutboxEventRepository
             'DELETE FROM webhook_delivery WHERE webhook_event_log_id = :id',
             ['id' => Uuid::fromHexToBytes($eventLogId)]
         );
+    }
+
+    private function markFailedAfterRetryExhausted(string $eventLogId): bool
+    {
+        $markedFailed = $this->updateEventLog($eventLogId, WebhookEventLogDefinition::STATUS_FAILED, null);
+        $this->deleteDelivery($eventLogId);
+
+        return $markedFailed;
     }
 
     private function insertEventLog(OutboxInsert $insert, string $eventLogId, string $status): bool

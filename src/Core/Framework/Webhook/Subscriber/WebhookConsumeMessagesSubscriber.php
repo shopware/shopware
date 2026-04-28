@@ -9,17 +9,14 @@ use Symfony\Component\Console\Event\ConsoleCommandEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Prepends the `webhook` receiver in front of `async` so operators running the default
- * `messenger:consume async` pick up webhook deliveries without changing their command.
- * Only fires when `async` is explicitly requested — specialty workers (e.g.
- * `messenger:consume failed` or a custom priority queue) are left untouched so webhooks
- * don't silently ride along into a scope they weren't meant for.
- *
  * Operators running `messenger:consume async --queues=X` will see Symfony's own
  * RuntimeException at worker startup because WebhookTransport does not implement
  * QueueReceiverInterface — by design. That deployment needs a dedicated
  * `messenger:consume webhook` command anyway (the webhook transport stops forwarding
  * to async under the flag), so the crash is the right signal.
+ * The bridge only widens commands that already opt into the default `async`
+ * receiver. Dedicated or custom workers stay unchanged. In v6.8 this runtime
+ * mutation is removed and operators must list `webhook` explicitly.
  *
  * @internal
  *

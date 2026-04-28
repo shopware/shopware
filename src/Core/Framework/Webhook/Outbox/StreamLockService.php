@@ -136,6 +136,36 @@ class StreamLockService
     }
 
     /**
+     * Verifies that the worker still owns the lease without extending it.
+     */
+    public function verifyOwnership(StreamLease $lease): ?StreamLease
+    {
+        $expiresAt = $this->connection->fetchOne(
+            'SELECT lock_expires_at
+             FROM webhook_stream
+             WHERE partition_key = :pk
+               AND locked_by = :workerId
+               AND lock_expires_at > :now',
+            [
+                'pk' => $lease->partitionKey,
+                'workerId' => $lease->workerId,
+                'now' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]
+        );
+
+        if ($expiresAt === false) {
+            return null;
+        }
+
+        return new StreamLease(
+            partitionKey: $lease->partitionKey,
+            workerId: $lease->workerId,
+            acquiredAt: $lease->acquiredAt,
+            expiresAt: new \DateTimeImmutable((string) $expiresAt),
+        );
+    }
+
+    /**
      * Releases the lease by clearing locked_by / lock_expires_at.
      * No-op if the lease was already stolen.
      */

@@ -7,8 +7,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
-use Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxInsert;
+use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
 use Shopware\Core\Framework\Webhook\Transport\MySQLWebhookReceiver;
 use Shopware\Core\Framework\Webhook\Transport\WebhookTransport;
 use Shopware\Core\Framework\Webhook\WebhookException;
@@ -29,7 +29,7 @@ class WebhookTransportTest extends TestCase
         $message = $this->makeMessage();
         $envelope = new Envelope($message);
 
-        $stateService = $this->createMock(OutboxEventRepository::class);
+        $stateService = $this->createMock(WebhookOutboxStore::class);
         $stateService->expects($this->once())
             ->method('ensureOutboxEntry')
             ->with(static::callback(function (OutboxInsert $entry) use ($message): bool {
@@ -53,7 +53,7 @@ class WebhookTransportTest extends TestCase
         $message = $this->makeMessage();
         $envelope = new Envelope($message);
 
-        $stateService = $this->createMock(OutboxEventRepository::class);
+        $stateService = $this->createMock(WebhookOutboxStore::class);
         $stateService->expects($this->once())->method('ensureOutboxEntry');
 
         $asyncTransport = $this->createMock(TransportInterface::class);
@@ -67,7 +67,7 @@ class WebhookTransportTest extends TestCase
     public function testSendRejectsNonWebhookEventMessage(): void
     {
         $transport = new WebhookTransport(
-            $this->createMock(OutboxEventRepository::class),
+            $this->createMock(WebhookOutboxStore::class),
             $this->createMock(TransportInterface::class),
             $this->createMock(MySQLWebhookReceiver::class),
         );
@@ -83,7 +83,7 @@ class WebhookTransportTest extends TestCase
         $receiver->expects($this->never())->method('get');
 
         $transport = new WebhookTransport(
-            $this->createMock(OutboxEventRepository::class),
+            $this->createMock(WebhookOutboxStore::class),
             $this->createMock(TransportInterface::class),
             $receiver,
         );
@@ -98,7 +98,7 @@ class WebhookTransportTest extends TestCase
         $receiver->expects($this->once())->method('get')->willReturn([$envelope]);
 
         $transport = new WebhookTransport(
-            $this->createMock(OutboxEventRepository::class),
+            $this->createMock(WebhookOutboxStore::class),
             $this->createMock(TransportInterface::class),
             $receiver,
         );
@@ -116,7 +116,7 @@ class WebhookTransportTest extends TestCase
         $receiver->expects($this->never())->method('keepalive');
 
         $transport = new WebhookTransport(
-            $this->createMock(OutboxEventRepository::class),
+            $this->createMock(WebhookOutboxStore::class),
             $this->createMock(TransportInterface::class),
             $receiver,
         );
@@ -135,7 +135,7 @@ class WebhookTransportTest extends TestCase
         $receiver->expects($this->once())->method('keepalive')->with($envelope, 5);
 
         $transport = new WebhookTransport(
-            $this->createMock(OutboxEventRepository::class),
+            $this->createMock(WebhookOutboxStore::class),
             $this->createMock(TransportInterface::class),
             $receiver,
         );
@@ -166,7 +166,7 @@ class WebhookTransportTest extends TestCase
 
         $expectedPartitionKey = Hasher::hashBinary($message->getPartitionKey(), 'xxh128');
 
-        $stateService = $this->createMock(OutboxEventRepository::class);
+        $stateService = $this->createMock(WebhookOutboxStore::class);
         $stateService->expects($this->once())
             ->method('ensureOutboxEntry')
             ->with(static::callback(function (OutboxInsert $entry) use ($expectedPartitionKey): bool {
@@ -189,7 +189,7 @@ class WebhookTransportTest extends TestCase
 
         $expectedSerialized = serialize($message);
 
-        $stateService = $this->createMock(OutboxEventRepository::class);
+        $stateService = $this->createMock(WebhookOutboxStore::class);
         $stateService->expects($this->once())
             ->method('ensureOutboxEntry')
             ->with(static::callback(function (OutboxInsert $entry) use ($expectedSerialized): bool {

@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
-use Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository;
+use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
 use Shopware\Core\Framework\Webhook\Service\RelatedWebhooks;
 use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -29,7 +29,7 @@ class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
      */
     public function __construct(
         private readonly Connection $connection,
-        private readonly OutboxEventRepository $outboxEventRepository,
+        private readonly WebhookOutboxStore $webhookOutboxStore,
         private readonly RelatedWebhooks $relatedWebhooks,
         string $failureStrategy = WebhookFailureStrategy::DisableOnThreshold->value,
     ) {
@@ -58,7 +58,11 @@ class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
             return;
         }
 
-        if (!$this->outboxEventRepository->markFailedAfterFinalMessengerRetry($message->getWebhookEventId(), $message->partitionKey !== null)) {
+        $markedFailed = $message->hasExplicitPartitionKey()
+            ? $this->webhookOutboxStore->markFailedAfterRetryExhaustedIfIdle($message->getWebhookEventId())
+            : $this->webhookOutboxStore->markLegacyFailedAfterRetryExhausted($message->getWebhookEventId());
+
+        if (!$markedFailed) {
             return;
         }
 

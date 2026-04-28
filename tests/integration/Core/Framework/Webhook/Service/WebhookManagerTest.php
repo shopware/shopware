@@ -40,7 +40,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
-use Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository;
+use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
 use Shopware\Core\Framework\Webhook\Service\WebhookClient;
 use Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
@@ -1599,7 +1599,7 @@ class WebhookManagerTest extends TestCase
             Kernel::SHOPWARE_FALLBACK_VERSION,
             $adminWorkerEnabled,
             static::getContainer()->get(WebhookDeliveryService::class),
-            static::getContainer()->get(OutboxEventRepository::class),
+            static::getContainer()->get(WebhookOutboxStore::class),
         );
     }
 

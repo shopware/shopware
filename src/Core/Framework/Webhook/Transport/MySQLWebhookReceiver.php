@@ -11,9 +11,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxEntry;
-use Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository;
 use Shopware\Core\Framework\Webhook\Outbox\StreamLease;
 use Shopware\Core\Framework\Webhook\Outbox\StreamLockService;
+use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Exception\TransportException;
 use Symfony\Component\Messenger\Stamp\TransportMessageIdStamp;
@@ -27,6 +27,8 @@ use Symfony\Contracts\Service\ResetInterface;
  * `MAX_MESSAGES_PER_LEASE` messages before the partition is released for fairness.
  *
  * @internal
+ *
+ * @codeCoverageIgnore covered with integration
  */
 #[Package('framework')]
 class MySQLWebhookReceiver implements ReceiverInterface, KeepaliveReceiverInterface, ResetInterface
@@ -66,7 +68,7 @@ class MySQLWebhookReceiver implements ReceiverInterface, KeepaliveReceiverInterf
 
     public function __construct(
         private readonly StreamLockService $lockService,
-        private readonly OutboxEventRepository $outbox,
+        private readonly WebhookOutboxStore $outbox,
         private readonly ClockInterface $clock,
         private readonly LoggerInterface $logger,
     ) {
@@ -85,7 +87,7 @@ class MySQLWebhookReceiver implements ReceiverInterface, KeepaliveReceiverInterf
                 'exception' => $e,
             ]);
 
-            // Surface a real contention storm; endless empty polls would mask a DB problem.
+            // Surface a real contention; endless empty polls would mask a DB problem.
             if (++$this->consecutiveDeadlocks >= self::MAX_CONSECUTIVE_DEADLOCKS) {
                 $this->consecutiveDeadlocks = 0;
 
@@ -174,11 +176,12 @@ class MySQLWebhookReceiver implements ReceiverInterface, KeepaliveReceiverInterf
             $this->releaseLease();
         }
 
-        // 2. Claim or renew the lease. Heartbeat on reuse catches theft from a long handler.
+        // 2. Claim or verify the lease. Reuse checks ownership without extending it.
         $lease = $this->currentLease !== null ? $this->ensureLeaseOwnership() : null;
         if ($lease === null) {
             $lease = $this->acquireLease();
         }
+
         if ($lease === null) {
             return;
         }
@@ -195,7 +198,7 @@ class MySQLWebhookReceiver implements ReceiverInterface, KeepaliveReceiverInterf
 
         // 4. Yield one envelope per readable entry. Broken payloads are failed and skipped.
         foreach ($entries as $entry) {
-            // Signal-driven `keepalive()` on --keepalive workers can remove the lease midbatch
+            // Signal-driven `keepalive()` on --keepalive workers can remove the lease mid-batch
             // Stop yielding a snapshot we no longer own.
             if ($this->currentLease === null) {
                 return;
@@ -231,15 +234,15 @@ class MySQLWebhookReceiver implements ReceiverInterface, KeepaliveReceiverInterf
             return null;
         }
 
-        $renewed = $this->lockService->heartbeat($this->currentLease, $remaining);
-        if ($renewed === null) {
+        $verified = $this->lockService->verifyOwnership($this->currentLease);
+        if ($verified === null) {
             $this->abandonLease();
 
             return null;
         }
-        $this->currentLease = $renewed;
+        $this->currentLease = $verified;
 
-        return $renewed;
+        return $verified;
     }
 
     private function acquireLease(): ?StreamLease
@@ -281,16 +284,8 @@ class MySQLWebhookReceiver implements ReceiverInterface, KeepaliveReceiverInterf
 
     private function toEnvelope(OutboxEntry $entry): ?Envelope
     {
-        // fetchDue always populates the blob; the nullable is only for markRunning's
-        // state-query return.
+        // fetchDue always populates the blob; the nullable is only for markRunning's state-query return.
         \assert($entry->serializedWebhookMessage !== null);
-        // Payload was serialized by us in WebhookTransport::send(). @ silences the
-        // invalid-input warning; we handle a false return explicitly below. The
-        // allowed_classes allowlist defense-in-depths the DB blob against object-injection
-        // if an attacker ever gains SQL-write. PHP 8+ throws \Error (TypeError) during
-        // unserialize when a typed property is missing or type-mismatched — catch \Error
-        // so a malformed row doesn't kill the worker, but let genuinely exceptional runtime
-        // errors (e.g. \OutOfMemoryError) bubble.
         try {
             /** @phpstan-ignore shopware.unserializeUsage */
             $message = @unserialize($entry->serializedWebhookMessage, ['allowed_classes' => [WebhookEventMessage::class]]);
@@ -317,11 +312,9 @@ class MySQLWebhookReceiver implements ReceiverInterface, KeepaliveReceiverInterf
 
     private function dropBrokenEntry(OutboxEntry $entry): void
     {
-        // markFailed is unconditional and the partition lease already gives us exclusive
-        // ownership. Don't call markRunning here: it would bump
-        // execution_count and stamp last_attempt_at for a row that never left the transport,
-        // polluting the audit trail.
-        $this->outbox->markFailed($entry->webhookEventId);
+        // Don't call markRunning here: it would bump execution_count and stamp
+        // last_attempt_at for a row that never left the transport.
+        $this->outbox->markUndeliverableFetchedEntryFailed($entry);
 
         $this->logger->error('Discarded unreadable webhook delivery', [
             'webhookEventId' => $entry->webhookEventId,

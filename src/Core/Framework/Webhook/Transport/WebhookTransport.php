@@ -6,8 +6,8 @@ use Doctrine\DBAL\Exception as DBALException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
-use Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxInsert;
+use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
 use Shopware\Core\Framework\Webhook\WebhookException;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Exception\TransportException;
@@ -25,7 +25,7 @@ use Symfony\Component\Messenger\Transport\TransportInterface;
 class WebhookTransport implements TransportInterface, KeepaliveReceiverInterface
 {
     public function __construct(
-        private readonly OutboxEventRepository $outboxEventRepository,
+        private readonly WebhookOutboxStore $webhookOutboxStore,
         private readonly TransportInterface $asyncTransport,
         private readonly MySQLWebhookReceiver $receiver,
     ) {
@@ -39,7 +39,7 @@ class WebhookTransport implements TransportInterface, KeepaliveReceiverInterface
         }
 
         try {
-            $this->outboxEventRepository->ensureOutboxEntry(OutboxInsert::fromMessage($message));
+            $this->webhookOutboxStore->ensureOutboxEntry(OutboxInsert::fromMessage($message));
         } catch (DBALException $e) {
             /** @phpstan-ignore shopware.domainException (Symfony Messenger's worker contract requires TransportException for transport-layer failures.) */
             throw new TransportException($e->getMessage(), 0, $e);

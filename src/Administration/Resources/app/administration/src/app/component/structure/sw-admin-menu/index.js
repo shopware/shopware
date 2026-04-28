@@ -251,7 +251,7 @@ The admin menu only supports up to three levels of nesting.`,
         createdComponent() {
             this.loginService.notifyOnLoginListener();
 
-            this.collapseMenuOnSmallViewports();
+            this.adjustMenuForViewport();
             this.getUser();
 
             Shopware.Utils.EventBus.on('sw-admin-menu/toggle-offcanvas', this.onToggleCanvas);
@@ -301,7 +301,7 @@ The admin menu only supports up to three levels of nesting.`,
 
             this.$device.onResize({
                 listener() {
-                    that.collapseMenuOnSmallViewports();
+                    that.adjustMenuForViewport();
                 },
                 component: this,
             });
@@ -324,8 +324,9 @@ The admin menu only supports up to three levels of nesting.`,
             });
         },
 
-        collapseMenuOnSmallViewports() {
+        adjustMenuForViewport() {
             if (this.isMobileViewport()) {
+                // Always render the menu expanded on mobile, as it is used as off-canvas. Otherwise the menu inside off-canvas would be collapsed and only show icon entries.
                 this.expandAdminMenu();
                 return;
             }

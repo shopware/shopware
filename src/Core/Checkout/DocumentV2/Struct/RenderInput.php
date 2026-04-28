@@ -39,6 +39,8 @@ final readonly class RenderInput
      * @param class-string<T> $expected
      *
      * @throws DocumentV2Exception
+     *
+     * @return T
      */
     public function requireData(string $key, string $expected): AbstractRenderData
     {

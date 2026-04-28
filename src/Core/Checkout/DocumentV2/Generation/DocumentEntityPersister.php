@@ -43,24 +43,24 @@ final readonly class DocumentEntityPersister
      *
      * @throws DocumentV2Exception
      */
-    public function persist(DocumentGenerationContext $generationContext, RenderInput $input, array $persistedFiles): DocumentEntity
+    public function persist(DocumentGenerationRequest $generationRequest, RenderInput $input, array $persistedFiles): DocumentEntity
     {
         $documentId = Uuid::randomHex();
 
         // TODO: Keep this guard until the reused document table can enforce document_number + document_type_id uniqueness.
-        $this->assertDocumentNumberIsUnique($generationContext, $input->documentNumber);
+        $this->assertDocumentNumberIsUnique($generationRequest, $input->documentNumber);
 
         $this->documentRepository->create([
             [
                 'id' => $documentId,
-                'orderId' => $generationContext->orderId,
-                'orderVersionId' => $generationContext->orderVersionId,
-                'documentTypeId' => $this->getDocumentTypeId($generationContext),
+                'orderId' => $generationRequest->orderId,
+                'orderVersionId' => $generationRequest->orderVersionId,
+                'documentTypeId' => $this->getDocumentTypeId($generationRequest),
                 'documentNumber' => $input->documentNumber,
                 'deepLinkCode' => Random::getAlphanumericString(32),
                 'config' => [],
             ],
-        ], $generationContext->apiContext);
+        ], $generationRequest->apiContext);
 
         $documentFiles = [];
 
@@ -73,11 +73,11 @@ final readonly class DocumentEntityPersister
             ];
         }
 
-        $this->documentFileRepository->create($documentFiles, $generationContext->apiContext);
+        $this->documentFileRepository->create($documentFiles, $generationRequest->apiContext);
 
         $document = $this->documentRepository->search(
             (new Criteria([$documentId]))->addAssociation('documentFiles.media'),
-            $generationContext->apiContext,
+            $generationRequest->apiContext,
         )->first();
 
         if (!$document instanceof DocumentEntity) {
@@ -90,14 +90,14 @@ final readonly class DocumentEntityPersister
     /**
      * @throws DocumentV2Exception
      */
-    private function assertDocumentNumberIsUnique(DocumentGenerationContext $generationContext, string $documentNumber): void
+    private function assertDocumentNumberIsUnique(DocumentGenerationRequest $generationRequest, string $documentNumber): void
     {
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('documentNumber', $documentNumber))
-            ->addFilter(new EqualsFilter('documentType.technicalName', $generationContext->documentType))
+            ->addFilter(new EqualsFilter('documentType.technicalName', $generationRequest->documentType))
             ->setLimit(1);
 
-        $exists = $this->documentRepository->searchIds($criteria, $generationContext->apiContext)->firstId() !== null;
+        $exists = $this->documentRepository->searchIds($criteria, $generationRequest->apiContext)->firstId() !== null;
 
         if ($exists) {
             throw DocumentV2Exception::documentNumberAlreadyExists($documentNumber);
@@ -107,11 +107,11 @@ final readonly class DocumentEntityPersister
     /**
      * @throws DocumentV2Exception
      */
-    private function getDocumentTypeId(DocumentGenerationContext $generationContext): string
+    private function getDocumentTypeId(DocumentGenerationRequest $generationRequest): string
     {
         // TODO: Remove this lookup once document generation no longer stores document types and formats in the database.
-        $documentType = $generationContext->documentType;
-        $context = $generationContext->apiContext;
+        $documentType = $generationRequest->documentType;
+        $context = $generationRequest->apiContext;
 
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('technicalName', $documentType))

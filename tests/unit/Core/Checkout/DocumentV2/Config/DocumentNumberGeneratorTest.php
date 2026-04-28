@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentNumberGenerator;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
-use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationContext;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -27,11 +27,11 @@ class DocumentNumberGeneratorTest extends TestCase
         $salesChannelId = Uuid::randomHex();
         $documentNumber = 'document-number';
 
-        $generationContext = new DocumentGenerationContext(
+        $generationRequest = new DocumentGenerationRequest(
             orderId: Uuid::randomHex(),
             orderVersionId: Uuid::randomHex(),
             documentType: DocumentType::INVOICE->value,
-            formats: [DocumentFormat::PDF->value],
+            requestedFormats: [DocumentFormat::PDF->value],
             apiContext: $context,
         );
 
@@ -52,6 +52,6 @@ class DocumentNumberGeneratorTest extends TestCase
 
         $generator = new DocumentNumberGenerator($numberRangeValueGenerator);
 
-        static::assertSame($documentNumber, $generator->generate($generationContext, $order));
+        static::assertSame($documentNumber, $generator->generate($generationRequest, $order));
     }
 }

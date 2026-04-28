@@ -18,7 +18,7 @@ use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentDependencyResolver;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentEntityPersister;
-use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationContext;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
@@ -52,7 +52,7 @@ class DocumentGeneratorTest extends TestCase
         $orderLanguageId = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
-        $generationContext = new DocumentGenerationContext(
+        $generationRequest = new DocumentGenerationRequest(
             $orderId,
             $orderVersionId,
             DocumentType::INVOICE->value,
@@ -120,7 +120,7 @@ class DocumentGeneratorTest extends TestCase
             $document,
         );
 
-        $result = $generator->generate($generationContext);
+        $result = $generator->generate($generationRequest);
 
         static::assertSame($document, $result);
         static::assertCount(1, $documentRepository->creates);
@@ -135,8 +135,8 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotSame('', $documentFileRepository->creates[0][0]['mediaId']);
     }
 
-    #[DataProvider('invalidGenerationContextProvider')]
-    public function testGenerateThrowsExceptionOnInvalidGenerationContext(DocumentGenerationContext $generationContext, DocumentV2Exception $exception): void
+    #[DataProvider('invalidGenerationRequestProvider')]
+    public function testGenerateThrowsExceptionOnInvalidGenerationRequest(DocumentGenerationRequest $generationRequest, DocumentV2Exception $exception): void
     {
         /** @var StaticEntityRepository<OrderCollection> $orderRepository */
         $orderRepository = new StaticEntityRepository([], new OrderDefinition());
@@ -150,16 +150,16 @@ class DocumentGeneratorTest extends TestCase
 
         static::expectExceptionObject($exception);
 
-        $generator->generate($generationContext);
+        $generator->generate($generationRequest);
     }
 
     /**
-     * @return iterable<string, array{generationContext: DocumentGenerationContext, exception: DocumentV2Exception}>
+     * @return iterable<string, array{generationRequest: DocumentGenerationRequest, exception: DocumentV2Exception}>
      */
-    public static function invalidGenerationContextProvider(): iterable
+    public static function invalidGenerationRequestProvider(): iterable
     {
         yield 'missing formats' => [
-            'generationContext' => new DocumentGenerationContext(
+            'generationRequest' => new DocumentGenerationRequest(
                 Uuid::randomHex(),
                 Uuid::randomHex(),
                 DocumentType::INVOICE->value,
@@ -170,7 +170,7 @@ class DocumentGeneratorTest extends TestCase
         ];
 
         yield 'live version not allowed' => [
-            'generationContext' => new DocumentGenerationContext(
+            'generationRequest' => new DocumentGenerationRequest(
                 Uuid::randomHex(),
                 Defaults::LIVE_VERSION,
                 DocumentType::INVOICE->value,

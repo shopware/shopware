@@ -3,7 +3,7 @@
 namespace Shopware\Core\Checkout\DocumentV2\Provider;
 
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
-use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationContext;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -48,6 +48,6 @@ abstract class AbstractDocumentDataProvider
      */
     abstract public function provideRenderingData(
         OrderEntity $order,
-        DocumentGenerationContext $generationContext
+        DocumentGenerationRequest $generationRequest
     ): AbstractRenderData;
 }

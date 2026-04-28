@@ -16,7 +16,7 @@ use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentEntityPersister;
-use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationContext;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
@@ -37,13 +37,13 @@ class DocumentEntityPersisterTest extends TestCase
 
     private const FORMAT = DocumentFormat::PDF->value;
 
-    private DocumentGenerationContext $generationContext;
+    private DocumentGenerationRequest $generationRequest;
 
     private RenderInput $renderInput;
 
     protected function setUp(): void
     {
-        $this->generationContext = new DocumentGenerationContext(
+        $this->generationRequest = new DocumentGenerationRequest(
             Uuid::randomHex(),
             Uuid::randomHex(),
             self::DOCUMENT_TYPE,
@@ -68,7 +68,7 @@ class DocumentEntityPersisterTest extends TestCase
         [$persister, $documentRepository, $documentFileRepository] = $this->createPersister($documentTypeId);
 
         $document = $persister->persist(
-            $this->generationContext,
+            $this->generationRequest,
             $this->renderInput,
             [self::FORMAT => $fileId],
         );
@@ -91,7 +91,7 @@ class DocumentEntityPersisterTest extends TestCase
         static::expectExceptionObject($exception);
 
         $persister->persist(
-            $this->generationContext,
+            $this->generationRequest,
             $this->renderInput,
             [self::FORMAT => Uuid::randomHex()],
         );
@@ -130,7 +130,7 @@ class DocumentEntityPersisterTest extends TestCase
         static::expectExceptionObject(DocumentV2Exception::documentNumberAlreadyExists('12345'));
 
         $persister->persist(
-            $this->generationContext,
+            $this->generationRequest,
             $this->renderInput,
             [self::FORMAT => Uuid::randomHex()],
         );

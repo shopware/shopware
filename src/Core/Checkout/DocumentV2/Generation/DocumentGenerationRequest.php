@@ -11,16 +11,16 @@ use Shopware\Core\Framework\Log\Package;
  * @codeCoverageIgnore
  */
 #[Package('after-sales')]
-readonly class DocumentGenerationContext
+readonly class DocumentGenerationRequest
 {
     /**
-     * @param list<string> $formats
+     * @param list<string> $requestedFormats
      */
     public function __construct(
         public string $orderId,
         public string $orderVersionId,
         public string $documentType,
-        public array $formats,
+        public array $requestedFormats,
         public Context $apiContext,
         public ?string $documentNumber = null,
     ) {

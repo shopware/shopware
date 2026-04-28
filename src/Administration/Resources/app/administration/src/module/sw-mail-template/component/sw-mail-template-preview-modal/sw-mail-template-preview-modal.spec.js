@@ -53,17 +53,16 @@ describe('modules/sw-mail-template/component/sw-mail-template-preview-modal', ()
         const wrapper = await createWrapper({ isLoading: true });
 
         expect(wrapper.find('.sw-mail-template-preview-modal__subject').exists()).toBe(false);
-        expect(wrapper.findAll('iframe.sw-mail-template-preview-modal__html-frame')).toHaveLength(0);
+        expect(wrapper.findAll('.sw-mail-template-preview-modal__html-content')).toHaveLength(0);
     });
 
-    it('renders html preview in sandboxed iframes', async () => {
+    it('renders html preview content', async () => {
         const wrapper = await createWrapper();
 
-        const htmlFrames = wrapper.findAll('iframe.sw-mail-template-preview-modal__html-frame');
+        const htmlContents = wrapper.findAll('.sw-mail-template-preview-modal__html-content');
 
-        expect(htmlFrames).toHaveLength(3);
-        expect(htmlFrames.at(0).attributes('sandbox')).toBeDefined();
-        expect(htmlFrames.at(0).attributes('srcdoc')).toContain('<div>Header</div>');
+        expect(htmlContents).toHaveLength(3);
+        expect(htmlContents.at(0).html()).toContain('<div>Header</div>');
     });
 
     it('renders error banners instead of success content for error branches', async () => {
@@ -98,6 +97,6 @@ describe('modules/sw-mail-template/component/sw-mail-template-preview-modal', ()
         expect(wrapper.find('.sw-mail-template-preview-modal__plain-text').text()).toContain('plain content failed.');
         expect(wrapper.findAll('.sw-mail-template-preview-modal__html-error')).toHaveLength(1);
         expect(wrapper.find('.sw-mail-template-preview-modal__html').text()).toContain('html content failed.');
-        expect(wrapper.findAll('iframe.sw-mail-template-preview-modal__html-frame')).toHaveLength(2);
+        expect(wrapper.findAll('.sw-mail-template-preview-modal__html-content')).toHaveLength(2);
     });
 });

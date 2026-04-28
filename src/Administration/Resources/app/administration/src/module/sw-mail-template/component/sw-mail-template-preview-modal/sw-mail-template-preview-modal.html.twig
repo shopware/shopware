@@ -112,13 +112,11 @@
             >
                 {{ mailPreview.headerHtml.errorMessage }}
             </mt-banner>
-            <iframe
+            <div
                 v-else
-                class="sw-mail-template-preview-modal__html-frame"
-                sandbox=""
-                referrerpolicy="no-referrer"
-                :srcdoc="buildPreviewHtmlDocument(mailPreview.headerHtml.content)"
-            ></iframe>
+                class="sw-mail-template-preview-modal__html-content"
+                v-html="mailPreview.headerHtml.content"
+            ></div>
             <mt-banner
                 v-if="mailPreview.contentHtml.type === 'error'"
                 class="sw-mail-template-preview-modal__html-error"
@@ -127,13 +125,11 @@
             >
                 {{ mailPreview.contentHtml.errorMessage }}
             </mt-banner>
-            <iframe
+            <div
                 v-else
-                class="sw-mail-template-preview-modal__html-frame"
-                sandbox=""
-                referrerpolicy="no-referrer"
-                :srcdoc="buildPreviewHtmlDocument(mailPreview.contentHtml.content)"
-            ></iframe>
+                class="sw-mail-template-preview-modal__html-content"
+                v-html="mailPreview.contentHtml.content"
+            ></div>
             <mt-banner
                 v-if="mailPreview.footerHtml.type === 'error'"
                 class="sw-mail-template-preview-modal__html-error"
@@ -142,13 +138,11 @@
             >
                 {{ mailPreview.footerHtml.errorMessage }}
             </mt-banner>
-            <iframe
+            <div
                 v-else
-                class="sw-mail-template-preview-modal__html-frame"
-                sandbox=""
-                referrerpolicy="no-referrer"
-                :srcdoc="buildPreviewHtmlDocument(mailPreview.footerHtml.content)"
-            ></iframe>
+                class="sw-mail-template-preview-modal__html-content"
+                v-html="mailPreview.footerHtml.content"
+            ></div>
         </div>
     </template>
 

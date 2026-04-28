@@ -10,7 +10,10 @@ type InheritanceSlotProps = {
     restoreInheritance?: () => void;
 };
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @sw-package framework
+ * @private
+ */
 export function getMeteorInheritanceConfig(inheritance: InheritanceSlotProps | null = null, inheritedValue: unknown = null) {
     if (!inheritance) {
         return {};

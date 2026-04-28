@@ -37,7 +37,7 @@ class UserCrudTest extends TestCase
             'admin' => false,
             'locale' => [
                 'name' => 'somewhere',
-                'code' => 'swh',
+                'code' => 'de-DE-1',
                 'territory' => 'somewhere',
             ],
             'media' => [

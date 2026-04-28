@@ -14,7 +14,6 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Search\AbstractProductSearchRoute;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
@@ -55,8 +54,6 @@ class SearchControllerTest extends TestCase
 
     private AbstractProductSearchRoute&MockObject $productSearchRoute;
 
-    private ProductDefinition&MockObject $productDefinition;
-
     private SearchController $searchController;
 
     private ContainerInterface $container;
@@ -66,14 +63,11 @@ class SearchControllerTest extends TestCase
         $this->searchPageLoader = $this->createMock(SearchPageLoader::class);
         $this->suggestPageLoader = $this->createMock(SuggestPageLoader::class);
         $this->productSearchRoute = $this->createMock(AbstractProductSearchRoute::class);
-        $this->productDefinition = $this->createMock(ProductDefinition::class);
-        $this->productDefinition->method('getField')->willReturn(new StringField('placeholder', 'placeholder'));
 
         $this->searchController = new SearchController(
             $this->searchPageLoader,
             $this->suggestPageLoader,
             $this->productSearchRoute,
-            $this->productDefinition,
         );
 
         $this->container = new ContainerBuilder();
@@ -372,7 +366,6 @@ class SearchControllerTest extends TestCase
             $this->searchPageLoader,
             $this->suggestPageLoader,
             $this->productSearchRoute,
-            $this->productDefinition,
             ['productNumber'],
         );
         $controller->setContainer($this->container);

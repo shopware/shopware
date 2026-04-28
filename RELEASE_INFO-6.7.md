@@ -31,7 +31,7 @@ The same redirect now triggers when the term exactly matches the product's `ean`
 The condition still requires exactly one matching product, so listings with multiple hits remain unaffected.
 
 The set of fields that trigger the redirect is configurable via the `shopware.storefront.redirect_on_single_hit_fields` container parameter (defaults to `['productNumber', 'ean', 'manufacturerNumber']`).
-Any string-valued field declared on the `ProductDefinition` may be configured — unknown or non-string fields are skipped.
+Any string-valued property declared on `ProductEntity` may be configured — unknown or non-string properties are skipped.
 Set the parameter to a narrower list (for example `['productNumber']`) to restore the previous behaviour.
 
 ## App System

@@ -259,7 +259,6 @@
             <argument type="service" id="Shopware\Storefront\Page\Search\SearchPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Suggest\SuggestPageLoader"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute"/>
-            <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
             <argument>%shopware.storefront.redirect_on_single_hit_fields%</argument>
 
             <call method="setContainer">

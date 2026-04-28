@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Search\AbstractProductSearchRoute;
 use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
@@ -40,7 +39,6 @@ class SearchController extends StorefrontController
         private readonly SearchPageLoader $searchPageLoader,
         private readonly SuggestPageLoader $suggestPageLoader,
         private readonly AbstractProductSearchRoute $productSearchRoute,
-        private readonly ProductDefinition $productDefinition,
         private readonly array $redirectOnSingleHitFields = ['productNumber', 'ean', 'manufacturerNumber']
     ) {
     }
@@ -173,7 +171,7 @@ class SearchController extends StorefrontController
         }
 
         foreach ($this->redirectOnSingleHitFields as $field) {
-            if ($this->productDefinition->getField($field) === null || !$product->has($field)) {
+            if (!$product->has($field)) {
                 continue;
             }
 

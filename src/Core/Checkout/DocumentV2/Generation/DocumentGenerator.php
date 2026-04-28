@@ -65,11 +65,11 @@ final readonly class DocumentGenerator
             $provider->enrichOrderCriteria($criteria);
         }
 
-        $renderContext = $this->createRenderContext($generationRequest);
+        $orderContext = $this->createOrderContext($generationRequest);
 
         $order = $this->loadOrder(
             $criteria,
-            $renderContext,
+            $orderContext,
             $generationRequest->orderId
         );
 
@@ -86,7 +86,6 @@ final readonly class DocumentGenerator
             documentNumber: $documentNumber,
             order: $order,
             data: $providerData,
-            renderContext: $renderContext,
         );
 
         foreach ($renderPlan as $format) {
@@ -151,20 +150,20 @@ final readonly class DocumentGenerator
     /**
      * @throws DocumentV2Exception
      */
-    private function createRenderContext(DocumentGenerationRequest $generationRequest): Context
+    private function createOrderContext(DocumentGenerationRequest $generationRequest): Context
     {
-        $renderContext = $generationRequest->apiContext
+        $orderContext = $generationRequest->apiContext
             ->createWithVersionId($generationRequest->orderVersionId);
 
         $orderLanguageId = $this->loadOrderLanguageId($generationRequest);
 
-        $renderContext->assign([
+        $orderContext->assign([
             'languageIdChain' => array_values(array_unique(array_filter(
-                [$orderLanguageId, ...$renderContext->getLanguageIdChain()]
+                [$orderLanguageId, ...$orderContext->getLanguageIdChain()]
             ))),
         ]);
 
-        return $renderContext;
+        return $orderContext;
     }
 
     /**

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Consent\ConsentDefinition;
+use Shopware\Core\System\Consent\ConsentDefinitionRegistry;
 use Shopware\Core\System\Consent\ConsentException;
 use Shopware\Core\System\Consent\ConsentRepository;
 use Shopware\Core\System\Consent\ConsentScope;
@@ -586,7 +587,7 @@ class ConsentServiceTest extends TestCase
                 new ConsentScope\System(),
                 new AdminUser(),
             ],
-            $definitions,
+            new ConsentDefinitionRegistry($definitions),
             $this->consentRepository,
             $eventDispatcher ?? new EventDispatcher()
         );

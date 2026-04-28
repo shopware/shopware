@@ -5,8 +5,11 @@ namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Detail;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Rule\InvokedCount;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Cms\CmsPageCollection;
 use Shopware\Core\Content\Cms\CmsPageEntity;
@@ -71,6 +74,8 @@ class ProductDetailRouteTest extends TestCase
 
     private IdsCollection $idsCollection;
 
+    private MockObject&CategoryBreadcrumbBuilder $breadcrumbBuilder;
+
     private MockObject&SalesChannelCmsPageLoader $cmsPageLoader;
 
     private AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory;
@@ -87,7 +92,7 @@ class ProductDetailRouteTest extends TestCase
         $this->systemConfig = $this->createMock(SystemConfigService::class);
         $this->connection = $this->createMock(Connection::class);
         $configuratorLoader = $this->createMock(ProductConfiguratorLoader::class);
-        $breadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
+        $this->breadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
         $this->cmsPageLoader = $this->createMock(SalesChannelCmsPageLoader::class);
         $this->productCloseoutFilterFactory = new ProductCloseoutFilterFactory();
         $this->eventDispatcher = new EventDispatcher();
@@ -99,7 +104,7 @@ class ProductDetailRouteTest extends TestCase
             $this->systemConfig,
             $this->connection,
             $configuratorLoader,
-            $breadcrumbBuilder,
+            $this->breadcrumbBuilder,
             $this->cmsPageLoader,
             $this->createMock(EntityCmsSlotConfigInheritanceBuilder::class),
             new SalesChannelProductDefinition(),
@@ -171,8 +176,19 @@ class ProductDetailRouteTest extends TestCase
         static::assertTrue($result->getProduct()->getAvailable());
     }
 
-    public function testLoadBestVariantByTerm(): void
+    public function testLoadParentSearchUsesMatchedVariantWhenFindBestVariantEnabled(): void
     {
+        $this->connection
+            ->expects($this->once())
+            ->method('fetchAssociative')
+            ->willReturn([
+                'variantListingConfig' => null,
+                'parentId' => null,
+            ]);
+
+        $this->systemConfig->method('getBool')
+            ->willReturnCallback(static fn (string $key, ?string $_salesChannelId = null): bool => $key === 'core.listing.findBestVariant');
+
         $productTerm = new SalesChannelProductEntity();
         $productTerm->setCmsPageId('term');
         $productTerm->setId($this->idsCollection->create('term'));
@@ -195,6 +211,11 @@ class ProductDetailRouteTest extends TestCase
             ->willReturn(
                 $idsSearchResult
             );
+
+        $this->eventDispatcher->addListener(ResolveVariantIdEvent::class, static function (ResolveVariantIdEvent $event) use ($product1Id): void {
+            static::assertSame($product1Id, $event->getResolvedVariantId());
+        });
+
         $this->productRepository->expects($this->once())
             ->method('search')
             ->willReturnOnConsecutiveCalls(
@@ -207,6 +228,51 @@ class ProductDetailRouteTest extends TestCase
 
         static::assertSame('term', $result->getProduct()->getCmsPageId());
         static::assertSame('term', $result->getProduct()->getUniqueIdentifier());
+    }
+
+    public function testLoadParentSearchKeepsMainVariantWhenFindBestVariantDisabled(): void
+    {
+        $mainVariantId = Uuid::randomHex();
+        $this->connection
+            ->expects($this->once())
+            ->method('fetchAssociative')
+            ->willReturn([
+                'variantListingConfig' => '{"displayParent": false, "mainVariantId": "' . $mainVariantId . '"}',
+                'parentId' => null,
+            ]);
+
+        $this->systemConfig->method('getBool')->willReturn(false);
+
+        $productEntity = new SalesChannelProductEntity();
+        $productEntity->setId($mainVariantId);
+        $productEntity->setCmsPageId('4');
+        $productEntity->setUniqueIdentifier('mainVariant');
+
+        $this->eventDispatcher->addListener(ResolveVariantIdEvent::class, static function (ResolveVariantIdEvent $event) use ($mainVariantId): void {
+            static::assertSame($mainVariantId, $event->getResolvedVariantId());
+        });
+
+        $this->productRepository->expects($this->never())
+            ->method('searchIds');
+        $this->productRepository->expects($this->once())
+            ->method('search')
+            ->willReturn(
+                new EntitySearchResult(
+                    'product',
+                    1,
+                    new ProductCollection([$productEntity]),
+                    null,
+                    new Criteria(),
+                    $this->context->getContext()
+                )
+            );
+
+        $request = new Request();
+        $request->query->set('search', 'term');
+
+        $result = $this->route->load(Uuid::randomHex(), $request, $this->context, new Criteria());
+
+        static::assertSame('mainVariant', $result->getProduct()->getUniqueIdentifier());
     }
 
     public function testLoadVariantListingConfig(): void
@@ -400,7 +466,7 @@ class ProductDetailRouteTest extends TestCase
                 new EntitySearchResult('product', 4, new ProductCollection([$productEntity]), null, new Criteria(), $this->context->getContext())
             );
 
-        $this->systemConfig->method('get')->willReturn(true);
+        $this->systemConfig->method('getBool')->willReturn(true);
 
         $result = $this->route->load($this->idsCollection->get('product2'), new Request(), $this->context, new Criteria());
 
@@ -516,5 +582,107 @@ class ProductDetailRouteTest extends TestCase
     {
         $this->expectException(DecorationPatternException::class);
         $this->route->getDecorated();
+    }
+
+    #[DataProvider('breadcrumbCategoryDataProvider')]
+    public function testLoadBreadcrumbCategory(
+        SalesChannelProductEntity $product,
+        bool $buildBreadcrumbByReferrerCategory,
+        ?string $referrerCategoryId,
+        InvokedCount $getProductSeoCategoryCount,
+        InvokedCount $loadCategoryCount,
+        ?CategoryEntity $breadcrumbCategory
+    ): void {
+        $this->productRepository->expects($this->exactly(1))
+            ->method('search')
+            ->willReturn(
+                new EntitySearchResult(
+                    'product',
+                    1,
+                    new ProductCollection([$product]),
+                    null,
+                    new Criteria(),
+                    $this->context->getContext()
+                )
+            );
+        $this->systemConfig->method('getBool')->willReturn($buildBreadcrumbByReferrerCategory);
+        $this->breadcrumbBuilder->expects($getProductSeoCategoryCount)
+            ->method('getProductSeoCategory')
+            ->willReturn($breadcrumbCategory);
+        $this->breadcrumbBuilder->expects($loadCategoryCount)
+            ->method('loadCategory')
+            ->willReturn($breadcrumbCategory);
+
+        $request = new Request();
+
+        if ($referrerCategoryId) {
+            $request->query->set('referrerCategoryId', $referrerCategoryId);
+        }
+
+        $result = $this->route->load('1', $request, $this->context, new Criteria());
+
+        static::assertSame($breadcrumbCategory, $result->getProduct()->getSeoCategory());
+    }
+
+    public static function breadcrumbCategoryDataProvider(): \Generator
+    {
+        $defaultBreadcrumbCategory = new CategoryEntity();
+        $defaultBreadcrumbCategory->setId(Uuid::randomHex());
+        $secondCategory = new CategoryEntity();
+        $secondCategory->setId(Uuid::randomHex());
+        $thirdCategory = new CategoryEntity();
+        $thirdCategory->setId(Uuid::randomHex());
+
+        $product = new SalesChannelProductEntity();
+        $product->setId(Uuid::randomHex());
+        $product->setCategoryIds([$defaultBreadcrumbCategory->getId(), $secondCategory->getId()]);
+
+        $productWithoutCategories = new SalesChannelProductEntity();
+        $productWithoutCategories->setId(Uuid::randomHex());
+
+        yield 'Load default breadcrumb category with disabled referrer feature' => [
+            $product,
+            false,
+            null,
+            new InvokedCount(1),
+            new InvokedCount(0),
+            $defaultBreadcrumbCategory,
+        ];
+
+        yield 'Load no breadcrumb category when product has no categories assigned' => [
+            $productWithoutCategories,
+            false,
+            null,
+            new InvokedCount(1),
+            new InvokedCount(0),
+            null,
+        ];
+
+        yield 'Load default breadcrumb category with enabled referrer feature and no referrerCategoryId' => [
+            $product,
+            true,
+            null,
+            new InvokedCount(1),
+            new InvokedCount(0),
+            $defaultBreadcrumbCategory,
+        ];
+
+        yield 'Load breadcrumb category by referrerCategoryId with enabled referrer feature' => [
+            $product,
+            true,
+            $secondCategory->getId(),
+            new InvokedCount(0),
+            new InvokedCount(1),
+            $secondCategory,
+        ];
+
+        yield 'Load default breadcrumb category with enabled referrer feature and unassigned referrerCategoryId' => [
+            $product,
+            true,
+            $thirdCategory->getId(),
+            new InvokedCount(1),
+            new InvokedCount(0),
+            $defaultBreadcrumbCategory,
+        ];
     }
 }

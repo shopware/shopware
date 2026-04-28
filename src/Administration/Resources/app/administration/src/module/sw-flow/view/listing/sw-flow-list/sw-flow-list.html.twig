@@ -59,7 +59,7 @@
 
                 <div v-else>
                     <p class="sw-flow-list__event-name-unknown">
-                        {{ $tc('sw-flow.list.unknownTrigger') }}
+                        {{ $t('sw-flow.list.unknownTrigger') }}
                     </p>
                 </div>
             </template>
@@ -74,7 +74,7 @@
                     :disabled="!acl.can('flow.creator')"
                     @click="onDuplicateFlow(item)"
                 >
-                    {{ $tc('global.default.duplicate') }}
+                    {{ $t('global.default.duplicate') }}
                 </sw-context-menu-item>
                 {% endblock %}
 
@@ -98,7 +98,7 @@
                     variant="danger"
                     @click="onDeleteFlow(item)"
                 >
-                    {{ $tc('global.default.delete') }}
+                    {{ $t('global.default.delete') }}
                 </sw-context-menu-item>
                 {% endblock %}
             </template>
@@ -109,7 +109,7 @@
                 <sw-modal
                     v-if="currentFlow.id === item.id && isDeleting"
                     variant="small"
-                    :title="$tc('global.default.warning')"
+                    :title="$t('global.default.warning')"
                     @modal-close="onCloseDeleteModal"
                 >
                     {% block sw_flow_list_grid_action_modal_confirm_delete_text %}
@@ -123,14 +123,14 @@
                             variant="secondary"
                             @click="onCloseDeleteModal"
                         >
-                            {{ $tc('global.default.cancel') }}
+                            {{ $t('global.default.cancel') }}
                         </mt-button>
                         <mt-button
                             size="small"
                             variant="critical"
                             @click="onConfirmDelete(item)"
                         >
-                            {{ $tc('global.default.delete') }}
+                            {{ $t('global.default.delete') }}
                         </mt-button>
                         {% endblock %}
                     </template>
@@ -152,13 +152,13 @@
             v-if="!total && !isLoading"
             class="sw-flow-list__empty-state"
             :absolute="false"
-            :title="$tc('sw-flow.list.emptyStateTitle')"
-            :subline="$tc('sw-flow.list.emptyStateSubTitle')"
+            :title="$t('sw-flow.list.emptyStateTitle')"
+            :subline="$t('sw-flow.list.emptyStateSubTitle')"
         >
             {% block sw_flow_list_empty_state_icon %}
             <template #icon>
                 <img
-                    :alt="$tc('sw-flow.list.emptyStateTitle')"
+                    :alt="$t('sw-flow.list.emptyStateTitle')"
                     :src="assetFilter('/administration/administration/static/img/empty-states/settings-empty-state.svg')"
                 >
             </template>

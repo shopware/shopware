@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -987,6 +988,49 @@ class RegisterRouteTest extends TestCase
             $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
             static::assertNotEmpty($contextToken);
         }
+    }
+
+    public function testRegistrationBusinessAccountWithCountryVatIdsRequired(): void
+    {
+        $billingAddressCountryId = $this->getCountryIdByIsoCode('SE');
+        $shippingAddressCountryId = $this->getCountryIdByIsoCode('SI');
+
+        $this->addCountriesToSalesChannel([$billingAddressCountryId, $shippingAddressCountryId], $this->ids->get('sales-channel'));
+
+        static::getContainer()->get(Connection::class)
+            ->executeStatement(
+                'UPDATE `country` SET `check_vat_id_pattern` = 1 WHERE id IN (:ids)',
+                ['ids' => Uuid::fromHexToBytesList([$billingAddressCountryId, $shippingAddressCountryId])],
+                ['ids' => ArrayParameterType::BINARY]
+            );
+
+        $additionalData = [
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'billingAddress' => [
+                'company' => 'Test Company',
+                'countryId' => $billingAddressCountryId,
+            ],
+            'shippingAddress' => [
+                'countryId' => $shippingAddressCountryId,
+            ],
+            'vatIds' => [
+                'SE111111111111',
+            ],
+        ];
+
+        $registrationData = array_replace_recursive($this->getRegistrationData(), $additionalData);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
+            );
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
     }
 
     public function testRegistrationBusinessAccountWithVatIdsNotMatchRegex(): void

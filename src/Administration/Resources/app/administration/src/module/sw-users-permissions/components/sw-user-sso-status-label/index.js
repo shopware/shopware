@@ -30,7 +30,7 @@ export default {
         },
 
         statusText() {
-            return this.$tc(`sw-users-permissions.sso.user-listing.status-label.${this.status}`);
+            return this.$t(`sw-users-permissions.sso.user-listing.status-label.${this.status}`);
         },
 
         variant() {

@@ -53,7 +53,7 @@ export default {
         },
 
         buttonLabel() {
-            return this.$tc(`global.sw-duplicated-media-v2.button${this.selectedOption}`);
+            return this.$t(`global.sw-duplicated-media-v2.button${this.selectedOption}`);
         },
 
         dateFilter() {
@@ -91,19 +91,19 @@ export default {
             return [
                 {
                     value: 'Replace',
-                    name: this.$tc('global.sw-duplicated-media-v2.labelOptionReplace'),
+                    name: this.$t('global.sw-duplicated-media-v2.labelOptionReplace'),
                 },
                 {
                     value: 'Rename',
-                    name: this.$tc('global.sw-duplicated-media-v2.labelOptionRename'),
+                    name: this.$t('global.sw-duplicated-media-v2.labelOptionRename'),
                 },
                 {
                     value: 'Keep',
-                    name: this.$tc('global.sw-duplicated-media-v2.labelOptionKeep'),
+                    name: this.$t('global.sw-duplicated-media-v2.labelOptionKeep'),
                 },
                 {
                     value: 'Skip',
-                    name: this.$tc('global.sw-duplicated-media-v2.labelOptionSkip'),
+                    name: this.$t('global.sw-duplicated-media-v2.labelOptionSkip'),
                 },
             ];
         },

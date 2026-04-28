@@ -3,12 +3,12 @@
     <mt-card
         class="sw-seo-url__card"
         position-identifier="sw-seo-url"
-        :title="$tc('sw-seo-url.titleCard')"
+        :title="$t('sw-seo-url.titleCard')"
         :is-loading="isLoading"
     >
         {% block sw_seo_url_card %}
         <template v-if="showEmptySeoUrlError">
-            {{ $tc('sw-seo-url.textEmptySeoUrls') }}
+            {{ $t('sw-seo-url.textEmptySeoUrls') }}
         </template>
 
         <template v-else>
@@ -28,7 +28,7 @@
                         :model-value="props.currentValue"
                         :disabled="props.isInherited || isHeadlessSalesChannel || !allowInput"
                         :disable-inheritance-toggle="isHeadlessSalesChannel"
-                        :label="$tc('sw-seo-url.labelSeoPathInfo')"
+                        :label="$t('sw-seo-url.labelSeoPathInfo')"
                         :help-text="seoUrlHelptext"
                         @update:model-value="props.updateCurrentValue"
                         @inheritance-restore="props.restoreInheritance"
@@ -49,7 +49,7 @@
             <sw-sales-channel-switch
                 ref="salesChannelSwitch"
                 :disabled="disabled || undefined"
-                :label="$tc('sw-seo-url.labelSalesChannelSelect')"
+                :label="$t('sw-seo-url.labelSalesChannelSelect')"
                 @change-sales-channel-id="onSalesChannelChanged"
             />
         </template>

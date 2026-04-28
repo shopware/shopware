@@ -12,18 +12,18 @@
             v-if="!isAppUrlReachable"
             class="sw-extension-my-extensions-listing__app-url-warning"
             variant="attention"
-            :title="$tc('sw-app.component.sw-app-wrong-app-url-modal.title')"
+            :title="$t('sw-app.component.sw-app-wrong-app-url-modal.title')"
         >
             <div>
-                {{ $tc('sw-app.component.sw-app-wrong-app-url-modal.explanation') }}
+                {{ $t('sw-app.component.sw-app-wrong-app-url-modal.explanation') }}
             </div>
 
             <mt-button
                 class="sw-app-wrong-app-url-modal__content-link-button"
                 variant="secondary"
-                :link="$tc('sw-app.component.sw-app-wrong-app-url-modal.linkToDocsArticle')"
+                :link="$t('sw-app.component.sw-app-wrong-app-url-modal.linkToDocsArticle')"
             >
-                {{ $tc('sw-app.component.sw-app-wrong-app-url-modal.labelLearnMoreButton') }}
+                {{ $t('sw-app.component.sw-app-wrong-app-url-modal.labelLearnMoreButton') }}
             </mt-button>
         </mt-banner>
 
@@ -31,17 +31,17 @@
             v-if="extensionManagementDisabled"
             class="sw-extension-my-extensions-listing__runtime-extension-warning"
             variant="attention"
-            :title="$tc('sw-extension-store.component.sw-extension-my-extensions-listing.alertExtensionManagement.title')"
+            :title="$t('sw-extension-store.component.sw-extension-my-extensions-listing.alertExtensionManagement.title')"
         >
             <div>
-                {{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.alertExtensionManagement.description') }}
+                {{ $t('sw-extension-store.component.sw-extension-my-extensions-listing.alertExtensionManagement.description') }}
             </div>
 
             <mt-link
                 type="external"
                 href="https://developer.shopware.com/docs/guides/hosting/installation-updates/extension-managment.html"
             >
-                {{ $tc('sw-app.component.sw-app-wrong-app-url-modal.labelLearnMoreButton') }}
+                {{ $t('sw-app.component.sw-app-wrong-app-url-modal.labelLearnMoreButton') }}
             </mt-link>
         </mt-banner>
 
@@ -57,17 +57,17 @@
             >
 
             <h3 v-if="isThemeRoute">
-                {{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.themes.titleEmptyState') }}
+                {{ $t('sw-extension-store.component.sw-extension-my-extensions-listing.themes.titleEmptyState') }}
             </h3>
             <h3 v-else>
-                {{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.apps.titleEmptyState') }}
+                {{ $t('sw-extension-store.component.sw-extension-my-extensions-listing.apps.titleEmptyState') }}
             </h3>
 
             <p v-if="isThemeRoute">
-                {{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.themes.textEmptyState') }}
+                {{ $t('sw-extension-store.component.sw-extension-my-extensions-listing.themes.textEmptyState') }}
             </p>
             <p v-else>
-                {{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.apps.textEmptyState') }}
+                {{ $t('sw-extension-store.component.sw-extension-my-extensions-listing.apps.textEmptyState') }}
             </p>
 
             <mt-button
@@ -75,7 +75,7 @@
                 variant="secondary"
                 @click="isThemeRoute ? openThemesStore() : openStore()"
             >
-                {{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.btnOpenStore') }}
+                {{ $t('sw-extension-store.component.sw-extension-my-extensions-listing.btnOpenStore') }}
             </mt-button>
         </sw-meteor-card>
 
@@ -103,10 +103,10 @@
                     >
 
                     <h3 v-if="isThemeRoute">
-                        {{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.themes.noActivePlugins') }}
+                        {{ $t('sw-extension-store.component.sw-extension-my-extensions-listing.themes.noActivePlugins') }}
                     </h3>
                     <h3 v-else>
-                        {{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.apps.noActivePlugins') }}
+                        {{ $t('sw-extension-store.component.sw-extension-my-extensions-listing.apps.noActivePlugins') }}
                     </h3>
                 </sw-meteor-card>
 

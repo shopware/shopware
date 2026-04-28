@@ -23,6 +23,15 @@
         </input-field>
 
         <input-field type="bool">
+            <name>buildBreadcrumbByReferrerCategory</name>
+            <label>Build breadcrumb based on referrer category</label>
+            <label lang="de-DE">Breadcrumb anhand der Referrer-Kategorie aufbauen</label>
+            <helpText>Build the product breadcrumb based on the linking category if available. Feature flag BREADCRUMB_REWORK has to be active.</helpText>
+            <helpText lang="de-DE">Produkt-Breadcrumb basierend auf der verlinkenden Kategorie aufbauen, falls verfügbar. Feature-Flag BREADCRUMB_REWORK muss dafür aktiv sein.</helpText>
+            <defaultValue>false</defaultValue>
+        </input-field>
+
+        <input-field type="bool">
             <name>hideCloseoutProductsWhenOutOfStock</name>
             <label>Hide products after clearance</label>
             <label lang="de-DE">Produkte nach Abverkaufende ausblenden</label>

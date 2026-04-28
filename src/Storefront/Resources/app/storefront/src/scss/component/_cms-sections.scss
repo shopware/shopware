@@ -21,6 +21,7 @@ General styling for cms sections
 
     .full-width {
         @include make-container();
+        --#{$prefix}gutter-x: 0;
     }
 
     .cms-section-sidebar {

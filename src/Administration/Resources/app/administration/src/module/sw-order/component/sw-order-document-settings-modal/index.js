@@ -79,7 +79,7 @@ export default {
         documentNumberErrorMessage() {
             if (!this.documentConfig?.documentNumber) {
                 return {
-                    detail: this.$tc('global.notification.notificationSaveErrorMessageRequiredField'),
+                    detail: this.$t('global.notification.notificationSaveErrorMessageRequiredField'),
                 };
             }
 
@@ -94,10 +94,10 @@ export default {
         modalTitle() {
             if (this.currentDocumentType) {
                 const documentTypeName = this.currentDocumentType?.translated?.name || this.currentDocumentType?.name;
-                return `${this.$tc('sw-order.documentModal.modalTitle')} - ${documentTypeName}`;
+                return `${this.$t('sw-order.documentModal.modalTitle')} - ${documentTypeName}`;
             }
 
-            return this.$tc('sw-order.documentModal.modalTitle');
+            return this.$t('sw-order.documentModal.modalTitle');
         },
 
         mediaRepository() {
@@ -142,7 +142,7 @@ export default {
 
                 if (documentNumber !== this.documentConfig.documentNumber) {
                     this.createNotificationInfo({
-                        message: this.$tc('sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED'),
+                        message: this.$t('sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED'),
                     });
                 }
 

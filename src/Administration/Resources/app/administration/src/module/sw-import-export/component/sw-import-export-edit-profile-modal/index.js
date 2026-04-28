@@ -72,14 +72,14 @@ export default {
 
         modalTitle() {
             return this.isNew
-                ? this.$tc('sw-import-export.profile.newProfileLabel')
-                : this.$tc('sw-import-export.profile.editProfileLabel');
+                ? this.$t('sw-import-export.profile.newProfileLabel')
+                : this.$t('sw-import-export.profile.editProfileLabel');
         },
 
         saveLabelSnippet() {
             return this.isNew
-                ? this.$tc('sw-import-export.profile.addProfileLabel')
-                : this.$tc('sw-import-export.profile.saveProfileLabel');
+                ? this.$t('sw-import-export.profile.addProfileLabel')
+                : this.$t('sw-import-export.profile.saveProfileLabel');
         },
 
         showValidationError() {
@@ -137,7 +137,7 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-import-export.profile.messageSearchParentProfileError'),
+                        message: this.$t('sw-import-export.profile.messageSearchParentProfileError'),
                     });
                 });
         },

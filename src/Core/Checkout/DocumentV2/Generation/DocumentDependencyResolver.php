@@ -96,9 +96,12 @@ final readonly class DocumentDependencyResolver
     /**
      * Sorts all required formats so every dependency is rendered before the format that uses it.
      *
-     * The dependency graph is built from a format to its prerequisites. This means a plain
-     * topological sort produces the reverse of the execution order and has to be inverted
-     * before it is returned.
+     * This uses Kahn's algorithm on a graph that points from a format to its prerequisites.
+     *
+     * @see https://www.geeksforgeeks.org/dsa/topological-sorting-indegree-based-solution/
+     *
+     * That produces the reverse of the execution order, so the sorted list is inverted before
+     * it is returned.
      *
      * @param array<string, AbstractDocumentRenderer> $renderers
      * @param list<string> $neededFormats

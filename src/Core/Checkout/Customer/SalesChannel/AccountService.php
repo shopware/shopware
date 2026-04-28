@@ -179,12 +179,11 @@ class AccountService
         ], $context->getContext());
 
         $context = $this->restorer->restore($customer->getId(), $context);
-        $newToken = $context->getToken();
 
-        $event = new CustomerLoginEvent($context, $customer, $newToken);
+        $event = new CustomerLoginEvent($context, $customer, $context->getToken());
         $this->eventDispatcher->dispatch($event);
 
-        return $newToken;
+        return $context->getToken();
     }
 
     /**

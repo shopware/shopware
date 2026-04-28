@@ -38,6 +38,8 @@ use Shopware\Core\System\Tax\TaxCollection;
 
 /**
  * @internal
+ *
+ * @phpstan-import-type SalesChannelContextFactoryOptions from AbstractSalesChannelContextFactory
  */
 #[Package('framework')]
 class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFactory
@@ -69,9 +71,6 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
     ) {
     }
 
-    /**
-     * @param array<string, mixed> $options
-     */
     public function create(string $salesChannelId, array $options = []): BaseSalesChannelContext
     {
         $context = $this->contextFactory->getContext($salesChannelId, $options);
@@ -185,7 +184,7 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
     }
 
     /**
-     * @param array<string, mixed> $options
+     * @param SalesChannelContextFactoryOptions $options
      */
     private function getPaymentMethod(array $options, Context $context, SalesChannelEntity $salesChannel): PaymentMethodEntity
     {
@@ -208,7 +207,7 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
     }
 
     /**
-     * @param array<string, mixed> $options
+     * @param SalesChannelContextFactoryOptions $options
      */
     private function getShippingMethod(array $options, Context $context, SalesChannelEntity $salesChannel): ShippingMethodEntity
     {
@@ -231,7 +230,7 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
     }
 
     /**
-     * @param array<string, mixed> $options
+     * @param SalesChannelContextFactoryOptions $options
      */
     private function loadShippingLocation(array $options, Context $context, SalesChannelEntity $salesChannel): ShippingLocation
     {

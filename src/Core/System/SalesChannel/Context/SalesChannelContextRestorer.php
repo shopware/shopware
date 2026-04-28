@@ -22,6 +22,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @phpstan-import-type SalesChannelContextFactoryOptions from AbstractSalesChannelContextFactory
+ */
 #[Package('framework')]
 class SalesChannelContextRestorer
 {
@@ -41,7 +44,7 @@ class SalesChannelContextRestorer
     }
 
     /**
-     * @param array<string, string|array<string,bool>|null> $overrideOptions
+     * @param SalesChannelContextFactoryOptions $overrideOptions
      *
      * @throws InconsistentCriteriaIdsException
      */
@@ -127,7 +130,7 @@ class SalesChannelContextRestorer
     }
 
     /**
-     * @param array<string> $overrideOptions
+     * @param SalesChannelContextFactoryOptions $overrideOptions
      *
      * @throws Exception
      */
@@ -159,7 +162,7 @@ class SalesChannelContextRestorer
 
         $options = array_merge($options, $overrideOptions);
 
-        $token = Uuid::randomHex();
+        $token = SalesChannelContextService::getNewToken();
         $salesChannelContext = $this->factory->create(
             $token,
             $salesChannelId,

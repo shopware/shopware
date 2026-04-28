@@ -23,7 +23,7 @@ class CustomerLogoutEvent extends Event implements SalesChannelAware, ShopwareSa
     final public const EVENT_NAME = 'checkout.customer.logout';
 
     public function __construct(
-        private readonly SalesChannelContext $salesChannelContext,
+        private SalesChannelContext $salesChannelContext,
         private readonly CustomerEntity $customer
     ) {
     }
@@ -41,6 +41,11 @@ class CustomerLogoutEvent extends Event implements SalesChannelAware, ShopwareSa
     public function getSalesChannelContext(): SalesChannelContext
     {
         return $this->salesChannelContext;
+    }
+
+    public function setSalesChannelContext(SalesChannelContext $salesChannelContext): void
+    {
+        $this->salesChannelContext = $salesChannelContext;
     }
 
     public function getContext(): Context

@@ -624,7 +624,7 @@ class OrderConverterTest extends TestCase
         static::assertCount(2, $dispatcher->getEvents());
         static::assertInstanceOf(BeforeSalesChannelContextAssembledEvent::class, $dispatcher->getEvents()[0]);
         static::assertSame($order, $dispatcher->getEvents()[0]->getOrder());
-        static::assertSame(OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS, $dispatcher->getEvents()[0]->getOptions()[SalesChannelContextService::PERMISSIONS]);
+        static::assertSame(OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS, $dispatcher->getEvents()[0]->getOptions()[SalesChannelContextService::PERMISSIONS] ?? []);
         static::assertInstanceOf(SalesChannelContextAssembledEvent::class, $dispatcher->getEvents()[1]);
         static::assertSame($order, $dispatcher->getEvents()[1]->getOrder());
     }

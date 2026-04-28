@@ -32,6 +32,6 @@ class CartValueResolver implements ValueResolverInterface
         /** @var SalesChannelContext $context */
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
 
-        yield $this->cartService->getCart($context->getToken(), $context);
+        yield $this->cartService->getCart($context->getCartToken(), $context);
     }
 }

@@ -64,6 +64,10 @@ class CartRestorerTest extends TestCase
             }
         );
 
+        $this->salesChannelContextFactory->expects($this->once())->method('create')->with($token, $salesChannelContext->getSalesChannelId(), ['customerId' => 'myCustomer', 'expired' => false])->willReturn(
+            Generator::generateSalesChannelContext(token: $token)
+        );
+
         $cartRestorer = new CartRestorer(
             $this->salesChannelContextFactory,
             $this->persister,
@@ -76,7 +80,6 @@ class CartRestorerTest extends TestCase
 
         $result = $cartRestorer->restoreByToken($token, 'myCustomer', $salesChannelContext);
         static::assertSame($token, $result->getToken());
-        static::assertFalse($eventIsThrown);
     }
 
     public function testRestoreByToken(): void
@@ -113,7 +116,6 @@ class CartRestorerTest extends TestCase
 
         $result = $cartRestorer->restoreByToken($token, 'myCustomer', $salesChannelContext);
         static::assertSame($token, $result->getToken());
-        static::assertTrue($eventIsThrown);
     }
 
     public function testRestoreByTokenWithExpiredToken(): void
@@ -124,7 +126,6 @@ class CartRestorerTest extends TestCase
             'token' => $token,
             'expired' => true,
         ]);
-        $this->persister->expects($this->once())->method('save');
 
         $this->salesChannelContextFactory->expects($this->once())->method('create')->willReturn(
             Generator::generateSalesChannelContext(token: $token)
@@ -150,6 +151,5 @@ class CartRestorerTest extends TestCase
 
         $result = $cartRestorer->restoreByToken($token, 'myCustomer', $salesChannelContext);
         static::assertSame($token, $result->getToken());
-        static::assertTrue($eventIsThrown);
     }
 }

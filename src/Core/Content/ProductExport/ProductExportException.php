@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ProductExport;
 
+use Shopware\Core\Content\ProductExport\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
@@ -122,6 +123,11 @@ class ProductExportException extends HttpException
             'Each JSONL line must decode to an object.',
             ['line' => $line]
         );
+    }
+
+    public static function salesChannelNotFound(string $id): ShopwareHttpException
+    {
+        return new SalesChannelNotFoundException($id);
     }
 
     private static function getErrorMessage(string $message): string

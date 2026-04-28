@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\Random;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
@@ -99,7 +99,7 @@ class CustomerBeforeDeleteSubscriber implements EventSubscriberInterface
                 $salesChannelContext = $this->salesChannelContextService->get(
                     new SalesChannelContextServiceParameters(
                         $effectiveSalesChannelId,
-                        Random::getAlphanumericString(32),
+                        SalesChannelContextService::getNewToken(),
                         $effectiveLanguageId,
                         null,
                         null,

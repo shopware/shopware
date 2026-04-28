@@ -5,16 +5,19 @@ namespace Shopware\Core\Checkout\Cart\Event;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Allows the manipulation of the sales channel context options before it is assembled from the order
+ *
+ * @phpstan-import-type SalesChannelContextFactoryOptions from AbstractSalesChannelContextFactory
  */
 #[Package('checkout')]
 class BeforeSalesChannelContextAssembledEvent extends Event
 {
     /**
-     * @param array<string, array<string, bool>|string|null> $options
+     * @param SalesChannelContextFactoryOptions $options
      *
      * @internal
      */
@@ -36,7 +39,7 @@ class BeforeSalesChannelContextAssembledEvent extends Event
     }
 
     /**
-     * @return array<string, array<string, bool>|string|null>
+     * @return SalesChannelContextFactoryOptions
      */
     public function getOptions(): array
     {
@@ -44,7 +47,7 @@ class BeforeSalesChannelContextAssembledEvent extends Event
     }
 
     /**
-     * @param array<string, array<string, bool>|string|null> $options
+     * @param SalesChannelContextFactoryOptions $options
      */
     public function setOptions(array $options): void
     {

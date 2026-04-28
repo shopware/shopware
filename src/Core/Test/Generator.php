@@ -23,6 +23,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DefaultPayment;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
@@ -44,6 +45,7 @@ use Shopware\Core\System\Tax\TaxEntity;
 class Generator extends TestCase
 {
     final public const TOKEN = 'test-token';
+    final public const CART_TOKEN = 'test-cart-token';
     final public const DOMAIN = 'test-domain';
     final public const NAVIGATION_CATEGORY = 'f8466865cc6a45e48ed98dd2f6a0a293';
     final public const TAX_CALCULATION_TYPE = SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL;
@@ -83,10 +85,14 @@ class Generator extends TestCase
         ?CountryStateEntity $countryState = null,
         ?CustomerAddressEntity $customerAddress = null,
         ?array $overrides = [],
+        ?string $cartToken = null,
+        ?MeasurementUnits $measurementSystem = null,
     ): SalesChannelContext {
         $baseContext ??= Context::createDefaultContext();
 
         $token ??= self::TOKEN;
+
+        $cartToken ??= self::CART_TOKEN;
 
         $domainId ??= self::DOMAIN;
 
@@ -184,9 +190,12 @@ class Generator extends TestCase
 
         $languageInfo ??= self::createLanguageInfo();
 
+        $measurementSystem ??= MeasurementUnits::createDefaultUnits();
+
         $salesChannelContext = new SalesChannelContext(
             $baseContext,
             $token,
+            $cartToken,
             $domainId,
             $salesChannel,
             $currency,
@@ -200,6 +209,7 @@ class Generator extends TestCase
             $totalRounding,
             $languageInfo,
             $areaRuleIds,
+            $measurementSystem,
         );
 
         if ($overrides) {
@@ -211,7 +221,7 @@ class Generator extends TestCase
 
     public static function createCart(): Cart
     {
-        $cart = new Cart('test');
+        $cart = new Cart(self::CART_TOKEN);
         $cart->setLineItems(
             new LineItemCollection([
                 (new LineItem('A', 'product', 'A', 27))

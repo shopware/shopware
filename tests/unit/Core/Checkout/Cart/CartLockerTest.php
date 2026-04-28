@@ -45,9 +45,8 @@ class CartLockerTest extends TestCase
 
     public function testLockedAcquiresAndReleasesLock(): void
     {
-        $token = 'test-token';
-        $context = Generator::generateSalesChannelContext(token: $token);
-        $lock = $this->lockFactory->createLock($this->locker->getLockKey($token));
+        $context = Generator::generateSalesChannelContext();
+        $lock = $this->lockFactory->createLock($this->locker->getLockKey(Generator::CART_TOKEN));
 
         // Lock should be available before
         static::assertTrue($lock->acquire());
@@ -84,12 +83,11 @@ class CartLockerTest extends TestCase
 
     public function testLockedThrowsExceptionOnFailure(): void
     {
-        $token = 'test-token';
-        $context = Generator::generateSalesChannelContext(token: $token);
-        $lock = $this->lockFactory->createLock($this->locker->getLockKey($token));
+        $context = Generator::generateSalesChannelContext();
+        $lock = $this->lockFactory->createLock($this->locker->getLockKey(Generator::CART_TOKEN));
         $lock->acquire();
 
-        $this->expectExceptionObject(CartException::cartLocked($token));
+        $this->expectExceptionObject(CartException::cartLocked(Generator::CART_TOKEN));
 
         $this->locker->locked($context, static function (): void {
             // This should not be executed

@@ -28,6 +28,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -66,7 +67,7 @@ class RegisterControllerTest extends TestCase
     {
         $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
 
-        $token = Uuid::randomHex();
+        $token = SalesChannelContextService::getNewToken();
         $this->salesChannelContext = $salesChannelContextFactory->create($token, TestDefaults::SALES_CHANNEL);
 
         $session = $this->getSession();

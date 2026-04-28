@@ -31,7 +31,7 @@ class ContextGatewayControllerTest extends TestCase
     public function testGateway(): void
     {
         $context = Generator::generateSalesChannelContext(token: 'hatoken');
-        $cart = new Cart('hatoken');
+        $cart = new Cart(Generator::CART_TOKEN);
         $request = new Request(request: ['foo' => 'bar', 'bat' => 'baz']);
         $expectedResponse = new ContextTokenResponse('newHatoken');
 
@@ -39,7 +39,7 @@ class ContextGatewayControllerTest extends TestCase
         $cartService
             ->expects($this->once())
             ->method('getCart')
-            ->with('hatoken', $context)
+            ->with(Generator::CART_TOKEN, $context)
             ->willReturn($cart);
 
         $route = $this->createMock(AbstractContextGatewayRoute::class);
@@ -62,15 +62,15 @@ class ContextGatewayControllerTest extends TestCase
 
     public function testGatewayWithGenericException(): void
     {
-        $context = Generator::generateSalesChannelContext(token: 'hatoken');
-        $cart = new Cart('hatoken');
+        $context = Generator::generateSalesChannelContext();
+        $cart = new Cart(Generator::CART_TOKEN);
         $request = new Request(request: ['foo' => 'bar', 'bat' => 'baz']);
 
         $cartService = $this->createMock(CartService::class);
         $cartService
             ->expects($this->once())
             ->method('getCart')
-            ->with('hatoken', $context)
+            ->with(Generator::CART_TOKEN, $context)
             ->willReturn($cart);
 
         $route = $this->createMock(AbstractContextGatewayRoute::class);
@@ -103,14 +103,14 @@ class ContextGatewayControllerTest extends TestCase
     public function testGatewayWithCustomerException(): void
     {
         $context = Generator::generateSalesChannelContext(token: 'hatoken');
-        $cart = new Cart('hatoken');
+        $cart = new Cart(Generator::CART_TOKEN);
         $request = new Request(request: ['foo' => 'bar', 'bat' => 'baz']);
 
         $cartService = $this->createMock(CartService::class);
         $cartService
             ->expects($this->once())
             ->method('getCart')
-            ->with('hatoken', $context)
+            ->with(Generator::CART_TOKEN, $context)
             ->willReturn($cart);
 
         $route = $this->createMock(AbstractContextGatewayRoute::class);

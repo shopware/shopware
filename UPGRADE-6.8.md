@@ -175,6 +175,54 @@ new CreatedByField([Context::SYSTEM_SCOPE]);
 new UpdatedByField([Context::SYSTEM_SCOPE]);
 ```
 
+## Multi context token system structure
+
+If you load a cart e.g. via the `CartService` or you update it via the `CartPersister`, you now have to use the correct `$context->getCartToken()` for the respective cart you want to load or persist, as the context token (`$context->getToken()`) is no longer used for carts.
+Loading or persisting a cart with the context token will not work anymore and will always return an empty cart or persist a new cart.
+
+```php
+// Before:
+$exists = $cartService->hasCart($context->getToken());
+
+$cart = $cartService->getCart($context->getToken(), $context);
+```
+to
+
+```php
+$exists = $cartService->hasCart($context->getCartToken());
+
+$cart = $cartService->getCart($context->getCartToken(), $context);
+```
+
+## sales_channel_api_context table removed
+
+The `sales_channel_api_context` table has been removed as part of the new multi context token system structure.
+It has been replaced by the `sales_channel_context` & `sales_channel_context_token` tables.
+
+```sql
+# Before:
+SELECT * FROM sales_channel_api_context WHERE token = :token;
+```
+
+to
+
+```sql
+SELECT * FROM sales_channel_context scc INNER JOIN sales_channel_context_token scct ON scc.id = scct.sales_channel_context_id WHERE scct.token = :token;
+```
+
+## Internal sw-imitating-user-id request attribute removed
+
+The `sw-imitating-user-id` request attribute has been removed as the imitating user id is now stored in the addional context payload.
+
+## SalesChannelContextPersister & Context token changes
+
+The `replace` function in `SalesChannelContextPersister` has been removed, as it is no longer needed with the new multi context token system structure.
+Context tokens no longer need to be replaced, as we can now just drop the connection between the context token and a customer, so the token can be reused again without the requirement to update the token on every customer login/logout.
+
+## SalesChannelContextServiceParameters changes
+
+The `imitatingUserId` is no longer a parameter of the `SalesChannelContextServiceParameters`, as the imitating user id is now stored in the addional context payload. It can still be accessed via `$salesChannelContext->getImitatingUserId()`.
+
 ## Multiple payment finalize calls allowed
 
 Multiple calls to the `/payment-finalize` endpoint using the same payment token are now allowed.

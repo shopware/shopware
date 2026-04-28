@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Customer\Event\GuestCustomerRegisterEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -87,15 +88,16 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
         ];
         $this->customerRepository->update([$customerUpdate], $context->getContext());
 
-        $newToken = $this->contextPersister->replace($context->getToken(), $context);
+        $token = $context->getToken();
 
+        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('MULTI_CONTEXT_TOKENS')) {
+            $token = $this->contextPersister->replace($context->getToken(), $context);
+        }
+
+        // Persist the new context token with the customer
         $this->contextPersister->save(
-            $newToken,
-            [
-                'customerId' => $customer->getId(),
-                'billingAddressId' => null,
-                'shippingAddressId' => null,
-            ],
+            $token,
+            [],
             $context->getSalesChannelId(),
             $customer->getId()
         );
@@ -103,7 +105,7 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
         $new = $this->contextService->get(
             new SalesChannelContextServiceParameters(
                 $context->getSalesChannelId(),
-                $newToken,
+                $token,
                 $context->getLanguageId(),
                 $context->getCurrencyId(),
                 $context->getDomainId(),
@@ -129,10 +131,12 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
 
         $response = new CustomerResponse($customer);
 
-        $event = new CustomerLoginEvent($new, $customer, $newToken);
+        $event = new CustomerLoginEvent($new, $customer, $token);
         $this->eventDispatcher->dispatch($event);
 
-        $response->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $newToken);
+        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('MULTI_CONTEXT_TOKENS')) {
+            $response->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
+        }
 
         return $response;
     }

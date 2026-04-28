@@ -103,7 +103,10 @@ class DefinitionValidator
         'cart',
         'deleted_apps',
         'migration',
+        // @deprecated tag:v6.8.0 - sales_channel_api_context will be removed in 6.8.0.
         'sales_channel_api_context',
+        'sales_channel_context',
+        'sales_channel_context_token',
         'elasticsearch_index_task',
         'increment',
         'messenger_messages',

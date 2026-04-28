@@ -50,7 +50,7 @@ class CartLoadRouteTest extends TestCase
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext
             ->expects($this->once())
-            ->method('getToken')
+            ->method('getCartToken')
             ->willReturn('test');
 
         $cartLoadRoute = new CartLoadRoute(

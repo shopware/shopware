@@ -133,7 +133,7 @@ class RegisterControllerTest extends TestCase
 
         $this->cartService->expects($this->once())
             ->method('getCart')
-            ->with($context->getToken(), $context)
+            ->with($context->getCartToken(), $context)
             ->willReturn($cart);
 
         $this->controller->checkoutRegisterPage($request, $dataBag, $context);

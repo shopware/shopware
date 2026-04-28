@@ -44,6 +44,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @phpstan-import-type SalesChannelContextFactoryOptions from AbstractSalesChannelContextFactory
+ */
 #[Package('checkout')]
 class OrderConverter
 {
@@ -299,7 +302,7 @@ class OrderConverter
     }
 
     /**
-     * @param array<string, array<string, bool>|string> $overrideOptions
+     * @param SalesChannelContextFactoryOptions $overrideOptions
      *
      * @throws InconsistentCriteriaIdsException
      */

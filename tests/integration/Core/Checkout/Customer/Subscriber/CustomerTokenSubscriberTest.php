@@ -5,7 +5,6 @@ namespace Shopware\Tests\Integration\Core\Checkout\Customer\Subscriber;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
@@ -50,12 +49,19 @@ class CustomerTokenSubscriberTest extends TestCase
     {
         $customerId = $this->createCustomer();
 
-        $this->connection->insert('sales_channel_api_context', [
+        $id = Uuid::randomBytes();
+
+        $this->connection->insert('sales_channel_context', [
+            'id' => $id,
+            'cart_token' => 'test',
             'customer_id' => Uuid::fromHexToBytes($customerId),
-            'token' => 'test',
             'sales_channel_id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
-            'updated_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'payload' => '{"customerId": "1234"}',
+        ]);
+
+        $this->connection->insert('sales_channel_context_token', [
+            'token' => 'test',
+            'sales_channel_context_id' => $id,
         ]);
 
         $this->customerRepository->update([
@@ -65,14 +71,19 @@ class CustomerTokenSubscriberTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        static::assertSame(
-            [
-                'customerId' => null,
-                'billingAddressId' => null,
-                'shippingAddressId' => null,
-            ],
-            \json_decode((string) $this->connection->fetchOne('SELECT payload FROM sales_channel_api_context WHERE token = "test"'), true, 512, \JSON_THROW_ON_ERROR)
-        );
+        $token = $this->connection->fetchOne('
+            SELECT token FROM sales_channel_context_token WHERE token = :token
+            ', ['token' => 'test']);
+
+        // The token row should be gone, assertFalse checks for the absence of the row
+        static::assertFalse($token);
+
+        $payload = $this->connection->fetchOne('
+            SELECT payload FROM sales_channel_context WHERE id = :id
+            ', ['id' => $id]);
+
+        // The context row should still exist
+        static::assertSame($payload, '{"customerId": "1234"}');
     }
 
     public function testCustomerTokenSubscriberStorefrontShouldStillBeLoggedIn(): void
@@ -97,12 +108,19 @@ class CustomerTokenSubscriberTest extends TestCase
             return $context;
         });
 
-        $this->connection->insert('sales_channel_api_context', [
+        $id = Uuid::randomBytes();
+
+        $this->connection->insert('sales_channel_context', [
+            'id' => $id,
+            'cart_token' => 'test',
             'customer_id' => Uuid::fromHexToBytes($customerId),
-            'token' => 'test',
             'sales_channel_id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
-            'updated_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'payload' => '{"customerId": "1234"}',
+        ]);
+
+        $this->connection->insert('sales_channel_context_token', [
+            'token' => 'test',
+            'sales_channel_context_id' => $id,
         ]);
 
         $this->customerRepository->update([
@@ -114,24 +132,35 @@ class CustomerTokenSubscriberTest extends TestCase
 
         static::assertNotNull($newToken);
 
-        static::assertSame(
-            [
-                'customerId' => '1234',
-            ],
-            \json_decode((string) $this->connection->fetchOne('SELECT payload FROM sales_channel_api_context WHERE token = ?', [$newToken]), true, 512, \JSON_THROW_ON_ERROR)
-        );
+        $token = $this->connection->fetchOne('
+            SELECT token FROM sales_channel_context_token WHERE token = :token
+        ', ['token' => $newToken]);
+
+        static::assertSame($token, $newToken);
+
+        $payload = $this->connection->fetchOne('
+            SELECT payload FROM sales_channel_context WHERE id IN (SELECT sales_channel_context_id FROM sales_channel_context_token WHERE token = :token)
+        ', ['token' => $newToken]);
+
+        static::assertSame($payload, '{"customerId": "1234"}');
     }
 
     public function testDeleteCustomer(): void
     {
         $customerId = $this->createCustomer();
+        $id = Uuid::randomBytes();
 
-        $this->connection->insert('sales_channel_api_context', [
+        $this->connection->insert('sales_channel_context', [
+            'id' => $id,
+            'cart_token' => 'test',
             'customer_id' => Uuid::fromHexToBytes($customerId),
-            'token' => 'test',
             'sales_channel_id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
-            'updated_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'payload' => '{"customerId": "1234"}',
+        ]);
+
+        $this->connection->insert('sales_channel_context_token', [
+            'token' => 'test',
+            'sales_channel_context_id' => $id,
         ]);
 
         $this->customerRepository->delete([
@@ -140,7 +169,7 @@ class CustomerTokenSubscriberTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        static::assertCount(0, $this->connection->fetchAllAssociative('SELECT * FROM sales_channel_api_context WHERE token = ?', ['test']));
+        static::assertCount(0, $this->connection->fetchAllAssociative('SELECT * FROM sales_channel_context_token WHERE token = ?', ['test']));
     }
 
     private function createCustomer(): string

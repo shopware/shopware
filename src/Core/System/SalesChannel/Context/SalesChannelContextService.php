@@ -19,6 +19,8 @@ use Symfony\Component\HttpFoundation\RequestStack;
 #[Package('framework')]
 class SalesChannelContextService implements SalesChannelContextServiceInterface
 {
+    final public const CART_TOKEN = 'cartToken';
+
     final public const CURRENCY_ID = 'currencyId';
 
     final public const LANGUAGE_ID = 'languageId';
@@ -72,6 +74,14 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
     ) {
     }
 
+    /**
+     * Generate a new sales channel context token.
+     */
+    public static function getNewToken(): string
+    {
+        return Random::getAlphanumericString(32);
+    }
+
     public function get(SalesChannelContextServiceParameters $parameters): SalesChannelContext
     {
         return Profiler::trace('sales-channel-context', function () use ($parameters) {
@@ -80,7 +90,20 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
             $session = $this->contextPersister->load($token, $parameters->getSalesChannelId());
 
             if ($session['expired'] ?? false) {
-                $token = Random::getAlphanumericString(32);
+                $token = self::getNewToken();
+            }
+
+            if (!isset($session[self::CART_TOKEN])) {
+                $session[self::CART_TOKEN] = $token;
+            }
+
+            if ($session['expired'] ?? false) {
+                unset($session[self::CART_TOKEN]);
+            }
+
+            if (isset($session['additional'])) {
+                $session = array_merge($session, $session['additional']);
+                unset($session['additional']);
             }
 
             if ($parameters->getLanguageId() !== null) {
@@ -105,7 +128,7 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
                 $session[self::CUSTOMER_ID] = $parameters->getCustomerId();
             }
 
-            if ($parameters->getImitatingUserId() !== null) {
+            if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('MULTI_CONTEXT_TOKENS') && $parameters->getImitatingUserId() !== null) {
                 $session[self::IMITATING_USER_ID] = $parameters->getImitatingUserId();
             }
 
@@ -129,18 +152,21 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
             $requestSession = $currentRequest?->hasSession() ? $currentRequest->getSession() : null;
 
             // Remove imitating user id from session, if there is no customer
-            if ($requestSession && $context->getImitatingUserId() && !$context->getCustomerId()) {
-                $requestSession->remove(PlatformRequest::ATTRIBUTE_IMITATING_USER_ID);
-                $context->setImitatingUserId(null);
+            // In multi-context scenarios, we load the imitating user id via the additional payload
+            if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('MULTI_CONTEXT_TOKENS')) {
+                if ($requestSession && $context->getImitatingUserId() && !$context->getCustomerId()) {
+                    $requestSession->remove(PlatformRequest::ATTRIBUTE_IMITATING_USER_ID);
+                    $context->setImitatingUserId(null);
+                }
             }
 
             // skip cart calculation on ESI sub-requests if it has already been done.
             $esiRequest = $currentRequest?->attributes->has('_esi') ?? false;
-            if (!$this->cartService->hasCart($token) || !$esiRequest) {
+            if (!$this->cartService->hasCart($context->getCartToken()) || !$esiRequest) {
                 // @deprecated tag:v6.8.0 - Permission will always be true
                 $result = $context->withPermissions(
                     [AbstractCartPersister::PERSIST_CART_ERROR_PERMISSION => Feature::isActive('DEFERRED_CART_ERRORS')],
-                    fn (SalesChannelContext $context) => $this->ruleLoader->loadByToken($context, $token),
+                    fn (SalesChannelContext $context) => $this->ruleLoader->loadByToken($context, $context->getCartToken()),
                 );
 
                 $this->cartService->setCart($result->getCart());

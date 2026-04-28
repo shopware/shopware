@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\Cleanup\CleanupSalesChannelContextTaskHandler;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
@@ -32,40 +33,61 @@ class CleanupSalesChannelContextTaskHandlerTest extends TestCase
 
     public function testCleanup(): void
     {
-        static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM sales_channel_api_context');
+        static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM sales_channel_context');
 
         $ids = new IdsCollection();
 
-        $this->createSalesChannelContext($ids->create('context-1'));
+        $this->createSalesChannelContext($ids->create('context-1'), null, true);
+        $this->createSalesChannelContext($ids->create('context-2'), null, false);
 
         $date = new \DateTime();
         $date->modify(\sprintf('-%d day', 121));
-        $this->createSalesChannelContext($ids->create('context-2'), $date);
+        $this->createSalesChannelContext($ids->create('context-3'), $date, true);
+        $this->createSalesChannelContext($ids->create('context-4'), $date, false);
 
         $this->handler->run();
 
         $contexts = static::getContainer()->get(Connection::class)
-            ->fetchFirstColumn('SELECT token FROM sales_channel_api_context');
+            ->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM sales_channel_context');
 
-        static::assertCount(1, $contexts);
+        static::assertCount(2, $contexts);
         static::assertContains($ids->get('context-1'), $contexts);
+        static::assertContains($ids->get('context-2'), $contexts);
+
+        $tokenContexts = static::getContainer()->get(Connection::class)
+            ->fetchFirstColumn('SELECT LOWER(HEX(sales_channel_context_id)) FROM sales_channel_context_token');
+
+        static::assertCount(1, $tokenContexts);
+        static::assertContains($ids->get('context-1'), $tokenContexts);
     }
 
-    private function createSalesChannelContext(string $token, ?\DateTime $date = null): void
+    private function createSalesChannelContext(string $id, ?\DateTime $date, bool $withToken): void
     {
+        $id = Uuid::fromHexToBytes($id);
+        $updatedAt = ($date ?? new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+
         $payload = [
-            'token' => $token,
+            'id' => $id,
+            'cart_token' => SalesChannelContextService::getNewToken(),
             'payload' => json_encode([
                 'key' => 'value',
-                'expired' => false,
             ]),
             'sales_channel_id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
+            'updated_at' => $updatedAt,
         ];
 
-        if ($date) {
-            $payload['updated_at'] = $date->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        static::getContainer()->get(Connection::class)->insert('sales_channel_context', $payload);
+
+        if (!$withToken) {
+            return;
         }
 
-        static::getContainer()->get(Connection::class)->insert('sales_channel_api_context', $payload);
+        $date ??= new \DateTime();
+
+        static::getContainer()->get(Connection::class)->insert('sales_channel_context_token', [
+            'token' => SalesChannelContextService::getNewToken(),
+            'sales_channel_context_id' => $id,
+            'updated_at' => $updatedAt,
+        ]);
     }
 }

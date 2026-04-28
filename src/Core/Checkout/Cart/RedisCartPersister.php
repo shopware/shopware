@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\Event\CartSavedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartVerifyPersistEvent;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -48,6 +49,11 @@ class RedisCartPersister extends AbstractCartPersister
 
     public function load(string $token, SalesChannelContext $context): Cart
     {
+        // tag:v6.8.0 - Remove the helper 'if' block, the correct token should be passed
+        if (!Feature::isActive('v6.8.0.0') && Feature::isActive('MULTI_CONTEXT_TOKENS')) {
+            $token = $context->getCartToken();
+        }
+
         $value = $this->redis->get(self::PREFIX . $token);
 
         if (!\is_string($value)) {
@@ -97,9 +103,15 @@ class RedisCartPersister extends AbstractCartPersister
 
         $event = new CartVerifyPersistEvent($context, $cart, $shouldPersist);
 
+        $cartToken = $cart->getToken();
+        // tag:v6.8.0 - Remove the helper 'if' block, the correct token should be passed
+        if (!Feature::isActive('v6.8.0.0') && Feature::isActive('MULTI_CONTEXT_TOKENS')) {
+            $cartToken = $context->getCartToken();
+        }
+
         $this->eventDispatcher->dispatch($event);
         if (!$event->shouldBePersisted()) {
-            $this->delete($cart->getToken(), $context);
+            $this->delete($cartToken, $context);
 
             return;
         }
@@ -121,6 +133,11 @@ class RedisCartPersister extends AbstractCartPersister
 
     public function delete(string $token, SalesChannelContext $context): void
     {
+        // tag:v6.8.0 - Remove the helper 'if' block, the correct token should be passed
+        if (!Feature::isActive('v6.8.0.0') && Feature::isActive('MULTI_CONTEXT_TOKENS')) {
+            $token = $context->getCartToken();
+        }
+
         $this->redis->del(self::PREFIX . $token);
     }
 
@@ -134,6 +151,11 @@ class RedisCartPersister extends AbstractCartPersister
 
         $copyContext = clone $context;
         $copyContext->setRuleIds($cart->getRuleIds());
+
+        // tag:v6.8.0 - Remove the helper 'if' block, the correct token should be passed
+        if (!Feature::isActive('v6.8.0.0') && Feature::isActive('MULTI_CONTEXT_TOKENS')) {
+            $newToken = $context->getCartToken();
+        }
 
         $cart->setToken($newToken);
         $cart->setPersisted(false);

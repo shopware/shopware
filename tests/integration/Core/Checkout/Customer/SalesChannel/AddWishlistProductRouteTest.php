@@ -10,9 +10,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
-use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -114,7 +114,7 @@ class AddWishlistProductRouteTest extends TestCase
 
     public function testAddProductShouldThrowCustomerNotLoggedInException(): void
     {
-        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', Random::getAlphanumericString(12));
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', SalesChannelContextService::getNewToken());
 
         $productId = Uuid::randomHex();
         $this->browser

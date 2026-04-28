@@ -31,7 +31,7 @@ class ContextGatewayController extends StorefrontController
     #[Route('/gateway/context', name: 'frontend.gateway.context', defaults: ['XmlHttpRequest' => true], methods: ['GET', 'POST'])]
     public function gateway(Request $request, SalesChannelContext $context): Response
     {
-        $cart = $this->cartService->getCart($context->getToken(), $context);
+        $cart = $this->cartService->getCart($context->getCartToken(), $context);
 
         try {
             $response = $this->contextGatewayRoute->load($request, $cart, $context);

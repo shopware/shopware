@@ -37,9 +37,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @phpstan-import-type SalesChannelContextFactoryOptions from AbstractSalesChannelContextFactory
+ */
 #[Package('checkout')]
 class RecalculationService
 {
@@ -69,7 +73,7 @@ class RecalculationService
     }
 
     /**
-     * @param array<string, array<string, bool>|string> $salesChannelContextOptions
+     * @param SalesChannelContextFactoryOptions $salesChannelContextOptions
      *
      * @throws CustomerNotLoggedInException
      * @throws CartException
@@ -96,7 +100,7 @@ class RecalculationService
     /**
      * @deprecated tag:v6.8.0 - Will be removed and is replaced by {@see recalculate}
      *
-     * @param array<string, array<string, bool>|string> $salesChannelContextOptions
+     * @param SalesChannelContextFactoryOptions $salesChannelContextOptions
      *
      * @throws CustomerNotLoggedInException
      * @throws CartException

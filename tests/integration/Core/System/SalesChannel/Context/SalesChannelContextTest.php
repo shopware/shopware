@@ -596,7 +596,7 @@ class SalesChannelContextTest extends TestCase
 
         $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
 
-        $token = Uuid::randomHex();
+        $token = SalesChannelContextService::getNewToken();
 
         return $salesChannelContextFactory->create($token, TestDefaults::SALES_CHANNEL, $options);
     }

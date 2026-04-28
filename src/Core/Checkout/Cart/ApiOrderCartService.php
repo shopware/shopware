@@ -24,7 +24,7 @@ class ApiOrderCartService
 
     public function updateShippingCosts(CalculatedPrice $calculatedPrice, SalesChannelContext $context): Cart
     {
-        $cart = $this->cartService->getCart($context->getToken(), $context);
+        $cart = $this->cartService->getCart($context->getCartToken(), $context);
 
         $cart->addExtension(DeliveryProcessor::MANUAL_SHIPPING_COSTS, $calculatedPrice);
 

@@ -39,7 +39,7 @@ class CartLoadRoute extends AbstractCartLoadRoute
     #[Route(path: '/store-api/checkout/cart', name: 'store-api.checkout.cart.read', methods: ['GET', 'POST'])]
     public function load(Request $request, SalesChannelContext $context): CartResponse
     {
-        $token = RequestParamHelper::get($request, 'token', $context->getToken());
+        $token = RequestParamHelper::get($request, 'token', $context->getCartToken());
         $taxed = RequestParamHelper::get($request, 'taxed', false);
 
         try {

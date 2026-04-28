@@ -194,7 +194,7 @@ class AccountOrderEditPageLoaderTest extends TestCase
             ->expects($this->once())
             ->method('setCart')
             ->with(static::callback(static function (Cart $cart) use ($orderContext) {
-                return $cart->getToken() === $orderContext->getToken();
+                return $cart->getToken() === $orderContext->getCartToken();
             }));
 
         $cart = new Cart('some-token');

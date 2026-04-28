@@ -30,6 +30,9 @@ use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxRuleType\TaxRuleTypeFilterInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @phpstan-import-type SalesChannelContextFactoryOptions from AbstractSalesChannelContextFactory
+ */
 #[Package('discovery')]
 class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 {
@@ -107,11 +110,15 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 
         $salesChannel = $base->getSalesChannel();
 
+        // To prevent caching issues use null as the default value
+        $cartToken = \is_string($options[SalesChannelContextService::CART_TOKEN] ?? null) ? $options[SalesChannelContextService::CART_TOKEN] : null;
+
         $domainId = \is_string($options[SalesChannelContextService::DOMAIN_ID] ?? null) ? $options[SalesChannelContextService::DOMAIN_ID] : null;
 
         $salesChannelContext = new SalesChannelContext(
             $context,
             $token,
+            $cartToken,
             $domainId,
             $salesChannel,
             $base->getCurrency(),
@@ -124,9 +131,9 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             $itemRounding,
             $totalRounding,
             $base->getLanguageInfo(),
+            [],
+            $base->getMeasurementSystemInfo(),
         );
-
-        $salesChannelContext->setMeasurementSystem($base->getMeasurementSystemInfo());
 
         if (\is_array($options[SalesChannelContextService::PERMISSIONS] ?? null)) {
             $salesChannelContext->setPermissions($options[SalesChannelContextService::PERMISSIONS]);
@@ -190,7 +197,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
     /**
      * @codeCoverageIgnore
      *
-     * @param array<string, mixed> $options
+     * @param SalesChannelContextFactoryOptions $options
      */
     private function getPaymentMethod(array $options, BaseSalesChannelContext $context, ?CustomerEntity $customer): PaymentMethodEntity
     {
@@ -215,11 +222,12 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
     }
 
     /**
-     * @param array<string, mixed> $options
+     * @param SalesChannelContextFactoryOptions $options
      */
     private function loadCustomer(array $options, Context $context): ?CustomerEntity
     {
         $addressIds = [];
+        \assert(\is_string($options[SalesChannelContextService::CUSTOMER_ID] ?? null));
         $customerId = $options[SalesChannelContextService::CUSTOMER_ID];
 
         $criteria = new Criteria([$customerId]);

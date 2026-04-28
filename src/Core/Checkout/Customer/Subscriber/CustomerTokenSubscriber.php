@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Customer\CustomerEvents;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
@@ -52,10 +53,10 @@ class CustomerTokenSubscriber implements EventSubscriberInterface
             }
 
             $customerId = $payload['id'];
-            $newToken = $this->invalidateUsingSession($customerId);
+            $preservedToken = $this->getPreservedToken($customerId);
 
-            if ($newToken) {
-                $this->contextPersister->revokeAllCustomerTokens($customerId, $newToken);
+            if ($preservedToken) {
+                $this->contextPersister->revokeAllCustomerTokens($customerId, $preservedToken);
             } else {
                 $this->contextPersister->revokeAllCustomerTokens($customerId);
             }
@@ -77,7 +78,7 @@ class CustomerTokenSubscriber implements EventSubscriberInterface
         return isset($payload['password']);
     }
 
-    private function invalidateUsingSession(string $customerId): ?string
+    private function getPreservedToken(string $customerId): ?string
     {
         $mainRequest = $this->requestStack->getMainRequest();
         if ($mainRequest === null) {
@@ -94,6 +95,10 @@ class CustomerTokenSubscriber implements EventSubscriberInterface
         // The context customer is not the same as logged-in. We don't modify the user session
         if ($context->getCustomerId() !== $customerId) {
             return null;
+        }
+
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('MULTI_CONTEXT_TOKENS')) {
+            return $context->getToken();
         }
 
         $newToken = $this->contextPersister->replace(

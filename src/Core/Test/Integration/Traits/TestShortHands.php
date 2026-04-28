@@ -51,7 +51,7 @@ trait TestShortHands
             ->create(['id' => $id, 'referencedId' => $id], $context);
 
         $cart = static::getContainer()->get(CartService::class)
-            ->getCart($context->getToken(), $context);
+            ->getCart($context->getCartToken(), $context);
 
         return static::getContainer()->get(CartService::class)
             ->add($cart, $product, $context);

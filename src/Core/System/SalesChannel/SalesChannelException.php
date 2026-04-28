@@ -39,6 +39,7 @@ class SalesChannelException extends HttpException
     final public const ORDER_NOT_FOUND_CODE = 'SYSTEM__ORDER_NOT_FOUND_CODE';
     final public const MISSING_ORDER_ASSOCIATION_CODE = 'SYSTEM__MISSING_ORDER_ASSOCIATION_CODE';
     final public const CONTEXT_TOKEN_NOT_ACCESSIBLE = 'SYSTEM__CONTEXT_TOKEN_NOT_ACCESSIBLE';
+    final public const CART_TOKEN_NOT_SET = 'SYSTEM__CART_TOKEN_NOT_SET';
     final public const SALES_CHANNEL_MAPPING_INVALID_OPERATION = 'SYSTEM__SALES_CHANNEL_MAPPING_INVALID_OPERATION';
     private const INVALID_UUID_MESSAGE_TEMPLATE = 'Provided %s is not a valid UUID';
 
@@ -270,6 +271,15 @@ class SalesChannelException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::CONTEXT_TOKEN_NOT_ACCESSIBLE,
             'The context token is not accessible in Twig rendering context, as the token should never be leaked in HTML content.',
+        );
+    }
+
+    public static function contextCartTokenNotSet(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CART_TOKEN_NOT_SET,
+            'The cart token is not set in the SalesChannelContext, but it is required for this operation.',
         );
     }
 

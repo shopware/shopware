@@ -179,7 +179,7 @@ trait StorefrontSalesChannelTestHelper
         $context = $factory->create(Uuid::randomHex(), $salesChannel->getId(), []);
 
         $ruleLoader = static::getContainer()->get(CartRuleLoader::class);
-        $ruleLoader->loadByToken($context, $context->getToken());
+        $ruleLoader->loadByToken($context, $context->getCartToken());
 
         return $context;
     }

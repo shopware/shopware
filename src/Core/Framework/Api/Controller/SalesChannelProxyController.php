@@ -25,7 +25,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
-use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -116,7 +115,7 @@ class SalesChannelProxyController extends AbstractController
 
         $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $request, $context);
 
-        $cart = $this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext);
+        $cart = $this->cartService->getCart($salesChannelContext->getCartToken(), $salesChannelContext);
 
         $order = $this->orderRoute->order($cart, $salesChannelContext, $data)->getOrder();
 
@@ -342,7 +341,7 @@ class SalesChannelProxyController extends AbstractController
         $contextToken = $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
 
         if ($contextToken === null) {
-            $contextToken = Random::getAlphanumericString(32);
+            $contextToken = SalesChannelContextService::getNewToken();
         }
 
         return $contextToken;
@@ -405,44 +404,39 @@ class SalesChannelProxyController extends AbstractController
         $data->set(self::CUSTOMER_ID, $customerId);
 
         $definition = new DataValidationDefinition('context_switch');
-        $parameters = $data->only(
-            self::CUSTOMER_ID
-        );
 
         $customerCriteria = new Criteria();
-        $customerCriteria->addFilter(new EqualsFilter('customer.id', $parameters[self::CUSTOMER_ID]));
+        $customerCriteria->addFilter(new EqualsFilter('customer.id', $customerId));
 
         $definition
             ->add(self::CUSTOMER_ID, new EntityExists(entity: 'customer', context: $context->getContext(), criteria: $customerCriteria))
         ;
 
-        $this->validator->validate($parameters, $definition);
+        $this->validator->validate($data->all(), $definition);
 
-        $isSwitchNewCustomer = true;
-        if ($context->getCustomer()) {
-            // Check if customer switch to another customer or not
-            $isSwitchNewCustomer = $context->getCustomerId() !== $parameters[self::CUSTOMER_ID];
-        }
-
-        if (!$isSwitchNewCustomer) {
+        // Check if customer switch to another customer or not
+        if ($context->getCustomerId() === $customerId) {
             return;
         }
 
-        $this->contextPersister->save(
-            $context->getToken(),
-            [
-                'customerId' => $parameters[self::CUSTOMER_ID],
-                'billingAddressId' => null,
-                'shippingAddressId' => null,
-                'shippingMethodId' => null,
-                'paymentMethodId' => null,
-                'languageId' => null,
-                'currencyId' => null,
-            ],
-            $context->getSalesChannelId()
-        );
-        $event = new SalesChannelContextSwitchEvent($context, $data);
-        $this->eventDispatcher->dispatch($event);
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('MULTI_CONTEXT_TOKENS')) {
+            // Reset the current context with the new customer
+            $this->contextPersister->create(
+                $context->getToken(),
+                $context->getSalesChannelId(),
+                $customerId
+            );
+        } else {
+            // Reset the current context with the new customer
+            $this->contextPersister->save(
+                $context->getToken(),
+                [SalesChannelContextService::CUSTOMER_ID => $customerId],
+                $context->getSalesChannelId(),
+                $customerId
+            );
+        }
+
+        $this->eventDispatcher->dispatch(new SalesChannelContextSwitchEvent($context, $data));
     }
 
     private function persistPermissions(Request $request, SalesChannelContext $salesChannelContext): void

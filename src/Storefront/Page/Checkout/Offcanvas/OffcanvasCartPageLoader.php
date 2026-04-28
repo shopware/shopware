@@ -47,7 +47,7 @@ class OffcanvasCartPageLoader
             $page->getMetaInformation()->assign(['robots' => 'noindex,follow']);
         }
 
-        $page->setCart($this->cartService->get($salesChannelContext->getToken(), $salesChannelContext));
+        $page->setCart($this->cartService->get($salesChannelContext->getCartToken(), $salesChannelContext));
 
         $page->setShippingMethods($this->getShippingMethods($request, $salesChannelContext));
 

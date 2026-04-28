@@ -253,7 +253,7 @@ class CartLineItemController extends StorefrontController
 
             $product = $this->productLineItemFactory->create(['id' => $productId, 'referencedId' => $productId], $context);
 
-            $cart = $this->cartService->getCart($context->getToken(), $context);
+            $cart = $this->cartService->getCart($context->getCartToken(), $context);
 
             $cart = $this->cartService->add($cart, $product, $context);
 

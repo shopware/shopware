@@ -5,14 +5,20 @@ namespace Shopware\Core\System\SalesChannel\Context;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
-use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextTokenChangeEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @phpstan-import-type SalesChannelContextFactoryPrimitiveOptions from AbstractSalesChannelContextFactory
+ *
+ * @phpstan-type SalesChannelContextPayload SalesChannelContextFactoryPrimitiveOptions&array{additional?: ?SalesChannelContextFactoryPrimitiveOptions}
+ * @phpstan-type SalesChannelContextLoadPayload SalesChannelContextPayload&array{token: string, cartToken: string, expired: bool}
+ * @phpstan-type SalesChannelContextDbRow array{token: string, cart_token: string, payload: ?string, customer_id: ?string, updated_at: string, additional_payload: ?string}
+ */
 #[Package('framework')]
 class SalesChannelContextPersister
 {
@@ -31,174 +37,331 @@ class SalesChannelContextPersister
     }
 
     /**
-     * @param array<string, mixed> $newParameters
+     * @param SalesChannelContextPayload $newParameters
      */
     public function save(string $token, array $newParameters, string $salesChannelId, ?string $customerId = null): void
     {
         $existing = $this->load($token, $salesChannelId, $customerId);
 
         $parameters = array_replace_recursive($existing, $newParameters);
-        if (isset($newParameters['permissions']) && $newParameters['permissions'] === []) {
-            $parameters['permissions'] = [];
-        }
+        $parameters = $this->cleanupParameters($parameters);
 
         unset($parameters['token']);
+        unset($parameters[SalesChannelContextService::CUSTOMER_ID]);
+        unset($parameters['expired']);
 
-        $this->connection->executeStatement(
-            'REPLACE INTO sales_channel_api_context (`token`, `payload`, `sales_channel_id`, `customer_id`, `updated_at`)
-                VALUES (:token, :payload, :salesChannelId, :customerId, :updatedAt)',
-            [
-                'token' => $token,
-                'payload' => json_encode($parameters, \JSON_THROW_ON_ERROR),
-                'salesChannelId' => $salesChannelId ? Uuid::fromHexToBytes($salesChannelId) : null,
-                'customerId' => $customerId ? Uuid::fromHexToBytes($customerId) : null,
-                'updatedAt' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            ]
-        );
+        $this->_save($token, $parameters, $salesChannelId, $customerId);
     }
 
-    public function delete(string $token, string $salesChannelId, ?string $customerId = null): void
+    public function create(string $token, string $salesChannelId, ?string $customerId = null): void
+    {
+        $this->_save($token, [], $salesChannelId, $customerId);
+    }
+
+    public function delete(string $token): void
     {
         $this->connection->executeStatement(
-            'DELETE FROM sales_channel_api_context WHERE token = :token',
+            'DELETE FROM sales_channel_context scc
+            WHERE EXISTS (
+                SELECT 1
+                FROM sales_channel_context_token scct
+                WHERE scct.sales_channel_context_id = scc.id
+                AND scct.token = :token
+            )
+        ',
+            ['token' => $token]
+        );
+    }
+
+    public function deleteToken(string $token): void
+    {
+        $this->connection->executeStatement(
+            'DELETE FROM sales_channel_context_token WHERE token = :token',
             [
                 'token' => $token,
             ]
         );
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement, there is no need to replace a context token, use a new one or reuse the existing one
+     */
     public function replace(string $oldToken, SalesChannelContext $context): string
     {
-        $newToken = Random::getAlphanumericString(32);
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'),
+        );
+
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('MULTI_CONTEXT_TOKENS')) {
+            return $oldToken;
+        }
+
+        $newToken = SalesChannelContextService::getNewToken();
 
         $affected = $this->connection->executeStatement(
-            'UPDATE `sales_channel_api_context`
-                   SET `token` = :newToken,
-                       `updated_at` = :updatedAt
-                   WHERE `token` = :oldToken',
+            'UPDATE sales_channel_context_token SET token = :newToken WHERE token = :oldToken',
             [
                 'newToken' => $newToken,
                 'oldToken' => $oldToken,
-                'updatedAt' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
 
         if ($affected === 0) {
-            $customer = $context->getCustomer();
+            $customerId = $context->getCustomerId();
 
-            $this->connection->insert('sales_channel_api_context', [
-                'token' => $newToken,
-                'payload' => json_encode([]),
+            $id = Uuid::randomBytes();
+
+            $this->connection->insert('sales_channel_context', [
+                'id' => $id,
+                'cart_token' => $newToken,
                 'sales_channel_id' => Uuid::fromHexToBytes($context->getSalesChannelId()),
-                'customer_id' => $customer ? Uuid::fromHexToBytes($customer->getId()) : null,
-                'updated_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'customer_id' => $customerId ? Uuid::fromHexToBytes($customerId) : null,
             ]);
+
+            $this->connection->insert('sales_channel_context_token', [
+                'token' => $newToken,
+                'sales_channel_context_id' => $id,
+            ]);
+        } else {
+            $this->connection->executeStatement(
+                'UPDATE sales_channel_context SET cart_token = :cartToken WHERE id = (
+                    SELECT sales_channel_context_id FROM sales_channel_context_token WHERE token = :token
+                )',
+                [
+                    'cartToken' => $newToken,
+                    'token' => $newToken,
+                ]
+            );
         }
 
         $this->cartPersister->replace($oldToken, $newToken, $context);
 
-        $context->assign(['token' => $newToken]);
+        $context->assign(['token' => $newToken, 'cartToken' => $newToken]);
         $this->eventDispatcher->dispatch(new SalesChannelContextTokenChangeEvent($context, $oldToken, $newToken));
 
         return $newToken;
     }
 
     /**
-     * @return array<string, mixed>
+     * @return SalesChannelContextLoadPayload|array{token: string, cartToken: string, expired: true}|array{}
      */
     public function load(string $token, string $salesChannelId, ?string $customerId = null): array
     {
-        $qb = $this->connection->createQueryBuilder();
-
-        $qb->select('*');
-        $qb->from('sales_channel_api_context');
-
-        $qb->where('sales_channel_id = :salesChannelId');
-        $qb->setParameter('salesChannelId', Uuid::fromHexToBytes($salesChannelId));
-
-        if ($customerId !== null) {
-            $qb->andWhere('(token = :token OR customer_id = :customerId)');
-            $qb->setParameter('token', $token);
-            $qb->setParameter('customerId', Uuid::fromHexToBytes($customerId));
-            $qb->setMaxResults(2);
+        $tokenSql = '';
+        if ($customerId) {
+            $tokenSql = ' AND (scct.token = :token OR scc.customer_id = :customerId) LIMIT 2';
         } else {
-            $qb->andWhere('token = :token');
-            $qb->setParameter('token', $token);
-            $qb->setMaxResults(1);
+            $tokenSql = ' AND scct.token = :token LIMIT 1';
         }
 
-        $data = $qb->executeQuery()->fetchAllAssociative();
+        /** @var list<SalesChannelContextDbRow> */
+        $data = $this->connection->fetchAllAssociative(
+            'SELECT
+                scct.token,
+                scc.cart_token,
+                scc.payload,
+                LOWER(HEX(scc.customer_id)) as customer_id,
+                scct.updated_at,
+                scct.additional_payload
+            FROM sales_channel_context scc
+            INNER JOIN sales_channel_context_token scct ON scc.id = scct.sales_channel_context_id
+            WHERE scc.sales_channel_id = :salesChannelId' . $tokenSql,
+            [
+                'token' => $token,
+                'customerId' => $customerId ? Uuid::fromHexToBytes($customerId) : null,
+                'salesChannelId' => Uuid::fromHexToBytes($salesChannelId),
+            ]
+        );
 
         if ($data === []) {
             return [];
         }
 
-        $customerContext = $salesChannelId && $customerId ? $this->getCustomerContext($data, $salesChannelId, $customerId) : null;
+        // Get a matching customer context row or use the first one as fallback
+        $customerContext = $this->getCustomerContext($data, $customerId) ?? array_shift($data);
 
-        $context = $customerContext ?? array_shift($data);
+        /** @var SalesChannelContextLoadPayload */
+        $payload = $customerContext['payload'] ? json_decode((string) $customerContext['payload'], true, 512, \JSON_THROW_ON_ERROR) : [];
 
-        $updatedAt = new \DateTimeImmutable($context['updated_at']);
+        // Check if the context is expired
+        $updatedAt = new \DateTimeImmutable($customerContext['updated_at']);
         $expiredTime = $updatedAt->add(new \DateInterval($this->lifetimeInterval));
+        $payload['expired'] = $expiredTime < new \DateTimeImmutable();
 
-        $payload = array_filter(json_decode((string) $context['payload'], true, 512, \JSON_THROW_ON_ERROR));
-        $now = new \DateTimeImmutable();
-        if ($expiredTime < $now) {
-            // context is expired
-            if ($customerId !== null) {
-                $payload['expired'] = true;
-            } else {
-                $payload = ['expired' => true];
-            }
-        } else {
-            $payload['expired'] = false;
+        // Override payload customerId from context, if available
+        if ($customerContext['customer_id']) {
+            $payload[SalesChannelContextService::CUSTOMER_ID] = $customerContext['customer_id'];
         }
 
-        $payload['token'] = $context['token'];
+        // If the context is expired and there is no customer bound to it, we omit all other data
+        if ($payload['expired'] && $customerId === null) {
+            $payload = ['expired' => true];
+        }
+
+        /** @var ?SalesChannelContextLoadPayload */
+        $additionalPayload = $customerContext['additional_payload'] ? json_decode((string) $customerContext['additional_payload'], true, 512, \JSON_THROW_ON_ERROR) : null;
+        if ($additionalPayload) {
+            $payload['additional'] = $additionalPayload;
+        }
+
+        $payload['token'] = $customerContext['token'];
+        $payload[SalesChannelContextService::CART_TOKEN] = $customerContext['cart_token'];
 
         return $payload;
     }
 
     public function revokeAllCustomerTokens(string $customerId, string ...$preserveTokens): void
     {
-        $revokeParams = [
-            'customerId' => null,
-            'billingAddressId' => null,
-            'shippingAddressId' => null,
-        ];
-
-        $qb = $this->connection->createQueryBuilder();
-        $qb
-            ->update('sales_channel_api_context')
-            ->set('payload', ':payload')
-            ->set('customer_id', 'NULL')
-            ->set('updated_at', ':updatedAt')
-            ->where('customer_id = :customerId')
-            ->setParameter('updatedAt', (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT))
-            ->setParameter('payload', json_encode($revokeParams))
-            ->setParameter('customerId', Uuid::fromHexToBytes($customerId));
-
-        // keep tokens valid, which are given in $preserveTokens
-        if ($preserveTokens) {
-            $qb
-                ->andWhere($qb->expr()->notIn('token', ':preserveTokens'))
-                ->setParameter('preserveTokens', $preserveTokens, ArrayParameterType::STRING);
+        if ($customerId === '') {
+            return;
         }
 
-        $qb->executeStatement();
+        $salesChannelContextIds = $this->connection->fetchFirstColumn(
+            'SELECT id FROM sales_channel_context WHERE customer_id = :customerId',
+            ['customerId' => Uuid::fromHexToBytes($customerId)]
+        );
+
+        if ($salesChannelContextIds === []) {
+            return;
+        }
+
+        $this->connection->executeStatement(
+            'DELETE FROM sales_channel_context_token
+            WHERE sales_channel_context_id IN (:salesChannelContextIds)
+            ' . ($preserveTokens ? 'AND token NOT IN (:preserveTokens)' : ''),
+            [
+                'salesChannelContextIds' => $salesChannelContextIds,
+                'preserveTokens' => $preserveTokens,
+            ],
+            [
+                'salesChannelContextIds' => ArrayParameterType::BINARY,
+                'preserveTokens' => ArrayParameterType::STRING,
+            ]
+        );
     }
 
     /**
-     * @param array<array<string, mixed>> $data
-     *
-     * @return array<string, mixed>|null
+     * @param SalesChannelContextPayload|array{} $parameters
      */
-    private function getCustomerContext(array $data, string $salesChannelId, string $customerId): ?array
+    private function _save(string $token, array $parameters, string $salesChannelId, ?string $customerId = null): void
+    {
+        $salesChannelContextId = null;
+
+        if ($customerId) {
+            $salesChannelContextId = $this->connection->fetchOne(
+                'SELECT id FROM sales_channel_context WHERE customer_id = :customerId AND sales_channel_id = :salesChannelId',
+                ['customerId' => Uuid::fromHexToBytes($customerId), 'salesChannelId' => Uuid::fromHexToBytes($salesChannelId)]
+            );
+        } else {
+            $salesChannelContextId = $this->connection->fetchOne(
+                'SELECT sales_channel_context_id FROM sales_channel_context_token WHERE token = :token',
+                ['token' => $token]
+            );
+        }
+
+        $cartToken = $parameters[SalesChannelContextService::CART_TOKEN] ?? null;
+        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('MULTI_CONTEXT_TOKENS')) {
+            // Always use the context token as the cart token to keep existing behavior
+            $cartToken = $token;
+        }
+        // If we already have a sales_channel_context we only want to update the cart token if it is explicitly set or we don't have a context
+        $writeCartToken = $cartToken ? true : ($salesChannelContextId ? false : true);
+        unset($parameters[SalesChannelContextService::CART_TOKEN]);
+
+        $hasContext = (bool) $salesChannelContextId;
+        $salesChannelContextId = $salesChannelContextId ?: Uuid::randomBytes();
+
+        $this->connection->executeStatement(
+            'INSERT INTO sales_channel_context (id, cart_token, payload, sales_channel_id, customer_id)
+                VALUES (:id, :cartToken, :payload, :salesChannelId, :customerId)
+                ON DUPLICATE KEY UPDATE
+                    ' . ($writeCartToken ? 'cart_token = :cartToken,' : '') . '
+                    payload = :payload,
+                    ' . ($customerId ? 'customer_id = :customerId,' : '') . '
+                    sales_channel_id = :salesChannelId,
+                    updated_at = NOW()',
+            [
+                'id' => $salesChannelContextId,
+                'cartToken' => $cartToken ?? $token,
+                'payload' => $parameters ? json_encode($parameters, \JSON_THROW_ON_ERROR) : null,
+                'salesChannelId' => $salesChannelId ? Uuid::fromHexToBytes($salesChannelId) : null,
+                'customerId' => $customerId ? Uuid::fromHexToBytes($customerId) : null,
+            ]
+        );
+
+        $additionalPayload = null;
+        if (\array_key_exists('additional', $parameters)) {
+            $additionalPayload = $parameters['additional'];
+            unset($parameters['additional']);
+        }
+
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('MULTI_CONTEXT_TOKENS')) {
+            $this->connection->executeStatement(
+                'INSERT INTO sales_channel_context_token (token, sales_channel_context_id, additional_payload)
+                    VALUES (:token, :salesChannelContextId, :additionalPayload)
+                    ON DUPLICATE KEY UPDATE
+                        sales_channel_context_id = :salesChannelContextId,
+                        additional_payload = :additionalPayload
+                    ',
+                [
+                    'token' => $token,
+                    'salesChannelContextId' => $salesChannelContextId,
+                    'additionalPayload' => $additionalPayload ? json_encode($additionalPayload, \JSON_THROW_ON_ERROR) : null,
+                ]
+            );
+        } else {
+            if ($hasContext) {
+                $this->connection->executeStatement(
+                    'DELETE FROM sales_channel_context_token WHERE sales_channel_context_id = :salesChannelContextId',
+                    ['salesChannelContextId' => $salesChannelContextId]
+                );
+            }
+
+            $this->connection->executeStatement(
+                'REPLACE INTO sales_channel_context_token (token, sales_channel_context_id, additional_payload)
+                VALUES (:token, :salesChannelContextId, :additionalPayload)',
+                [
+                    'token' => $token,
+                    'salesChannelContextId' => $salesChannelContextId,
+                    'additionalPayload' => $additionalPayload ? json_encode($additionalPayload, \JSON_THROW_ON_ERROR) : null,
+                ]
+            );
+        }
+    }
+
+    /**
+     * Cleans up the parameters by removing null values and empty arrays to reduce the database size of the payload.
+     *
+     * @param array<string, mixed> $parameters
+     *
+     * @return array<string, mixed>
+     */
+    private function cleanupParameters(array $parameters): array
+    {
+        foreach ($parameters as $key => $value) {
+            if ($value === null) {
+                unset($parameters[$key]);
+            } elseif (\is_array($value)) {
+                $parameters[$key] = $this->cleanupParameters($value);
+                if ($parameters[$key] === []) {
+                    unset($parameters[$key]);
+                }
+            }
+        }
+
+        return $parameters;
+    }
+
+    /**
+     * @param list<SalesChannelContextDbRow> $data
+     *
+     * @return ?SalesChannelContextDbRow
+     */
+    private function getCustomerContext(array $data, ?string $customerId): ?array
     {
         foreach ($data as $row) {
-            if (!empty($row['customer_id'])
-                && Uuid::fromBytesToHex($row['sales_channel_id']) === $salesChannelId
-                && Uuid::fromBytesToHex($row['customer_id']) === $customerId
-            ) {
+            if ($row['customer_id'] !== '' && $customerId !== null && $row['customer_id'] === $customerId) {
                 return $row;
             }
         }

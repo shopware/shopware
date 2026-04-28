@@ -41,6 +41,11 @@ class CartPersister extends AbstractCartPersister
 
     public function load(string $token, SalesChannelContext $context): Cart
     {
+        // tag:v6.8.0 - Remove the helper 'if' block, the correct token should be passed
+        if (!Feature::isActive('v6.8.0.0') && Feature::isActive('MULTI_CONTEXT_TOKENS')) {
+            $token = $context->getCartToken();
+        }
+
         $content = $this->connection->fetchAssociative(
             '#cart-persister::load
             SELECT `cart`.`payload`, `cart`.`rule_ids`, `cart`.`compressed` FROM cart WHERE `token` = :token',
@@ -87,8 +92,14 @@ class CartPersister extends AbstractCartPersister
         $event = new CartVerifyPersistEvent($context, $cart, $shouldPersist);
         $this->eventDispatcher->dispatch($event);
 
+        $cartToken = $cart->getToken();
+        // tag:v6.8.0 - Remove the helper 'if' block, the correct token should be passed
+        if (!Feature::isActive('v6.8.0.0') && Feature::isActive('MULTI_CONTEXT_TOKENS')) {
+            $cartToken = $context->getCartToken();
+        }
+
         if (!$event->shouldBePersisted()) {
-            $this->delete($cart->getToken(), $context);
+            $this->delete($cartToken, $context);
 
             return;
         }
@@ -110,7 +121,7 @@ class CartPersister extends AbstractCartPersister
         [$compressed, $serializeCart] = $this->serializeCart($cart);
 
         $data = [
-            'token' => $cart->getToken(),
+            'token' => $cartToken,
             'payload' => $serializeCart,
             'rule_ids' => json_encode($context->getRuleIds(), \JSON_THROW_ON_ERROR),
             'now' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -130,6 +141,11 @@ class CartPersister extends AbstractCartPersister
 
     public function delete(string $token, SalesChannelContext $context): void
     {
+        // tag:v6.8.0 - Remove the helper 'if' block, the correct token should be passed
+        if (!Feature::isActive('v6.8.0.0') && Feature::isActive('MULTI_CONTEXT_TOKENS')) {
+            $token = $context->getCartToken();
+        }
+
         $query = new RetryableQuery(
             $this->connection,
             $this->connection->prepare('DELETE FROM `cart` WHERE `token` = :token')
@@ -139,6 +155,11 @@ class CartPersister extends AbstractCartPersister
 
     public function replace(string $oldToken, string $newToken, SalesChannelContext $context): void
     {
+        // tag:v6.8.0 - Remove the helper 'if' block, the correct token should be passed
+        if (!Feature::isActive('v6.8.0.0') && Feature::isActive('MULTI_CONTEXT_TOKENS')) {
+            $newToken = $context->getCartToken();
+        }
+
         $this->connection->executeStatement(
             'UPDATE `cart` SET `token` = :newToken WHERE `token` = :oldToken',
             ['newToken' => $newToken, 'oldToken' => $oldToken]

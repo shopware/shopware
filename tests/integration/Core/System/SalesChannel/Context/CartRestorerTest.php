@@ -26,6 +26,7 @@ use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory
 use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextRestoredEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Integration\Builder\Promotion\PromotionFixtureBuilder;
@@ -93,7 +94,7 @@ class CartRestorerTest extends TestCase
             $cartRuleLoader,
             $this->cartPersister,
             $this->eventDispatcher,
-            $requestStack
+            $requestStack,
         );
     }
 
@@ -270,7 +271,7 @@ class CartRestorerTest extends TestCase
         static::assertInstanceOf(LineItem::class, $customerLineItem2);
 
         $this->connection->executeStatement(<<<'SQL'
-            UPDATE sales_channel_api_context
+            UPDATE sales_channel_context_token
             SET updated_at = DATE_SUB(updated_at, INTERVAL 7 DAY)
             WHERE token = :token
             SQL
@@ -478,7 +479,7 @@ class CartRestorerTest extends TestCase
 
         $restoreContext = $this->cartRestorer->restore($this->customerId, $currentContext);
 
-        $restoreCart = $this->cartService->getCart($restoreContext->getToken(), $restoreContext);
+        $restoreCart = $this->cartService->getCart($restoreContext->getCartToken(), $restoreContext);
 
         static::assertFalse($restoreCart->isModified());
         static::assertArrayHasKey(BeforeCartMergeEvent::class, $this->events);
@@ -502,18 +503,25 @@ class CartRestorerTest extends TestCase
 
     public function testPermissionsAreIgnoredOnRestore(): void
     {
-        $currentContextToken = Uuid::randomHex();
+        $currentContextToken = SalesChannelContextService::getNewToken();
 
         $currentContext = $this->createSalesChannelContext($currentContextToken);
 
         $con = static::getContainer()->get(Connection::class);
 
-        $con->insert('sales_channel_api_context', [
-            'token' => Uuid::randomHex(),
+        $id = Uuid::randomBytes();
+
+        $con->insert('sales_channel_context', [
+            'id' => $id,
+            'cart_token' => 'test',
             'payload' => \json_encode(['expired' => false, 'customerId' => $this->customerId, 'permissions' => ['foo']], \JSON_THROW_ON_ERROR),
             'sales_channel_id' => Uuid::fromHexToBytes($currentContext->getSalesChannelId()),
             'customer_id' => Uuid::fromHexToBytes($this->customerId),
-            'updated_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $con->insert('sales_channel_context_token', [
+            'token' => SalesChannelContextService::getNewToken(),
+            'sales_channel_context_id' => $id,
         ]);
 
         $restoreContext = $this->cartRestorer->restore($this->customerId, $currentContext);
@@ -599,7 +607,7 @@ class CartRestorerTest extends TestCase
     {
         return static::getContainer()->get(SalesChannelContextFactory::class)->create(
             $contextToken,
-            TestDefaults::SALES_CHANNEL
+            TestDefaults::SALES_CHANNEL,
         );
     }
 
@@ -618,7 +626,7 @@ class CartRestorerTest extends TestCase
     private function contextExists(string $token): bool
     {
         $result = (int) $this->connection->executeQuery(
-            'SELECT COUNT(*) FROM sales_channel_api_context WHERE `token` = :token',
+            'SELECT COUNT(*) FROM sales_channel_context_token WHERE `token` = :token',
             [
                 'token' => $token,
             ]

@@ -30,13 +30,18 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Package('inventory')]
 class SearchController extends StorefrontController
 {
+    private const SUPPORTED_REDIRECT_FIELDS = ['productNumber', 'ean', 'manufacturerNumber'];
+
     /**
      * @internal
+     *
+     * @param list<string> $redirectOnSingleHitFields
      */
     public function __construct(
         private readonly SearchPageLoader $searchPageLoader,
         private readonly SuggestPageLoader $suggestPageLoader,
-        private readonly AbstractProductSearchRoute $productSearchRoute
+        private readonly AbstractProductSearchRoute $productSearchRoute,
+        private readonly array $redirectOnSingleHitFields = self::SUPPORTED_REDIRECT_FIELDS
     ) {
     }
 
@@ -162,8 +167,26 @@ class SearchController extends StorefrontController
             return null;
         }
 
-        if ($request->query->get('search') === mb_strtolower($product->getProductNumber())) {
-            return $this->redirectToRoute('frontend.detail.page', ['productId' => $product->getId()]);
+        $search = $request->query->get('search');
+        if (!\is_string($search)) {
+            return null;
+        }
+
+        foreach ($this->redirectOnSingleHitFields as $field) {
+            $value = match ($field) {
+                'productNumber' => $product->getProductNumber(),
+                'ean' => $product->getEan(),
+                'manufacturerNumber' => $product->getManufacturerNumber(),
+                default => null,
+            };
+
+            if ($value === null || $value === '') {
+                continue;
+            }
+
+            if ($search === mb_strtolower($value)) {
+                return $this->redirectToRoute('frontend.detail.page', ['productId' => $product->getId()]);
+            }
         }
 
         return null;

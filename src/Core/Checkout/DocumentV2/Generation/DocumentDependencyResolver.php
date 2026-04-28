@@ -35,18 +35,18 @@ final readonly class DocumentDependencyResolver
      * The returned list is the render plan, not the persistence plan. Dependency-only formats
      * can appear here even if the caller never asked to store them.
      *
-     * @param list<string> $formats
+     * @param list<string> $requestedFormats
      *
      * @return list<string>
      */
-    public function resolve(string $documentType, array $formats): array
+    public function resolve(string $documentType, array $requestedFormats): array
     {
         $renderers = $this->documentRendererRegistry->mapRenderersByFormat($documentType);
 
         $neededFormats = $this->resolveNeededFormats(
             $documentType,
             $renderers,
-            $formats,
+            $requestedFormats,
         );
 
         return $this->sortFormats(
@@ -63,16 +63,16 @@ final readonly class DocumentDependencyResolver
      * `html` as a dependency.
      *
      * @param array<string, AbstractDocumentRenderer> $renderers
-     * @param list<string> $formats
+     * @param list<string> $requestedFormats
      *
      * @throws DocumentV2Exception
      *
      * @return list<string>
      */
-    private function resolveNeededFormats(string $documentType, array $renderers, array $formats): array
+    private function resolveNeededFormats(string $documentType, array $renderers, array $requestedFormats): array
     {
         $visited = [];
-        $stack = $formats;
+        $stack = $requestedFormats;
 
         while ($stack !== []) {
             $format = array_pop($stack);

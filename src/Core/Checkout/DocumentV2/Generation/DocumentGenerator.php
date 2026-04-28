@@ -48,7 +48,7 @@ final readonly class DocumentGenerator
     {
         $this->validateGenerationContext($generationContext);
 
-        $requestedFormats = $this->normalizeFormats($generationContext->formats);
+        $requestedFormats = $this->normalizeRequestedFormats($generationContext->formats);
 
         $renderPlan = $this->dependencyResolver->resolve(
             $generationContext->documentType,
@@ -228,20 +228,20 @@ final readonly class DocumentGenerator
     }
 
     /**
-     * @param list<string> $formats
+     * @param list<string> $requestedFormats
      *
      * @throws DocumentV2Exception
      *
      * @return list<string>
      */
-    private function normalizeFormats(array $formats): array
+    private function normalizeRequestedFormats(array $requestedFormats): array
     {
-        $formats = array_values(array_unique(array_filter($formats)));
+        $requestedFormats = array_values(array_unique(array_filter($requestedFormats)));
 
-        if ($formats === []) {
+        if ($requestedFormats === []) {
             throw DocumentV2Exception::missingFormats();
         }
 
-        return $formats;
+        return $requestedFormats;
     }
 }

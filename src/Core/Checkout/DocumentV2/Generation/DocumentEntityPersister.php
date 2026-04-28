@@ -39,11 +39,11 @@ final readonly class DocumentEntityPersister
     }
 
     /**
-     * @param array<string, string> $files
+     * @param array<string, string> $persistedFiles
      *
      * @throws DocumentV2Exception
      */
-    public function persist(DocumentGenerationContext $generationContext, RenderInput $input, array $files): DocumentEntity
+    public function persist(DocumentGenerationContext $generationContext, RenderInput $input, array $persistedFiles): DocumentEntity
     {
         $documentId = Uuid::randomHex();
 
@@ -63,7 +63,7 @@ final readonly class DocumentEntityPersister
 
         $documentFiles = [];
 
-        foreach ($files as $format => $mediaId) {
+        foreach ($persistedFiles as $format => $mediaId) {
             $documentFiles[] = [
                 'id' => Uuid::randomHex(),
                 'documentId' => $documentId,

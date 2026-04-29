@@ -1801,6 +1801,11 @@ Arbitrary unknown top-level keys are still forwarded for backwards compatibility
 
 ## Core
 
+### `es:test:analyzer` lists analyzers configured in `elasticsearch.yaml`
+
+The `es:test:analyzer` command now also runs the analyzers defined under `elasticsearch.analysis.analyzer` (e.g. `sw_whitespace_analyzer`, `sw_ngram_analyzer`, `sw_english_analyzer`, `sw_german_analyzer`) against the given term, alongside the built-in default and language analyzers.
+The custom analyzers are sent to OpenSearch as inline `_analyze` requests with their tokenizer, char filters and filters resolved from `elasticsearch.analysis.filter`, so the command does not require an existing index that has the analyzer installed.
+
 ### Backward compatible invalid locales
 
 Added and deprecated `BackwardCompatibleNumberFormatter` to temporarily allow invalid locale strings without throwing exceptions in PHP >=8.4. It will be removed in Shopware 6.8.

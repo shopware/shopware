@@ -93,6 +93,15 @@ Product exports now support `ProductExportEntity::FILE_FORMAT_JSONL` as a third 
 
 The new `AbstractAgenticCommerceProductExportProvider` can be used to implement custom Agentic Commerce export providers.
 
+### Configurable order deep link expiry
+
+The number of days an order can be accessed via deep link is now configurable via `shopware.yaml`:
+
+    shopware:
+      order:
+        deep_link:
+          expire_days: 30
+
 ## Administration
 
 ### [Internal] Twig to Native Block Runtime Adapter

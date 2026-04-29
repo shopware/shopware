@@ -11,7 +11,6 @@ class WebhookException extends HttpException
 {
     public const WEBHOOK_FAILED = 'FRAMEWORK__WEBHOOK_FAILED';
     public const APP_WEBHOOK_FAILED = 'FRAMEWORK__APP_WEBHOOK_FAILED';
-    public const WEBHOOK_NOT_FOUND = 'FRAMEWORK__WEBHOOK_NOT_FOUND';
     public const UNSUPPORTED_MESSAGE = 'FRAMEWORK__WEBHOOK_UNSUPPORTED_MESSAGE';
     public const INVALID_DATA_MAPPING = 'FRAMEWORK__WEBHOOK_INVALID_DATA_MAPPING';
     public const UNKNOWN_DATA_TYPE = 'FRAMEWORK__WEBHOOK_UNKNOWN_DATA_TYPE';
@@ -25,16 +24,6 @@ class WebhookException extends HttpException
             'Webhook "{{ webhookId }}" failed with error: {{ error }}.',
             ['webhookId' => $webhookId, 'error' => $e->getMessage()],
             $e
-        );
-    }
-
-    public static function webhookNotFound(string $webhookId): self
-    {
-        return new self(
-            Response::HTTP_NOT_FOUND,
-            self::WEBHOOK_NOT_FOUND,
-            'Webhook "{{ webhookId }}" not found.',
-            ['webhookId' => $webhookId]
         );
     }
 

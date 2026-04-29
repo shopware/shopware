@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
+use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\RetryDelayCalculator;
 use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
 use Shopware\Core\Framework\Webhook\Service\WebhookClient;
@@ -125,6 +126,7 @@ class WebhookDispatchEndToEndTest extends TestCase
      * 2. Dispatch with `isAdminWorkerEnabled = true` — delivery runs inline inside `dispatch()`.
      *
      * Expected:
+     * - No `WebhookEventMessage` was enqueued — sync path executes inline, not via the queue.
      * - `webhook_event_log` row is `SUCCESS`.
      * - HTTP POST fired; `X-Shopware-Event-Id` and `X-Shopware-Sequence` match the outbox row;
      *   `X-Shopware-Attempt` is `"0"` (0-indexed first attempt).
@@ -142,6 +144,8 @@ class WebhookDispatchEndToEndTest extends TestCase
         Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($manager, $event): void {
             $manager->dispatch($event);
         });
+
+        static::assertSame(0, $this->getDispatchedMessageCount(WebhookEventMessage::class), 'Sync path must not enqueue a Messenger message');
 
         $eventLogs = $this->connection->fetchAllAssociative(
             'SELECT id, sequence, delivery_status FROM webhook_event_log WHERE webhook_name = :name',
@@ -225,7 +229,20 @@ class WebhookDispatchEndToEndTest extends TestCase
         static::assertSame(0, $deliveryCount, 'Delivery row should be cleaned up after successful delivery');
     }
 
-    public function testStaleDeliveryResultCannotClobberRecoveredAttemptThroughDeliveryService(): void
+    /**
+     * Steps:
+     * 1. Register a webhook with error_count = 7.
+     * 2. Dispatch the event.
+     * 3. Mid-HTTP, simulate a stalled worker: trigger resetRunningForPartition + markRunning
+     *    so a new attempt (execution_count = 2) is recovered before the original 200 returns.
+     * 4. Run the worker — the original (now stale) attempt receives its 200.
+     *
+     * Expected:
+     * - webhook_delivery sequence matches the recovered attempt; status RUNNING, execution_count = 2.
+     * - webhook_event_log stays RUNNING (not flipped to SUCCESS).
+     * - webhook.error_count stays at 7 (not reset).
+     */
+    public function testStaleSuccessOnRecoveredAttemptIsNoop(): void
     {
         $webhookId = Uuid::randomHex();
         $this->createWebhook($webhookId, 'test-webhook', CustomerBeforeLoginEvent::EVENT_NAME, 'https://example.com/webhook');
@@ -234,7 +251,7 @@ class WebhookDispatchEndToEndTest extends TestCase
         $manager = $this->getWebhookManager(isAdminWorkerEnabled: false);
         $event = $this->createCustomerBeforeLoginEvent();
 
-        $this->withFlag(true, function () use ($manager, $event): void {
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($manager, $event): void {
             $manager->dispatch($event);
         });
 
@@ -260,7 +277,7 @@ class WebhookDispatchEndToEndTest extends TestCase
             return new Response(200, [], '{"ok":true}');
         });
 
-        $this->withFlag(true, function (): void {
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function (): void {
             $this->runWorker();
         });
 
@@ -535,12 +552,9 @@ class WebhookDispatchEndToEndTest extends TestCase
      */
     private function withFlag(bool $active, \Closure $closure): void
     {
-        // Pin v6.7.0.0 as the baseline in both legs. Without it, `Feature::fake([])` zeroes
-        // every v6.*/FEATURE_* env var — flag-OFF tests would then run in a world where the
-        // current released version is also disabled, diverging from production.
-        $baseline = ['v6.7.0.0'];
-
-        Feature::fake($active ? [...$baseline, 'WEBHOOKS_REWORK'] : $baseline, $closure);
+        $active
+            ? Feature::withFeatureEnabled('WEBHOOKS_REWORK', $closure)
+            : Feature::withFeatureDisabled('WEBHOOKS_REWORK', $closure);
     }
 
     /**

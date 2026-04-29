@@ -34,46 +34,58 @@ class WebhookConsumeMessagesSubscriberTest extends TestCase
     }
 
     /**
+     * @return iterable<string, array{0: list<string>, 1: string}>
+     */
+    public static function structuralNoOpCases(): iterable
+    {
+        yield 'webhook already present' => [['webhook', 'async'], 'messenger:consume'];
+        yield 'async absent' => [['low_priority'], 'messenger:consume'];
+        yield 'only failed receiver' => [['failed'], 'messenger:consume'];
+        yield 'receivers empty' => [[], 'messenger:consume'];
+        yield 'unrelated command' => [['async'], 'cache:clear'];
+    }
+
+    /**
      * @param list<string> $receivers
      */
-    #[DataProvider('noOpCases')]
-    public function testNoOpLeavesReceiversUnchanged(array $receivers, string $commandName, bool $v680Active, bool $reworkActive): void
+    #[DataProvider('structuralNoOpCases')]
+    public function testStructuralNoOpLeavesReceiversUnchanged(array $receivers, string $commandName): void
     {
         $event = $this->makeConsumeEvent($receivers, commandName: $commandName);
 
-        $invoke = static function () use ($event, $reworkActive): void {
-            $run = static function () use ($event): void {
+        Feature::withFeatureDisabled('v6.8.0.0', function () use ($event): void {
+            Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($event): void {
                 (new WebhookConsumeMessagesSubscriber())->onMessengerConsume($event);
-            };
-
-            if ($reworkActive) {
-                Feature::withFeatureEnabled('WEBHOOKS_REWORK', $run);
-            } else {
-                Feature::withFeatureDisabled('WEBHOOKS_REWORK', $run);
-            }
-        };
-
-        if ($v680Active) {
-            Feature::withFeatureEnabled('v6.8.0.0', $invoke);
-        } else {
-            Feature::withFeatureDisabled('v6.8.0.0', $invoke);
-        }
+            });
+        });
 
         static::assertSame($receivers, $event->getInput()->getArgument('receivers'));
     }
 
-    /**
-     * @return iterable<string, array{0: list<string>, 1: string, 2: bool, 3: bool}>
-     */
-    public static function noOpCases(): iterable
+    public function testNoOpWhenV680Active(): void
     {
-        yield 'webhook already present' => [['webhook', 'async'], 'messenger:consume', false, true];
-        yield 'async absent' => [['low_priority'], 'messenger:consume', false, true];
-        yield 'only failed receiver' => [['failed'], 'messenger:consume', false, true];
-        yield 'receivers empty' => [[], 'messenger:consume', false, true];
-        yield 'unrelated command' => [['async'], 'cache:clear', false, true];
-        yield 'v6.8.0.0 active' => [['async'], 'messenger:consume', true, true];
-        yield 'rework flag off' => [['async'], 'messenger:consume', false, false];
+        $event = $this->makeConsumeEvent(['async']);
+
+        Feature::withFeatureEnabled('v6.8.0.0', function () use ($event): void {
+            Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($event): void {
+                (new WebhookConsumeMessagesSubscriber())->onMessengerConsume($event);
+            });
+        });
+
+        static::assertSame(['async'], $event->getInput()->getArgument('receivers'));
+    }
+
+    public function testNoOpWhenReworkFlagOff(): void
+    {
+        $event = $this->makeConsumeEvent(['async']);
+
+        Feature::withFeatureDisabled('v6.8.0.0', function () use ($event): void {
+            Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($event): void {
+                (new WebhookConsumeMessagesSubscriber())->onMessengerConsume($event);
+            });
+        });
+
+        static::assertSame(['async'], $event->getInput()->getArgument('receivers'));
     }
 
     /**

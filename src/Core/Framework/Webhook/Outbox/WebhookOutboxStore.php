@@ -536,21 +536,43 @@ class WebhookOutboxStore
      */
     private function updateEventLog(string $eventLogId, string $status, ?DeliveryResponse $response): bool
     {
-        $data = $response !== null ? $response->toArray() : [];
-        $data['delivery_status'] = $status;
+        $id = Uuid::fromHexToBytes($eventLogId);
 
-        $setClauses = array_map(
-            static fn (string $col): string => \sprintf('%s = :%s', $col, $col),
-            array_keys($data)
-        );
+        if ($response === null) {
+            $affected = (int) $this->connection->executeStatement(
+                'UPDATE webhook_event_log
+                 SET delivery_status = :status
+                 WHERE id = :id
+                   AND delivery_status NOT IN (:successStatus, :failedStatus)',
+                [
+                    'status' => $status,
+                    'id' => $id,
+                    'successStatus' => WebhookEventLogDefinition::STATUS_SUCCESS,
+                    'failedStatus' => WebhookEventLogDefinition::STATUS_FAILED,
+                ]
+            );
+
+            return $affected > 0;
+        }
 
         $affected = (int) $this->connection->executeStatement(
-            \sprintf(
-                'UPDATE webhook_event_log SET %s WHERE id = :id AND delivery_status NOT IN (:successStatus, :failedStatus)',
-                implode(', ', $setClauses)
-            ),
-            $data + [
-                'id' => Uuid::fromHexToBytes($eventLogId),
+            'UPDATE webhook_event_log
+             SET delivery_status = :status,
+                 request_content = :requestContent,
+                 processing_time = :processingTime,
+                 response_content = :responseContent,
+                 response_status_code = :responseStatusCode,
+                 response_reason_phrase = :responseReasonPhrase
+             WHERE id = :id
+               AND delivery_status NOT IN (:successStatus, :failedStatus)',
+            [
+                'status' => $status,
+                'requestContent' => $response->requestContent,
+                'processingTime' => $response->processingTimeSeconds,
+                'responseContent' => $response->responseContent,
+                'responseStatusCode' => $response->responseStatusCode,
+                'responseReasonPhrase' => $response->responseReasonPhrase,
+                'id' => $id,
                 'successStatus' => WebhookEventLogDefinition::STATUS_SUCCESS,
                 'failedStatus' => WebhookEventLogDefinition::STATUS_FAILED,
             ]

@@ -62,31 +62,50 @@ class WebhookOutboxStoreTest extends TestCase
         $this->assertDeliveryDeleted('evt-1');
     }
 
-    /**
-     * @return iterable<string, array{0: string, 1: bool}>
-     */
-    public static function backfillDeliveryProvider(): iterable
+    public function testBackfillDeliveryCreatesDeliveryForQueuedEventLog(): void
     {
-        yield 'QUEUED event_log gets a fresh delivery row' => [
-            WebhookEventLogDefinition::STATUS_QUEUED,
-            true,
-        ];
-        yield 'SUCCESS event_log is skipped' => [
-            WebhookEventLogDefinition::STATUS_SUCCESS,
-            false,
-        ];
-        yield 'RUNNING event_log is skipped' => [
-            WebhookEventLogDefinition::STATUS_RUNNING,
-            false,
-        ];
-        yield 'PENDING_RETRY event_log is skipped' => [
-            WebhookEventLogDefinition::STATUS_PENDING_RETRY,
-            false,
-        ];
+        $this->createWebhook('wh-1');
+        $message = $this->createMessage('evt-1', 'wh-1');
+
+        $this->connection->insert('webhook_event_log', [
+            'id' => $this->ids->getBytes('evt-1'),
+            'delivery_status' => WebhookEventLogDefinition::STATUS_QUEUED,
+            'webhook_name' => 'test-hook',
+            'event_name' => 'product.written',
+            'url' => 'https://example.com/webhook',
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $entry = $this->store->backfillDelivery($this->toEntry($message));
+
+        static::assertInstanceOf(OutboxEntry::class, $entry);
+
+        $delivery = $this->connection->fetchAssociative(
+            'SELECT delivery_status FROM webhook_delivery WHERE webhook_event_log_id = :id',
+            ['id' => $this->ids->getBytes('evt-1')]
+        );
+        static::assertNotFalse($delivery);
+        static::assertSame(WebhookEventLogDefinition::STATUS_QUEUED, $delivery['delivery_status']);
+
+        $streamCount = (int) $this->connection->fetchOne(
+            'SELECT COUNT(*) FROM webhook_stream WHERE partition_key = :pk',
+            ['pk' => Hasher::hashBinary($message->getPartitionKey(), 'xxh128')]
+        );
+        static::assertSame(1, $streamCount);
     }
 
-    #[DataProvider('backfillDeliveryProvider')]
-    public function testBackfillDelivery(string $status, bool $expectEntry): void
+    /**
+     * @return iterable<string, array{0: string}>
+     */
+    public static function nonQueuedEventLogStatusProvider(): iterable
+    {
+        yield 'SUCCESS event_log is skipped' => [WebhookEventLogDefinition::STATUS_SUCCESS];
+        yield 'RUNNING event_log is skipped' => [WebhookEventLogDefinition::STATUS_RUNNING];
+        yield 'PENDING_RETRY event_log is skipped' => [WebhookEventLogDefinition::STATUS_PENDING_RETRY];
+    }
+
+    #[DataProvider('nonQueuedEventLogStatusProvider')]
+    public function testBackfillDeliverySkipsWhenEventLogIsNotQueued(string $status): void
     {
         $this->createWebhook('wh-1');
         $message = $this->createMessage('evt-1', 'wh-1');
@@ -102,29 +121,13 @@ class WebhookOutboxStoreTest extends TestCase
 
         $entry = $this->store->backfillDelivery($this->toEntry($message));
 
-        if ($expectEntry) {
-            static::assertInstanceOf(OutboxEntry::class, $entry);
+        static::assertNull($entry);
 
-            $delivery = $this->connection->fetchAssociative(
-                'SELECT delivery_status FROM webhook_delivery WHERE webhook_event_log_id = :id',
-                ['id' => $this->ids->getBytes('evt-1')]
-            );
-            static::assertNotFalse($delivery);
-            static::assertSame(WebhookEventLogDefinition::STATUS_QUEUED, $delivery['delivery_status']);
-
-            $streamCount = (int) $this->connection->fetchOne(
-                'SELECT COUNT(*) FROM webhook_stream WHERE partition_key = :pk',
-                ['pk' => Hasher::hashBinary($message->getPartitionKey(), 'xxh128')]
-            );
-            static::assertSame(1, $streamCount);
-        } else {
-            static::assertNull($entry);
-            $deliveryCount = (int) $this->connection->fetchOne(
-                'SELECT COUNT(*) FROM webhook_delivery WHERE webhook_event_log_id = :id',
-                ['id' => $this->ids->getBytes('evt-1')]
-            );
-            static::assertSame(0, $deliveryCount);
-        }
+        $deliveryCount = (int) $this->connection->fetchOne(
+            'SELECT COUNT(*) FROM webhook_delivery WHERE webhook_event_log_id = :id',
+            ['id' => $this->ids->getBytes('evt-1')]
+        );
+        static::assertSame(0, $deliveryCount);
     }
 
     public function testBackfillDeliverySkipsWhenDeliveryAlreadyExists(): void
@@ -369,6 +372,11 @@ class WebhookOutboxStoreTest extends TestCase
         $this->assertEventLogStatus('evt-1', WebhookEventLogDefinition::STATUS_RUNNING);
     }
 
+    /**
+     * Mid-rolling-deploy: a trunk runner (no awareness of webhook_delivery) finalizes
+     * event_log to SUCCESS/FAILED while a rework webhook_delivery row still sits in the
+     * table. markRunning must refuse to claim it — otherwise the webhook fires again.
+     */
     public function testMarkRunningIgnoresStrayDeliveryRowForTerminalEventLog(): void
     {
         $this->createWebhook('wh-1');
@@ -401,150 +409,90 @@ class WebhookOutboxStoreTest extends TestCase
         static::assertSame(0, (int) $delivery['execution_count']);
     }
 
-    /**
-     * @return iterable<string, array{0: string}>
-     */
-    public static function staleAttemptTerminalProvider(): iterable
+    public function testMarkSuccessOnStaleAttemptIsNoop(): void
     {
-        yield 'markSuccess' => ['markSuccess'];
-        yield 'markFailed' => ['markFailed'];
-        yield 'markPendingRetry' => ['markPendingRetry'];
-        yield 'resetForRetry' => ['resetForRetry'];
+        $staleAttempt = $this->setUpStaleFirstAttempt();
+
+        static::assertFalse($this->store->markSuccess($staleAttempt, null));
+        $this->assertActiveSecondAttemptUntouched();
     }
 
-    #[DataProvider('staleAttemptTerminalProvider')]
-    public function testStaleAttemptCannotMutateAfterCrashRecoveryStartsNextAttempt(string $terminal): void
+    public function testMarkFailedOnStaleAttemptIsNoop(): void
+    {
+        $staleAttempt = $this->setUpStaleFirstAttempt();
+
+        static::assertFalse($this->store->markFailed($staleAttempt, null));
+        $this->assertActiveSecondAttemptUntouched();
+    }
+
+    public function testMarkPendingRetryOnStaleAttemptIsNoop(): void
+    {
+        $staleAttempt = $this->setUpStaleFirstAttempt();
+
+        static::assertFalse($this->store->markPendingRetry($staleAttempt, new \DateTimeImmutable('+5 minutes'), null));
+        $this->assertActiveSecondAttemptUntouched();
+    }
+
+    public function testResetForRetryOnStaleAttemptIsNoop(): void
+    {
+        $staleAttempt = $this->setUpStaleFirstAttempt();
+
+        static::assertFalse($this->store->resetForRetry($staleAttempt, null));
+        $this->assertActiveSecondAttemptUntouched();
+    }
+
+    public function testFinalMessengerRetryOnRunningDeliveryIsNoop(): void
     {
         $this->createWebhook('wh-1');
         $message = $this->createMessage('evt-1', 'wh-1');
         $this->store->ensureOutboxEntry($this->toEntry($message));
 
-        $firstAttempt = $this->store->markRunning($this->ids->get('evt-1'));
-        static::assertInstanceOf(OutboxEntry::class, $firstAttempt);
+        static::assertNotNull($this->store->markRunning($this->ids->get('evt-1')));
 
-        $partitionKey = Hasher::hashBinary($message->getPartitionKey(), 'xxh128');
-        $this->store->resetRunningForPartition($partitionKey, 0);
-
-        $secondAttempt = $this->store->markRunning($this->ids->get('evt-1'));
-        static::assertInstanceOf(OutboxEntry::class, $secondAttempt);
-        static::assertSame(2, $secondAttempt->executionCount);
-
-        $changed = match ($terminal) {
-            'markSuccess' => $this->store->markSuccess($firstAttempt, null),
-            'markFailed' => $this->store->markFailed($firstAttempt, null),
-            'markPendingRetry' => $this->store->markPendingRetry($firstAttempt, new \DateTimeImmutable('+5 minutes'), null),
-            'resetForRetry' => $this->store->resetForRetry($firstAttempt, null),
-            default => throw new \LogicException("Unknown terminal: {$terminal}"),
-        };
-
-        static::assertFalse($changed);
-
-        $delivery = $this->connection->fetchAssociative(
-            'SELECT delivery_status, execution_count FROM webhook_delivery WHERE webhook_event_log_id = :id',
-            ['id' => $this->ids->getBytes('evt-1')]
-        );
-        static::assertNotFalse($delivery, 'stale terminal call must not mutate the active second attempt');
-        static::assertSame(WebhookEventLogDefinition::STATUS_RUNNING, $delivery['delivery_status']);
-        static::assertSame(2, (int) $delivery['execution_count']);
+        static::assertFalse($this->store->markFailedAfterRetryExhaustedIfIdle($this->ids->get('evt-1')));
         $this->assertEventLogStatus('evt-1', WebhookEventLogDefinition::STATUS_RUNNING);
+        $this->assertDeliveryExists('evt-1');
     }
 
-    public function testStaleAttemptWithMatchingExecutionCountButWrongSequenceLoses(): void
+    public function testFinalMessengerRetryOnFuturePendingRetryIsNoop(): void
     {
         $this->createWebhook('wh-1');
         $message = $this->createMessage('evt-1', 'wh-1');
         $this->store->ensureOutboxEntry($this->toEntry($message));
 
-        $attempt = $this->store->markRunning($this->ids->get('evt-1'));
-        static::assertInstanceOf(OutboxEntry::class, $attempt);
+        $entry = $this->store->markRunning($this->ids->get('evt-1'));
+        static::assertNotNull($entry);
+        $this->store->markPendingRetry($entry, new \DateTimeImmutable('+5 minutes'), null);
 
-        $changed = $this->store->markSuccess(
-            new OutboxEntry(
-                webhookEventId: $attempt->webhookEventId,
-                sequence: $attempt->sequence + 1,
-                executionCount: $attempt->executionCount,
-                deliveryStatus: $attempt->deliveryStatus,
-            ),
-            null,
-        );
-
-        static::assertFalse($changed);
-
-        $delivery = $this->connection->fetchAssociative(
-            'SELECT delivery_status, execution_count FROM webhook_delivery WHERE webhook_event_log_id = :id',
-            ['id' => $this->ids->getBytes('evt-1')]
-        );
-        static::assertNotFalse($delivery);
-        static::assertSame(WebhookEventLogDefinition::STATUS_RUNNING, $delivery['delivery_status']);
-        static::assertSame($attempt->executionCount, (int) $delivery['execution_count']);
-        $this->assertEventLogStatus('evt-1', WebhookEventLogDefinition::STATUS_RUNNING);
+        static::assertFalse($this->store->markFailedAfterRetryExhaustedIfIdle($this->ids->get('evt-1')));
+        $this->assertEventLogStatus('evt-1', WebhookEventLogDefinition::STATUS_PENDING_RETRY);
+        $this->assertDeliveryExists('evt-1');
     }
 
-    /**
-     * @return iterable<string, array{0: \Closure, 1: bool, 2: string, 3: bool}>
-     */
-    public static function finalMessengerRetryProvider(): iterable
-    {
-        yield 'RUNNING delivery is not clobbered' => [
-            static function (self $test): void {
-                $entry = $test->store->markRunning($test->ids->get('evt-1'));
-                static::assertNotNull($entry);
-            },
-            false,
-            WebhookEventLogDefinition::STATUS_RUNNING,
-            true,
-        ];
-
-        yield 'future PENDING_RETRY is not clobbered' => [
-            static function (self $test): void {
-                $entry = $test->store->markRunning($test->ids->get('evt-1'));
-                static::assertNotNull($entry);
-                $test->store->markPendingRetry($entry, new \DateTimeImmutable('+5 minutes'), null);
-            },
-            false,
-            WebhookEventLogDefinition::STATUS_PENDING_RETRY,
-            true,
-        ];
-
-        yield 'fresh QUEUED delivery is marked failed' => [
-            static function (self $test): void {
-                // No-op: ensureOutboxEntry already left the row QUEUED.
-            },
-            true,
-            WebhookEventLogDefinition::STATUS_FAILED,
-            false,
-        ];
-
-        yield 'due PENDING_RETRY delivery is marked failed' => [
-            static function (self $test): void {
-                $entry = $test->store->markRunning($test->ids->get('evt-1'));
-                static::assertNotNull($entry);
-                $test->store->markPendingRetry($entry, new \DateTimeImmutable('-5 minutes'), null);
-            },
-            true,
-            WebhookEventLogDefinition::STATUS_FAILED,
-            false,
-        ];
-    }
-
-    #[DataProvider('finalMessengerRetryProvider')]
-    public function testFinalMessengerRetry(\Closure $setup, bool $expectChanged, string $expectedEventLogStatus, bool $expectDelivery): void
+    public function testFinalMessengerRetryMarksFreshQueuedAsFailed(): void
     {
         $this->createWebhook('wh-1');
         $message = $this->createMessage('evt-1', 'wh-1');
         $this->store->ensureOutboxEntry($this->toEntry($message));
 
-        $setup($this);
+        static::assertTrue($this->store->markFailedAfterRetryExhaustedIfIdle($this->ids->get('evt-1')));
+        $this->assertEventLogStatus('evt-1', WebhookEventLogDefinition::STATUS_FAILED);
+        $this->assertDeliveryDeleted('evt-1');
+    }
 
-        static::assertSame($expectChanged, $this->store->markFailedAfterRetryExhaustedIfIdle($this->ids->get('evt-1')));
+    public function testFinalMessengerRetryMarksDuePendingRetryAsFailed(): void
+    {
+        $this->createWebhook('wh-1');
+        $message = $this->createMessage('evt-1', 'wh-1');
+        $this->store->ensureOutboxEntry($this->toEntry($message));
 
-        $this->assertEventLogStatus('evt-1', $expectedEventLogStatus);
+        $entry = $this->store->markRunning($this->ids->get('evt-1'));
+        static::assertNotNull($entry);
+        $this->store->markPendingRetry($entry, new \DateTimeImmutable('-5 minutes'), null);
 
-        if ($expectDelivery) {
-            $this->assertDeliveryExists('evt-1');
-        } else {
-            $this->assertDeliveryDeleted('evt-1');
-        }
+        static::assertTrue($this->store->markFailedAfterRetryExhaustedIfIdle($this->ids->get('evt-1')));
+        $this->assertEventLogStatus('evt-1', WebhookEventLogDefinition::STATUS_FAILED);
+        $this->assertDeliveryDeleted('evt-1');
     }
 
     public function testFinalMessengerRetryIgnoresTerminalEventLog(): void
@@ -571,7 +519,15 @@ class WebhookOutboxStoreTest extends TestCase
         $this->assertDeliveryDeleted('evt-1');
     }
 
-    public function testMarkFailedCleansDanglingDeliveryForTerminalEventLogWhenFenceMatches(): void
+    /**
+     * Race:
+     * - one worker wins markSuccess → event_log SUCCESS, delivery deleted
+     * - a delivery row reappears (e.g. backfill, ops)
+     * - another worker calls markFailed on it
+     *
+     * The row is removed, but event_log stays SUCCESS.
+     */
+    public function testMarkFailedDoesNotRollBackTerminalEventLog(): void
     {
         $this->createWebhook('wh-1');
         $message = $this->createMessage('evt-1', 'wh-1');
@@ -601,7 +557,6 @@ class WebhookOutboxStoreTest extends TestCase
             ),
             null,
         ));
-        // event_log stays SUCCESS — updateEventLog's NOT IN (success, failed) guard prevents overwrite.
         $this->assertEventLogStatus('evt-1', WebhookEventLogDefinition::STATUS_SUCCESS);
         $this->assertDeliveryDeleted('evt-1');
     }
@@ -691,7 +646,7 @@ class WebhookOutboxStoreTest extends TestCase
         static::assertSame($dueMessage->getWebhookEventId(), $results[0]->webhookEventId);
     }
 
-    public function testResetRunningForPartitionDoesNotResurrectTerminalEventLog(): void
+    public function testResetRunningForPartitionOnTerminalEventLogIsNoop(): void
     {
         $this->createWebhook('wh-1');
         $message = $this->createMessage('evt-1', 'wh-1');
@@ -725,6 +680,43 @@ class WebhookOutboxStoreTest extends TestCase
 
         static::assertSame([], $this->store->fetchDue($partitionKey, [WebhookEventLogDefinition::STATUS_QUEUED, WebhookEventLogDefinition::STATUS_PENDING_RETRY], 10));
         static::assertNull($this->store->markRunning($this->ids->get('evt-1')));
+    }
+
+    /**
+     * First attempt is claimed (RUNNING, execution_count=1), then `resetRunningForPartition`
+     * recovers it (back to PENDING_RETRY), then a second attempt is claimed (RUNNING,
+     * execution_count=2). The returned entry is the original first caller's claim — that
+     * caller is no longer the owner: crash recovery handed the active attempt to a different
+     * worker. Any terminal write the first caller tries must be rejected by `ownsRunningAttempt`.
+     */
+    private function setUpStaleFirstAttempt(): OutboxEntry
+    {
+        $this->createWebhook('wh-1');
+        $message = $this->createMessage('evt-1', 'wh-1');
+        $this->store->ensureOutboxEntry($this->toEntry($message));
+
+        $firstAttempt = $this->store->markRunning($this->ids->get('evt-1'));
+        static::assertInstanceOf(OutboxEntry::class, $firstAttempt);
+
+        $this->store->resetRunningForPartition(Hasher::hashBinary($message->getPartitionKey(), 'xxh128'), 0);
+
+        $secondAttempt = $this->store->markRunning($this->ids->get('evt-1'));
+        static::assertInstanceOf(OutboxEntry::class, $secondAttempt);
+        static::assertSame(2, $secondAttempt->executionCount);
+
+        return $firstAttempt;
+    }
+
+    private function assertActiveSecondAttemptUntouched(): void
+    {
+        $delivery = $this->connection->fetchAssociative(
+            'SELECT delivery_status, execution_count FROM webhook_delivery WHERE webhook_event_log_id = :id',
+            ['id' => $this->ids->getBytes('evt-1')]
+        );
+        static::assertNotFalse($delivery, 'stale terminal call must not delete the active second attempt');
+        static::assertSame(WebhookEventLogDefinition::STATUS_RUNNING, $delivery['delivery_status']);
+        static::assertSame(2, (int) $delivery['execution_count']);
+        $this->assertEventLogStatus('evt-1', WebhookEventLogDefinition::STATUS_RUNNING);
     }
 
     private function assertEventLogStatus(string $eventKey, string $expectedStatus): void

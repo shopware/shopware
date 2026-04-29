@@ -124,6 +124,66 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
         static::assertTrue($webhook->isActive());
     }
 
+    public function testNonWebhookEventMessageIsIgnored(): void
+    {
+        $event = new WorkerMessageFailedEvent(
+            new Envelope(new \stdClass()),
+            'async',
+            new \RuntimeException('not a webhook')
+        );
+
+        $eventLogCountBefore = (int) $this->connection->fetchOne('SELECT COUNT(*) FROM webhook_event_log');
+
+        $this->failWithRetrySubscriber($event);
+
+        $eventLogCountAfter = (int) $this->connection->fetchOne('SELECT COUNT(*) FROM webhook_event_log');
+        static::assertSame($eventLogCountBefore, $eventLogCountAfter);
+    }
+
+    /**
+     * Webhook deleted between dispatch and final retry: webhook fetch returns no rows, the
+     * is_array() guard early-returns before relatedWebhooks->updateRelated would throw on
+     * the missing FK. Pins trunk's "no-throw on missing webhook" contract — uncovered on trunk.
+     */
+    #[DisabledFeatures(['WEBHOOKS_REWORK'])]
+    public function testTerminalFailureWithDeletedWebhookDoesNotThrow(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $appId = Uuid::randomHex();
+        $webhookEventId = Uuid::randomHex();
+
+        /** @var EntityRepository<WebhookEventLogCollection> $webhookEventLogRepository */
+        $webhookEventLogRepository = static::getContainer()->get('webhook_event_log.repository');
+
+        $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId);
+
+        // No webhook row created — simulates deletion after dispatch.
+        $webhookEventLogRepository->create([[
+            'id' => $webhookEventId,
+            'appName' => 'SwagApp',
+            'deliveryStatus' => WebhookEventLogDefinition::STATUS_QUEUED,
+            'webhookName' => 'hook1',
+            'eventName' => 'order',
+            'appVersion' => '0.0.1',
+            'url' => 'https://test.com',
+            'serializedWebhookMessage' => serialize($webhookEventMessage),
+        ]], $this->context);
+
+        $event = new WorkerMessageFailedEvent(
+            new Envelope($webhookEventMessage),
+            'async',
+            new \RuntimeException('connection reset')
+        );
+
+        $this->failWithRetrySubscriber($event);
+
+        $eventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), $this->context)
+            ->getEntities()
+            ->first();
+        static::assertNotNull($eventLog);
+        static::assertSame(WebhookEventLogDefinition::STATUS_FAILED, $eventLog->getDeliveryStatus());
+    }
+
     #[DisabledFeatures(['WEBHOOKS_REWORK'])]
     public function testHandleOldSerializedWebhookMessageWithoutPartitionKey(): void
     {
@@ -439,6 +499,14 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
         ];
     }
 
+    /**
+     * Flag OFF, envelope carries a partitionKey, final Messenger retry. The subscriber routes
+     * through markFailedAfterRetryExhaustedIfIdle — only finalize when no other worker owns
+     * the delivery:
+     * - mid-flight RUNNING → leave alone (active worker is still delivering)
+     * - future PENDING_RETRY → leave alone (another worker scheduled the next attempt)
+     * - QUEUED after reset → mark FAILED, bump error_count
+     */
     #[DataProvider('flagOffNewShapeDeliveryProvider')]
     public function testFlagOffTerminalFailureRespectsNewShapeDeliveryState(
         \Closure $setupDelivery,

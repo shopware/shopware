@@ -780,6 +780,8 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         let inheritanceSwitch = field.find('.mt-inheritance-switch');
         expect(inheritanceSwitch.attributes('aria-label')).toBe('Unlink inheritance');
         expect(inheritanceSwitch.attributes('disabled')).toBeUndefined();
+        expect(wrapper.vm.actualConfigData[uuid.get('headless')][fieldName]).toBeUndefined();
+        expect(switchInput.element.checked).toBe(true);
 
         await inheritanceSwitch.trigger('click');
         await flushPromises();

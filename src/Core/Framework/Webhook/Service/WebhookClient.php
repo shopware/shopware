@@ -61,22 +61,21 @@ final readonly class WebhookClient
         }
 
         $results = [];
-        /** @var array<int, int> $startTimes */
+        /** @var array<string, int> $startTimes */
         $startTimes = [];
 
-        $pool = new Pool($this->guzzle, array_map(
-            function (WebhookRequest $wr) use (&$startTimes) {
-                return function () use ($wr, &$startTimes) {
-                    $startTimes[spl_object_id($wr)] = $this->clock->now()->getTimestamp();
+        $requestFactories = [];
+        foreach ($requests as $key => $wr) {
+            $requestFactories[$key] = function () use ($wr, $key, &$startTimes) {
+                $startTimes[$key] = $this->clock->now()->getTimestamp();
 
-                    return $this->guzzle->sendAsync($wr->request, $wr->options);
-                };
-            },
-            $requests
-        ), [
-            'fulfilled' => function (ResponseInterface $response, string|int $key) use (&$results, $requests, &$startTimes): void {
-                $wr = $requests[(string) $key];
-                $duration = $this->clock->now()->getTimestamp() - ($startTimes[spl_object_id($wr)] ?? $this->clock->now()->getTimestamp());
+                return $this->guzzle->sendAsync($wr->request, $wr->options);
+            };
+        }
+
+        $pool = new Pool($this->guzzle, $requestFactories, [
+            'fulfilled' => function (ResponseInterface $response, string|int $key) use (&$results, &$startTimes): void {
+                $duration = $this->clock->now()->getTimestamp() - ($startTimes[(string) $key] ?? $this->clock->now()->getTimestamp());
 
                 $results[(string) $key] = $this->createSuccessResult(
                     $response->getStatusCode(),
@@ -86,9 +85,8 @@ final readonly class WebhookClient
                     $duration,
                 );
             },
-            'rejected' => function (\Throwable $reason, string|int $key) use (&$results, $requests, &$startTimes): void {
-                $wr = $requests[(string) $key];
-                $duration = $this->clock->now()->getTimestamp() - ($startTimes[spl_object_id($wr)] ?? $this->clock->now()->getTimestamp());
+            'rejected' => function (\Throwable $reason, string|int $key) use (&$results, &$startTimes): void {
+                $duration = $this->clock->now()->getTimestamp() - ($startTimes[(string) $key] ?? $this->clock->now()->getTimestamp());
 
                 $results[(string) $key] = $this->createFailureResult($reason, $duration);
             },

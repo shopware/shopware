@@ -116,6 +116,7 @@
 
             {% block sw_bulk_edit_order_custom_field_card %}
             <mt-card
+                v-if="customFieldSets.length > 0"
                 class="sw-bulk-edit-order-base__custom_fields"
                 position-identifier="sw-bulk-edit-order-custom-fields"
                 :title="$t('sw-bulk-edit.order.customFields.cardTitle')"

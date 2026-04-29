@@ -47,7 +47,7 @@ an emission is a counter or histogram.
   - Self-documenting call sites.
   - Can enforce value constraints (counters reject negative values).
   - But increases the interface surface (4+ methods instead of 1). Every new metric type = new method
-    on the interface, NullMeter, and every transport.
+    on the interface and every transport.
   - Config lookup is still needed for enabled check, label filtering, description, unit — so the typed
     method just skips type resolution.
   - Closures support for lazy evaluation becomes repetitive: each method would need `int|float|\Closure` for the
@@ -121,11 +121,13 @@ at construction, enabling this pre-configuration stage.
 Three mechanisms work together to minimize overhead at different granularities:
 
 Level 1 — Global off: When `shopware.telemetry.metrics.enabled` is `false`:
-  - `NullMeter` (all methods are no-ops) is injected instead of the real Meter.
+  - `Meter::emit()` checks the `enabled` flag and returns immediately. This is already near-no-op.
   - A compiler pass removes the `kernel.event_subscriber` tag from services also tagged with
     `shopware.telemetry.subscriber`, so telemetry subscribers are not invoked by the event dispatcher.
-  - `MeterProvider::meter()` returns a `NullMeter` — inline emitters like `RetryableQuery` also short-circuit.
-  - Result: zero overhead. No subscriber invocation, no object allocation.
+  - Inline emitters (e.g. `RetryableQuery` via `MeterProvider`) still call `Meter::emit()`, which
+    short-circuits on the `enabled` check.
+  - Result: no subscriber invocation, no metric processing. The only remaining cost is the `emit()`
+    call itself with an early return — negligible.
 
 Level 2 — Per-metric off: When a specific metric's `enabled` is `false` in YAML:
   - `Meter::process()` checks `metricConfig.enabled` after config lookup, returns null.
@@ -138,8 +140,7 @@ Level 3 — Expensive value: When the metric is enabled but computation is costl
   - This keeps the enabled-check centralized in the Meter rather than requiring each emitter to
     check `isEnabled()` before computing.
 
-Not all metrics are emitted by event subscribers — `RetryableQuery` and `RetryableTransaction` emit
-inline via `MeterProvider`. The compiler pass only affects subscribers; `NullMeter` covers inline emitters.
+The compiler pass only affects subscribers; the `enabled` check in `Meter::emit()` covers inline emitters.
 
 **Subscriber identification**: Telemetry subscribers are identified by the `shopware.telemetry.subscriber`
 DI tag, added to their service definitions. The compiler pass removes `kernel.event_subscriber` from
@@ -312,14 +313,13 @@ Plugins needing a different frequency register their own Shopware scheduled task
 
 `MeterProvider` (static service locator, bound at `Framework::boot()`) is required by `RetryableQuery`
 and `RetryableTransaction` (static code that cannot receive DI). Until those callers are refactored,
-`MeterProvider` is the only way to instrument them. When globally disabled, `MeterProvider::meter()`
-returns a `NullMeter`.
+`MeterProvider` is the only way to instrument them.
 
 ### 10. Clean up configuration
 
 | Key | Action |
 |-----|--------|
-| `enabled` | Wire to NullMeter / compiler pass (global kill-switch replacing feature flag) |
+| `enabled` | Wire to `Meter::emit()` early return + compiler pass |
 | `namespace` | Wire to `TransportConfig`, passed to transport factories |
 | `replace_unknown_label_values_with` | Wire to label value replacement logic (default: `'other'`) |
 | `allow_unknown_labels` | Remove — superseded by per-label name validation |
@@ -340,7 +340,7 @@ returns a `NullMeter`.
   - `emit(ConfiguredMetric)` remains the API. No change to existing emitter code.
 - **Operators**:
   - Use `shopware.telemetry.metrics.enabled: true/false` to enable/disable globally
-    (replaces `TELEMETRY_METRICS` feature flag post-stabilization).
+    (additional kill-switch alongside `TELEMETRY_METRICS` feature flag, which will be removed with feature stabilization).
   - Tune `shopware.telemetry.collection_interval` for slow metric freshness vs. load.
   - Override per-label `policy` or `allowed_values` via config merge.
   - Cardinality control for open label sets MUST be done at infrastructure level (OTel Collector processors, Prometheus relabeling).
@@ -351,8 +351,7 @@ returns a `NullMeter`.
   - `emit(ConfiguredMetric)` is less self-documenting than typed methods. The metric type is not
     visible at the call site — only in the YAML config. This is a readability trade-off for a
     smaller, more flexible interface.
-  - NullMeter + compiler pass means telemetry cannot be toggled at runtime without a container rebuild, so this is a
-    deployment-time decision.
+  - Subscriber registration cannot be toggled at runtime without a container rebuild, so this is a deployment-time decision.
   - The scheduled task for slow metrics introduces data staleness up to the collection interval, which should be
     acceptable for the type of metrics it serves (business aggregations, info metrics).
   - `MeterProvider` remains a static service locator. Necessary until static callers are refactored.

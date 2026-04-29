@@ -121,7 +121,7 @@
         "promotionGroupRules": "Rabattaktion-Setgruppenregeln",
         "shippingMethodAvailabilityRule": "Versandart-Verfügbarkeitsregeln",
         "flows": "Flow-Builders",
-        "taxProviders": "Tax Provider",
+        "taxProviders": "Steueranbieter",
         "columns": {
           "name": "Name",
           "manufacturer": "Hersteller",

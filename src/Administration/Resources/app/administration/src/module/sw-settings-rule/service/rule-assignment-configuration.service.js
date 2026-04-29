@@ -27,6 +27,12 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
                 criteria.addFilter(Criteria.equals('prices.rule.id', ruleId));
                 criteria.addAssociation('options.group');
                 criteria.addAssociation('manufacturer');
+                criteria.addIncludes({
+                    manufacturer: [
+                        'id',
+                        'name',
+                    ],
+                });
 
                 return criteria;
             },
@@ -50,7 +56,7 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
                     property: 'manufacturer.translated.name',
                     label: 'sw-settings-rule.detail.associations.columns.manufacturer',
                     rawData: true,
-                    sortable: true,
+                    sortable: false,
                     allowEdit: false,
                     routerLink: 'sw.manufacturer.detail',
                     routerParameters: [

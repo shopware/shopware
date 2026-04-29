@@ -17,8 +17,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
@@ -82,7 +82,7 @@ class ProductListingRoute extends AbstractProductListingRoute
             name: ProductListingCriteriaExtension::NAME,
             extension: new ProductListingCriteriaExtension($criteria, $context, $categoryId),
             function: function ($criteria, $context, $categoryId) use ($categories): Criteria {
-                $this->extendCriteria($context, $criteria, $categories);
+                $this->extendCriteria($context, $criteria, $categories, $categoryId);
 
                 return $criteria;
             }
@@ -117,41 +117,41 @@ class ProductListingRoute extends AbstractProductListingRoute
     /**
      * @param EntityCollection<PartialEntity> $categories
      */
-    private function extendCriteria(SalesChannelContext $salesChannelContext, Criteria $criteria, EntityCollection $categories): void
+    private function extendCriteria(SalesChannelContext $salesChannelContext, Criteria $criteria, EntityCollection $categories, string $categoryId): void
     {
-        $manualCategoryIds = [];
-        $filters = [];
+        $category = $categories->get($categoryId);
+        if (!$category) {
+            return;
+        }
 
-        foreach ($categories as $category) {
-            if (
-                $category->get('productAssignmentType') === CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM
-                && $category->get('productStreamId') !== null
-            ) {
-                $streamFilters = $this->productStreamBuilder->buildFilters(
-                    $category->get('productStreamId'),
-                    $salesChannelContext->getContext()
-                );
+        $categoryFilters = $this->getCategoryProductFilters($category, $salesChannelContext);
+        if ($this->isProductStreamCategory($category) && $categoryFilters === []) {
+            return;
+        }
 
-                if ($streamFilters === []) {
-                    continue;
-                }
+        $descendantStreamFilters = [];
 
-                $filters[] = \count($streamFilters) === 1 ? $streamFilters[0] : new AndFilter($streamFilters);
-
+        foreach ($categories as $descendantCategory) {
+            if ($descendantCategory->getId() === $categoryId) {
                 continue;
             }
 
-            $manualCategoryIds[] = $category->getId();
+            $streamFilters = $this->getProductStreamFilters($descendantCategory, $salesChannelContext);
+            if ($streamFilters === []) {
+                continue;
+            }
+
+            $descendantStreamFilters[] = $this->groupFilters($streamFilters);
         }
 
-        $manualCategoryIds = array_values(array_unique($manualCategoryIds));
-        if ($manualCategoryIds !== []) {
-            $filters[] = new EqualsAnyFilter('product.categories.id', $manualCategoryIds);
-        }
+        if ($descendantStreamFilters === []) {
+            $criteria->addFilter(...$categoryFilters);
 
-        if ($filters === []) {
             return;
         }
+
+        $filters = $categoryFilters === [] ? [] : [$this->groupFilters($categoryFilters)];
+        array_push($filters, ...$descendantStreamFilters);
 
         if (\count($filters) === 1) {
             $criteria->addFilter($filters[0]);
@@ -159,9 +159,55 @@ class ProductListingRoute extends AbstractProductListingRoute
             return;
         }
 
-        $criteria->addFilter(
-            new OrFilter($filters)
-        );
+        $criteria->addFilter(new OrFilter($filters));
+    }
+
+    /**
+     * @return list<Filter>
+     */
+    private function getCategoryProductFilters(PartialEntity $category, SalesChannelContext $salesChannelContext): array
+    {
+        if ($this->isProductStreamCategory($category)) {
+            return $this->getProductStreamFilters($category, $salesChannelContext);
+        }
+
+        return [new EqualsFilter('product.categoriesRo.id', $category->getId())];
+    }
+
+    /**
+     * @return list<Filter>
+     */
+    private function getProductStreamFilters(PartialEntity $category, SalesChannelContext $salesChannelContext): array
+    {
+        if (!$this->isProductStreamCategory($category)) {
+            return [];
+        }
+
+        $productStreamId = $category->get('productStreamId');
+        \assert(\is_string($productStreamId));
+
+        return array_values($this->productStreamBuilder->buildFilters(
+            $productStreamId,
+            $salesChannelContext->getContext()
+        ));
+    }
+
+    private function isProductStreamCategory(PartialEntity $category): bool
+    {
+        return $category->get('productAssignmentType') === CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM
+            && \is_string($category->get('productStreamId'));
+    }
+
+    /**
+     * @param list<Filter> $filters
+     */
+    private function groupFilters(array $filters): Filter
+    {
+        if (\count($filters) === 1) {
+            return $filters[0];
+        }
+
+        return new AndFilter($filters);
     }
 
     /**

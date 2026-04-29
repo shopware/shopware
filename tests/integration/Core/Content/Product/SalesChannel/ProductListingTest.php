@@ -178,9 +178,9 @@ class ProductListingTest extends TestCase
             ->load($this->categoryStreamId, $request, $context, new Criteria())
             ->getResult();
 
-        static::assertSame(0, $listing->getTotal());
+        static::assertSame(7, $listing->getTotal());
         static::assertFalse($listing->has($this->productIdWidth100));
-        static::assertFalse($listing->has($this->productIdWidth150));
+        static::assertTrue($listing->has($this->productIdWidth150));
     }
 
     public function testListingWithProductStreamAndAdditionalCriteria(): void

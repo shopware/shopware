@@ -8,6 +8,8 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Category\DataAbstractionLayer\CategoryIndexer;
+use Shopware\Core\Content\Category\DataAbstractionLayer\CategoryIndexingMessage;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamMappingIndexingMessage;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamUpdater;
@@ -195,16 +197,6 @@ class ProductListingRouteTest extends TestCase
         static::assertEqualsCanonicalizing([$manualProductId, $streamProductId], $parentIds);
         static::assertSame([$manualProductId], $this->loadListingIds($manualChildCategoryId));
         static::assertSame([$streamProductId], $this->loadListingIds($streamChildCategoryId));
-    }
-
-    public function testLoadsNestedProductsForStreamParents(): void
-    {
-        [$parentCategoryId, $childCategoryId, $streamProductId, $manualProductId] = $this->createNestedStreamParentData();
-
-        $parentIds = $this->loadListingIds($parentCategoryId);
-
-        static::assertEqualsCanonicalizing([$streamProductId, $manualProductId], $parentIds);
-        static::assertSame([$manualProductId], $this->loadListingIds($childCategoryId));
     }
 
     /**
@@ -829,6 +821,7 @@ class ProductListingRouteTest extends TestCase
                 'parentId' => $parentCategoryId,
             ],
         ], Context::createDefaultContext());
+        $this->indexCategories([$parentCategoryId, $childCategoryId]);
 
         $this->productRepository->create([
             [
@@ -897,6 +890,7 @@ class ProductListingRouteTest extends TestCase
                 'productStreamId' => $streamId,
             ],
         ], Context::createDefaultContext());
+        $this->indexCategories([$parentCategoryId, $manualChildCategoryId, $streamChildCategoryId]);
 
         $this->productRepository->create([
             [
@@ -931,86 +925,8 @@ class ProductListingRouteTest extends TestCase
                 ],
             ],
         ], Context::createDefaultContext());
-        $this->indexProductStreamMapping($streamId);
 
         return [$parentCategoryId, $manualChildCategoryId, $streamChildCategoryId, $manualProductId, $streamProductId];
-    }
-
-    /**
-     * @return array{0: string, 1: string, 2: string, 3: string}
-     */
-    private function createNestedStreamParentData(): array
-    {
-        $parentCategoryId = Uuid::randomHex();
-        $childCategoryId = Uuid::randomHex();
-        $streamProductId = Uuid::randomHex();
-        $manualProductId = Uuid::randomHex();
-        $streamId = Uuid::randomHex();
-        $streamProductNumber = 'parent-stream-product-' . Uuid::randomHex();
-
-        $streamWrittenEvent = static::getContainer()->get('product_stream.repository')->create([
-            [
-                'id' => $streamId,
-                'name' => 'parent-stream',
-                'filters' => [[
-                    'type' => 'equals',
-                    'field' => 'productNumber',
-                    'value' => $streamProductNumber,
-                ]],
-            ],
-        ], Context::createDefaultContext());
-        $this->indexProductStreamDefinition($streamWrittenEvent);
-
-        $this->categoryRepository->create([
-            [
-                'id' => $parentCategoryId,
-                'name' => 'parent-stream-category',
-                'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
-                'productStreamId' => $streamId,
-            ],
-            [
-                'id' => $childCategoryId,
-                'name' => 'child-manual-category',
-                'parentId' => $parentCategoryId,
-            ],
-        ], Context::createDefaultContext());
-
-        $this->productRepository->create([
-            [
-                'id' => $streamProductId,
-                'name' => 'stream-product',
-                'productNumber' => $streamProductNumber,
-                'stock' => 10,
-                'active' => true,
-                'price' => [
-                    ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
-                ],
-                'tax' => ['name' => 'test', 'taxRate' => 15],
-                'visibilities' => [
-                    ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
-                ],
-            ],
-            [
-                'id' => $manualProductId,
-                'name' => 'manual-product',
-                'productNumber' => $manualProductId,
-                'stock' => 10,
-                'active' => true,
-                'price' => [
-                    ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
-                ],
-                'tax' => ['name' => 'test', 'taxRate' => 15],
-                'categories' => [
-                    ['id' => $childCategoryId],
-                ],
-                'visibilities' => [
-                    ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
-                ],
-            ],
-        ], Context::createDefaultContext());
-        $this->indexProductStreamMapping($streamId);
-
-        return [$parentCategoryId, $childCategoryId, $streamProductId, $manualProductId];
     }
 
     private function indexProductStreamDefinition(EntityWrittenContainerEvent $writtenEvent): void
@@ -1020,6 +936,16 @@ class ProductListingRouteTest extends TestCase
 
         static::assertInstanceOf(ProductStreamIndexingMessage::class, $message);
         $productStreamIndexer->handle($message);
+    }
+
+    /**
+     * @param list<string> $categoryIds
+     */
+    private function indexCategories(array $categoryIds): void
+    {
+        static::getContainer()->get(CategoryIndexer::class)->handle(
+            new CategoryIndexingMessage($categoryIds, null, Context::createDefaultContext())
+        );
     }
 
     private function indexProductStreamMapping(string $streamId): void

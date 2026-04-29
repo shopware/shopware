@@ -10,7 +10,6 @@
         <template v-if="rule">
             <div style="display: grid; grid-template-columns: 2fr 1fr; grid-column-gap: 32px">
                 {% block sw_settings_rule_detail_base_content_card_field_name %}
-
                 <mt-text-field
                     v-model="rule.name"
                     name="sw-field--rule-name"
@@ -85,7 +84,6 @@
                 {% endblock %}
             </div>
         </template>
-        <sw-loader v-else />
     </mt-card>
     {% endblock %}
 
@@ -135,7 +133,10 @@
             </mt-banner>
         </div>
 
+        <div v-if="isLoading && !conditions" class="sw-settings-rule-detail__condition_container-placeholder" />
+
         <sw-condition-tree
+            v-else
             :initial-conditions="conditions"
             :condition-repository="conditionRepository"
             :condition-data-provider-service="ruleConditionDataProviderService"

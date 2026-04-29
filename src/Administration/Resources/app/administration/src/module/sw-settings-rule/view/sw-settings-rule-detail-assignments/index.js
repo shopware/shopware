@@ -34,12 +34,6 @@ export default {
             required: false,
             default: null,
         },
-
-        detailPageLoading: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
     },
 
     data() {
@@ -97,7 +91,15 @@ export default {
         },
 
         disableAdd(entity) {
+            if (this.isLoading) {
+                return true;
+            }
+
             const association = entity.associationName ?? null;
+
+            if (!this.conditions) {
+                return true;
+            }
 
             if (this.ruleConditionDataProviderService.isRuleRestricted(this.conditions, association)) {
                 return true;
@@ -108,6 +110,10 @@ export default {
 
         getTooltipConfig(entity) {
             const association = entity.associationName ?? null;
+
+            if (!this.conditions) {
+                return { message: '', disabled: true };
+            }
 
             return this.ruleConditionDataProviderService.getRestrictedRuleTooltipConfig(this.conditions, association);
         },

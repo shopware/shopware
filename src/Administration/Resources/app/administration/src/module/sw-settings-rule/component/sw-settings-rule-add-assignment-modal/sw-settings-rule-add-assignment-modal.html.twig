@@ -5,7 +5,6 @@
     :variant="modalSize"
     @modal-close="onCloseAddModal"
 >
-
     {% block sw_settings_rule_add_assignment_modal_category_tree %}
     <sw-settings-rule-category-tree
         v-if="entityContext.entityName === 'category'"

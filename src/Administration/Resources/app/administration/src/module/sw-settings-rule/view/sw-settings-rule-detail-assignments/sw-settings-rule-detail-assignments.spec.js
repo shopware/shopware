@@ -20,6 +20,7 @@ const defaultProps = {
         description: 'Lorem ipsum',
         type: '',
     },
+    conditions: [],
 };
 
 const testConfig = {
@@ -106,11 +107,11 @@ const ruleConditionDataProviderServiceMock = {
     isRuleRestricted: jest.fn(() => {
         return false;
     }),
-    getRestrictedRuleTooltipConfig: (_, association) => {
+    getRestrictedRuleTooltipConfig: jest.fn((_, association) => {
         const message = association ? 'has_association' : 'has_no_association';
 
         return { message, disabled: true };
-    },
+    }),
 };
 
 async function createWrapper(
@@ -400,6 +401,21 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
 
         expect(addButton.exists()).toBe(true);
         expect(addButton.attributes('disabled') !== undefined).toBe(disabled);
+    });
+
+    it('should disable add button while conditions are not loaded', async () => {
+        const wrapper = await createWrapper({
+            ...defaultProps,
+            conditions: null,
+        });
+        await flushPromises();
+
+        const addButton = wrapper.find('.sw-settings-rule-detail-assignments__add-button');
+
+        expect(addButton.exists()).toBe(true);
+        expect(addButton.attributes('disabled')).toBeDefined();
+        expect(ruleConditionDataProviderServiceMock.isRuleRestricted).not.toHaveBeenCalled();
+        expect(ruleConditionDataProviderServiceMock.getRestrictedRuleTooltipConfig).not.toHaveBeenCalled();
     });
 
     it.each([

@@ -126,7 +126,7 @@ Module.register('sw-order', {
     description: 'sw-order.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#A092F0',
+    color: 'var(--color-purple-500)',
     icon: 'solid-shopping-bag',
     favicon: 'icon-module-orders.png',
     entity: 'order',
@@ -182,7 +182,7 @@ Module.register('sw-order', {
         {
             id: 'sw-order',
             label: 'sw-order.general.mainMenuItemGeneral',
-            color: '#A092F0',
+            color: 'var(--color-purple-500)',
             icon: 'regular-shopping-bag',
             position: 30,
             privilege: 'order.viewer',

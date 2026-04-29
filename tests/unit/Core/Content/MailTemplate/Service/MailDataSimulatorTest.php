@@ -151,8 +151,7 @@ class MailDataSimulatorTest extends TestCase
                 $capturedEvent = $event;
 
                 if ($event->field instanceof CustomStringField) {
-                    $event->value = 'event-value';
-                    $event->hasValue = true;
+                    $event->setValue('event-value');
                 }
             }
 

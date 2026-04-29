@@ -38,6 +38,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\Salutation\SalutationDefinition;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Core\Test\TestDefaults;
@@ -45,6 +46,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validation;
 use Symfony\Contracts\EventDispatcher\Event;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -915,5 +917,148 @@ class RegisterRouteTest extends TestCase
         $salesChannelContext->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
 
         $registerRoute->register(new RequestDataBag($data), $salesChannelContext, false);
+    }
+
+    public function testRegisterPreservesShippingAddressSalutation(): void
+    {
+        $customerEntity = new CustomerEntity();
+        $customerEntity->setDoubleOptInRegistration(false);
+        $customerEntity->setId('customer-1');
+        $customerEntity->setGuest(false);
+
+        $result = $this->createMock(EntitySearchResult::class);
+        $result->method('getEntities')->willReturn(new CustomerCollection([$customerEntity]));
+        $result->method('first')->willReturn($customerEntity);
+
+        $customerRepository = $this->createMock(EntityRepository::class);
+        $customerRepository->method('getDefinition')->willReturn(new CustomerDefinition());
+        $customerRepository->method('search')->willReturn($result);
+        $customerRepository
+            ->expects($this->once())
+            ->method('create')
+            ->willReturnCallback(static function (array $create) {
+                static::assertCount(1, $create);
+                static::assertCount(2, $create[0]['addresses']);
+                $billingAddress = array_values(array_filter(
+                    $create[0]['addresses'],
+                    static fn (array $address): bool => $address['firstName'] === 'John'
+                ))[0];
+                $shippingAddress = array_values(array_filter(
+                    $create[0]['addresses'],
+                    static fn (array $address): bool => $address['firstName'] === 'Jane'
+                ))[0];
+
+                static::assertSame('billing-salutation', $billingAddress['salutationId']);
+                static::assertSame('shipping-salutation', $shippingAddress['salutationId']);
+
+                return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([]), []);
+            });
+
+        $dataValidator = $this->createMock(DataValidator::class);
+        $dataValidator
+            ->expects($this->once())
+            ->method('getViolations')
+            ->willReturn(new ConstraintViolationList());
+
+        $registerRoute = $this->createRegisterRoute(
+            dataValidator: $dataValidator,
+            customerRepository: $customerRepository
+        );
+
+        $registerRoute->register(
+            new RequestDataBag($this->createRegistrationData([
+                'salutationId' => 'billing-salutation',
+                'shippingAddress' => [
+                    'firstName' => 'Jane',
+                    'lastName' => 'Doe',
+                    'countryId' => Uuid::randomHex(),
+                    'salutationId' => 'shipping-salutation',
+                ],
+            ])),
+            Generator::generateSalesChannelContext(),
+            false
+        );
+    }
+
+    /**
+     * @return StaticEntityRepository<CustomerCollection>
+     */
+    private function createCustomerRepository(): StaticEntityRepository
+    {
+        $customerEntity = new CustomerEntity();
+        $customerEntity->setDoubleOptInRegistration(false);
+        $customerEntity->setId('customer-1');
+        $customerEntity->setGuest(false);
+
+        /** @var StaticEntityRepository<CustomerCollection> $repository */
+        $repository = new StaticEntityRepository(
+            [new CustomerCollection([$customerEntity])],
+            new CustomerDefinition()
+        );
+
+        return $repository;
+    }
+
+    /**
+     * @param EntityRepository<SalutationCollection>|null $salutationRepository
+     * @param EntityRepository<CustomerCollection>|StaticEntityRepository<CustomerCollection>|null $customerRepository
+     */
+    private function createRegisterRoute(
+        ?DataValidator $dataValidator = null,
+        ?EventDispatcherInterface $eventDispatcher = null,
+        ?DataValidationFactoryInterface $addressValidationFactory = null,
+        ?StoreApiCustomFieldMapper $customFieldMapper = null,
+        ?EntityRepository $salutationRepository = null,
+        ?StaticSystemConfigService $systemConfigService = null,
+        EntityRepository|StaticEntityRepository|null $customerRepository = null
+    ): RegisterRoute {
+        $dataValidator ??= $this->createMock(DataValidator::class);
+        $eventDispatcher ??= new EventDispatcher();
+        $addressValidationFactory ??= $this->createMock(DataValidationFactoryInterface::class);
+        $customFieldMapper ??= $this->createMock(StoreApiCustomFieldMapper::class);
+        $salutationRepository ??= $this->createMock(EntityRepository::class);
+        $systemConfigService ??= new StaticSystemConfigService([
+            TestDefaults::SALES_CHANNEL => [
+                'core.loginRegistration.passwordMinLength' => '8',
+            ],
+            'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => true,
+        ]);
+        $customerRepository ??= $this->createCustomerRepository();
+
+        return new RegisterRoute(
+            $eventDispatcher,
+            $this->createMock(NumberRangeValueGeneratorInterface::class),
+            $dataValidator,
+            $this->createMock(DataValidationFactoryInterface::class),
+            $addressValidationFactory,
+            $systemConfigService,
+            $customerRepository,
+            $this->createMock(SalesChannelContextPersister::class),
+            $this->createMock(SalesChannelRepository::class),
+            $this->createMock(Connection::class),
+            $this->createMock(SalesChannelContextService::class),
+            $customFieldMapper,
+            $salutationRepository,
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $overrides
+     *
+     * @return array<string, mixed>
+     */
+    private function createRegistrationData(array $overrides = []): array
+    {
+        return array_merge([
+            'email' => 'test@example.com',
+            'firstName' => 'John',
+            'lastName' => 'Doe',
+            'salutationId' => Uuid::randomHex(),
+            'billingAddress' => [
+                'firstName' => 'John',
+                'lastName' => 'Doe',
+                'countryId' => Uuid::randomHex(),
+            ],
+        ], $overrides);
     }
 }

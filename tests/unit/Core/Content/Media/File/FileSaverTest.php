@@ -78,7 +78,7 @@ class FileSaverTest extends TestCase
             $eventDispatcher,
             $this->locationBuilder,
             $this->mediaPathStrategy,
-            new MediaFileCleanupService($filesystemPublic, $filesystemPrivate, $thumbnailService, $this->messageBus, false),
+            new MediaFileCleanupService($this->filesystemPublic, $filesystemPrivate, $thumbnailService, $this->messageBus, false),
             new MediaFileExtensionValidator($eventDispatcher, ['png'], ['png']),
         );
     }

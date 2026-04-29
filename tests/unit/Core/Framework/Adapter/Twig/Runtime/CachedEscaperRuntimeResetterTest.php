@@ -28,22 +28,20 @@ class CachedEscaperRuntimeResetterTest extends TestCase
     public function testResetOfCacheArray(): void
     {
         $callCount = 0;
-        $runtime = new EscaperRuntime();
-        $runtime->setEscaper('test', static function (string $string) use (&$callCount): string {
+        $originalEscaperRuntime = new EscaperRuntime();
+        $originalEscaperRuntime->setEscaper('test', static function (string $string) use (&$callCount): string {
             ++$callCount;
 
             return $string;
         });
 
-        $escaper = new CachedEscaperRuntime($runtime);
-
-        $escaper->escape('foo', 'test');
-        $escaper->escape('foo', 'test');
+        CachedEscaperRuntime::escape($originalEscaperRuntime, 'foo', 'test');
+        CachedEscaperRuntime::escape($originalEscaperRuntime, 'foo', 'test');
 
         (new CachedEscaperRuntimeResetter())->reset();
 
-        $escaper->escape('foo', 'test');
-        $escaper->escape('foo', 'test');
+        CachedEscaperRuntime::escape($originalEscaperRuntime, 'foo', 'test');
+        CachedEscaperRuntime::escape($originalEscaperRuntime, 'foo', 'test');
 
         static::assertSame(2, $callCount, 'The inner runtime should be called once before and once after the reset');
     }

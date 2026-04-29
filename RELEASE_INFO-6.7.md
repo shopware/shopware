@@ -1,10 +1,43 @@
-# 6.7.10.0 (upcoming)
+# 6.7.11.0 (upcoming)
+
+## Features
+
+## API
+
+## Core
+
+### Backward compatible invalid locales
+
+Added and deprecated `BackwardCompatibleNumberFormatter` to temporarily allow invalid locale strings without throwing exceptions in PHP >=8.4. It will be removed in Shopware 6.8.
+
+## Administration
+
+### Fixed "Last Quarter" timeframe returning the wrong year in `sw-date-filter`
+
+Selecting the "Last Quarter" timeframe in any listing's date filter (orders, documents, customers, etc.) between January and March now produces a three-month range in the previous year instead of a ~15-month range that spanned both years.
+The end boundary is now derived from the quarter's start year rather than the current year.
+
+### Admin menu flyout no longer overflows the viewport
+
+When the sidebar is collapsed, hovering a menu entry near the bottom of the sidebar could cause the flyout submenu to extend beyond the viewport, making lower entries inaccessible.
+The flyout now calculates a dynamic `max-height` from the remaining viewport space and scrolls vertically when its content exceeds that limit.
+
+## Storefront
+
+## App System
+
+## Hosting & Configuration
+
+## Critical Fixes
+
+# 6.7.10.0
 
 ## Features
 
 ### [Experimental] Agentic Commerce sales channel
 
-A new "Agentic Commerce" sales channel type is available in this release. The OpenAI Merchant Center integration is the first supported provider for AI-powered product feed exports.
+A new "Agentic Commerce" sales channel type is available in this release.
+The OpenAI Merchant Center integration is the first supported provider for AI-powered product feed exports.
 The Administration includes dedicated views for configuration, product mapping, and usage insights.
 
 ## API
@@ -13,6 +46,11 @@ The Administration includes dedicated views for configuration, product mapping, 
 
 The login and OAuth token endpoints now support optional per user (`login_user`, `oauth_user`) and per IP (`login_client`, `oauth_client`) rate limiters, in addition to the existing combined user and IP limiter.
 These are optional and can be enabled via `shopware.api.rate_limiter` in `shopware.yaml`.
+
+### `Price` schemas now describe percentage and reference price fields
+
+The generated Admin API and Store API `Price` schemas now include property descriptions for `percentage`, `listPrice`, `regulationPrice`, and their nested values.
+This improves the generated OpenAPI and Stoplight documentation for integrations that inspect raw price payloads and need to distinguish between the current price, list price, discount percentage, and regulation price fields.
 
 ## Core
 
@@ -36,9 +74,11 @@ Use `permissionsLocked` property or the new `SalesChannelContext::isPermissionsL
 
 ### Salutation ordering
 
-A new `position` column was added to the `salutation` entity so merchants can control the order in which salutations appear in forms (registration, address, checkout, and CMS forms). Salutations are sorted ascending, meaning lower values appear first.
+A new `position` column was added to the `salutation` entity so merchants can control the order in which salutations appear in forms (registration, address, checkout, and CMS forms).
+Salutations are sorted ascending, meaning lower values appear first.
 
-This replaces the previous alphabetical sorting. Default salutations (`not_specified`, `mrs`, `mr`) are migrated automatically to positions `1`, `2`, and `3`.
+This replaces the previous alphabetical sorting.
+Default salutations (`not_specified`, `mrs`, `mr`) are migrated automatically to positions `1`, `2`, and `3`.
 Custom salutations keep the default value of `100` - review them in Administration → Settings → Shop → Salutations after upgrading and assign explicit positions, otherwise they will appear grouped together at the end.
 
 ### Deprecated non-used `MAIL_TEMPLATE_SALES_CHANNEL_*_EVENT` constants
@@ -52,6 +92,15 @@ Product exports now support `ProductExportEntity::FILE_FORMAT_JSONL` as a third 
 ### [Experimental] Agentic Commerce product export provider abstraction
 
 The new `AbstractAgenticCommerceProductExportProvider` can be used to implement custom Agentic Commerce export providers.
+
+### Configurable order deep link expiry
+
+The number of days an order can be accessed via deep link is now configurable via `shopware.yaml`:
+
+    shopware:
+      order:
+        deep_link:
+          expire_days: 30
 
 ## Administration
 
@@ -74,7 +123,9 @@ This helps merchants spot internal notes directly from the list view without ope
 
 ### [Experimental] Agentic Commerce sales channel views and tracking entities
 
-New Agentic Commerce sales channels types can be created. These sales channels have dedicated configuration options in the administration for property mapping, and usage insights. New entities for monitoring orders and customers for Agentic Commerce sales channels are included.
+New Agentic Commerce sales channels types can be created.
+These sales channels have dedicated configuration options in the administration for property mapping, and usage insights.
+New entities for monitoring orders and customers for Agentic Commerce sales channels are included.
 
 ## Storefront
 
@@ -85,7 +136,8 @@ This prevents customers from being offered an invalid cancel action for complete
 
 ### Earlier focus for cookie bar
 
-To improve the accessibility of the cookie bar, it receives automatic focus when it is shown. This improves discoverability for screenreader and keyboard users.
+To improve the accessibility of the cookie bar, it receives automatic focus when it is shown.
+This improves discoverability for screenreader and keyboard users.
 A new option `autoFocus` (default: `true`) was added to the `cookie-permission.html.twig` template and `CookiePermissionPlugin`.
 
 In addition to this the cookie bar will be moved to the top of the body element.
@@ -135,8 +187,6 @@ Unknown requirements are ignored and logged as warnings.
 
 The new configuration key `shopware.product.search_keyword.indexing` can be used to disable the product search keyword indexing.
 This is helpful for stores that do not require search keywords and want to avoid the overhead of maintaining those indices while still having basic search functionality or using third-party search solutions.
-
-## Critical Fixes
 
 # 6.7.9.0
 
@@ -510,8 +560,6 @@ shopware:
                     attributes:
                         - custom-attribute
 ```
-
-## Critical Fixes
 
 # 6.7.8.2
 

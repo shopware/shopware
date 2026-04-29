@@ -391,7 +391,7 @@ shopware:
             enable: false
             pattern: '{mediaUrl}/{mediaPath}?width={width}&ts={mediaUpdatedAt}'
         presigned_upload:
-            enabled: true
+            enabled: false
             expiration_minutes: 5
 
     dal:

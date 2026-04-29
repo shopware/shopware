@@ -425,6 +425,57 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         await flushPromises();
 
         expect(wrapper.vm.flyoutStyle.top).toBe('80px');
+        expect(wrapper.vm.flyoutStyle['max-height']).toBe(`${window.innerHeight - 100}px`);
+    });
+
+    it('should constrain flyout max-height when hovering a menu item near the viewport bottom', async () => {
+        const app = document.createElement('div');
+        app.id = 'app';
+        document.body.appendChild(app);
+        const component = document.createElement('div');
+        component.id = 'component';
+        app.appendChild(component);
+
+        wrapper = await createWrapper({
+            attachTo: '#component',
+        });
+        await flushPromises();
+
+        const target = wrapper.find('.navigation-list-item__has-children');
+
+        // Target sits 40px above the bottom of the viewport
+        const targetTop = window.innerHeight - 40;
+        target.element.getBoundingClientRect = jest.fn(() => ({ top: targetTop }));
+        app.getBoundingClientRect = jest.fn(() => ({ top: 0 }));
+
+        await target.trigger('mouseenter');
+        await flushPromises();
+
+        expect(wrapper.vm.flyoutStyle['max-height']).toBe('40px');
+    });
+
+    it('should set flyout max-height to the full viewport height when target is at the top', async () => {
+        const app = document.createElement('div');
+        app.id = 'app';
+        document.body.appendChild(app);
+        const component = document.createElement('div');
+        component.id = 'component';
+        app.appendChild(component);
+
+        wrapper = await createWrapper({
+            attachTo: '#component',
+        });
+        await flushPromises();
+
+        const target = wrapper.find('.navigation-list-item__has-children');
+
+        target.element.getBoundingClientRect = jest.fn(() => ({ top: 0 }));
+        app.getBoundingClientRect = jest.fn(() => ({ top: 0 }));
+
+        await target.trigger('mouseenter');
+        await flushPromises();
+
+        expect(wrapper.vm.flyoutStyle['max-height']).toBe(`${window.innerHeight}px`);
     });
 
     it('should call logoutSso and clear stores on logout', async () => {

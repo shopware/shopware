@@ -71,6 +71,29 @@ describe('src/app/init/sidebar.init', () => {
         expect(Shopware.Store.get('sidebar').sidebars[0].active).toBe(false);
     });
 
+    it('should handle uiSidebarSetActive', async () => {
+        // Add a sidebar
+        await ui.sidebar.add({
+            icon: 'regular-star',
+            title: 'Test sidebar',
+            locationId: 'test-sidebar',
+        });
+
+        // Check that sidebar store has the added sidebar
+        expect(Shopware.Store.get('sidebar').sidebars).toHaveLength(1);
+
+        // Check that sidebar is not active
+        expect(Shopware.Store.get('sidebar').sidebars[0].active).toBe(false);
+
+        // Activate the sidebar
+        await ui.sidebar.setActive({
+            locationId: 'test-sidebar',
+        });
+
+        // Check that sidebar is not active
+        expect(Shopware.Store.get('sidebar').sidebars[0].active).toBe(true);
+    });
+
     it('should handle uiSidebarRemove', async () => {
         // Add a sidebar
         await ui.sidebar.add({

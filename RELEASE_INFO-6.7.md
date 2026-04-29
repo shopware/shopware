@@ -24,6 +24,11 @@ The flyout now calculates a dynamic `max-height` from the remaining viewport spa
 
 ## Storefront
 
+### Google Analytics now starts when only the Google Ads cookie is accepted
+
+Previously, the Google Analytics integration was only included on page load when the `google-analytics-enabled` cookie was present.
+If a customer had accepted only the Google Ads cookie (`google-ads-enabled`), the integration would not start.
+
 ## App System
 
 ## Hosting & Configuration

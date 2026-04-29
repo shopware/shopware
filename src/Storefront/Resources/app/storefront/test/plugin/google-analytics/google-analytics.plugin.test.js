@@ -74,6 +74,40 @@ describe('plugin/google-analytics/google-analytics.plugin', () => {
         expect(document.getElementsByTagName('script')[0].src).toBe(window.gtagURL);
     });
 
+    test('starts Google Analytics when only the Google Ads cookie is set', () => {
+        // Set only the Google Ads cookie, without the analytics cookie
+        Object.defineProperty(document, 'cookie', {
+            writable: true,
+            value: 'google-ads-enabled=1',
+        });
+
+        const startGoogleAnalyticsSpy = jest.spyOn(GoogleAnalyticsPlugin.prototype, 'startGoogleAnalytics');
+        new GoogleAnalyticsPlugin(document);
+
+        expect(startGoogleAnalyticsSpy).toHaveBeenCalledTimes(1);
+
+        // Verify the tag manager script is injected into the <head>
+        expect(document.getElementsByTagName('script')[0].src).toBe(window.gtagURL);
+    });
+
+    test('starts Google Analytics when both the Google Analytics and Google Ads cookies are set', () => {
+        Object.defineProperty(document, 'cookie', {
+            writable: true,
+            value: 'google-analytics-enabled=1; google-ads-enabled=1',
+        });
+
+        const startGoogleAnalyticsSpy = jest.spyOn(GoogleAnalyticsPlugin.prototype, 'startGoogleAnalytics');
+        new GoogleAnalyticsPlugin(document);
+
+        expect(startGoogleAnalyticsSpy).toHaveBeenCalledTimes(1);
+
+        expect(window.gtag).toHaveBeenCalledTimes(2);
+        expect(window.gtag).toHaveBeenCalledWith('js', expect.any(Date));
+        expect(window.gtag).toHaveBeenCalledWith('config', window.gtagTrackingId, window.gtagConfig);
+
+        expect(document.getElementsByTagName('script')[0].src).toBe(window.gtagURL);
+    });
+
     test('does not inject Google Analytics script when allowance cookie is not set', () => {
         // No cookie is set before the plugin is initialized
         new GoogleAnalyticsPlugin(document);

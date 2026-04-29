@@ -473,10 +473,7 @@ export default {
 
                 // Special case for meteor components
                 if (isMeteorComponent) {
-                    Object.assign(
-                        customFieldClone,
-                        getMeteorInheritanceConfig(props, inheritedCustomFieldValue),
-                    );
+                    Object.assign(customFieldClone, getMeteorInheritanceConfig(props, inheritedCustomFieldValue));
                     customFieldClone.disabled = this.disabled || props.isInherited;
                 }
 

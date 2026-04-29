@@ -3,7 +3,6 @@ import { dom } from 'src/core/service/util.service';
 import previewSanitizeConfig from '../../component/sw-mail-template-preview-modal/mail-preview-sanitize.config';
 import template from './sw-mail-template-detail.html.twig';
 import './sw-mail-template-detail.scss';
-import '../../component/sw-mail-template-preview-modal/sw-mail-template-preview-modal.scss';
 
 const { Mixin, Context } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
@@ -504,7 +503,7 @@ export default {
             if (!this.triggerEvent) {
                 this.isLoading = false;
 
-                return;
+                return null;
             }
 
             const headerFooterParts = await this.getPreviewMailHeaderFooterParts();
@@ -607,7 +606,7 @@ export default {
         },
 
         async setMailPreview() {
-            this.mailPreview = (await this.simulateMailPreview()) ?? null;
+            this.mailPreview = await this.simulateMailPreview();
 
             return this.mailPreview;
         },

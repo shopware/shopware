@@ -57,7 +57,7 @@ abstract class AbstractProviderTestCase extends TestCase
             ->with(
                 static::callback(function ($event) {
                     return $event instanceof MailFlowDataCriteriaEvent
-                        && $event->getEntityName() === $this->getEntityName();
+                        && $event->entityName === $this->getEntityName();
                 }),
                 'mail-flow.data.' . $this->getEntityName() . '.criteria.event'
             );

@@ -444,8 +444,8 @@ class MailDataSimulator
         $event = new MailDataSimulatorFieldEvent($field, $context, $faker);
         $this->eventDispatcher->dispatch($event);
 
-        if ($event->hasValue) {
-            return $event->value;
+        if ($event->hasValue()) {
+            return $event->getValue();
         }
 
         switch (true) {

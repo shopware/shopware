@@ -159,7 +159,7 @@ class MailActionController extends AbstractController
     #[Route(
         path: '/api/_action/mail-template/preview',
         name: 'api.action.mail_template.preview',
-        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['mail_template:read']],
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['api_send_email']],
         methods: [Request::METHOD_POST]
     )]
     public function preview(

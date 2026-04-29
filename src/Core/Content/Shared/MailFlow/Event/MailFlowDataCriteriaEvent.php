@@ -13,8 +13,8 @@ use Symfony\Contracts\EventDispatcher\Event;
 class MailFlowDataCriteriaEvent extends Event implements ShopwareEvent, GenericEvent
 {
     public function __construct(
-        private readonly string $entityName,
-        private readonly Criteria $criteria,
+        public readonly string $entityName,
+        public readonly Criteria $criteria,
         private readonly Context $context,
     ) {
     }
@@ -22,16 +22,6 @@ class MailFlowDataCriteriaEvent extends Event implements ShopwareEvent, GenericE
     public function getName(): string
     {
         return 'mail-flow.data.' . $this->entityName . '.criteria.event';
-    }
-
-    public function getCriteria(): Criteria
-    {
-        return $this->criteria;
-    }
-
-    public function getEntityName(): string
-    {
-        return $this->entityName;
     }
 
     public function getContext(): Context

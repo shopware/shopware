@@ -11,9 +11,8 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('after-sales')]
 class MailDataSimulatorFieldEvent extends Event
 {
-    public mixed $value = null;
-
-    public bool $hasValue = false;
+    private mixed $value = null;
+    private bool $hasValue = false;
 
     public function __construct(
         public readonly Field $field,
@@ -26,5 +25,15 @@ class MailDataSimulatorFieldEvent extends Event
     {
         $this->value = $value;
         $this->hasValue = true;
+    }
+
+    public function getValue(): mixed
+    {
+        return $this->value;
+    }
+
+    public function hasValue(): bool
+    {
+        return $this->hasValue;
     }
 }

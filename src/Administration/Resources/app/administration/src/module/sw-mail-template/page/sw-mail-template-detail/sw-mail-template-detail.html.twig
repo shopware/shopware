@@ -276,14 +276,10 @@
                         @modal-close="onCancelShowPreview"
                     >
                         <template v-if="!isLoading">
-                            <div
-                                class="sw-mail-template-preview-modal__subject"
-                            >
-                                <div
-                                    class="sw-mail-template-preview-modal__subject-title"
-                                >
+                            <div class="sw-mail-template-preview-modal__subject">
+                                <h3 class="sw-mail-template-preview-modal__subject-title">
                                     {{ $t('sw-mail-template.detail.options.labelSubject') }}
-                                </div>
+                                </h3>
                                 <mt-banner
                                     v-if="mailPreview.subject.type === 'error'"
                                     class="sw-mail-template-preview-modal__subject-error"
@@ -299,14 +295,10 @@
                                     {{ mailPreview.subject.content }}
                                 </div>
                             </div>
-                            <div
-                                class="sw-mail-template-preview-modal__sender-name"
-                            >
-                                <div
-                                    class="sw-mail-template-preview-modal__sender-name-title"
-                                >
+                            <div class="sw-mail-template-preview-modal__sender-name">
+                                <h3 class="sw-mail-template-preview-modal__sender-name-title">
                                     {{ $t('sw-mail-template.detail.options.labelSenderName') }}
-                                </div>
+                                </h3>
                                 <mt-banner
                                     v-if="mailPreview.senderName.type === 'error'"
                                     class="sw-mail-template-preview-modal__sender-name-error"
@@ -322,14 +314,10 @@
                                     {{ mailPreview.senderName.content }}
                                 </div>
                             </div>
-                            <div
-                                class="sw-mail-template-preview-modal__plain-text"
-                            >
-                                <div
-                                    class="sw-mail-template-preview-modal__plain-text-title"
-                                >
+                            <div class="sw-mail-template-preview-modal__plain-text">
+                                <h3 class="sw-mail-template-preview-modal__plain-text-title">
                                     {{ $t('sw-mail-template.detail.mailText.labelContentPlain') }}
-                                </div>
+                                </h3>
                                 <mt-banner
                                     v-if="mailPreview.headerPlain.type === 'error'"
                                     class="sw-mail-template-preview-modal__plain-text-error"
@@ -367,14 +355,10 @@
                                     class="sw-mail-template-preview-modal__plain-text-content"
                                 >{{ mailPreview.footerPlain.content }}</pre>
                             </div>
-                            <div
-                                class="sw-mail-template-preview-modal__html"
-                            >
-                                <div
-                                    class="sw-mail-template-preview-modal__html-title"
-                                >
+                            <div class="sw-mail-template-preview-modal__html">
+                                <h3 class="sw-mail-template-preview-modal__html-title">
                                     {{ $t('sw-mail-template.detail.mailText.labelContentHtml') }}
-                                </div>
+                                </h3>
                                 <mt-banner
                                     v-if="mailPreview.headerHtml.type === 'error'"
                                     class="sw-mail-template-preview-modal__html-error"

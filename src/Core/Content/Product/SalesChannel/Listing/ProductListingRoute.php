@@ -8,12 +8,14 @@ use Shopware\Core\Content\Product\Extension\ProductListingCriteriaExtension;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
+use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -39,6 +41,7 @@ class ProductListingRoute extends AbstractProductListingRoute
     public function __construct(
         private readonly ProductListingLoader $listingLoader,
         private readonly EntityRepository $categoryRepository,
+        private readonly ProductStreamBuilderInterface $productStreamBuilder,
         private readonly CacheTagCollector $cacheTagCollector,
         private readonly ExtensionDispatcher $extensions,
     ) {
@@ -79,7 +82,7 @@ class ProductListingRoute extends AbstractProductListingRoute
             name: ProductListingCriteriaExtension::NAME,
             extension: new ProductListingCriteriaExtension($criteria, $context, $categoryId),
             function: function ($criteria, $context, $categoryId) use ($categories): Criteria {
-                $this->extendCriteria($criteria, $categories);
+                $this->extendCriteria($context, $criteria, $categories);
 
                 return $criteria;
             }
@@ -114,17 +117,26 @@ class ProductListingRoute extends AbstractProductListingRoute
     /**
      * @param EntityCollection<PartialEntity> $categories
      */
-    private function extendCriteria(Criteria $criteria, EntityCollection $categories): void
+    private function extendCriteria(SalesChannelContext $salesChannelContext, Criteria $criteria, EntityCollection $categories): void
     {
         $manualCategoryIds = [];
-        $streamIds = [];
+        $filters = [];
 
         foreach ($categories as $category) {
             if (
                 $category->get('productAssignmentType') === CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM
                 && $category->get('productStreamId') !== null
             ) {
-                $streamIds[] = $category->get('productStreamId');
+                $streamFilters = $this->productStreamBuilder->buildFilters(
+                    $category->get('productStreamId'),
+                    $salesChannelContext->getContext()
+                );
+
+                if ($streamFilters === []) {
+                    continue;
+                }
+
+                $filters[] = \count($streamFilters) === 1 ? $streamFilters[0] : new AndFilter($streamFilters);
 
                 continue;
             }
@@ -132,16 +144,9 @@ class ProductListingRoute extends AbstractProductListingRoute
             $manualCategoryIds[] = $category->getId();
         }
 
-        $filters = [];
-
         $manualCategoryIds = array_values(array_unique($manualCategoryIds));
         if ($manualCategoryIds !== []) {
             $filters[] = new EqualsAnyFilter('product.categories.id', $manualCategoryIds);
-        }
-
-        $streamIds = array_values(array_unique($streamIds));
-        if ($streamIds !== []) {
-            $filters[] = new EqualsAnyFilter('product.streamIds', $streamIds);
         }
 
         if ($filters === []) {

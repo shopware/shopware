@@ -128,8 +128,11 @@ function procsessComponentRegisterCall(sourceFile: SourceFile, call: CallExpress
 
     // If the secondArgument is a ObjectLiteralExpression
     if (secondArgument.getKind() === ts.SyntaxKind.ObjectLiteralExpression) {
+        // Get the path of the parent directory of this file
+        const path = sourceFile.getDirectoryPath().replace(/.*\/app\/administration\//, '');
+
         componentImportMap[componentName] = {
-            p: buildRelativePathForSourceFile(sourceFile),
+            p: path,
             r: false,
         };
     }
@@ -154,8 +157,12 @@ function procsessComponentExtendCall(sourceFile: SourceFile, call: CallExpressio
         // Check if the import path is relative
         let aliasPath = '';
         if (importPath.includes('./')) {
+            // Get the path of the parent directory of this file
+            const parentDirectory = sourceFile.getDirectoryPath();
+            // Remove everything before and including "/app/administration/" from the parent directory
+            const relativePath = parentDirectory.replace(/.*\/app\/administration\//, '');
             // Combine the relative path with the import path
-            aliasPath = path.join(buildRelativePathForSourceFile(sourceFile), importPath);
+            aliasPath = path.join(relativePath, importPath);
         } else {
             aliasPath = importPath;
         }
@@ -172,8 +179,11 @@ function procsessComponentExtendCall(sourceFile: SourceFile, call: CallExpressio
 
     // If the thirdArgument is a ObjectLiteralExpression
     if (thirdArgument.getKind() === ts.SyntaxKind.ObjectLiteralExpression) {
+        // Get the path of the parent directory of this file
+        const path = sourceFile.getDirectoryPath().replace(/.*\/app\/administration\//, '');
+
         componentImportMap[componentName] = {
-            p: buildRelativePathForSourceFile(sourceFile),
+            p: path,
             r: false,
             en: extendedComponentName,
             e: false,

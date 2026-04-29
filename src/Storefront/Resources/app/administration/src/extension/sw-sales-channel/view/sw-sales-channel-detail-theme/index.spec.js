@@ -2,11 +2,13 @@
  * @sw-package discovery
  */
 import { shallowMount } from '@vue/test-utils';
-import wrapTestComponent from '../../../../../test/_helper_/componentWrapper';
+import swSalesChannelDetailTheme from './index';
+
+Shopware.Component.register('sw-sales-channel-detail-theme', swSalesChannelDetailTheme);
 
 describe('sw-sales-channel-detail-theme', () => {
     async function createWrapper({ aclCan = true, salesChannel = null, themeRepositoryGet = null } = {}) {
-        const component = await wrapTestComponent('sw-sales-channel-detail-theme', { sync: true });
+        const component = await Shopware.Component.build('sw-sales-channel-detail-theme');
 
         const themeRepository = {
             get: themeRepositoryGet || jest.fn(() => Promise.resolve({ id: 'theme-id' })),

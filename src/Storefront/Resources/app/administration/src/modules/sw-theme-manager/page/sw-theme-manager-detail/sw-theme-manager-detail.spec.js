@@ -2,7 +2,6 @@
  * @sw-package discovery
  */
 import { shallowMount } from '@vue/test-utils';
-import wrapTestComponent from '../../../../../test/_helper_/componentWrapper';
 
 describe('sw-theme-manager-detail', () => {
     function ensureThemeMixinRegistered() {
@@ -15,10 +14,14 @@ describe('sw-theme-manager-detail', () => {
 
     beforeAll(() => {
         ensureThemeMixinRegistered();
+
+        jest.isolateModules(() => {
+            Shopware.Component.register('sw-theme-manager-detail', require('./index').default);
+        });
     });
 
     async function createWrapper({ aclCan = true, themeServiceOverrides = {}, themeOverrides = {} } = {}) {
-        const component = await wrapTestComponent('sw-theme-manager-detail', { sync: true });
+        const component = await Shopware.Component.build('sw-theme-manager-detail');
         component.methods.createdComponent = jest.fn();
 
         const themeRepository = {

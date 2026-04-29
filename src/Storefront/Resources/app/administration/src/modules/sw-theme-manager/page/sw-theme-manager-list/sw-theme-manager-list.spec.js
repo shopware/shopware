@@ -2,7 +2,6 @@
  * @sw-package discovery
  */
 import { shallowMount } from '@vue/test-utils';
-import wrapTestComponent from '../../../../../test/_helper_/componentWrapper';
 
 describe('sw-theme-manager-list', () => {
     function ensureThemeMixinRegistered() {
@@ -15,10 +14,14 @@ describe('sw-theme-manager-list', () => {
 
     beforeAll(() => {
         ensureThemeMixinRegistered();
+
+        jest.isolateModules(() => {
+            Shopware.Component.register('sw-theme-manager-list', require('./index').default);
+        });
     });
 
     async function createWrapper({ aclCan = true, searchResult = null } = {}) {
-        const component = await wrapTestComponent('sw-theme-manager-list', { sync: true });
+        const component = await Shopware.Component.build('sw-theme-manager-list');
         const themes = searchResult || (() => {
             const result = [{ id: 'theme-id', salesChannels: [] }];
             result.total = 1;

@@ -2,11 +2,13 @@
  * @sw-package discovery
  */
 import { shallowMount } from '@vue/test-utils';
-import wrapTestComponent from '../../../../../test/_helper_/componentWrapper';
+import swThemeListItem from './index';
+
+Shopware.Component.register('sw-theme-list-item', swThemeListItem);
 
 describe('sw-theme-list-item', () => {
     async function createWrapper(props = {}) {
-        const component = await wrapTestComponent('sw-theme-list-item', { sync: true });
+        const component = await Shopware.Component.build('sw-theme-list-item');
 
         return shallowMount(component, {
             props: {

@@ -62,6 +62,9 @@ class UserRecoveryEntity extends Entity
 
     public function getHash(): string
     {
+        // @phpstan-ignore method.deprecated
+        $this->checkIfPropertyAccessIsAllowed('hash');
+
         return $this->hash;
     }
 

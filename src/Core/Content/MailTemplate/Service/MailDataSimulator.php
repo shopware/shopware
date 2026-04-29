@@ -15,7 +15,7 @@ use Shopware\Core\Content\MailTemplate\MailTemplateException;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailDataSimulatorFieldEvent;
 use Shopware\Core\Content\MeasurementSystem\Field\MeasurementUnitsField;
 use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
-use Shopware\Core\Content\Shared\MailFlow\DataProvider\AbstractProvider;
+use Shopware\Core\Content\Shared\MailFlow\DataProvider\MailFlowDataProviderInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -108,13 +108,13 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class MailDataSimulator
 {
     /**
-     * @var array<string, AbstractProvider<Entity, EntityCollection<Entity>>>
+     * @var array<string, MailFlowDataProviderInterface<Entity>>
      */
     private array $dataProviders;
 
     /**
      * @param EntityRepository<LanguageCollection> $languageRepository
-     * @param iterable<string, AbstractProvider<Entity, EntityCollection<Entity>>> $dataProviders
+     * @param iterable<string, MailFlowDataProviderInterface<Entity>> $dataProviders
      */
     public function __construct(
         private readonly BusinessEventCollector $businessEventCollector,

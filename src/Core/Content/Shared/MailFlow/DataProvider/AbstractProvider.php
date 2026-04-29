@@ -17,9 +17,10 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * @template TEntity of Entity
  * @template TEntityCollection of EntityCollection<TEntity>
+ * @implements MailFlowDataProviderInterface<TEntity>
  */
 #[Package('after-sales')]
-abstract class AbstractProvider
+abstract class AbstractProvider implements MailFlowDataProviderInterface
 {
     public function __construct(
         protected readonly EventDispatcherInterface $eventDispatcher,

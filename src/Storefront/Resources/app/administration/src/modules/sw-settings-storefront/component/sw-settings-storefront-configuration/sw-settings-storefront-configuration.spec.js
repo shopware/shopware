@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 import { shallowMount } from '@vue/test-utils';
+import wrapTestComponent from '../../../../../test/_helper_/componentWrapper';
 
 describe('sw-settings-storefront-configuration', () => {
     it('renders with required storefront settings', async () => {

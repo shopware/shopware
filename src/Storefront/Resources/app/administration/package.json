@@ -5,6 +5,7 @@
   "main": "./src/main.js",
   "scripts": {
     "lint": "../../../../Administration/Resources/app/administration/node_modules/.bin/eslint src --cache",
-    "lint:fix": "npm run lint -- --fix"
+    "lint:fix": "npm run lint -- --fix",
+    "unit-setup": "NODE_PATH=\"$(cd ../../../../Administration/Resources/app/administration && pwd)/node_modules\" ../../../../Administration/Resources/app/administration/node_modules/.bin/ts-node --transpileOnly --compiler-options '{\"module\":\"commonjs\"}' scripts/componentImportResolver/generate.ts"
   }
 }

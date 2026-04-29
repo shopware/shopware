@@ -2,6 +2,7 @@
  * @sw-package discovery
  */
 import { shallowMount } from '@vue/test-utils';
+import wrapTestComponent from '../../../../../test/_helper_/componentWrapper';
 
 describe('sw-sales-channel-detail-theme', () => {
     async function createWrapper({ aclCan = true, salesChannel = null, themeRepositoryGet = null } = {}) {

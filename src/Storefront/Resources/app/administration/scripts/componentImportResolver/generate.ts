@@ -1,21 +1,23 @@
 /**
  * @private
- * @package admin
+ * @sw-package discovery
+ *
+ * Generates component-imports.js for the Storefront admin-modules. The output
+ * powers the local wrapTestComponent helper in tests. ts-morph and other deps
+ * are resolved from the Administration's node_modules (NODE_PATH is set by the
+ * unit-setup npm script).
  */
-import { ArrowFunction, CallExpression, Project, SourceFile, ts} from "ts-morph";
+import { ArrowFunction, CallExpression, Project, SourceFile, ts } from "ts-morph";
 import * as path from "path";
 import * as fs from "fs";
-import cliProgress from 'cli-progress';
 
 const project = new Project({
     skipAddingFilesFromTsConfig: true,
 });
 
-// load all the source files from the "src" directory
 project.addSourceFilesAtPaths([
     "src/**/*{.js,.ts}",
     "!src/**/*{.spec.js,.spec.vue2.js,.d.ts,.types.ts}",
-    "!src/meta/**/*",
 ]);
 
 type componentInfo = {
@@ -34,7 +36,7 @@ function isComponentCall(call: CallExpression<ts.CallExpression>, functionString
 
     return [
         `Shopware.Component.${functionString}`,
-        `Component.${functionString}`
+        `Component.${functionString}`,
     ].includes(expression.getText());
 }
 
@@ -54,79 +56,63 @@ function throwIfComponentIsAlreadyRegistered(componentName: string, sourceFile: 
     }
 }
 
-function buildRelativePathForSourceFile(sourceFile: SourceFile): string {
-    const parentDirectory = sourceFile.getDirectoryPath();
+// Output paths must be resolvable from the wrapTestComponent helper's location
+// at runtime (no moduleNameMapper available — admin's jest config knows nothing
+// about this package). We emit paths relative to that helper.
+const helperDir = path.resolve(__dirname, '../../test/_helper_/componentWrapper');
 
-    // Remove everything before and including "/app/administration/" from the parent directory
-    return parentDirectory.replace(/.*\/app\/administration\//, '');
+function buildRelativePathForSourceFile(sourceFile: SourceFile): string {
+    const rel = path.relative(helperDir, sourceFile.getDirectoryPath());
+    // path.relative omits the leading "./", which is required for Node to treat
+    // the result as a relative import rather than a package name.
+    return rel.startsWith('.') ? rel : `./${rel}`;
 }
 
 function buildAliasPathForArrowFunctionImport(arrowFunction: ArrowFunction, sourceFile: SourceFile): string {
-    // Get the import path inside the ArrowFunction
-    // Shopware.Component.register('sw-xyz', () => import('src/app/xyz'));
     const importPath = arrowFunction
         .getDescendantsOfKind(ts.SyntaxKind.StringLiteral)[0]
         .getText()
-        // remove all single and double quotes
         .replace(/['"]/g, '');
 
-    let aliasPath = '';
     if (importPath.includes('./')) {
-        const relativePath = buildRelativePathForSourceFile(sourceFile);
-        // Combine the relative path with the import path
-        aliasPath = path.join(relativePath, importPath);
-    } else {
-        aliasPath = importPath;
+        return path.join(buildRelativePathForSourceFile(sourceFile), importPath);
     }
-
-    return aliasPath;
+    return importPath;
 }
 
-function procsessComponentRegisterCall(sourceFile: SourceFile, call: CallExpression<ts.CallExpression>): void {
+function processComponentRegisterCall(sourceFile: SourceFile, call: CallExpression<ts.CallExpression>): void {
     const componentName = getComponentNameFromArgumentNumber(call, 1);
     throwIfComponentIsAlreadyRegistered(componentName, sourceFile);
 
     const secondArgument = call.getArguments()[1];
 
-    // If the secondArgument is a ArrowFunction
     if (secondArgument.getKind() === ts.SyntaxKind.ArrowFunction) {
-        // We need to check if the first statement of the arrow function is an "import" statement
         const body = (secondArgument as ArrowFunction).getBody();
         let arrowFunctionImportsComponent = false;
 
         if (body) {
-            // Get the first statement within the arrow function's body
             const firstStatement = body.getFirstChild();
-            if(!firstStatement) {
-                // If the body is empty, we can't work with it
+            if (!firstStatement) {
                 return;
             }
-
             if (firstStatement.getText() === 'import') {
                 arrowFunctionImportsComponent = true;
             }
         } else {
-            // If the body is empty, we can't work with it
             return;
         }
 
-        // Check if the import path is relative
-        let aliasPath = '';
-        if (arrowFunctionImportsComponent) {
-            aliasPath = buildAliasPathForArrowFunctionImport(secondArgument as ArrowFunction, sourceFile);
-        } else {
-            aliasPath = buildRelativePathForSourceFile(sourceFile);
-        }
+        const aliasPath = arrowFunctionImportsComponent
+            ? buildAliasPathForArrowFunctionImport(secondArgument as ArrowFunction, sourceFile)
+            : buildRelativePathForSourceFile(sourceFile);
 
         componentImportMap[componentName] = {
             p: aliasPath,
             r: true,
         };
-
         return;
     }
 
-    // If the secondArgument is a ObjectLiteralExpression
     if (secondArgument.getKind() === ts.SyntaxKind.ObjectLiteralExpression) {
         componentImportMap[componentName] = {
             p: buildRelativePathForSourceFile(sourceFile),
@@ -135,7 +121,7 @@ function procsessComponentRegisterCall(sourceFile: SourceFile, call: CallExpress
     }
 }
 
-function procsessComponentExtendCall(sourceFile: SourceFile, call: CallExpression<ts.CallExpression>): void {
+function processComponentExtendCall(sourceFile: SourceFile, call: CallExpression<ts.CallExpression>): void {
     const componentName = getComponentNameFromArgumentNumber(call, 1);
     const extendedComponentName = getComponentNameFromArgumentNumber(call, 2);
 
@@ -143,22 +129,15 @@ function procsessComponentExtendCall(sourceFile: SourceFile, call: CallExpressio
 
     const thirdArgument = call.getArguments()[2];
 
-    // If the thirdArgument is a ArrowFunction
     if (thirdArgument.getKind() === ts.SyntaxKind.ArrowFunction) {
-        // Get the import path inside the ArrowFunction
         const importPath = thirdArgument
             .getDescendantsOfKind(ts.SyntaxKind.StringLiteral)[0]
             .getText()
             .replace(/['"]/g, '');
 
-        // Check if the import path is relative
-        let aliasPath = '';
-        if (importPath.includes('./')) {
-            // Combine the relative path with the import path
-            aliasPath = path.join(buildRelativePathForSourceFile(sourceFile), importPath);
-        } else {
-            aliasPath = importPath;
-        }
+        const aliasPath = importPath.includes('./')
+            ? path.join(buildRelativePathForSourceFile(sourceFile), importPath)
+            : importPath;
 
         componentImportMap[componentName] = {
             p: aliasPath,
@@ -166,11 +145,9 @@ function procsessComponentExtendCall(sourceFile: SourceFile, call: CallExpressio
             en: extendedComponentName,
             e: true,
         };
-
         return;
     }
 
-    // If the thirdArgument is a ObjectLiteralExpression
     if (thirdArgument.getKind() === ts.SyntaxKind.ObjectLiteralExpression) {
         componentImportMap[componentName] = {
             p: buildRelativePathForSourceFile(sourceFile),
@@ -184,32 +161,22 @@ function procsessComponentExtendCall(sourceFile: SourceFile, call: CallExpressio
 const componentImportMap: { [key: string]: componentInfo } = {};
 const sourceFiles = project.getSourceFiles();
 
-// Create progress bar
-const pb = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
-pb.start(sourceFiles.length, 0);
-
 for (const sourceFile of sourceFiles) {
-    // collect all "Shopware.Component.register" or "Shopware.Component.extend" calls inside the file
-    sourceFile.getDescendantsOfKind(
-        ts.SyntaxKind.CallExpression,
-    ).forEach(call => {
-            if (isComponentCall(call, 'register')) {
-                procsessComponentRegisterCall(sourceFile, call);
-            }
-
-            if (isComponentCall(call, 'extend')) {
-                procsessComponentExtendCall(sourceFile, call);
-            }
+    sourceFile.getDescendantsOfKind(ts.SyntaxKind.CallExpression).forEach((call) => {
+        if (isComponentCall(call, 'register')) {
+            processComponentRegisterCall(sourceFile, call);
         }
-    );
-
-    // increment the progress bar
-    pb.increment();
+        if (isComponentCall(call, 'extend')) {
+            processComponentExtendCall(sourceFile, call);
+        }
+    });
 }
 
-// stop the progress bar
-pb.stop();
+const filestring = `/* eslint-disable */\n\nexport default ${JSON.stringify(componentImportMap)};\n`;
+fs.writeFileSync(
+    path.join(__dirname, '/../../test/_helper_/componentWrapper/component-imports.js'),
+    filestring,
+);
 
-// Write output to file
-const filestring = `/* eslint-disable */\n\nexport default ${JSON.stringify(componentImportMap)};`
-fs.writeFileSync(path.join(__dirname, '/../../test/_helper_/componentWrapper/component-imports.js'), filestring);
+// eslint-disable-next-line no-console
+console.log(`Generated component-imports.js with ${Object.keys(componentImportMap).length} entries.`);

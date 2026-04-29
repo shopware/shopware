@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 import { shallowMount } from '@vue/test-utils';
+import wrapTestComponent from '../../../../../test/_helper_/componentWrapper';
 
 describe('sw-settings-storefront-index', () => {
     async function createWrapper({ getValues = null, saveValues = null } = {}) {

@@ -201,7 +201,7 @@ export default {
             const quarter = Math.floor(date.getMonth() / 3);
 
             const startDate = new Date(date.getFullYear(), quarter * 3 - 3, 1, 0, 0, 0);
-            const endDate = new Date(date.getFullYear(), startDate.getMonth() + 3, 0, 23, 59, 59);
+            const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 3, 0, 23, 59, 59);
 
             return {
                 startDate: startDate,

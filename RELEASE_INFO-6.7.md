@@ -19,6 +19,12 @@ The number of days an order can be accessed via deep link is now configurable vi
         deep_link:
           expire_days: 30
 
+### Technical media associations can be ignored by `media:delete-unused`
+
+Plugins can now mark technical `media` associations with the new DAL flag `IgnoreInUnusedMediaSearch`.
+This prevents `media:delete-unused` from treating metadata-only extensions as real media usage and helps avoid false negatives when removing unused files.
+Third-party developers should add this flag to media associations that store technical metadata but do not represent an actual assignment of the media file.
+
 ## Administration
 
 ### Fixed "Last Quarter" timeframe returning the wrong year in `sw-date-filter`

@@ -410,6 +410,10 @@ shopware:
             # for redis also the shopware.cart.storage.config.connection is required to point to a valid redis connection
             type: "mysql"
 
+    order:
+        deep_link:
+            expire_days: 30
+
     number_range:
         # supported types: mysql, redis
         # for redis also the shopware.number_range.config.connection is required to point to a valid redis connection

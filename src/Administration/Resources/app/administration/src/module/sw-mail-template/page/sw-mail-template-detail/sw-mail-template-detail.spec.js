@@ -547,19 +547,16 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
     it('should send the selected preview sales channel id when simulating', async () => {
         const wrapper = await createWrapper();
 
-        wrapper.vm.testMailSalesChannelId = 'sales-channel-id';
         await wrapper.setData({
+            testMailSalesChannelId: 'sales-channel-id',
             triggerEvents: [
                 {
                     name: 'checkout.order.placed',
                 },
             ],
+            triggerEvent: 'checkout.order.placed',
         });
 
-        const triggerEventSelect = wrapper.findAllComponents({ name: 'mt-select' })
-            .find((component) => component.props('options') === wrapper.vm.triggerEvents);
-
-        triggerEventSelect.vm.$emit('update:model-value', 'checkout.order.placed');
         await flushPromises();
         await wrapper.vm.simulateMailPreview();
 

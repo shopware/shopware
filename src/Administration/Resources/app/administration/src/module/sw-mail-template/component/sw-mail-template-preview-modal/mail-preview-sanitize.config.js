@@ -1,4 +1,5 @@
 /**
+ * @private
  * @sw-package after-sales
  */
 export default {

@@ -554,7 +554,9 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                     name: 'checkout.order.placed',
                 },
             ],
-            triggerEvent: 'checkout.order.placed',
+            triggerEvent: {
+                name: 'checkout.order.placed',
+            },
         });
 
         await flushPromises();

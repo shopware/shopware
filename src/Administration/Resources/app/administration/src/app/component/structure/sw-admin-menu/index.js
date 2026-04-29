@@ -527,8 +527,11 @@ The admin menu only supports up to three levels of nesting.`,
             }
 
             target.classList.add('is--flyout-enabled');
+            const targetTop = target.getBoundingClientRect().top;
+            const appTop = document.getElementById('app').getBoundingClientRect().top;
             this.flyoutStyle = {
-                top: `${target.getBoundingClientRect().top - document.getElementById('app').getBoundingClientRect().top}px`,
+                top: `${targetTop - appTop}px`,
+                'max-height': `${window.innerHeight - targetTop}px`,
             };
 
             this.flyoutEntries = this.getChildren(entry);
@@ -590,8 +593,11 @@ The admin menu only supports up to three levels of nesting.`,
                 this.flyoutEntries = this.getChildren(entry);
             }
 
+            const targetTop = target.getBoundingClientRect().top;
+            const appTop = document.getElementById('app').getBoundingClientRect().top;
             this.flyoutStyle = {
-                top: `${target.getBoundingClientRect().top - document.getElementById('app').getBoundingClientRect().top}px`,
+                top: `${targetTop - appTop}px`,
+                'max-height': `${window.innerHeight - targetTop}px`,
             };
 
             // Remove previous flyout enabled

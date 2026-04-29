@@ -1,4 +1,10 @@
 .sw-bulk-edit-order {
+    &__content {
+        .mt-card__content {
+            padding: 0;
+        }
+    }
+
     .sw-field .sw-field__label label {
         flex-grow: 0;
         margin-right: 10px;

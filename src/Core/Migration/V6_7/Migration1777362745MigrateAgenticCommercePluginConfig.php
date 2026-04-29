@@ -11,10 +11,10 @@ use Shopware\Core\Framework\Migration\MigrationStep;
  * @internal
  */
 #[Package('discovery')]
-class Migration1777362745MigrateAgenticCommerceOpenAiProductExportConfig extends MigrationStep
+class Migration1777362745MigrateAgenticCommercePluginConfig extends MigrationStep
 {
-    private const PLUGIN_DOMAIN_PREFIX = 'SwagAgenticCommerce.openAiProductExport.';
-    private const CORE_DOMAIN_PREFIX = 'core.openAiProductExport.';
+    private const PLUGIN_DOMAIN_PREFIX = 'SwagAgenticCommerce.';
+    private const CORE_DOMAIN_PREFIX = 'core.';
 
     public function getCreationTimestamp(): int
     {

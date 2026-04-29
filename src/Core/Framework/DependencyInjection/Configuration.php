@@ -30,6 +30,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createApiSection())
                 ->append($this->createStoreSection())
                 ->append($this->createCartSection())
+                ->append($this->createOrderSection())
                 ->append($this->createSalesChannelContextSection())
                 ->append($this->createAdminWorkerSection())
                 ->append($this->createAutoUpdateSection())
@@ -592,6 +593,24 @@ class Configuration implements ConfigurationInterface
                             ->children()
                                 ->scalarNode('connection')->defaultValue(null)->end()
                             ->end()
+                    ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createOrderSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('order');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+                ->arrayNode('deep_link')
+                    ->children()
+                        ->integerNode('expire_days')
+                            ->min(1)
+                            ->defaultValue(30)
                     ->end()
             ->end();
 

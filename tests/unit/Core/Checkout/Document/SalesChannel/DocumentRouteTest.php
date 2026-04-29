@@ -378,10 +378,10 @@ class DocumentRouteTest extends TestCase
         $rateLimiter = $this->createMock(RateLimiter::class);
         $rateLimiter->expects($this->once())
             ->method('ensureAccepted')
-            ->with(RateLimiter::GUEST_LOGIN, 'deeplinkcode-127.0.0.1');
+            ->with(RateLimiter::GUEST_LOGIN, self::DUMMY_DOCUMENT_ID . '-127.0.0.1');
         $rateLimiter->expects($this->once())
             ->method('reset')
-            ->with(RateLimiter::GUEST_LOGIN, 'deeplinkcode-127.0.0.1');
+            ->with(RateLimiter::GUEST_LOGIN, self::DUMMY_DOCUMENT_ID . '-127.0.0.1');
 
         $route = $this->createRoute(
             $this->createMock(DocumentGenerator::class),
@@ -451,7 +451,7 @@ class DocumentRouteTest extends TestCase
         $rateLimiter = $this->createMock(RateLimiter::class);
         $rateLimiter->expects($this->once())
             ->method('ensureAccepted')
-            ->with(RateLimiter::GUEST_LOGIN, 'deeplinkcode-127.0.0.1')
+            ->with(RateLimiter::GUEST_LOGIN, $document->getId() . '-127.0.0.1')
             ->willThrowException($rateLimitExceededException);
 
         $rateLimiter->expects($this->never())->method('reset');
@@ -478,7 +478,7 @@ class DocumentRouteTest extends TestCase
         $route->download($document->getId(), $request, $context, 'deepLinkCode');
     }
 
-    public function testInvalidDeepLinkCodeThrowsBeforeRateLimiterAndGuestAuthentication(): void
+    public function testRateLimiterFiresBeforeDeepLinkValidation(): void
     {
         $billingAddress = new OrderAddressEntity();
         $billingAddress->setId(Uuid::randomHex());
@@ -510,7 +510,9 @@ class DocumentRouteTest extends TestCase
         ]);
 
         $rateLimiter = $this->createMock(RateLimiter::class);
-        $rateLimiter->expects($this->never())->method('ensureAccepted');
+        $rateLimiter->expects($this->once())
+            ->method('ensureAccepted')
+            ->with(RateLimiter::GUEST_LOGIN, $document->getId() . '-127.0.0.1');
         $rateLimiter->expects($this->never())->method('reset');
 
         $guestAuthenticator = $this->createMock(GuestAuthenticator::class);

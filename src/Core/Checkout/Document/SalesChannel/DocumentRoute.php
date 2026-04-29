@@ -214,16 +214,16 @@ final class DocumentRoute extends AbstractDocumentRoute
             throw DocumentException::customerNotLoggedIn();
         }
 
-        if ($document->getDeepLinkCode() !== $deepLinkCode) {
-            throw DocumentException::documentNotFound($documentId);
-        }
-
-        $cacheKey = mb_strtolower($document->getDeepLinkCode()) . '-' . ($request->getClientIp() ?? '');
+        $cacheKey = $documentId . '-' . ($request->getClientIp() ?? '');
 
         try {
             $this->rateLimiter->ensureAccepted(RateLimiter::GUEST_LOGIN, $cacheKey);
         } catch (RateLimitExceededException $exception) {
             throw DocumentException::documentAuthThrottledException($exception->getWaitTime());
+        }
+
+        if ($document->getDeepLinkCode() !== $deepLinkCode) {
+            throw DocumentException::documentNotFound($documentId);
         }
 
         if (!Feature::isActive('v6.8.0.0')) {

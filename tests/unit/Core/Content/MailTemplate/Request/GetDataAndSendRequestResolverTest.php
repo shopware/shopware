@@ -15,6 +15,7 @@ use Shopware\Core\Content\MailTemplate\Request\Resolver\GetDataAndSendRequestRes
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
@@ -63,7 +64,7 @@ class GetDataAndSendRequestResolverTest extends TestCase
         $this->mailPayloadFactory->expects($this->once())
             ->method('make')
             ->with(
-                static::callback(static fn ($requestDataBag) => $requestDataBag->all() === [
+                static::callback(static fn (RequestDataBag $requestDataBag): bool => $requestDataBag->all() === [
                     'mailTemplateId' => 'template-id',
                     'entities' => [
                         'order' => 'order-id',
@@ -185,7 +186,7 @@ class GetDataAndSendRequestResolverTest extends TestCase
         $this->mailPayloadFactory->expects($this->once())
             ->method('make')
             ->with(
-                static::callback(static fn ($requestDataBag) => $requestDataBag->all() === [
+                static::callback(static fn (RequestDataBag $requestDataBag): bool => $requestDataBag->all() === [
                     'mailTemplateId' => 'template-id',
                     'entities' => ['order' => 'order-id', 'customer' => 'customer-id'],
                     'templateData' => ['foo' => 'bar'],

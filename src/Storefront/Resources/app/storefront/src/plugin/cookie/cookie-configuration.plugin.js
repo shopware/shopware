@@ -561,6 +561,15 @@ export default class CookieConfiguration extends Plugin {
         const { lastState } = this;
         const updated = {};
 
+        // When accepting all cookies from the cookie bar, the offcanvas was never opened
+        // and therefore lastState is empty fix is, we treat all cookies as changed
+        if (lastState.active.length === 0 && lastState.inactive.length === 0) {
+            active.forEach(cookie => { updated[cookie] = true; });
+            inactive.forEach(cookie => { updated[cookie] = false; });
+
+            return updated;
+        }
+
         active.forEach(currentCheckbox => {
             if (lastState.inactive.includes(currentCheckbox)) {
                 updated[currentCheckbox] = true;

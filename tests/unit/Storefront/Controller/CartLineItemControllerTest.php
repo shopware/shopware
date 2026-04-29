@@ -438,10 +438,9 @@ class CartLineItemControllerTest extends TestCase
 
     public function testAddByProductNumberTrimsInputBeforeLookup(): void
     {
-        $productNumber = Uuid::randomHex();
-        $trimmedNumber = \sprintf(' %s ', $productNumber);
+        $productNumber = \sprintf(' %s ', Uuid::randomHex());
         $id = Uuid::randomHex();
-        $request = new Request([], ['number' => $trimmedNumber]);
+        $request = new Request([], ['number' => $productNumber]);
         $cart = new Cart(Uuid::randomHex());
         $context = $this->createMock(SalesChannelContext::class);
         $product = new ProductEntity();

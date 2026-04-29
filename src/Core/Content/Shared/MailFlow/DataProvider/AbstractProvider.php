@@ -17,6 +17,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * @template TEntity of Entity
  * @template TEntityCollection of EntityCollection<TEntity>
+ *
  * @implements MailFlowDataProviderInterface<TEntity>
  */
 #[Package('after-sales')]

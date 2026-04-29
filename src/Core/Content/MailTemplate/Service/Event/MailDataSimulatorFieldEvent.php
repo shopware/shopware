@@ -12,6 +12,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 class MailDataSimulatorFieldEvent extends Event
 {
     private mixed $value = null;
+
     private bool $hasValue = false;
 
     public function __construct(

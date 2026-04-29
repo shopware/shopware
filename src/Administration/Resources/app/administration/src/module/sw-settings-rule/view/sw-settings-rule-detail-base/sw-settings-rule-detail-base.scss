@@ -7,4 +7,10 @@
     .mt-banner {
         margin-block-end: 0;
     }
+
+    .sw-settings-rule-detail__condition_container {
+        &-placeholder {
+            height: 15rem;
+        }
+    }
 }

@@ -1,6 +1,13 @@
-.sw-settings-rule-detail-assignments__card-loader {
-    .mt-card__content {
-        min-height: var(--scale-size-256);
+.sw-settings-rule-detail-assignments__card {
+    .sw-data-grid {
+        border-bottom-left-radius: var(--border-radius-card);
+        border-bottom-right-radius: var(--border-radius-card);
+    }
+
+    &-loader {
+        .mt-card__content {
+            min-height: var(--scale-size-256);
+        }
     }
 }
 

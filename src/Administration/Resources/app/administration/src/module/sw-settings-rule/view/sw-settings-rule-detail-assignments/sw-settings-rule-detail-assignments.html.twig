@@ -8,6 +8,7 @@
         position-identifier="sw-settings-rule-detail-assignments-entity"
         :class="`sw-settings-rule-detail-assignments__card-${entity.id}`"
         :title="$t(entity.label)"
+        :is-loading="!entity.loadedData"
     >
         <template #toolbar>
             {% block sw_settings_rule_detail_assignments_toolbar %}
@@ -171,6 +172,7 @@
                 class="sw-settings-rule-detail-assignments__delete-modal-delete-button"
                 size="small"
                 variant="critical"
+                :is-loading="isLoading"
                 @click="onDelete"
             >
                 {{ $t('global.default.remove') }}

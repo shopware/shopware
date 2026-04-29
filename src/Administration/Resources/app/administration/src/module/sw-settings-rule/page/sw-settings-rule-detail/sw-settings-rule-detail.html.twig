@@ -88,7 +88,7 @@
         <sw-language-switch
             :save-changes-function="saveOnLanguageChange"
             :abort-change-function="abortOnLanguageChange"
-            :disabled="!ruleId"
+            :disabled="!ruleId || isLoading"
             @on-change="onChangeLanguage"
         />
     </template>
@@ -125,12 +125,7 @@
             {% endblock %}
 
             {% block sw_settings_rule_detail_content_view %}
-            <template v-if="isLoading">
-                <sw-skeleton variant="detail-bold" />
-                <sw-skeleton />
-            </template>
-
-            <template v-else-if="rule !== null">
+            <template v-if="rule !== null">
                 <router-view
                     v-slot="{ Component }"
                     :key="$route.path"
@@ -141,7 +136,6 @@
                         :conditions="conditions"
                         :condition-repository="conditionRepository"
                         :is-loading="isLoading"
-                        :detail-page-loading="isLoading"
                         :rule-name-error="ruleNameError"
                         :rule-priority-error="rulePriorityError"
                         @conditions-changed="conditionsChanged"

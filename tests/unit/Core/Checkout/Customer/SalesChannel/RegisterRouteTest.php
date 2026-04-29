@@ -38,6 +38,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\Salutation\SalutationDefinition;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Core\Test\TestDefaults;
@@ -45,6 +46,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validation;
 use Symfony\Contracts\EventDispatcher\Event;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -917,191 +919,6 @@ class RegisterRouteTest extends TestCase
         $registerRoute->register(new RequestDataBag($data), $salesChannelContext, false);
     }
 
-    #[TestDox('Rejects registration when billing address is not an associative array')]
-    public function testRegisterWithNonArrayBillingAddressViolation(): void
-    {
-        $systemConfigService = new StaticSystemConfigService([
-            TestDefaults::SALES_CHANNEL => [
-                'core.loginRegistration.showAccountTypeSelection' => true,
-                'core.loginRegistration.passwordMinLength' => '8',
-            ],
-            'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => true,
-        ]);
-
-        $customerEntity = new CustomerEntity();
-        $customerEntity->setDoubleOptInRegistration(true);
-        $customerEntity->setId('customer-1');
-        $customerEntity->setGuest(false);
-        $customerEntity->setEmail('test@test.de');
-
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
-        $customerRepository = new StaticEntityRepository(
-            [new CustomerCollection([$customerEntity])],
-            new CustomerDefinition(),
-        );
-
-        $countryId = Uuid::randomHex();
-
-        $country = new CountryEntity();
-        $country->setId($countryId);
-        $country->setVatIdRequired(true);
-
-        /** @var StaticSalesChannelRepository<CountryCollection> $countryRepository */
-        $countryRepository = new StaticSalesChannelRepository([new CountryCollection([$country])]);
-
-        $salutationId = Uuid::randomHex();
-
-        $data = [
-            'email' => 'test@test.de',
-            'billingAddress' => 'Max Mustermanns Address',
-            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
-            'salutationId' => $salutationId,
-            'lastName' => 'Mustermann',
-            'firstName' => 'Max',
-            'vatIds' => ['123'],
-            'storefrontUrl' => 'foo',
-        ];
-
-        $dataValidator = $this->createMock(DataValidator::class);
-
-        $violations = new ConstraintViolationList([
-            new ConstraintViolation(
-                'This value should be of type associative_array.',
-                'This value should be of type {{ type }}.',
-                ['{{ type }}' => 'associative_array'],
-                'billingAddress',
-                'billingAddress',
-                'Max Mustermanns Address'
-            ),
-        ]);
-
-        $dataValidator
-            ->expects($this->once())
-            ->method('getViolations')
-            ->with($data, static::callback(static function (DataValidationDefinition $definition) {
-                $subs = $definition->getSubDefinitions();
-
-                static::assertArrayNotHasKey('billingAddress', $subs);
-
-                $billingAddressConstraints = $definition->getProperty('billingAddress');
-                static::assertCount(1, $billingAddressConstraints);
-
-                $billingAddressConstraint = $billingAddressConstraints[0];
-                static::assertInstanceOf(Type::class, $billingAddressConstraint);
-                static::assertSame('associative_array', $billingAddressConstraint->type);
-
-                return true;
-            }))
-            ->willReturn($violations);
-
-        $definitionFactory = $this->createMock(DataValidationFactoryInterface::class);
-        $definitionFactory
-            ->method('create')
-            ->willReturn(new DataValidationDefinition());
-
-        $registerRoute = new RegisterRoute(
-            new EventDispatcher(),
-            $this->createMock(NumberRangeValueGeneratorInterface::class),
-            $dataValidator,
-            $definitionFactory,
-            $definitionFactory,
-            $systemConfigService,
-            $customerRepository,
-            $this->createMock(SalesChannelContextPersister::class),
-            $countryRepository,
-            $this->createMock(Connection::class),
-            $this->createMock(SalesChannelContextService::class),
-            $this->createMock(StoreApiCustomFieldMapper::class),
-            $this->createMock(EntityRepository::class),
-            $definitionFactory,
-        );
-
-        $salesChannelContext = Generator::generateSalesChannelContext();
-
-        try {
-            $registerRoute->register(new RequestDataBag($data), $salesChannelContext, false);
-            static::fail('Expected ConstraintViolationException to be thrown');
-        } catch (ConstraintViolationException $e) {
-            static::assertCount(1, $e->getViolations());
-            $violation = $e->getViolations()->get(0);
-            static::assertSame('billingAddress', $violation->getPropertyPath());
-            static::assertNotEmpty($violation->getMessage());
-        }
-    }
-
-    #[TestDox('Accepts customer names with the maximum allowed length of 255 characters')]
-    public function testRegisterAcceptsMaximumNameLengths(): void
-    {
-        $dataValidator = $this->createMock(DataValidator::class);
-        $dataValidator
-            ->expects($this->once())
-            ->method('getViolations')
-            ->willReturn(new ConstraintViolationList());
-
-        $registerRoute = $this->createRegisterRoute(dataValidator: $dataValidator);
-
-        $maxLengthFirstName = str_repeat('M', CustomerDefinition::MAX_LENGTH_FIRST_NAME);
-        $maxLengthLastName = str_repeat('L', CustomerDefinition::MAX_LENGTH_LAST_NAME);
-
-        $data = $this->createRegistrationData([
-            'firstName' => $maxLengthFirstName,
-            'lastName' => $maxLengthLastName,
-            'billingAddress' => [
-                'firstName' => $maxLengthFirstName,
-                'lastName' => $maxLengthLastName,
-                'countryId' => Uuid::randomHex(),
-            ],
-        ]);
-
-        $registerRoute->register(
-            new RequestDataBag($data),
-            Generator::generateSalesChannelContext(),
-            false
-        );
-    }
-
-    #[TestDox('Rejects customer names exceeding the maximum allowed length of 255 characters')]
-    public function testRegisterRejectsExcessiveNameLengths(): void
-    {
-        $violations = new ConstraintViolationList();
-        $violations->add(new ConstraintViolation(
-            'This value is too long. It should have 255 characters or less.',
-            null,
-            [],
-            'root',
-            'firstName',
-            str_repeat('T', 256)
-        ));
-
-        $dataValidator = $this->createMock(DataValidator::class);
-        $dataValidator
-            ->expects($this->once())
-            ->method('getViolations')
-            ->willReturn($violations);
-
-        $registerRoute = $this->createRegisterRoute(dataValidator: $dataValidator);
-
-        $tooLongFirstName = str_repeat('T', CustomerDefinition::MAX_LENGTH_FIRST_NAME + 1);
-        $tooLongLastName = str_repeat('L', CustomerDefinition::MAX_LENGTH_LAST_NAME + 1);
-
-        $data = $this->createRegistrationData([
-            'firstName' => $tooLongFirstName,
-            'lastName' => $tooLongLastName,
-            'billingAddress' => [
-                'firstName' => $tooLongFirstName,
-                'lastName' => $tooLongLastName,
-                'countryId' => Uuid::randomHex(),
-            ],
-        ]);
-
-        static::expectException(ConstraintViolationException::class);
-        $registerRoute->register(
-            new RequestDataBag($data),
-            Generator::generateSalesChannelContext(),
-            false
-        );
-    }
-
     public function testRegisterPreservesShippingAddressSalutation(): void
     {
         $customerEntity = new CustomerEntity();
@@ -1111,6 +928,7 @@ class RegisterRouteTest extends TestCase
 
         $result = $this->createMock(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new CustomerCollection([$customerEntity]));
+        $result->method('first')->willReturn($customerEntity);
 
         $customerRepository = $this->createMock(EntityRepository::class);
         $customerRepository->method('getDefinition')->willReturn(new CustomerDefinition());
@@ -1221,7 +1039,6 @@ class RegisterRouteTest extends TestCase
             $this->createMock(SalesChannelContextService::class),
             $customFieldMapper,
             $salutationRepository,
-            $this->createMock(DataValidationFactoryInterface::class),
         );
     }
 

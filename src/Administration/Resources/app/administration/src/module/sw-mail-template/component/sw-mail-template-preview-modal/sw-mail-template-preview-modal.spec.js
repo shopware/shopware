@@ -20,9 +20,6 @@ async function createWrapper(props = {}) {
             ...props,
         },
         global: {
-            mocks: {
-                $sanitize: (value) => value,
-            },
             stubs: {
                 'sw-modal': {
                     template: `

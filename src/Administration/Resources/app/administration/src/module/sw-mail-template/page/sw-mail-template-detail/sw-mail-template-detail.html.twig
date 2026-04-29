@@ -370,7 +370,7 @@
                                 <div
                                     v-else
                                     class="sw-mail-template-preview-modal__html-content"
-                                    v-html="$sanitize(mailPreview.headerHtml.content, previewSanitizeConfig)"
+                                    v-html="mailPreview.headerHtml.content"
                                 ></div>
                                 <mt-banner
                                     v-if="mailPreview.contentHtml.type === 'error'"
@@ -383,7 +383,7 @@
                                 <div
                                     v-else
                                     class="sw-mail-template-preview-modal__html-content"
-                                    v-html="$sanitize(mailPreview.contentHtml.content, previewSanitizeConfig)"
+                                    v-html="mailPreview.contentHtml.content"
                                 ></div>
                                 <mt-banner
                                     v-if="mailPreview.footerHtml.type === 'error'"
@@ -396,7 +396,7 @@
                                 <div
                                     v-else
                                     class="sw-mail-template-preview-modal__html-content"
-                                    v-html="$sanitize(mailPreview.footerHtml.content, previewSanitizeConfig)"
+                                    v-html="mailPreview.footerHtml.content"
                                 ></div>
                             </div>
                         </template>

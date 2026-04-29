@@ -4,11 +4,14 @@ namespace Shopware\Tests\Integration\Core\Framework\Webhook;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
+use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\AppLocaleProvider;
@@ -16,6 +19,7 @@ use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
@@ -27,6 +31,7 @@ use Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
 use Shopware\Core\Framework\Webhook\Service\WebhookStateRepository;
+use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\Test\TestDefaults;
@@ -548,6 +553,275 @@ class WebhookDispatchEndToEndTest extends TestCase
     }
 
     /**
+     * Steps:
+     * 1. Register two webhooks bound to two different apps for the same event.
+     * 2. Dispatch the event once → two outbox entries, two distinct partitions.
+     * 3. Run the worker twice. Endpoint for App A returns 500, App B returns 200.
+     *    (Two passes are needed because `MySQLWebhookReceiver::get()` drains a single
+     *    partition before yielding control, and `StopWorkerWhenIdleListener` halts the
+     *    worker on the first idle round.)
+     *
+     * Expected:
+     * - Two HTTP attempts fire — both URLs are hit, regardless of partition claim order.
+     * - App A's `webhook_event_log` is `PENDING_RETRY`; App B's is `SUCCESS`.
+     * - `webhook_delivery.partition_key` differs between the two rows — failure on
+     *   partition A does not block delivery on partition B.
+     * - `webhook_stream` carries two distinct partition rows.
+     */
+    public function testFanOutAcrossPartitionsDeliversInParallelAndIsolatesFailure(): void
+    {
+        $appAWebhookId = Uuid::randomHex();
+        $appBWebhookId = Uuid::randomHex();
+
+        $this->createWebhook($appAWebhookId, 'app-a-hook', CustomerBeforeLoginEvent::EVENT_NAME, 'https://example.com/app-a');
+        $this->createWebhook($appBWebhookId, 'app-b-hook', CustomerBeforeLoginEvent::EVENT_NAME, 'https://example.com/app-b');
+
+        // Route by URL so the test is independent of partition claim order — `claimNext` ties on
+        // the partition_key hash, which is unpredictable.
+        $router = static function (RequestInterface $request): Response {
+            return str_contains($request->getUri()->getPath(), '/app-a')
+                ? new Response(500, [], '{"error":"fail"}')
+                : new Response(200);
+        };
+        $mockHandler = static::getContainer()->get(MockHandler::class);
+        static::assertInstanceOf(MockHandler::class, $mockHandler);
+        $mockHandler->append($router, $router);
+
+        $manager = $this->getWebhookManager(isAdminWorkerEnabled: false);
+        $event = $this->createCustomerBeforeLoginEvent();
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($manager, $event): void {
+            $manager->dispatch($event);
+            $this->runWorker();
+            $this->runWorker();
+        });
+
+        static::assertSame(2, $this->getRequestCount(), 'Each partition must deliver across the two worker passes');
+
+        $hitPaths = [
+            $this->getPastRequest(0)->getUri()->getPath(),
+            $this->getPastRequest(1)->getUri()->getPath(),
+        ];
+        sort($hitPaths);
+        static::assertSame(['/app-a', '/app-b'], $hitPaths, 'Each partition must reach its own endpoint');
+
+        $statuses = $this->connection->fetchAllKeyValue(
+            'SELECT webhook_name, delivery_status FROM webhook_event_log WHERE webhook_name IN (:names)',
+            ['names' => ['app-a-hook', 'app-b-hook']],
+            ['names' => ArrayParameterType::STRING],
+        );
+        static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $statuses['app-a-hook'], 'Failing partition is parked for retry');
+        static::assertSame(WebhookEventLogDefinition::STATUS_SUCCESS, $statuses['app-b-hook'], 'Healthy partition delivers despite the other partition failing');
+
+        $streamPartitions = (int) $this->connection->fetchOne('SELECT COUNT(DISTINCT partition_key) FROM webhook_stream');
+        static::assertSame(2, $streamPartitions, 'Two app-bound webhooks must produce two distinct partitions');
+    }
+
+    /**
+     * Steps:
+     * 1. Register a webhook with `error_count = MAX_ERROR_COUNT - 1` (= 9).
+     * 2. Dispatch the event.
+     * 3. Burn the retry budget the same way `testTerminalFailureAfterMaxRetriesMovesRowToFailed` does.
+     * 4. Worker polls → endpoint returns 500 → terminal branch fires.
+     *
+     * Expected:
+     * - `webhook_event_log` row is `FAILED`.
+     * - `webhook.error_count` resets to `0` (the disable-on-threshold strategy zeros it).
+     * - `webhook.active` flips to `0` — the webhook is disabled at the threshold.
+     */
+    public function testTerminalFailureBumpsErrorCountAndDisablesWebhookAtThreshold(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $this->createWebhook($webhookId, 'test-webhook', CustomerBeforeLoginEvent::EVENT_NAME, 'https://example.com/webhook');
+        $this->connection->update(
+            'webhook',
+            ['error_count' => WebhookFailureStrategy::MAX_ERROR_COUNT - 1],
+            ['id' => Uuid::fromHexToBytes($webhookId)],
+        );
+
+        $this->appendNewResponse(new Response(500, [], '{"error":"fail"}'));
+
+        $manager = $this->getWebhookManager(isAdminWorkerEnabled: false);
+        $event = $this->createCustomerBeforeLoginEvent();
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($manager, $event): void {
+            $manager->dispatch($event);
+
+            $eventId = $this->fetchOutboxEventId('test-webhook');
+            $stateService = static::getContainer()->get(WebhookOutboxStore::class);
+            $past = new \DateTimeImmutable('-1 minute');
+            for ($i = 0; $i < 5; ++$i) {
+                $entry = $stateService->markRunning($eventId);
+                static::assertNotNull($entry);
+                $stateService->markPendingRetry($entry, $past, null);
+            }
+
+            $this->runWorker();
+        });
+
+        $eventLogStatus = $this->connection->fetchOne(
+            'SELECT delivery_status FROM webhook_event_log WHERE webhook_name = :name',
+            ['name' => 'test-webhook'],
+        );
+        static::assertSame(WebhookEventLogDefinition::STATUS_FAILED, $eventLogStatus);
+
+        $webhook = $this->connection->fetchAssociative(
+            'SELECT active, error_count FROM webhook WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($webhookId)],
+        );
+        static::assertIsArray($webhook);
+        static::assertSame(0, (int) $webhook['error_count'], 'Disable-on-threshold strategy zeroes error_count');
+        static::assertSame(0, (int) $webhook['active'], 'Webhook is disabled once it crosses the threshold');
+    }
+
+    /**
+     * Steps:
+     * 1. Register a webhook with `error_count = 5` (non-zero, sub-threshold).
+     * 2. Dispatch the event.
+     * 3. Run the worker → endpoint returns 200.
+     *
+     * Expected:
+     * - `webhook_event_log` row is `SUCCESS`.
+     * - `webhook.error_count` is reset to `0` — a healthy delivery clears prior transient
+     *   failures so a webhook that recovers does not silently disable itself later.
+     */
+    public function testSuccessfulDeliveryResetsWebhookErrorCount(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $this->createWebhook($webhookId, 'test-webhook', CustomerBeforeLoginEvent::EVENT_NAME, 'https://example.com/webhook');
+        $this->connection->update(
+            'webhook',
+            ['error_count' => 5],
+            ['id' => Uuid::fromHexToBytes($webhookId)],
+        );
+
+        $this->appendNewResponse(new Response(200));
+
+        $manager = $this->getWebhookManager(isAdminWorkerEnabled: false);
+        $event = $this->createCustomerBeforeLoginEvent();
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($manager, $event): void {
+            $manager->dispatch($event);
+            $this->runWorker();
+        });
+
+        $eventLogStatus = $this->connection->fetchOne(
+            'SELECT delivery_status FROM webhook_event_log WHERE webhook_name = :name',
+            ['name' => 'test-webhook'],
+        );
+        static::assertSame(WebhookEventLogDefinition::STATUS_SUCCESS, $eventLogStatus);
+
+        $errorCount = (int) $this->connection->fetchOne(
+            'SELECT error_count FROM webhook WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($webhookId)],
+        );
+        static::assertSame(0, $errorCount, 'Successful delivery must reset error_count so prior transient failures do not accumulate');
+    }
+
+    /**
+     * Steps:
+     * 1. Register a webhook.
+     * 2. Endpoint raises `ConnectException` — the request never receives a response.
+     * 3. Run the worker.
+     *
+     * Expected:
+     * - One HTTP attempt was made.
+     * - `webhook_event_log` row is `PENDING_RETRY` with NULL `response_status_code` —
+     *   the no-response failure branch persists empty response data without crashing.
+     * - `webhook_delivery` row is still present and parked for retry.
+     * - `webhook.error_count` stays at `0` — transient failures only bump after the
+     *   retry budget is exhausted.
+     */
+    public function testNetworkExceptionParksRowForRetryWithoutResponseData(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $this->createWebhook($webhookId, 'test-webhook', CustomerBeforeLoginEvent::EVENT_NAME, 'https://example.com/webhook');
+
+        $this->appendNewResponse(new ConnectException('Connection refused', new Request('POST', 'https://example.com/webhook')));
+
+        $manager = $this->getWebhookManager(isAdminWorkerEnabled: false);
+        $event = $this->createCustomerBeforeLoginEvent();
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($manager, $event): void {
+            $manager->dispatch($event);
+            $this->runWorker();
+        });
+
+        static::assertSame(1, $this->getRequestCount(), 'A network failure must still count as one delivery attempt');
+
+        $eventLog = $this->connection->fetchAssociative(
+            'SELECT delivery_status, response_status_code FROM webhook_event_log WHERE webhook_name = :name',
+            ['name' => 'test-webhook'],
+        );
+        static::assertIsArray($eventLog);
+        static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $eventLog['delivery_status']);
+        static::assertNull($eventLog['response_status_code'], 'No-response failures must persist a NULL status code, not crash on persistence');
+
+        $delivery = $this->connection->fetchAssociative(
+            'SELECT delivery_status FROM webhook_delivery WHERE webhook_id = :wid',
+            ['wid' => Uuid::fromHexToBytes($webhookId)],
+        );
+        static::assertIsArray($delivery, 'Hot delivery row must remain on a transient failure for the next worker pass');
+        static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $delivery['delivery_status']);
+
+        $errorCount = (int) $this->connection->fetchOne(
+            'SELECT error_count FROM webhook WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($webhookId)],
+        );
+        static::assertSame(0, $errorCount, 'A single transient failure must not bump error_count — only terminal failure does');
+    }
+
+    /**
+     * Steps:
+     * 1. Register a webhook (no app binding).
+     * 2. Dispatch the event.
+     * 3. Run the worker.
+     *
+     * Expected:
+     * - Endpoint received the request.
+     * - `webhook_event_log` row is `SUCCESS`.
+     * - `webhook_delivery.partition_key` equals the hashed `default` partition fallback —
+     *   bare webhooks share one partition rather than failing the dispatch.
+     */
+    public function testWebhookWithoutAppDeliversOnDefaultPartition(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $this->createBareWebhook($webhookId, 'bare-webhook', CustomerBeforeLoginEvent::EVENT_NAME, 'https://example.com/bare');
+
+        $this->appendNewResponse(new Response(200));
+
+        $manager = $this->getWebhookManager(isAdminWorkerEnabled: false);
+        $event = $this->createCustomerBeforeLoginEvent();
+
+        $expectedPartitionKey = Hasher::hashBinary(WebhookEventMessage::DEFAULT_PARTITION_KEY, 'xxh128');
+        // Snapshot the partition key before the worker runs — the success path deletes
+        // webhook_delivery once the row settles, so we have to read it mid-cycle.
+        $observedPartitionKey = null;
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($manager, $event, &$observedPartitionKey): void {
+            $manager->dispatch($event);
+
+            $observedPartitionKey = $this->connection->fetchOne(
+                'SELECT d.partition_key FROM webhook_delivery d
+                 JOIN webhook_event_log el ON el.id = d.webhook_event_log_id
+                 WHERE el.webhook_name = :name',
+                ['name' => 'bare-webhook'],
+            );
+
+            $this->runWorker();
+        });
+
+        static::assertSame(1, $this->getRequestCount());
+        static::assertSame($expectedPartitionKey, $observedPartitionKey, 'A webhook without an app must fall back to the default partition');
+
+        $eventLogStatus = $this->connection->fetchOne(
+            'SELECT delivery_status FROM webhook_event_log WHERE webhook_name = :name',
+            ['name' => 'bare-webhook'],
+        );
+        static::assertSame(WebhookEventLogDefinition::STATUS_SUCCESS, $eventLogStatus);
+    }
+
+    /**
      * @param \Closure(): void $closure
      */
     private function withFlag(bool $active, \Closure $closure): void
@@ -625,7 +899,63 @@ class WebhookDispatchEndToEndTest extends TestCase
         );
     }
 
+    /**
+     * Creates a webhook bound to a fresh app — production webhooks are app-backed, so this
+     * is the default shape for every test in this file. The acl_role carries empty privileges,
+     * which is fine for `CustomerBeforeLoginEvent` (only scalar `email` available data, so
+     * `HookableBusinessEvent::isAllowed` short-circuits to true). Each call creates its own
+     * app, so two `createWebhook` calls produce two distinct partitions.
+     */
     private function createWebhook(string $webhookId, string $name, string $eventName, string $url): void
+    {
+        $unique = Uuid::randomHex();
+        $aclRoleId = Uuid::randomBytes();
+        $integrationId = Uuid::randomBytes();
+        $appId = Uuid::randomBytes();
+        $now = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+
+        $this->connection->insert('acl_role', [
+            'id' => $aclRoleId,
+            'name' => 'role-' . $unique,
+            'privileges' => json_encode([], \JSON_THROW_ON_ERROR),
+            'created_at' => $now,
+        ]);
+
+        $this->connection->insert('integration', [
+            'id' => $integrationId,
+            'access_key' => 'key-' . $unique,
+            'secret_access_key' => 'secret-' . $unique,
+            'label' => 'integration-' . $unique,
+            'created_at' => $now,
+        ]);
+
+        $this->connection->insert('app', [
+            'id' => $appId,
+            'name' => 'app-' . $unique,
+            'path' => '/dev/null',
+            'version' => '1.0.0',
+            'active' => 1,
+            'app_secret' => 'app-secret-' . $unique,
+            'integration_id' => $integrationId,
+            'acl_role_id' => $aclRoleId,
+            'created_at' => $now,
+        ]);
+
+        $this->connection->insert('webhook', [
+            'id' => Uuid::fromHexToBytes($webhookId),
+            'name' => $name,
+            'event_name' => $eventName,
+            'url' => $url,
+            'app_id' => $appId,
+            'created_at' => $now,
+        ]);
+    }
+
+    /**
+     * Creates a webhook with no app binding. Reserved for the bare-webhook smoke test —
+     * production traffic is app-backed (see {@see self::createWebhook()}).
+     */
+    private function createBareWebhook(string $webhookId, string $name, string $eventName, string $url): void
     {
         $this->connection->insert('webhook', [
             'id' => Uuid::fromHexToBytes($webhookId),

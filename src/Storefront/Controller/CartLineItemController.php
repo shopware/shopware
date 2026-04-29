@@ -222,9 +222,9 @@ class CartLineItemController extends StorefrontController
     public function addProductByNumber(Request $request, SalesChannelContext $context): Response
     {
         return Profiler::trace('cart::add-product-by-number', function () use ($request, $context) {
-            $number = mb_trim((string) $request->request->get('number'));
+            $number = (string) $request->request->get('number');
 
-            if ($number === '') {
+            if (mb_trim($number) === '') {
                 $this->addFlash(self::DANGER, $this->trans('error.VIOLATION::IS_BLANK_ERROR'));
 
                 return $this->createActionResponse($request);

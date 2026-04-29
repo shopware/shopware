@@ -286,7 +286,7 @@ class RegisterControllerTest extends TestCase
 
     public function testCheckoutRegisterPageLoadedHookScriptsAreExecuted(): void
     {
-        $productNumber = 'p1';
+        $productNumber = ' p1';
 
         $this->createProduct(Uuid::randomHex(), $productNumber);
 

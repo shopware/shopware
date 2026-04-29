@@ -47,6 +47,8 @@ final readonly class WebhookEventMessageHandler
         // @deprecated tag:v6.8.0 — remove with the flag-OFF path.
         if (!$this->webhookOutboxStore->hasDeliveryRow($message->getWebhookEventId())) {
             $insert = OutboxInsert::fromMessage($message);
+            // ensureOutboxEntry handles the case where the app was deleted (`testCanStillSendAfterWebhookIsDeleted`) case.
+            // backFillDelivery handles the legacy message case.
             if ($this->webhookOutboxStore->ensureOutboxEntry($insert) === null) {
                 $this->webhookOutboxStore->backfillDelivery($insert);
             }
@@ -78,7 +80,7 @@ final readonly class WebhookEventMessageHandler
         $response = DeliveryResponse::from($request, $result);
 
         if ($result->successful()) {
-            // Gate: a stale-success on a stolen lease must not reset error_count.
+            // a stale-success on a stolen lease must not reset error_count.
             if ($this->webhookOutboxStore->markSuccess($entry, $response)) {
                 try {
                     $this->relatedWebhooks->updateRelated($message->getWebhookId(), ['error_count' => 0], $context);

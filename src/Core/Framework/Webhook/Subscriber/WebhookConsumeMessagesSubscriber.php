@@ -9,14 +9,12 @@ use Symfony\Component\Console\Event\ConsoleCommandEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Operators running `messenger:consume async --queues=X` will see Symfony's own
- * RuntimeException at worker startup because WebhookTransport does not implement
- * QueueReceiverInterface — by design. That deployment needs a dedicated
- * `messenger:consume webhook` command anyway (the webhook transport stops forwarding
- * to async under the flag), so the crash is the right signal.
- * The bridge only widens commands that already opt into the default `async`
- * receiver. Dedicated or custom workers stay unchanged. In v6.8 this runtime
- * mutation is removed and operators must list `webhook` explicitly.
+ * Active only under WEBHOOKS_REWORK on 6.7. With the flag off, WebhookTransport forwards
+ * to `async`, so existing `messenger:consume async` workers already drain webhooks and no
+ * widening is needed. With the flag on, MySQLWebhookReceiver becomes the consumer and an
+ * `async`-only command would silently miss deliveries — this bridge prepends `webhook` to
+ * any default-async command so legacy deployments keep working through the rollout.
+ * In v6.8 the runtime mutation is removed and operators must list `webhook` explicitly.
  *
  * @internal
  *
@@ -37,6 +35,12 @@ class WebhookConsumeMessagesSubscriber implements EventSubscriberInterface
     public function onMessengerConsume(ConsoleCommandEvent $event): void
     {
         if (Feature::isActive('v6.8.0.0')) {
+            return;
+        }
+
+        // Under flag-off, WebhookTransport forwards to async — existing `messenger:consume async`
+        // workers already drain webhooks, no widening needed.
+        if (!Feature::isActive('WEBHOOKS_REWORK')) {
             return;
         }
 

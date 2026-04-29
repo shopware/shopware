@@ -369,31 +369,6 @@ class WebhookOutboxStoreTest extends TestCase
         $this->assertEventLogStatus('evt-1', WebhookEventLogDefinition::STATUS_RUNNING);
     }
 
-    public function testMarkRunningSkipsPendingRetryUntilRetryAtIsDue(): void
-    {
-        $this->createWebhook('wh-1');
-        $message = $this->createMessage('evt-1', 'wh-1');
-        $this->store->ensureOutboxEntry($this->toEntry($message));
-
-        $entry = $this->store->markRunning($this->ids->get('evt-1'));
-        static::assertNotNull($entry);
-        $retryAt = new \DateTimeImmutable('+5 minutes');
-        $this->store->markPendingRetry($entry, $retryAt, null);
-
-        static::assertNull($this->store->markRunning($this->ids->get('evt-1')));
-
-        $delivery = $this->connection->fetchAssociative(
-            'SELECT delivery_status, execution_count, next_retry_at FROM webhook_delivery WHERE webhook_event_log_id = :id',
-            ['id' => $this->ids->getBytes('evt-1')]
-        );
-        static::assertNotFalse($delivery);
-        static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $delivery['delivery_status']);
-        static::assertSame(1, (int) $delivery['execution_count']);
-        static::assertSame($retryAt->format(Defaults::STORAGE_DATE_TIME_FORMAT), $delivery['next_retry_at']);
-
-        $this->assertEventLogStatus('evt-1', WebhookEventLogDefinition::STATUS_PENDING_RETRY);
-    }
-
     public function testMarkRunningIgnoresStrayDeliveryRowForTerminalEventLog(): void
     {
         $this->createWebhook('wh-1');

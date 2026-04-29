@@ -186,10 +186,7 @@ class WebhookOutboxStore
                      last_attempt_at = :now,
                      updated_at = :now
                  WHERE webhook_event_log_id = :id
-	                   AND (
-	                       delivery_status = :queuedStatus
-	                       OR (delivery_status = :pendingRetryStatus AND (next_retry_at IS NULL OR next_retry_at <= :now))
-	                   )
+	                   AND delivery_status IN (:queuedStatus, :pendingRetryStatus)
 	                   AND EXISTS (
 	                       SELECT 1
 	                       FROM webhook_event_log el

@@ -81,6 +81,22 @@ export default {
         isNotDefaultSalesChannel() {
             return this.currentSalesChannelId !== null;
         },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, use `Shopware.Utils.supportsMapInheritance` to test for map inheritance support instead.
+         */
+        typesWithMapInheritanceSupport() {
+            return [
+                'text',
+                'textarea',
+                'url',
+                'password',
+                'int',
+                'float',
+                'checkbox',
+                'colorpicker',
+            ];
+        },
     },
 
     watch: {

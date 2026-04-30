@@ -724,9 +724,14 @@ Component.register('sw-theme-manager-detail', {
                 delete config.custom;
             }
 
-            if (inheritance && fieldHandlesInheritanceItself(field)) {
-                config.mapInheritance = inheritance;
-                Object.assign(config, getMeteorInheritanceConfig(inheritance, inheritedValue));
+            if (inheritance) {
+                if (fieldHandlesInheritanceItself(field)) {
+                    config.mapInheritance = inheritance;
+                }
+                
+                if (isMeteorComponent(config)) {
+                    Object.assign(config, getMeteorInheritanceConfig(inheritance, inheritedValue));
+                }
             }
 
             return { type: field.type, config };

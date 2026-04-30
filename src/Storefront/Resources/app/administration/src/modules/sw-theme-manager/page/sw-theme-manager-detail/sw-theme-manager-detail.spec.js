@@ -306,7 +306,7 @@ describe('sw-theme-manager-detail', () => {
         });
     });
 
-    it('does not pass inheritance bindings to non-boolean theme config fields', async () => {
+    it('does not pass inheritance bindings to non-meteor theme config fields', async () => {
         const wrapper = await createWrapper();
         const inheritance = {
             currentValue: 'parent',
@@ -321,7 +321,7 @@ describe('sw-theme-manager-detail', () => {
         expect(textBind.config.mapInheritance).toBeUndefined();
     });
 
-    it('does not attach inheritance event listeners to non-boolean theme config fields', async () => {
+    it('does not attach inheritance event listeners to non-meteor theme config fields', async () => {
         const wrapper = await createWrapper();
         const inheritance = {
             removeInheritance: jest.fn(),
@@ -329,22 +329,6 @@ describe('sw-theme-manager-detail', () => {
         };
 
         expect(wrapper.vm.getElementEventListeners({ type: 'text' }, inheritance)).toEqual({});
-    });
-
-    it('detects fields that handle inheritance themselves', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm.isFieldHandlingInheritanceItself({ type: 'switch' })).toBe(true);
-        expect(wrapper.vm.isFieldHandlingInheritanceItself({ custom: { componentName: 'mt-checkbox' } })).toBe(true);
-        expect(wrapper.vm.isFieldHandlingInheritanceItself({ type: 'text' })).toBe(false);
-    });
-
-    it('detects fields that handle label and help text themselves', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm.isFieldHandlingLabelAndHelpText({ type: 'checkbox' })).toBe(true);
-        expect(wrapper.vm.isFieldHandlingLabelAndHelpText({ custom: { componentName: 'mt-switch' } })).toBe(true);
-        expect(wrapper.vm.isFieldHandlingLabelAndHelpText({ type: 'text' })).toBe(false);
     });
 
     it('keeps the inheritance toggle enabled for inherited boolean theme config fields', async () => {

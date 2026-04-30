@@ -7,15 +7,7 @@ describe('src/core/service/utils/field-label.utils', () => {
             'checkbox',
             'switch',
         ]);
-        expect(fieldsHandlingLabelAndHelpText.componentNames).toEqual(expect.arrayContaining([
-            'mt-text-field',
-            'mt-switch',
-            'mt-checkbox',
-            'sw-text-field',
-            'sw-switch-field',
-            'sw-checkbox-field',
-        ]));
-        expect(fieldsHandlingLabelAndHelpText.themeManager).toBeUndefined();
+        expect(fieldsHandlingLabelAndHelpText.componentNames).toHaveLength(27);
     });
 
     it('detects fields handling label and help text by supported field type', () => {

@@ -656,7 +656,6 @@ Affected compatibility wrappers:
   * `componentsWithMapInheritanceSupport`
   * `supportsMapInheritance(customField)`
   * `isMeteorComponent(customField)`
-  * `isFieldHandlingLabelAndHelpText(customField)`
 * `sw-system-config`
   * `hasMapInheritanceSupport(element)`
   * `isMeteorComponent(element)`

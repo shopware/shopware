@@ -1,3 +1,56 @@
+# 6.7.11.0 (upcoming)
+
+## Features
+
+## API
+
+## Core
+
+### Backward compatible invalid locales
+
+Added and deprecated `BackwardCompatibleNumberFormatter` to temporarily allow invalid locale strings without throwing exceptions in PHP >=8.4. It will be removed in Shopware 6.8.
+
+### Configurable order deep link expiry
+
+The number of days an order can be accessed via deep link is now configurable via `shopware.yaml`:
+
+    shopware:
+      order:
+        deep_link:
+          expire_days: 30
+
+### Technical media associations can be ignored by `media:delete-unused`
+
+Plugins can now mark technical `media` associations with the new DAL flag `IgnoreInUnusedMediaSearch`.
+This prevents `media:delete-unused` from treating metadata-only extensions as real media usage and helps avoid false negatives when removing unused files.
+Third-party developers should add this flag to media associations that store technical metadata but do not represent an actual assignment of the media file.
+
+## Administration
+
+### Fixed "Last Quarter" timeframe returning the wrong year in `sw-date-filter`
+
+Selecting the "Last Quarter" timeframe in any listing's date filter (orders, documents, customers, etc.) between January and March now produces a three-month range in the previous year instead of a ~15-month range that spanned both years.
+The end boundary is now derived from the quarter's start year rather than the current year.
+
+### Admin menu flyout no longer overflows the viewport
+
+When the sidebar is collapsed, hovering a menu entry near the bottom of the sidebar could cause the flyout submenu to extend beyond the viewport, making lower entries inaccessible.
+The flyout now calculates a dynamic `max-height` from the remaining viewport space and scrolls vertically when its content exceeds that limit.
+
+### Meteor Component Library updated to 4.28.6
+
+The Administration now uses Meteor Component Library `4.28.6`.
+With this update, disabled Meteor switch fields in system configuration can now unlink inherited sales channel values.
+Previously, the switch field itself was disabled as expected, but its inheritance control was disabled as well, preventing merchants from overriding inherited values for that sales channel.
+
+## Storefront
+
+## App System
+
+## Hosting & Configuration
+
+## Critical Fixes
+
 # 6.7.10.0
 
 ## Features

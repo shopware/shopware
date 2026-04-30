@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Webhook\Outbox;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
@@ -190,13 +191,20 @@ class StreamLockService
         $now = $this->clock->now();
 
         return (int) $this->connection->executeStatement(
-            \sprintf(
-                'DELETE FROM webhook_stream WHERE NOT EXISTS (SELECT 1 FROM webhook_delivery d WHERE d.partition_key = webhook_stream.partition_key) AND (locked_by IS NULL OR lock_expires_at <= :now) AND created_at < :cutoff LIMIT %d',
-                $batchSize
-            ),
+            <<<'SQL'
+                DELETE FROM webhook_stream
+                WHERE NOT EXISTS (SELECT 1 FROM webhook_delivery d WHERE d.partition_key = webhook_stream.partition_key)
+                  AND (locked_by IS NULL OR lock_expires_at <= :now)
+                  AND created_at < :cutoff
+                LIMIT :limit
+                SQL,
             [
                 'now' => $now->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'cutoff' => $now->modify(\sprintf('-%d seconds', self::ORPHAN_GRACE_SECONDS))->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'limit' => $batchSize,
+            ],
+            [
+                'limit' => ParameterType::INTEGER,
             ]
         );
     }

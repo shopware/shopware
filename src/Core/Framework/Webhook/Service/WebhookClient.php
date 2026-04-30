@@ -9,6 +9,7 @@ use GuzzleHttp\Pool;
 use Psr\Clock\ClockInterface;
 use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Profiling\Profiler;
 
 /**
  * @internal
@@ -28,6 +29,37 @@ final readonly class WebhookClient
 
     public function send(WebhookRequest $request): WebhookResult
     {
+        return Profiler::trace(
+            'webhook::http',
+            fn (): WebhookResult => $this->doSend($request),
+            'webhook',
+        );
+    }
+
+    /**
+     * Send multiple webhook requests in parallel and collect the results.
+     *
+     * Keys are preserved end-to-end so callers can correlate results deterministically.
+     *
+     * @param array<string, WebhookRequest> $requests
+     *
+     * @return array<string, WebhookResult>
+     */
+    public function sendBatch(array $requests): array
+    {
+        if ($requests === []) {
+            return [];
+        }
+
+        return Profiler::trace(
+            'webhook::http.batch',
+            fn (): array => $this->doSendBatch($requests),
+            'webhook',
+        );
+    }
+
+    private function doSend(WebhookRequest $request): WebhookResult
+    {
         $start = $this->clock->now()->getTimestamp();
 
         try {
@@ -46,15 +78,11 @@ final readonly class WebhookClient
     }
 
     /**
-     * Send multiple webhook requests in parallel and collect the results.
-     *
-     * Keys are preserved end-to-end so callers can correlate results deterministically.
-     *
      * @param array<string, WebhookRequest> $requests
      *
      * @return array<string, WebhookResult>
      */
-    public function sendBatch(array $requests): array
+    private function doSendBatch(array $requests): array
     {
         if ($requests === []) {
             return [];

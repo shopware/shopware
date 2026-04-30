@@ -10,6 +10,8 @@ use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Telemetry\Metrics\Meter;
+use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 
@@ -24,6 +26,7 @@ class WebhookOutboxStore
     public function __construct(
         private readonly Connection $connection,
         private readonly ClockInterface $clock,
+        private readonly Meter $meter,
     ) {
     }
 
@@ -54,7 +57,7 @@ class WebhookOutboxStore
      */
     public function backfillDelivery(OutboxInsert $insert): ?OutboxEntry
     {
-        return RetryableTransaction::retryable($this->connection, function () use ($insert): ?OutboxEntry {
+        $entry = RetryableTransaction::retryable($this->connection, function () use ($insert): ?OutboxEntry {
             $eventLogId = Uuid::fromHexToBytes($insert->webhookEventId);
 
             if ($this->hasDeliveryRow($insert->webhookEventId)) {
@@ -71,7 +74,7 @@ class WebhookOutboxStore
             }
 
             try {
-                $entry = $this->insertDeliveryAndStream($insert, $eventLogId, WebhookEventLogDefinition::STATUS_QUEUED);
+                $row = $this->insertDeliveryAndStream($insert, $eventLogId, WebhookEventLogDefinition::STATUS_QUEUED);
             } catch (UniqueConstraintViolationException) {
                 // Two workers racing the same backfill — first commit wins, drop the duplicate.
                 return null;
@@ -83,8 +86,14 @@ class WebhookOutboxStore
                 ['id' => $eventLogId]
             );
 
-            return $entry;
+            return $row;
         });
+
+        if ($entry !== null) {
+            $this->emitOutboxEntryPersistedMetrics($entry, false);
+        }
+
+        return $entry;
     }
 
     /**
@@ -106,44 +115,16 @@ class WebhookOutboxStore
      */
     public function fetchDue(string $partitionKey, array $statuses, int $budget): array
     {
-        $sql = <<<'SQL'
-            SELECT d.id, d.webhook_event_log_id, d.execution_count, d.delivery_status,
-                   el.serialized_webhook_message
-            FROM webhook_delivery d
-            JOIN webhook_event_log el ON el.id = d.webhook_event_log_id
-            WHERE d.partition_key = :pk
-              AND d.delivery_status IN (:statuses) AND (d.next_retry_at IS NULL OR d.next_retry_at <= :now)
-              AND el.delivery_status NOT IN (:successStatus, :failedStatus)
-            ORDER BY d.id ASC
-            LIMIT :budget
-            SQL;
-
-        $rows = $this->connection->fetchAllAssociative(
-            $sql,
-            [
-                'pk' => $partitionKey,
-                'now' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                'budget' => max(1, $budget),
-                'statuses' => $statuses,
-                'successStatus' => WebhookEventLogDefinition::STATUS_SUCCESS,
-                'failedStatus' => WebhookEventLogDefinition::STATUS_FAILED,
-            ],
-            [
-                'budget' => Types::INTEGER,
-                'statuses' => ArrayParameterType::STRING,
-            ]
-        );
-
-        return array_map(
-            static fn (array $row) => new OutboxEntry(
-                webhookEventId: Uuid::fromBytesToHex($row['webhook_event_log_id']),
-                sequence: (int) $row['id'],
-                executionCount: (int) $row['execution_count'],
-                deliveryStatus: (string) $row['delivery_status'],
-                serializedWebhookMessage: (string) $row['serialized_webhook_message'],
-            ),
-            $rows
-        );
+        $start = microtime(true);
+        try {
+            return $this->doFetchDue($partitionKey, $statuses, $budget);
+        } finally {
+            $elapsed = (microtime(true) - $start) * 1000;
+            $this->meter->emit(new ConfiguredMetric(
+                name: 'webhook.sql.fetch_due.duration',
+                value: $elapsed,
+            ));
+        }
     }
 
     public function hasDeliveryRow(string $eventLogId): bool
@@ -166,7 +147,12 @@ class WebhookOutboxStore
         $id = Uuid::fromHexToBytes($eventLogId);
         $nowFormatted = $now->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
-        $affected = RetryableTransaction::retryable($this->connection, function () use ($id, $now, $nowFormatted): int {
+        $captured = RetryableTransaction::retryable($this->connection, function () use ($id, $now, $nowFormatted): ?array {
+            $priorNextRetryAt = $this->connection->fetchOne(
+                'SELECT next_retry_at FROM webhook_delivery WHERE webhook_event_log_id = :id',
+                ['id' => $id]
+            );
+
             // EXISTS guards blue/green deployment drift: a trunk runner can flip event_log to FAILED without touching webhook_delivery.
             $affected = (int) $this->connection->executeStatement(
                 'UPDATE webhook_delivery
@@ -194,51 +180,75 @@ class WebhookOutboxStore
                 ]
             );
 
-            if ($affected > 0) {
-                $this->connection->executeStatement(
-                    'UPDATE webhook_event_log SET delivery_status = :status, timestamp = :ts WHERE id = :id',
-                    [
-                        'status' => WebhookEventLogDefinition::STATUS_RUNNING,
-                        'ts' => $now->getTimestamp(),
-                        'id' => $id,
-                    ]
-                );
+            if ($affected === 0) {
+                return null;
             }
 
-            return $affected;
+            $this->connection->executeStatement(
+                'UPDATE webhook_event_log SET delivery_status = :status, timestamp = :ts WHERE id = :id',
+                [
+                    'status' => WebhookEventLogDefinition::STATUS_RUNNING,
+                    'ts' => $now->getTimestamp(),
+                    'id' => $id,
+                ]
+            );
+
+            $row = $this->connection->fetchAssociative(
+                'SELECT d.execution_count, d.id, el.created_at AS event_log_created_at
+                 FROM webhook_delivery d
+                 JOIN webhook_event_log el ON el.id = d.webhook_event_log_id
+                 WHERE d.webhook_event_log_id = :id',
+                ['id' => $id]
+            );
+            \assert($row !== false);
+
+            return [
+                'sequence' => (int) $row['id'],
+                'executionCount' => (int) $row['execution_count'],
+                'retryDueAt' => $priorNextRetryAt !== false && $priorNextRetryAt !== null
+                    ? new \DateTimeImmutable((string) $priorNextRetryAt)
+                    : null,
+                'eventLogCreatedAt' => new \DateTimeImmutable((string) $row['event_log_created_at']),
+            ];
         });
 
-        if ($affected === 0) {
+        if ($captured === null) {
             return null;
         }
 
-        // Row was just updated inside the transaction; it must still exist here.
-        $row = $this->connection->fetchAssociative(
-            'SELECT execution_count, id FROM webhook_delivery WHERE webhook_event_log_id = :id',
-            ['id' => $id]
-        );
-        \assert($row !== false);
-
-        return new OutboxEntry(
+        $entry = new OutboxEntry(
             webhookEventId: $eventLogId,
-            sequence: (int) $row['id'],
-            executionCount: (int) $row['execution_count'],
+            sequence: $captured['sequence'],
+            executionCount: $captured['executionCount'],
             deliveryStatus: WebhookEventLogDefinition::STATUS_RUNNING,
+            eventLogCreatedAt: $captured['eventLogCreatedAt'],
+            retryDueAt: $captured['retryDueAt'],
         );
+
+        $this->emitAttemptClaimedMetrics($entry, $now);
+
+        return $entry;
     }
 
+    /**
+     * Returns true when the event-log CAS transitioned to SUCCESS — i.e. the row was
+     * still ours and not already in a terminal state. Callers gate side effects
+     * (`resetErrorCount`, drain-time metric) on this result.
+     */
     public function markSuccess(OutboxEntry $entry, ?DeliveryResponse $response): bool
     {
-        return RetryableTransaction::retryable($this->connection, function () use ($entry, $response): bool {
+        $transitioned = RetryableTransaction::retryable($this->connection, function () use ($entry, $response): bool {
             if (!$this->ownsRunningAttempt($entry)) {
                 return false;
             }
 
-            $this->updateEventLog($entry->webhookEventId, WebhookEventLogDefinition::STATUS_SUCCESS, $response);
+            $persisted = $this->updateEventLog($entry->webhookEventId, WebhookEventLogDefinition::STATUS_SUCCESS, $response);
             $this->deleteDelivery($entry->webhookEventId);
 
-            return true;
+            return $persisted;
         });
+
+        return $transitioned;
     }
 
     /**
@@ -298,18 +308,23 @@ class WebhookOutboxStore
         });
     }
 
+    /**
+     * Returns true when the event-log CAS transitioned to FAILED.
+     */
     public function markFailed(OutboxEntry $entry, ?DeliveryResponse $response): bool
     {
-        return RetryableTransaction::retryable($this->connection, function () use ($entry, $response): bool {
+        $transitioned = RetryableTransaction::retryable($this->connection, function () use ($entry, $response): bool {
             if (!$this->ownsRunningAttempt($entry)) {
                 return false;
             }
 
-            $this->updateEventLog($entry->webhookEventId, WebhookEventLogDefinition::STATUS_FAILED, $response);
+            $persisted = $this->updateEventLog($entry->webhookEventId, WebhookEventLogDefinition::STATUS_FAILED, $response);
             $this->deleteDelivery($entry->webhookEventId);
 
-            return true;
+            return $persisted;
         });
+
+        return $transitioned;
     }
 
     /**
@@ -407,10 +422,85 @@ class WebhookOutboxStore
 
     /**
      * Resets RUNNING rows in the partition with `last_attempt_at` older than
-     * `$staleAfterSeconds` back to PENDING_RETRY. Return value is the multi-table affected
-     * count; assertions should check row state, not the count.
+     * `$staleAfterSeconds` back to PENDING_RETRY. Returns the rescued row count and
+     * the oldest `last_attempt_at` captured before the UPDATE — feeds
+     * `webhook.sql.reset_running.rows` and `webhook.receiver.recovery_lag_seconds`.
      */
-    public function resetRunningForPartition(string $partitionKey, int $staleAfterSeconds): int
+    public function resetRunningForPartition(string $partitionKey, int $staleAfterSeconds): ResetRunningResult
+    {
+        $start = microtime(true);
+        try {
+            $result = $this->doResetRunningForPartition($partitionKey, $staleAfterSeconds);
+        } finally {
+            $elapsed = (microtime(true) - $start) * 1000;
+            $this->meter->emit(new ConfiguredMetric(
+                name: 'webhook.sql.reset_running.duration',
+                value: $elapsed,
+            ));
+        }
+
+        $this->meter->emit(new ConfiguredMetric(
+            name: 'webhook.sql.reset_running.rows',
+            value: $result->rescuedRows,
+        ));
+
+        return $result;
+    }
+
+    /**
+     * @param non-empty-list<WebhookEventLogDefinition::STATUS_QUEUED|WebhookEventLogDefinition::STATUS_PENDING_RETRY> $statuses
+     *
+     * @return list<OutboxEntry>
+     */
+    private function doFetchDue(string $partitionKey, array $statuses, int $budget): array
+    {
+        $sql = <<<'SQL'
+            SELECT d.id, d.webhook_event_log_id, d.execution_count, d.delivery_status,
+                   d.next_retry_at,
+                   el.serialized_webhook_message,
+                   el.created_at AS event_log_created_at
+            FROM webhook_delivery d
+            JOIN webhook_event_log el ON el.id = d.webhook_event_log_id
+            WHERE d.partition_key = :pk
+              AND d.delivery_status IN (:statuses) AND (d.next_retry_at IS NULL OR d.next_retry_at <= :now)
+              AND el.delivery_status NOT IN (:successStatus, :failedStatus)
+            ORDER BY d.id ASC
+            LIMIT :budget
+            SQL;
+
+        $rows = $this->connection->fetchAllAssociative(
+            $sql,
+            [
+                'pk' => $partitionKey,
+                'now' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'budget' => max(1, $budget),
+                'statuses' => $statuses,
+                'successStatus' => WebhookEventLogDefinition::STATUS_SUCCESS,
+                'failedStatus' => WebhookEventLogDefinition::STATUS_FAILED,
+            ],
+            [
+                'budget' => Types::INTEGER,
+                'statuses' => ArrayParameterType::STRING,
+            ]
+        );
+
+        return array_map(
+            static fn (array $row) => new OutboxEntry(
+                webhookEventId: Uuid::fromBytesToHex($row['webhook_event_log_id']),
+                sequence: (int) $row['id'],
+                executionCount: (int) $row['execution_count'],
+                deliveryStatus: (string) $row['delivery_status'],
+                serializedWebhookMessage: (string) $row['serialized_webhook_message'],
+                eventLogCreatedAt: new \DateTimeImmutable((string) $row['event_log_created_at']),
+                retryDueAt: $row['next_retry_at'] !== null
+                    ? new \DateTimeImmutable((string) $row['next_retry_at'])
+                    : null,
+            ),
+            $rows
+        );
+    }
+
+    private function doResetRunningForPartition(string $partitionKey, int $staleAfterSeconds): ResetRunningResult
     {
         $now = $this->clock->now();
         $nowFormatted = $now->format(Defaults::STORAGE_DATE_TIME_FORMAT);
@@ -424,29 +514,57 @@ class WebhookOutboxStore
         // consecutive-deadlock fuse.
         return RetryableTransaction::retryable(
             $this->connection,
-            fn (): int => (int) $this->connection->executeStatement(
-                'UPDATE webhook_delivery d
-                 JOIN webhook_event_log el ON el.id = d.webhook_event_log_id
-                 SET d.delivery_status = :new,
-                     d.next_retry_at   = :now,
-                     d.updated_at      = :now,
-                     el.delivery_status = :new,
-                     el.timestamp       = :ts
-	                 WHERE d.partition_key = :pk
-	                   AND d.delivery_status = :old
-	                   AND d.last_attempt_at <= :cutoff
-	                   AND el.delivery_status NOT IN (:successStatus, :failedStatus)',
-                [
-                    'old' => WebhookEventLogDefinition::STATUS_RUNNING,
-                    'new' => WebhookEventLogDefinition::STATUS_PENDING_RETRY,
-                    'now' => $nowFormatted,
-                    'ts' => $now->getTimestamp(),
-                    'pk' => $partitionKey,
-                    'cutoff' => $cutoff,
-                    'successStatus' => WebhookEventLogDefinition::STATUS_SUCCESS,
-                    'failedStatus' => WebhookEventLogDefinition::STATUS_FAILED,
-                ]
-            )
+            function () use ($partitionKey, $cutoff, $nowFormatted, $now): ResetRunningResult {
+                // Snapshot count + oldest timestamp under the same predicate so the
+                // metric values match the rows the multi-table UPDATE rescues.
+                $stats = $this->connection->fetchAssociative(
+                    'SELECT COUNT(*) AS c, MIN(d.last_attempt_at) AS oldest
+                     FROM webhook_delivery d
+                     JOIN webhook_event_log el ON el.id = d.webhook_event_log_id
+                     WHERE d.partition_key = :pk
+                       AND d.delivery_status = :running
+                       AND d.last_attempt_at <= :cutoff
+                       AND el.delivery_status NOT IN (:successStatus, :failedStatus)',
+                    [
+                        'pk' => $partitionKey,
+                        'running' => WebhookEventLogDefinition::STATUS_RUNNING,
+                        'cutoff' => $cutoff,
+                        'successStatus' => WebhookEventLogDefinition::STATUS_SUCCESS,
+                        'failedStatus' => WebhookEventLogDefinition::STATUS_FAILED,
+                    ]
+                );
+
+                $this->connection->executeStatement(
+                    'UPDATE webhook_delivery d
+                     JOIN webhook_event_log el ON el.id = d.webhook_event_log_id
+                     SET d.delivery_status = :new,
+                         d.next_retry_at   = :now,
+                         d.updated_at      = :now,
+                         el.delivery_status = :new,
+                         el.timestamp       = :ts
+                     WHERE d.partition_key = :pk
+                       AND d.delivery_status = :old
+                       AND d.last_attempt_at <= :cutoff
+                       AND el.delivery_status NOT IN (:successStatus, :failedStatus)',
+                    [
+                        'old' => WebhookEventLogDefinition::STATUS_RUNNING,
+                        'new' => WebhookEventLogDefinition::STATUS_PENDING_RETRY,
+                        'now' => $nowFormatted,
+                        'ts' => $now->getTimestamp(),
+                        'pk' => $partitionKey,
+                        'cutoff' => $cutoff,
+                        'successStatus' => WebhookEventLogDefinition::STATUS_SUCCESS,
+                        'failedStatus' => WebhookEventLogDefinition::STATUS_FAILED,
+                    ]
+                );
+
+                return new ResetRunningResult(
+                    rescuedRows: $stats !== false ? (int) $stats['c'] : 0,
+                    oldestLastAttemptAt: $stats !== false && $stats['oldest'] !== null
+                        ? new \DateTimeImmutable((string) $stats['oldest'])
+                        : null,
+                );
+            }
         );
     }
 
@@ -456,7 +574,7 @@ class WebhookOutboxStore
     private function recordOutboxEntryWithStatus(OutboxInsert $insert, string $initialStatus): ?OutboxEntry
     {
         // an old message before the rework, would have only an event_log record. We need to handle that gracefully.
-        return RetryableTransaction::retryable($this->connection, function () use ($insert, $initialStatus): ?OutboxEntry {
+        $entry = RetryableTransaction::retryable($this->connection, function () use ($insert, $initialStatus): ?OutboxEntry {
             $eventLogId = Uuid::fromHexToBytes($insert->webhookEventId);
 
             try {
@@ -471,6 +589,14 @@ class WebhookOutboxStore
 
             return $this->insertDeliveryAndStream($insert, $eventLogId, $initialStatus);
         });
+
+        if ($entry === null) {
+            return null;
+        }
+
+        $this->emitOutboxEntryPersistedMetrics($entry, $initialStatus === WebhookEventLogDefinition::STATUS_RUNNING);
+
+        return $entry;
     }
 
     private function insertDeliveryAndStream(OutboxInsert $insert, string $eventLogId, string $initialStatus): OutboxEntry
@@ -516,7 +642,51 @@ class WebhookOutboxStore
             sequence: $sequence,
             executionCount: $executionCount,
             deliveryStatus: $initialStatus,
+            eventLogCreatedAt: \DateTimeImmutable::createFromInterface($now),
         );
+    }
+
+    private function emitOutboxEntryPersistedMetrics(OutboxEntry $entry, bool $createdAsRunningAttempt): void
+    {
+        $this->meter->emit(new ConfiguredMetric(
+            name: 'webhook.outbox.enqueued.total',
+            value: 1,
+        ));
+
+        if (!$createdAsRunningAttempt) {
+            return;
+        }
+
+        $now = $this->clock->now();
+        $eventLogCreatedAt = $entry->eventLogCreatedAt;
+        $firstAttemptLag = max(0, $now->getTimestamp() - $eventLogCreatedAt->getTimestamp());
+        $this->meter->emit(new ConfiguredMetric(
+            name: 'webhook.delivery.time_to_first_attempt_seconds',
+            value: $firstAttemptLag,
+        ));
+    }
+
+    private function emitAttemptClaimedMetrics(OutboxEntry $entry, \DateTimeImmutable $now): void
+    {
+        if ($entry->executionCount === 1) {
+            $eventLogCreatedAt = $entry->eventLogCreatedAt;
+            $firstAttemptLag = max(0, $now->getTimestamp() - $eventLogCreatedAt->getTimestamp());
+            $this->meter->emit(new ConfiguredMetric(
+                name: 'webhook.delivery.time_to_first_attempt_seconds',
+                value: $firstAttemptLag,
+            ));
+        }
+
+        if ($entry->retryDueAt === null || $entry->retryDueAt > $now) {
+            return;
+        }
+
+        $retryDueAt = $entry->retryDueAt;
+        $retryLag = max(0, $now->getTimestamp() - $retryDueAt->getTimestamp());
+        $this->meter->emit(new ConfiguredMetric(
+            name: 'webhook.delivery.retry.due_lag_seconds',
+            value: $retryLag,
+        ));
     }
 
     /**

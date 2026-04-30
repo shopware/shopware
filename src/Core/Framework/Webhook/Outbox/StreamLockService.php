@@ -8,6 +8,8 @@ use Doctrine\DBAL\ParameterType;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Telemetry\Metrics\Meter;
+use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 
 /**
@@ -23,6 +25,7 @@ class StreamLockService
     public function __construct(
         private readonly Connection $connection,
         private readonly ClockInterface $clock,
+        private readonly Meter $meter,
     ) {
     }
 
@@ -35,74 +38,16 @@ class StreamLockService
      */
     public function claimNext(string $workerId, int $leaseSeconds, array $statuses): ?StreamLease
     {
-        return $this->connection->transactional(function () use ($workerId, $leaseSeconds, $statuses): ?StreamLease {
-            $now = $this->clock->now();
-            $nowFormatted = $now->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-            $staleCutoff = $now->modify(\sprintf('-%d seconds', $leaseSeconds))->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-
-            // Two ways a partition is claimable: it has a due QUEUED/PENDING_RETRY row, OR
-            // it has a stale RUNNING row left behind by a crashed worker. Without the second
-            // branch, the last row on a partition can strand indefinitely when its owner
-            // dies before transitioning it.
-            //
-            // SKIP LOCKED returns empty on contention; caller retries on next tick.
-            $sql = <<<'SQL'
-                SELECT s.partition_key FROM webhook_stream s
-                WHERE (s.locked_by IS NULL OR s.lock_expires_at <= :now)
-                  AND EXISTS (
-                      SELECT 1 FROM webhook_delivery d
-                      JOIN webhook_event_log el ON el.id = d.webhook_event_log_id
-                      WHERE d.partition_key = s.partition_key
-                        AND el.delivery_status NOT IN (:successStatus, :failedStatus)
-                        AND (
-                            (d.delivery_status IN (:statuses) AND (d.next_retry_at IS NULL OR d.next_retry_at <= :now))
-                            OR (d.delivery_status = :running AND d.last_attempt_at <= :staleCutoff)
-                        )
-                  )
-                ORDER BY s.last_claimed_at ASC, s.partition_key ASC
-                LIMIT 1
-                FOR UPDATE SKIP LOCKED
-                SQL;
-
-            $row = $this->connection->fetchAssociative(
-                $sql,
-                [
-                    'now' => $nowFormatted,
-                    'statuses' => $statuses,
-                    'running' => WebhookEventLogDefinition::STATUS_RUNNING,
-                    'staleCutoff' => $staleCutoff,
-                    'successStatus' => WebhookEventLogDefinition::STATUS_SUCCESS,
-                    'failedStatus' => WebhookEventLogDefinition::STATUS_FAILED,
-                ],
-                [
-                    'statuses' => ArrayParameterType::STRING,
-                ]
-            );
-
-            if ($row === false) {
-                return null;
-            }
-
-            $partitionKey = $row['partition_key'];
-            $expiresAt = $now->modify(\sprintf('+%d seconds', $leaseSeconds));
-
-            $this->connection->executeStatement(
-                'UPDATE webhook_stream SET locked_by = :workerId, lock_expires_at = :expiresAt, last_claimed_at = :now WHERE partition_key = :pk',
-                [
-                    'workerId' => $workerId,
-                    'expiresAt' => $expiresAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                    'now' => $nowFormatted,
-                    'pk' => $partitionKey,
-                ]
-            );
-
-            return new StreamLease(
-                partitionKey: $partitionKey,
-                workerId: $workerId,
-                acquiredAt: \DateTimeImmutable::createFromInterface($now),
-                expiresAt: \DateTimeImmutable::createFromInterface($expiresAt),
-            );
-        });
+        $start = microtime(true);
+        try {
+            return $this->doClaimNext($workerId, $leaseSeconds, $statuses);
+        } finally {
+            $elapsed = (microtime(true) - $start) * 1000;
+            $this->meter->emit(new ConfiguredMetric(
+                name: 'webhook.sql.claim_next.duration',
+                value: $elapsed,
+            ));
+        }
     }
 
     /**
@@ -207,5 +152,80 @@ class StreamLockService
                 'limit' => ParameterType::INTEGER,
             ]
         );
+    }
+
+    /**
+     * @param non-empty-list<WebhookEventLogDefinition::STATUS_QUEUED|WebhookEventLogDefinition::STATUS_PENDING_RETRY> $statuses
+     */
+    private function doClaimNext(string $workerId, int $leaseSeconds, array $statuses): ?StreamLease
+    {
+        return $this->connection->transactional(function () use ($workerId, $leaseSeconds, $statuses): ?StreamLease {
+            $now = $this->clock->now();
+            $nowFormatted = $now->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+            $staleCutoff = $now->modify(\sprintf('-%d seconds', $leaseSeconds))->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+
+            // Two ways a partition is claimable: it has a due QUEUED/PENDING_RETRY row, OR
+            // it has a stale RUNNING row left behind by a crashed worker. Without the second
+            // branch, the last row on a partition can strand indefinitely when its owner
+            // dies before transitioning it.
+            //
+            // SKIP LOCKED returns empty on contention; caller retries on next tick.
+            $sql = <<<'SQL'
+                SELECT s.partition_key FROM webhook_stream s
+                WHERE (s.locked_by IS NULL OR s.lock_expires_at <= :now)
+                  AND EXISTS (
+                      SELECT 1 FROM webhook_delivery d
+                      JOIN webhook_event_log el ON el.id = d.webhook_event_log_id
+                      WHERE d.partition_key = s.partition_key
+                        AND el.delivery_status NOT IN (:successStatus, :failedStatus)
+                        AND (
+                            (d.delivery_status IN (:statuses) AND (d.next_retry_at IS NULL OR d.next_retry_at <= :now))
+                            OR (d.delivery_status = :running AND d.last_attempt_at <= :staleCutoff)
+                        )
+                  )
+                ORDER BY s.last_claimed_at ASC, s.partition_key ASC
+                LIMIT 1
+                FOR UPDATE SKIP LOCKED
+                SQL;
+
+            $row = $this->connection->fetchAssociative(
+                $sql,
+                [
+                    'now' => $nowFormatted,
+                    'statuses' => $statuses,
+                    'running' => WebhookEventLogDefinition::STATUS_RUNNING,
+                    'staleCutoff' => $staleCutoff,
+                    'successStatus' => WebhookEventLogDefinition::STATUS_SUCCESS,
+                    'failedStatus' => WebhookEventLogDefinition::STATUS_FAILED,
+                ],
+                [
+                    'statuses' => ArrayParameterType::STRING,
+                ]
+            );
+
+            if ($row === false) {
+                return null;
+            }
+
+            $partitionKey = $row['partition_key'];
+            $expiresAt = $now->modify(\sprintf('+%d seconds', $leaseSeconds));
+
+            $this->connection->executeStatement(
+                'UPDATE webhook_stream SET locked_by = :workerId, lock_expires_at = :expiresAt, last_claimed_at = :now WHERE partition_key = :pk',
+                [
+                    'workerId' => $workerId,
+                    'expiresAt' => $expiresAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'now' => $nowFormatted,
+                    'pk' => $partitionKey,
+                ]
+            );
+
+            return new StreamLease(
+                partitionKey: $partitionKey,
+                workerId: $workerId,
+                acquiredAt: \DateTimeImmutable::createFromInterface($now),
+                expiresAt: \DateTimeImmutable::createFromInterface($expiresAt),
+            );
+        });
     }
 }

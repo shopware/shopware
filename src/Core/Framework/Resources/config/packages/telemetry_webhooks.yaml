@@ -1,0 +1,167 @@
+shopware:
+    telemetry:
+        metrics:
+            definitions:
+                webhook.dispatch.source_event.total:
+                    description: 'Source events that produced webhook messages; provides the dispatch baseline for fan-out and enqueue health.'
+                    enabled: true
+                    type: 'counter'
+
+                webhook.outbox.enqueued.total:
+                    description: 'Webhook delivery outbox rows persisted; detects fan-out enqueue failures before workers run.'
+                    enabled: true
+                    type: 'counter'
+
+                webhook.delivery.attempt.total:
+                    description: 'HTTP delivery attempts by kind; tracks throughput and retry pressure.'
+                    enabled: true
+                    type: 'counter'
+                    labels:
+                        kind:
+                            allowed_values: ['first_attempt', 'retry']
+
+                webhook.delivery.total:
+                    description: 'Persisted webhook delivery outcomes by status; tracks success rate, retry pressure, and exhausted failures.'
+                    enabled: true
+                    type: 'counter'
+                    labels:
+                        status:
+                            allowed_values: ['success', 'failed', 'pending_retry']
+
+                webhook.delivery.drop.total:
+                    description: 'Unreadable delivery rows dropped before send; alerts on serialization or outbox data corruption.'
+                    enabled: true
+                    type: 'counter'
+                    labels:
+                        reason:
+                            allowed_values: ['unserialize_error', 'class_mismatch', 'event_id_mismatch']
+
+                webhook.receiver.deadlock.total:
+                    description: 'Receiver-visible retryable DB contention events; detects locks blocking webhook polling.'
+                    enabled: true
+                    type: 'counter'
+
+                webhook.cleanup.deleted.total:
+                    description: 'Webhook cleanup records deleted by category; confirms retention cleanup and orphan removal.'
+                    enabled: true
+                    type: 'counter'
+                    labels:
+                        kind:
+                            allowed_values: ['success_failed', 'queued_no_delivery', 'orphaned_streams']
+
+                webhook.dispatch.fanout.count:
+                    description: 'Webhook deliveries created per source event; detects fan-out spikes before outbox pressure builds.'
+                    enabled: true
+                    type: 'histogram'
+
+                webhook.delivery.duration:
+                    description: 'HTTP delivery attempt latency in milliseconds by outcome; identifies slow endpoints and error-specific tails.'
+                    enabled: true
+                    type: 'histogram'
+                    unit: 'millisecond'
+                    parameters:
+                        buckets: [50, 100, 250, 500, 1000, 2000, 5000, 10000, 20000]
+                    labels:
+                        outcome:
+                            allowed_values: ['success', 'client_error', 'server_error', 'network_error']
+
+                webhook.delivery.time_to_first_attempt_seconds:
+                    description: 'Time from webhook event persistence to first HTTP attempt; detects queue and worker capacity delays.'
+                    enabled: true
+                    type: 'histogram'
+                    unit: 'second'
+                    parameters:
+                        buckets: [0, 1, 2, 5, 10, 30, 60, 120, 300, 900]
+
+                webhook.delivery.time_to_drain_seconds:
+                    description: 'Time from event persistence to terminal delivery status; tracks end-to-end drain latency by status.'
+                    enabled: true
+                    type: 'histogram'
+                    unit: 'second'
+                    parameters:
+                        buckets: [0, 1, 2, 5, 10, 30, 60, 300, 600, 1800, 3600, 14400, 21600]
+                    labels:
+                        status:
+                            allowed_values: ['success', 'failed']
+
+                webhook.delivery.retry.due_lag_seconds:
+                    description: 'Delay between scheduled retry time and actual retry claim; detects retry backlog.'
+                    enabled: true
+                    type: 'histogram'
+                    unit: 'second'
+                    parameters:
+                        buckets: [0, 1, 2, 5, 10, 30, 60, 300]
+
+                webhook.receiver.recovery_lag_seconds:
+                    description: 'Stale RUNNING delivery age at recovery; detects stalled workers and recovery backlog.'
+                    enabled: true
+                    type: 'histogram'
+                    unit: 'second'
+                    parameters:
+                        buckets: [240, 300, 480, 900, 1800, 3600]
+
+                webhook.sql.fetch_due.duration:
+                    description: 'Due outbox row fetch latency; detects index regressions, partition skew, and backlog pressure.'
+                    enabled: true
+                    type: 'histogram'
+                    unit: 'millisecond'
+                    parameters:
+                        buckets: [0.25, 0.5, 1, 2, 5, 10, 25, 50, 100, 250, 500]
+
+                webhook.sql.claim_next.duration:
+                    description: 'Partition claim latency; detects worker contention and stream table or index regressions.'
+                    enabled: true
+                    type: 'histogram'
+                    unit: 'millisecond'
+                    parameters:
+                        buckets: [0.25, 0.5, 1, 2, 5, 10, 25, 50, 100, 250, 500]
+
+                webhook.sql.reset_running.duration:
+                    description: 'Stale RUNNING recovery duration per partition; detects lock contention, skew, and cleanup cost.'
+                    enabled: true
+                    type: 'histogram'
+                    unit: 'millisecond'
+                    parameters:
+                        buckets: [1, 2.5, 5, 10, 25, 50, 100, 250, 500, 1000, 2500]
+
+                webhook.sql.reset_running.rows:
+                    description: 'RUNNING rows rescued per crash-recovery pass; detects worker failures leaving deliveries in flight.'
+                    enabled: true
+                    type: 'histogram'
+                    parameters:
+                        buckets: [0, 1, 2, 5, 10, 25, 50, 100, 250]
+
+                webhook.queue.rows:
+                    description: 'Current outbox rows by status; detects backlog growth and stuck in-flight work.'
+                    enabled: true
+                    type: 'gauge'
+                    labels:
+                        status:
+                            allowed_values: ['queued', 'pending_retry', 'running']
+
+                webhook.queue.oldest_age_seconds:
+                    description: 'Oldest queued, retry-due, or running delivery age by status; tracks backlog latency and stuck work.'
+                    enabled: true
+                    type: 'gauge'
+                    unit: 'second'
+                    labels:
+                        status:
+                            allowed_values: ['queued', 'pending_retry', 'running']
+
+                webhook.stream.stale.rows:
+                    description: 'Expired stream leases still marked owned; detects stalled workers blocking partition progress.'
+                    enabled: true
+                    type: 'gauge'
+
+                webhook.stream.lease_lost.total:
+                    description: 'Stream leases lost while held by a worker; detects expired or stolen partition ownership.'
+                    enabled: true
+                    type: 'counter'
+
+                webhook.audit.stuck_inflight.rows:
+                    description: 'Outstanding delivery rows older than each age bucket; detects stalled or silently lost webhook work.'
+                    enabled: true
+                    type: 'gauge'
+                    labels:
+                        age_bucket:
+                            allowed_values: ['15m', '1h', '24h']

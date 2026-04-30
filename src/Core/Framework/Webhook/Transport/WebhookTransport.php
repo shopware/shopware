@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxInsert;
 use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
 use Shopware\Core\Framework\Webhook\WebhookException;
+use Shopware\Core\Profiling\Profiler;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Exception\TransportException;
 use Symfony\Component\Messenger\Transport\Receiver\KeepaliveReceiverInterface;
@@ -58,7 +59,7 @@ class WebhookTransport implements TransportInterface, KeepaliveReceiverInterface
             return [];
         }
 
-        return $this->receiver->get();
+        return $this->profiledReceiverGet();
     }
 
     public function ack(Envelope $envelope): void
@@ -85,5 +86,18 @@ class WebhookTransport implements TransportInterface, KeepaliveReceiverInterface
     private function outboxOwnsLifecycle(): bool
     {
         return Feature::isActive('WEBHOOKS_REWORK');
+    }
+
+    /**
+     * @return \Generator<Envelope>
+     */
+    private function profiledReceiverGet(): \Generator
+    {
+        Profiler::start('webhook::transport.get', 'webhook', []);
+        try {
+            yield from $this->receiver->get();
+        } finally {
+            Profiler::stop('webhook::transport.get');
+        }
     }
 }

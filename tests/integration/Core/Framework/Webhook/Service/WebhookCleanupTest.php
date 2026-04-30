@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Webhook\Service;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -31,7 +32,7 @@ class WebhookCleanupTest extends TestCase
         ]);
         $mockedDate = new \DateTimeImmutable('2 January 2023 13:00');
         $streamLockService = static::getContainer()->get(StreamLockService::class);
-        $cleanup = new WebhookCleanup($systemConfigService, $this->connection, $streamLockService, new MockClock($mockedDate));
+        $cleanup = new WebhookCleanup($systemConfigService, $this->connection, $streamLockService, static::getContainer()->get(Meter::class), new MockClock($mockedDate));
 
         $this->connection->executeStatement('DELETE FROM webhook_event_log');
 
@@ -114,7 +115,7 @@ class WebhookCleanupTest extends TestCase
             'created_at' => $mockedDate->modify('-2 hours')->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
-        $cleanup = new WebhookCleanup($systemConfigService, $this->connection, $streamLockService, $clock);
+        $cleanup = new WebhookCleanup($systemConfigService, $this->connection, $streamLockService, static::getContainer()->get(Meter::class), $clock);
         $cleanup->removeOldLogs();
 
         static::assertFalse(
@@ -173,7 +174,7 @@ class WebhookCleanupTest extends TestCase
             'created_at' => $oldQueuedAt,
         ]);
 
-        $cleanup = new WebhookCleanup($systemConfigService, $this->connection, $streamLockService, new MockClock($mockedDate));
+        $cleanup = new WebhookCleanup($systemConfigService, $this->connection, $streamLockService, static::getContainer()->get(Meter::class), new MockClock($mockedDate));
         $cleanup->removeOldLogs();
 
         static::assertTrue(

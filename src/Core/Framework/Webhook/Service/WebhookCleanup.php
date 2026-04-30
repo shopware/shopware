@@ -8,8 +8,13 @@ use Doctrine\DBAL\Types\Types;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Telemetry\Metrics\Meter;
+use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Outbox\StreamLockService;
+use Shopware\Core\Framework\Webhook\Telemetry\WebhookCleanupKind;
+use Shopware\Core\Framework\Webhook\Telemetry\WebhookMetricLabel;
+use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Clock\NativeClock;
 
@@ -28,6 +33,7 @@ class WebhookCleanup
         private readonly SystemConfigService $systemConfigService,
         private readonly Connection $connection,
         private readonly StreamLockService $streamLockService,
+        private readonly Meter $meter,
         private readonly ClockInterface $clock = new NativeClock(),
     ) {
     }
@@ -40,31 +46,49 @@ class WebhookCleanup
             return;
         }
 
-        // Delete older webhook log entries where the webhook won't be called anymore
-        $this->deleteLogsOlderThanWithStatus($entryLifetimeSeconds, WebhookEventLogDefinition::STATUS_SUCCESS, WebhookEventLogDefinition::STATUS_FAILED);
-        // after double the entry lifetime, we also delete queued entries,
-        // because we assume they are stuck in queued state (as we rely on message retry to retry failed webhooks)
-        $this->deleteQueuedLogsWithoutDeliveryOlderThan($entryLifetimeSeconds * 2);
+        Profiler::trace(
+            'webhook::cleanup',
+            function () use ($entryLifetimeSeconds): void {
+                // Delete older webhook log entries where the webhook won't be called anymore
+                $this->emitCleanupDeleted(
+                    WebhookCleanupKind::SUCCESS_FAILED,
+                    $this->deleteLogsOlderThanWithStatus($entryLifetimeSeconds, WebhookEventLogDefinition::STATUS_SUCCESS, WebhookEventLogDefinition::STATUS_FAILED)
+                );
 
-        $this->removeOrphanedStreams();
+                // after double the entry lifetime, we also delete queued entries,
+                // because we assume they are stuck in queued state (as we rely on message retry to retry failed webhooks)
+                $this->emitCleanupDeleted(
+                    WebhookCleanupKind::QUEUED_NO_DELIVERY,
+                    $this->deleteQueuedLogsWithoutDeliveryOlderThan($entryLifetimeSeconds * 2)
+                );
+
+                $this->emitCleanupDeleted(WebhookCleanupKind::ORPHANED_STREAMS, $this->removeOrphanedStreams());
+            },
+            'webhook',
+        );
     }
 
-    private function removeOrphanedStreams(): void
+    private function removeOrphanedStreams(): int
     {
+        $total = 0;
         do {
             $deleted = $this->streamLockService->deleteOrphanedStreams(self::BATCH_SIZE);
+            $total += $deleted;
         } while ($deleted === self::BATCH_SIZE);
+
+        return $total;
     }
 
-    private function deleteLogsOlderThanWithStatus(int $entryLifetimeSeconds, string ...$status): void
+    private function deleteLogsOlderThanWithStatus(int $entryLifetimeSeconds, string ...$status): int
     {
         $deleteBefore = $this->clock
             ->now()
             ->modify("- $entryLifetimeSeconds seconds")
             ->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
+        $total = 0;
         do {
-            $deleted = $this->connection->executeStatement(
+            $deleted = (int) $this->connection->executeStatement(
                 'DELETE FROM `webhook_event_log` WHERE `created_at` < :before AND `delivery_status` IN (:status) LIMIT :limit',
                 [
                     'before' => $deleteBefore,
@@ -76,18 +100,22 @@ class WebhookCleanup
                     'status' => ArrayParameterType::STRING,
                 ]
             );
+            $total += $deleted;
         } while ($deleted === self::BATCH_SIZE);
+
+        return $total;
     }
 
-    private function deleteQueuedLogsWithoutDeliveryOlderThan(int $entryLifetimeSeconds): void
+    private function deleteQueuedLogsWithoutDeliveryOlderThan(int $entryLifetimeSeconds): int
     {
         $deleteBefore = $this->clock
             ->now()
             ->modify("- $entryLifetimeSeconds seconds")
             ->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
+        $total = 0;
         do {
-            $deleted = $this->connection->executeStatement(
+            $deleted = (int) $this->connection->executeStatement(
                 'DELETE FROM `webhook_event_log`
                  WHERE `created_at` < :before
                    AND `delivery_status` = :status
@@ -106,6 +134,22 @@ class WebhookCleanup
                     'limit' => Types::INTEGER,
                 ]
             );
+            $total += $deleted;
         } while ($deleted === self::BATCH_SIZE);
+
+        return $total;
+    }
+
+    private function emitCleanupDeleted(WebhookCleanupKind $kind, int $deletedCount): void
+    {
+        if ($deletedCount === 0) {
+            return;
+        }
+
+        $this->meter->emit(new ConfiguredMetric(
+            name: 'webhook.cleanup.deleted.total',
+            value: $deletedCount,
+            labels: [WebhookMetricLabel::KIND->value => $kind->value],
+        ));
     }
 }

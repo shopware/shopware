@@ -17,7 +17,9 @@ final readonly class OutboxEntry
         public int $sequence,
         public int $executionCount,
         public string $deliveryStatus,
+        public \DateTimeImmutable $eventLogCreatedAt,
         public ?string $serializedWebhookMessage = null,
+        public ?\DateTimeImmutable $retryDueAt = null,
     ) {
     }
 }

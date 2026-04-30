@@ -470,8 +470,8 @@ class DownloadServiceTest extends TestCase
             $fileRepository,
             $logger,
             $localDownloadStrategy,
-            $localPathPrefix,
             $rateLimiter,
+            $localPathPrefix,
         );
     }
 

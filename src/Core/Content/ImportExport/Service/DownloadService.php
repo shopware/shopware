@@ -40,8 +40,8 @@ class DownloadService
         private readonly EntityRepository $fileRepository,
         private readonly LoggerInterface $logger,
         private readonly string $localDownloadStrategy,
-        private readonly string $localPathPrefix,
         private readonly RateLimiter $rateLimiter,
+        private readonly string $localPathPrefix = '',
     ) {
     }
 

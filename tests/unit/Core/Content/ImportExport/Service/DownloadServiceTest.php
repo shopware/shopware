@@ -13,12 +13,15 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Exception\FileNotFoundException;
 use Shopware\Core\Content\ImportExport\Exception\InvalidFileAccessTokenException;
+use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\Service\DownloadService;
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
+use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Test\TestCaseHelper\AssertResponseHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -348,6 +351,67 @@ class DownloadServiceTest extends TestCase
         ];
     }
 
+    public function testRateLimitExceededThrowsThrottledException(): void
+    {
+        $fileEntity = $this->createValidFileEntity();
+
+        /** @var StaticEntityRepository<EntityCollection<ImportExportFileEntity>> $fileRepository */
+        $fileRepository = new StaticEntityRepository([new EntityCollection([$fileEntity])]);
+
+        $rateLimiter = $this->createMock(RateLimiter::class);
+        $rateLimiter->expects($this->once())
+            ->method('ensureAccepted')
+            ->with(RateLimiter::IMPORT_EXPORT_FILE_DOWNLOAD, $fileEntity->getId() . '-127.0.0.1')
+            ->willThrowException(new RateLimitExceededException(time() + 30));
+
+        $rateLimiter->expects($this->never())->method('reset');
+
+        $downloadService = $this->createDownloadService(fileRepository: $fileRepository, rateLimiter: $rateLimiter);
+
+        static::expectExceptionObject(ImportExportException::fileDownloadThrottledException(30));
+
+        $downloadService->createFileResponse(
+            Context::createDefaultContext(),
+            $fileEntity->getId(),
+            'wrong-token',
+            '127.0.0.1'
+        );
+    }
+
+    public function testRateLimiterResetOnSuccess(): void
+    {
+        $fileEntity = $this->createValidFileEntity();
+
+        /** @var StaticEntityRepository<EntityCollection<ImportExportFileEntity>> $fileRepository */
+        $fileRepository = new StaticEntityRepository([new EntityCollection([$fileEntity]), new EntityCollection([$fileEntity])]);
+
+        $rateLimiter = $this->createMock(RateLimiter::class);
+        $rateLimiter->expects($this->once())
+            ->method('ensureAccepted')
+            ->with(RateLimiter::IMPORT_EXPORT_FILE_DOWNLOAD, $fileEntity->getId() . '-127.0.0.1');
+        $rateLimiter->expects($this->once())
+            ->method('reset')
+            ->with(RateLimiter::IMPORT_EXPORT_FILE_DOWNLOAD, $fileEntity->getId() . '-127.0.0.1');
+
+        $filesystem = $this->createFileSystem();
+        $filesystem->method('temporaryUrl')->willThrowException(new UnableToGenerateTemporaryUrl('reason', '/path'));
+        $filesystem->method('readStream')->willReturn(fopen('php://memory', 'rb'));
+        $filesystem->method('fileSize')->willReturn(0);
+
+        $downloadService = $this->createDownloadService(
+            fileSystem: $filesystem,
+            fileRepository: $fileRepository,
+            rateLimiter: $rateLimiter,
+        );
+
+        $downloadService->createFileResponse(
+            Context::createDefaultContext(),
+            $fileEntity->getId(),
+            'valid-token',
+            '127.0.0.1'
+        );
+    }
+
     private static function createExpectedResponse(?string $strategy = null, string $localPathPrefix = ''): Response
     {
         $headers = [
@@ -393,11 +457,13 @@ class DownloadServiceTest extends TestCase
         ?EntityRepository $fileRepository = null,
         ?LoggerInterface $logger = null,
         string $localDownloadStrategy = self::DEFAULT_STRATEGY,
-        string $localPathPrefix = ''
+        string $localPathPrefix = '',
+        ?RateLimiter $rateLimiter = null,
     ): DownloadService {
         $fileSystem ??= $this->createFileSystem();
         $fileRepository ??= $this->createFileRepository();
         $logger ??= static::createStub(LoggerInterface::class);
+        $rateLimiter ??= $this->createMock(RateLimiter::class);
 
         return new DownloadService(
             $fileSystem,
@@ -405,7 +471,20 @@ class DownloadServiceTest extends TestCase
             $logger,
             $localDownloadStrategy,
             $localPathPrefix,
+            $rateLimiter,
         );
+    }
+
+    private function createValidFileEntity(): ImportExportFileEntity
+    {
+        $entity = new ImportExportFileEntity();
+        $entity->setId(Uuid::randomHex());
+        $entity->setAccessToken('valid-token');
+        $entity->setUpdatedAt(new \DateTimeImmutable());
+        $entity->setOriginalName('test.csv');
+        $entity->setPath('/path/to/file.csv');
+
+        return $entity;
     }
 
     /**

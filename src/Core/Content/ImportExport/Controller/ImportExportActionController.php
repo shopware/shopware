@@ -137,7 +137,12 @@ class ImportExportActionController extends AbstractController
         $definition->add('accessToken', new NotBlank(), new Type('string'));
         $this->dataValidator->validate($params, $definition);
 
-        return $this->downloadService->createFileResponse($context, $params['fileId'], $params['accessToken']);
+        return $this->downloadService->createFileResponse(
+            $context,
+            $params['fileId'],
+            $params['accessToken'],
+            (string) $request->getClientIp()
+        );
     }
 
     #[Route(path: '/api/_action/import-export/cancel', name: 'api.action.import_export.cancel', methods: ['POST'])]

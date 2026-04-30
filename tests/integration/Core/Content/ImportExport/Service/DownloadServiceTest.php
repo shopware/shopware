@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -154,7 +155,9 @@ class DownloadServiceTest extends TestCase
             $fileSystem,
             $fileRepository,
             $this->createMock(LoggerInterface::class),
-            self::DEFAULT_STRATEGY
+            self::DEFAULT_STRATEGY,
+            '',
+            new RateLimiter()
         );
     }
 }

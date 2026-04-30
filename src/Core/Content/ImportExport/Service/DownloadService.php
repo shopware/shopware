@@ -15,6 +15,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
+use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -38,7 +40,8 @@ class DownloadService
         private readonly EntityRepository $fileRepository,
         private readonly LoggerInterface $logger,
         private readonly string $localDownloadStrategy,
-        private readonly string $localPathPrefix = ''
+        private readonly string $localPathPrefix,
+        private readonly RateLimiter $rateLimiter,
     ) {
     }
 
@@ -54,8 +57,20 @@ class DownloadService
         return $token;
     }
 
-    public function createFileResponse(Context $context, string $fileId, string $accessToken): Response
-    {
+    public function createFileResponse(
+        Context $context,
+        string $fileId,
+        string $accessToken,
+        string $clientIp = ''
+    ): Response {
+        $cacheKey = $fileId . '-' . $clientIp;
+
+        try {
+            $this->rateLimiter->ensureAccepted(RateLimiter::IMPORT_EXPORT_FILE_DOWNLOAD, $cacheKey);
+        } catch (RateLimitExceededException $exception) {
+            throw ImportExportException::fileDownloadThrottledException($exception->getWaitTime());
+        }
+
         $entity = $this->findFile($context, $fileId);
 
         $fileAccessToken = (string) $entity->getAccessToken();
@@ -67,6 +82,11 @@ class DownloadService
         $this->fileRepository->update(
             [['id' => $fileId, 'accessToken' => null]],
             $context
+        );
+
+        $this->rateLimiter->reset(
+            RateLimiter::IMPORT_EXPORT_FILE_DOWNLOAD,
+            $cacheKey,
         );
 
         try {

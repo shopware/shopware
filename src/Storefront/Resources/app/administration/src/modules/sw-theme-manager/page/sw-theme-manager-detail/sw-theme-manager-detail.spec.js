@@ -259,6 +259,59 @@ describe('sw-theme-manager-detail', () => {
         expect(selectBind.config.componentName).toBe('sw-single-select');
     });
 
+    it('builds meteor inheritance config for fields handling their own label and help text', async () => {
+        const wrapper = await createWrapper();
+        const removeInheritance = jest.fn();
+        const restoreInheritance = jest.fn();
+
+        const bind = wrapper.vm.getBind(
+            {
+                type: 'checkbox',
+                custom: { componentName: 'sw-checkbox-field' },
+            },
+            {
+                isInheritField: true,
+                isInherited: true,
+                removeInheritance,
+                restoreInheritance,
+            },
+            'parent',
+        );
+
+        expect(bind.config).toEqual(expect.objectContaining({
+            isInheritanceField: true,
+            isInherited: true,
+            inheritanceRemove: removeInheritance,
+            inheritanceRestore: restoreInheritance,
+            inheritedValue: 'parent',
+        }));
+    });
+
+    it('attaches inheritance event listeners to fields handling their own label and help text', async () => {
+        const wrapper = await createWrapper();
+        const inheritance = {
+            removeInheritance: jest.fn(),
+            restoreInheritance: jest.fn(),
+        };
+
+        const eventListeners = wrapper.vm.getElementEventListeners({ type: 'checkbox' }, inheritance);
+
+        expect(eventListeners).toEqual({
+            'inheritance-remove': inheritance.removeInheritance,
+            'inheritance-restore': inheritance.restoreInheritance,
+        });
+    });
+
+    it('does not attach inheritance event listeners to regular theme config fields', async () => {
+        const wrapper = await createWrapper();
+        const inheritance = {
+            removeInheritance: jest.fn(),
+            restoreInheritance: jest.fn(),
+        };
+
+        expect(wrapper.vm.getElementEventListeners({ type: 'text' }, inheritance)).toEqual({});
+    });
+
     it('gets snippets with prefix fallback and warns when missing', async () => {
         const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
         const wrapper = await createWrapper();

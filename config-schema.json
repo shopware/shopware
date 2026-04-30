@@ -75,6 +75,9 @@
                 "cart": {
                     "$ref": "#/definitions/cart"
                 },
+                "order": {
+                    "$ref": "#/definitions/order"
+                },
                 "number_range": {
                     "$ref": "#/definitions/number_range"
                 },
@@ -811,6 +814,25 @@
                 }
             },
             "title": "Cart"
+        },
+        "order": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "deep_link": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "expire_days": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 30,
+                            "description": "Specifies the number of days an order can be accessed via the deep link."
+                        }
+                    }
+                }
+            },
+            "title": "Order"
         },
         "number_range": {
             "type": "object",

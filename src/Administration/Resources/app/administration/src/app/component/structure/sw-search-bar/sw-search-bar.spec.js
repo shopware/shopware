@@ -741,7 +741,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
     it('should search for module and action with a default module', async () => {
         register('sw-order', {
             title: 'Orders',
-            color: '#A092F0',
+            color: 'var(--color-purple-500)',
             icon: 'regular-shopping-bag',
             entity: 'order',
 
@@ -931,7 +931,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         it(`should search for module and action with the term "${term}" when the ACL privilege is missing`, async () => {
             register(`sw-${term}`, {
                 title: `${term}s`,
-                color: '#A092F0',
+                color: 'var(--color-purple-500)',
                 icon: 'regular-shopping-bag',
                 entity: term,
 
@@ -989,7 +989,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         it(`should search for module and action with the term "${term}" when the ACL is can view`, async () => {
             register(`sw-${term}`, {
                 title: `${term}s`,
-                color: '#A092F0',
+                color: 'var(--color-purple-500)',
                 icon: 'regular-shopping-bag',
                 entity: term,
 
@@ -1041,7 +1041,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
             expect(module.total).toBe(1);
 
             expect(module.entities[0].icon).toBe('regular-shopping-bag');
-            expect(module.entities[0].color).toBe('#A092F0');
+            expect(module.entities[0].color).toBe('var(--color-purple-500)');
             expect(module.entities[0].label).toBe(`${term}s`);
             expect(module.entities[0].entity).toBe(term);
             expect(module.entities[0].route.name).toBe(`sw.${term}.index`);
@@ -1649,7 +1649,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         const term = 'customer';
         register(`sw-${term}`, {
             title: `${term}s`,
-            color: '#A092F0',
+            color: 'var(--color-purple-500)',
             icon: 'regular-shopping-bag',
             entity: term,
 

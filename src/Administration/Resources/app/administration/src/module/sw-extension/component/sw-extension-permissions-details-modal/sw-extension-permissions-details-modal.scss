@@ -12,11 +12,11 @@
 
     .sw-extension-permissions-details-modal__operations {
         border-bottom: 1px solid var(--color-border-primary-default);
-        box-shadow: 0 3px 5px 0 rgba(0, 0, 0, 10%);
+        box-shadow: 0 3px 5px 0 var(--color-elevation-shadow-default);
         display: block;
         top: 0;
         position: sticky;
-        background: #fff;
+        background: var(--color-elevation-surface-raised);
     }
 
     tr {

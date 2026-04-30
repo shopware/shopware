@@ -3,7 +3,7 @@
 .sw-order-create-invalid-promotion-modal {
     &__description {
         font-size: $font-size-xs;
-        color: $color-darkgray-200;
+        color: var(--color-text-secondary-default);
         margin-bottom: 22px;
     }
 

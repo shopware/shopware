@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media;
 
+use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -180,12 +181,7 @@ class MediaException extends HttpException
 
     public static function illegalFileName(string $filename, string $cause): self
     {
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::MEDIA_ILLEGAL_FILE_NAME,
-            'Provided filename "{{ fileName }}" is not permitted: {{ cause }}',
-            ['fileName' => $filename, 'cause' => $cause]
-        );
+        return new IllegalFileNameException($filename, $cause);
     }
 
     public static function mediaNotFound(string $mediaId): self

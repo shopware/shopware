@@ -10,13 +10,14 @@ use Shopware\Core\Framework\Telemetry\Metrics\Metric\Type;
  *
  * @phpstan-import-type MetricTypeValues from Type
  *
+ * @phpstan-type LabelDefinition array{allowed_values?: list<string>, policy?: string}
  * @phpstan-type MetricDefinition array{
  *    type: MetricTypeValues,
  *    description: string,
  *    unit?: string,
  *    parameters?: array<string, mixed>,
  *    enabled: bool,
- *    labels?: array<string, array{allowed_values: array<mixed>}>
+ *    labels?: array<string, LabelDefinition>
  * }
  *
  * @codeCoverageIgnore
@@ -26,7 +27,7 @@ readonly class MetricConfig
 {
     /**
      * @param array<string, mixed> $parameters
-     * @param array<string, array{allowed_values: array<mixed>}> $labels
+     * @param array<string, LabelDefinition> $labels
      */
     public function __construct(
         public string $name,

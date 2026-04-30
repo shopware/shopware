@@ -8,13 +8,16 @@ use Shopware\Core\Framework\Telemetry\Metrics\Exception\MetricNotSupportedExcept
 use Shopware\Core\Framework\Telemetry\Metrics\Exception\MissingMetricConfigurationException;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\Metric;
 use Shopware\Core\Framework\Telemetry\Metrics\MetricTransportInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @experimental feature:TELEMETRY_METRICS stableVersion:v6.8.0
  */
 #[Package('framework')]
-abstract class TelemetryException extends HttpException
+class TelemetryException extends HttpException
 {
+    public const UNKNOWN_LABEL_NAME = 'TELEMETRY__UNKNOWN_METRIC_LABEL';
+
     public static function metricNotSupported(
         Metric $metric,
         MetricTransportInterface $transport
@@ -34,6 +37,18 @@ abstract class TelemetryException extends HttpException
         return new MissingMetricConfigurationException(
             metric: $metric,
             message: \sprintf('Missing configuration for metric %s', $metric),
+        );
+    }
+
+    /**
+     * @internal
+     */
+    public static function unknownMetricLabel(string $metricName, string $labelName): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::UNKNOWN_LABEL_NAME,
+            \sprintf('Unknown label "%s" for metric "%s". The label must be declared in the metric definition.', $labelName, $metricName),
         );
     }
 }

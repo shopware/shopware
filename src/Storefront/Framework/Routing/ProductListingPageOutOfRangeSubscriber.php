@@ -32,6 +32,12 @@ class ProductListingPageOutOfRangeSubscriber implements EventSubscriberInterface
 
     public function onKernelException(ExceptionEvent $event): void
     {
+        // A higher-priority listener (or a plugin) may have already produced a response
+        // for this exception (e.g. a custom branded soft-404 page). Don't clobber it.
+        if ($event->hasResponse()) {
+            return;
+        }
+
         $request = $event->getRequest();
 
         if (!$request->attributes->has(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
@@ -39,10 +45,7 @@ class ProductListingPageOutOfRangeSubscriber implements EventSubscriberInterface
         }
 
         $throwable = $event->getThrowable();
-        if (!$throwable instanceof ProductException) {
-            return;
-        }
-        if ($throwable->getErrorCode() !== ProductException::LISTING_PAGE_OUT_OF_RANGE) {
+        if (!$throwable instanceof ProductException || !$throwable->is(ProductException::LISTING_PAGE_OUT_OF_RANGE)) {
             return;
         }
 

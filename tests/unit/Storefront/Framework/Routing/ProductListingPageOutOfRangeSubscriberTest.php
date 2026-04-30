@@ -116,6 +116,22 @@ class ProductListingPageOutOfRangeSubscriberTest extends TestCase
         static::assertNull($event->getResponse());
     }
 
+    public function testDoesNotClobberResponseAlreadySetByEarlierListener(): void
+    {
+        $event = $this->buildEvent(
+            originalUri: '/Damen/?p=99',
+            isSalesChannel: true,
+            exception: ProductException::pageOutOfRange(99, 3),
+        );
+
+        $existingResponse = new Response('custom soft-404 body', Response::HTTP_GONE);
+        $event->setResponse($existingResponse);
+
+        (new ProductListingPageOutOfRangeSubscriber())->onKernelException($event);
+
+        static::assertSame($existingResponse, $event->getResponse());
+    }
+
     private function buildEvent(string $originalUri, bool $isSalesChannel, \Throwable $exception): ExceptionEvent
     {
         $request = new Request();

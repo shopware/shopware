@@ -807,13 +807,15 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             },
         );
 
-        expect(bind).toEqual(expect.objectContaining({
-            isInheritanceField: true,
-            isInherited: true,
-            inheritanceRemove: removeInheritance,
-            inheritanceRestore: restoreInheritance,
-            inheritedValue: 'parent',
-        }));
+        expect(bind).toEqual(
+            expect.objectContaining({
+                isInheritanceField: true,
+                isInherited: true,
+                inheritanceRemove: removeInheritance,
+                inheritanceRestore: restoreInheritance,
+                inheritedValue: 'parent',
+            }),
+        );
     });
 
     it('should inherit the value from parent entity', async () => {

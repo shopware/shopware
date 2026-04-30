@@ -16,7 +16,7 @@ describe('sw-theme-manager-detail', () => {
         ensureThemeMixinRegistered();
 
         jest.isolateModules(() => {
-            require('./index');
+            Shopware.Component.register('sw-theme-manager-detail', require('./index').default);
         });
     });
 
@@ -126,7 +126,6 @@ describe('sw-theme-manager-detail', () => {
                     feature: {},
                 },
                 mocks: {
-                    $t: (key) => key,
                     $t: (key) => key,
                     $route: { params: { id: 'theme-id' } },
                     $router: { push: jest.fn() },

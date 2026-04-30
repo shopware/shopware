@@ -1,5 +1,8 @@
 import template from './sw-form-field-renderer.html.twig';
-import { getFormFieldComponentFromType, getFormFieldComponentName } from 'src/core/service/utils/form-field-type-mapping.utils';
+import {
+    getFormFieldComponentFromType,
+    getFormFieldComponentName,
+} from 'src/core/service/utils/form-field-type-mapping.utils';
 
 const { Mixin } = Shopware;
 const { types } = Shopware.Utils;

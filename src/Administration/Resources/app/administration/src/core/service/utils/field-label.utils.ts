@@ -67,10 +67,7 @@ export const fieldsHandlingLabelAndHelpText = {
  * @sw-package framework
  * @private
  */
-export function isFieldHandlingLabelAndHelpText(
-    field: FieldLabelDefinition | null,
-    options: FieldLabelOptions = {},
-) {
+export function isFieldHandlingLabelAndHelpText(field: FieldLabelDefinition | null, options: FieldLabelOptions = {}) {
     const componentName = getFormFieldComponentName(field, {
         resolveType: options.renderedByFormFieldRenderer === true,
     });

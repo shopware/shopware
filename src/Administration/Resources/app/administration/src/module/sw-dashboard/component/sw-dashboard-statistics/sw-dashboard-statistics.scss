@@ -16,6 +16,12 @@
         }
     }
 
+    &__intro-stats {
+        .sw-data-grid {
+            border-radius: var(--border-radius-card);
+        }
+    }
+
     &__card-headline-timerange {
         color: var(--color-text-primary-default);
     }

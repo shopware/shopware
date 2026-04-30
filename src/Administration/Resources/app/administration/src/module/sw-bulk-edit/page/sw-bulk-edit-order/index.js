@@ -293,7 +293,7 @@ export default {
                 this.$route.meta.$module = {};
             }
 
-            this.$route.meta.$module.color = '#A092F0';
+            this.$route.meta.$module.color = 'var(--color-purple-500)';
             this.$route.meta.$module.icon = 'regular-shopping-bag';
         },
 

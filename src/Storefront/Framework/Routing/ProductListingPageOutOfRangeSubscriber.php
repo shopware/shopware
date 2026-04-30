@@ -34,7 +34,7 @@ class ProductListingPageOutOfRangeSubscriber implements EventSubscriberInterface
     {
         $request = $event->getRequest();
 
-        if (!$request->attributes->getBoolean(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
+        if (!$request->attributes->has(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
             return;
         }
 
@@ -52,6 +52,8 @@ class ProductListingPageOutOfRangeSubscriber implements EventSubscriberInterface
     private function buildRedirectTarget(Request $request): string
     {
         $originalUri = $request->attributes->get(RequestTransformer::ORIGINAL_REQUEST_URI);
+        // ORIGINAL_REQUEST_URI is set by RequestTransformer for the main Storefront request only;
+        // it is not in INHERITABLE_ATTRIBUTE_NAMES, so sub-requests fall back to the current URI.
         if (!\is_string($originalUri) || $originalUri === '') {
             $originalUri = $request->getRequestUri();
         }
@@ -70,6 +72,6 @@ class ProductListingPageOutOfRangeSubscriber implements EventSubscriberInterface
             return $path;
         }
 
-        return $path . '?' . http_build_query($params);
+        return $path . '?' . http_build_query($params, '', '&', \PHP_QUERY_RFC3986);
     }
 }

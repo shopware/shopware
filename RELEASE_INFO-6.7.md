@@ -1326,6 +1326,11 @@ When the initial page takes more than two seconds to load, a loading indicator a
 
 In the settings module, there is now a search bar in the top right. It can be used to filter settings based on a search term to quickly find what you need.
 
+### Fix theme manager inheritance for boolean fields
+
+Switch and checkbox fields in theme configuration now render and handle inheritance consistently. Before they wouldn't have shown the inheritance switch.
+Also the checkbox field is now positionally aligned with the other components.
+
 ## Storefront
 
 ### The email validation supports IDN email addresses

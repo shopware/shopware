@@ -2,32 +2,32 @@ import template from './sw-theme-list-item.html.twig';
 import './sw-theme-list-item.scss';
 
 /**
- * @package discovery
+ * @deprecated tag:v6.8.0 - Will be @private
+ * @sw-package discovery
  */
-
-const { Component, Application } = Shopware;
-
-Component.register('sw-theme-list-item', {
+export default {
     template,
+
+    emits: ['preview-image-change', 'item-click', 'theme-delete'],
 
     props: {
         theme: {
             type: Object,
             required: false,
-            default: null
+            default: null,
         },
 
         active: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     computed: {
@@ -35,12 +35,12 @@ Component.register('sw-theme-list-item', {
             if (this.theme.previewMedia && this.theme.previewMedia.id && this.theme.previewMedia.url) {
                 return {
                     'background-image': `url('${this.theme.previewMedia.url}')`,
-                    'background-size': 'cover'
+                    'background-size': 'cover',
                 };
             }
 
             return {
-                'background-image': this.defaultThemeAsset
+                'background-image': this.defaultThemeAsset,
             };
         },
 
@@ -54,16 +54,16 @@ Component.register('sw-theme-list-item', {
         lockToolTip() {
             return {
                 showDelay: 100,
-                message: this.$t('sw-theme-manager.general.lockedToolTip')
+                message: this.$t('sw-theme-manager.general.lockedToolTip'),
             };
         },
 
         componentClasses() {
             return {
                 'is--active': this.isActive(),
-                'is--disabled': this.disabled
+                'is--disabled': this.disabled,
             };
-        }
+        },
     },
 
     methods: {
@@ -107,6 +107,6 @@ Component.register('sw-theme-list-item', {
             }
 
             this.$emit('item-click', item);
-        }
-    }
-});
+        },
+    },
+};

@@ -187,6 +187,9 @@ export default {
             this.readAll();
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, use `Shopware.Utils.supportsMapInheritance` instead.
+         */
         hasMapInheritanceSupport(element) {
             return supportsMapInheritance(element);
         },
@@ -194,7 +197,7 @@ export default {
         getElementBind(element, mapInheritance) {
             const bind = object.deepCopyObject(element);
 
-            if (!this.hasMapInheritanceSupport(element)) {
+            if (!supportsMapInheritance(element)) {
                 delete bind.config.label;
                 delete bind.config.helpText;
             } else {
@@ -228,7 +231,7 @@ export default {
         },
 
         getInheritWrapperBind(element) {
-            if (this.isFieldHandlingLabelAndHelpText(element)) {
+            if (fieldHandlesLabelAndHelpText(element, { renderedByFormFieldRenderer: true })) {
                 return {};
             }
 
@@ -299,12 +302,15 @@ export default {
         },
 
         /**
-         * New methods for Meteor components
+         * @deprecated tag:v6.8.0 - Will be removed, use `Shopware.Utils.isMeteorComponent` instead.
          */
         isMeteorComponent(element) {
             return isMeteorFieldComponent(element);
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, use `Shopware.Utils.isFieldHandlingLabelAndHelpText` instead.
+         */
         isFieldHandlingLabelAndHelpText(element) {
             return fieldHandlesLabelAndHelpText(element, { renderedByFormFieldRenderer: true });
         },

@@ -314,6 +314,9 @@ export default {
             return translations;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, use `Shopware.Utils.getFormFieldComponentFromType` instead.
+         */
         getComponentFromType(customType = undefined) {
             return getFormFieldComponentFromType(customType ?? this.type);
         },

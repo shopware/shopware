@@ -620,6 +620,53 @@ Removed the constants `Shopware\Core\Content\MailTemplate\MAIL_TEMPLATE_SALES_CH
 
 <details>
 
+## Removed component-level form inheritance helper wrappers
+
+The following Administration component methods and computed properties were deprecated in Shopware 6.7 and are removed in Shopware 6.8.
+They only forwarded to shared utility functions and should be replaced with direct `Shopware.Utils` calls.
+
+Use these replacements:
+
+```diff
+- this.supportsMapInheritance(field)
++ Shopware.Utils.supportsMapInheritance(field)
+
+- this.hasMapInheritanceSupport(field)
++ Shopware.Utils.supportsMapInheritance(field)
+
+- this.isMeteorComponent(field)
++ Shopware.Utils.isMeteorComponent(field)
+
+- this.isFieldHandlingInheritanceItself(field)
++ Shopware.Utils.isFieldHandlingInheritanceItself(field)
+
+- this.isFieldHandlingLabelAndHelpText(field)
++ Shopware.Utils.isFieldHandlingLabelAndHelpText(field)
+
+- this.componentsWithMapInheritanceSupport
++ Shopware.Utils.componentNamesSupportingMapInheritance
+
+- this.getComponentFromType(type)
++ Shopware.Utils.getFormFieldComponentFromType(type)
+```
+
+Affected compatibility wrappers:
+
+* `sw-custom-field-set-renderer`
+  * `componentsWithMapInheritanceSupport`
+  * `supportsMapInheritance(customField)`
+  * `isMeteorComponent(customField)`
+  * `isFieldHandlingLabelAndHelpText(customField)`
+* `sw-system-config`
+  * `hasMapInheritanceSupport(element)`
+  * `isMeteorComponent(element)`
+  * `isFieldHandlingLabelAndHelpText(element)`
+* `sw-theme-manager-detail`
+  * `isFieldHandlingInheritanceItself(field)`
+  * `isFieldHandlingLabelAndHelpText(field)`
+* `sw-form-field-renderer`
+  * `getComponentFromType(customType)`
+
 ## Migrating Options API overrides to the Composition API Extension System
 
 Starting with Shopware 6.7, core components are gradually being migrated from Options API to Composition API using `createExtendableSetup()`. When a component you override has been converted, a backward-compatibility shim keeps your existing `Shopware.Component.override()` call working — but logs a deprecation warning. In Shopware 6.8, all fully-migrated components will require the new `overrideComponentSetup()` API.

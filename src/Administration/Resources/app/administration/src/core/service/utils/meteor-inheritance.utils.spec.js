@@ -1,6 +1,6 @@
 import { getMeteorInheritanceConfig } from './meteor-inheritance.utils';
 
-describe('meteor-inheritance.utils', () => {
+describe('src/core/service/utils/meteor-inheritance.utils', () => {
     it('builds meteor inheritance config from sw-inherit-wrapper slot props', () => {
         const inheritance = {
             isInheritField: true,

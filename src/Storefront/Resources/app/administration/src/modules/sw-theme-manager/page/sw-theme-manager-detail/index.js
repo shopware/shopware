@@ -702,7 +702,7 @@ Component.register('sw-theme-manager-detail', {
         getBind(field, inheritance = null, inheritedValue = null) {
             const config = Object.assign({}, field);
 
-            if (!this.isFieldHandlingLabelAndHelpText(field)) {
+            if (!fieldHandlesLabelAndHelpText(field)) {
                 config.label = undefined;
                 config.labelSnippetKey = undefined;
                 config.helpText = undefined;
@@ -724,7 +724,7 @@ Component.register('sw-theme-manager-detail', {
                 delete config.custom;
             }
 
-            if (inheritance && this.isFieldHandlingInheritanceItself(field)) {
+            if (inheritance && fieldHandlesInheritanceItself(field)) {
                 config.mapInheritance = inheritance;
                 Object.assign(config, getMeteorInheritanceConfig(inheritance, inheritedValue));
             }
@@ -733,7 +733,7 @@ Component.register('sw-theme-manager-detail', {
         },
 
         getElementEventListeners(field, inheritance = null) {
-            if (!inheritance || !this.isFieldHandlingInheritanceItself(field)) {
+            if (!inheritance || !fieldHandlesInheritanceItself(field)) {
                 return {};
             }
 
@@ -744,7 +744,7 @@ Component.register('sw-theme-manager-detail', {
         },
 
         getFieldDisabled(field, inheritance) {
-            if (this.isFieldHandlingInheritanceItself(field)) {
+            if (fieldHandlesInheritanceItself(field)) {
                 return !this.acl.can('theme.editor');
             }
 
@@ -773,10 +773,16 @@ Component.register('sw-theme-manager-detail', {
             return fallback;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, use `Shopware.Utils.isFieldHandlingInheritanceItself` instead.
+         */
         isFieldHandlingInheritanceItself(field) {
             return fieldHandlesInheritanceItself(field);
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, use `Shopware.Utils.isFieldHandlingLabelAndHelpText` instead.
+         */
         isFieldHandlingLabelAndHelpText(field) {
             return fieldHandlesLabelAndHelpText(field);
         },
@@ -789,7 +795,7 @@ Component.register('sw-theme-manager-detail', {
          * @returns {string}
          */
         getFieldLabel(field, fieldName) {
-            if (this.isFieldHandlingLabelAndHelpText(field)) {
+            if (fieldHandlesLabelAndHelpText(field)) {
                 return null;
             }
 
@@ -809,7 +815,7 @@ Component.register('sw-theme-manager-detail', {
          * @returns {string|null}
          */
         getHelpText(field) {
-            if (this.isFieldHandlingLabelAndHelpText(field)) {
+            if (fieldHandlesLabelAndHelpText(field)) {
                 return null;
             }
 

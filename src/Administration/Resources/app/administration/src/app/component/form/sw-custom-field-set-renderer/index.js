@@ -158,7 +158,9 @@ export default {
             return this.sets.filter((set) => set.global);
         },
 
-        // kept for backward compatibility
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, use `Shopware.Utils.componentNamesSupportingMapInheritance` instead.
+         */
         componentsWithMapInheritanceSupport() {
             return componentNamesSupportingMapInheritance;
         },
@@ -427,14 +429,23 @@ export default {
             return null;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, use `Shopware.Utils.supportsMapInheritance` instead.
+         */
         supportsMapInheritance(customField) {
             return supportsFieldMapInheritance(customField);
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, use `Shopware.Utils.isMeteorComponent` instead.
+         */
         isMeteorComponent(customField) {
             return isMeteorFieldComponent(customField);
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, use `Shopware.Utils.isFieldHandlingLabelAndHelpText` instead.
+         */
         isFieldHandlingLabelAndHelpText(customField) {
             return fieldHandlesLabelAndHelpText(customField, { renderedByFormFieldRenderer: true });
         },
@@ -442,8 +453,8 @@ export default {
         getBind(customField, props) {
             const customFieldClone = Shopware.Utils.object.cloneDeep(customField);
 
-            const isMeteorComponent = this.isMeteorComponent(customField);
-            const supportsMapInheritance = this.supportsMapInheritance(customFieldClone);
+            const isMeteorComponent = isMeteorFieldComponent(customField);
+            const supportsMapInheritance = supportsFieldMapInheritance(customFieldClone);
             const inheritedCustomFieldValue = props.isInheritField ? this.getInheritedCustomField(customField.name) : null;
 
             if (customFieldClone.type === 'bool') {
@@ -478,7 +489,7 @@ export default {
         },
 
         getElementEventListeners(customField, props) {
-            const isMeteorComponent = this.isMeteorComponent(customField);
+            const isMeteorComponent = isMeteorFieldComponent(customField);
             const eventHandler = {};
 
             if (isMeteorComponent) {
@@ -490,7 +501,7 @@ export default {
         },
 
         getInheritWrapperBind(customField) {
-            if (this.isFieldHandlingLabelAndHelpText(customField)) {
+            if (fieldHandlesLabelAndHelpText(customField, { renderedByFormFieldRenderer: true })) {
                 return {};
             }
 

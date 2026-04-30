@@ -133,7 +133,10 @@
             </mt-banner>
         </div>
 
-        <div v-if="isLoading && !conditions" class="sw-settings-rule-detail__condition_container-placeholder">
+        <div
+            v-if="isLoading && !conditions"
+            class="sw-settings-rule-detail__condition_container-placeholder"
+        >
         </div>
 
         <sw-condition-tree

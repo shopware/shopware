@@ -212,9 +212,7 @@ export default {
                 newRoute.name === 'sw.settings.rule.detail.base' &&
                 oldRoute.name === 'sw.settings.rule.detail.assignments'
             ) {
-                this.isLoading = true;
-                this.loadEntityData(this.ruleId).then(() => {
-                    this.isLoading = false;
+                this.loadEntityData(this.ruleId, { showLoading: false, resetConditions: false }).then(() => {
                     this.setTreeFinishedLoading();
                 });
             }
@@ -250,9 +248,14 @@ export default {
             this.conditions = this.rule.conditions;
         },
 
-        loadEntityData(ruleId) {
-            this.isLoading = true;
-            this.conditions = null;
+        loadEntityData(ruleId, { showLoading = true, resetConditions = true } = {}) {
+            if (showLoading) {
+                this.isLoading = true;
+            }
+
+            if (resetConditions) {
+                this.conditions = null;
+            }
 
             this.ruleCriteria.addFilter(Criteria.equals('id', ruleId));
 

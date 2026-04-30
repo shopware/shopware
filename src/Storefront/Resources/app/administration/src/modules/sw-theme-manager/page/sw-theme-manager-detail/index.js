@@ -11,6 +11,7 @@ const {
     getMeteorInheritanceConfig,
     isFieldHandlingInheritanceItself: fieldHandlesInheritanceItself,
     isFieldHandlingLabelAndHelpText: fieldHandlesLabelAndHelpText,
+    isMeteorComponent,
 } = Shopware.Utils;
 const { getObjectDiff, cloneDeep, deepMergeObject } = Shopware.Utils.object;
 const { isArray } = Shopware.Utils.types;

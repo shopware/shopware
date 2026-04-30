@@ -20,7 +20,7 @@ use Shopware\Core\Framework\Log\Package;
  * @codeCoverageIgnore
  */
 #[Package('after-sales')]
-abstract class AbstractDocumentDataProvider
+abstract readonly class AbstractDocumentDataProvider
 {
     /**
      * Unique key under which the provider result is stored in RenderInput.

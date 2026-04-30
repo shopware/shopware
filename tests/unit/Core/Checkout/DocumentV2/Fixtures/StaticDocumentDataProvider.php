@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('after-sales')]
-class StaticDocumentDataProvider extends AbstractDocumentDataProvider
+readonly class StaticDocumentDataProvider extends AbstractDocumentDataProvider
 {
     final public const KEY = 'fixture';
 
@@ -21,8 +21,8 @@ class StaticDocumentDataProvider extends AbstractDocumentDataProvider
      * @param list<string> $documentTypes
      */
     public function __construct(
-        private readonly array $documentTypes = [DocumentType::INVOICE->value],
-        private readonly string $key = self::KEY,
+        private array $documentTypes = [DocumentType::INVOICE->value],
+        private string $key = self::KEY,
     ) {
     }
 

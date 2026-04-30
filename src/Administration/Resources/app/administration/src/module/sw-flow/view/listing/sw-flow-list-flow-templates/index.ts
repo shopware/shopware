@@ -21,7 +21,6 @@ const {
  * @private
  * @sw-package after-sales
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
     template,
 
@@ -47,14 +46,14 @@ export default Shopware.Component.wrapComponentConfig({
         sortDirection: string;
         total: number;
         isLoading: boolean;
-        flowTemplates: EntityCollection<'flow_template'> | [];
+        flowTemplates: EntityCollection<'flow_template'> | null;
     } {
         return {
             sortBy: 'createdAt',
             sortDirection: 'DESC',
             total: 0,
             isLoading: false,
-            flowTemplates: [],
+            flowTemplates: null,
         };
     },
 
@@ -99,13 +98,6 @@ export default Shopware.Component.wrapComponentConfig({
                     allowResize: false,
                     sortable: false,
                     align: 'left',
-                },
-                {
-                    property: 'createFlow',
-                    label: '',
-                    allowResize: false,
-                    sortable: false,
-                    align: 'right',
                 },
             ];
         },

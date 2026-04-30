@@ -6,7 +6,6 @@
     <div class="sw-flow-list-my-templates">
         <div class="sw-flow-list-my-templates__content">
             <sw-entity-listing
-                v-if="total"
                 class="sw-flow-list-my-templates__grid"
                 :show-settings="false"
                 :allow-column-edit="false"
@@ -22,8 +21,6 @@
                 :is-loading="isLoading"
                 :full-page="false"
                 :show-selection="false"
-                :show-actions="false"
-                :plain-appearance="true"
                 @column-sort="onSortColumn"
                 @page-change="onPageChange"
             >
@@ -39,20 +36,19 @@
                     </mt-link>
                 </template>
 
-                <template #column-createFlow="{ item }">
-                    <mt-link
-                        class="sw-flow-list-my-flows__content__create-flow-link"
-                        :to="{ name: 'sw.flow.create', params: { flowTemplateId: item.id } }"
+                <template #actions="{ item }">
+                    <sw-context-menu-item
+                        class="sw-flow-list-my-templates__grid-item-create"
+                        :router-link="{ name: 'sw.flow.create', params: { flowTemplateId: item.id } }"
                         :disabled="!acl.can('flow.creator')"
-                        type="internal"
                     >
                         {{ $t('sw-flow.template.create') }}
-                    </mt-link>
+                    </sw-context-menu-item>
                 </template>
             </sw-entity-listing>
 
             <mt-empty-state
-                v-else
+                v-if="total === 0 && !isLoading"
                 class="sw-flow-list-my_templates__empty-state"
                 :icon="$route.meta.$module.icon"
                 :headline="$t('sw-flow.list.emptyStateTitle')"

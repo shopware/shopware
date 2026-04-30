@@ -81,6 +81,7 @@ export default {
                     property: 'active',
                     label: this.$t('sw-flow.list.labelColumnActive'),
                     width: '80px',
+                    align: 'center',
                     sortable: true,
                 },
                 {

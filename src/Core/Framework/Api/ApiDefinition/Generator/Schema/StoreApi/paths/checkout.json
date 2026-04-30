@@ -2,15 +2,15 @@
     "openapi": "3.1.0",
     "info": [],
     "paths": {
-        "/checkout/delivery-cost/{productId}": {
+        "/shipping-cost/product/{productId}": {
             "get": {
                 "tags": [
                     "Cart",
                     "Endpoints supporting Criteria "
                 ],
-                "summary": "Calculate delivery costs for a product",
-                "description": "Calculates delivery costs for a single product using criteria-based shipping method selection.",
-                "operationId": "readDeliveryCostByProduct",
+                "summary": "Calculate shipping costs for a product",
+                "description": "Calculates shipping costs for a single product using criteria-based shipping method selection.",
+                "operationId": "readShippingCostByProduct",
                 "parameters": [
                     {
                         "name": "productId",
@@ -38,7 +38,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "The calculated delivery costs.",
+                        "description": "The calculated shipping costs.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -87,14 +87,14 @@
                 ]
             }
         },
-        "/checkout/delivery-cost/cart": {
+        "/shipping-cost/cart": {
             "get": {
                 "tags": [
                     "Cart"
                 ],
-                "summary": "Calculate delivery costs for the cart",
-                "description": "Calculates delivery costs for the current cart across available shipping methods.",
-                "operationId": "readDeliveryCostsByCart",
+                "summary": "Calculate shipping costs for the cart",
+                "description": "Calculates shipping costs for the current cart across available shipping methods.",
+                "operationId": "readShippingCostsByCart",
                 "parameters": [
                     {
                         "name": "sw-language-id",
@@ -109,7 +109,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "The calculated delivery costs.",
+                        "description": "The calculated shipping costs.",
                         "content": {
                             "application/json": {
                                 "schema": {

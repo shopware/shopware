@@ -5,9 +5,9 @@ namespace Shopware\Core\Checkout\Cart\SalesChannel;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCost;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCostCollection;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingCost;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingCostCollection;
 use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
@@ -18,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
-use Shopware\Core\Framework\Rule\RuleIdMatcher;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -27,7 +26,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('checkout')]
-class DeliveryCostRoute extends AbstractDeliveryCostRoute
+class ShippingCostRoute extends AbstractShippingCostRoute
 {
     /**
      * @internal
@@ -37,62 +36,70 @@ class DeliveryCostRoute extends AbstractDeliveryCostRoute
     public function __construct(
         private readonly EntityRepository $shippingMethodRepository,
         private readonly CartRuleLoader $cartRuleLoader,
-        private readonly AbstractCheckoutGatewayRoute $checkoutGatewayRoute,
-        private readonly RuleIdMatcher $ruleIdMatcher
+        private readonly AbstractCheckoutGatewayRoute $checkoutGatewayRoute
     ) {
     }
 
-    public function getDecorated(): AbstractDeliveryCostRoute
+    public function getDecorated(): AbstractShippingCostRoute
     {
         throw new DecorationPatternException(self::class);
     }
 
     /**
+     * Calculates shipping costs for the current cart and the requested shipping methods.
+     *
+     * This route can be expensive because alternative shipping methods require separate cart recalculations.
+     * Only call it when shipping costs are actually needed and prefer adding a cache layer for repeated requests.
+     *
      * @param non-empty-list<string>|null $availableShippingMethodIds
      */
     #[Route(
-        path: '/store-api/checkout/delivery-cost/cart',
-        name: 'store-api.checkout.delivery-cost.cart',
+        path: '/store-api/shipping-cost/cart',
+        name: 'store-api.shipping-cost.cart',
         methods: [Request::METHOD_GET, Request::METHOD_POST]
     )]
-    public function deliveryCostsCart(Cart $cart, SalesChannelContext $salesChannelContext, ?array $availableShippingMethodIds = null): DeliveryCostRouteResponse
+    public function shippingCostsCart(Cart $cart, SalesChannelContext $salesChannelContext, ?array $availableShippingMethodIds = null): ShippingCostRouteResponse
     {
-        return Profiler::trace('delivery-cost-calculator::cart', function () use ($cart, $salesChannelContext, $availableShippingMethodIds) {
-            $deliveries = new DeliveryCostCollection();
+        return Profiler::trace('shipping-cost-calculator::cart', function () use ($cart, $salesChannelContext, $availableShippingMethodIds) {
+            $shippingCosts = new ShippingCostCollection();
 
             if ($availableShippingMethodIds === null) {
-                $availableShippingMethods = $this->checkoutGatewayRoute
-                    ->load(new Request(), $cart, $salesChannelContext)
-                    ->getShippingMethods();
+                $request = new Request();
+                $request->request->set('onlyAvailable', true);
 
-                $availableShippingMethodIds = $this->ruleIdMatcher->filterCollection($availableShippingMethods, $salesChannelContext->getRuleIds())->getKeys();
+                $availableShippingMethodIds = $this->checkoutGatewayRoute
+                    ->load($request, $cart, $salesChannelContext)
+                    ->getShippingMethods()
+                    ->getKeys();
+
                 if ($availableShippingMethodIds === []) {
-                    return new DeliveryCostRouteResponse($deliveries);
+                    return new ShippingCostRouteResponse($shippingCosts);
                 }
             }
 
             $shippingMethods = $this->loadShippingMethods($salesChannelContext, $availableShippingMethodIds);
             foreach ($shippingMethods as $shippingMethod) {
-                if ($cart->getDeliveries()->has($shippingMethod->getId())) {
-                    $delivery = $cart->getDeliveries()->get($shippingMethod->getId());
+                if ($shippingMethod->getId() === $salesChannelContext->getShippingMethod()->getId()) {
+                    $deliveries = $cart->getDeliveries();
                 } else {
-                    $delivery = $this->resolveCartDelivery(
+                    $deliveries = $this->resolveCartDeliveries(
                         $shippingMethod,
                         $salesChannelContext,
                         $cart,
                     );
                 }
 
+                $delivery = $deliveries->getPrimaryDelivery(null);
                 if ($delivery !== null) {
-                    $deliveries->set($shippingMethod->getId(), new DeliveryCost(
-                        $delivery->getShippingCosts(),
+                    $shippingCosts->set($shippingMethod->getId(), new ShippingCost(
+                        $deliveries->getShippingCosts()->sum(),
                         $delivery->getDeliveryDate(),
                         $shippingMethod,
                     ));
                 }
             }
 
-            return new DeliveryCostRouteResponse($deliveries);
+            return new ShippingCostRouteResponse($shippingCosts);
         });
     }
 
@@ -111,11 +118,11 @@ class DeliveryCostRoute extends AbstractDeliveryCostRoute
         return $this->shippingMethodRepository->search($criteria, $context->getContext())->getEntities();
     }
 
-    private function resolveCartDelivery(
+    private function resolveCartDeliveries(
         ShippingMethodEntity $shippingMethod,
         SalesChannelContext $salesChannelContext,
         Cart $originalCart,
-    ): ?Delivery {
+    ): DeliveryCollection {
         $clonedContext = clone $salesChannelContext;
         $cart = clone $originalCart;
 
@@ -130,6 +137,6 @@ class DeliveryCostRoute extends AbstractDeliveryCostRoute
 
         return $this->cartRuleLoader->loadByCart($clonedContext, $cart, new CartBehavior($behavior), true)
             ->getCart()
-            ->getDeliveries()->first();
+            ->getDeliveries();
     }
 }

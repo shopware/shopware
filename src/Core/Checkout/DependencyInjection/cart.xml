@@ -136,14 +136,13 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartLocker"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Cart\SalesChannel\DeliveryCostRoute" public="true">
+        <service id="Shopware\Core\Checkout\Cart\SalesChannel\ShippingCostRoute" public="true">
             <argument type="service" id="shipping_method.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute"/>
-            <argument type="service" id="Shopware\Core\Framework\Rule\RuleIdMatcher"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Cart\SalesChannel\ProductDeliveryCostRoute" public="true">
+        <service id="Shopware\Core\Checkout\Cart\SalesChannel\ProductShippingCostRoute" public="true">
             <argument type="service" id="Shopware\Core\Content\Product\Cart\ProductGateway"/>
             <argument type="service" id="shipping_method.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Processor"/>

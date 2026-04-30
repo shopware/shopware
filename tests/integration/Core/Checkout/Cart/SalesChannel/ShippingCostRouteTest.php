@@ -5,9 +5,11 @@ namespace Shopware\Tests\Integration\Core\Checkout\Cart\SalesChannel;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -16,6 +18,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\Test\Integration\Traits\Promotion\PromotionTestFixtureBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
@@ -24,9 +28,10 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
  */
 #[Package('checkout')]
 #[Group('store-api')]
-class DeliveryCostRouteTest extends TestCase
+class ShippingCostRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use PromotionTestFixtureBehaviour;
     use SalesChannelApiTestBehaviour;
 
     private KernelBrowser $browser;
@@ -65,7 +70,7 @@ class DeliveryCostRouteTest extends TestCase
         $this->createProduct();
     }
 
-    public function testDeliveryCostsCartReturnsCurrentAndAlternativeShippingMethods(): void
+    public function testShippingCostsCartReturnsCurrentAndAlternativeShippingMethods(): void
     {
         $this->browser->request(
             'POST',
@@ -80,21 +85,21 @@ class DeliveryCostRouteTest extends TestCase
             ]
         );
 
-        $this->browser->request('GET', '/store-api/checkout/delivery-cost/cart');
+        $this->browser->request('GET', '/store-api/shipping-cost/cart');
 
         $response = $this->decodeResponse();
 
-        $keys = $this->deliveryCostShippingMethodIds($response);
+        $keys = $this->shippingMethodIds($response);
         sort($keys);
 
         $expected = [$this->ids->get('shipping-1'), $this->ids->get('shipping-2'), $this->ids->get('shipping-3')];
         sort($expected);
 
         static::assertSame($expected, $keys);
-        static::assertNotNull($this->getDeliveryCost($response, $this->ids->get('shipping-1')));
+        static::assertNotNull($this->getShippingCost($response, $this->ids->get('shipping-1')));
     }
 
-    public function testDeliveryCostsCartDoesNotChangeSalesChannelContextOrCart(): void
+    public function testShippingCostsCartDoesNotChangeSalesChannelContextOrCart(): void
     {
         $this->browser->request(
             'POST',
@@ -119,7 +124,7 @@ class DeliveryCostRouteTest extends TestCase
         $this->browser->request('GET', '/store-api/checkout/cart');
         $beforeCart = $this->cartSnapshot($this->decodeResponse());
 
-        $this->browser->request('GET', '/store-api/checkout/delivery-cost/cart');
+        $this->browser->request('GET', '/store-api/shipping-cost/cart');
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
         $this->browser->request('GET', '/store-api/context');
@@ -130,6 +135,99 @@ class DeliveryCostRouteTest extends TestCase
 
         static::assertSame($beforeContext, $afterContext);
         static::assertSame($beforeCart, $afterCart);
+    }
+
+    public function testShippingCostsCartConsidersDeliveryPromotions(): void
+    {
+        $code = 'DELIVERY-PROMOTION';
+        $context = static::getContainer()
+            ->get(SalesChannelContextFactory::class)
+            ->create(Uuid::randomHex(), $this->ids->get('sales-channel'));
+
+        $this->createTestFixtureDeliveryPromotion(
+            Uuid::randomHex(),
+            PromotionDiscountEntity::TYPE_ABSOLUTE,
+            2.2,
+            static::getContainer(),
+            $context,
+            $code
+        );
+
+        $this->browser->request(
+            'POST',
+            '/store-api/checkout/cart/line-item',
+            [
+                'items' => [
+                    [
+                        'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
+                        'referencedId' => $this->ids->get('product'),
+                    ],
+                ],
+            ]
+        );
+
+        $this->browser->request(
+            'POST',
+            '/store-api/checkout/cart/line-item',
+            [
+                'items' => [
+                    [
+                        'type' => LineItem::PROMOTION_LINE_ITEM_TYPE,
+                        'referencedId' => $code,
+                    ],
+                ],
+            ]
+        );
+
+        /** @var array{deliveries: list<array{shippingCosts: array{totalPrice: float|int}}>} $cart */
+        $cart = $this->decodeResponse();
+        static::assertCount(2, $cart['deliveries']);
+        static::assertEqualsWithDelta(3.0, $cart['deliveries'][0]['shippingCosts']['totalPrice'] + $cart['deliveries'][1]['shippingCosts']['totalPrice'], 0.001);
+
+        $this->browser->request('GET', '/store-api/shipping-cost/cart');
+
+        $response = $this->decodeResponse();
+        $currentShippingMethod = $this->getShippingCost($response, $this->ids->get('shipping-1'));
+        $alternativeShippingMethod = $this->getShippingCost($response, $this->ids->get('shipping-2'));
+
+        static::assertNotNull($currentShippingMethod);
+        static::assertNotNull($alternativeShippingMethod);
+        static::assertEqualsWithDelta(3.0, $currentShippingMethod['shippingCost']['totalPrice'], 0.001);
+        static::assertEqualsWithDelta(6.3, $alternativeShippingMethod['shippingCost']['totalPrice'], 0.001);
+    }
+
+    public function testShippingCostsCartReturnsNoShippingCostsForDigitalOnlyCart(): void
+    {
+        $this->createProduct(
+            'digital-product',
+            'digital-product-number',
+            'digital-manufacturer',
+            'digital-tax',
+            'Digital product',
+            ProductDefinition::TYPE_DIGITAL
+        );
+
+        $this->browser->request(
+            'POST',
+            '/store-api/checkout/cart/line-item',
+            [
+                'items' => [
+                    [
+                        'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
+                        'referencedId' => $this->ids->get('digital-product'),
+                    ],
+                ],
+            ]
+        );
+
+        /** @var array{deliveries?: list<array<string, mixed>>} $cart */
+        $cart = $this->decodeResponse();
+        static::assertSame([], $cart['deliveries'] ?? []);
+
+        $this->browser->request('GET', '/store-api/shipping-cost/cart');
+
+        $response = $this->decodeResponse();
+        static::assertSame([], $response);
     }
 
     /**
@@ -145,10 +243,10 @@ class DeliveryCostRouteTest extends TestCase
      *
      * @return list<string>
      */
-    private function deliveryCostShippingMethodIds(array $response): array
+    private function shippingMethodIds(array $response): array
     {
         return array_values(array_map(
-            static fn (array $deliveryCost): string => $deliveryCost['shippingMethod']['id'],
+            static fn (array $shippingCost): string => $shippingCost['shippingMethod']['id'],
             $response
         ));
     }
@@ -158,11 +256,11 @@ class DeliveryCostRouteTest extends TestCase
      *
      * @return array<string, mixed>|null
      */
-    private function getDeliveryCost(array $response, string $shippingMethodId): ?array
+    private function getShippingCost(array $response, string $shippingMethodId): ?array
     {
-        foreach ($response as $deliveryCost) {
-            if (($deliveryCost['shippingMethod']['id'] ?? null) === $shippingMethodId) {
-                return $deliveryCost;
+        foreach ($response as $shippingCost) {
+            if (($shippingCost['shippingMethod']['id'] ?? null) === $shippingMethodId) {
+                return $shippingCost;
             }
         }
 
@@ -223,14 +321,21 @@ class DeliveryCostRouteTest extends TestCase
         ];
     }
 
-    private function createProduct(): void
-    {
+    private function createProduct(
+        string $idKey = 'product',
+        string $productNumberKey = 'product-number',
+        string $manufacturerKey = 'manufacturer',
+        string $taxKey = 'tax',
+        string $name = 'Test product',
+        string $type = ProductDefinition::TYPE_PHYSICAL
+    ): void {
         $this->productRepository->create([
             [
-                'id' => $this->ids->create('product'),
-                'productNumber' => $this->ids->create('product-number'),
+                'id' => $this->ids->create($idKey),
+                'productNumber' => $this->ids->create($productNumberKey),
                 'stock' => 100,
-                'name' => 'Test product',
+                'name' => $name,
+                'type' => $type,
                 'price' => [[
                     'currencyId' => Defaults::CURRENCY,
                     'gross' => 25,
@@ -238,11 +343,11 @@ class DeliveryCostRouteTest extends TestCase
                     'linked' => false,
                 ]],
                 'manufacturer' => [
-                    'id' => $this->ids->create('manufacturer'),
+                    'id' => $this->ids->create($manufacturerKey),
                     'name' => 'Test manufacturer',
                 ],
                 'tax' => [
-                    'id' => $this->ids->create('tax'),
+                    'id' => $this->ids->create($taxKey),
                     'taxRate' => 0,
                     'name' => 'Zero tax',
                 ],

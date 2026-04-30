@@ -2,20 +2,20 @@
 
 namespace Shopware\Core\Checkout\Cart\SalesChannel;
 
-use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCostCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingCostCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
 /**
- * @extends StoreApiResponse<DeliveryCostCollection>
+ * @extends StoreApiResponse<ShippingCostCollection>
  */
 #[Package('checkout')]
-class DeliveryCostRouteResponse extends StoreApiResponse
+class ShippingCostRouteResponse extends StoreApiResponse
 {
-    public function getDeliveryCosts(): DeliveryCostCollection
+    public function getShippingCosts(): ShippingCostCollection
     {
         return $this->object;
     }

@@ -5,8 +5,8 @@ namespace Shopware\Core\Checkout\Cart\SalesChannel;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartException;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCost;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCostCollection;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingCost;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingCostCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\CheckoutPermissions;
@@ -31,7 +31,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('checkout')]
-class ProductDeliveryCostRoute extends AbstractProductDeliveryCostRoute
+class ProductShippingCostRoute extends AbstractProductShippingCostRoute
 {
     /**
      * @internal
@@ -45,21 +45,27 @@ class ProductDeliveryCostRoute extends AbstractProductDeliveryCostRoute
     ) {
     }
 
-    public function getDecorated(): AbstractProductDeliveryCostRoute
+    public function getDecorated(): AbstractProductShippingCostRoute
     {
         throw new DecorationPatternException(self::class);
     }
 
+    /**
+     * Calculates shipping costs for the requested product and matching shipping methods.
+     *
+     * This route can be expensive because each shipping method requires an isolated cart calculation.
+     * Only call it when shipping costs are actually needed and prefer adding a cache layer for repeated requests.
+     */
     #[Route(
-        path: '/store-api/checkout/delivery-cost/{productId}',
-        name: 'store-api.checkout.delivery-cost.product',
+        path: '/store-api/shipping-cost/product/{productId}',
+        name: 'store-api.shipping-cost.product',
         requirements: ['productId' => Uuid::VALID_PATTERN],
         defaults: [PlatformRequest::ATTRIBUTE_ENTITY => ShippingMethodDefinition::ENTITY_NAME],
         methods: [Request::METHOD_GET]
     )]
-    public function deliveryCostsByProduct(string $productId, Criteria $criteria, SalesChannelContext $salesChannelContext): DeliveryCostRouteResponse
+    public function shippingCostsByProduct(string $productId, Criteria $criteria, SalesChannelContext $salesChannelContext): ShippingCostRouteResponse
     {
-        return Profiler::trace('delivery-cost-calculator::product', function () use ($productId, $criteria, $salesChannelContext) {
+        return Profiler::trace('shipping-cost-calculator::product', function () use ($productId, $criteria, $salesChannelContext) {
             $clonedContext = clone $salesChannelContext;
             $product = $this->loadProduct($productId, $clonedContext);
 
@@ -77,26 +83,27 @@ class ProductDeliveryCostRoute extends AbstractProductDeliveryCostRoute
 
             $shippingMethods = $this->loadShippingMethods($criteria, $clonedContext);
 
-            $deliveries = new DeliveryCostCollection();
+            $shippingCosts = new ShippingCostCollection();
             foreach ($shippingMethods as $shippingMethod) {
                 // Setting data to avoid loading them twice - and each separate
                 $cart->getData()->set('shipping-method-' . $shippingMethod->getId(), $shippingMethod);
                 $clonedContext->assign(['shippingMethod' => $shippingMethod]);
 
-                $delivery = $this->processor
+                $deliveries = $this->processor
                     ->process($cart, $clonedContext, new CartBehavior($behavior))
-                    ->getDeliveries()->first();
+                    ->getDeliveries();
 
+                $delivery = $deliveries->getPrimaryDelivery(null);
                 if ($delivery !== null) {
-                    $deliveries->set($shippingMethod->getId(), new DeliveryCost(
-                        $delivery->getShippingCosts(),
+                    $shippingCosts->set($shippingMethod->getId(), new ShippingCost(
+                        $deliveries->getShippingCosts()->sum(),
                         $delivery->getDeliveryDate(),
                         $shippingMethod,
                     ));
                 }
             }
 
-            return new DeliveryCostRouteResponse($deliveries);
+            return new ShippingCostRouteResponse($shippingCosts);
         });
     }
 

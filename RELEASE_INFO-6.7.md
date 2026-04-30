@@ -296,11 +296,12 @@ When `bin/console system:setup:staging` is executed, the configured keys are wri
 
 ## API
 
-### Store API routes for delivery cost calculation
+### Store API routes for shipping cost calculation
 
-The Store API now provides dedicated delivery-cost endpoints for product and cart previews. This allows headless storefronts and integrations to fetch shipping prices and delivery dates for multiple shipping methods without changing the customer's persisted cart or selected shipping method.
+The Store API now provides dedicated shipping-cost endpoints for product and cart previews. This allows headless storefronts and integrations to fetch shipping prices and delivery dates for multiple shipping methods without changing the customer's persisted cart or selected shipping method.
 
-For product previews, `/store-api/checkout/delivery-cost/{productId}` uses Shopware criteria parameters to select which shipping methods should be loaded for the calculation. For cart previews, `/store-api/checkout/delivery-cost/cart` returns the delivery costs for the current cart across the available shipping methods.
+For product previews, `/store-api/shipping-cost/product/{productId}` uses Shopware criteria parameters to select which shipping methods should be loaded for the calculation.
+For cart previews, `/store-api/shipping-cost/cart` returns the shipping costs for the current cart across the available shipping methods.
 
 The response contains the calculated shipping price, delivery date, and shipping method data for each result, which makes it easier to build shipping-method selectors or delivery previews in custom storefronts and apps.
 

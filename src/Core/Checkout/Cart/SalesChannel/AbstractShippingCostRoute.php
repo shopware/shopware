@@ -7,9 +7,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 #[Package('checkout')]
-abstract class AbstractDeliveryCostRoute
+abstract class AbstractShippingCostRoute
 {
-    abstract public function getDecorated(): AbstractDeliveryCostRoute;
+    abstract public function getDecorated(): AbstractShippingCostRoute;
 
-    abstract public function deliveryCostsCart(Cart $cart, SalesChannelContext $salesChannelContext): DeliveryCostRouteResponse;
+    abstract public function shippingCostsCart(Cart $cart, SalesChannelContext $salesChannelContext): ShippingCostRouteResponse;
 }

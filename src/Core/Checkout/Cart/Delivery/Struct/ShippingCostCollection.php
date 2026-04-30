@@ -8,13 +8,13 @@ use Shopware\Core\Framework\Struct\Collection;
 /**
  * @internal
  *
- * @extends Collection<DeliveryCost>
+ * @extends Collection<ShippingCost>
  */
 #[Package('checkout')]
-class DeliveryCostCollection extends Collection
+class ShippingCostCollection extends Collection
 {
     protected function getExpectedClass(): ?string
     {
-        return DeliveryCost::class;
+        return ShippingCost::class;
     }
 }

@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -23,7 +24,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
  */
 #[Package('checkout')]
 #[Group('store-api')]
-class ProductDeliveryCostRouteTest extends TestCase
+class ProductShippingCostRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
@@ -64,32 +65,32 @@ class ProductDeliveryCostRouteTest extends TestCase
         $this->createProduct();
     }
 
-    public function testDeliveryCostsByProductGetReturnsCurrentShippingMethodOnly(): void
+    public function testShippingCostsByProductGetReturnsCurrentShippingMethodOnly(): void
     {
         $this->browser->request(
             'GET',
-            '/store-api/checkout/delivery-cost/' . $this->ids->get('product') . '?ids[]=' . $this->ids->get('shipping-1'),
+            '/store-api/shipping-cost/product/' . $this->ids->get('product') . '?ids[]=' . $this->ids->get('shipping-1'),
         );
 
         $response = $this->decodeResponse();
 
-        static::assertSame([$this->ids->get('shipping-1')], $this->deliveryCostShippingMethodIds($response));
-        $deliveryCost = $this->getDeliveryCost($response, $this->ids->get('shipping-1'));
+        static::assertSame([$this->ids->get('shipping-1')], $this->shippingMethodIds($response));
+        $shippingCost = $this->getShippingCost($response, $this->ids->get('shipping-1'));
 
-        static::assertNotNull($deliveryCost);
-        static::assertSame(5.2, $deliveryCost['shippingCost']['totalPrice']);
+        static::assertNotNull($shippingCost);
+        static::assertSame(5.2, $shippingCost['shippingCost']['totalPrice']);
     }
 
-    public function testDeliveryCostsByProductGetWithoutIdsReturnsAllAvailableShippingMethods(): void
+    public function testShippingCostsByProductGetWithoutIdsReturnsAllAvailableShippingMethods(): void
     {
         $this->browser->request(
             'GET',
-            '/store-api/checkout/delivery-cost/' . $this->ids->get('product'),
+            '/store-api/shipping-cost/product/' . $this->ids->get('product'),
         );
 
         $response = $this->decodeResponse();
 
-        $keys = $this->deliveryCostShippingMethodIds($response);
+        $keys = $this->shippingMethodIds($response);
         sort($keys);
 
         $expected = [
@@ -105,6 +106,27 @@ class ProductDeliveryCostRouteTest extends TestCase
         static::assertSame(12.7, $response[2]['shippingCost']['unitPrice']);
     }
 
+    public function testShippingCostsByProductReturnsNoShippingCostsForDigitalProduct(): void
+    {
+        $this->createProduct(
+            'digital-product',
+            'digital-product-number',
+            'digital-manufacturer',
+            'digital-tax',
+            'Digital product',
+            ProductDefinition::TYPE_DIGITAL
+        );
+
+        $this->browser->request(
+            'GET',
+            '/store-api/shipping-cost/product/' . $this->ids->get('digital-product'),
+        );
+
+        $response = $this->decodeResponse();
+
+        static::assertSame([], $response);
+    }
+
     /**
      * @return list<array<string, mixed>>
      */
@@ -118,10 +140,10 @@ class ProductDeliveryCostRouteTest extends TestCase
      *
      * @return list<string>
      */
-    private function deliveryCostShippingMethodIds(array $response): array
+    private function shippingMethodIds(array $response): array
     {
         return array_values(array_map(
-            static fn (array $deliveryCost): string => $deliveryCost['shippingMethod']['id'],
+            static fn (array $shippingCost): string => $shippingCost['shippingMethod']['id'],
             $response
         ));
     }
@@ -131,25 +153,32 @@ class ProductDeliveryCostRouteTest extends TestCase
      *
      * @return array<string, mixed>|null
      */
-    private function getDeliveryCost(array $response, string $shippingMethodId): ?array
+    private function getShippingCost(array $response, string $shippingMethodId): ?array
     {
-        foreach ($response as $deliveryCost) {
-            if (($deliveryCost['shippingMethod']['id'] ?? null) === $shippingMethodId) {
-                return $deliveryCost;
+        foreach ($response as $shippingCost) {
+            if (($shippingCost['shippingMethod']['id'] ?? null) === $shippingMethodId) {
+                return $shippingCost;
             }
         }
 
         return null;
     }
 
-    private function createProduct(): void
-    {
+    private function createProduct(
+        string $idKey = 'product',
+        string $productNumberKey = 'product-number',
+        string $manufacturerKey = 'manufacturer',
+        string $taxKey = 'tax',
+        string $name = 'Test product',
+        string $type = ProductDefinition::TYPE_PHYSICAL
+    ): void {
         $this->productRepository->create([
             [
-                'id' => $this->ids->create('product'),
-                'productNumber' => $this->ids->create('product-number'),
+                'id' => $this->ids->create($idKey),
+                'productNumber' => $this->ids->create($productNumberKey),
                 'stock' => 100,
-                'name' => 'Test product',
+                'name' => $name,
+                'type' => $type,
                 'price' => [[
                     'currencyId' => Defaults::CURRENCY,
                     'gross' => 25,
@@ -157,11 +186,11 @@ class ProductDeliveryCostRouteTest extends TestCase
                     'linked' => false,
                 ]],
                 'manufacturer' => [
-                    'id' => $this->ids->create('manufacturer'),
+                    'id' => $this->ids->create($manufacturerKey),
                     'name' => 'Test manufacturer',
                 ],
                 'tax' => [
-                    'id' => $this->ids->create('tax'),
+                    'id' => $this->ids->create($taxKey),
                     'taxRate' => 0,
                     'name' => 'Zero tax',
                 ],

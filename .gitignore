@@ -55,6 +55,7 @@ php.ini
 .php_cs
 .php_cs.cache
 /.phpunit.cache
+/var/admin-plugin-compatibility/
 /var/*
 /var/bootstrap.php.cache
 /var/config_administration_plugins.json

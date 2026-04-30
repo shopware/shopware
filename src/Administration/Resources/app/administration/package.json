@@ -5,6 +5,7 @@
   "main": "./src/core/shopware.js",
   "types": "./types/index.d.ts",
   "scripts": {
+    "admin-plugin-compatibility": "PATH=\"$PATH:$PWD/scripts/admin-plugin-compatibility/bin\" ts-node --transpileOnly ./scripts/admin-plugin-compatibility/index.ts",
     "build": "export VITE_MODE=production && ts-node -T build.ts",
     "code-mods": "node code-mods.js",
     "codemod:js-vue3-feature-flag-removal": "ts-node --transpileOnly ./scripts/codemods/js-vue3-feature-flag-removal/index.ts",

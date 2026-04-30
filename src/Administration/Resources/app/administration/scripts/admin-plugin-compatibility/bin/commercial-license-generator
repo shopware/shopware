@@ -1,0 +1,131 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+console_command="bin/console"
+host="localhost"
+plan="beyond"
+force="0"
+license_key_file="${ADMIN_PLUGIN_COMPATIBILITY_COMMERCIAL_LICENSE_KEY_FILE:-}"
+license_key="${ADMIN_PLUGIN_COMPATIBILITY_COMMERCIAL_LICENSE_KEY:-}"
+
+print_help() {
+    cat <<'EOF'
+commercial-license-generator local compatibility wrapper
+
+Options:
+  --console <command>  Console command used to update the Commercial license.
+  --host <host>        License host to set before updating the license.
+  --plan <plan>        Requested plan label for compatibility with the private generator CLI.
+  --key-file <path>    Dev license JSON artifact or plain license key file.
+  --force             Accepted for compatibility. No effect in the bundled fallback.
+  --help              Show this help.
+
+This fallback cannot create signed Commercial licenses. Install the internal commercial-license-generator on PATH,
+or provide a downloaded dev license via ADMIN_PLUGIN_COMPATIBILITY_COMMERCIAL_LICENSE_KEY_FILE.
+EOF
+}
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --console)
+            console_command="${2:-}"
+            shift 2
+            ;;
+        --host)
+            host="${2:-}"
+            shift 2
+            ;;
+        --plan)
+            plan="${2:-}"
+            shift 2
+            ;;
+        --key-file)
+            license_key_file="${2:-}"
+            shift 2
+            ;;
+        --force)
+            force="1"
+            shift
+            ;;
+        --help|-h)
+            print_help
+            exit 0
+            ;;
+        *)
+            printf 'Unknown option: %s\n\n' "$1" >&2
+            print_help >&2
+            exit 2
+            ;;
+    esac
+done
+
+if [[ -z "$console_command" || -z "$host" || -z "$plan" ]]; then
+    printf 'The --console, --host, and --plan options must not be empty.\n' >&2
+    exit 2
+fi
+
+run_console() {
+    sh -c "$console_command \"\$@\"" commercial-license-generator-console "$@"
+}
+
+read_license_key_from_file() {
+    node -e '
+const fs = require("fs");
+const file = process.argv[1];
+const raw = fs.readFileSync(file, "utf8").trim();
+
+if (raw.length === 0) {
+    process.exit(2);
+}
+
+if (raw.startsWith("{")) {
+    const parsed = JSON.parse(raw);
+
+    if (typeof parsed.key !== "string" || parsed.key.trim().length === 0) {
+        process.exit(2);
+    }
+
+    process.stdout.write(parsed.key.trim());
+    process.exit(0);
+}
+
+process.stdout.write(raw.replace(/\s+/g, ""));
+' "$license_key_file"
+}
+
+run_console system:config:set core.store.licenseHost "$host" --no-interaction >/dev/null
+
+if [[ -z "$license_key" && -n "$license_key_file" ]]; then
+    if [[ ! -f "$license_key_file" ]]; then
+        printf 'Commercial dev license key file was not found: %s\n' "$license_key_file" >&2
+        exit 1
+    fi
+
+    if ! license_key="$(read_license_key_from_file)"; then
+        printf 'Commercial dev license key file must contain either a JSON object with a non-empty key property or a raw license key.\n' >&2
+        exit 1
+    fi
+fi
+
+if [[ -z "$license_key" ]]; then
+    printf '%s\n' 'Bundled commercial-license-generator fallback cannot create signed Commercial licenses.' >&2
+    printf '%s\n' 'Install the internal commercial-license-generator on PATH, pass it with --commercial-license-generator, or set ADMIN_PLUGIN_COMPATIBILITY_COMMERCIAL_LICENSE_KEY_FILE to a downloaded dev license JSON/plain key file.' >&2
+    exit 1
+fi
+
+run_console commercial:license:set "$host" "$license_key" --no-interaction >/dev/null
+run_console commercial:feature:list --no-interaction >/dev/null
+
+license_key="$(run_console system:config:get core.store.licenseKey --no-interaction 2>/dev/null || true)"
+
+if [[ -z "${license_key//[[:space:]]/}" || "$license_key" == "null" ]]; then
+    printf 'Commercial license update did not produce a license key. Log in to the Shopware Account or pass a real commercial-license-generator via --commercial-license-generator.\n' >&2
+    exit 1
+fi
+
+printf 'Commercial license generated for host %s with requested plan %s.\n' "$host" "$plan"
+
+if [[ "$force" == "1" ]]; then
+    true
+fi

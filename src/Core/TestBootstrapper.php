@@ -75,6 +75,8 @@ class TestBootstrapper
             $this->installPlugins();
         }
 
+        KernelLifecycleManager::ensureKernelShutdown();
+
         return $this;
     }
 

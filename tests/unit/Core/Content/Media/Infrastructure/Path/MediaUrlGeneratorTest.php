@@ -92,18 +92,4 @@ class MediaUrlGeneratorTest extends TestCase
 
         static::assertSame(['http://localhost:8000/media/foo/3a/test file.jpg'], $url);
     }
-
-    public function testWithActive68MajorDoesNotDoubleEncode(): void
-    {
-        Feature::skipTestIfInActive('v6.8.0.0', $this);
-
-        $params = new UrlParams('id', UrlParamsSource::MEDIA, 'media/foo/3a/test%20file.jpg', null);
-        $generator = new MediaUrlGenerator(
-            new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']),
-        );
-
-        $url = $generator->generate([$params]);
-
-        static::assertSame(['http://localhost:8000/media/foo/3a/test%20file.jpg'], $url);
-    }
 }

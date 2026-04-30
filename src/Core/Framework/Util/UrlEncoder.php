@@ -47,9 +47,7 @@ class UrlEncoder
         $segments = explode('/', $path);
 
         foreach ($segments as $index => $segment) {
-            $segments[$index] = rawurlencode(
-                rawurldecode($segment)
-            );
+            $segments[$index] = rawurlencode($segment);
         }
 
         return implode('/', $segments);

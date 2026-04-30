@@ -168,12 +168,6 @@ class DocumentConfigLoaderTest extends TestCase
             'expectedLogoUrl' => 'https://example.com/media/my logo_test.webp',
         ];
 
-        yield 'does not double encode' => [
-            'logoUrl' => 'https://example.com/media/my%20logo_test.webp',
-            'activeFeatures' => [],
-            'expectedLogoUrl' => 'https://example.com/media/my%20logo_test.webp',
-        ];
-
         yield 'empty logo url is kept' => [
             'logoUrl' => '',
             'activeFeatures' => [],

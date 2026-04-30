@@ -443,13 +443,6 @@ export default {
             return isMeteorFieldComponent(customField);
         },
 
-        /**
-         * @deprecated tag:v6.8.0 - Will be removed, use `Shopware.Utils.isFieldHandlingLabelAndHelpText` instead.
-         */
-        isFieldHandlingLabelAndHelpText(customField) {
-            return fieldHandlesLabelAndHelpText(customField, { renderedByFormFieldRenderer: true });
-        },
-
         getBind(customField, props) {
             const customFieldClone = Shopware.Utils.object.cloneDeep(customField);
 

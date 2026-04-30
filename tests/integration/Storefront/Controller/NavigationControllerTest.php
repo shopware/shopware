@@ -92,6 +92,7 @@ class NavigationControllerTest extends TestCase
         static::assertNotNull($location);
         static::assertStringContainsString('order=price-asc', $location);
         static::assertStringNotContainsString('p=99', $location);
+        static::assertStringNotContainsString('p=', $location);
     }
 
     public function testStorefrontInRangePaginationStillReturns200(): void
@@ -197,10 +198,11 @@ class NavigationControllerTest extends TestCase
             Context::createDefaultContext()
         )->first();
 
-        if ($seoUrl !== null) {
-            return ltrim($seoUrl->getSeoPathInfo(), '/');
-        }
+        static::assertNotNull(
+            $seoUrl,
+            \sprintf('SEO URL for category %s was not generated; cannot exercise the storefront listing flow.', $categoryId)
+        );
 
-        return 'navigation/' . $categoryId;
+        return ltrim($seoUrl->getSeoPathInfo(), '/');
     }
 }

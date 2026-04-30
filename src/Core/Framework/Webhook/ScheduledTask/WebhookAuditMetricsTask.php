@@ -9,6 +9,8 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class WebhookAuditMetricsTask extends ScheduledTask

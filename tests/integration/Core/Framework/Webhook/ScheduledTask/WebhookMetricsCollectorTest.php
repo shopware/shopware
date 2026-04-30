@@ -9,7 +9,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\ScheduledTask\WebhookMetricsCollector;
-use Shopware\Core\Framework\Webhook\Telemetry\WebhookAuditAgeBucket;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\Clock\MockClock;
 
@@ -57,13 +56,11 @@ class WebhookMetricsCollectorTest extends TestCase
         $this->insertStuckRow('evt-terminal-success', WebhookEventLogDefinition::STATUS_SUCCESS, '-25 hours');
         $this->insertStuckRow('evt-terminal-failed', WebhookEventLogDefinition::STATUS_FAILED, '-25 hours');
 
-        $buckets = $this->collector->countStuckInflight();
+        $counts = $this->collector->countStuckInflight();
 
-        static::assertSame([
-            WebhookAuditAgeBucket::FIFTEEN_MINUTES->value => 3,
-            WebhookAuditAgeBucket::ONE_HOUR->value => 2,
-            WebhookAuditAgeBucket::TWENTY_FOUR_HOURS->value => 1,
-        ], $buckets);
+        static::assertSame(3, $counts->fifteenMinutes);
+        static::assertSame(2, $counts->oneHour);
+        static::assertSame(1, $counts->twentyFourHours);
     }
 
     public function testSnapshotPendingRetryReportsOldestOverdueAndIgnoresFutureRetries(): void
@@ -75,9 +72,9 @@ class WebhookMetricsCollectorTest extends TestCase
 
         $snapshot = $this->collector->snapshotQueueRowsByStatus();
 
-        static::assertSame(2, $snapshot['pending_retry_rows']);
+        static::assertSame(2, $snapshot->pendingRetry->rows);
         // 12 minutes = 720 seconds, allow ±2s for clock drift in test setup
-        static::assertEqualsWithDelta(720, $snapshot['pending_retry_oldest_age_seconds'], 2);
+        static::assertEqualsWithDelta(720, $snapshot->pendingRetry->oldestAgeSeconds, 2);
 
         // Drop the overdue row → only the future row remains → gauge clamps to 0.
         $this->connection->executeStatement(
@@ -90,8 +87,8 @@ class WebhookMetricsCollectorTest extends TestCase
         );
 
         $snapshot = $this->collector->snapshotQueueRowsByStatus();
-        static::assertSame(1, $snapshot['pending_retry_rows']);
-        static::assertSame(0, $snapshot['pending_retry_oldest_age_seconds']);
+        static::assertSame(1, $snapshot->pendingRetry->rows);
+        static::assertSame(0, $snapshot->pendingRetry->oldestAgeSeconds);
     }
 
     private function insertStuckRow(string $eventKey, string $deliveryStatus, string $relativeAge): void

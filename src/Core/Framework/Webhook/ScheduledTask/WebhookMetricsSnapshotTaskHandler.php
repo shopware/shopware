@@ -16,6 +16,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore Integration tested with \Shopware\Tests\Integration\Core\Framework\Webhook\ScheduledTask\WebhookMetricsTaskHandlerTest
  */
 #[AsMessageHandler(handles: WebhookMetricsSnapshotTask::class)]
 #[Package('framework')]
@@ -44,20 +46,18 @@ final class WebhookMetricsSnapshotTaskHandler extends ScheduledTaskHandler
         $snapshot = $this->collector->snapshotQueueRowsByStatus();
 
         foreach ([
-            [WebhookDeliveryStatus::QUEUED, 'queued_rows', 'queued_oldest_age_seconds'],
-            [WebhookDeliveryStatus::PENDING_RETRY, 'pending_retry_rows', 'pending_retry_oldest_age_seconds'],
-            [WebhookDeliveryStatus::RUNNING, 'running_rows', 'running_oldest_age_seconds'],
-        ] as [$status, $rowsKey, $ageKey]) {
-            $rows = $snapshot[$rowsKey];
-            $age = $snapshot[$ageKey];
+            [WebhookDeliveryStatus::QUEUED, $snapshot->queued],
+            [WebhookDeliveryStatus::PENDING_RETRY, $snapshot->pendingRetry],
+            [WebhookDeliveryStatus::RUNNING, $snapshot->running],
+        ] as [$status, $gauge]) {
             $this->meter->emit(new ConfiguredMetric(
                 name: 'webhook.queue.rows',
-                value: $rows,
+                value: $gauge->rows,
                 labels: [WebhookMetricLabel::STATUS->value => $status->value],
             ));
             $this->meter->emit(new ConfiguredMetric(
                 name: 'webhook.queue.oldest_age_seconds',
-                value: $age,
+                value: $gauge->oldestAgeSeconds,
                 labels: [WebhookMetricLabel::STATUS->value => $status->value],
             ));
         }

@@ -16,6 +16,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore Integration tested with \Shopware\Tests\Integration\Core\Framework\Webhook\ScheduledTask\WebhookMetricsTaskHandlerTest
  */
 #[AsMessageHandler(handles: WebhookAuditMetricsTask::class)]
 #[Package('framework')]
@@ -41,15 +43,17 @@ final class WebhookAuditMetricsTaskHandler extends ScheduledTaskHandler
             return;
         }
 
-        $buckets = $this->collector->countStuckInflight();
+        $counts = $this->collector->countStuckInflight();
 
-        foreach ($buckets as $bucket => $count) {
-            $ageBucket = WebhookAuditAgeBucket::from((string) $bucket);
-
+        foreach ([
+            [WebhookAuditAgeBucket::FIFTEEN_MINUTES, $counts->fifteenMinutes],
+            [WebhookAuditAgeBucket::ONE_HOUR, $counts->oneHour],
+            [WebhookAuditAgeBucket::TWENTY_FOUR_HOURS, $counts->twentyFourHours],
+        ] as [$bucket, $count]) {
             $this->meter->emit(new ConfiguredMetric(
                 name: 'webhook.audit.stuck_inflight.rows',
                 value: $count,
-                labels: [WebhookMetricLabel::AGE_BUCKET->value => $ageBucket->value],
+                labels: [WebhookMetricLabel::AGE_BUCKET->value => $bucket->value],
             ));
         }
     }

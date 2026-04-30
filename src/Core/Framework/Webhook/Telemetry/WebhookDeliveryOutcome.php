@@ -6,6 +6,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore Unit tested with \Shopware\Tests\Unit\Core\Framework\Webhook\Service\WebhookOutcomeClassifierTest
  */
 #[Package('framework')]
 enum WebhookDeliveryOutcome: string

@@ -7,10 +7,11 @@ use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
-use Shopware\Core\Framework\Webhook\Telemetry\WebhookAuditAgeBucket;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore Integration tested with \Shopware\Tests\Integration\Core\Framework\Webhook\ScheduledTask\WebhookMetricsCollectorTest
  */
 #[Package('framework')]
 class WebhookMetricsCollector
@@ -21,50 +22,41 @@ class WebhookMetricsCollector
     ) {
     }
 
-    /**
-     * @return array{
-     *     queued_rows: int,
-     *     pending_retry_rows: int,
-     *     running_rows: int,
-     *     queued_oldest_age_seconds: int,
-     *     pending_retry_oldest_age_seconds: int,
-     *     running_oldest_age_seconds: int
-     * }
-     */
-    public function snapshotQueueRowsByStatus(): array
+    public function snapshotQueueRowsByStatus(): WebhookQueueSnapshot
     {
-        $now = $this->clock->now();
-        $nowFormatted = $now->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-
         $row = $this->connection->fetchAssociative(
             <<<'SQL'
                 SELECT
                     SUM(delivery_status = :queued) AS queued_count,
                     SUM(delivery_status = :pending_retry) AS pending_retry_count,
                     SUM(delivery_status = :running) AS running_count,
-                    MIN(CASE WHEN delivery_status = :queued THEN created_at END) AS queued_oldest,
-                    MIN(CASE WHEN delivery_status = :pending_retry AND next_retry_at <= :now THEN next_retry_at END) AS pending_retry_oldest,
-                    MIN(CASE WHEN delivery_status = :running THEN COALESCE(last_attempt_at, created_at) END) AS running_oldest
+                    TIMESTAMPDIFF(SECOND, MIN(CASE WHEN delivery_status = :queued THEN created_at END), :now) AS queued_age,
+                    TIMESTAMPDIFF(SECOND, MIN(CASE WHEN delivery_status = :pending_retry AND next_retry_at <= :now THEN next_retry_at END), :now) AS pending_retry_age,
+                    TIMESTAMPDIFF(SECOND, MIN(CASE WHEN delivery_status = :running THEN COALESCE(last_attempt_at, created_at) END), :now) AS running_age
                 FROM webhook_delivery
             SQL,
             [
                 'queued' => WebhookEventLogDefinition::STATUS_QUEUED,
                 'pending_retry' => WebhookEventLogDefinition::STATUS_PENDING_RETRY,
                 'running' => WebhookEventLogDefinition::STATUS_RUNNING,
-                'now' => $nowFormatted,
+                'now' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
+        ) ?: [];
+
+        return new WebhookQueueSnapshot(
+            queued: new WebhookQueueGauge(
+                rows: (int) ($row['queued_count'] ?? 0),
+                oldestAgeSeconds: max(0, (int) ($row['queued_age'] ?? 0)),
+            ),
+            pendingRetry: new WebhookQueueGauge(
+                rows: (int) ($row['pending_retry_count'] ?? 0),
+                oldestAgeSeconds: max(0, (int) ($row['pending_retry_age'] ?? 0)),
+            ),
+            running: new WebhookQueueGauge(
+                rows: (int) ($row['running_count'] ?? 0),
+                oldestAgeSeconds: max(0, (int) ($row['running_age'] ?? 0)),
+            ),
         );
-
-        $nowTs = $now->getTimestamp();
-
-        return [
-            'queued_rows' => $row !== false ? (int) ($row['queued_count'] ?? 0) : 0,
-            'pending_retry_rows' => $row !== false ? (int) ($row['pending_retry_count'] ?? 0) : 0,
-            'running_rows' => $row !== false ? (int) ($row['running_count'] ?? 0) : 0,
-            'queued_oldest_age_seconds' => $this->ageSeconds($row !== false ? $row['queued_oldest'] ?? null : null, $nowTs),
-            'pending_retry_oldest_age_seconds' => $this->ageSeconds($row !== false ? $row['pending_retry_oldest'] ?? null : null, $nowTs),
-            'running_oldest_age_seconds' => $this->ageSeconds($row !== false ? $row['running_oldest'] ?? null : null, $nowTs),
-        ];
     }
 
     public function countStaleStreams(): int
@@ -80,12 +72,9 @@ class WebhookMetricsCollector
     }
 
     /**
-     * Cumulative bucket count: a row stuck for 24h is also counted in the 1h and 15m buckets.
      * Excludes terminal event-log mirrors so cleanup-pending rows don't show up.
-     *
-     * @return array{'15m': int, '1h': int, '24h': int}
      */
-    public function countStuckInflight(): array
+    public function countStuckInflight(): WebhookStuckInflightCounts
     {
         $now = $this->clock->now();
         $cutoff15m = $now->modify('-15 minutes')->format(Defaults::STORAGE_DATE_TIME_FORMAT);
@@ -124,21 +113,12 @@ class WebhookMetricsCollector
                 'cutoff1h' => $cutoff1h,
                 'cutoff24h' => $cutoff24h,
             ]
+        ) ?: [];
+
+        return new WebhookStuckInflightCounts(
+            fifteenMinutes: (int) ($row['bucket_15m'] ?? 0),
+            oneHour: (int) ($row['bucket_1h'] ?? 0),
+            twentyFourHours: (int) ($row['bucket_24h'] ?? 0),
         );
-
-        return [
-            WebhookAuditAgeBucket::FIFTEEN_MINUTES->value => $row !== false ? (int) ($row['bucket_15m'] ?? 0) : 0,
-            WebhookAuditAgeBucket::ONE_HOUR->value => $row !== false ? (int) ($row['bucket_1h'] ?? 0) : 0,
-            WebhookAuditAgeBucket::TWENTY_FOUR_HOURS->value => $row !== false ? (int) ($row['bucket_24h'] ?? 0) : 0,
-        ];
-    }
-
-    private function ageSeconds(mixed $rawTimestamp, int $nowTs): int
-    {
-        if ($rawTimestamp === null) {
-            return 0;
-        }
-
-        return max(0, $nowTs - (new \DateTimeImmutable((string) $rawTimestamp))->getTimestamp());
     }
 }

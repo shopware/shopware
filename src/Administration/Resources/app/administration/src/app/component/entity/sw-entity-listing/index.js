@@ -173,10 +173,10 @@ export default {
     computed: {
         detailPageLinkText() {
             if (!this.allowEdit && this.allowView) {
-                return this.$tc('global.default.view');
+                return this.$t('global.default.view');
             }
 
-            return this.$tc('global.default.edit');
+            return this.$t('global.default.edit');
         },
 
         /**

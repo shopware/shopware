@@ -122,31 +122,31 @@ export default Component.wrapComponentConfig({
             return [
                 {
                     property: 'createdAt',
-                    label: this.$tc('sw-order.stateHistoryModal.column.createdAt'),
+                    label: this.$t('sw-order.stateHistoryModal.column.createdAt'),
                 },
                 {
                     property: 'entity',
-                    label: this.$tc('sw-order.stateHistoryModal.column.entity'),
+                    label: this.$t('sw-order.stateHistoryModal.column.entity'),
                 },
                 {
                     property: 'user',
-                    label: this.$tc('sw-order.stateHistoryModal.column.user'),
+                    label: this.$t('sw-order.stateHistoryModal.column.user'),
                 },
                 {
                     property: 'transaction',
-                    label: this.$tc('sw-order.stateHistoryModal.column.transaction'),
+                    label: this.$t('sw-order.stateHistoryModal.column.transaction'),
                 },
                 {
                     property: 'delivery',
-                    label: this.$tc('sw-order.stateHistoryModal.column.delivery'),
+                    label: this.$t('sw-order.stateHistoryModal.column.delivery'),
                 },
                 {
                     property: 'order',
-                    label: this.$tc('sw-order.stateHistoryModal.column.order'),
+                    label: this.$t('sw-order.stateHistoryModal.column.order'),
                 },
                 {
                     property: 'internalComment',
-                    label: this.$tc('sw-order.stateHistoryModal.column.internalComment'),
+                    label: this.$t('sw-order.stateHistoryModal.column.internalComment'),
                 },
             ];
         },

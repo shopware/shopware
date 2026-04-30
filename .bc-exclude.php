@@ -1,5 +1,7 @@
 <?php declare(strict_types=1);
 
+use Shopware\Core\Framework\Adapter\Twig\SwTwigFunction;
+
 return [
     'filePatterns' => [
         '**/Test/**', // Testing
@@ -66,5 +68,10 @@ return [
         preg_quote('REMOVED: Class Shopware\Storefront\Framework\Routing\StorybookRouteScopeAllowList has been deleted', '/'),
         preg_quote('REMOVED: Method Shopware\Core\Framework\Bundle::getTwigComponentNamespace() was removed', '/'),
         preg_quote('REMOVED: Method Shopware\Core\Framework\Bundle::getTwigComponentNamespace() was removed', '/'),
+
+        /** Internal annotation on {@see SwTwigFunction} was not recognized correctly */
+        preg_quote('CHANGED: Shopware\Core\Framework\Adapter\Twig\SwTwigFunction was marked "@internal"', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::escapeFilter() was removed', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::resetEscapeCache() was removed', '/'),
     ],
 ];

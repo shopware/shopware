@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
@@ -136,7 +137,8 @@ readonly class MediaUploadService
         Context $context,
         MediaUploadParameters $params = new MediaUploadParameters()
     ): string {
-        $params->fillDefaultFileName(basename($url));
+        $decodedUrl = urldecode($url);
+        $params->fillDefaultFileName(basename($decodedUrl));
 
         if ($params->mimeType === null) {
             throw MediaException::mimeTypeNotProvided();
@@ -144,7 +146,10 @@ readonly class MediaUploadService
 
         if ($params->deduplicate) {
             $criteria = new Criteria();
-            $criteria->addFilter(new EqualsFilter('path', $url));
+            $criteria->addFilter(new OrFilter([
+                new EqualsFilter('path', $url),
+                new EqualsFilter('path', $decodedUrl),
+            ]));
 
             if ($mediaId = $this->mediaRepository->searchIds($criteria, $context)->firstId()) {
                 return $mediaId;
@@ -155,7 +160,7 @@ readonly class MediaUploadService
             'id' => $params->id ?? Uuid::randomHex(),
             'userId' => $this->getUserIdFromContext($context),
             'private' => $params->private ?? false,
-            'path' => $url,
+            'path' => $decodedUrl,
             'fileSize' => $this->getContentSizeFromValidExternalUrl($url),
             'fileName' => $params->getFileNameWithoutExtension(),
             'fileExtension' => $params->getFileNameExtension(),
@@ -314,13 +319,14 @@ readonly class MediaUploadService
 
         foreach ($thumbnails as $thumbnail) {
             $this->validateExternalUrl($thumbnail->url);
+            $decodedUrl = urldecode($thumbnail->url);
 
             $sizeId = $this->getOrCreateThumbnailSize($thumbnail->width, $thumbnail->height, $context);
 
             $thumbnailPayloads[] = [
                 'id' => Uuid::randomHex(),
                 'mediaId' => $mediaId,
-                'path' => $thumbnail->url,
+                'path' => $decodedUrl,
                 'width' => $thumbnail->width,
                 'height' => $thumbnail->height,
                 'mediaThumbnailSizeId' => $sizeId,

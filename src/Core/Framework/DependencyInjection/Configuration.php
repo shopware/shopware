@@ -30,6 +30,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createApiSection())
                 ->append($this->createStoreSection())
                 ->append($this->createCartSection())
+                ->append($this->createOrderSection())
                 ->append($this->createSalesChannelContextSection())
                 ->append($this->createAdminWorkerSection())
                 ->append($this->createAutoUpdateSection())
@@ -598,6 +599,24 @@ class Configuration implements ConfigurationInterface
         return $rootNode;
     }
 
+    private function createOrderSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('order');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+                ->arrayNode('deep_link')
+                    ->children()
+                        ->integerNode('expire_days')
+                            ->min(1)
+                            ->defaultValue(30)
+                    ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
     private function createNumberRangeSection(): ArrayNodeDefinition
     {
         $treeBuilder = new TreeBuilder('number_range');
@@ -685,6 +704,27 @@ class Configuration implements ConfigurationInterface
                             ->arrayNode('tags')
                                 ->defaultValue([])
                                 ->scalarPrototype()->end()
+                            ->end()
+                            ->arrayNode('custom_tags')
+                                ->arrayPrototype()
+                                    ->children()
+                                        ->scalarNode('tag')
+                                        ->end()
+                                        ->scalarNode('type')
+                                        ->end()
+                                        ->scalarNode('contents')
+                                            ->defaultValue('Flow')
+                                        ->end()
+                                        ->arrayNode('attr_collections')
+                                            ->defaultValue([])
+                                            ->scalarPrototype()->end()
+                                        ->end()
+                                        ->arrayNode('attributes')
+                                            ->defaultValue([])
+                                            ->scalarPrototype()->end()
+                                        ->end()
+                                    ->end()
+                                ->end()
                             ->end()
                             ->arrayNode('attributes')
                                 ->defaultValue([])

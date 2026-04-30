@@ -66,27 +66,27 @@ export default {
             return [
                 {
                     value: 'createdAt:asc',
-                    name: this.$tc('sw-media.sorting.labelSortByCreatedAsc'),
+                    name: this.$t('sw-media.sorting.labelSortByCreatedAsc'),
                 },
                 {
                     value: 'createdAt:desc',
-                    name: this.$tc('sw-media.sorting.labelSortByCreatedDsc'),
+                    name: this.$t('sw-media.sorting.labelSortByCreatedDsc'),
                 },
                 {
                     value: 'fileName:asc',
-                    name: this.$tc('sw-media.sorting.labelSortByNameAsc'),
+                    name: this.$t('sw-media.sorting.labelSortByNameAsc'),
                 },
                 {
                     value: 'fileName:desc',
-                    name: this.$tc('sw-media.sorting.labelSortByNameDsc'),
+                    name: this.$t('sw-media.sorting.labelSortByNameDsc'),
                 },
                 {
                     value: 'fileSize:asc',
-                    name: this.$tc('sw-media.sorting.labelSortBySizeAsc'),
+                    name: this.$t('sw-media.sorting.labelSortBySizeAsc'),
                 },
                 {
                     value: 'fileSize:desc',
-                    name: this.$tc('sw-media.sorting.labelSortBySizeDsc'),
+                    name: this.$t('sw-media.sorting.labelSortBySizeDsc'),
                 },
             ];
         },
@@ -95,19 +95,19 @@ export default {
             return [
                 {
                     value: 'small-preview',
-                    name: this.$tc('sw-media.presentation.labelPresentationSmall'),
+                    name: this.$t('sw-media.presentation.labelPresentationSmall'),
                 },
                 {
                     value: 'medium-preview',
-                    name: this.$tc('sw-media.presentation.labelPresentationMedium'),
+                    name: this.$t('sw-media.presentation.labelPresentationMedium'),
                 },
                 {
                     value: 'large-preview',
-                    name: this.$tc('sw-media.presentation.labelPresentationLarge'),
+                    name: this.$t('sw-media.presentation.labelPresentationLarge'),
                 },
                 {
                     value: 'list-preview',
-                    name: this.$tc('sw-media.presentation.labelPresentationList'),
+                    name: this.$t('sw-media.presentation.labelPresentationList'),
                 },
             ];
         },

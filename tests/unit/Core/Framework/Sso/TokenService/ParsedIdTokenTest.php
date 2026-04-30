@@ -21,9 +21,16 @@ use Shopware\Tests\Integration\Core\Framework\Sso\Helper\FakeTokenGenerator;
 #[CoversClass(ParsedIdToken::class)]
 class ParsedIdTokenTest extends TestCase
 {
+    private FakeTokenGenerator $tokenGenerator;
+
+    protected function setUp(): void
+    {
+        $this->tokenGenerator = new FakeTokenGenerator();
+    }
+
     public function testCreateFromDataSet(): void
     {
-        $token = (new FakeTokenGenerator())->generate();
+        $token = $this->tokenGenerator->generate();
         $parser = new Parser(new JoseEncoder());
         $parsed = $parser->parse($token);
         static::assertInstanceOf(Plain::class, $parsed);
@@ -43,115 +50,96 @@ class ParsedIdTokenTest extends TestCase
     }
 
     /**
-     * @return array<string, array<int, DataSet|string>>
+     * @return \Generator<string, array{DataSet, string}>
      */
-    public static function invalidData(): array
+    public static function invalidData(): \Generator
     {
-        return [
-            'All is not set' => [
-                new DataSet([], ''),
-                'ID-Token not valid: [exp] This field is missing., [sub] This field is missing., [email] This field is missing.',
-            ],
+        yield 'All is not set' => [
+            new DataSet([], ''),
+            'ID-Token not valid: [exp] This field is missing., [sub] This field is missing., [email] This field is missing.',
+        ];
 
-            'All is NULL' => [
-                new DataSet(['exp' => null, 'sub' => null, 'email' => null, 'preferred_username' => null, 'given_name' => null, 'family_name' => null], ''),
-                'ID-Token not valid: [exp] is empty, [sub] is empty, [email] is empty',
-            ],
+        yield 'All is NULL' => [
+            new DataSet(['exp' => null, 'sub' => null, 'email' => null, 'preferred_username' => null, 'given_name' => null, 'family_name' => null], ''),
+            'ID-Token not valid: [exp] is empty, [sub] is empty, [email] is empty',
+        ];
 
-            'All is blank' => [
-                new DataSet(['exp' => '', 'sub' => '', 'email' => '', 'preferred_username' => '', 'given_name' => '', 'family_name' => ''], ''),
-                'ID-Token not valid: [exp] is empty, [sub] is empty, [email] is empty',
-            ],
+        yield 'All is blank' => [
+            new DataSet(['exp' => '', 'sub' => '', 'email' => '', 'preferred_username' => '', 'given_name' => '', 'family_name' => ''], ''),
+            'ID-Token not valid: [exp] is empty, [sub] is empty, [email] is empty',
+        ];
 
-            'exp is blank' => [
-                new DataSet(['exp' => '', 'sub' => 'sub', 'email' => 'foo@bar.baz', 'preferred_username' => 'preferred_username', 'given_name' => 'given_name', 'family_name' => 'family_name'], ''),
-                'ID-Token not valid: [exp] is empty',
-            ],
+        yield 'exp is blank' => [
+            new DataSet(['exp' => '', 'sub' => 'sub', 'email' => 'foo@bar.baz', 'preferred_username' => 'preferred_username', 'given_name' => 'given_name', 'family_name' => 'family_name'], ''),
+            'ID-Token not valid: [exp] is empty',
+        ];
 
-            'sub is blank' => [
-                new DataSet(['exp' => 'exp', 'sub' => '', 'email' => 'foo@bar.baz', 'preferred_username' => 'preferred_username', 'given_name' => 'given_name', 'family_name' => 'family_name'], ''),
-                'ID-Token not valid: [sub] is empty',
-            ],
+        yield 'sub is blank' => [
+            new DataSet(['exp' => 'exp', 'sub' => '', 'email' => 'foo@bar.baz', 'preferred_username' => 'preferred_username', 'given_name' => 'given_name', 'family_name' => 'family_name'], ''),
+            'ID-Token not valid: [sub] is empty',
+        ];
 
-            'email is blank' => [
-                new DataSet(['exp' => 'exp', 'sub' => 'sub', 'email' => '', 'preferred_username' => 'preferred_username', 'given_name' => 'given_name', 'family_name' => 'family_name'], ''),
-                'ID-Token not valid: [email] is empty',
-            ],
+        yield 'email is blank' => [
+            new DataSet(['exp' => 'exp', 'sub' => 'sub', 'email' => '', 'preferred_username' => 'preferred_username', 'given_name' => 'given_name', 'family_name' => 'family_name'], ''),
+            'ID-Token not valid: [email] is empty',
+        ];
 
-            'email is invalid' => [
-                new DataSet(['exp' => 'exp', 'sub' => 'sub', 'email' => 'invalid', 'preferred_username' => 'preferred_username', 'given_name' => 'given_name', 'family_name' => 'family_name'], ''),
-                'ID-Token not valid: [email] is a invalid email address',
-            ],
+        yield 'email is invalid' => [
+            new DataSet(['exp' => 'exp', 'sub' => 'sub', 'email' => 'invalid', 'preferred_username' => 'preferred_username', 'given_name' => 'given_name', 'family_name' => 'family_name'], ''),
+            'ID-Token not valid: [email] is a invalid email address',
         ];
     }
 
-    #[DataProvider('nullOrEmptyDataset')]
-    public function testCreateFromDataSetShouldReturnEmailIfValueIsNullOrEmpty(bool $isNull, string $property): void
+    #[DataProvider('nullOrEmptyValues')]
+    public function testUsernameDefaultsToEmailWhenNullOrEmpty(?string $value, string $expected): void
     {
-        $tokenGenerator = new FakeTokenGenerator();
-        $parser = new Parser(new JoseEncoder());
-        $email = 'foo@bar.baz';
-        $value = '';
-        if ($isNull) {
-            $value = null;
-        }
+        $this->tokenGenerator->setEmail($expected);
+        $this->tokenGenerator->setPreferredUsername($value);
 
-        $tokenGenerator->setEmail($email);
-        $setter = $this->getSetter($property);
-        // @phpstan-ignore method.dynamicName
-        $tokenGenerator->$setter($value);
+        $result = $this->parseToken($this->tokenGenerator);
+        static::assertSame($expected, $result->username);
+    }
 
-        $token = $tokenGenerator->generate();
-        $parsed = $parser->parse($token);
-        static::assertInstanceOf(Plain::class, $parsed);
+    #[DataProvider('nullOrEmptyValues')]
+    public function testGivenNameDefaultsToEmailWhenNullOrEmpty(?string $value, string $expected): void
+    {
+        $this->tokenGenerator->setEmail($expected);
+        $this->tokenGenerator->setGivenName($value);
 
-        $result = ParsedIdToken::createFromDataSet($parsed->claims());
-        // @phpstan-ignore property.dynamicName
-        static::assertSame($email, $result->$property);
+        $result = $this->parseToken($this->tokenGenerator);
+        static::assertSame($expected, $result->givenName);
+    }
+
+    #[DataProvider('nullOrEmptyValues')]
+    public function testFamilyNameDefaultsToEmailWhenNullOrEmpty(?string $value, string $expected): void
+    {
+        $this->tokenGenerator->setEmail($expected);
+        $this->tokenGenerator->setFamilyName($value);
+
+        $result = $this->parseToken($this->tokenGenerator);
+        static::assertSame($expected, $result->familyName);
     }
 
     /**
-     * @return array<array<string, bool|string>>
+     * @return \Generator<string, array{value: ?string, expected: string}>
      */
-    public static function nullOrEmptyDataset(): array
+    public static function nullOrEmptyValues(): \Generator
     {
-        return [
-            [
-                'isNull' => true,
-                'property' => 'username',
-            ],
-            [
-                'isNull' => false,
-                'property' => 'username',
-            ],
-            [
-                'isNull' => true,
-                'property' => 'givenName',
-            ],
-            [
-                'isNull' => false,
-                'property' => 'givenName',
-            ],
-            [
-                'isNull' => true,
-                'property' => 'familyName',
-            ],
-            [
-                'isNull' => false,
-                'property' => 'familyName',
-            ],
+        yield 'null' => [
+            'value' => null,
+            'expected' => 'foo@bar.baz',
+        ];
+        yield 'empty string' => [
+            'value' => '',
+            'expected' => 'foo@bar.baz',
         ];
     }
 
-    public function getSetter(string $property): string
+    private function parseToken(FakeTokenGenerator $tokenGenerator): ParsedIdToken
     {
-        $setterSuffix = $property;
+        $parsed = (new Parser(new JoseEncoder()))->parse($tokenGenerator->generate());
+        static::assertInstanceOf(Plain::class, $parsed);
 
-        // add exception for username property because it is different in token generator
-        if ($setterSuffix === 'username') {
-            $setterSuffix = 'preferredUsername';
-        }
-
-        return 'set' . \ucfirst($setterSuffix);
+        return ParsedIdToken::createFromDataSet($parsed->claims());
     }
 }

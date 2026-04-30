@@ -60,7 +60,7 @@ export default {
                 return '';
             }
 
-            return this.$tc(
+            return this.$t(
                 'sw-promotion-v2.detail.base.codes.individual.textDeleteConfirm',
                 {
                     code: this.currentSelection[0].code || '',
@@ -73,19 +73,19 @@ export default {
             return [
                 {
                     property: 'code',
-                    label: this.$tc('sw-promotion-v2.detail.base.codes.individual.columnCode'),
+                    label: this.$t('sw-promotion-v2.detail.base.codes.individual.columnCode'),
                 },
                 {
                     property: 'payload',
-                    label: this.$tc('sw-promotion-v2.detail.base.codes.individual.columnRedeemed'),
+                    label: this.$t('sw-promotion-v2.detail.base.codes.individual.columnRedeemed'),
                 },
                 {
                     property: 'payload.customerName',
-                    label: this.$tc('sw-promotion-v2.detail.base.codes.individual.columnCustomer'),
+                    label: this.$t('sw-promotion-v2.detail.base.codes.individual.columnCustomer'),
                 },
                 {
                     property: 'createdAt',
-                    label: this.$tc('sw-promotion-v2.detail.base.codes.individual.columnCreatedAt'),
+                    label: this.$t('sw-promotion-v2.detail.base.codes.individual.columnCreatedAt'),
                 },
             ];
         },
@@ -214,7 +214,7 @@ export default {
 
                         this.createNotificationError({
                             autoClose: false,
-                            message: this.$tc(`sw-promotion-v2.detail.base.codes.individual.generateModal.${errorType}`),
+                            message: this.$t(`sw-promotion-v2.detail.base.codes.individual.generateModal.${errorType}`),
                         });
                     });
                 });
@@ -245,7 +245,7 @@ export default {
 
         createRoutingErrorNotification(name) {
             this.createNotificationError({
-                message: this.$tc('sw-promotion-v2.detail.base.codes.individual.routingError', { name }, 0),
+                message: this.$t('sw-promotion-v2.detail.base.codes.individual.routingError', { name }, 0),
             });
         },
     },

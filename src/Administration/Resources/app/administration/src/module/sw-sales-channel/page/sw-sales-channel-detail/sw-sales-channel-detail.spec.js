@@ -486,4 +486,97 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         expect(wrapper.vm.productComparison.previousTemplateName).toBeNull();
         expect(wrapper.vm.productComparison.showTemplateModal).toBe(false);
     });
+
+    it('should return true when required agentic commerce fields have values', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.setData({
+            agenticCommerceExportConfig: [
+                {
+                    provider: 'open-ai',
+                    elements: [
+                        {
+                            name: 'core.openAiProductExport.returnPolicyUrl',
+                            config: { required: true },
+                        },
+                    ],
+                    values: { 'core.openAiProductExport.returnPolicyUrl': 'https://example.com/returns' },
+                    errors: {},
+                    isLoaded: true,
+                    isLoading: false,
+                },
+            ],
+        });
+
+        expect(wrapper.vm.validateAgenticCommerceExportConfig()).toBe(true);
+        expect(wrapper.vm.agenticCommerceExportConfig[0].errors).toEqual({});
+    });
+
+    it('should return false and sets field error when a required agentic commerce field is empty', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.setData({
+            agenticCommerceExportConfig: [
+                {
+                    provider: 'open-ai',
+                    elements: [
+                        {
+                            name: 'core.openAiProductExport.returnPolicyUrl',
+                            config: { required: true },
+                        },
+                    ],
+                    values: {},
+                    errors: {},
+                    isLoaded: true,
+                    isLoading: false,
+                },
+            ],
+        });
+
+        const result = wrapper.vm.validateAgenticCommerceExportConfig();
+
+        expect(result).toBe(false);
+        expect(wrapper.vm.agenticCommerceExportConfig[0].errors['core.openAiProductExport.returnPolicyUrl']).toBeDefined();
+        expect(wrapper.vm.agenticCommerceExportConfig[0].errors['core.openAiProductExport.returnPolicyUrl'].code).toBe(
+            'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+        );
+    });
+
+    it('should not call save when a required agentic commerce field is empty', async () => {
+        const wrapper = await createWrapper({
+            salesChannelResponse: {
+                typeId: Shopware.Defaults.agenticCommerceTypeId,
+            },
+        });
+
+        await flushPromises();
+        mockSave.mockClear();
+
+        await wrapper.setData({
+            isLoading: true,
+            agenticCommerceExportConfig: [
+                {
+                    provider: 'open-ai',
+                    elements: [
+                        {
+                            name: 'core.openAiProductExport.returnPolicyUrl',
+                            config: { required: true },
+                        },
+                    ],
+                    values: {},
+                    errors: {},
+                    isLoaded: true,
+                    isLoading: false,
+                },
+            ],
+        });
+
+        await wrapper.vm.onSave();
+        await flushPromises();
+
+        expect(mockSave).not.toHaveBeenCalled();
+        expect(wrapper.vm.isLoading).toBe(false);
+    });
 });

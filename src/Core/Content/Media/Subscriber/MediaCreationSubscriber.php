@@ -4,7 +4,9 @@ namespace Shopware\Core\Content\Media\Subscriber;
 
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailDefinition;
+use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
 use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Media\Util\PathHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
@@ -37,9 +39,14 @@ class MediaCreationSubscriber implements EventSubscriberInterface
     private function filterFilePath(array $commands): void
     {
         foreach ($commands as $command) {
-            $path = preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $command->getPayload()['path']);
+            // Remove control characters and invisible formatting characters
+            try {
+                $path = PathHelper::stripControlAndFormatChars($command->getPayload()['path']);
+            } catch (IllegalFileNameException) {
+                $path = null;
+            }
 
-            $command->addPayload('path', \is_string($path) ? $path : null);
+            $command->addPayload('path', $path);
         }
     }
 

@@ -56,7 +56,7 @@ export default {
 
         addButtonTooltip() {
             return {
-                message: this.$tc('sw-privileges.tooltip.warning'),
+                message: this.$t('sw-privileges.tooltip.warning'),
                 disabled: this.acl.can('promotion.creator'),
                 showOnDisabledElements: true,
                 position: 'bottom',
@@ -154,7 +154,7 @@ export default {
             try {
                 const behavior = {
                     overwrites: {
-                        name: `${referencePromotion.name} ${this.$tc('global.default.copy')}`,
+                        name: `${referencePromotion.name} ${this.$t('global.default.copy')}`,
                         code: null,
                         useCodes: false,
                         useIndividualCodes: false,
@@ -175,7 +175,7 @@ export default {
                 });
 
                 this.createNotificationInfo({
-                    message: this.$tc('sw-promotion-v2.list.duplicatePromotionInfo'),
+                    message: this.$t('sw-promotion-v2.list.duplicatePromotionInfo'),
                 });
             } catch (error) {
                 throw new Error(error);
@@ -187,7 +187,7 @@ export default {
         deleteDisabledTooltip(promotion) {
             return {
                 showDelay: 300,
-                message: this.$tc('sw-promotion-v2.list.deleteDisabledToolTip'),
+                message: this.$t('sw-promotion-v2.list.deleteDisabledToolTip'),
                 disabled: promotion.orderCount === 0,
             };
         },

@@ -79,14 +79,14 @@ export default {
             return [
                 {
                     property: 'active',
-                    label: this.$tc('sw-flow.list.labelColumnActive'),
+                    label: this.$t('sw-flow.list.labelColumnActive'),
                     width: '80px',
                     sortable: true,
                 },
                 {
                     property: 'name',
                     dataIndex: 'name',
-                    label: this.$tc('sw-flow.list.labelColumnName'),
+                    label: this.$t('sw-flow.list.labelColumnName'),
                     allowResize: true,
                     routerLink: 'sw.flow.detail',
                     primary: true,
@@ -94,7 +94,7 @@ export default {
                 {
                     property: 'eventName',
                     dataIndex: 'eventName',
-                    label: this.$tc('sw-flow.list.labelColumnTrigger'),
+                    label: this.$t('sw-flow.list.labelColumnTrigger'),
                     allowResize: true,
                     multiLine: true,
                 },
@@ -103,10 +103,10 @@ export default {
 
         detailPageLinkText() {
             if (!this.acl.can('flow.editor') && this.acl.can('flow.viewer')) {
-                return this.$tc('global.default.view');
+                return this.$t('global.default.view');
             }
 
-            return this.$tc('global.default.edit');
+            return this.$t('global.default.edit');
         },
 
         assetFilter() {
@@ -153,7 +153,7 @@ export default {
         onDuplicateFlow(item) {
             const behavior = {
                 overwrites: {
-                    name: `${item.name} - ${this.$tc('global.default.copy')}`,
+                    name: `${item.name} - ${this.$t('global.default.copy')}`,
                 },
             };
 
@@ -161,7 +161,7 @@ export default {
                 .clone(item.id, behavior, Shopware.Context.api)
                 .then((response) => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-flow.flowNotification.messageDuplicateSuccess'),
+                        message: this.$t('sw-flow.flowNotification.messageDuplicateSuccess'),
                     });
 
                     if (response?.id) {
@@ -173,7 +173,7 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-flow.flowNotification.messageDuplicateError'),
+                        message: this.$t('sw-flow.flowNotification.messageDuplicateError'),
                     });
                 });
         },
@@ -207,13 +207,13 @@ export default {
                 .delete(item.id)
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-flow.flowNotification.messageDeleteSuccess'),
+                        message: this.$t('sw-flow.flowNotification.messageDeleteSuccess'),
                     });
                     this.getList();
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-flow.flowNotification.messageDeleteError'),
+                        message: this.$t('sw-flow.flowNotification.messageDeleteError'),
                     });
                 });
         },
@@ -229,7 +229,7 @@ export default {
             const snippetKey = value.replace(/\./g, '_');
             const globalKey = `global.businessEvents.${snippetKey}`;
             const customKey = `sw-flow-custom-event.flow-list.${snippetKey}`;
-            return this.$te(globalKey) ? this.$tc(globalKey) : this.$tc(customKey);
+            return this.$te(globalKey) ? this.$t(globalKey) : this.$t(customKey);
         },
 
         selectionChange(selection) {
@@ -237,12 +237,12 @@ export default {
         },
 
         deleteWarningMessage() {
-            return `${this.$tc('sw-flow.list.warningDeleteText')} ${this.$tc('sw-flow.list.confirmText')}`;
+            return `${this.$t('sw-flow.list.warningDeleteText')} ${this.$t('sw-flow.list.confirmText')}`;
         },
 
         bulkDeleteWarningMessage(selectionCount) {
-            return `${this.$tc('sw-flow.list.warningDeleteText')}
-            ${this.$tc('global.entity-components.deleteMessage', { count: selectionCount }, selectionCount)}`;
+            return `${this.$t('sw-flow.list.warningDeleteText')}
+            ${this.$t('global.entity-components.deleteMessage', { count: selectionCount }, selectionCount)}`;
         },
     },
 };

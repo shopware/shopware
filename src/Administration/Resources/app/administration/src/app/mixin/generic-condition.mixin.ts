@@ -155,11 +155,11 @@ export default Mixin.register(
             boolOptions() {
                 return [
                     {
-                        label: this.$tc('global.default.yes'),
+                        label: this.$t('global.default.yes'),
                         value: true,
                     },
                     {
-                        label: this.$tc('global.default.no'),
+                        label: this.$t('global.default.no'),
                         value: false,
                     },
                 ];
@@ -205,7 +205,7 @@ export default Mixin.register(
                 ) {
                     fieldClone.config.options = fieldClone.config.options.map((value) => {
                         return {
-                            label: this.$tc(
+                            label: this.$t(
                                 [
                                     ...snippetBasePath,
                                     'options',
@@ -223,7 +223,7 @@ export default Mixin.register(
                 }
 
                 if (this.$te(placeholderPath)) {
-                    fieldClone.config.placeholder = this.$tc(placeholderPath);
+                    fieldClone.config.placeholder = this.$t(placeholderPath);
                 }
 
                 fieldClone.config.name = `sw-field--${fieldClone.name}`;

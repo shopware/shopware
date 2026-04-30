@@ -1187,7 +1187,7 @@ class SalesChannelProxyControllerTest extends TestCase
                 'name' => 'test language ' . $fallbackId,
                 'locale' => [
                     'id' => $fallbackLocaleId,
-                    'code' => 'x-tst_' . $fallbackLocaleId,
+                    'code' => 'de-DE-' . $fallbackLocaleId,
                     'name' => 'Test locale ' . $fallbackLocaleId,
                     'territory' => 'Test territory ' . $fallbackLocaleId,
                 ],
@@ -1205,7 +1205,7 @@ class SalesChannelProxyControllerTest extends TestCase
             'parentId' => $fallbackId,
             'locale' => [
                 'id' => $localeId,
-                'code' => 'x-tst_' . $localeId,
+                'code' => 'de-DE-' . $localeId,
                 'name' => 'Test locale ' . $localeId,
                 'territory' => 'Test territory ' . $localeId,
             ],

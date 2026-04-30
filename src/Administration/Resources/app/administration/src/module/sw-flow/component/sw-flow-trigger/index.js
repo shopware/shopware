@@ -46,7 +46,7 @@ export default {
     data() {
         return {
             isExpanded: false,
-            isLoading: false,
+            isLoading: true,
             searchTerm: '',
             searchResult: [],
             searchResultFocusItem: {},
@@ -112,7 +112,12 @@ export default {
 
                 this.$route.params.eventName = value;
                 this.searchTerm = this.getEventName(value);
+                this.updateTriggerEvent(value);
             },
+        },
+
+        triggerEvents() {
+            this.updateTriggerEvent(this.eventName);
         },
 
         searchTerm(value) {
@@ -167,8 +172,8 @@ export default {
         },
     },
 
-    created() {
-        this.createdComponent();
+    async created() {
+        await this.createdComponent();
     },
 
     beforeUnmount() {
@@ -176,21 +181,39 @@ export default {
     },
 
     methods: {
-        createdComponent() {
+        async createdComponent() {
             document.addEventListener('click', this.handleClickEvent);
             document.addEventListener('keydown', this.handleGeneralKeyEvents);
 
             this.isLoading = true;
-            Store.get('swFlow').fetchTriggerActions();
-            Store.get('swFlow').triggerEvent = this.getDataByEvent(this.eventName);
-            Store.get('swFlow').restrictedRules = this.eventName;
 
-            this.isLoading = false;
+            try {
+                await Store.get('swFlow').fetchTriggerActions();
+            } finally {
+                this.isLoading = false;
+            }
+
+            this.updateTriggerEvent(this.eventName);
         },
 
         beforeDestroyComponent() {
             document.removeEventListener('click', this.handleClickEvent);
             document.removeEventListener('keydown', this.handleGeneralKeyEvents);
+        },
+
+        updateTriggerEvent(eventName) {
+            if (!eventName) {
+                return;
+            }
+
+            const triggerEvent = this.getDataByEvent(eventName);
+
+            if (!triggerEvent) {
+                return;
+            }
+
+            Store.get('swFlow').triggerEvent = triggerEvent;
+            Store.get('swFlow').restrictedRules = eventName;
         },
 
         handleClickEvent(event) {

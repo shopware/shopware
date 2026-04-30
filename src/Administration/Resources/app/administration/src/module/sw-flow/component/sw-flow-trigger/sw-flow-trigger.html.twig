@@ -13,7 +13,7 @@
             class="sw-flow-trigger__search-field"
             :required="!isTemplate"
             :label="$t('sw-flow.detail.trigger.name')"
-            :disabled="disabled"
+            :disabled="disabled || isLoading"
             :error="flowEventNameError"
         >
             <template #sw-field-input="{ identification, disabled, error, size, setFocusClass, removeFocusClass }">
@@ -30,12 +30,8 @@
                 >
                 {% endblock %}
 
+                {# @deprecated tag:v6.8.0 - Will be removed #}
                 {% block sw_flow_trigger_loader %}
-                <sw-loader
-                    v-if="isLoading"
-                    class="sw-flow-trigger__loader"
-                    size="16px"
-                />
                 {% endblock %}
 
                 {% block sw_flow_trigger_dropdown_icon %}

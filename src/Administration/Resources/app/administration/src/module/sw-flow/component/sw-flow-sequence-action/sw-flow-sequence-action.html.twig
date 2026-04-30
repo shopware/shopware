@@ -5,6 +5,12 @@
 >
     {% block sw_flow_sequence_action_card %}
     <div class="sw-flow-sequence-action__card">
+        <mt-loader
+            v-if="isLoading"
+            class="sw-flow-sequence-action__card-loader"
+            size="28px"
+        />
+
         {% block sw_flow_sequence_action_header %}
         <div class="sw-flow-sequence-action__header">
             {% block sw_flow_sequence_action_title %}

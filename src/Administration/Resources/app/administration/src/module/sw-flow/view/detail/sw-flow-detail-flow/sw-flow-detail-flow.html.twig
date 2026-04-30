@@ -33,6 +33,12 @@
         <div class="sw-flow-detail-flow__trigger-card">
             {% block sw_flow_detail_flow_trigger_select %}
             <div class="sw-flow-detail-flow__trigger-select">
+                <mt-loader
+                    v-if="isLoading"
+                    class="sw-flow-detail-flow__trigger-select-loader"
+                    size="28px"
+                />
+
                 {% block sw_flow_detail_flow_single_select %}
                 <sw-flow-trigger
                     :disabled="!acl.can('flow.editor')"
@@ -46,7 +52,7 @@
 
             {% block sw_flow_detail_flow_trigger_explains %}
             <div
-                v-if="!flow.eventName"
+                v-if="!flow.eventName && !isLoading"
                 class="sw-flow-detail-flow__trigger-explain"
             >
                 {% block sw_flow_detail_flow_trigger_explains_title %}
@@ -84,7 +90,7 @@
                     {% block sw_flow_sequence_icon_plus %}
                     <mt-button
                         class="sw-flow-detail-flow__position-plus"
-                        :disabled="!acl.can('flow.editor')"
+                        :disabled="!acl.can('flow.editor') || isLoading"
                         variant="secondary"
                         size="x-small"
                         tabindex="0"
@@ -115,6 +121,7 @@
                             name="root-sequence"
                             :sequence="sequence"
                             :disabled="!acl.can('flow.editor')"
+                            :is-loading="isLoading"
                             :is-unknown-trigger="isUnknownTrigger"
                         />
                     </div>

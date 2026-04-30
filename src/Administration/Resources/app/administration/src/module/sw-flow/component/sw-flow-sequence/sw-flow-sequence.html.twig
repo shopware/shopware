@@ -21,6 +21,7 @@
         v-show="isActionSequence"
         :sequence="sequenceData"
         :disabled="disabled"
+        :is-loading="isLoading"
         :is-unknown-trigger="isUnknownTrigger"
     />
     {% endblock %}
@@ -36,6 +37,8 @@
         <sw-flow-sequence
             :sequence="sequenceData.trueBlock"
             :disabled="disabled"
+            :is-loading="isLoading"
+            :is-unknown-trigger="isUnknownTrigger"
         />
     </div>
     {% endblock %}
@@ -48,6 +51,8 @@
         <sw-flow-sequence
             :sequence="sequenceData.falseBlock"
             :disabled="disabled"
+            :is-loading="isLoading"
+            :is-unknown-trigger="isUnknownTrigger"
         />
     </div>
     {% endblock %}

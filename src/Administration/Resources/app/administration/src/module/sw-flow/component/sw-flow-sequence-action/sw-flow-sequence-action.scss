@@ -41,6 +41,7 @@
     }
 
     &__card {
+        position: relative;
         width: 20.5rem;
         margin-right: var(--scale-size-32);
         background: var(--color-elevation-surface-raised);
@@ -48,6 +49,10 @@
         border: 1px solid var(--color-border-secondary-default);
         box-shadow: 0 3px 6px 0 var(--color-elevation-shadow-default);
         overflow: hidden;
+
+        &-loader {
+            border-radius: var(--border-radius-card);
+        }
     }
 
     &__header {

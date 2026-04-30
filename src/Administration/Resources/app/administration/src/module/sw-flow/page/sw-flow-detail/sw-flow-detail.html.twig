@@ -74,24 +74,17 @@
             </mt-banner>
 
             {% block sw_flow_tabs_content %}
-            <template v-if="isLoading">
-                <sw-skeleton />
-                <sw-skeleton />
-            </template>
-
-            <template v-else>
-                <router-view
-                    v-slot="{ Component }"
-                >
-                    <component
-                        :is="Component"
-                        :is-loading="isLoading"
-                        :is-new-flow="isNewFlow"
-                        :is-template="isTemplate"
-                        :is-unknown-trigger="isUnknownTrigger"
-                    />
-                </router-view>
-            </template>
+            <router-view
+                v-slot="{ Component }"
+            >
+                <component
+                    :is="Component"
+                    :is-loading="isLoading"
+                    :is-new-flow="isNewFlow"
+                    :is-template="isTemplate"
+                    :is-unknown-trigger="isUnknownTrigger"
+                />
+            </router-view>
             {% endblock %}
         </sw-card-view>
 

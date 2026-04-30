@@ -23,6 +23,11 @@ export default {
             required: false,
             default: false,
         },
+        isLoading: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     computed: {

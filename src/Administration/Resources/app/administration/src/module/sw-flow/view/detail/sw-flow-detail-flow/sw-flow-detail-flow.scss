@@ -21,6 +21,7 @@
     }
 
     &__trigger-select {
+        position: relative;
         min-width: 20.5rem;
         background: var(--color-elevation-surface-raised);
         border-radius: var(--border-radius-card);
@@ -28,6 +29,10 @@
         padding: var(--scale-size-24);
         transition: all 100ms ease-in-out;
         box-shadow: 0 3px 6px 0 var(--color-elevation-shadow-default);
+
+        &-loader {
+            border-radius: var(--border-radius-card);
+        }
     }
 
     &__trigger-explain {
@@ -52,7 +57,7 @@
     }
 
     &__oval {
-        z-index: 2;
+        z-index: 401;
         position: absolute;
         top: -8px;
         left: -5px;

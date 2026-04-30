@@ -313,8 +313,7 @@ describe('sw-theme-manager-detail', () => {
                 isInherited: true,
                 inheritanceRemove: inheritance.removeInheritance,
                 inheritanceRestore: inheritance.restoreInheritance,
-                inheritedValue: false,
-                mapInheritance: inheritance
+                inheritedValue: false
             }),
         });
     });

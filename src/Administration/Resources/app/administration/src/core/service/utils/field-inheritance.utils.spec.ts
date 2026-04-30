@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import {
     componentNamesSupportingMapInheritance,
     isFieldHandlingInheritanceItself,
@@ -28,48 +32,60 @@ describe('src/core/service/utils/field-inheritance.utils', () => {
 
         describe('precedence', () => {
             it('uses top-level component name before config and custom component names', () => {
-                expect(supportsMapInheritance({
-                    componentName: 'sw-text-field',
-                    config: { componentName: 'sw-media-field', },
-                    custom: { componentName: 'sw-checkbox-field', },
-                })).toBe(true);
+                expect(
+                    supportsMapInheritance({
+                        componentName: 'sw-text-field',
+                        config: { componentName: 'sw-media-field' },
+                        custom: { componentName: 'sw-checkbox-field' },
+                    }),
+                ).toBe(true);
             });
 
             it('uses config component name after top-level component name is removed', () => {
-                expect(supportsMapInheritance({
-                    config: { componentName: 'sw-media-field', },
-                    custom: { componentName: 'sw-checkbox-field', },
-                })).toBe(false);
+                expect(
+                    supportsMapInheritance({
+                        config: { componentName: 'sw-media-field' },
+                        custom: { componentName: 'sw-checkbox-field' },
+                    }),
+                ).toBe(false);
             });
 
             it('uses custom component name after top-level and config component names are removed', () => {
-                expect(supportsMapInheritance({
-                    custom: { componentName: 'sw-checkbox-field', },
-                })).toBe(true);
+                expect(
+                    supportsMapInheritance({
+                        custom: { componentName: 'sw-checkbox-field' },
+                    }),
+                ).toBe(true);
             });
 
             it('uses config type before custom and field type for legacy sw-field', () => {
-                expect(supportsMapInheritance({
-                    type: 'price',
-                    componentName: 'sw-field',
-                    config: { type: 'price', },
-                    custom: { type: 'checkbox', },
-                })).toBe(true);
+                expect(
+                    supportsMapInheritance({
+                        type: 'price',
+                        componentName: 'sw-field',
+                        config: { type: 'price' },
+                        custom: { type: 'checkbox' },
+                    }),
+                ).toBe(true);
             });
 
             it('uses custom type after config type is removed for legacy sw-field', () => {
-                expect(supportsMapInheritance({
-                    type: 'price',
-                    componentName: 'sw-field',
-                    custom: { type: 'checkbox', },
-                })).toBe(false);
+                expect(
+                    supportsMapInheritance({
+                        type: 'price',
+                        componentName: 'sw-field',
+                        custom: { type: 'checkbox' },
+                    }),
+                ).toBe(false);
             });
 
             it('uses field type after config and custom types are removed for legacy sw-field', () => {
-                expect(supportsMapInheritance({
-                    type: 'price',
-                    componentName: 'sw-field',
-                })).toBe(true);
+                expect(
+                    supportsMapInheritance({
+                        type: 'price',
+                        componentName: 'sw-field',
+                    }),
+                ).toBe(true);
             });
         });
     });
@@ -87,24 +103,30 @@ describe('src/core/service/utils/field-inheritance.utils', () => {
 
         describe('precedence', () => {
             it('uses top-level component name before config and custom component names', () => {
-                expect(isFieldHandlingInheritanceItself({
-                    componentName: 'mt-checkbox',
-                    config: { componentName: 'mt-text-field', },
-                    custom: { componentName: 'mt-switch', },
-                })).toBe(true);
+                expect(
+                    isFieldHandlingInheritanceItself({
+                        componentName: 'mt-checkbox',
+                        config: { componentName: 'mt-text-field' },
+                        custom: { componentName: 'mt-switch' },
+                    }),
+                ).toBe(true);
             });
 
             it('uses config component name after top-level component name is removed', () => {
-                expect(isFieldHandlingInheritanceItself({
-                    config: { componentName: 'mt-text-field', },
-                    custom: { componentName: 'mt-switch', },
-                })).toBe(false);
+                expect(
+                    isFieldHandlingInheritanceItself({
+                        config: { componentName: 'mt-text-field' },
+                        custom: { componentName: 'mt-switch' },
+                    }),
+                ).toBe(false);
             });
 
             it('uses custom component name after top-level and config component names are removed', () => {
-                expect(isFieldHandlingInheritanceItself({
-                    custom: { componentName: 'mt-switch', },
-                })).toBe(true);
+                expect(
+                    isFieldHandlingInheritanceItself({
+                        custom: { componentName: 'mt-switch' },
+                    }),
+                ).toBe(true);
             });
         });
     });

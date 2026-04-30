@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import {
     getExplicitComponentName,
     getFormFieldComponentFromType,
@@ -33,12 +37,14 @@ describe('src/core/service/utils/form-field-type-mapping.utils', () => {
 
     describe('precedence', () => {
         it('uses top-level component name before config and custom component names', () => {
-            expect(getFormFieldComponentName({
-                type: 'text',
-                componentName: 'sw-text-field',
-                config: { componentName: 'sw-media-field', },
-                custom: { componentName: 'mt-checkbox', },
-            })).toBe('sw-text-field');
+            expect(
+                getFormFieldComponentName({
+                    type: 'text',
+                    componentName: 'sw-text-field',
+                    config: { componentName: 'sw-media-field' },
+                    custom: { componentName: 'mt-checkbox' },
+                }),
+            ).toBe('sw-text-field');
         });
 
         it('uses config component name after top-level component name is removed', () => {
@@ -61,12 +67,14 @@ describe('src/core/service/utils/form-field-type-mapping.utils', () => {
         });
 
         it('uses config type before custom and field type for legacy sw-field', () => {
-            expect(getFormFieldComponentName({
-                type: 'checkbox',
-                componentName: 'sw-field',
-                config: { type: 'checkbox', },
-                custom: { type: 'single-entity-id-select', },
-            })).toBe('mt-checkbox');
+            expect(
+                getFormFieldComponentName({
+                    type: 'checkbox',
+                    componentName: 'sw-field',
+                    config: { type: 'checkbox' },
+                    custom: { type: 'single-entity-id-select' },
+                }),
+            ).toBe('mt-checkbox');
         });
 
         it('uses custom type after config type is removed for legacy sw-field', () => {

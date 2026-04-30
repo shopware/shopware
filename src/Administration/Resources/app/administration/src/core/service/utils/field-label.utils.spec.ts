@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import { fieldsHandlingLabelAndHelpText, isFieldHandlingLabelAndHelpText } from './field-label.utils';
 
 describe('src/core/service/utils/field-label.utils', () => {
@@ -33,10 +37,7 @@ describe('src/core/service/utils/field-label.utils', () => {
     it('uses the form field renderer type fallback when requested', () => {
         expect(isFieldHandlingLabelAndHelpText({ type: 'text' }, { renderedByFormFieldRenderer: true })).toBe(true);
         expect(
-            isFieldHandlingLabelAndHelpText(
-                { type: 'single-entity-id-select' },
-                { renderedByFormFieldRenderer: true },
-            ),
+            isFieldHandlingLabelAndHelpText({ type: 'single-entity-id-select' }, { renderedByFormFieldRenderer: true }),
         ).toBe(false);
     });
 
@@ -50,45 +51,57 @@ describe('src/core/service/utils/field-label.utils', () => {
 
     describe('precedence', () => {
         it('uses top-level component name before config and custom component names', () => {
-            expect(isFieldHandlingLabelAndHelpText({
-                componentName: 'sw-checkbox-field',
-                config: { componentName: 'sw-media-field', },
-                custom: { componentName: 'mt-checkbox', },
-            })).toBe(true);
+            expect(
+                isFieldHandlingLabelAndHelpText({
+                    componentName: 'sw-checkbox-field',
+                    config: { componentName: 'sw-media-field' },
+                    custom: { componentName: 'mt-checkbox' },
+                }),
+            ).toBe(true);
         });
 
         it('uses config component name after top-level component name is removed', () => {
-            expect(isFieldHandlingLabelAndHelpText({
-                config: { componentName: 'sw-media-field', },
-                custom: { componentName: 'mt-checkbox', },
-            })).toBe(false);
+            expect(
+                isFieldHandlingLabelAndHelpText({
+                    config: { componentName: 'sw-media-field' },
+                    custom: { componentName: 'mt-checkbox' },
+                }),
+            ).toBe(false);
         });
 
         it('uses custom component name after top-level and config component names are removed', () => {
-            expect(isFieldHandlingLabelAndHelpText({
-                custom: { componentName: 'mt-checkbox', },
-            })).toBe(true);
+            expect(
+                isFieldHandlingLabelAndHelpText({
+                    custom: { componentName: 'mt-checkbox' },
+                }),
+            ).toBe(true);
         });
 
         it('uses config type before custom and field type for legacy sw-field', () => {
-            expect(isFieldHandlingLabelAndHelpText({
-                type: 'checkbox',
-                config: { componentName: 'sw-field', type: 'checkbox', },
-                custom: { componentName: 'sw-field', type: 'single-entity-id-select', },
-            })).toBe(true);
+            expect(
+                isFieldHandlingLabelAndHelpText({
+                    type: 'checkbox',
+                    config: { componentName: 'sw-field', type: 'checkbox' },
+                    custom: { componentName: 'sw-field', type: 'single-entity-id-select' },
+                }),
+            ).toBe(true);
         });
 
         it('uses custom type after config type is removed for legacy sw-field', () => {
-            expect(isFieldHandlingLabelAndHelpText({
-                type: 'checkbox',
-                custom: { componentName: 'sw-field', type: 'single-entity-id-select', },
-            })).toBe(false);
+            expect(
+                isFieldHandlingLabelAndHelpText({
+                    type: 'checkbox',
+                    custom: { componentName: 'sw-field', type: 'single-entity-id-select' },
+                }),
+            ).toBe(false);
         });
 
         it('uses field type after config and custom types are removed for legacy sw-field', () => {
-            expect(isFieldHandlingLabelAndHelpText({
-                type: 'checkbox',
-            })).toBe(true);
+            expect(
+                isFieldHandlingLabelAndHelpText({
+                    type: 'checkbox',
+                }),
+            ).toBe(true);
         });
     });
 });

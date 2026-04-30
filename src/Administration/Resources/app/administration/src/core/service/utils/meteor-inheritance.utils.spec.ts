@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 import { getMeteorInheritanceConfig } from './meteor-inheritance.utils';
 
 describe('src/core/service/utils/meteor-inheritance.utils', () => {

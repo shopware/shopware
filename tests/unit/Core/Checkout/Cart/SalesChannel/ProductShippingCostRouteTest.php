@@ -17,6 +17,8 @@ use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\SalesChannel\ProductShippingCostRoute;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\CheckoutPermissions;
+use Shopware\Core\Checkout\Promotion\Cart\PromotionDeliveryProcessor;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Product\Cart\ProductGatewayInterface;
@@ -69,6 +71,48 @@ class ProductShippingCostRouteTest extends TestCase
         static::assertCount(1, $response->getShippingCosts());
         static::assertSame(10.0, $response->getShippingCost($shippingMethod->getId())?->getTotalPrice());
         static::assertSame($shippingMethod, $response->getShippingMethod($shippingMethod->getId()));
+    }
+
+    public function testShippingCostsByProductAllowsContextPermissionsToEnableSkippedBehaviorExceptCartPersistence(): void
+    {
+        $shippingMethod = $this->createShippingMethod('shipping-1');
+        $context = Generator::generateSalesChannelContext(shippingMethod: $shippingMethod);
+
+        $product = $this->createProduct('product-1');
+        $processor = $this->createMock(Processor::class);
+        $processor
+            ->expects($this->once())
+            ->method('process')
+            ->with(
+                static::isInstanceOf(Cart::class),
+                static::isInstanceOf(SalesChannelContext::class),
+                static::callback(function (CartBehavior $behavior): bool {
+                    static::assertFalse($behavior->hasPermission(CheckoutPermissions::SKIP_PROMOTION));
+                    static::assertFalse($behavior->hasPermission(PromotionDeliveryProcessor::SKIP_DELIVERY_RECALCULATION));
+                    static::assertFalse($behavior->hasPermission(CheckoutPermissions::SKIP_PRODUCT_STOCK_VALIDATION));
+                    static::assertTrue($behavior->hasPermission(CheckoutPermissions::SKIP_CART_PERSISTENCE));
+
+                    return true;
+                })
+            )
+            ->willReturn(Generator::createCartWithDelivery());
+
+        $route = new ProductShippingCostRoute(
+            $this->createProductGatewayMock($product, $context),
+            $this->createShippingMethodRepositoryMock(new ShippingMethodCollection([$shippingMethod]), $context, [$shippingMethod->getId()]),
+            $processor,
+        );
+
+        $context->assign(['permissions' => [
+            CheckoutPermissions::SKIP_PROMOTION => false,
+            PromotionDeliveryProcessor::SKIP_DELIVERY_RECALCULATION => false,
+            CheckoutPermissions::SKIP_PRODUCT_STOCK_VALIDATION => false,
+            CheckoutPermissions::SKIP_CART_PERSISTENCE => false,
+        ]]);
+
+        $response = $route->shippingCostsByProduct($product->getId(), new Criteria([$shippingMethod->getId()]), $context);
+
+        static::assertCount(1, $response->getShippingCosts());
     }
 
     public function testShippingCostsByProductSumsShippingCostsOfAllDeliveries(): void

@@ -74,10 +74,10 @@ class ProductShippingCostRoute extends AbstractProductShippingCostRoute
             $cart->getData()->set('product-' . $productId, $product);
 
             $behavior = [
-                ...$clonedContext->getPermissions(),
                 CheckoutPermissions::SKIP_PROMOTION => true,
                 PromotionDeliveryProcessor::SKIP_DELIVERY_RECALCULATION => true,
                 CheckoutPermissions::SKIP_PRODUCT_STOCK_VALIDATION => true,
+                ...$clonedContext->getPermissions(),
                 CheckoutPermissions::SKIP_CART_PERSISTENCE => true,
             ];
 

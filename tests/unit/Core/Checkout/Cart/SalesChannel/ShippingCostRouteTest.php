@@ -18,6 +18,7 @@ use Shopware\Core\Checkout\Cart\RuleLoaderResult;
 use Shopware\Core\Checkout\Cart\SalesChannel\ShippingCostRoute;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
 use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRouteResponse;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
@@ -106,6 +107,49 @@ class ShippingCostRouteTest extends TestCase
         static::assertNotNull($response->getShippingCost($shippingMethod1->getId()));
         static::assertNotNull($response->getShippingCost($shippingMethod2->getId()));
         static::assertNotNull($response->getShippingCost($shippingMethod3->getId()));
+    }
+
+    public function testShippingCostsCartDoesNotAllowContextPermissionsToEnableCartPersistence(): void
+    {
+        $shippingMethod1 = $this->createShippingMethod('shipping-1');
+        $shippingMethod2 = $this->createShippingMethod('shipping-2');
+        $context = Generator::generateSalesChannelContext(shippingMethod: $shippingMethod1);
+
+        $cart = Generator::createCartWithDelivery();
+
+        $cartRuleLoader = $this->createMock(CartRuleLoader::class);
+        $cartRuleLoader
+            ->expects($this->once())
+            ->method('loadByCart')
+            ->with(
+                static::isInstanceOf(SalesChannelContext::class),
+                static::isInstanceOf(Cart::class),
+                static::callback(function (CartBehavior $behavior): bool {
+                    static::assertTrue($behavior->hasPermission(CheckoutPermissions::SKIP_CART_PERSISTENCE));
+
+                    return true;
+                }),
+                true,
+            )
+            ->willReturn(new RuleLoaderResult(Generator::createCartWithDelivery(), new RuleCollection()));
+
+        $checkoutGatewayRoute = $this->createMock(AbstractCheckoutGatewayRoute::class);
+        $checkoutGatewayRoute
+            ->expects($this->never())
+            ->method('load');
+
+        $route = new ShippingCostRoute(
+            $this->createShippingMethodRepositoryMock(new ShippingMethodCollection([$shippingMethod2]), $context, [$shippingMethod2->getId()]),
+            $cartRuleLoader,
+            $checkoutGatewayRoute,
+        );
+
+        $response = $context->withPermissions(
+            [CheckoutPermissions::SKIP_CART_PERSISTENCE => false],
+            static fn (SalesChannelContext $context) => $route->shippingCostsCart($cart, $context, [$shippingMethod2->getId()])
+        );
+
+        static::assertCount(1, $response->getShippingCosts());
     }
 
     public function testShippingCostsCartReturnsEmptyWhenCheckoutGatewayReturnsNoShippingMethods(): void

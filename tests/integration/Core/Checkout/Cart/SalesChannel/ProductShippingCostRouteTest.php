@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Cart\SalesChannel;
 
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -16,6 +17,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\Test\Integration\Traits\Promotion\PromotionTestFixtureBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
@@ -27,6 +30,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 class ProductShippingCostRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use PromotionTestFixtureBehaviour;
     use SalesChannelApiTestBehaviour;
 
     private KernelBrowser $browser;
@@ -75,6 +79,33 @@ class ProductShippingCostRouteTest extends TestCase
         $response = $this->decodeResponse();
 
         static::assertSame([$this->ids->get('shipping-1')], $this->shippingMethodIds($response));
+        $shippingCost = $this->getShippingCost($response, $this->ids->get('shipping-1'));
+
+        static::assertNotNull($shippingCost);
+        static::assertSame(5.2, $shippingCost['shippingCost']['totalPrice']);
+    }
+
+    public function testShippingCostsByProductSkipsAutomaticDeliveryPromotions(): void
+    {
+        $context = static::getContainer()
+            ->get(SalesChannelContextFactory::class)
+            ->create(Uuid::randomHex(), $this->ids->get('sales-channel'));
+
+        $this->createTestFixtureDeliveryPromotion(
+            Uuid::randomHex(),
+            PromotionDiscountEntity::TYPE_ABSOLUTE,
+            2.2,
+            static::getContainer(),
+            $context,
+            null
+        );
+
+        $this->browser->request(
+            'GET',
+            '/store-api/shipping-cost/product/' . $this->ids->get('product') . '?ids[]=' . $this->ids->get('shipping-1'),
+        );
+
+        $response = $this->decodeResponse();
         $shippingCost = $this->getShippingCost($response, $this->ids->get('shipping-1'));
 
         static::assertNotNull($shippingCost);

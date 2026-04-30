@@ -3,13 +3,13 @@
     {% block sw_mail_template_detail_header %}
     <template #smart-bar-header>
         <h2 v-if="mailTemplate">
-            {{ $tc('sw-mail-template.detail.textHeadlineEdit') }}
+            {{ $t('sw-mail-template.detail.textHeadlineEdit') }}
         </h2>
         <h2
             v-else
             class="sw-mail-template-detail__empty-title"
         >
-            {{ $tc('sw-mail-template.detail.textHeadline') }}
+            {{ $t('sw-mail-template.detail.textHeadline') }}
         </h2>
     </template>
     {% endblock %}
@@ -27,7 +27,7 @@
             size="default"
             @click="onCancel"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -42,7 +42,7 @@
             @update:process-success="saveFinish"
             @click.prevent="onSave"
         >
-            {{ $tc('sw-mail-template.detail.buttonSave') }}
+            {{ $t('sw-mail-template.detail.buttonSave') }}
         </sw-button-process>
         {% endblock %}
     </template>
@@ -69,13 +69,13 @@
             <template v-else>
                 {% block sw_mail_template_detail_content_language_info %}
                 <sw-language-info
-                    :entity-description="placeholder(mailTemplate.mailTemplateType, 'name', $tc('sw-mail-template.detail.textHeadline'))"
+                    :entity-description="placeholder(mailTemplate.mailTemplateType, 'name', $t('sw-mail-template.detail.textHeadline'))"
                 />
                 {% endblock %}
 
                 {% block sw_mail_template_detail_basic_info %}
                 <mt-card
-                    :title="$tc('sw-mail-template.detail.basic.titleCard')"
+                    :title="$t('sw-mail-template.detail.basic.titleCard')"
                     position-identifier="sw-mail-template-detail-basic-info"
                 >
                     {% block sw_mail_template_basic_form_mail_type_field %}
@@ -86,8 +86,8 @@
                         entity="mail_template_type"
                         required
                         show-clearable-button
-                        :label="$tc('sw-mail-template.detail.basic.labelMailType')"
-                        :placeholder="$tc('sw-mail-template.detail.basic.placeholderMailType')"
+                        :label="$t('sw-mail-template.detail.basic.labelMailType')"
+                        :placeholder="$t('sw-mail-template.detail.basic.placeholderMailType')"
                         :disabled="!acl.can('mail_templates.editor') || undefined"
                         :error="mailTemplateMailTemplateTypeIdError"
                         @update:value="onChangeType"
@@ -99,8 +99,8 @@
                         v-model="mailTemplate.description"
                         class="sw-mail-template-detail__description-field"
                         name="sw-field--mailTemplate-description"
-                        :label="$tc('sw-mail-template.detail.basic.labelDescription')"
-                        :placeholder="$tc('sw-mail-template.detail.basic.placeholderDescription')"
+                        :label="$t('sw-mail-template.detail.basic.labelDescription')"
+                        :placeholder="$t('sw-mail-template.detail.basic.placeholderDescription')"
                         :disabled="!acl.can('mail_templates.editor') || undefined"
                     />
                     {% endblock %}
@@ -110,7 +110,7 @@
                 {% block sw_mail_template_detail_options_info %}
                 <mt-card
                     position-identifier="sw-mail-template-detail-options-info"
-                    :title="$tc('sw-mail-template.detail.options.titleCard')"
+                    :title="$t('sw-mail-template.detail.options.titleCard')"
                 >
                     <sw-container
                         columns="repeat(auto-fit, minmax(250px, 1fr))"
@@ -124,8 +124,8 @@
                                 class="sw-mail-template-detail__subject-field"
                                 name="sw-field--mailTemplate-subject"
                                 required
-                                :label="$tc('sw-mail-template.detail.options.labelSubject')"
-                                :placeholder="placeholder(mailTemplate, 'subject', $tc('sw-mail-template.detail.options.placeholderSubject'))"
+                                :label="$t('sw-mail-template.detail.options.labelSubject')"
+                                :placeholder="placeholder(mailTemplate, 'subject', $t('sw-mail-template.detail.options.placeholderSubject'))"
                                 :disabled="!acl.can('mail_templates.editor') || undefined"
                                 :error="mailTemplateSubjectError"
                             />
@@ -137,8 +137,8 @@
                             v-model="mailTemplate.senderName"
                             class="sw-mail-template-detail__sender-name-field"
                             name="sw-field--mailTemplate-senderName"
-                            :label="$tc('sw-mail-template.detail.options.labelSenderName')"
-                            :placeholder="placeholder(mailTemplate, 'senderName', $tc('sw-mail-template.detail.options.placeholderSenderName'))"
+                            :label="$t('sw-mail-template.detail.options.labelSenderName')"
+                            :placeholder="placeholder(mailTemplate, 'senderName', $t('sw-mail-template.detail.options.placeholderSenderName'))"
                             :disabled="!acl.can('mail_templates.editor') || undefined"
                         />
                         {% endblock %}
@@ -148,7 +148,7 @@
 
                 {% block sw_mail_template_detail_attachments_info %}
                 <mt-card
-                    :title="$tc('sw-mail-template.detail.media.titleCard')"
+                    :title="$t('sw-mail-template.detail.media.titleCard')"
                     position-identifier="sw-mail-template-detail-atttachments-info"
                 >
                     {% block sw_mail_template_detail_attachments_info_upload %}
@@ -195,7 +195,7 @@
                             {% block sw_mail_template_detail_attachments_info_grid_actions %}
                             <sw-context-menu-item
                                 v-tooltip.bottom="{
-                                    message: $tc('sw-privileges.tooltip.warning'),
+                                    message: $t('sw-privileges.tooltip.warning'),
                                     disabled: acl.can('mail_templates.editor') || undefined,
                                     showOnDisabledElements: true
                                 }"
@@ -203,7 +203,7 @@
                                 :disabled="!acl.can('mail_templates.editor') || undefined"
                                 @click="onDeleteMedia(item.id)"
                             >
-                                {{ $tc('global.default.delete') }}
+                                {{ $t('global.default.delete') }}
                             </sw-context-menu-item>
                             {% endblock %}
                         </template>
@@ -216,7 +216,7 @@
                                 @click="onDeleteSelectedMedia"
                                 @keydown.enter="onDeleteSelectedMedia"
                             >
-                                {{ $tc('global.default.delete') }}
+                                {{ $t('global.default.delete') }}
                             </mt-link>
                             {% endblock %}
                         </template>
@@ -227,7 +227,7 @@
 
                 {% block sw_mail_template_detail_mail_text_info %}
                 <mt-card
-                    :title="$tc('sw-mail-template.detail.mailText.titleCard')"
+                    :title="$t('sw-mail-template.detail.mailText.titleCard')"
                     position-identifier="sw-mail-template-detail-text-info"
                 >
                     {% block sw_mail_template_mail_text_form_content_plain_field %}
@@ -238,8 +238,8 @@
                         class="sw-mail-template-detail__plain-editor"
                         name="content_plain"
                         completion-mode="entity"
-                        :label="$tc('sw-mail-template.detail.mailText.labelContentPlain')"
-                        :placeholder="placeholder(mailTemplate, 'contentPlain', $tc('sw-mail-template.detail.mailText.placeholderPlain'))"
+                        :label="$t('sw-mail-template.detail.mailText.labelContentPlain')"
+                        :placeholder="placeholder(mailTemplate, 'contentPlain', $t('sw-mail-template.detail.mailText.placeholderPlain'))"
                         :completer-function="outerCompleterFunction"
                         :editor-config="editorConfig"
                         :disabled="!acl.can('mail_templates.editor')"
@@ -256,8 +256,8 @@
                         class="sw-mail-template-detail__html-editor"
                         name="content_html"
                         completion-mode="entity"
-                        :label="$tc('sw-mail-template.detail.mailText.labelContentHtml')"
-                        :placeholder="placeholder(mailTemplate, 'contentHtml', $tc('sw-mail-template.detail.mailText.placeholderHtml'))"
+                        :label="$t('sw-mail-template.detail.mailText.labelContentHtml')"
+                        :placeholder="placeholder(mailTemplate, 'contentHtml', $t('sw-mail-template.detail.mailText.placeholderHtml'))"
                         :completer-function="outerCompleterFunction"
                         :editor-config="editorConfig"
                         :disabled="!acl.can('mail_templates.editor')"
@@ -270,7 +270,7 @@
                 <sw-modal
                     v-if="mailPreview"
                     class="sw-mail-template-preview-modal"
-                    :title="$tc('sw-mail-template.detail.previewModalTitle')"
+                    :title="$t('sw-mail-template.detail.previewModalTitle')"
                     :is-loading="isLoading"
                     @modal-close="onCancelShowPreview"
                 >
@@ -286,7 +286,7 @@
                             variant="secondary"
                             @click="onCancelShowPreview"
                         >
-                            {{ $tc('global.default.close') }}
+                            {{ $t('global.default.close') }}
                         </mt-button>
                         {% endblock %}
                     </template>
@@ -307,7 +307,7 @@
             {% block sw_mail_template_detail_sidebar_inner_test_mail %}
             <sw-sidebar-item
                 icon="regular-paper-plane"
-                :title="$tc('sw-mail-template.detail.sidebar.titleTestMail')"
+                :title="$t('sw-mail-template.detail.sidebar.titleTestMail')"
                 class="sw-mail-template-detail__test-mail-sidebar"
             >
                 <div class="sw-mail-template-detail__test-mail-sidebar-container">
@@ -315,7 +315,7 @@
                         v-if="showLanguageNotAssignedToSalesChannelWarning"
                         variant="attention"
                     >
-                        {{ $tc('sw-mail-template.detail.sidebar.languageNotAssignedToSalesChannel') }}
+                        {{ $t('sw-mail-template.detail.sidebar.languageNotAssignedToSalesChannel') }}
                     </mt-banner>
 
                     {% block sw_mail_template_mail_text_form_test_mail_field %}
@@ -323,8 +323,8 @@
                     <mt-text-field
                         v-model="testerMail"
                         name="sw-field--testerMail"
-                        :placeholder="$tc('sw-mail-template.detail.sidebar.placeholderTestMail')"
-                        :label="$tc('sw-mail-template.detail.sidebar.labelTestMail')"
+                        :placeholder="$t('sw-mail-template.detail.sidebar.placeholderTestMail')"
+                        :label="$t('sw-mail-template.detail.sidebar.labelTestMail')"
                         :disabled="!acl.can('mail_templates.editor') || undefined"
                     />
                     {% endblock %}
@@ -334,8 +334,8 @@
                         v-model:value="testMailSalesChannelId"
                         name="sw-field--testMailSalesChannelId"
                         entity="sales_channel"
-                        :label="$tc('sw-mail-template.detail.basic.labelSalesChannels')"
-                        :placeholder="$tc('sw-mail-template.detail.basic.placeholderSalesChannels')"
+                        :label="$t('sw-mail-template.detail.basic.labelSalesChannels')"
+                        :placeholder="$t('sw-mail-template.detail.basic.placeholderSalesChannels')"
                         show-clearable-button
                     />
                     {% endblock %}
@@ -347,7 +347,7 @@
                         variant="secondary"
                         @click="onClickTestMailTemplate"
                     >
-                        {{ $tc('sw-mail-template.detail.sidebar.buttonTestMail') }}
+                        {{ $t('sw-mail-template.detail.sidebar.buttonTestMail') }}
                     </mt-button>
                     {% endblock %}
                 </div>
@@ -357,7 +357,7 @@
             {% block sw_mail_template_detail_sidebar_inner_variables %}
             <sw-sidebar-item
                 icon="regular-code"
-                :title="$tc('sw-mail-template.detail.sidebar.titleShowAvailableVariables')"
+                :title="$t('sw-mail-template.detail.sidebar.titleShowAvailableVariables')"
                 :disabled="isLoading || !hasTemplateData"
                 class="sw-mail-template-detail__show-available-variables"
             >
@@ -403,7 +403,7 @@
                                     <mt-icon
                                         v-if="item.childCount === 0"
                                         v-tooltip="{
-                                            message: $tc('sw-mail-template.detail.sidebar.copyTooltip'),
+                                            message: $t('sw-mail-template.detail.sidebar.copyTooltip'),
                                             width: 150,
                                             position: 'bottom'
                                         }"
@@ -426,7 +426,7 @@
             {% block sw_mail_template_detail_sidebar_inner_preview %}
             <sw-sidebar-item
                 icon="regular-eye"
-                :title="$tc('sw-mail-template.detail.sidebar.titleShowPreview')"
+                :title="$t('sw-mail-template.detail.sidebar.titleShowPreview')"
                 :disabled="!previewAllowed"
                 class="sw-mail-template-detail__show-preview-sidebar"
                 @click="onClickShowPreview"
@@ -443,7 +443,7 @@
                         :disabled="!acl.can('mail_templates.editor') || undefined"
                         @click="onAddItemToAttachment(media.mediaItem)"
                     >
-                        {{ $tc('sw-mail-template.detail.sidebar.labelContextMenuAddToMailTemplate') }}
+                        {{ $t('sw-mail-template.detail.sidebar.labelContextMenuAddToMailTemplate') }}
                     </sw-context-menu-item>
                     {% endblock %}
                 </template>

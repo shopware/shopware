@@ -31,6 +31,12 @@ export default class CookiePermissionPlugin extends Plugin {
          * resize debounce delay
          */
         resizeDebounceTime: 200,
+
+        /**
+         * When true, the cookie bar will be automatically focused when it is shown
+         * @type {boolean}
+         */
+        autoFocus: true,
     };
 
     init() {
@@ -39,9 +45,57 @@ export default class CookiePermissionPlugin extends Plugin {
         if (!this._isPreferenceSet()) {
             this._setBodyPadding();
             this._registerEvents();
+            this._setFocus();
         }
 
         this._registerShowAndHideCookieBarEvents();
+    }
+
+    /**
+     * Sets an automatic focus to the cookie bar
+     * @private
+     * @returns {void}
+     */
+    _setFocus() {
+        if (this._isDataPrivacyPage() || !this.options.autoFocus) {
+            return;
+        }
+
+        window.focusHandler.setFocus(this.el, { preventScroll: true });
+    }
+
+    /**
+     * Checks if the current page is the data privacy page.
+     * When user navigates to the data privacy page from the cookie bar,
+     * the cookie bar should not be focused so the page can be read first.
+     * @private
+     * @returns {boolean}
+     */
+    _isDataPrivacyPage() {
+        const dataPrivacyLink = this.el.querySelector('.cookie-permission-content a');
+
+        if (!dataPrivacyLink?.href) {
+            return false;
+        }
+
+        const normalize = (url) => {
+            return url.origin + url.pathname.replace(/\/$/, '').toLowerCase();
+        };
+
+        const currentUrl = new URL(this._getCurrentLocation());
+        const dataPrivacyUrl = new URL(dataPrivacyLink.href);
+
+        return normalize(currentUrl) === normalize(dataPrivacyUrl);
+    }
+
+    /**
+     * Thin wrapper to ger the current location of the page.
+     * (non-configurable in JSDOM v26).
+     * @private
+     * @returns {string}
+     */
+    _getCurrentLocation() {
+        return window.location.href;
     }
 
     /**
@@ -117,6 +171,7 @@ export default class CookiePermissionPlugin extends Plugin {
     _handleShowCookieBarEvent() {
         this._setBodyPadding();
         this._showCookieBar();
+        this._setFocus();
     }
 
     /**

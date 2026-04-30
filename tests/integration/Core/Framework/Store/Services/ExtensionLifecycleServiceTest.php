@@ -40,13 +40,6 @@ class ExtensionLifecycleServiceTest extends TestCase
     private EntityRepository $appRepository;
 
     /**
-     * @var EntityRepository<ThemeCollection>|null
-     *
-     * @phpstan-ignore property.unusedType (can be null in a test, where the storefront is not installed)
-     */
-    private ?EntityRepository $themeRepository;
-
-    /**
      * @var EntityRepository<SalesChannelCollection>
      */
     private EntityRepository $salesChannelRepository;
@@ -58,7 +51,6 @@ class ExtensionLifecycleServiceTest extends TestCase
         $this->lifecycleService = static::getContainer()->get(ExtensionLifecycleService::class);
 
         $this->appRepository = static::getContainer()->get('app.repository');
-        $this->themeRepository = static::getContainer()->get('theme.repository', ContainerInterface::NULL_ON_INVALID_REFERENCE);
         $this->salesChannelRepository = static::getContainer()->get('sales_channel.repository');
         $this->context = new Context(new SystemSource(), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
     }
@@ -195,10 +187,7 @@ class ExtensionLifecycleServiceTest extends TestCase
 
     public function testExtensionCanNotBeRemovedIfAThemeIsAssigned(): void
     {
-        $themeRepo = $this->themeRepository;
-        if (!$themeRepo) {
-            static::markTestSkipped('ExtensionLifecycleServiceTest needs storefront to be installed.');
-        }
+        $themeRepo = $this->getThemeRepository();
 
         $this->installApp(__DIR__ . '/../_fixtures/TestAppTheme');
         $this->lifecycleService->activate('app', 'TestAppTheme', $this->context);
@@ -222,8 +211,7 @@ class ExtensionLifecycleServiceTest extends TestCase
             ],
         ]], $this->context);
 
-        $this->expectException(StoreException::class);
-        $this->expectExceptionMessage(\sprintf('The extension with id "%s" can not be removed because its theme is still assigned to a sales channel.', $testApp->getId()));
+        $this->expectExceptionObject(StoreException::extensionThemeStillInUse($testApp->getId()));
         $this->lifecycleService->uninstall(
             'app',
             $testApp->getName(),
@@ -234,10 +222,7 @@ class ExtensionLifecycleServiceTest extends TestCase
 
     public function testExtensionCantBeRemovedIfAChildThemeIsAssigned(): void
     {
-        $themeRepo = $this->themeRepository;
-        if (!$themeRepo) {
-            static::markTestSkipped('ExtensionLifecycleServiceTest needs storefront to be installed.');
-        }
+        $themeRepo = $this->getThemeRepository();
 
         $this->installApp(__DIR__ . '/../_fixtures/TestAppTheme');
         $this->lifecycleService->activate('app', 'TestAppTheme', $this->context);
@@ -266,10 +251,9 @@ class ExtensionLifecycleServiceTest extends TestCase
             ],
         ]], $this->context);
 
-        $this->expectException(StoreException::class);
         $testApp = $this->appRepository->search(new Criteria(), $this->context)->getEntities()->first();
         static::assertNotNull($testApp);
-        $this->expectExceptionMessage(\sprintf('The extension with id "%s" can not be removed because its theme is still assigned to a sales channel.', $testApp->getId()));
+        $this->expectExceptionObject(StoreException::extensionThemeStillInUse($testApp->getId()));
         $this->lifecycleService->uninstall(
             'app',
             'TestAppTheme',
@@ -280,10 +264,7 @@ class ExtensionLifecycleServiceTest extends TestCase
 
     public function testExtensionCanBeRemovedIfThemeIsNotAssigned(): void
     {
-        $themeRepo = $this->themeRepository;
-        if (!$themeRepo) {
-            static::markTestSkipped('ExtensionLifecycleServiceTest needs storefront to be installed.');
-        }
+        $themeRepo = $this->getThemeRepository();
 
         $this->installApp(__DIR__ . '/../_fixtures/TestAppTheme');
         $this->lifecycleService->activate('app', 'TestAppTheme', $this->context);
@@ -326,5 +307,18 @@ class ExtensionLifecycleServiceTest extends TestCase
         $this->lifecycleService->remove('app', 'TestAppTheme', true, Context::createDefaultContext());
 
         static::assertFileDoesNotExist($newName);
+    }
+
+    /**
+     * @return EntityRepository<ThemeCollection>
+     */
+    private function getThemeRepository(): EntityRepository
+    {
+        $themeRepo = static::getContainer()->get('theme.repository', ContainerInterface::NULL_ON_INVALID_REFERENCE);
+        if (!$themeRepo instanceof EntityRepository) {
+            static::markTestSkipped('ExtensionLifecycleServiceTest needs storefront to be installed.');
+        }
+
+        return $themeRepo;
     }
 }

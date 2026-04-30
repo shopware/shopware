@@ -5,7 +5,7 @@
         position-identifier="sw-settings-rule-detail-base-content"
         :large="true"
         :is-loading="isLoading"
-        :title="$tc('sw-settings-rule.detail.titleCard')"
+        :title="$t('sw-settings-rule.detail.titleCard')"
     >
         <template v-if="rule">
             <div style="display: grid; grid-template-columns: 2fr 1fr; grid-column-gap: 32px">
@@ -14,8 +14,8 @@
                 <mt-text-field
                     v-model="rule.name"
                     name="sw-field--rule-name"
-                    :label="$tc('sw-settings-rule.detail.labelName')"
-                    :placeholder="$tc('sw-settings-rule.detail.placeholderName')"
+                    :label="$t('sw-settings-rule.detail.labelName')"
+                    :placeholder="$t('sw-settings-rule.detail.placeholderName')"
                     :error="ruleNameError"
                     :disabled="!acl.can('rule.editor') || undefined"
                     required
@@ -26,8 +26,8 @@
                 <mt-number-field
                     v-model="rule.priority"
                     name="sw-field--rule-priority"
-                    :label="$tc('sw-settings-rule.detail.labelPriority')"
-                    :placeholder="$tc('sw-settings-rule.detail.placeholderPriority')"
+                    :label="$t('sw-settings-rule.detail.labelPriority')"
+                    :placeholder="$t('sw-settings-rule.detail.placeholderPriority')"
                     :error="rulePriorityError"
                     :disabled="!acl.can('rule.editor') || undefined"
                     :step="1"
@@ -42,8 +42,8 @@
             <mt-textarea
                 v-model="rule.description"
                 name="sw-field--rule-description"
-                :label="$tc('sw-settings-rule.detail.labelDescription')"
-                :placeholder="$tc('sw-settings-rule.detail.placeholderDescription')"
+                :label="$t('sw-settings-rule.detail.labelDescription')"
+                :placeholder="$t('sw-settings-rule.detail.placeholderDescription')"
                 :disabled="!acl.can('rule.editor') || undefined"
             />
             {% endblock %}
@@ -57,17 +57,17 @@
                     class="sw-settings-rule-detail__type-field"
                     value-property="id"
                     label-property="name"
-                    :label="$tc('sw-settings-rule.detail.labelType')"
-                    :placeholder="$tc('sw-settings-rule.detail.placeholderType')"
+                    :label="$t('sw-settings-rule.detail.labelType')"
+                    :placeholder="$t('sw-settings-rule.detail.placeholderType')"
                     :disabled="!acl.can('rule.editor') || undefined"
                     :options="availableModuleTypes"
                 >
                     <template #selection-label-property="{ item }">
-                        {{ $tc(item.name) }}
+                        {{ $t(item.name) }}
                     </template>
 
                     <template #result-label-property="{ item }">
-                        {{ $tc(item.name) }}
+                        {{ $t(item.name) }}
                     </template>
                 </sw-multi-select>
                 {% endblock %}
@@ -78,9 +78,9 @@
                     v-model:entity-collection="rule.tags"
                     name="sw-field--rule-tags"
                     class="sw-settings-rule-detail__tags-field"
-                    :label="$tc('global.sw-tag-field.title')"
+                    :label="$t('global.sw-tag-field.title')"
                     :disabled="!acl.can('rule.editor') || undefined"
-                    :placeholder="$tc('sw-settings-rule.detail.placeholderTags')"
+                    :placeholder="$t('sw-settings-rule.detail.placeholderTags')"
                 />
                 {% endblock %}
             </div>
@@ -95,7 +95,7 @@
         position-identifier="sw-settings-rule-detail-base-conditions"
         :large="true"
         :is-loading="isLoading"
-        :title="$tc('sw-settings-rule.detail.ruleCard')"
+        :title="$t('sw-settings-rule.detail.ruleCard')"
     >
         <template #headerRight>
             <sw-extension-teaser-popover
@@ -109,10 +109,10 @@
         >
             <mt-banner
                 variant="attention"
-                :title="$tc('sw-settings-rule.detail.productStreamIndexingWarning.title')"
+                :title="$t('sw-settings-rule.detail.productStreamIndexingWarning.title')"
             >
                 <p>
-                    {{ $tc('sw-settings-rule.detail.productStreamIndexingWarning.message') }}
+                    {{ $t('sw-settings-rule.detail.productStreamIndexingWarning.message') }}
                 </p>
 
                 <mt-link
@@ -121,7 +121,7 @@
                     href="https://developer.shopware.com/docs/guides/hosting/performance/performance-tweaks.html#disable-product-stream-indexer"
                     target="_blank"
                 >
-                    {{ $tc('sw-settings-rule.detail.productStreamIndexingWarning.action') }}
+                    {{ $t('sw-settings-rule.detail.productStreamIndexingWarning.action') }}
                 </mt-link>
             </mt-banner>
         </div>
@@ -155,7 +155,7 @@
         v-if="showCustomFields"
         position-identifier="sw-settings-rule-detail-base-custom-field-sets"
         :large="true"
-        :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+        :title="$t('sw-settings-custom-field.general.mainMenuItemGeneral')"
         :is-loading="isLoading"
     >
         <sw-custom-field-set-renderer

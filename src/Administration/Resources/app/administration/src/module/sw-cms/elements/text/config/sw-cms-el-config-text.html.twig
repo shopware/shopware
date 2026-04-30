@@ -8,20 +8,20 @@
     <template #default="{ active }">
         {% block sw_cms_el_config_text_tab_content %}
         <sw-tabs-item
-            :title="$tc('sw-cms.elements.general.config.tab.content')"
+            :title="$t('sw-cms.elements.general.config.tab.content')"
             name="content"
             :active-tab="active"
         >
-            {{ $tc('sw-cms.elements.general.config.tab.content') }}
+            {{ $t('sw-cms.elements.general.config.tab.content') }}
         </sw-tabs-item>
         {% endblock %}
         {% block sw_cms_el_text_config_tab_options %}
         <sw-tabs-item
-            :title="$tc('sw-cms.elements.general.config.tab.settings')"
+            :title="$t('sw-cms.elements.general.config.tab.settings')"
             name="settings"
             :active-tab="active"
         >
-            {{ $tc('sw-cms.elements.general.config.tab.settings') }}
+            {{ $t('sw-cms.elements.general.config.tab.settings') }}
         </sw-tabs-item>
         {% endblock %}
     </template>
@@ -35,7 +35,7 @@
             <sw-cms-inherit-wrapper
                 field="content"
                 :element="element"
-                :label="$tc('sw-cms.elements.text.config.label.content')"
+                :label="$t('sw-cms.elements.text.config.label.content')"
             >
                 <template #default="{ isInherited }">
                     <sw-cms-mapping-field

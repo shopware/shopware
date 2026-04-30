@@ -59,7 +59,7 @@ export default {
             this.packagerKeys.forEach((keyValue) => {
                 result.push({
                     key: keyValue,
-                    name: this.$tc(`sw-promotion-v2.detail.conditions.setgroups.packager.${keyValue}`),
+                    name: this.$t(`sw-promotion-v2.detail.conditions.setgroups.packager.${keyValue}`),
                 });
             });
             return result;
@@ -71,7 +71,7 @@ export default {
             this.sorterKeys.forEach((keyValue) => {
                 result.push({
                     key: keyValue,
-                    name: this.$tc(`sw-promotion-v2.detail.conditions.setgroups.sorter.${keyValue}`),
+                    name: this.$t(`sw-promotion-v2.detail.conditions.setgroups.sorter.${keyValue}`),
                 });
             });
 

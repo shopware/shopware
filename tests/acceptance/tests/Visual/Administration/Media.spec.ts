@@ -1,18 +1,11 @@
 import { test, assertScreenshot, setViewport, replaceElementsIndividually } from '@fixtures/AcceptanceTest';
 
-test('Visual: Administration media page', { 
-    tag: '@Visual',
-    annotation: {
-        type: 'issue',
-        description: 'https://github.com/shopware/shopware/issues/15882',
-  }, 
-}, async ({
+test('Visual: Administration media page', { tag: '@Visual' }, async ({
     ShopAdmin,
     AdminMediaListing,
 }) => {
 
-    await test.step('Creates a screenshot of the media page.', async step => {
-        step.skip();
+    await test.step('Creates a screenshot of the media page.', async () => {
         await ShopAdmin.goesTo(AdminMediaListing.url());
         await setViewport(AdminMediaListing.page, {
             scrollableElementVertical: AdminMediaListing.scrollableElementVertical,

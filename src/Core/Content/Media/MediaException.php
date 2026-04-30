@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media;
 
+use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,6 +29,10 @@ class MediaException extends HttpException
     public const MEDIA_INVALID_THUMBNAIL_DATA = 'CONTENT__MEDIA_INVALID_THUMBNAIL_DATA';
     public const MEDIA_INVALID_DIMENSION = 'CONTENT__MEDIA_INVALID_DIMENSION';
     public const MEDIA_EXTERNAL_MEDIA_REQUIRED = 'CONTENT__MEDIA_EXTERNAL_MEDIA_REQUIRED';
+    /**
+     * @internal tag:v6.8.0 - Will be removed once $context is required in event constructors
+     */
+    public const INVALID_EVENT_DATA = 'CONTENT__MEDIA_INVALID_EVENT_DATA';
 
     public const MEDIA_FOLDER_NOT_FOUND = 'CONTENT__MEDIA_FOLDER_NOT_FOUND';
     public const MEDIA_FOLDER_NAME_NOT_FOUND = 'CONTENT__MEDIA_FOLDER_NAME_NOT_FOUND';
@@ -65,6 +70,18 @@ class MediaException extends HttpException
     public const MEDIA_PRESIGNED_UPLOAD_NOT_SUPPORTED = 'CONTENT__MEDIA_PRESIGNED_UPLOAD_NOT_SUPPORTED';
     public const MEDIA_PRESIGNED_UPLOAD_INVALID_CONFIGURATION = 'CONTENT__MEDIA_PRESIGNED_UPLOAD_INVALID_CONFIGURATION';
     public const MEDIA_PRESIGNED_UPLOAD_FAILED = 'CONTENT__MEDIA_PRESIGNED_UPLOAD_FAILED';
+
+    /**
+     * @internal tag:v6.8.0 - Will be removed once $context is required in event constructors
+     */
+    public static function invalidEventData(string $message): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_EVENT_DATA,
+            $message
+        );
+    }
 
     public static function cannotBanRequest(string $url, string $error, ?\Throwable $e = null): self
     {
@@ -164,12 +181,7 @@ class MediaException extends HttpException
 
     public static function illegalFileName(string $filename, string $cause): self
     {
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::MEDIA_ILLEGAL_FILE_NAME,
-            'Provided filename "{{ fileName }}" is not permitted: {{ cause }}',
-            ['fileName' => $filename, 'cause' => $cause]
-        );
+        return new IllegalFileNameException($filename, $cause);
     }
 
     public static function mediaNotFound(string $mediaId): self

@@ -60,9 +60,9 @@ export default {
             if (this.mediaItems.length > 0 && this.folders.length > 0) {
                 return {
                     successOverall: 'global.sw-media-modal-delete.notification.successOverall.message.mediaAndFolder',
-                    errorOverall: this.$tc('global.sw-media-modal-delete.notification.errorOverall.message.mediaAndFolder'),
-                    modalTitle: this.$tc('global.default.warning'),
-                    deleteMessage: this.$tc(
+                    errorOverall: this.$t('global.sw-media-modal-delete.notification.errorOverall.message.mediaAndFolder'),
+                    modalTitle: this.$t('global.default.warning'),
+                    deleteMessage: this.$t(
                         'global.sw-media-modal-delete.deleteMessage.mediaAndFolder',
                         this.itemsToDelete.length,
                         {
@@ -76,9 +76,9 @@ export default {
             if (this.mediaItems.length > 0) {
                 return {
                     successOverall: 'global.sw-media-modal-delete.notification.successOverall.message.media',
-                    errorOverall: this.$tc('global.sw-media-modal-delete.notification.errorOverall.message.media'),
-                    modalTitle: this.$tc('global.default.warning'),
-                    deleteMessage: this.$tc(
+                    errorOverall: this.$t('global.sw-media-modal-delete.notification.errorOverall.message.media'),
+                    modalTitle: this.$t('global.default.warning'),
+                    deleteMessage: this.$t(
                         'global.sw-media-modal-delete.deleteMessage.media',
                         {
                             name: this.mediaNameFilter(this.mediaItems[0]),
@@ -91,9 +91,9 @@ export default {
 
             return {
                 successOverall: 'global.sw-media-modal-delete.notification.successOverall.message.folder',
-                errorOverall: this.$tc('global.sw-media-modal-delete.notification.errorOverall.message.folder'),
-                modalTitle: this.$tc('global.default.warning'),
-                deleteMessage: this.$tc(
+                errorOverall: this.$t('global.sw-media-modal-delete.notification.errorOverall.message.folder'),
+                modalTitle: this.$t('global.default.warning'),
+                deleteMessage: this.$t(
                     'global.sw-media-modal-delete.deleteMessage.folder',
                     {
                         name: this.folders[0].name,
@@ -163,10 +163,10 @@ export default {
                     const errorSnippet = 'global.sw-media-modal-delete.notification.errorSingle.message';
 
                     const message = isMedia
-                        ? this.$tc(`${errorSnippet}.media`, 1, {
+                        ? this.$t(`${errorSnippet}.media`, 1, {
                               name: this.mediaNameFilter(item),
                           })
-                        : this.$tc(`${errorSnippet}.folder`, 1, {
+                        : this.$t(`${errorSnippet}.folder`, 1, {
                               name: item.name,
                           });
 
@@ -214,7 +214,7 @@ export default {
 
         async updateSuccessNotification(successAmount, failureAmount, totalAmount) {
             const notification = {
-                message: this.$tc(this.snippets.successOverall, successAmount, {
+                message: this.$t(this.snippets.successOverall, successAmount, {
                     count: successAmount,
                     total: totalAmount,
                 }),

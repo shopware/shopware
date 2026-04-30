@@ -1,18 +1,16 @@
-@import "~scss/variables";
-
 .sw-settings-search-live-search {
     &__description {
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
     }
 
     &__show-example-link {
         display: grid;
         grid-auto-flow: column;
-        grid-column-gap: 4px;
+        grid-column-gap: var(--scale-size-4);
         align-items: center;
-        margin: 18px 0 12px;
-        color: $color-shopware-brand-500;
-        font-size: $font-size-xs;
+        margin: var(--scale-size-18) 0 var(--scale-size-12);
+        color: var(--color-shopware-brand-500);
+        font-size: var(--font-size-xs);
         text-decoration: underline;
         cursor: pointer;
     }
@@ -23,17 +21,17 @@
 
     &__search-results {
         position: relative;
-        padding: 10px 0;
+        padding: var(--scale-size-10) 0;
     }
 
     &__no-result {
         display: block;
-        margin: 18px 0;
-        font-size: $font-size-xs;
+        margin: var(--scale-size-18) 0;
+        font-size: var(--font-size-xs);
     }
 
     &__grid-result {
-        margin-top: 18px;
+        margin-top: var(--scale-size-18);
     }
 
     &__sorting-select {

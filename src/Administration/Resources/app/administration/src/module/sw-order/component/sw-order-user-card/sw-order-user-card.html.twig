@@ -3,7 +3,7 @@
 <mt-card
     class="sw-order-user-card"
     position-identifier="sw-order-user-card"
-    :title="$tc('sw-order.detailBase.cardTitleDetails')"
+    :title="$t('sw-order.detailBase.cardTitleDetails')"
     :is-loading="isLoading"
 >
 
@@ -59,7 +59,7 @@
                         <sw-entity-tag-select
                             v-if="isEditing || hasTags"
                             class="sw-order-user-card__tag-select"
-                            :placeholder="$tc('sw-order.detailBase.placeholderTagSelect')"
+                            :placeholder="$t('sw-order.detailBase.placeholderTagSelect')"
                             :size="!isEditing ? 'default' : 'medium'"
                             :disabled="!isEditing"
                             :entity-collection="currentOrder.tags"
@@ -105,11 +105,11 @@
                     >
 
                         {% block sw_order_detail_base_order_overview_email %}
-                        <dt>{{ $tc('sw-order.detailBase.labelCustomerEmail') }}*</dt>
+                        <dt>{{ $t('sw-order.detailBase.labelCustomerEmail') }}*</dt>
                         <dd>
                             <sw-order-inline-field
                                 v-model:value="currentOrder.orderCustomer.email"
-                                :display-value="currentOrder.orderCustomer.email ? currentOrder.orderCustomer.email : $tc('sw-order.detailBase.labelNoEmail')"
+                                :display-value="currentOrder.orderCustomer.email ? currentOrder.orderCustomer.email : $t('sw-order.detailBase.labelNoEmail')"
                                 required
                                 :editable="isEditing"
                                 @update:value="$emit('order-change')"
@@ -119,7 +119,7 @@
 
                         {% block sw_order_detail_base_order_overview_billing_address %}
                         <dt>
-                            {{ $tc('sw-order.detailBase.headlineBillingAddress') }}
+                            {{ $t('sw-order.detailBase.headlineBillingAddress') }}
                             <mt-button
                                 v-if="isEditing"
                                 class="sw-order-user-card__address-edit-button"
@@ -128,7 +128,7 @@
                                 data-analytics-id="sw-order-user-card.edit-billing-address"
                                 @click="onEditBillingAddress"
                             >
-                                {{ $tc('sw-order.detailBase.buttonEditAddress') }}
+                                {{ $t('sw-order.detailBase.buttonEditAddress') }}
                             </mt-button>
                         </dt>
                         <dd
@@ -159,20 +159,20 @@
 
                         {% block sw_order_detail_base_order_overview_phone_number %}
                         <dt>
-                            {{ $tc('sw-order.detailBase.labelCustomerPhoneNumber') }}
+                            {{ $t('sw-order.detailBase.labelCustomerPhoneNumber') }}
                             <sw-label
                                 v-if="hasDifferentBillingAndShippingAddress"
                                 size="small"
                                 appearance="pill"
                                 class="sw-order-user-card__address-phone-label"
                             >
-                                {{ $tc('sw-order.detailBase.headlineBillingAddress') }}
+                                {{ $t('sw-order.detailBase.headlineBillingAddress') }}
                             </sw-label>
                         </dt>
                         <dd>
                             <sw-order-inline-field
                                 v-model:value="billingAddress.phoneNumber"
-                                :display-value="billingAddress.phoneNumber? billingAddress.phoneNumber : $tc('sw-order.detailBase.labelNoPhoneNumber')"
+                                :display-value="billingAddress.phoneNumber? billingAddress.phoneNumber : $t('sw-order.detailBase.labelNoPhoneNumber')"
                                 :editable="isEditing"
                                 class="sw-order-inline-field__truncateable"
                                 @update:value="$emit('order-change')"
@@ -182,7 +182,7 @@
 
                         {% block sw_order_detail_base_order_overview_shipping_address %}
                         <dt>
-                            {{ $tc('sw-order.detailBase.headlineDeliveryAddress') }}
+                            {{ $t('sw-order.detailBase.headlineDeliveryAddress') }}
                             <mt-button
                                 v-show="hasDifferentBillingAndShippingAddress && isEditing"
                                 class="sw-order-user-card__address-edit-button"
@@ -191,13 +191,13 @@
                                 data-analytics-id="sw-order-user-card.edit-delivery-address"
                                 @click="onEditDeliveryAddress"
                             >
-                                {{ $tc('sw-order.detailBase.buttonEditAddress') }}
+                                {{ $t('sw-order.detailBase.buttonEditAddress') }}
                             </mt-button>
                         </dt>
 
                         <dd v-if="!hasDifferentBillingAndShippingAddress && hasDeliveries">
                             <span>
-                                {{ $tc('sw-order.detailBase.labelSameDeliveryAndBillingAddress') }}
+                                {{ $t('sw-order.detailBase.labelSameDeliveryAndBillingAddress') }}
                             </span>
                             <mt-button
                                 v-show="!hasDifferentBillingAndShippingAddress && isEditing"
@@ -208,7 +208,7 @@
                                 data-analytics-id="sw-order-user-card.add-new-delivery-address"
                                 @click="onAddNewDeliveryAddress"
                             >
-                                {{ $tc('sw-order.detailBase.buttonAddDeliveryAddress') }}
+                                {{ $t('sw-order.detailBase.buttonAddDeliveryAddress') }}
                             </mt-button>
                         </dd>
 
@@ -226,7 +226,7 @@
                         </dd>
 
                         <dd v-else>
-                            {{ $tc('sw-order.detailBase.labelNoDeliveriesYet') }}
+                            {{ $t('sw-order.detailBase.labelNoDeliveriesYet') }}
                         </dd>
                         {% endblock %}
 
@@ -264,7 +264,7 @@
                         {% block sw_order_detail_base_secondary_info_order_overview_left_column %}
 
                         {% block sw_order_detail_base_secondary_info_sales_channel %}
-                        <dt>{{ $tc('sw-order.detailBase.labelSalesChannel') }}</dt>
+                        <dt>{{ $t('sw-order.detailBase.labelSalesChannel') }}</dt>
                         <dd class="sw-order-base__label-sales-channel">
                             {{ currentOrder.salesChannel.translated.name }}
                         </dd>
@@ -272,7 +272,7 @@
 
                         {% block sw_order_detail_base_secondary_info_payment %}
                         <template v-if="currentOrder.transactions.length > 0">
-                            <dt>{{ $tc('sw-order.detailBase.labelPaymentMethod') }}</dt>
+                            <dt>{{ $t('sw-order.detailBase.labelPaymentMethod') }}</dt>
                             <dd>
                                 {{ currentOrder.transactions.last().paymentMethod.translated.distinguishableName }}
                             </dd>
@@ -280,12 +280,12 @@
                         {% endblock %}
 
                         {% block sw_order_detail_base_secondary_info_delivery %}
-                        <dt>{{ $tc('sw-order.detailBase.labelShippingMethod') }}</dt>
-                        <dd>{{ hasDeliveries ? delivery.shippingMethod.translated.name :$tc('sw-order.detailBase.labelNoDeliveriesYet') }}</dd>
+                        <dt>{{ $t('sw-order.detailBase.labelShippingMethod') }}</dt>
+                        <dd>{{ hasDeliveries ? delivery.shippingMethod.translated.name :$t('sw-order.detailBase.labelNoDeliveriesYet') }}</dd>
                         {% endblock %}
 
                         {% block sw_order_detail_base_secondary_info_affiliate %}
-                        <dt>{{ $tc('sw-order.detailBase.labelAffiliateCode') }}</dt>
+                        <dt>{{ $t('sw-order.detailBase.labelAffiliateCode') }}</dt>
                         <dd>{{ currentOrder.affiliateCode || '-' }}</dd>
                         {% endblock %}
 
@@ -303,12 +303,12 @@
                         {%  block sw_order_detail_base_secondary_info_order_overview_right_column %}
 
                         {% block sw_order_detail_base_secondary_info_order_language %}
-                        <dt>{{ $tc('sw-order.detailBase.labelLanguage') }}</dt>
+                        <dt>{{ $t('sw-order.detailBase.labelLanguage') }}</dt>
                         <dd>{{ currentOrder.language.name }}</dd>
                         {% endblock %}
 
                         {% block sw_order_detail_base_secondary_info_last_change %}
-                        <dt>{{ $tc('sw-order.detailBase.labelLastChange') }}</dt>
+                        <dt>{{ $t('sw-order.detailBase.labelLastChange') }}</dt>
                         <dd>{{ lastChangedDate }}</dd>
                         {% endblock %}
 
@@ -317,7 +317,7 @@
                             {% block sw_order_detail_base_secondary_info_tracking_codes_input %}
                             <dt>
                                 {% block sw_order_detail_base_secondary_info_tracking_codes_input_label %}
-                                {{ $tc('sw-order.detailBase.labelTrackingCodes') }}
+                                {{ $t('sw-order.detailBase.labelTrackingCodes') }}
                                 {% endblock %}
                             </dt>
                             <dd>
@@ -325,14 +325,14 @@
                                 <sw-multi-tag-select
                                     v-model:value="delivery.trackingCodes"
                                     class="sw-order-user-card__tracking-code-select"
-                                    :placeholder="$tc('sw-order.detailBase.placeholderTrackingCodeSelect')"
+                                    :placeholder="$t('sw-order.detailBase.placeholderTrackingCodeSelect')"
                                     @update:value="emitChange"
                                 >
                                     <template #message-add-data>
-                                        <span>{{ $tc('sw-order.detailBase.addTrackingCode') }}</span>
+                                        <span>{{ $t('sw-order.detailBase.addTrackingCode') }}</span>
                                     </template>
                                     <template #message-enter-valid-data>
-                                        <span>{{ $tc('sw-order.detailBase.enterValidTrackingCode') }}</span>
+                                        <span>{{ $t('sw-order.detailBase.enterValidTrackingCode') }}</span>
                                     </template>
                                 </sw-multi-tag-select>
                                 {% endblock %}
@@ -343,7 +343,7 @@
                             {% block sw_order_detail_base_secondary_info_tracking_codes_display %}
                             <dt>
                                 {% block sw_order_detail_base_secondary_info_tracking_codes_display_label %}
-                                {{ $tc('sw-order.detailBase.labelTrackingCodes') }}
+                                {{ $t('sw-order.detailBase.labelTrackingCodes') }}
                                 {% endblock %}
                             </dt>
                             <dd>
@@ -365,7 +365,7 @@
                             {% block sw_order_detail_base_secondary_info_tracking_codes_empty %}
                             <dt>
                                 {% block sw_order_detail_base_secondary_info_tracking_codes_empty_label %}
-                                {{ $tc('sw-order.detailBase.labelTrackingCodes') }}
+                                {{ $t('sw-order.detailBase.labelTrackingCodes') }}
                                 {% endblock %}
                             </dt>
                             <dd>
@@ -379,7 +379,7 @@
 
                         {% block sw_order_detail_base_secondary_info_campaign %}
                         <template v-if="currentOrder.campaignCode">
-                            <dt>{{ $tc('sw-order.detailBase.labelCampaignCode') }}</dt>
+                            <dt>{{ $t('sw-order.detailBase.labelCampaignCode') }}</dt>
                             <dd>{{ currentOrder.campaignCode || '-' }}</dd>
                         </template>
                         {% endblock %}

@@ -405,11 +405,11 @@ class PagingListingProcessorTest extends TestCase
 
     public function testProcessDoesNotThrowOnOnlyAggregationsRequestWithPageGreaterThanOne(): void
     {
-        // Reproduces the only-aggregations regression: BehaviorListingProcessor runs after
-        // PagingListingProcessor (priority -1000) and sets limit=0 + totalCountMode=NONE on
-        // the criteria. PagingListingProcessor::process must not throw for these requests
-        // even when ?p=N (N > 1) is still present in the URL (Storefront filter-panel AJAX
-        // forwards the current page).
+        // BehaviorListingProcessor::prepare() runs last (priority -1000) and overwrites
+        // the criteria limit to 0 when only-aggregations=1 is requested. By the time
+        // PagingListingProcessor::process() reads the criteria, limit is already 0.
+        // process() must not throw a 404 for these requests even when ?p=N (N > 1) is
+        // still present in the URL (Storefront filter-panel AJAX forwards the current page).
         $criteria = (new Criteria())->setLimit(0);
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
         $request = new Request(['p' => 3, 'only-aggregations' => 1]);

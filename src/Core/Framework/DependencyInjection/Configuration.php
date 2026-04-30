@@ -7,6 +7,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\Type;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
@@ -967,8 +968,18 @@ class Configuration implements ConfigurationInterface
 
         $rootNode = $treeBuilder->getRootNode();
         $rootNode
-            ->children()
-                ->arrayNode('default')->scalarPrototype()->end()
+            ->arrayPrototype()->scalarPrototype()->end()
+            ->end()
+            ->validate()
+            ->ifFalse(
+                static fn (array $v) => \count(
+                    array_filter(
+                        array_keys($v),
+                        static fn (string $key) => $key !== 'default' && !Uuid::isValid($key)
+                    )
+                ) === 0
+            )
+            ->thenInvalid('Key must be "default" or a valid UUID')
             ->end();
 
         return $rootNode;

@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\IgnoreInUnusedMediaSearch;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -474,6 +475,48 @@ class UnusedMediaPurgerTest extends TestCase
             'Media' => $mediaDefinition = $this->getMediaDefinition([
                 new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, 'id'),
             ]),
+        ]);
+
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
+
+        $media1 = $this->createMedia($id1);
+        $media2 = $this->createMedia($id2);
+
+        /** @var StaticEntityRepository<MediaCollection> $repo */
+        $repo = new StaticEntityRepository(
+            [
+                static function (Criteria $criteria, Context $context) use ($id1, $id2) {
+                    $filters = $criteria->getFilters();
+
+                    self::assertCount(0, $filters);
+
+                    return [$id1, $id2];
+                },
+                static function (Criteria $criteria, Context $context) use ($id1, $id2, $media1, $media2) {
+                    static::assertSame([$id1, $id2], $criteria->getIds());
+
+                    return new MediaCollection([$media1, $media2]);
+                },
+                [],
+            ],
+            $mediaDefinition
+        );
+
+        $purger = new UnusedMediaPurger($repo, $this->createMock(Connection::class), new EventDispatcher());
+        $media = array_merge([], ...iterator_to_array($purger->getNotUsedMedia()));
+
+        static::assertSame([$media1, $media2], $media);
+    }
+
+    public function testGetNotUsedMediaSkipsAssociationsMarkedToIgnoreUnusedMediaSearch(): void
+    {
+        $this->configureRegistry([
+            'Media' => $mediaDefinition = $this->getMediaDefinition([
+                (new FkField('meta_id', 'metaId', 'Meta'))->addFlags(new Required()),
+                (new OneToOneAssociationField('meta', 'meta_id', 'id', 'Meta', false))->addFlags(new IgnoreInUnusedMediaSearch()),
+            ]),
+            'Meta' => $this->getMetaDefinition(),
         ]);
 
         $id1 = Uuid::randomHex();

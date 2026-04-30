@@ -163,6 +163,10 @@ class FileSaver
             $thumbnails = $this->getNewThumbnailPaths($media, $destination);
 
             foreach ($media->getThumbnails() ?? [] as $thumbnail) {
+                if ($thumbnail->getPath() !== '' && \in_array($thumbnail->getPath(), array_keys($renamedFiles), true)) {
+                    continue;
+                }
+
                 try {
                     $thumbnailDestination = $thumbnails[$thumbnail->getUniqueIdentifier()];
 

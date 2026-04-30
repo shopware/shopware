@@ -329,7 +329,7 @@ class RegisterRoute extends AbstractRegisterRoute
             $billingAddress->set('salutationId', $data->get('salutationId'));
         }
 
-        if ($shippingAddress instanceof DataBag) {
+        if (($shippingAddress instanceof DataBag) && !$shippingAddress->get('salutationId')) {
             $shippingAddress->set('salutationId', $data->get('salutationId'));
         }
 

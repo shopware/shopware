@@ -48,6 +48,12 @@ Previously, the switch field itself was disabled as expected, but its inheritanc
 Switch and checkbox fields in theme configuration now render and handle inheritance consistently. Before they wouldn't have shown the inheritance switch.
 Also the checkbox field is now positionally aligned with the other components.
 
+### Deprecated component-level form inheritance helper wrappers
+
+The Administration now exposes shared form field helper utilities through `Shopware.Utils` for inheritance support, Meteor component detection, label/help text handling, and form field type mapping.
+Compatibility wrapper methods on `sw-custom-field-set-renderer`, `sw-system-config`, `sw-theme-manager-detail`, and `sw-form-field-renderer` now only forward to these utilities and are deprecated for removal in Shopware 6.8.
+Extensions should use the shared utilities directly, for example `Shopware.Utils.supportsMapInheritance`, `Shopware.Utils.isMeteorComponent`, `Shopware.Utils.isFieldHandlingInheritanceItself`, and `Shopware.Utils.isFieldHandlingLabelAndHelpText`.
+
 ## Storefront
 
 ## App System

@@ -3,6 +3,9 @@
  */
 import ErrorResolverSystemConfig from 'src/core/data/error-resolver.system-config.data';
 import { deepCloneWithEntity } from 'src/core/service/extension-api-data.service';
+import { supportsMapInheritance } from 'src/core/service/utils/field-inheritance.utils';
+import { isMeteorComponent as isMeteorFieldComponent } from 'src/core/service/utils/meteor-component.utils';
+import { isFieldHandlingLabelAndHelpText as fieldHandlesLabelAndHelpText } from 'src/core/service/utils/field-label.utils';
 import template from './sw-system-config.html.twig';
 import './sw-system-config.scss';
 
@@ -79,6 +82,9 @@ export default {
             return this.currentSalesChannelId !== null;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, use `Shopware.Utils.supportsMapInheritance` to test for map inheritance support instead.
+         */
         typesWithMapInheritanceSupport() {
             return [
                 'text',
@@ -197,20 +203,17 @@ export default {
             this.readAll();
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, use `Shopware.Utils.supportsMapInheritance` instead.
+         */
         hasMapInheritanceSupport(element) {
-            const componentName = element.config ? element.config.componentName : undefined;
-
-            if (componentName === 'sw-snippet-field') {
-                return true;
-            }
-
-            return this.typesWithMapInheritanceSupport.includes(element.type);
+            return supportsMapInheritance(element);
         },
 
         getElementBind(element, mapInheritance) {
             const bind = object.deepCopyObject(element);
 
-            if (!this.hasMapInheritanceSupport(element)) {
+            if (!supportsMapInheritance(element)) {
                 delete bind.config.label;
                 delete bind.config.helpText;
             } else {
@@ -244,11 +247,7 @@ export default {
         },
 
         getInheritWrapperBind(element) {
-            if (this.hasMapInheritanceSupport(element)) {
-                return {};
-            }
-
-            if (this.isMeteorComponent(element)) {
+            if (fieldHandlesLabelAndHelpText(element, { renderedByFormFieldRenderer: true })) {
                 return {};
             }
 
@@ -319,35 +318,10 @@ export default {
         },
 
         /**
-         * New methods for Meteor components
+         * @deprecated tag:v6.8.0 - Will be removed, use `Shopware.Utils.isMeteorComponent` instead.
          */
         isMeteorComponent(element) {
-            const componentName = element.config ? element.config.componentName : undefined;
-
-            // Special case for sw-text-editor, because we still support the legacy one
-            const componentsWithMeteorSupport = [
-                'sw-text-editor',
-            ];
-
-            const typesWithMeteorSupport = [
-                'bool',
-                'switch',
-                'text',
-                'textarea',
-                'url',
-                'checkbox',
-                'colorpicker',
-                'password',
-                'date',
-                'datetime',
-                'time',
-                'single-select',
-                'multi-select',
-                'float',
-                'int',
-            ];
-
-            return typesWithMeteorSupport.includes(element.type) || componentsWithMeteorSupport.includes(componentName);
+            return isMeteorFieldComponent(element);
         },
 
         getMeteorElementBind(element, mapInheritance) {

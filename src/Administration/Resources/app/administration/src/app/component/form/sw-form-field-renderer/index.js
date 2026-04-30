@@ -1,4 +1,5 @@
 import template from './sw-form-field-renderer.html.twig';
+import { getFormFieldComponentFromType, getFormFieldComponentName } from 'src/core/service/utils/form-field-type-mapping.utils';
 
 const { Mixin } = Shopware;
 const { types } = Shopware.Utils;
@@ -154,15 +155,10 @@ export default {
         },
 
         componentName() {
-            if (this.hasConfig) {
-                // Handle old "sw-field" component with custom type
-                if (this.config.componentName === 'sw-field') {
-                    return this.getComponentFromType(this.config.type);
-                }
-
-                return this.config.componentName || this.getComponentFromType();
-            }
-            return this.getComponentFromType();
+            return getFormFieldComponentName({
+                type: this.type,
+                config: this.config,
+            });
         },
 
         swFieldType() {
@@ -318,37 +314,11 @@ export default {
             return translations;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, use `Shopware.Utils.getFormFieldComponentFromType` instead.
+         */
         getComponentFromType(customType = undefined) {
-            const type = customType ?? this.type;
-
-            const components = {
-                bool: 'mt-switch',
-                switch: 'mt-switch',
-                textarea: 'mt-textarea',
-                checkbox: 'mt-checkbox',
-                colorpicker: 'mt-colorpicker',
-                compactColorpicker: 'sw-compact-colorpicker',
-                date: 'mt-datepicker',
-                datetime: 'mt-datepicker',
-                time: 'mt-datepicker',
-                email: 'mt-email-field',
-                float: 'mt-number-field',
-                int: 'mt-number-field',
-                number: 'mt-number-field',
-                'multi-entity-id-select': 'sw-entity-multi-id-select',
-                'multi-select': 'mt-select',
-                password: 'mt-password-field',
-                price: 'sw-price-field',
-                radio: 'sw-radio-field',
-                'single-entity-id-select': 'sw-entity-single-select',
-                'single-select': 'mt-select',
-                string: 'mt-text-field',
-                text: 'mt-text-field',
-                tagged: 'sw-tagged-field',
-                url: 'mt-url-field',
-            };
-
-            return components[type] ?? 'mt-text-field';
+            return getFormFieldComponentFromType(customType ?? this.type);
         },
 
         createRepository(entity) {

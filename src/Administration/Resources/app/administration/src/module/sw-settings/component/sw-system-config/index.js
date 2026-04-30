@@ -324,13 +324,6 @@ export default {
             return isMeteorFieldComponent(element);
         },
 
-        /**
-         * @deprecated tag:v6.8.0 - Will be removed, use `Shopware.Utils.isFieldHandlingLabelAndHelpText` instead.
-         */
-        isFieldHandlingLabelAndHelpText(element) {
-            return fieldHandlesLabelAndHelpText(element, { renderedByFormFieldRenderer: true });
-        },
-
         getMeteorElementBind(element, mapInheritance) {
             const bind = {};
 

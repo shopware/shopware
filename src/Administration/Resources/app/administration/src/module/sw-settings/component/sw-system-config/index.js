@@ -3,6 +3,11 @@
  */
 import ErrorResolverSystemConfig from 'src/core/data/error-resolver.system-config.data';
 import { deepCloneWithEntity } from 'src/core/service/extension-api-data.service';
+import {
+    isMeteorComponent as isMeteorFieldComponent,
+    supportsMapInheritance,
+} from 'src/core/service/utils/field-inheritance.utils';
+import { isFieldHandlingLabelAndHelpText as fieldHandlesLabelAndHelpText } from 'src/core/service/utils/field-label.utils';
 import template from './sw-system-config.html.twig';
 import './sw-system-config.scss';
 
@@ -77,19 +82,6 @@ export default {
     computed: {
         isNotDefaultSalesChannel() {
             return this.currentSalesChannelId !== null;
-        },
-
-        typesWithMapInheritanceSupport() {
-            return [
-                'text',
-                'textarea',
-                'url',
-                'password',
-                'int',
-                'float',
-                'checkbox',
-                'colorpicker',
-            ];
         },
     },
 
@@ -198,13 +190,7 @@ export default {
         },
 
         hasMapInheritanceSupport(element) {
-            const componentName = element.config ? element.config.componentName : undefined;
-
-            if (componentName === 'sw-snippet-field') {
-                return true;
-            }
-
-            return this.typesWithMapInheritanceSupport.includes(element.type);
+            return supportsMapInheritance(element);
         },
 
         getElementBind(element, mapInheritance) {
@@ -244,11 +230,7 @@ export default {
         },
 
         getInheritWrapperBind(element) {
-            if (this.hasMapInheritanceSupport(element)) {
-                return {};
-            }
-
-            if (this.isMeteorComponent(element)) {
+            if (this.isFieldHandlingLabelAndHelpText(element)) {
                 return {};
             }
 
@@ -322,32 +304,11 @@ export default {
          * New methods for Meteor components
          */
         isMeteorComponent(element) {
-            const componentName = element.config ? element.config.componentName : undefined;
+            return isMeteorFieldComponent(element);
+        },
 
-            // Special case for sw-text-editor, because we still support the legacy one
-            const componentsWithMeteorSupport = [
-                'sw-text-editor',
-            ];
-
-            const typesWithMeteorSupport = [
-                'bool',
-                'switch',
-                'text',
-                'textarea',
-                'url',
-                'checkbox',
-                'colorpicker',
-                'password',
-                'date',
-                'datetime',
-                'time',
-                'single-select',
-                'multi-select',
-                'float',
-                'int',
-            ];
-
-            return typesWithMeteorSupport.includes(element.type) || componentsWithMeteorSupport.includes(componentName);
+        isFieldHandlingLabelAndHelpText(element) {
+            return fieldHandlesLabelAndHelpText(element, { resolveType: true });
         },
 
         getMeteorElementBind(element, mapInheritance) {

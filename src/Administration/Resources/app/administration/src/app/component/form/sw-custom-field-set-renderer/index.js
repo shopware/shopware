@@ -1,6 +1,12 @@
 import { computed } from 'vue';
 
 import { getMeteorInheritanceConfig } from 'src/core/service/utils/meteor-inheritance.utils';
+import {
+    isMeteorComponent as isMeteorFieldComponent,
+    mapInheritanceComponentNames,
+    supportsMapInheritance as supportsFieldMapInheritance,
+} from 'src/core/service/utils/field-inheritance.utils';
+import { isFieldHandlingLabelAndHelpText as fieldHandlesLabelAndHelpText } from 'src/core/service/utils/field-label.utils';
 import template from './sw-custom-field-set-renderer.html.twig';
 import './sw-custom-field-set-renderer.scss';
 
@@ -152,29 +158,9 @@ export default {
             return this.sets.filter((set) => set.global);
         },
 
+        // kept for backward compatibility
         componentsWithMapInheritanceSupport() {
-            return [
-                'sw-text-field',
-                'sw-textarea-field',
-                'sw-select-field',
-                'sw-checkbox-field',
-                'sw-switch-field',
-                'mt-switch',
-                'sw-number-field',
-                'sw-datepicker',
-                'sw-email-field',
-                'mt-email-field',
-                'sw-url-field',
-                'sw-password-field',
-                'sw-radio-field',
-                'sw-colorpicker',
-                'mt-colorpicker',
-                'sw-compact-colorpicker',
-                'sw-price-field',
-                'sw-tagged-field',
-                // for backwards compatibility with old custom fields
-                'sw-field',
-            ];
+            return mapInheritanceComponentNames;
         },
 
         translatedInheritanceSourceLanguageId() {
@@ -442,41 +428,38 @@ export default {
         },
 
         supportsMapInheritance(customField) {
-            const componentName = customField.config.componentName;
-
-            return this.componentsWithMapInheritanceSupport.includes(componentName);
+            return supportsFieldMapInheritance(customField);
         },
 
         isMeteorComponent(customField) {
-            return [
-                'bool',
-                'text',
-                'number',
-                'float',
-                'int',
-                'datetime',
-            ].includes(customField.type);
+            return isMeteorFieldComponent(customField);
+        },
+
+        isFieldHandlingLabelAndHelpText(customField) {
+            return fieldHandlesLabelAndHelpText(customField, { resolveType: true });
         },
 
         getBind(customField, props) {
             const customFieldClone = Shopware.Utils.object.cloneDeep(customField);
 
             const isMeteorComponent = this.isMeteorComponent(customField);
+            const supportsMapInheritance = this.supportsMapInheritance(customFieldClone);
             const inheritedCustomFieldValue = props.isInheritField ? this.getInheritedCustomField(customField.name) : null;
 
             if (customFieldClone.type === 'bool') {
                 customFieldClone.config.bordered = true;
             }
 
-            if (this.supportsMapInheritance(customFieldClone)) {
+            if (supportsMapInheritance) {
                 customFieldClone.mapInheritance = props;
+            }
 
-                // Special case for meteor components
-                if (isMeteorComponent) {
-                    Object.assign(customFieldClone, getMeteorInheritanceConfig(props, inheritedCustomFieldValue));
-                    customFieldClone.disabled = this.disabled || props.isInherited;
-                }
+            if (isMeteorComponent) {
+                Object.assign(customFieldClone, getMeteorInheritanceConfig(props, inheritedCustomFieldValue));
+                customFieldClone.disabled = this.disabled || props.isInherited;
+            }
 
+            if (supportsMapInheritance || isMeteorComponent) {
                 return customFieldClone;
             }
 
@@ -507,7 +490,7 @@ export default {
         },
 
         getInheritWrapperBind(customField) {
-            if (this.supportsMapInheritance(customField)) {
+            if (this.isFieldHandlingLabelAndHelpText(customField)) {
                 return {};
             }
 

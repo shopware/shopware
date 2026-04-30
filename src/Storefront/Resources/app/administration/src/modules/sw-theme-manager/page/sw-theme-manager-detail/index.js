@@ -7,7 +7,11 @@ import './sw-theme-manager-detail.scss';
 
 const { Component, Mixin } = Shopware;
 const Criteria = Shopware.Data.Criteria;
-const { getMeteorInheritanceConfig } = Shopware.Utils;
+const {
+    getMeteorInheritanceConfig,
+    isFieldHandlingInheritanceItself: fieldHandlesInheritanceItself,
+    isFieldHandlingLabelAndHelpText: fieldHandlesLabelAndHelpText,
+} = Shopware.Utils;
 const { getObjectDiff, cloneDeep, deepMergeObject } = Shopware.Utils.object;
 const { isArray } = Shopware.Utils.types;
 
@@ -720,7 +724,7 @@ Component.register('sw-theme-manager-detail', {
                 delete config.custom;
             }
 
-            if (inheritance && this.isFieldHandlingLabelAndHelpText(field)) {
+            if (inheritance && this.isFieldHandlingInheritanceItself(field)) {
                 config.mapInheritance = inheritance;
                 Object.assign(config, getMeteorInheritanceConfig(inheritance, inheritedValue));
             }
@@ -729,7 +733,7 @@ Component.register('sw-theme-manager-detail', {
         },
 
         getElementEventListeners(field, inheritance = null) {
-            if (!inheritance || !this.isFieldHandlingLabelAndHelpText(field)) {
+            if (!inheritance || !this.isFieldHandlingInheritanceItself(field)) {
                 return {};
             }
 
@@ -740,7 +744,7 @@ Component.register('sw-theme-manager-detail', {
         },
 
         getFieldDisabled(field, inheritance) {
-            if (this.isFieldHandlingLabelAndHelpText(field)) {
+            if (this.isFieldHandlingInheritanceItself(field)) {
                 return !this.acl.can('theme.editor');
             }
 
@@ -769,9 +773,12 @@ Component.register('sw-theme-manager-detail', {
             return fallback;
         },
 
+        isFieldHandlingInheritanceItself(field) {
+            return fieldHandlesInheritanceItself(field);
+        },
+
         isFieldHandlingLabelAndHelpText(field) {
-            return ['switch', 'checkbox'].includes(field.type) ||
-                    ['sw-switch-field', 'sw-checkbox-field', 'mt-switch', 'mt-checkbox'].includes(field.custom?.componentName);
+            return fieldHandlesLabelAndHelpText(field);
         },
 
         /**

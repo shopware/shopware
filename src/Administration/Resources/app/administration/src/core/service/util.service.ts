@@ -41,6 +41,20 @@ import EventBus from './utils/eventBus.utils';
 import genericRuleConditionUtils from './utils/generic-rule-condition.utils';
 import unitConversionUtils from './utils/unit-conversion.utils';
 import { getMeteorInheritanceConfig } from './utils/meteor-inheritance.utils';
+import {
+    fieldHandlingInheritanceItselfComponentNames,
+    isFieldHandlingInheritanceItself,
+    isMeteorComponent,
+    mapInheritanceComponentNames,
+    meteorComponentNames,
+    supportsMapInheritance,
+} from './utils/field-inheritance.utils';
+import { fieldHandlingLabelAndHelpText, isFieldHandlingLabelAndHelpText } from './utils/field-label.utils';
+import {
+    formFieldTypeComponentMap,
+    getFormFieldComponentFromType,
+    getFormFieldComponentName,
+} from './utils/form-field-type-mapping.utils';
 import { telemetry as MeteorTelemetry } from '@shopware-ag/meteor-admin-sdk';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -181,6 +195,17 @@ export default {
     unitConversion,
     extension,
     getMeteorInheritanceConfig,
+    fieldHandlingInheritanceItselfComponentNames,
+    mapInheritanceComponentNames,
+    meteorComponentNames,
+    fieldHandlingLabelAndHelpText,
+    supportsMapInheritance,
+    isMeteorComponent,
+    isFieldHandlingInheritanceItself,
+    isFieldHandlingLabelAndHelpText,
+    formFieldTypeComponentMap,
+    getFormFieldComponentFromType,
+    getFormFieldComponentName,
 };
 
 /**

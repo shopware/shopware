@@ -1,9 +1,9 @@
 import { computed } from 'vue';
 
 import { getMeteorInheritanceConfig } from 'src/core/service/utils/meteor-inheritance.utils';
+import { isMeteorComponent as isMeteorFieldComponent } from 'src/core/service/utils/meteor-component.utils';
 import {
-    isMeteorComponent as isMeteorFieldComponent,
-    mapInheritanceComponentNames,
+    componentNamesSupportingMapInheritance,
     supportsMapInheritance as supportsFieldMapInheritance,
 } from 'src/core/service/utils/field-inheritance.utils';
 import { isFieldHandlingLabelAndHelpText as fieldHandlesLabelAndHelpText } from 'src/core/service/utils/field-label.utils';
@@ -160,7 +160,7 @@ export default {
 
         // kept for backward compatibility
         componentsWithMapInheritanceSupport() {
-            return mapInheritanceComponentNames;
+            return componentNamesSupportingMapInheritance;
         },
 
         translatedInheritanceSourceLanguageId() {
@@ -436,7 +436,7 @@ export default {
         },
 
         isFieldHandlingLabelAndHelpText(customField) {
-            return fieldHandlesLabelAndHelpText(customField, { resolveType: true });
+            return fieldHandlesLabelAndHelpText(customField, { renderedByFormFieldRenderer: true });
         },
 
         getBind(customField, props) {

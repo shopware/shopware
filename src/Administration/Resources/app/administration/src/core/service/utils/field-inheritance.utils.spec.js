@@ -1,20 +1,21 @@
 import {
-    fieldHandlingInheritanceItselfComponentNames,
+    componentNamesHandlingInheritanceThemselves,
+    componentNamesSupportingMapInheritance,
     isFieldHandlingInheritanceItself,
-    isMeteorComponent,
-    mapInheritanceComponentNames,
     supportsMapInheritance,
 } from './field-inheritance.utils';
 
 describe('field-inheritance.utils', () => {
     it('keeps field handling inheritance support in a flattened list', () => {
-        expect(fieldHandlingInheritanceItselfComponentNames).toEqual([
+        expect(componentNamesHandlingInheritanceThemselves).toEqual([
             'mt-switch',
             'mt-checkbox',
             'sw-switch-field',
             'sw-checkbox-field',
         ]);
-        expect(mapInheritanceComponentNames.some((componentName) => componentName.startsWith('mt-'))).toBe(false);
+        expect(componentNamesSupportingMapInheritance.some((componentName) => componentName.startsWith('mt-'))).toBe(
+            false,
+        );
     });
 
     it('detects map inheritance support by resolved component from field type', () => {
@@ -61,21 +62,6 @@ describe('field-inheritance.utils', () => {
     it('returns false for map inheritance support without matching config', () => {
         expect(supportsMapInheritance({ componentName: 'sw-media-field' })).toBe(false);
         expect(supportsMapInheritance(null)).toBe(false);
-    });
-
-    it('detects meteor components by resolved component from field type', () => {
-        expect(isMeteorComponent({ type: 'checkbox' })).toBe(true);
-        expect(isMeteorComponent({ componentName: 'sw-media-field' })).toBe(false);
-    });
-
-    it('detects meteor components by component name', () => {
-        expect(isMeteorComponent({ config: { componentName: 'sw-text-field' } })).toBe(true);
-        expect(isMeteorComponent({ config: { componentName: 'sw-text-editor' } })).toBe(true);
-    });
-
-    it('detects supported meteor components from the central support list', () => {
-        expect(isMeteorComponent({ type: 'bool' })).toBe(true);
-        expect(isMeteorComponent({ type: 'bool', config: { componentName: 'sw-field', type: 'checkbox' } })).toBe(true);
     });
 
     it('detects fields handling inheritance themselves by resolved component from field type', () => {

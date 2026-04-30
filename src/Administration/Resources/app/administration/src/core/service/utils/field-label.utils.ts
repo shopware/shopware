@@ -2,9 +2,7 @@
  * @sw-package framework
  * @private
  */
-import {
-    getFormFieldComponentName,
-} from './form-field-type-mapping.utils';
+import { getFormFieldComponentName } from './form-field-type-mapping.utils';
 
 type FieldLabelDefinition = {
     type?: string;
@@ -20,14 +18,14 @@ type FieldLabelDefinition = {
 };
 
 type FieldLabelOptions = {
-    resolveType?: boolean;
+    renderedByFormFieldRenderer?: boolean;
 };
 
 /**
  * @sw-package framework
  * @private
  */
-export const fieldHandlingLabelAndHelpText = {
+export const fieldsHandlingLabelAndHelpText = {
     types: [
         'bool',
         'checkbox',
@@ -74,12 +72,12 @@ export function isFieldHandlingLabelAndHelpText(
     options: FieldLabelOptions = {},
 ) {
     const componentName = getFormFieldComponentName(field, {
-        resolveType: !!options.resolveType,
+        resolveType: options.renderedByFormFieldRenderer === true,
     });
 
     if (componentName) {
-        return fieldHandlingLabelAndHelpText.componentNames.includes(componentName);
+        return fieldsHandlingLabelAndHelpText.componentNames.includes(componentName);
     }
 
-    return field?.type ? fieldHandlingLabelAndHelpText.types.includes(field.type) : false;
+    return field?.type ? fieldsHandlingLabelAndHelpText.types.includes(field.type) : false;
 }

@@ -42,14 +42,13 @@ import genericRuleConditionUtils from './utils/generic-rule-condition.utils';
 import unitConversionUtils from './utils/unit-conversion.utils';
 import { getMeteorInheritanceConfig } from './utils/meteor-inheritance.utils';
 import {
-    fieldHandlingInheritanceItselfComponentNames,
+    componentNamesHandlingInheritanceThemselves,
+    componentNamesSupportingMapInheritance,
     isFieldHandlingInheritanceItself,
-    isMeteorComponent,
-    mapInheritanceComponentNames,
-    meteorComponentNames,
     supportsMapInheritance,
 } from './utils/field-inheritance.utils';
-import { fieldHandlingLabelAndHelpText, isFieldHandlingLabelAndHelpText } from './utils/field-label.utils';
+import { isMeteorComponent, meteorComponentNames } from './utils/meteor-component.utils';
+import { fieldsHandlingLabelAndHelpText, isFieldHandlingLabelAndHelpText } from './utils/field-label.utils';
 import {
     formFieldTypeComponentMap,
     getFormFieldComponentFromType,
@@ -195,10 +194,10 @@ export default {
     unitConversion,
     extension,
     getMeteorInheritanceConfig,
-    fieldHandlingInheritanceItselfComponentNames,
-    mapInheritanceComponentNames,
+    componentNamesHandlingInheritanceThemselves,
+    componentNamesSupportingMapInheritance,
     meteorComponentNames,
-    fieldHandlingLabelAndHelpText,
+    fieldsHandlingLabelAndHelpText,
     supportsMapInheritance,
     isMeteorComponent,
     isFieldHandlingInheritanceItself,

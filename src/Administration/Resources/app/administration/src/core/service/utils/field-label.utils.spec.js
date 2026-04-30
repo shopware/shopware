@@ -1,13 +1,13 @@
-import { fieldHandlingLabelAndHelpText, isFieldHandlingLabelAndHelpText } from './field-label.utils';
+import { fieldsHandlingLabelAndHelpText, isFieldHandlingLabelAndHelpText } from './field-label.utils';
 
 describe('field-label.utils', () => {
     it('keeps label and help text support by types and component names', () => {
-        expect(fieldHandlingLabelAndHelpText.types).toEqual([
+        expect(fieldsHandlingLabelAndHelpText.types).toEqual([
             'bool',
             'checkbox',
             'switch',
         ]);
-        expect(fieldHandlingLabelAndHelpText.componentNames).toEqual(expect.arrayContaining([
+        expect(fieldsHandlingLabelAndHelpText.componentNames).toEqual(expect.arrayContaining([
             'mt-text-field',
             'mt-switch',
             'mt-checkbox',
@@ -15,7 +15,7 @@ describe('field-label.utils', () => {
             'sw-switch-field',
             'sw-checkbox-field',
         ]));
-        expect(fieldHandlingLabelAndHelpText.themeManager).toBeUndefined();
+        expect(fieldsHandlingLabelAndHelpText.themeManager).toBeUndefined();
     });
 
     it('detects fields handling label and help text by supported field type', () => {
@@ -23,8 +23,8 @@ describe('field-label.utils', () => {
         expect(isFieldHandlingLabelAndHelpText({ type: 'text' })).toBe(false);
     });
 
-    it('detects fields handling label and help text by resolved field type when requested', () => {
-        expect(isFieldHandlingLabelAndHelpText({ type: 'text' }, { resolveType: true })).toBe(true);
+    it('detects fields handling label and help text by resolved field type for form field renderer usage', () => {
+        expect(isFieldHandlingLabelAndHelpText({ type: 'text' }, { renderedByFormFieldRenderer: true })).toBe(true);
     });
 
     it('detects fields handling label and help text by direct component name', () => {

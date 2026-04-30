@@ -41,12 +41,12 @@ export default {
 
             if (!this.set || !this.set.name) {
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
-                    message: this.$tc('global.error-codes.c1051bb4-d103-4f74-8988-acbcafc7fdc3'),
+                    title: this.$t('global.default.error'),
+                    message: this.$t('global.error-codes.c1051bb4-d103-4f74-8988-acbcafc7fdc3'),
                 });
 
                 this.technicalNameError = {
-                    detail: this.$tc('global.error-codes.c1051bb4-d103-4f74-8988-acbcafc7fdc3'),
+                    detail: this.$t('global.error-codes.c1051bb4-d103-4f74-8988-acbcafc7fdc3'),
                 };
 
                 this.isLoading = false;
@@ -71,12 +71,12 @@ export default {
         },
         createNameNotUniqueNotification() {
             this.createNotificationError({
-                title: this.$tc('global.default.error'),
-                message: this.$tc('sw-settings-custom-field.set.detail.messageNameNotUnique'),
+                title: this.$t('global.default.error'),
+                message: this.$t('sw-settings-custom-field.set.detail.messageNameNotUnique'),
             });
 
             this.technicalNameError = {
-                detail: this.$tc('sw-settings-custom-field.set.detail.messageNameNotUnique'),
+                detail: this.$t('sw-settings-custom-field.set.detail.messageNameNotUnique'),
             };
         },
     },

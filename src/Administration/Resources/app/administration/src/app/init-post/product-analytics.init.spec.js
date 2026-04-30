@@ -7,8 +7,10 @@ const mockDeleteUser = jest.fn();
 const mockInit = jest.fn(function () {
     this.isInitialized = true;
 });
-const mockFlush = jest.fn();
+const mockFlush = jest.fn().mockResolvedValue(undefined);
+const mockFlushWithoutRetry = jest.fn().mockResolvedValue(undefined);
 const mockClearStorage = jest.fn();
+const mockSetOptOut = jest.fn();
 
 jest.mock('src/core/telemetry/product-analytics/consent-event-handler', () => {
     return jest.fn(() => jest.fn());
@@ -24,7 +26,9 @@ jest.mock('src/core/telemetry/product-analytics/gateway-client', () => {
             isInitialized: false,
             init: mockInit,
             flush: mockFlush,
+            flushWithoutRetry: mockFlushWithoutRetry,
             clearStorage: mockClearStorage,
+            setOptOut: mockSetOptOut,
         })),
     };
 });
@@ -156,6 +160,7 @@ describe('src/app/post-init/product-analytics.init.ts', () => {
             expect(offSpy).not.toHaveBeenCalled();
             expect(mockDeleteUser).not.toHaveBeenCalled();
             expect(mockClearStorage).not.toHaveBeenCalled();
+            expect(mockSetOptOut).toHaveBeenLastCalledWith(false);
         });
 
         it('removes telemetry handler when consent gets revoked', async () => {
@@ -180,6 +185,8 @@ describe('src/app/post-init/product-analytics.init.ts', () => {
 
             expect(offSpy).toHaveBeenCalled();
             expect(offSpy).toHaveBeenCalledWith('telemetry', registeredTelemetryHandler);
+            expect(mockFlushWithoutRetry).toHaveBeenCalled();
+            expect(mockSetOptOut).toHaveBeenLastCalledWith(true);
         });
 
         it('sends delete user request when consent is revoked', async () => {
@@ -218,6 +225,31 @@ describe('src/app/post-init/product-analytics.init.ts', () => {
             expect(mockClearStorage).toHaveBeenCalled();
 
             jest.useRealTimers();
+        });
+
+        it('flushes queued events before deleting the user on consent revocation', async () => {
+            let resolveFlushWithoutRetry;
+            mockFlushWithoutRetry.mockImplementationOnce(
+                () =>
+                    new Promise((resolve) => {
+                        resolveFlushWithoutRetry = resolve;
+                    }),
+            );
+            useConsentStore().consents.product_analytics.status = 'accepted';
+
+            watchHandle = await initProductAnalytics();
+
+            useConsentStore().consents.product_analytics.status = 'revoked';
+            await flushPromises();
+
+            expect(mockFlushWithoutRetry).toHaveBeenCalled();
+            expect(mockDeleteUser).not.toHaveBeenCalled();
+
+            resolveFlushWithoutRetry();
+            await flushPromises();
+
+            expect(mockDeleteUser).toHaveBeenCalledWith(testShopId, testUserId);
+            expect(mockClearStorage).toHaveBeenCalled();
         });
 
         it('Does not initialize the client twice after consent was revoked and accepted again', async () => {

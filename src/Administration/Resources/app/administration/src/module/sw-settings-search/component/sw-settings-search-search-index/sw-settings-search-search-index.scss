@@ -1,24 +1,22 @@
-@import "~scss/variables";
-
 .sw-settings-search {
     &__search-index-latest-build {
-        padding-left: 16px;
-        font-size: $font-size-xs;
+        padding-left: var(--scale-size-16);
+        font-size: var(--font-size-xs);
     }
 
     &__search-index-rebuilding-text {
         display: inline-block;
-        margin-bottom: 2px;
-        font-size: $font-size-xs;
+        margin-bottom: var(--scale-size-2);
+        font-size: var(--font-size-xs);
     }
 
     &__search-index-warning-top {
-        padding-bottom: 10px;
+        padding-bottom: var(--scale-size-10);
     }
 
     &__search-index-rebuilding-progress {
         display: block;
         width: 100%;
-        margin: 24px 0;
+        margin: var(--scale-size-24) 0;
     }
 }

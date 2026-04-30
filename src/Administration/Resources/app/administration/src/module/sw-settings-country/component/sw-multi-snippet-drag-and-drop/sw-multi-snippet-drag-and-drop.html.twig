@@ -67,35 +67,35 @@
             :disabled="isMaxLines"
             @click="openModal"
         >
-            {{ $tc('sw-settings-country.general.actions.newSnippet') }}
+            {{ $t('sw-settings-country.general.actions.newSnippet') }}
         </sw-context-menu-item>
 
         <sw-context-menu-item
             :disabled="isMaxLines"
             @click="addNewLineAt('above')"
         >
-            {{ $tc('sw-settings-country.general.actions.createBefore') }}
+            {{ $t('sw-settings-country.general.actions.createBefore') }}
         </sw-context-menu-item>
 
         <sw-context-menu-item
             :disabled="isMaxLines"
             @click="addNewLineAt('below')"
         >
-            {{ $tc('sw-settings-country.general.actions.createAfter') }}
+            {{ $t('sw-settings-country.general.actions.createAfter') }}
         </sw-context-menu-item>
 
         <sw-context-menu-item
             :disabled="isMinLines"
             @click="moveToNewPosition(0)"
         >
-            {{ $tc('sw-settings-country.general.actions.moveTop') }}
+            {{ $t('sw-settings-country.general.actions.moveTop') }}
         </sw-context-menu-item>
 
         <sw-context-menu-item
             :disabled="isMinLines"
             @click="moveToNewPosition"
         >
-            {{ $tc('sw-settings-country.general.actions.moveBottom') }}
+            {{ $t('sw-settings-country.general.actions.moveBottom') }}
         </sw-context-menu-item>
 
         <sw-context-menu-item
@@ -103,7 +103,7 @@
             :disabled="isMinLines"
             @click="onDelete"
         >
-            {{ $tc('global.default.delete') }}
+            {{ $t('global.default.delete') }}
         </sw-context-menu-item>
     </sw-context-button>
 </div>

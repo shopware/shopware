@@ -8,7 +8,7 @@ async function createWrapper({ permissions, modalTitle, selectedEntity }) {
         {
             global: {
                 mocks: {
-                    $tc: (...args) => (args.length === 1 ? args[0] : JSON.stringify(...args)),
+                    $t: (...args) => (args.length === 1 ? args[0] : JSON.stringify(...args)),
                     $te: () => true,
                 },
                 stubs: {

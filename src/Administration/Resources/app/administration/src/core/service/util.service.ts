@@ -40,6 +40,7 @@ import VueHelper from './utils/vue-helper.utils';
 import EventBus from './utils/eventBus.utils';
 import genericRuleConditionUtils from './utils/generic-rule-condition.utils';
 import unitConversionUtils from './utils/unit-conversion.utils';
+import { telemetry as MeteorTelemetry } from '@shopware-ag/meteor-admin-sdk';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const object = {
@@ -149,6 +150,13 @@ export const unitConversion = {
     convert: unitConversionUtils.convertUnit,
 };
 
+/**
+ * @private
+ */
+export const extension = {
+    getExtensionNameByOrigin: MeteorTelemetry.getSourceExtensionName,
+};
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     createId,
@@ -170,6 +178,7 @@ export default {
     EventBus,
     genericRuleCondition,
     unitConversion,
+    extension,
 };
 
 /**

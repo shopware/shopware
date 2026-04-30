@@ -139,14 +139,14 @@ export default {
             return this.placeholder(
                 this.customerGroup,
                 'name',
-                this.$tc('sw-settings-customer-group.detail.placeholderNewCustomerGroup'),
+                this.$t('sw-settings-customer-group.detail.placeholderNewCustomerGroup'),
             );
         },
 
         tooltipSave() {
             if (!this.allowSave) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     disabled: this.allowSave,
                     showOnDisabledElements: true,
                 };
@@ -217,7 +217,7 @@ export default {
             this.isLoading = true;
             if (!this.customerGroupId) {
                 this.createNotificationError({
-                    message: this.$tc('global.notification.notificationLoadingDataErrorMessage'),
+                    message: this.$t('global.notification.notificationLoadingDataErrorMessage'),
                 });
 
                 this.isLoading = true;
@@ -289,12 +289,12 @@ export default {
                 types.isEmpty(this.customerGroup.registrationTitle)
             ) {
                 this.createNotificationError({
-                    message: this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
+                    message: this.$t('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
                 });
 
                 this.registrationTitleError = new ShopwareError({
                     code: 'CUSTOMER_GROUP_REGISTERATION_MISSING_TITLE',
-                    detail: this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
+                    detail: this.$t('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
                 });
 
                 this.isLoading = false;
@@ -319,7 +319,7 @@ export default {
                 this.isSaveSuccessful = true;
             } catch (_err) {
                 this.createNotificationError({
-                    message: this.$tc('sw-settings-customer-group.detail.notificationErrorMessage'),
+                    message: this.$t('sw-settings-customer-group.detail.notificationErrorMessage'),
                 });
             } finally {
                 this.isLoading = false;

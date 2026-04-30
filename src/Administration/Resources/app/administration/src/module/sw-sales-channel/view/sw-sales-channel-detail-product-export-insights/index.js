@@ -157,7 +157,7 @@ export default {
                 return [];
             }
 
-            return [{ name: this.$tc('sw-sales-channel.detail.productExport.insights.numbers'), data: orderDataArray }];
+            return [{ name: this.$t('sw-sales-channel.detail.productExport.insights.numbers'), data: orderDataArray }];
         },
 
         customerCountSeries() {
@@ -167,7 +167,7 @@ export default {
                 return [];
             }
 
-            return [{ name: this.$tc('sw-sales-channel.detail.productExport.insights.numbers'), data: customerDataArray }];
+            return [{ name: this.$t('sw-sales-channel.detail.productExport.insights.numbers'), data: customerDataArray }];
         },
 
         orderSumSeries() {
@@ -179,7 +179,7 @@ export default {
 
             return [
                 {
-                    name: this.$tc('sw-sales-channel.detail.productExport.insights.totalTurnover'),
+                    name: this.$t('sw-sales-channel.detail.productExport.insights.totalTurnover'),
                     data: orderDataArray,
                 },
             ];
@@ -206,12 +206,12 @@ export default {
             try {
                 const promises = [];
 
-                if (this.acl.can('order.viewer')) {
-                    promises.push(this.getHistoryOrderCountData(), this.getHistoryOrderSumData());
-                }
-
-                if (this.acl.can('customer.viewer')) {
-                    promises.push(this.getHistoryCustomerCountData());
+                if (this.acl.can('sales_channel.viewer')) {
+                    promises.push(
+                        this.getHistoryOrderCountData(),
+                        this.getHistoryOrderSumData(),
+                        this.getHistoryCustomerCountData(),
+                    );
                 }
 
                 await Promise.allSettled(promises);

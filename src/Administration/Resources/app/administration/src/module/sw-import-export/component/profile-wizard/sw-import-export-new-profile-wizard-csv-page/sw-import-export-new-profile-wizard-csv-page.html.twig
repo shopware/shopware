@@ -8,12 +8,12 @@
     <sw-file-input
         v-model:value="csvFile"
         :allowed-file-extensions="['csv']"
-        :label="$tc('sw-import-export.profile.csvUploadText')"
+        :label="$t('sw-import-export.profile.csvUploadText')"
         class="sw-import-export-new-profile-wizard-csv-page__file-upload"
         @update:value="onFileChange"
     >
         <template #caption-label>
-            {{ $tc('sw-import-export.importer.labelUploadCaption') }}
+            {{ $t('sw-import-export.importer.labelUploadCaption') }}
         </template>
     </sw-file-input>
     {% endblock %}

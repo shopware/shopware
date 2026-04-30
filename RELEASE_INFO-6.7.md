@@ -43,6 +43,11 @@ The Administration now uses Meteor Component Library `4.28.6`.
 With this update, disabled Meteor switch fields in system configuration can now unlink inherited sales channel values.
 Previously, the switch field itself was disabled as expected, but its inheritance control was disabled as well, preventing merchants from overriding inherited values for that sales channel.
 
+### Fix theme manager inheritance for boolean fields
+
+Switch and checkbox fields in theme configuration now render and handle inheritance consistently. Before they wouldn't have shown the inheritance switch.
+Also the checkbox field is now positionally aligned with the other components.
+
 ## Storefront
 
 ## App System

@@ -353,7 +353,13 @@ class PagingListingProcessorTest extends TestCase
         );
 
         if ($shouldThrow) {
+            $expectedLastPage = $total > 0 ? (int) ceil($total / $limit) : 1;
             $this->expectException(ProductException::class);
+            $this->expectExceptionMessage(\sprintf(
+                'Requested listing page %d is out of range (last page: %d).',
+                $page,
+                $expectedLastPage
+            ));
         }
 
         $processor->process($request, $result, $context);
@@ -393,6 +399,38 @@ class PagingListingProcessorTest extends TestCase
         // Must not throw — these inputs are intentionally treated as page 1.
         $processor->process($request, $result, $context);
 
+        static::assertSame(1, $result->getPage());
         static::assertSame(24, $result->getLimit());
+    }
+
+    public function testProcessDoesNotThrowOnOnlyAggregationsRequestWithPageGreaterThanOne(): void
+    {
+        // Reproduces the only-aggregations regression: BehaviorListingProcessor runs after
+        // PagingListingProcessor (priority -1000) and sets limit=0 + totalCountMode=NONE on
+        // the criteria. PagingListingProcessor::process must not throw for these requests
+        // even when ?p=N (N > 1) is still present in the URL (Storefront filter-panel AJAX
+        // forwards the current page).
+        $criteria = (new Criteria())->setLimit(0);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
+        $request = new Request(['p' => 3, 'only-aggregations' => 1]);
+        $context = $this->createMock(SalesChannelContext::class);
+
+        $processor = new PagingListingProcessor(
+            new StaticSystemConfigService(['core.listing.productsPerPage' => 24])
+        );
+
+        $result = new ProductListingResult(
+            'product',
+            0,
+            new ProductCollection(),
+            new AggregationResultCollection(),
+            $criteria,
+            Context::createDefaultContext()
+        );
+
+        $processor->process($request, $result, $context);
+
+        static::assertSame(3, $result->getPage());
+        static::assertSame(0, $result->getLimit());
     }
 }

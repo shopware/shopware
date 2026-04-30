@@ -58,7 +58,7 @@ class PagingListingProcessor extends AbstractListingProcessor
         }
         $result->setLimit($limit);
 
-        if ($page === null || $page <= 1) {
+        if ($page === null || $page <= 1 || $limit <= 0) {
             return;
         }
 

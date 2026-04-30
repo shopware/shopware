@@ -314,7 +314,6 @@ describe('sw-theme-manager-detail', () => {
                 inheritanceRemove: inheritance.removeInheritance,
                 inheritanceRestore: inheritance.restoreInheritance,
                 inheritedValue: false,
-                mapInheritance: inheritance
             }),
         });
     });

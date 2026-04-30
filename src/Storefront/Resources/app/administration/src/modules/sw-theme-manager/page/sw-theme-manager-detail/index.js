@@ -725,6 +725,7 @@ export default {
 
             if (inheritance && this.isFieldHandlingLabelAndHelpText(field)) {
                 Object.assign(config, getMeteorInheritanceConfig(inheritance, inheritedValue));
+                config.mapInheritance = inheritance;
             }
 
             return { type: field.type, config };

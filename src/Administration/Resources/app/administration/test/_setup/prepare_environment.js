@@ -327,6 +327,10 @@ global.allowedErrors = [
     },
     {
         method: 'warn',
+        msg: '[MtNumberField] The `allowEmpty` prop is deprecated and will be removed. There will be no replacement.',
+    },
+    {
+        method: 'warn',
         msg: '[Vue warn]: Invalid prop: custom validator check failed for prop "size".'
     },
     {

@@ -1,3 +1,578 @@
+# 6.7.11.0 (upcoming)
+
+## Features
+
+## API
+
+## Core
+
+### Backward compatible invalid locales
+
+Added and deprecated `BackwardCompatibleNumberFormatter` to temporarily allow invalid locale strings without throwing exceptions in PHP >=8.4. It will be removed in Shopware 6.8.
+
+### Configurable order deep link expiry
+
+The number of days an order can be accessed via deep link is now configurable via `shopware.yaml`:
+
+    shopware:
+      order:
+        deep_link:
+          expire_days: 30
+
+### Technical media associations can be ignored by `media:delete-unused`
+
+Plugins can now mark technical `media` associations with the new DAL flag `IgnoreInUnusedMediaSearch`.
+This prevents `media:delete-unused` from treating metadata-only extensions as real media usage and helps avoid false negatives when removing unused files.
+Third-party developers should add this flag to media associations that store technical metadata but do not represent an actual assignment of the media file.
+
+## Administration
+
+### Fixed "Last Quarter" timeframe returning the wrong year in `sw-date-filter`
+
+Selecting the "Last Quarter" timeframe in any listing's date filter (orders, documents, customers, etc.) between January and March now produces a three-month range in the previous year instead of a ~15-month range that spanned both years.
+The end boundary is now derived from the quarter's start year rather than the current year.
+
+### Admin menu flyout no longer overflows the viewport
+
+When the sidebar is collapsed, hovering a menu entry near the bottom of the sidebar could cause the flyout submenu to extend beyond the viewport, making lower entries inaccessible.
+The flyout now calculates a dynamic `max-height` from the remaining viewport space and scrolls vertically when its content exceeds that limit.
+
+### Meteor Component Library updated to 4.28.6
+
+The Administration now uses Meteor Component Library `4.28.6`.
+With this update, disabled Meteor switch fields in system configuration can now unlink inherited sales channel values.
+Previously, the switch field itself was disabled as expected, but its inheritance control was disabled as well, preventing merchants from overriding inherited values for that sales channel.
+
+## Storefront
+
+## App System
+
+## Hosting & Configuration
+
+## Critical Fixes
+
+# 6.7.10.0
+
+## Features
+
+### [Experimental] Agentic Commerce sales channel
+
+A new "Agentic Commerce" sales channel type is available in this release.
+The OpenAI Merchant Center integration is the first supported provider for AI-powered product feed exports.
+The Administration includes dedicated views for configuration, product mapping, and usage insights.
+
+## API
+
+### Per-user and per-IP rate limiters for login and OAuth
+
+The login and OAuth token endpoints now support optional per user (`login_user`, `oauth_user`) and per IP (`login_client`, `oauth_client`) rate limiters, in addition to the existing combined user and IP limiter.
+These are optional and can be enabled via `shopware.api.rate_limiter` in `shopware.yaml`.
+
+### `Price` schemas now describe percentage and reference price fields
+
+The generated Admin API and Store API `Price` schemas now include property descriptions for `percentage`, `listPrice`, `regulationPrice`, and their nested values.
+This improves the generated OpenAPI and Stoplight documentation for integrations that inspect raw price payloads and need to distinguish between the current price, list price, discount percentage, and regulation price fields.
+
+## Core
+
+### Product `display_group` values use SHA-256
+
+The `display_group` field on the `product` entity (available via the Admin API and Store API) is now computed with SHA-256 for variant listing instead of MD5.
+Stored values are 64 hexadecimal characters instead of 32. The database column was widened to `VARCHAR(64)`.
+
+A migration registers the product indexer so that only the variant listing updater (`product.variant-listing`, the step that maintains `display_group`) is queued.
+That pass runs with the usual deferred indexing after an update or installation finishes, not inside the migration.
+If your integration or plugin assumes a 32-character `display_group`, compares against previously stored MD5 values, or relies on custom SQL with the old column width, update it to accept 64-character hashes and the new column definition.
+
+### "Find best variant setting" is now applied for storefront filtering
+
+Users can now control which representative of variant products is shown in filtered listings via the Product settings "Preview best matching variant in search results and filtered listings".
+
+### Deprecation of `permisionsLocked` property of `SalesChannelContext`
+
+The `permisionsLocked` property of the `SalesChannelContext` is deprecated.
+Use `permissionsLocked` property or the new `SalesChannelContext::isPermissionsLocked()` getter method instead.
+
+### Salutation ordering
+
+A new `position` column was added to the `salutation` entity so merchants can control the order in which salutations appear in forms (registration, address, checkout, and CMS forms).
+Salutations are sorted ascending, meaning lower values appear first.
+
+This replaces the previous alphabetical sorting.
+Default salutations (`not_specified`, `mrs`, `mr`) are migrated automatically to positions `1`, `2`, and `3`.
+Custom salutations keep the default value of `100` - review them in Administration → Settings → Shop → Salutations after upgrading and assign explicit positions, otherwise they will appear grouped together at the end.
+
+### Deprecated non-used `MAIL_TEMPLATE_SALES_CHANNEL_*_EVENT` constants
+
+Deprecated the constants `Shopware\Core\Content\MailTemplate\MAIL_TEMPLATE_SALES_CHANNEL_{WRITTEN,DELETED,LOADED,SEARCH_RESULT_LOADED,AGGREGATION_LOADED,ID_SEARCH_RESULT_LOADED}_EVENT` as the entity has been removed with Shopware 6.5 and the events were not fired anymore.
+
+### JSONL product export format
+
+Product exports now support `ProductExportEntity::FILE_FORMAT_JSONL` as a third file format.
+
+### [Experimental] Agentic Commerce product export provider abstraction
+
+The new `AbstractAgenticCommerceProductExportProvider` can be used to implement custom Agentic Commerce export providers.
+
+## Administration
+
+### [Internal] Twig to Native Block Runtime Adapter
+A runtime adapter has been added that bridges legacy Twig block overrides (`{% block %}` / `{% parent %}`) with the new native `<sw-block>` / `<sw-block-parent />` system. When core components migrate from `.html.twig` blocks to `<sw-block name="...">`, existing plugin overrides continue to work automatically. A deprecation warning is emitted to guide plugin developers toward the new native syntax.
+### Fixed mixin-based route guards for lazy-loaded administration routes
+
+Mixin-defined route guards such as `beforeRouteLeave` are now executed reliably for lazy-loaded Administration route components.
+This fixes cases where cleanup logic in shared mixins, for example in listing pages, was skipped during navigation to detail pages.
+
+### Re-render iframe integrations when location changes
+
+Iframe-based Administration extensions now re-render correctly when their `locationId` changes.
+This fixes stale iframe content when switching locations in Meteor Admin SDK integrations and also prevents unnecessary full-page reloads.
+
+### Internal comments visible in the order list
+
+The Administration order list now shows internal order comments via a dedicated tooltip icon.
+This helps merchants spot internal notes directly from the list view without opening the order detail page.
+
+### [Experimental] Agentic Commerce sales channel views and tracking entities
+
+New Agentic Commerce sales channels types can be created.
+These sales channels have dedicated configuration options in the administration for property mapping, and usage insights.
+New entities for monitoring orders and customers for Agentic Commerce sales channels are included.
+
+## Storefront
+
+### Order cancellation only shown for open orders
+
+The account order cancellation action is now only shown for orders in state `open`.
+This prevents customers from being offered an invalid cancel action for completed orders.
+
+### Earlier focus for cookie bar
+
+To improve the accessibility of the cookie bar, it receives automatic focus when it is shown.
+This improves discoverability for screenreader and keyboard users.
+A new option `autoFocus` (default: `true`) was added to the `cookie-permission.html.twig` template and `CookiePermissionPlugin`.
+
+In addition to this the cookie bar will be moved to the top of the body element.
+* Deprecated block position of `base_cookie_permission` Cookie permission bar will be moved to top of the body element.
+
+### Live purchase limits for closeout products on the product detail page
+
+The buy-widget quantity selector now fetches live `minPurchase`, `purchaseSteps`, and `maxPurchase` values for closeout products (internally uses new Store API endpoint `GET /store-api/product/purchase-limit`) on first user interaction (focus or click).
+This ensures the selector reflects actual stock even when the PDP HTML is served from HTTP cache.
+
+The fetch is triggered by the `QuantitySelectorPlugin` when a `purchaseLimitUrl` option is set on the quantity selector element.
+This is injected via `data-quantity-selector-options` by `buy-widget-form.html.twig` for closeout products.
+If you override `buy_widget_buy_container` or related blocks in `buy-widget-form.html.twig`,
+preserve the `data-quantity-selector-options` attribute with a `purchaseLimitUrl` key and the `js-quantity-stock-adjusted-template` `<template>` element to use this functionality.
+
+### GLTF Animations
+
+User are now able to play animations from their 3D models in the Storefront.
+Simply upload a model with one or multiple animations baked into the file, bind the file to a product, and display it in the Storefront.
+
+### Show child line items if available
+
+New block `component_line_item_type_product_children` added to template `storefront/component/line-item/type/product.html.twig` to display child line items if available
+
+## App System
+
+### App requirements validation
+
+Apps can now declare requirements in their manifest via a new `<requirements>` element.
+Requirements are validated during app installation and updates in production.
+If a requirement is not met, the process fails with `FRAMEWORK__APP_REQUIREMENTS_NOT_MET` and an actionable message.
+
+The first introduced requirement, `<public-access/>`, verifies that `APP_URL` uses HTTPS, does not point to an IP or reserved/local development host, and that `/api/_info/health-check` returns HTTP 200 when called from the Shopware server.
+This helps catch misconfigurations before apps that rely on webhooks or other external communication fail silently.
+
+```xml
+<requirements>
+    <public-access/>
+</requirements>
+```
+
+Unknown requirements are ignored and logged as warnings.
+
+## Hosting & Configuration
+
+### Possibility to disable product search keyword indexing
+
+The new configuration key `shopware.product.search_keyword.indexing` can be used to disable the product search keyword indexing.
+This is helpful for stores that do not require search keywords and want to avoid the overhead of maintaining those indices while still having basic search functionality or using third-party search solutions.
+
+# 6.7.9.0
+
+## Features
+
+### Product Open Graph fields for SEO and social sharing
+
+Merchants can now set custom Open Graph title, description, and image per product in the product SEO tab in the administration.
+These values are used for the storefront product detail page meta tags (`og:title`, `og:description`, `og:image`), improving how product links appear when shared on social media and in search results.
+The fields are stored in the database, exposed via the Admin and Store API on the product entity, and default to the product meta title, meta description, and cover image when not set.
+
+### Default CMS page ID now persisted for categories
+
+Previously, when a category had no CMS page assigned, the default CMS page ID was only set at runtime during entity loading.
+This caused missing `cmsPage` association data when loading categories with criteria that included the `cmsPage` association.
+
+Now the default CMS page ID is automatically written to the database when a category is saved without a `cmsPageId`.
+A migration also backfills all existing categories that have no CMS page assigned.
+
+The `categoryLoaded` event listener has been removed from `CategorySubscriber` since the default CMS page ID is now always present in the database.
+Sales channel-specific CMS page defaults continue to be applied at runtime during `salesChannelCategoryLoaded`.
+
+The runtime-only field `cmsPageIdSwitched` on `CategoryDefinition` and `CategoryEntity` has been deprecated and will be removed in v6.8.0. It is no longer used internally.
+
+### New internal comment for state machine state history entries
+
+A new internal comment field was added to the state change modal which can be used to add additional information about a state change.
+The internal comment is only visible in the administration and not shown to customers.
+It can be found in the state machine state history modal (state change modal) on the detail page of an order.
+
+### Use JSON-LD format for Structured Data
+
+The Storefront now emits structured data as JSON-LD (`<script type="application/ld+json">` in the `<head>`) instead of scattered inline microdata attributes (`itemscope`, `itemtype`, `itemprop`).
+JSON-LD is the preferred format and keeps structured data cleanly separated from the HTML markup.
+
+In addition to replacing the existing microdata, several schema types that were missing entirely are now included:
+a `WebSite` schema with `SearchAction` (enabling the Google Sitelinks Searchbox), a top-level `Organization` schema with the shop logo, an `ItemList` schema on category and search result pages, and `VideoObject` entries for product video media.
+
+The migration is controlled by the new `JSON_LD_DATA` feature flag. When the flag is **off** (default), the existing microdata is rendered as before.
+When the flag is **on**, JSON-LD is injected and all microdata is removed.
+The old microdata is deprecated and will be removed with the next major release (v6.8.0).
+
+The following schema types are now emitted as JSON-LD:
+
+| Schema                                                             | Pages                                          |
+|--------------------------------------------------------------------|------------------------------------------------|
+| `WebSite` + `SearchAction`                                         | All pages (enables Google Sitelinks Searchbox) |
+| `Organization` with logo                                           | All pages                                      |
+| `WebPage` / `ProductPage` / `CollectionPage` / `SearchResultsPage` | All pages (type narrows per context)           |
+| `BreadcrumbList`                                                   | All pages with a navigation breadcrumb         |
+| `Product`                                                          | Product detail page                            |
+| `ItemList`                                                         | Category pages, search results                 |
+
+The `Product` schema on the product detail page is significantly more complete compared to the previous microdata:
+
+- All product images are listed (previously only cover image via `itemprop`)
+- `VideoObject` entries are emitted for any video media in the product's media collection
+- `AggregateRating` now includes the required `ratingCount` (total number of approved reviews), sourced via an efficient aggregation query in `ProductPageLoader`
+- Individual `Review` items (up to 10 most recent) are included alongside `AggregateRating`
+- `OfferShippingDetails` with `ShippingDeliveryTime` is included for single-price products
+- Dimensions (`weight`, `height`, `width`, `depth`) are typed as `QuantitativeValue` nodes
+- `itemCondition` and a typed `seller` (`Organization`) are set on every `Offer`
+- `gtin13` (EAN) and `mpn` (manufacturer number) are included when present
+
+#### Extending the schema templates
+
+Each schema lives in its own Twig template under `storefront/layout/structured-data/`. Every template exposes two blocks: an outer block that contains the full data-building logic, and an inner `_script` block that wraps just the `<script>` output. Plugins and themes can override either level using Shopware's standard template extension mechanism.
+
+To add or change properties, override the `_script` block, merge your changes into the data variable (`productData`, `orgData`, `webPageData`, etc.), and call `{{ parent() }}`.
+
+```twig
+{# MyPlugin/Resources/views/storefront/layout/structured-data/json-ld-organization.html.twig #}
+{% sw_extends '@Storefront/storefront/layout/structured-data/json-ld-organization.html.twig' %}
+
+{% block layout_structured_data_organization_script %}
+    {% set orgData = orgData|merge({
+        'contactPoint': {
+            '@type': 'ContactPoint',
+            'contactType': 'customer service',
+            'email': config('core.basicInformation.email')
+        }
+    }) %}
+    {{ parent() }}
+{% endblock %}
+```
+
+The available outer / script block pairs are:
+
+| Template                         | Outer block                           | Script block                                 |
+|----------------------------------|---------------------------------------|----------------------------------------------|
+| `json-ld-webpage.html.twig`      | `layout_structured_data_webpage`      | `layout_structured_data_webpage_script`      |
+| `json-ld-breadcrumb.html.twig`   | `layout_structured_data_breadcrumb`   | `layout_structured_data_breadcrumb_script`   |
+| `json-ld-organization.html.twig` | `layout_structured_data_organization` | `layout_structured_data_organization_script` |
+| `json-ld-website.html.twig`      | `layout_structured_data_website`      | `layout_structured_data_website_script`      |
+| `json-ld-item-list.html.twig`    | `layout_structured_data_item_list`    | `layout_structured_data_item_list_script`    |
+| `json-ld-product.html.twig`      | `page_product_detail_json_ld`         | `page_product_detail_json_ld_script`         |
+
+### [Experimental] Use OpenSearch for Admin API searches
+
+When the data in your store grows larger the administration might become slower, especially when searching for entities in lists.
+This is because the administration relies only on the DB fulltext search. For larger stores, this can lead to performance issues and even timeouts.
+Now it is possible to use OpenSearch for the administration and Admin API searches, which can significantly improve the performance of searches in the administration, especially for larger stores.
+To enable this feature, you can set the `ENABLE_OPENSEARCH_FOR_ADMIN_API` feature flag to `true`. For more technical guidelines refer to the section in the [Hosting & Configuration updates](#feature-flag-for-enabling-opensearch-globally-in-the-admin-api).
+
+### Online revocation request form
+
+Customers can now conveniently submit revocation requests through an online form.
+Similar to the existing Contact Form, the revocation form can be integrated and used via Shopping Experiences, allowing flexible placement within the storefront.
+
+### External media thumbnail support
+
+External media entities can now have external thumbnail URLs attached to them, which is useful for CDNs that provide pre-generated thumbnails alongside the main media file.
+
+Two new API endpoints have been added:
+- `POST /api/_action/media/{id}/external-thumbnails` - Add thumbnails to existing external media
+- `DELETE /api/_action/media/{id}/external-thumbnails` - Remove all external thumbnails from media
+
+Both endpoints require the target media entity to be external (i.e. its path must be an HTTP/HTTPS URL). Attempting to call them on regular file-based media returns an error.
+
+When creating external media via `POST /api/_action/media/external-link`, you can now provide an optional `thumbnails` array directly in the request body:
+
+```json
+{
+  "url": "https://cdn.example.com/image.jpg",
+  "thumbnails": [
+    { "url": "https://cdn.example.com/image-200x200.jpg", "width": 200, "height": 200 },
+    { "url": "https://cdn.example.com/image-400x400.jpg", "width": 400, "height": 400 }
+  ]
+}
+```
+
+The same `thumbnails` payload shape is accepted by `POST /api/_action/media/{id}/external-thumbnails`.
+
+### Support of long-running MySQL connections
+
+It is now possible to use libraries like [`doctrine-mysql-come-back`](https://github.com/facile-it/doctrine-mysql-come-back), which wrap the default DBAL connection.
+More information on how to set up, can be found here: https://developer.shopware.com/docs/guides/hosting/infrastructure/database.html#setup-for-long-running-environments
+
+### System config overrides in staging mode
+
+The `system:setup:staging` command now supports pre-configuring system config keys during staging setup. Both global and sales channel-specific values can be set, following the same YAML structure used for [static system configuration](https://developer.shopware.com/docs/guides/hosting/configurations/shopware/static-system-config.md).
+
+Use `default` for global config values and sales channel IDs for channel-specific overrides:
+
+```yaml
+shopware:
+  staging:
+    system_config:
+      default:
+        core.mailerSettings.smtpHost: "smtp.staging.local"
+        core.listing.allowBuyInListing: false
+      0188da12724970b9b4a708298259b171:
+        core.mailerSettings.smtpHost: "smtp.other.staging.local"
+```
+
+When `bin/console system:setup:staging` is executed, the configured keys are written to the database via `SystemConfigService`.
+
+### Deprecation of newsletter route methods
+
+The following methods are deprecated and will be removed with the next major version:
+
+- `AbstractNewsletterSubscribeRoute::subscribe()` → use `subscribeWithResponse()` instead
+- `AbstractNewsletterConfirmRoute::confirm()` → use `confirmWithResponse()` instead
+- `AbstractNewsletterUnsubscribeRoute::unsubscribe()` → use `unsubscribeWithResponse()` instead
+
+The new methods currently return `StoreApiResponse` in the abstract classes. In the next major version, the return types will change to their explicit types:
+
+- `subscribeWithResponse()` → `NewsletterSubscribeRouteResponse`
+- `confirmWithResponse()` → `SuccessResponse`
+- `unsubscribeWithResponse()` → `SuccessResponse`
+
+The Store API newsletter routes now return `200 OK` with a response body instead of `204 No Content`:
+
+| Route                               | Response                                                       |
+|-------------------------------------|----------------------------------------------------------------|
+| `/store-api/newsletter/subscribe`   | `{"success": true, "status": "notSet\|optIn\|optOut\|direct"}` |
+| `/store-api/newsletter/confirm`     | `{"success": true}`                                            |
+| `/store-api/newsletter/unsubscribe` | `{"success": true}`                                            |
+
+### OpenAPI enums via DAL `Choice` flag
+
+DAL fields can now declare a finite set of allowed values using the `Choice` flag.
+This information is used to enrich the generated OpenAPI schema with `enum` values for better API documentation and client generation.
+
+By default, `Choice` is non-strict and does not affect write validation.
+If you want to enforce values on write, set `strict: true` when creating the flag; the write layer will then validate the input for supported field types (string, int, float).
+
+### Deprecated `/api/_action/mail-template/validate` route
+
+The `/api/_action/mail-template/validate` route is deprecated and will be removed without replacement in v6.8.0.0, as it was not used and did not provide any significant value.
+
+## Core
+
+### Changed behaviour of default fields in EntityDefinition
+
+Currently, it is not possible to overwrite the default fields `createdAt` and `updatedAt` of an entity in the definition.
+This is because the default fields are applied on top of the fields defined in the `defineFields` method.
+From the next major version on, the logic is turned around and the defined fields will be applied after the default fields.
+This makes it possible to overwrite the current default fields `createdAt` and `updatedAt`.
+Check your EntityDefinitions if this change will have an effect on your entities' behaviour. (Only applicable if you manually add `CreatedAtField` and/or `UpdatedAtField`)
+
+### Product stream deletion is blocked while product exports exist
+
+Deleting a product stream that's been used in a product export raises a dedicated delete restriction.
+This rule is additionally enforced on database level by changing the foreign key delete action from `CASCADE` to `RESTRICT`.
+
+### Reduced HTTP cache invalidation on system config changes
+
+`SystemConfigService::set()`, `setMultiple()`, and `delete()` now accept an optional `$silent` parameter. When `silent=true`, the internal config cache is still cleared immediately, but the broad HTTP cache tag `system.config-{salesChannelId}` is not invalidated.
+
+This prevents "invalidation storms" where writing internal config values (e.g. timestamps, license keys, store secrets) would wipe big amount of HTTP-cached pages.
+
+Internal Shopware call sites that write non-storefront config values now pass `silent=true`. The `ConfigSet` CLI command accepts `--silent`, and the Admin API `POST /_action/system-config` and `POST /_action/system-config/batch` accept a `?silent` query parameter.
+
+In v6.8.0.0, `silent` parameter in SystemConfigService methods will default to `true`. Clients should pass value explicitly to prepare for changes.
+
+### Scheduled cleanup of expired customer recovery records
+
+A new scheduled task `customer.cleanup_customer_recovery` has been added that automatically removes expired customer recovery records from the database on a daily basis.
+
+Customer recovery records (password reset tokens) expire after 2 hours. Previously these records were never removed, causing the `customer_recovery` table to grow indefinitely. The new task deletes all records older than 48 hours.
+
+### New attribute field types for entity definitions
+
+The attribute-based entity definition system now supports additional field types:
+
+- `FieldType::EMAIL` maps to `EmailField` for email validation
+- `#[Password]` attribute for password fields with configurable hashing algorithm, hash options, and scope
+- `#[ListField]` attribute for storing lists with optional typed field specification
+- `FieldType::PRICE` maps to `PriceField` for price storage
+
+### Inheritance added to product main categories
+
+Product main categories are now inherited from parent product if not explicitly defined on the variant itself.
+
+### CategoryIndexer doesn't dispatch IndexingMetaEvent when only index irrelevant data changes
+
+The CategoryIndexer did already check for changed payload and only triggered the tree/child-count updaters when the `parentId` changed and the breadcrumb updater when the `name` changed.
+But it still dispatched the `CategoryIndexingMessage`, even though all relevant Updaters would be skipped. For performance and efficiency reasons that event is not thrown anymore in the case of an update when only irrelevant data has changed.
+This saves resources, as we don't need to fetch any child categories, dispatch unneeded messages and create DB transactions when it's not needed, especially as this whole handling was also triggered when you only assign products to a category, which is a quite common action.
+Note that this only affects the update case, in the case of newly inserted or deleted categories the event is still dispatched, as all updaters are relevant in that case.
+
+### Existing cart recalculations no longer recreate deleted carts
+
+When an existing cart is recalculated, Shopware now uses the cart's persisted state to avoid recreating carts that were already deleted.
+This prevents race conditions where a concurrent request, such as placing an order, deletes the cart and a stale recalculation writes it back afterwards.
+
+### Deprecation of unused `TemplateGroup` class
+
+The class `\Shopware\Core\Content\Seo\SeoUrlTemplate\TemplateGroup` has been deprecated as it is unused and will be removed in the next major version v6.8.0.
+
+### New criteria events for product slider CMS element
+
+Two new events are dispatched when the product slider CMS element resolves its product criteria, allowing subscribers to modify the criteria:
+
+- `Shopware\Core\Content\Product\Events\ProductSliderStaticCriteriaEvent` is fired by the `StaticProductProcessor` when resolving a static product list.
+- `Shopware\Core\Content\Product\Events\ProductSliderStreamCriteriaEvent` is fired by the `ProductStreamProcessor` when resolving a product stream.
+
+### Allow custom HTTP client injection for S3 client creation
+
+The S3 client creation flow (`S3ClientFactory`, `AwsS3v3Factory`, `PresignedUploadUrlGenerator`)
+now accepts an optional `HttpClientInterface` parameter. When provided, this HTTP client is
+forwarded to the underlying AsyncAws `S3Client` instead of letting it create its own default.
+
+Both `AwsS3v3Factory` and `PresignedUploadUrlGenerator` are wired via DI to the new
+`shopware.filesystem.s3.client` service ID. This service is not registered by default, so
+`null` is injected and AsyncAws uses its own internal HTTP client. Integrators can register
+the `shopware.filesystem.s3.client` service to provide a custom Symfony HTTP client with
+custom timeouts, retry strategies, or HTTP protocol version for S3 operations.
+
+### Events gain `Context` and implement `ShopwareEvent`
+
+The events below now accept an optional `Context` as the last constructor argument and implement `ShopwareEvent`. Shopware's own dispatch sites already pass the context. Third-party code that instantiates these events without `$context` will see a deprecation notice; in 6.8, the parameter becomes required. A temporary `getNullableContext()` method is available for consumers who cannot guarantee the dispatcher passed context.
+
+- `Shopware\Core\Content\ImportExport\Event\EnrichExportCriteriaEvent`
+- `Shopware\Core\Content\ImportExport\Event\ImportExportBeforeExportRecordEvent`
+- `Shopware\Core\Content\ImportExport\Event\ImportExportExceptionImportExportHandlerEvent`
+- `Shopware\Core\Content\Seo\Event\SeoUrlUpdateEvent`
+- `Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent`
+- `Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent`
+- `Shopware\Storefront\Theme\Event\ThemeAssignedEvent`
+- `Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent`
+- `Shopware\Storefront\Theme\Event\ThemeConfigResetEvent`
+
+### `#[Field]` attribute supports custom `maxLength` for string fields
+
+The `maxLength` parameter is now available on `#[Field]` for `FieldType::STRING` and `FieldType::EMAIL` fields. Previously the max length was always 255, matching `StringField`'s default, with no way to override it. Setting `maxLength` passes the value through to the underlying `StringField` constructor and the `StringFieldSerializer` validation.
+
+```php
+#[Field(type: FieldType::STRING, maxLength: 4096)]
+public ?string $url = null;
+```
+
+A value of `0` disables length validation entirely. This is pre-existing `StringFieldSerializer` behavior where any value below `1` is treated as unconstrained.
+
+## Administration
+
+### CMS data mapping source for media custom fields
+
+Fixed media custom fields not being available as data mapping source for image elements in category and product CMS layouts. Shop Administrators can now reliably bind media custom fields to images in CMS pages without workarounds.
+
+## Storefront
+
+### Block renaming
+
+* Deprecated block `page_product_detail_product_buy_button_label` in `Resources/views/storefront/component/product/card/action.html.twig` which will be removed in v6.8.0. Use block `component_product_box_action_buy_button_label` instead.
+
+### Disabled runtime error overlay in webpack dev server
+
+The webpack dev server overlay for runtime errors has been disabled in hot-reload mode. The overlay frequently interrupted the development workflow by covering the entire viewport for non-critical runtime errors, making it difficult to interact with the storefront during development. Error details remain available in the browser console.
+
+### `HEAD`-requests do not trigger the registration double-opt-in
+
+As some mail clients send `HEAD` requests to links which are contained in emails, the registration double-opt-in was sometimes already confirmed, as Symfony treats `HEAD`-requests the same as `GET`-request. Now `HEAD`-requests do not trigger the registration double-opt-in anymore, only "real" `GET`-requests.
+
+
+### Avoid excessive use of @extend in Storefront SCSS
+
+We have refactored the SCSS of the checkout related routes (cart, confirm, finish, register) to use `@include` mixins instead of `@extend` to apply the Bootstrap grid layout.
+Using `@extend` on generic tooling classes was causing very large combined selectors. We are now using the grid mixins that are documented by Bootstrap.
+
+#### Before
+```scss
+.checkout-main {
+    @extend .col-lg-8;
+}
+```
+
+#### After
+```scss
+.checkout-main {
+    @include make-col-ready();
+    @include media-breakpoint-up(lg) {
+        @include make-col(8);
+    }
+}
+```
+
+In addition, we have refactored several places to use direct CSS or SCSS variables instead of `@extend`.
+
+#### Deprecate stylings that have no usage in the DOM or no visual effect
+
+* Deprecated `@extend .btn-lg` on `.btn-buy`. The current `.btn-buy` in combination with `.btn-lg` has the same dimensions as a normal button.
+    * If you need a larger buy button, you can use the Bootstrap CSS variables or the `button-size` mixin to increase the size.
+* Deprecated custom styling on class `.offcanvas-footer`. Class is not used in the DOM.
+
+#### New stylelint rule to avoid `@extend`
+
+Because of the side-effects with large combined selectors, we have added a new stylelint rule `scss/at-extend-no-missing-placeholder` that does not allow the use of `@extend` on generic selectors.
+The use of `@extend` is still allowed on SCSS placeholder selectors (`%my-selector`) that are not included in the compiled CSS.
+If you have good reasons to use `@extend` and can ensure that the combined selectors do not grow too large, the rule can still be ignored via inline comment.
+
+## App System
+
+## Hosting & Configuration
+
+### Add custom HTML element configuration for HTML Sanitizer
+
+A new config option `custom_tags` was added, to allow the usage of custom HTML elements using the Shopware CMS Pages and other text fields.
+
+```yaml
+shopware:
+    html_sanitizer:
+        sets:
+            - name: basic
+              custom_tags:
+                  - tag: "your-custom-element"
+                    type: "Block"
+                    contents: "Flow"
+                    attr_collections: ["Common"]
+                    attributes:
+                        - custom-attribute
+```
+
 # 6.7.8.2
 
 ## Critical Fixes

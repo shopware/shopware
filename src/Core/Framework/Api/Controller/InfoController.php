@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Api\Controller;
 use Doctrine\DBAL\Connection;
 use Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
+use Shopware\Core\Content\Media\Upload\PresignedMediaUploadService;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
@@ -72,6 +73,7 @@ class InfoController extends AbstractController
         private readonly ShopIdProvider $shopIdProvider,
         private readonly StatsService $messageStatsService,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ?PresignedMediaUploadService $presignedMediaUploadService,
     ) {
     }
 
@@ -210,6 +212,8 @@ class InfoController extends AbstractController
             'bundles' => $this->getBundles(),
             'settings' => [
                 'enableUrlFeature' => $this->params->get('shopware.media.enable_url_upload_feature'),
+                'presignedUploadSupported' => $this->presignedMediaUploadService !== null
+                    && $this->presignedMediaUploadService->isAvailable(),
                 'appUrlReachable' => $this->appUrlVerifier->isAppUrlReachable($request),
                 'appsRequireAppUrl' => $this->appUrlVerifier->hasAppsThatNeedAppUrl(),
                 'firstMigrationDate' => $this->migrationInfo->getFirstMigrationDate(),

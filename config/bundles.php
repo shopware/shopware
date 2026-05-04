@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 
 use Composer\InstalledVersions;
+use Shopware\Core\Framework\Feature;
 
 $bundles = [
     Symfony\Bundle\FrameworkBundle\FrameworkBundle::class => ['all' => true],
@@ -22,6 +23,14 @@ $bundles = [
 
 if (InstalledVersions::isInstalled('symfony/web-profiler-bundle')) {
     $bundles[Symfony\Bundle\WebProfilerBundle\WebProfilerBundle::class] = ['dev' => true, 'test' => true, 'phpstan_dev' => true];
+}
+
+if (Feature::isActive('MCP_SERVER') && InstalledVersions::isInstalled('symfony/mcp-bundle')) {
+    $bundles[Symfony\AI\McpBundle\McpBundle::class] = ['all' => true];
+}
+
+if (Feature::isActive('MCP_SERVER') && InstalledVersions::isInstalled('swag/mcp-dev-tools')) {
+    $bundles[Swag\McpDevTools\SwagMcpDevToolsBundle::class] = ['all' => true];
 }
 
 return $bundles;

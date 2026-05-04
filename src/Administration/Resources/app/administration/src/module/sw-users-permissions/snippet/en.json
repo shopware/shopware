@@ -67,13 +67,19 @@
             },
             "grid": {
                 "title": "Permissions",
-                "disabledCheckboxMessage": "To disable this option, you must first disable other active options."
+                "disabledCheckboxMessage": "To disable this option, you must first disable other active options.",
+                "tooltipParentRole": "All {role} rights for {parent}",
+                "tooltipParentAll": "All rights for {parent} ({roles})",
+                "tooltipEntityAll": "All rights for {entity} ({roles})"
             },
             "additional-permissions": {
                 "title": "Additional permissions"
             },
             "detailed-additional-permissions": {
                 "title": "Additional permissions"
+            },
+            "detailed-grid": {
+                "coveredByGeneralMessage": "Already granted via the General tab."
             },
             "view": {
                 "detailed": {
@@ -83,6 +89,29 @@
             "tabs": {
                 "general": "General",
                 "detailed": "Detailed privileges"
+            },
+            "mcpHint": {
+                "text": "This role is assigned to {count} MCP-enabled integration(s). ",
+                "linkText": "Show MCP tool requirements"
+            },
+            "mcpModal": {
+                "title": "MCP Tool Requirements",
+                "description": "The following tools are allowlisted on integrations that use this role.",
+                "legendLabel": "Legend:",
+                "legendGranted": "granted",
+                "legendGrantedHint": "This privilege is already granted on the role.",
+                "legendMissing": "missing",
+                "legendMissingHint": "This privilege is not yet granted on the role.",
+                "legendDynamic": "dynamic",
+                "legendDynamicHint": "This privilege depends on the entity parameter passed at runtime.",
+                "noToolsHeadline": "No tools found",
+                "noToolsDescription": "No tools are currently allowlisted on the integrations using this role.",
+                "dynamicPrivilegeHint": "This privilege depends on the entity parameter passed at runtime.",
+                "viewByPermission": "By Permission",
+                "viewByTool": "By Tool",
+                "grantAllMissing": "Grant all missing",
+                "grant": "Grant",
+                "saveReminder": "Permissions pre-selected — click Save on the role to apply."
             }
         },
         "users": {

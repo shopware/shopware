@@ -86,6 +86,7 @@ class AppLifecycle extends AbstractAppLifecycle
         private readonly EntityRepository $customEntityRepository,
         private readonly SourceResolver $sourceResolver,
         private readonly ConfigReader $configReader,
+        private readonly McpAppSyncer $mcpAppSyncer,
         private readonly DeletedAppsGateway $deletedAppsGateway,
         private readonly AppRequirementsValidator $requirementsValidator,
     ) {
@@ -261,6 +262,8 @@ class AppLifecycle extends AbstractAppLifecycle
         ));
 
         $this->assetService->copyAssetsFromApp($app->getName(), $app->getPath());
+
+        $this->mcpAppSyncer->sync($manifest, $app, $defaultLocale, $context);
 
         $updatePayload = [
             'id' => $app->getId(),

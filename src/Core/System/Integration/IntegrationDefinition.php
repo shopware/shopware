@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
@@ -63,6 +64,7 @@ class IntegrationDefinition extends EntityDefinition
             (new PasswordField('secret_access_key', 'secretAccessKey'))->addFlags(new Required())->setDescription('Secret key required for secure communication.'),
             (new DateTimeField('last_usage_at', 'lastUsageAt'))->setDescription('Date and time when teh integration was last used.'),
             (new BoolField('admin', 'admin'))->setDescription('When boolean value is `true`, it indicates this is a administrative integration that requires elevated permissions.'),
+            (new JsonField('mcp_allowlist', 'mcpAllowlist'))->setDescription('Optional per-type MCP allowlist for this integration. Structured as {tools, resources, prompts} where each key is null (unrestricted) or a list of allowed names/URIs. When null all capabilities are accessible.'),
             (new CustomFields())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
             (new DateTimeField('deleted_at', 'deletedAt'))->setDescription('Date and time when the integration was deleted.'),
 

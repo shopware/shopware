@@ -5,6 +5,7 @@ import FormValidation from 'src/helper/form-validation.helper';
 describe('GoogleReCaptchaV3Plugin tests', () => {
     let googleReCaptchaV3Plugin = undefined;
     let mockElement;
+    let inputField;
     let originalPluginManager;
 
     beforeEach(() => {
@@ -27,6 +28,9 @@ describe('GoogleReCaptchaV3Plugin tests', () => {
         submitButton.type = 'submit';
         mockElement.appendChild(submitButton);
 
+        mockElement.submit = jest.fn();
+        mockElement.checkValidity = jest.fn(() => true);
+
         document.body.appendChild(mockElement);
 
         originalPluginManager = window.PluginManager;
@@ -36,6 +40,7 @@ describe('GoogleReCaptchaV3Plugin tests', () => {
         };
 
         googleReCaptchaV3Plugin = new GoogleReCaptchaV3Plugin(mockElement, {
+            siteKey: 'test-site-key',
             grecaptchaInputSelector: '.grecaptcha_v3-input',
         });
     });
@@ -47,10 +52,7 @@ describe('GoogleReCaptchaV3Plugin tests', () => {
         if (mockElement && mockElement.parentElement) {
             mockElement.parentElement.removeChild(mockElement);
         }
-        // Remove the mock recaptcha script element
-        if (mockRecaptchaScriptElement?.parentElement) {
-            mockRecaptchaScriptElement.parentElement.removeChild(mockRecaptchaScriptElement);
-        }
+
         window.grecaptcha = undefined;
         window.formValidation = undefined;
         window.validationMessages = undefined;
@@ -61,7 +63,7 @@ describe('GoogleReCaptchaV3Plugin tests', () => {
         expect(typeof googleReCaptchaV3Plugin).toBe('object');
     });
 
-    test('grecaptcha execute on form submit', () => {
+    test('grecaptcha execute on form submit', (done) => {
         googleReCaptchaV3Plugin._submitInvisibleForm = jest.fn();
         googleReCaptchaV3Plugin.grecaptcha.execute = jest.fn(() => Promise.resolve('successToken'));
         googleReCaptchaV3Plugin.grecaptcha.ready = googleReCaptchaV3Plugin._onGreCaptchaReady.bind(googleReCaptchaV3Plugin);
@@ -75,8 +77,9 @@ describe('GoogleReCaptchaV3Plugin tests', () => {
         expect(window.grecaptcha.execute).toHaveBeenCalledWith('test-site-key', { action: 'submit' });
 
         process.nextTick(() => {
-            expect(googleReCaptchaV3Plugin.grecaptchaInput.value).toEqual('successTokenForThisTest');
+            expect(googleReCaptchaV3Plugin.grecaptchaInput.value).toEqual('successToken');
             expect(googleReCaptchaV3Plugin._submitInvisibleForm).toHaveBeenCalled();
+            done();
         });
     });
 

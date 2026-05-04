@@ -172,6 +172,54 @@ class StateMachineLockerTest extends TestCase
         );
     }
 
+    public function testReset(): void
+    {
+        $transition = $this->createTransition();
+        $context = Context::createDefaultContext();
+        $lockFactory = $this->createMock(LockFactory::class);
+        $firstLock = $this->createMock(SharedLockInterface::class);
+        $secondLock = $this->createMock(SharedLockInterface::class);
+        $locker = new StateMachineLocker($lockFactory);
+        $transitionResult = $this->createTransitionResult();
+
+        $lockFactory->expects($this->exactly(2))
+            ->method('createLock')
+            ->with($locker->getLockKey($transition, $context), 5.0, true)
+            ->willReturnOnConsecutiveCalls($firstLock, $secondLock);
+
+        $firstLock->expects($this->once())
+            ->method('acquire')
+            ->with(true)
+            ->willReturn(true);
+
+        $firstLock->expects($this->once())
+            ->method('release');
+
+        $secondLock->expects($this->once())
+            ->method('acquire')
+            ->with(true)
+            ->willReturn(true);
+
+        $secondLock->expects($this->once())
+            ->method('release');
+
+        $result = $locker->locked(
+            $transition,
+            $context,
+            static function () use ($locker, $transition, $context, $transitionResult): StateMachineTransitionResult {
+                $locker->reset();
+
+                return $locker->locked(
+                    $transition,
+                    $context,
+                    static fn (): StateMachineTransitionResult => $transitionResult
+                );
+            }
+        );
+
+        static::assertSame($transitionResult, $result);
+    }
+
     private function createTransition(string $transitionName = 'paid'): Transition
     {
         return new Transition('order_transaction', '018f7bb26244728091f5077b7c20f8ca', $transitionName, 'stateId');

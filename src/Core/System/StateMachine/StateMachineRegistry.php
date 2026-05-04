@@ -128,6 +128,11 @@ class StateMachineRegistry implements ResetInterface
         });
     }
 
+    public function reset(): void
+    {
+        $this->stateMachines = [];
+    }
+
     private function transitionState(Transition $transition, Context $context): StateMachineTransitionResult
     {
         $stateField = $this->getStateField($transition->getStateFieldName(), $transition->getEntityName());
@@ -246,11 +251,6 @@ class StateMachineRegistry implements ResetInterface
             $enterEvent,
             $enterEvent->getName()
         );
-    }
-
-    public function reset(): void
-    {
-        $this->stateMachines = [];
     }
 
     /**

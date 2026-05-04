@@ -4,6 +4,7 @@ namespace Shopware\Core\System\StateMachine;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Contracts\Service\ResetInterface;
 
@@ -53,11 +54,14 @@ class StateMachineLocker implements ResetInterface
 
     public function getLockKey(Transition $transition, Context $context): string
     {
-        return 'state-machine-transition-' . \hash('xxh128', \implode('-', [
-            $transition->getEntityName(),
-            $transition->getEntityId(),
-            $context->getVersionId(),
-        ]));
+        return \sprintf(
+            'state-machine-transition-%s',
+            Hasher::hash(\implode('-', [
+                $transition->getEntityName(),
+                $transition->getEntityId(),
+                $context->getVersionId(),
+            ]))
+        );
     }
 
     public function reset(): void

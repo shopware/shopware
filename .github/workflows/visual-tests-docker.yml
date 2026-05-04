@@ -71,9 +71,10 @@ jobs:
         run: docker compose -f compose.yaml -f .github/docker/compose.visual-ci.yaml exec -T web composer setup
 
       - name: Wait for Shopware
+        timeout-minutes: 5
         run: |
           for i in {1..60}; do
-            if docker compose -f compose.yaml -f .github/docker/compose.visual-ci.yaml exec -T web sh -lc 'curl -kfsS -o /dev/null "$APP_URL"'; then
+            if docker compose -f compose.yaml -f .github/docker/compose.visual-ci.yaml exec -T web sh -lc 'curl -kfsS --connect-timeout 2 --max-time 5 -o /dev/null "$APP_URL"'; then
               exit 0
             fi
             sleep 2
@@ -113,7 +114,7 @@ jobs:
             -e SHOPWARE_PLAYWRIGHT_IGNORE_HTTPS_ERRORS=1 \
             -e CURRENTS_PROJECT_ID="${{ secrets.CURRENTS_PROJECT_ID_VISUAL }}" \
             -e CURRENTS_RECORD_KEY="${{ secrets.CURRENTS_RECORD_KEY }}" \
-            -e CURRENTS_BUILD_ID="${{ format('{0}-{1}-{2}', github.repository, github.run_id, github.run_attempt) }}" \
+            -e CURRENTS_BUILD_ID="${{ format('{0}-{1}-{2}-docker', github.repository, github.run_id, github.run_attempt) }}" \
             "mcr.microsoft.com/playwright:v${PLAYWRIGHT_VERSION}-noble" \
             bash -lc 'npm ci && npx "$@"' bash "${ATS_CMD}" "${ARGS[@]}"
 

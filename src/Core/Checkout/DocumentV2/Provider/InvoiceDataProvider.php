@@ -47,9 +47,11 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
     public function enrichOrderCriteria(Criteria $criteria): void
     {
         $criteria->addAssociations([
-            'addresses.country',
             'currency',
             'language.locale',
+            'addresses.country',
+            'addresses.salutation',
+            'addresses.countryState',
             'orderCustomer.customer',
             'deliveries.shippingMethod',
             'deliveries.shippingOrderAddress.country',
@@ -62,7 +64,7 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
             $criteria->addAssociation('primaryOrderTransaction.paymentMethod');
         } else {
             $criteria->getAssociation('transactions')
-                ->addAssociations(['paymentMethod', 'stateMachineState'])
+                ->addAssociations(['paymentMethod'])
                 ->addSorting(new FieldSorting('createdAt'));
         }
     }

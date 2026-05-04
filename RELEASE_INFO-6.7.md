@@ -47,7 +47,7 @@ Previously, the switch field itself was disabled as expected, but its inheritanc
 
 ### New block in account registration form for easier form action overrides
 
-New extensible Twig block `component_account_register_form_action` to allow easy manipulation of the form action from extended templates in `src/Storefront/Resources/views/storefront/component/account/register.html.twig`.
+New extensible Twig block `component_account_register_form_action_url` to allow easy manipulation of the form action from extended templates in `src/Storefront/Resources/views/storefront/component/account/register.html.twig`.
 
 ## App System
 

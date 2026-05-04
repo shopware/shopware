@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
  * @codeCoverageIgnore
  */
 #[Package('after-sales')]
-readonly class DocumentGenerationRequest
+final class DocumentGenerationRequest
 {
     /**
      * @var list<string>

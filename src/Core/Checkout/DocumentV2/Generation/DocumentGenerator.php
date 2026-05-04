@@ -82,6 +82,8 @@ final readonly class DocumentGenerator
             $order,
         );
 
+        $generationRequest->documentNumber = $documentNumber;
+
         $providerData = $this->collectProviderData($providers, $order, $generationRequest);
 
         $renderState = new RenderState();

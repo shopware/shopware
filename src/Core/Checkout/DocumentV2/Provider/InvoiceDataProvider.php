@@ -77,6 +77,13 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
         OrderEntity $order,
         DocumentGenerationRequest $generationRequest
     ): InvoiceRenderData {
+        $generationRequest->apiContext->assign([
+            'languageIdChain' => array_values(array_unique(array_filter([
+                $order->getLanguageId(),
+                ...$generationRequest->apiContext->getLanguageIdChain(),
+            ]))),
+        ]);
+
         $config = clone $this->documentConfigLoader->load(
             $generationRequest->documentType,
             $order->getSalesChannelId(),

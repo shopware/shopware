@@ -224,7 +224,7 @@ class CartLineItemControllerTest extends TestCase
         $contextToken = Uuid::randomHex();
         $productId = Uuid::randomHex();
 
-        $this->createProduct($productId, 'test.123');
+        $this->createProduct($productId, ' test.123 ');
 
         $cartService = static::getContainer()->get(CartService::class);
         $request = $this->createRequest(['number' => ' test.123 ']);

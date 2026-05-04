@@ -83,9 +83,6 @@ jobs:
           docker compose -f compose.yaml -f .github/docker/compose.visual-ci.yaml ps
           exit 1
 
-      - name: Install acceptance test dependencies
-        run: mkdir -p "$HOME/.npm"
-
       - name: Run visual tests
         continue-on-error: true
         working-directory: tests/acceptance

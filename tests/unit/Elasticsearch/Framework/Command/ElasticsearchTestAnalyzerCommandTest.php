@@ -119,4 +119,51 @@ class ElasticsearchTestAnalyzerCommandTest extends TestCase
         static::assertNotNull($standard);
         static::assertSame('foo', $standard['text']);
     }
+
+    public function testLanguageAnalyzersAreSkippedByDefault(): void
+    {
+        $indices = $this->createMock(IndicesNamespace::class);
+        $client = $this->createMock(Client::class);
+        $client->method('indices')->willReturn($indices);
+
+        $analyzedNames = [];
+        $indices->method('analyze')->willReturnCallback(function (array $params) use (&$analyzedNames): array {
+            if (isset($params['body']['analyzer'])) {
+                $analyzedNames[] = $params['body']['analyzer'];
+            }
+
+            return ['tokens' => []];
+        });
+
+        $tester = new CommandTester(new ElasticsearchTestAnalyzerCommand($client, [], []));
+        $tester->execute(['term' => 'foo']);
+
+        static::assertContains('standard', $analyzedNames);
+        static::assertNotContains('german', $analyzedNames);
+        static::assertNotContains('english', $analyzedNames);
+        static::assertStringNotContainsString('Default language analyzers', $tester->getDisplay());
+    }
+
+    public function testLanguageAnalyzersIncludedWithFlag(): void
+    {
+        $indices = $this->createMock(IndicesNamespace::class);
+        $client = $this->createMock(Client::class);
+        $client->method('indices')->willReturn($indices);
+
+        $analyzedNames = [];
+        $indices->method('analyze')->willReturnCallback(function (array $params) use (&$analyzedNames): array {
+            if (isset($params['body']['analyzer'])) {
+                $analyzedNames[] = $params['body']['analyzer'];
+            }
+
+            return ['tokens' => []];
+        });
+
+        $tester = new CommandTester(new ElasticsearchTestAnalyzerCommand($client, [], []));
+        $tester->execute(['term' => 'foo', '--with-language-analyzers' => true]);
+
+        static::assertContains('german', $analyzedNames);
+        static::assertContains('english', $analyzedNames);
+        static::assertStringContainsString('Default language analyzers', $tester->getDisplay());
+    }
 }

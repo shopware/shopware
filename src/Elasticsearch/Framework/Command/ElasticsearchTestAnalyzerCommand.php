@@ -8,6 +8,7 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -37,7 +38,13 @@ class ElasticsearchTestAnalyzerCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addArgument('term', InputArgument::REQUIRED);
+            ->addArgument('term', InputArgument::REQUIRED)
+            ->addOption(
+                'with-language-analyzers',
+                null,
+                InputOption::VALUE_NONE,
+                'Also run the built-in Elasticsearch language analyzers (arabic, english, german, ...).',
+            );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -45,9 +52,10 @@ class ElasticsearchTestAnalyzerCommand extends Command
         $this->io = new SymfonyStyle($input, $output);
 
         $term = $input->getArgument('term');
+        $withLanguageAnalyzers = (bool) $input->getOption('with-language-analyzers');
 
         $rows = [];
-        foreach ($this->getSections() as $headline => $analyzers) {
+        foreach ($this->getSections($withLanguageAnalyzers) as $headline => $analyzers) {
             $rows[] = [$headline];
             $rows[] = ['###############'];
             foreach ($analyzers as $name => $body) {
@@ -76,9 +84,10 @@ class ElasticsearchTestAnalyzerCommand extends Command
      *
      * @return array<string, array<string, array<string, mixed>>>
      */
-    private function getSections(): array
+    private function getSections(bool $withLanguageAnalyzers): array
     {
-        return [
+        $sections = [
+            'Custom analyzers (elasticsearch.yaml)' => $this->buildCustomBodies(),
             'Default analyzers' => $this->buildBuiltInBodies([
                 'standard',
                 'simple',
@@ -88,16 +97,20 @@ class ElasticsearchTestAnalyzerCommand extends Command
                 'pattern',
                 'fingerprint',
             ]),
-            'Custom analyzers (elasticsearch.yaml)' => $this->buildCustomBodies(),
-            'Default language analyzers' => $this->buildBuiltInBodies([
+        ];
+
+        if ($withLanguageAnalyzers) {
+            $sections['Default language analyzers'] = $this->buildBuiltInBodies([
                 'arabic', 'armenian', 'basque', 'bengali', 'brazilian', 'bulgarian',
                 'catalan', 'cjk', 'czech', 'danish', 'dutch', 'english', 'finnish',
                 'french', 'galician', 'german', 'greek', 'hindi', 'hungarian',
                 'indonesian', 'irish', 'italian', 'latvian', 'lithuanian', 'norwegian',
                 'persian', 'portuguese', 'romanian', 'russian', 'sorani', 'spanish',
                 'swedish', 'turkish', 'thai',
-            ]),
-        ];
+            ]);
+        }
+
+        return $sections;
     }
 
     /**

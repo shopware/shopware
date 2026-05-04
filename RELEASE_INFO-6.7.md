@@ -1803,8 +1803,9 @@ Arbitrary unknown top-level keys are still forwarded for backwards compatibility
 
 ### `es:test:analyzer` lists analyzers configured in `elasticsearch.yaml`
 
-The `es:test:analyzer` command now also runs the analyzers defined under `elasticsearch.analysis.analyzer` (e.g. `sw_whitespace_analyzer`, `sw_ngram_analyzer`, `sw_english_analyzer`, `sw_german_analyzer`) against the given term, alongside the built-in default and language analyzers.
+The `es:test:analyzer` command now runs the analyzers defined under `elasticsearch.analysis.analyzer` (e.g. `sw_whitespace_analyzer`, `sw_ngram_analyzer`, `sw_english_analyzer`, `sw_german_analyzer`) against the given term, alongside the built-in default analyzers.
 The custom analyzers are sent to OpenSearch as inline `_analyze` requests with their tokenizer, char filters and filters resolved from `elasticsearch.analysis.filter`, so the command does not require an existing index that has the analyzer installed.
+The long list of built-in language analyzers (`arabic`, `english`, `german`, ...) is no longer printed by default; pass `--with-language-analyzers` to include them when comparing custom analyzers against their built-in counterparts.
 
 ### Backward compatible invalid locales
 

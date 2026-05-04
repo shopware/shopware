@@ -30,7 +30,7 @@
         <service id="Shopware\Core\Service\ServiceRegistry\Client">
             <argument>%env(SERVICE_REGISTRY_URL)%</argument>
             <argument>%env(APP_URL)%</argument>
-            <argument type="service" id="http_client"/>
+            <argument type="service" id="service_registry.http_client"/>
 
             <tag name="kernel.reset" method="reset"/>
         </service>

@@ -25,18 +25,12 @@ class Client implements ResetInterface
      */
     private ?array $services = null;
 
-    private readonly HttpClientInterface $client;
-
     public function __construct(
         string $registryUrl,
         private readonly string $appUrl,
-        HttpClientInterface $client,
+        private readonly HttpClientInterface $client,
     ) {
         $this->registryUrl = rtrim($registryUrl, '/');
-
-        $this->client = $client->withOptions([
-            'max_duration' => 10,
-        ]);
     }
 
     public function get(string $name): ServiceEntry
@@ -57,7 +51,11 @@ class Client implements ResetInterface
      */
     public function fetchServiceZip(string $zipUrl): \Generator
     {
-        $response = $this->client->request('GET', $zipUrl, [
+        $client = $this->client->withOptions([
+            'max_duration' => 10,
+        ]);
+
+        $response = $client->request('GET', $zipUrl, [
             'headers' => [
                 'Accept' => 'application/zip',
             ],
@@ -69,7 +67,7 @@ class Client implements ResetInterface
             throw ServiceException::requestFailed($response);
         }
 
-        foreach ($this->client->stream($response) as $chunk) {
+        foreach ($client->stream($response) as $chunk) {
             yield $chunk;
         }
     }

@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\Extension\FeatureFlagExtension;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 
@@ -16,16 +17,14 @@ use Twig\Loader\FilesystemLoader;
  */
 class FeatureTest extends TestCase
 {
+    use EnvTestBehaviour;
+
+    public static string $customCacheId = 'beef3f0ee9c61829627676afd6294bb029';
+
     /**
      * @var array<string, FeatureFlagConfig>
      */
-    public static array $features;
-
-    public static string $featureAllValue;
-
-    public static string $appEnvValue;
-
-    public static string $customCacheId = 'beef3f0ee9c61829627676afd6294bb029';
+    private array $registeredFeaturesBackup;
 
     /**
      * @var list<string>
@@ -35,43 +34,43 @@ class FeatureTest extends TestCase
         'FEATURE_NEXT_102',
     ];
 
-    public static function setUpBeforeClass(): void
-    {
-        self::$featureAllValue = $_SERVER['FEATURE_ALL'] ?? 'false';
-        self::$appEnvValue = $_ENV['APP_ENV'] ?? $_SERVER['APP_ENV'];
-        self::$features = Feature::getRegisteredFeatures();
-    }
-
     protected function setUp(): void
     {
-        $_SERVER['FEATURE_ALL'] = 'false';
-        $_ENV['FEATURE_ALL'] = 'false';
-        $_SERVER['APP_ENV'] = 'test';
+        $this->registeredFeaturesBackup = Feature::getRegisteredFeatures();
 
-        unset($_SERVER['FEATURE_NEXT_101'], $_SERVER['FEATURE_NEXT_102']);
+        $this->setEnvVars([
+            'APP_ENV' => 'test',
+            'FEATURE_ALL' => 'false',
+            'TWIG_COMPILE_TIME_OPTIMIZATION' => 'false',
+        ]);
+
+        $this->unsetFixtureEnv();
 
         Feature::resetRegisteredFeatures();
-        Feature::registerFeatures(self::$features);
+        Feature::registerFeatures($this->registeredFeaturesBackup);
     }
 
     protected function tearDown(): void
     {
-        $_SERVER['APP_ENV'] = self::$appEnvValue;
-        $_ENV['APP_ENV'] = $_SERVER['APP_ENV'];
-        $_SERVER['FEATURE_ALL'] = self::$featureAllValue;
-        $_ENV['FEATURE_ALL'] = $_SERVER['FEATURE_ALL'];
-
-        unset($_SERVER['FEATURE_NEXT_101'], $_SERVER['FEATURE_NEXT_102']);
+        $this->unsetFixtureEnv();
 
         Feature::resetRegisteredFeatures();
-        Feature::registerFeatures(self::$features);
+        Feature::registerFeatures($this->registeredFeaturesBackup);
+    }
+
+    private function unsetFixtureEnv(): void
+    {
+        foreach ($this->fixtureFlags as $flag) {
+            unset($_SERVER[$flag], $_ENV[$flag]);
+            putenv($flag);
+        }
     }
 
     public function testABoolGetsReturned(): void
     {
         $this->setUpFixtures();
         static::assertFalse(Feature::isActive('FEATURE_NEXT_102'));
-        $_SERVER['FEATURE_NEXT_102'] = '1';
+        $this->setEnvVars(['FEATURE_NEXT_102' => '1']);
         static::assertTrue(Feature::isActive('FEATURE_NEXT_102'));
     }
 
@@ -105,14 +104,14 @@ class FeatureTest extends TestCase
     public function testTheCallableGetsExecutes(): void
     {
         $this->setUpFixtures();
-        $_SERVER['FEATURE_NEXT_101'] = '0';
+        $this->setEnvVars(['FEATURE_NEXT_101' => '0']);
         $indicator = false;
         Feature::ifActive('FEATURE_NEXT_101', static function () use (&$indicator): void {
             $indicator = true;
         });
         static::assertFalse($indicator);
 
-        $_SERVER['FEATURE_NEXT_101'] = '1';
+        $this->setEnvVars(['FEATURE_NEXT_101' => '1']);
 
         Feature::ifActive('FEATURE_NEXT_101', static function () use (&$indicator): void {
             $indicator = true;
@@ -123,7 +122,7 @@ class FeatureTest extends TestCase
     public function testConfigGetAllReturnsAllAndTracksState(): void
     {
         $currentConfig = array_keys(Feature::getAll(false));
-        $featureFlags = array_keys(self::$features);
+        $featureFlags = array_keys($this->registeredFeaturesBackup);
 
         static::assertSame(\array_map(Feature::normalizeName(...), $featureFlags), \array_map(Feature::normalizeName(...), $currentConfig));
 
@@ -143,9 +142,9 @@ class FeatureTest extends TestCase
         ]);
         $twig->addExtension(new FeatureFlagExtension());
         $template = $twig->loadTemplate($twig->getTemplateClass('featuretest.html.twig'), 'featuretest.html.twig');
-        $_SERVER['FEATURE_NEXT_101'] = '1';
+        $this->setEnvVars(['FEATURE_NEXT_101' => '1']);
         static::assertSame('FeatureIsActive', $template->render([]));
-        $_SERVER['FEATURE_NEXT_101'] = '0';
+        $this->setEnvVars(['FEATURE_NEXT_101' => '0']);
         static::assertSame('FeatureIsInactive', $template->render([]));
     }
 
@@ -155,8 +154,7 @@ class FeatureTest extends TestCase
             throw new \Exception($errstr, $errno);
         }, \E_USER_WARNING);
 
-        $_SERVER['APP_ENV'] = 'test';
-        $_ENV['APP_ENV'] = 'test';
+        $this->setEnvVars(['APP_ENV' => 'test']);
 
         $loader = new FilesystemLoader(__DIR__ . '/_fixture/');
         $twig = new Environment($loader, [
@@ -177,8 +175,7 @@ class FeatureTest extends TestCase
 
     public function testTwigFeatureFlagNotRegisteredInProd(): void
     {
-        $_SERVER['APP_ENV'] = 'prod';
-        $_ENV['APP_ENV'] = 'prod';
+        $this->setEnvVars(['APP_ENV' => 'prod']);
 
         $loader = new FilesystemLoader(__DIR__ . '/_fixture/');
         $twig = new Environment($loader, [
@@ -235,12 +232,11 @@ class FeatureTest extends TestCase
     #[DataProvider('featureAllDataProvider')]
     public function testFeatureAll(string $appEnv, bool $active): void
     {
-        $_SERVER['FEATURE_NEXT_102'] = 'true';
-
-        $_SERVER['APP_ENV'] = $appEnv;
-        $_ENV['APP_ENV'] = $appEnv;
-        $_SERVER['FEATURE_ALL'] = $active;
-        $_ENV['FEATURE_ALL'] = $active;
+        $this->setEnvVars([
+            'APP_ENV' => $appEnv,
+            'FEATURE_ALL' => $active,
+            'FEATURE_NEXT_102' => 'true',
+        ]);
 
         $this->setUpFixtures();
         static::assertSame($active, Feature::isActive('FEATURE_NEXT_101'));
@@ -583,12 +579,7 @@ class FeatureTest extends TestCase
     #[DataProvider('isActiveDataProvider')]
     public function testIsActive(array $featureConfig, array $env, string $feature, bool $expected): void
     {
-        $_SERVER['APP_ENV'] = 'prod';
-        $_ENV['APP_ENV'] = 'prod';
-
-        foreach ($env as $key => $value) {
-            $_SERVER[$key] = $value;
-        }
+        $this->setEnvVars(['APP_ENV' => 'prod', ...$env]);
 
         Feature::resetRegisteredFeatures();
         Feature::registerFeatures($featureConfig);

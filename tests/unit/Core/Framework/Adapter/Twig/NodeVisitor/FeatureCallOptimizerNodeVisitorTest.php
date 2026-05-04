@@ -169,6 +169,44 @@ class FeatureCallOptimizerNodeVisitorTest extends TestCase
         static::assertSame('inactive', $template->render([]));
     }
 
+    public function testUnregisteredFeatureCallIsNotOptimized(): void
+    {
+        $this->setFeature(self::OPTIMIZATION_FLAG, true);
+        $this->setEnvVars(['APP_ENV' => 'test']);
+
+        $compileErrors = 0;
+        set_error_handler(static function () use (&$compileErrors): bool {
+            ++$compileErrors;
+
+            return true;
+        }, \E_USER_WARNING);
+        $template = null;
+
+        try {
+            $template = $this->createTwig('{% if feature("UNREGISTERED_FEATURE_FLAG") %}active{% else %}inactive{% endif %}')
+                ->load('index.html.twig');
+        } finally {
+            restore_error_handler();
+        }
+
+        static::assertSame(0, $compileErrors, 'No warning should be triggered during template compilation for unregistered features');
+
+        $renderErrors = 0;
+        set_error_handler(static function () use (&$renderErrors): bool {
+            ++$renderErrors;
+
+            return true;
+        }, \E_USER_WARNING);
+
+        try {
+            static::assertSame('inactive', $template->render([]));
+        } finally {
+            restore_error_handler();
+        }
+
+        static::assertGreaterThan(0, $renderErrors, 'Unregistered feature should still trigger a warning at render time');
+    }
+
     /**
      * @param array<string, mixed> $context
      */

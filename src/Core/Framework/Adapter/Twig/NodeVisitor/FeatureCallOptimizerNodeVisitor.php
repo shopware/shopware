@@ -66,7 +66,7 @@ final class FeatureCallOptimizerNodeVisitor implements NodeVisitorInterface
         return $node;
     }
 
-    public function leaveNode(Node $node, Environment $env): ?Node
+    public function leaveNode(Node $node, Environment $env): Node
     {
         return $node;
     }
@@ -161,7 +161,7 @@ final class FeatureCallOptimizerNodeVisitor implements NodeVisitorInterface
         }
 
         $featureName = $featureName->getAttribute('value');
-        if (!\is_string($featureName)) {
+        if (!\is_string($featureName) || !Feature::has($featureName)) {
             return null;
         }
 

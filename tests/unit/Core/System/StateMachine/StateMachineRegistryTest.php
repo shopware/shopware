@@ -3,15 +3,31 @@
 namespace Shopware\Tests\Unit\Core\System\StateMachine;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StateMachineStateField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Struct\ArrayEntity;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryCollection;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateCollection;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionCollection;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionEntity;
 use Shopware\Core\System\StateMachine\Event\StateMachineStateChangeEvent;
 use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
+use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
+use Shopware\Core\System\StateMachine\StateMachineCollection;
 use Shopware\Core\System\StateMachine\StateMachineEntity;
 use Shopware\Core\System\StateMachine\StateMachineLocker;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
@@ -26,6 +42,119 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(StateMachineTransitionResult::class)]
 class StateMachineRegistryTest extends TestCase
 {
+    public function testTransitionWritesHistoryAndUpdatesEntityInsideLock(): void
+    {
+        $transition = new Transition('order_transaction', Uuid::randomHex(), 'paid', 'stateId', 'internal comment');
+        $context = new Context(new AdminApiSource('user-id', 'integration-id'));
+        $fromPlace = $this->createState('open');
+        $toPlace = $this->createState('paid');
+        $stateMachine = $this->createStateMachine([
+            $this->createStateTransition('paid', $fromPlace, $toPlace),
+        ]);
+        $dispatcher = new CollectingEventDispatcher();
+        $fixture = $this->createRegistryFixture($stateMachine, $fromPlace, $dispatcher);
+
+        $fixture->historyRepository->expects($this->once())
+            ->method('create')
+            ->with(
+                [[
+                    'stateMachineId' => $toPlace->getStateMachineId(),
+                    'entityName' => 'order_transaction',
+                    'fromStateId' => $fromPlace->getId(),
+                    'toStateId' => $toPlace->getId(),
+                    'transitionActionName' => 'paid',
+                    'userId' => 'user-id',
+                    'integrationId' => 'integration-id',
+                    'referencedId' => $transition->getEntityId(),
+                    'referencedVersionId' => $context->getVersionId(),
+                    'internalComment' => 'internal comment',
+                ]],
+                $context
+            );
+
+        $fixture->entityRepository->expects($this->once())
+            ->method('upsert')
+            ->with([['id' => $transition->getEntityId(), 'stateId' => $toPlace->getId()]], $context);
+
+        $stateMachineStates = $fixture->registry->transition($transition, $context);
+
+        static::assertSame($fromPlace, $stateMachineStates->get('fromPlace'));
+        static::assertSame($toPlace, $stateMachineStates->get('toPlace'));
+        static::assertCount(3, $dispatcher->events);
+    }
+
+    public function testTransitionSkipsWritesAndEventsForUnnecessaryTransition(): void
+    {
+        $transition = new Transition('order_transaction', Uuid::randomHex(), 'paid', 'stateId');
+        $context = Context::createDefaultContext();
+        $fromPlace = $this->createState('paid');
+        $stateMachine = $this->createStateMachine([
+            $this->createStateTransition('paid', $this->createState('open'), $fromPlace),
+        ]);
+        $dispatcher = new CollectingEventDispatcher();
+        $fixture = $this->createRegistryFixture($stateMachine, $fromPlace, $dispatcher);
+
+        $fixture->historyRepository->expects($this->never())
+            ->method('create');
+
+        $fixture->entityRepository->expects($this->never())
+            ->method('upsert');
+
+        $stateMachineStates = $fixture->registry->transition($transition, $context);
+
+        static::assertSame($fromPlace, $stateMachineStates->get('fromPlace'));
+        static::assertSame($fromPlace, $stateMachineStates->get('toPlace'));
+        static::assertSame([], $dispatcher->events);
+    }
+
+    public function testTransitionWithEmptyTransitionNameThrowsIllegalTransitionException(): void
+    {
+        $transition = new Transition('order_transaction', Uuid::randomHex(), '', 'stateId');
+        $context = Context::createDefaultContext();
+        $fromPlace = $this->createState('open');
+        $toPlace = $this->createState('paid');
+        $stateMachine = $this->createStateMachine([
+            $this->createStateTransition('paid', $fromPlace, $toPlace),
+        ]);
+        $fixture = $this->createRegistryFixture($stateMachine, $fromPlace, new CollectingEventDispatcher());
+
+        $fixture->historyRepository->expects($this->never())
+            ->method('create');
+
+        $fixture->entityRepository->expects($this->never())
+            ->method('upsert');
+
+        $this->expectException(IllegalTransitionException::class);
+        $this->expectExceptionMessage('Possible transitions are: paid');
+
+        $fixture->registry->transition($transition, $context);
+    }
+
+    public function testTransitionCanForceDestinationStateByTechnicalName(): void
+    {
+        $transition = new Transition('order_transaction', Uuid::randomHex(), 'paid', 'stateId');
+        $context = Context::createDefaultContext();
+        $context->addState(SetOrderStateAction::FORCE_TRANSITION);
+        $fromPlace = $this->createState('open');
+        $toPlace = $this->createState('paid');
+        $stateMachine = $this->createStateMachine([]);
+        $dispatcher = new CollectingEventDispatcher();
+        $fixture = $this->createRegistryFixture($stateMachine, $fromPlace, $dispatcher, $toPlace);
+
+        $fixture->historyRepository->expects($this->once())
+            ->method('create');
+
+        $fixture->entityRepository->expects($this->once())
+            ->method('upsert')
+            ->with([['id' => $transition->getEntityId(), 'stateId' => $toPlace->getId()]], $context);
+
+        $stateMachineStates = $fixture->registry->transition($transition, $context);
+
+        static::assertSame($fromPlace, $stateMachineStates->get('fromPlace'));
+        static::assertSame($toPlace, $stateMachineStates->get('toPlace'));
+        static::assertCount(3, $dispatcher->events);
+    }
+
     public function testTransitionUsesLockerAndDispatchesEventsForChangedState(): void
     {
         $transition = new Transition('order_transaction', 'transaction-id', 'paid', 'stateId', 'internal comment');
@@ -107,6 +236,115 @@ class StateMachineRegistryTest extends TestCase
         );
     }
 
+    private function createRegistryFixture(
+        StateMachineEntity $stateMachine,
+        StateMachineStateEntity $fromPlace,
+        EventDispatcherInterface $dispatcher,
+        ?StateMachineStateEntity $forcedToPlace = null
+    ): StateMachineRegistryFixture {
+        $context = Context::createDefaultContext();
+        /** @var EntityRepository<StateMachineCollection>&MockObject $stateMachineRepository */
+        $stateMachineRepository = $this->createMock(EntityRepository::class);
+        /** @var EntityRepository<StateMachineStateCollection>&MockObject $stateMachineStateRepository */
+        $stateMachineStateRepository = $this->createMock(EntityRepository::class);
+        /** @var EntityRepository<StateMachineHistoryCollection>&MockObject $historyRepository */
+        $historyRepository = $this->createMock(EntityRepository::class);
+        /** @var EntityRepository<EntityCollection<Entity>>&MockObject $entityRepository */
+        $entityRepository = $this->createMock(EntityRepository::class);
+        $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $definition = new StateMachineRegistryTestEntityDefinition();
+        $definition->compile($definitionRegistry);
+        $locker = $this->createMock(StateMachineLocker::class);
+
+        $stateMachineRepository->method('search')
+            ->willReturn($this->createSearchResult('state_machine', new StateMachineCollection([$stateMachine]), $context));
+
+        $stateMachineStateRepository->method('search')
+            ->willReturnCallback(function (Criteria $criteria, Context $context) use ($fromPlace, $forcedToPlace): EntitySearchResult {
+                $state = $criteria->getIds() === [] && $forcedToPlace !== null ? $forcedToPlace : $fromPlace;
+
+                return $this->createSearchResult('state_machine_state', new StateMachineStateCollection([$state]), $context);
+            });
+
+        $entityRepository->method('search')
+            ->willReturnCallback(fn (Criteria $criteria, Context $context): EntitySearchResult => $this->createSearchResult(
+                'order_transaction',
+                new EntityCollection([new ArrayEntity(['id' => $criteria->getIds()[0], 'stateId' => $fromPlace->getId()])]),
+                $context
+            ));
+
+        $definitionRegistry->method('getByEntityName')
+            ->with('order_transaction')
+            ->willReturn($definition);
+
+        $definitionRegistry->method('getRepository')
+            ->with('order_transaction')
+            ->willReturn($entityRepository);
+
+        $locker->method('locked')
+            ->willReturnCallback(static fn (Transition $transition, Context $context, \Closure $closure): StateMachineTransitionResult => $closure());
+
+        return new StateMachineRegistryFixture(
+            new StateMachineRegistry(
+                $stateMachineRepository,
+                $stateMachineStateRepository,
+                $historyRepository,
+                $dispatcher,
+                $definitionRegistry,
+                $locker
+            ),
+            $entityRepository,
+            $historyRepository
+        );
+    }
+
+    /**
+     * @param list<StateMachineTransitionEntity> $transitions
+     */
+    private function createStateMachine(array $transitions): StateMachineEntity
+    {
+        $stateMachine = new StateMachineEntity();
+        $stateMachine->setId(Uuid::randomHex());
+        $stateMachine->setTechnicalName('order_transaction.state');
+        $stateMachine->setTransitions(new StateMachineTransitionCollection($transitions));
+
+        return $stateMachine;
+    }
+
+    private function createStateTransition(string $actionName, StateMachineStateEntity $fromPlace, StateMachineStateEntity $toPlace): StateMachineTransitionEntity
+    {
+        $transition = new StateMachineTransitionEntity();
+        $transition->setId(Uuid::randomHex());
+        $transition->setActionName($actionName);
+        $transition->setFromStateId($fromPlace->getId());
+        $transition->setFromStateMachineState($fromPlace);
+        $transition->setToStateId($toPlace->getId());
+        $transition->setToStateMachineState($toPlace);
+        $transition->setStateMachineId($fromPlace->getStateMachineId());
+
+        return $transition;
+    }
+
+    private function createState(string $technicalName): StateMachineStateEntity
+    {
+        $state = new StateMachineStateEntity();
+        $state->setId(Uuid::randomHex());
+        $state->setStateMachineId(Uuid::randomHex());
+        $state->setTechnicalName($technicalName);
+
+        return $state;
+    }
+
+    /**
+     * @param EntityCollection<covariant Entity> $collection
+     *
+     * @return EntitySearchResult<EntityCollection<covariant Entity>>
+     */
+    private function createSearchResult(string $entityName, EntityCollection $collection, Context $context): EntitySearchResult
+    {
+        return new EntitySearchResult($entityName, $collection->count(), $collection, null, new Criteria(), $context);
+    }
+
     private function createTransitionResult(bool $hasTransitioned): StateMachineTransitionResult
     {
         $stateMachine = new StateMachineEntity();
@@ -152,5 +390,40 @@ class CollectingEventDispatcher implements EventDispatcherInterface
         $this->events[] = ['event' => $event, 'name' => $eventName];
 
         return $event;
+    }
+}
+
+/**
+ * @internal
+ */
+class StateMachineRegistryFixture
+{
+    /**
+     * @param EntityRepository<EntityCollection<Entity>>&MockObject $entityRepository
+     * @param EntityRepository<StateMachineHistoryCollection>&MockObject $historyRepository
+     */
+    public function __construct(
+        public readonly StateMachineRegistry $registry,
+        public readonly EntityRepository&MockObject $entityRepository,
+        public readonly EntityRepository&MockObject $historyRepository,
+    ) {
+    }
+}
+
+/**
+ * @internal
+ */
+class StateMachineRegistryTestEntityDefinition extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'order_transaction';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            new StateMachineStateField('state_id', 'stateId', 'order_transaction.state'),
+        ]);
     }
 }

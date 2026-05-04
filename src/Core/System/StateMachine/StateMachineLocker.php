@@ -13,7 +13,7 @@ use Symfony\Contracts\Service\ResetInterface;
 #[Package('checkout')]
 class StateMachineLocker implements ResetInterface
 {
-    private const LOCK_TTL = 5;
+    private const LOCK_TTL = 5.0;
 
     /**
      * @var array<string, true>
@@ -53,7 +53,7 @@ class StateMachineLocker implements ResetInterface
 
     public function getLockKey(Transition $transition, Context $context): string
     {
-        return 'state-machine-transition-' . hash('xxh128', implode('-', [
+        return 'state-machine-transition-' . \hash('xxh128', \implode('-', [
             $transition->getEntityName(),
             $transition->getEntityId(),
             $context->getVersionId(),

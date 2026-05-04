@@ -25,6 +25,12 @@ Plugins can now mark technical `media` associations with the new DAL flag `Ignor
 This prevents `media:delete-unused` from treating metadata-only extensions as real media usage and helps avoid false negatives when removing unused files.
 Third-party developers should add this flag to media associations that store technical metadata but do not represent an actual assignment of the media file.
 
+### State machine transitions are locked per entity
+
+State machine transitions now acquire a short-lived lock per entity and context version while the current state is read and the transition history is written.
+This prevents concurrent calls to `StateMachineRegistry::transition()` from creating duplicate history entries for the same entity transition.
+Extensions that use the registry automatically benefit from the lock; direct SQL or DBAL writes to state fields remain outside this protection.
+
 ## Administration
 
 ### Fixed "Last Quarter" timeframe returning the wrong year in `sw-date-filter`

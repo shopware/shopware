@@ -6,8 +6,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateCollection;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
+use Shopware\Core\System\StateMachine\StateMachineEntity;
 use Shopware\Core\System\StateMachine\StateMachineException;
 use Shopware\Core\System\StateMachine\StateMachineLocker;
+use Shopware\Core\System\StateMachine\StateMachineTransitionResult;
 use Shopware\Core\System\StateMachine\Transition;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\SharedLockInterface;
@@ -17,6 +21,7 @@ use Symfony\Component\Lock\Store\InMemoryStore;
  * @internal
  */
 #[CoversClass(StateMachineLocker::class)]
+#[CoversClass(StateMachineTransitionResult::class)]
 class StateMachineLockerTest extends TestCase
 {
     private LockFactory $lockFactory;
@@ -32,15 +37,16 @@ class StateMachineLockerTest extends TestCase
     public function testLockedExecutesClosure(): void
     {
         $called = false;
+        $transitionResult = $this->createTransitionResult();
 
-        $result = $this->locker->locked($this->createTransition(), Context::createDefaultContext(), static function () use (&$called): string {
+        $result = $this->locker->locked($this->createTransition(), Context::createDefaultContext(), static function () use (&$called, $transitionResult): StateMachineTransitionResult {
             $called = true;
 
-            return 'test-result';
+            return $transitionResult;
         });
 
         static::assertTrue($called);
-        static::assertSame('test-result', $result);
+        static::assertSame($transitionResult, $result);
     }
 
     public function testLockedAcquiresAndReleasesLock(): void
@@ -52,10 +58,13 @@ class StateMachineLockerTest extends TestCase
         static::assertTrue($lock->acquire());
         $lock->release();
 
-        $this->locker->locked($transition, $context, static function () use ($lock): void {
+        $transitionResult = $this->locker->locked($transition, $context, function () use ($lock): StateMachineTransitionResult {
             static::assertFalse($lock->acquire(false));
+
+            return $this->createTransitionResult();
         });
 
+        static::assertTrue($transitionResult->hasTransitioned);
         static::assertTrue($lock->acquire());
         $lock->release();
     }
@@ -67,7 +76,7 @@ class StateMachineLockerTest extends TestCase
         $lock = $this->lockFactory->createLock($this->locker->getLockKey($transition, $context));
 
         try {
-            $this->locker->locked($transition, $context, static function (): void {
+            $this->locker->locked($transition, $context, static function (): StateMachineTransitionResult {
                 throw new \RuntimeException('test');
             });
         } catch (\RuntimeException) {
@@ -97,7 +106,19 @@ class StateMachineLockerTest extends TestCase
         $lock->expects($this->once())
             ->method('release');
 
-        $locker->locked($transition, $context, static fn () => $locker->locked($transition, $context, static fn (): string => 'nested'));
+        $transitionResult = $this->createTransitionResult();
+
+        $result = $locker->locked(
+            $transition,
+            $context,
+            static fn (): StateMachineTransitionResult => $locker->locked(
+                $transition,
+                $context,
+                static fn (): StateMachineTransitionResult => $transitionResult
+            )
+        );
+
+        static::assertSame($transitionResult, $result);
     }
 
     public function testLockedThrowsExceptionOnFailure(): void
@@ -110,7 +131,7 @@ class StateMachineLockerTest extends TestCase
 
         $lockFactory->expects($this->once())
             ->method('createLock')
-            ->with($locker->getLockKey($transition, $context), 30.0, true)
+            ->with($locker->getLockKey($transition, $context), 5.0, true)
             ->willReturn($lock);
 
         $lock->expects($this->once())
@@ -123,8 +144,11 @@ class StateMachineLockerTest extends TestCase
 
         $this->expectExceptionObject(StateMachineException::stateMachineTransitionLocked('order_transaction', '018f7bb26244728091f5077b7c20f8ca'));
 
-        $locker->locked($transition, $context, static function (): void {
-        });
+        $locker->locked(
+            $transition,
+            $context,
+            fn (): StateMachineTransitionResult => $this->createTransitionResult()
+        );
     }
 
     public function testGetLockKey(): void
@@ -133,7 +157,7 @@ class StateMachineLockerTest extends TestCase
         $context = Context::createDefaultContext();
 
         static::assertSame(
-            'state-machine-transition-' . hash('xxh128', 'order_transaction-018f7bb26244728091f5077b7c20f8ca-' . Defaults::LIVE_VERSION),
+            'state-machine-transition-' . \hash('xxh128', 'order_transaction-018f7bb26244728091f5077b7c20f8ca-' . Defaults::LIVE_VERSION),
             $this->locker->getLockKey($transition, $context)
         );
     }
@@ -151,5 +175,34 @@ class StateMachineLockerTest extends TestCase
     private function createTransition(string $transitionName = 'paid'): Transition
     {
         return new Transition('order_transaction', '018f7bb26244728091f5077b7c20f8ca', $transitionName, 'stateId');
+    }
+
+    private function createTransitionResult(): StateMachineTransitionResult
+    {
+        $stateMachine = new StateMachineEntity();
+        $stateMachine->setId('state-machine-id');
+        $stateMachine->setTechnicalName('order_transaction.state');
+
+        $fromPlace = new StateMachineStateEntity();
+        $fromPlace->setId('from-place-id');
+        $fromPlace->setStateMachineId($stateMachine->getId());
+        $fromPlace->setTechnicalName('open');
+
+        $toPlace = new StateMachineStateEntity();
+        $toPlace->setId('to-place-id');
+        $toPlace->setStateMachineId($stateMachine->getId());
+        $toPlace->setTechnicalName('paid');
+
+        $stateMachineStates = new StateMachineStateCollection();
+        $stateMachineStates->set('fromPlace', $fromPlace);
+        $stateMachineStates->set('toPlace', $toPlace);
+
+        return new StateMachineTransitionResult(
+            true,
+            $stateMachineStates,
+            $stateMachine,
+            $fromPlace,
+            $toPlace,
+        );
     }
 }

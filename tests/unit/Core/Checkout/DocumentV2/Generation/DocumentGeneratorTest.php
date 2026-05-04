@@ -129,6 +129,12 @@ class DocumentGeneratorTest extends TestCase
         static::assertSame($documentTypeId, $documentRepository->creates[0][0]['documentTypeId']);
         static::assertSame('generated-number', $documentRepository->creates[0][0]['documentNumber']);
 
+        $orderVersionContext = $generationRequest->orderVersionContext;
+        static::assertNotNull($orderVersionContext);
+        static::assertSame($orderVersionId, $orderVersionContext->getVersionId());
+        static::assertSame($orderLanguageId, $orderVersionContext->getLanguageIdChain()[0]);
+        static::assertSame([Defaults::LANGUAGE_SYSTEM], $generationRequest->apiContext->getLanguageIdChain());
+
         static::assertCount(1, $documentFileRepository->creates);
         static::assertSame(DocumentFormat::PDF->value, $documentFileRepository->creates[0][0]['documentFormat']);
         static::assertIsString($documentFileRepository->creates[0][0]['mediaId']);

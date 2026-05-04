@@ -70,6 +70,7 @@ final readonly class DocumentGenerator
         }
 
         $orderVersionContext = $this->createOrderVersionContext($generationRequest);
+        $generationRequest->orderVersionContext = $orderVersionContext;
 
         $order = $this->loadOrder(
             $criteria,

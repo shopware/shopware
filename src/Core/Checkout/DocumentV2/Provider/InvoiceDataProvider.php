@@ -55,39 +55,28 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
             'orderCustomer.customer',
             'deliveries.shippingMethod',
             'deliveries.shippingOrderAddress.country',
+            'primaryOrderTransaction.paymentMethod',
+            'primaryOrderDelivery.shippingMethod',
+            'primaryOrderDelivery.shippingOrderAddress.country',
         ]);
 
         $criteria->getAssociation('lineItems')->addSorting(new FieldSorting('position'));
         $criteria->getAssociation('deliveries')->addSorting(new FieldSorting('createdAt'));
 
-        if (Feature::isActive('v6.8.0.0')) {
-            $criteria->addAssociations([
-                'primaryOrderTransaction.paymentMethod',
-                'primaryOrderDelivery.shippingMethod',
-                'primaryOrderDelivery.shippingOrderAddress.country',
-            ]);
-        } else {
-            $criteria->getAssociation('transactions')
-                ->addAssociations(['paymentMethod'])
-                ->addSorting(new FieldSorting('createdAt'));
-        }
+        /** @deprecated tag:v6.8.0 - Remove when document templates use primaryOrderTransaction instead. */
+        $criteria->getAssociation('transactions')
+            ->addAssociations(['paymentMethod'])
+            ->addSorting(new FieldSorting('createdAt'));
     }
 
     public function provideRenderingData(
         OrderEntity $order,
         DocumentGenerationRequest $generationRequest
     ): InvoiceRenderData {
-        $generationRequest->apiContext->assign([
-            'languageIdChain' => array_values(array_unique(array_filter([
-                $order->getLanguageId(),
-                ...$generationRequest->apiContext->getLanguageIdChain(),
-            ]))),
-        ]);
-
         $config = clone $this->documentConfigLoader->load(
             $generationRequest->documentType,
             $order->getSalesChannelId(),
-            $generationRequest->apiContext,
+            $generationRequest->orderVersionContext ?? $generationRequest->apiContext,
         );
 
         $isIntraCommunityDelivery = $this->isIntraCommunityDelivery(

@@ -19,11 +19,9 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
@@ -49,66 +47,51 @@ class InvoiceDataProviderTest extends TestCase
         static::assertSame([DocumentType::INVOICE->value], $provider->getDocumentTypes());
     }
 
-    public function testEnrichOrderCriteriaV67(): void
+    public function testEnrichOrderCriteria(): void
     {
-        Feature::fake([], function (): void {
-            $provider = $this->createProvider();
-            $criteria = new Criteria();
+        $provider = $this->createProvider();
+        $criteria = new Criteria();
 
-            $provider->enrichOrderCriteria($criteria);
+        $provider->enrichOrderCriteria($criteria);
 
-            static::assertSame(
-                [
-                    'currency',
-                    'language',
-                    'addresses',
-                    'orderCustomer',
-                    'deliveries',
-                    'lineItems',
-                    'transactions',
-                ],
-                \array_keys($criteria->getAssociations()),
-            );
+        static::assertSame(
+            [
+                'currency',
+                'language',
+                'addresses',
+                'orderCustomer',
+                'deliveries',
+                'primaryOrderTransaction',
+                'primaryOrderDelivery',
+                'lineItems',
+                'transactions',
+            ],
+            \array_keys($criteria->getAssociations()),
+        );
 
-            $lineItemsSorting = $criteria->getAssociation('lineItems')->getSorting();
-            static::assertCount(1, $lineItemsSorting);
-            static::assertSame('position', $lineItemsSorting[0]->getField());
+        $lineItemsSorting = $criteria->getAssociation('lineItems')->getSorting();
+        static::assertCount(1, $lineItemsSorting);
+        static::assertSame('position', $lineItemsSorting[0]->getField());
 
-            $deliveriesSorting = $criteria->getAssociation('deliveries')->getSorting();
-            static::assertCount(1, $deliveriesSorting);
-            static::assertSame('createdAt', $deliveriesSorting[0]->getField());
+        $deliveriesSorting = $criteria->getAssociation('deliveries')->getSorting();
+        static::assertCount(1, $deliveriesSorting);
+        static::assertSame('createdAt', $deliveriesSorting[0]->getField());
 
-            $transactions = $criteria->getAssociation('transactions');
-            static::assertArrayHasKey('paymentMethod', $transactions->getAssociations());
+        $transactions = $criteria->getAssociation('transactions');
+        static::assertArrayHasKey('paymentMethod', $transactions->getAssociations());
 
-            $transactionSorting = $transactions->getSorting();
-            static::assertCount(1, $transactionSorting);
-            static::assertSame('createdAt', $transactionSorting[0]->getField());
-        });
-    }
+        $transactionSorting = $transactions->getSorting();
+        static::assertCount(1, $transactionSorting);
+        static::assertSame('createdAt', $transactionSorting[0]->getField());
 
-    public function testEnrichOrderCriteriaV68(): void
-    {
-        Feature::fake(['v6.8.0.0'], function (): void {
-            $provider = $this->createProvider();
-            $criteria = new Criteria();
-
-            $provider->enrichOrderCriteria($criteria);
-
-            $associations = $criteria->getAssociations();
-            static::assertArrayHasKey('primaryOrderTransaction', $associations);
-            static::assertArrayHasKey('primaryOrderDelivery', $associations);
-            static::assertArrayNotHasKey('transactions', $associations);
-
-            static::assertArrayHasKey(
-                'paymentMethod',
-                $criteria->getAssociation('primaryOrderTransaction')->getAssociations(),
-            );
-            static::assertArrayHasKey(
-                'shippingOrderAddress',
-                $criteria->getAssociation('primaryOrderDelivery')->getAssociations(),
-            );
-        });
+        static::assertArrayHasKey(
+            'paymentMethod',
+            $criteria->getAssociation('primaryOrderTransaction')->getAssociations(),
+        );
+        static::assertArrayHasKey(
+            'shippingOrderAddress',
+            $criteria->getAssociation('primaryOrderDelivery')->getAssociations(),
+        );
     }
 
     /**
@@ -333,7 +316,6 @@ class InvoiceDataProviderTest extends TestCase
         $order->setId(Uuid::randomHex());
         $order->setVersionId(Uuid::randomHex());
         $order->setSalesChannelId(Uuid::randomHex());
-        $order->setLanguageId(Defaults::LANGUAGE_SYSTEM);
 
         if ($accountType !== null) {
             $customer = new CustomerEntity();

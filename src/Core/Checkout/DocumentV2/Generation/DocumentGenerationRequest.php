@@ -32,6 +32,7 @@ final class DocumentGenerationRequest
         array $requestedFormats,
         public Context $apiContext,
         public ?string $documentNumber = null,
+        public ?Context $orderVersionContext = null,
     ) {
         $this->documentType = $documentType instanceof DocumentType ? $documentType->value : $documentType;
         $this->requestedFormats = array_map(

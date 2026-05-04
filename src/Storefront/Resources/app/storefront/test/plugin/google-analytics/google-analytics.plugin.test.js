@@ -157,6 +157,48 @@ describe('plugin/google-analytics/google-analytics.plugin', () => {
         });
     });
 
+    test('starts Google Analytics via cookie update event when only the Google Ads cookie is accepted', () => {
+        new GoogleAnalyticsPlugin(document);
+
+        const startGoogleAnalyticsSpy = jest.spyOn(GoogleAnalyticsPlugin.prototype, 'startGoogleAnalytics');
+
+        document.$emitter.publish(COOKIE_CONFIGURATION_UPDATE, {
+            'google-ads-enabled': true,
+        });
+
+        expect(startGoogleAnalyticsSpy).toHaveBeenCalledTimes(1);
+    });
+
+    test('does not start or disable Google Analytics via cookie update event when neither GA cookie is in the update', () => {
+        new GoogleAnalyticsPlugin(document);
+
+        const startGoogleAnalyticsSpy = jest.spyOn(GoogleAnalyticsPlugin.prototype, 'startGoogleAnalytics');
+        const removeCookiesSpy = jest.spyOn(GoogleAnalyticsPlugin.prototype, 'removeCookies');
+        const disableEventsSpy = jest.spyOn(GoogleAnalyticsPlugin.prototype, 'disableEvents');
+
+        document.$emitter.publish(COOKIE_CONFIGURATION_UPDATE, {
+            'some-other-cookie': true,
+        });
+
+        expect(startGoogleAnalyticsSpy).not.toHaveBeenCalled();
+        expect(removeCookiesSpy).not.toHaveBeenCalled();
+        expect(disableEventsSpy).not.toHaveBeenCalled();
+    });
+
+    test('does not start or disable Google Analytics via cookie update event when both GA cookie values are undefined', () => {
+        new GoogleAnalyticsPlugin(document);
+
+        const startGoogleAnalyticsSpy = jest.spyOn(GoogleAnalyticsPlugin.prototype, 'startGoogleAnalytics');
+        const removeCookiesSpy = jest.spyOn(GoogleAnalyticsPlugin.prototype, 'removeCookies');
+        const disableEventsSpy = jest.spyOn(GoogleAnalyticsPlugin.prototype, 'disableEvents');
+
+        document.$emitter.publish(COOKIE_CONFIGURATION_UPDATE, {});
+
+        expect(startGoogleAnalyticsSpy).not.toHaveBeenCalled();
+        expect(removeCookiesSpy).not.toHaveBeenCalled();
+        expect(disableEventsSpy).not.toHaveBeenCalled();
+    });
+
     test('sets the correct google consent when cookie update event is fired', () => {
         // Set the Google Analytics cookie
         Object.defineProperty(document, 'cookie', {

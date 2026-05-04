@@ -2,10 +2,12 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
+use Shopware\Core\Framework\Adapter\Twig\NodeVisitor\FeatureCallOptimizerNodeVisitor;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\FeatureFlagCallTokenParser;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Twig\Extension\AbstractExtension;
+use Twig\NodeVisitor\NodeVisitorInterface;
 use Twig\TwigFunction;
 
 /**
@@ -14,6 +16,8 @@ use Twig\TwigFunction;
 #[Package('framework')]
 class FeatureFlagExtension extends AbstractExtension
 {
+    private const TWIG_COMPILE_TIME_OPTIMIZATION = 'TWIG_COMPILE_TIME_OPTIMIZATION';
+
     /**
      * @return FeatureFlagCallTokenParser[]
      */
@@ -32,6 +36,20 @@ class FeatureFlagExtension extends AbstractExtension
         return [
             new TwigFunction('feature', $this->feature(...)),
             new TwigFunction('getAllFeatures', $this->getAll(...)),
+        ];
+    }
+
+    /**
+     * @return NodeVisitorInterface[]
+     */
+    public function getNodeVisitors(): array
+    {
+        if (!Feature::isActive(self::TWIG_COMPILE_TIME_OPTIMIZATION)) {
+            return [];
+        }
+
+        return [
+            new FeatureCallOptimizerNodeVisitor(),
         ];
     }
 

@@ -63,6 +63,11 @@ The following methods are now abstract and must be implemented by extensions. Th
 
 The `/api/_action/mail-template/validate` route has been removed without replacement, as it was not used and did not provide any significant value.
 
+## Unique API alias for `SalesChannelCustomerAddressCollection`
+
+`Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\SalesChannelCustomerAddressCollection` now returns the API alias `sales_channel_customer_address_collection` instead of inheriting `customer_address_collection` from `CustomerAddressCollection`.
+If your integration parses Store API responses based on the `apiAlias` field of this collection, update it to accept the new alias.
+
 </details>
 
 # Core

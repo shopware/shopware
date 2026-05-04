@@ -4,6 +4,11 @@
 
 ## API
 
+### Unique API alias for `SalesChannelCustomerAddressCollection`
+
+`SalesChannelCustomerAddressCollection` now returns its own API alias `sales_channel_customer_address_collection` instead of inheriting `customer_address_collection` from the admin collection.
+Integrations that match Store API responses by the `apiAlias` field of this collection need to accept the new value.
+
 ## Core
 
 ### Backward compatible invalid locales

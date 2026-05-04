@@ -25,12 +25,18 @@ class Client implements ResetInterface
      */
     private ?array $services = null;
 
+    private readonly HttpClientInterface $client;
+
     public function __construct(
         string $registryUrl,
         private readonly string $appUrl,
-        private readonly HttpClientInterface $client,
+        HttpClientInterface $client,
     ) {
         $this->registryUrl = rtrim($registryUrl, '/');
+
+        $this->client = $client->withOptions([
+            'max_duration' => 10,
+        ]);
     }
 
     public function get(string $name): ServiceEntry

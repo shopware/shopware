@@ -64,7 +64,7 @@
       },
       "configFields": {
         "name": "Produktname",
-        "parentName": "Name des Elternprodukts",
+        "parentName": "Elternname",
         "description": "Produktbeschreibung",
         "productNumber": "Produktnummer",
         "manufacturerNumber": "Herstellernummer",

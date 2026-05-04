@@ -4,6 +4,7 @@ namespace Shopware\Core\Migration\V6_7;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -48,8 +49,10 @@ class Migration1775460999AddParentNameToProductSearchConfig extends MigrationSte
             ]
         );
 
+        $queue = new MultiInsertQueryQueue($connection);
+
         foreach ($configs as $config) {
-            $connection->insert('product_search_config_field', [
+            $queue->addInsert('product_search_config_field', [
                 'id' => Uuid::randomBytes(),
                 'product_search_config_id' => $config['product_search_config_id'],
                 'field' => self::PARENT_NAME_FIELD,
@@ -59,9 +62,7 @@ class Migration1775460999AddParentNameToProductSearchConfig extends MigrationSte
                 'created_at' => $createdAt,
             ]);
         }
-    }
 
-    public function updateDestructive(Connection $connection): void
-    {
+        $queue->execute();
     }
 }

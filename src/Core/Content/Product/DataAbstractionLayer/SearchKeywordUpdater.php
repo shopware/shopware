@@ -116,8 +116,6 @@ class SearchKeywordUpdater implements ResetInterface
         $keywords = [];
         $dictionary = [];
 
-        $requiresParentProducts = \in_array('parent.name', array_column($configFields, 'field'), true);
-
         $iterator = $this->getIterator($ids, $context, $configFields);
 
         while ($products = $iterator->fetch()) {
@@ -128,8 +126,19 @@ class SearchKeywordUpdater implements ResetInterface
             }
         }
 
-        if ($requiresParentProducts) {
-            $this->hydrateParentProducts($existingProducts, $context);
+        if (\in_array('parent.name', array_column($configFields, 'field'), true)) {
+            /** @var array<string, list<ProductEntity>> $productsByParentId */
+            $productsByParentId = [];
+            foreach ($existingProducts as $product) {
+                $parentId = $product->getParentId();
+                if ($parentId === null) {
+                    continue;
+                }
+
+                $productsByParentId[$parentId][] = $product;
+            }
+
+            $this->hydrateParentProducts($productsByParentId, $context);
         }
 
         foreach ($existingProducts as $product) {
@@ -300,39 +309,33 @@ class SearchKeywordUpdater implements ResetInterface
     }
 
     /**
-     * @param ProductEntity[] $products
+     * @param array<string, list<ProductEntity>> $productsByParentId
      */
-    private function hydrateParentProducts(array $products, Context $context): void
+    private function hydrateParentProducts(array $productsByParentId, Context $context): void
     {
-        $parentIds = array_values(array_unique(array_filter(array_map(
-            static fn (ProductEntity $product): ?string => $product->getParentId(),
-            $products
-        ))));
-
-        if ($parentIds === []) {
+        if ($productsByParentId === []) {
             return;
         }
 
-        $criteria = new Criteria($parentIds);
+        $criteria = new Criteria(array_keys($productsByParentId));
         $criteria->setLimit(50);
+        $criteria->addFields(['name']);
 
         $iterator = new RepositoryIterator($this->productRepository, $context, $criteria);
-        $parents = [];
 
         while ($parentProducts = $iterator->fetch()) {
             foreach ($parentProducts->getEntities() as $parent) {
-                $parents[$parent->getId()] = $parent;
+                $parentProduct = new ProductEntity();
+                $parentProduct->setId($parent->getId());
+                $parentProduct->setTranslated($parent->getTranslated());
+
+                $name = $parent->get('name');
+                $parentProduct->setName(\is_string($name) ? $name : null);
+
+                foreach ($productsByParentId[$parentProduct->getId()] ?? [] as $product) {
+                    $product->setParent($parentProduct);
+                }
             }
-        }
-
-        foreach ($products as $product) {
-            $parentId = $product->getParentId();
-
-            if ($parentId === null || !isset($parents[$parentId])) {
-                continue;
-            }
-
-            $product->setParent($parents[$parentId]);
         }
     }
 

@@ -10,7 +10,7 @@
             {% endblock %}
 
             {% block component_account_register_form %}
-                <form action="{{ path('frontend.account.register.save') }}"
+                <form action="{% block component_account_register_form_action %}{{ path('frontend.account.register.save') }}{% endblock %}"
                       class="register-form"
                       method="post"
                       data-form-handler="true">

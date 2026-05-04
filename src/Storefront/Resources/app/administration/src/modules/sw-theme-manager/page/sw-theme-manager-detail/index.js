@@ -8,6 +8,7 @@ const {
     isFieldHandlingInheritanceItself,
     isFieldHandlingLabelAndHelpText,
     isMeteorComponent,
+    supportsMapInheritance,
 } = Shopware.Utils;
 const { getObjectDiff, cloneDeep, deepMergeObject } = Shopware.Utils.object;
 const { isArray } = Shopware.Utils.types;
@@ -729,11 +730,11 @@ export default {
             }
 
             if (inheritance) {
-                if (isFieldHandlingInheritanceItself(field)) {
+                if (supportsMapInheritance(field)) {
                     config.mapInheritance = inheritance;
                 }
 
-                if (isMeteorComponent(config)) {
+                if (isMeteorComponent(field)) {
                     Object.assign(config, getMeteorInheritanceConfig(inheritance, inheritedValue));
                 }
             }

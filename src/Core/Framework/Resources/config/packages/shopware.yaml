@@ -390,6 +390,10 @@ shopware:
         remote_thumbnails:
             enable: false
             pattern: '{mediaUrl}/{mediaPath}?width={width}&ts={mediaUpdatedAt}'
+        svg:
+            allowed_elements: ["circle", "clippath", "defs", "desc", "ellipse", "g", "line", "lineargradient", "mask", "path", "pattern", "polygon", "polyline", "radialgradient", "rect", "stop", "style", "svg", "text", "title", "tspan", "use"]
+            allowed_attributes: ["class", "clip-path", "clippathunits", "cx", "cy", "d", "dominant-baseline", "dx", "dy", "fill", "fill-opacity", "fill-rule", "font-family", "font-size", "font-weight", "fx", "fy", "gradienttransform", "gradientunits", "height", "href", "id", "mask", "maskcontentunits", "maskunits", "offset", "opacity", "patterncontentunits", "patterntransform", "patternunits", "points", "preserveaspectratio", "r", "role", "rx", "ry", "spreadmethod", "stop-color", "stop-opacity", "stroke", "stroke-dasharray", "stroke-dashoffset", "stroke-linecap", "stroke-linejoin", "stroke-opacity", "stroke-width", "style", "text-anchor", "transform", "type", "version", "viewbox", "width", "x", "x1", "x2", "xlink:href", "xml:space", "xmlns", "xmlns:xlink", "y", "y1", "y2"]
+            allowed_reference_attributes: ["href", "xlink:href"]
 
     dal:
         batch_size: 125

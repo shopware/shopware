@@ -61,7 +61,11 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
         $criteria->getAssociation('deliveries')->addSorting(new FieldSorting('createdAt'));
 
         if (Feature::isActive('v6.8.0.0')) {
-            $criteria->addAssociation('primaryOrderTransaction.paymentMethod');
+            $criteria->addAssociations([
+                'primaryOrderTransaction.paymentMethod',
+                'primaryOrderDelivery.shippingMethod',
+                'primaryOrderDelivery.shippingOrderAddress.country',
+            ]);
         } else {
             $criteria->getAssociation('transactions')
                 ->addAssociations(['paymentMethod'])
@@ -73,7 +77,7 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
         OrderEntity $order,
         DocumentGenerationRequest $generationRequest
     ): InvoiceRenderData {
-        $config = $this->documentConfigLoader->load(
+        $config = clone $this->documentConfigLoader->load(
             $generationRequest->documentType,
             $order->getSalesChannelId(),
             $generationRequest->apiContext,
@@ -100,9 +104,9 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
 
     private function isIntraCommunityDelivery(DocumentConfiguration $config, OrderEntity $order): bool
     {
-        $deliveryNote = $config->jsonSerialize()['displayAdditionalNoteDelivery'] ?? null;
+        $deliveryNote = $config->jsonSerialize()['displayAdditionalNoteDelivery'] ?? false;
 
-        if ($deliveryNote === null) {
+        if ($deliveryNote === false) {
             return false;
         }
 
@@ -112,7 +116,9 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
             return false;
         }
 
-        $orderDelivery = $order->getDeliveries()?->first();
+        $orderDelivery = Feature::isActive('v6.8.0.0')
+            ? $order->getPrimaryOrderDelivery()
+            : $order->getDeliveries()?->first();
 
         if ($orderDelivery === null) {
             return false;
@@ -129,7 +135,7 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
         }
 
         if ($country->getCheckVatIdPattern() === false) {
-            return false;
+            return true;
         }
 
         $vatIds = $order->getOrderCustomer()?->getVatIds();

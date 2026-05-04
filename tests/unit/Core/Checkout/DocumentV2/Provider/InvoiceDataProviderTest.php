@@ -21,8 +21,8 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
@@ -48,40 +48,66 @@ class InvoiceDataProviderTest extends TestCase
         static::assertSame([DocumentType::INVOICE->value], $provider->getDocumentTypes());
     }
 
-    public function testEnrichOrderCriteria(): void
+    public function testEnrichOrderCriteriaV67(): void
     {
-        $provider = $this->createProvider();
+        Feature::fake([], function (): void {
+            $provider = $this->createProvider();
+            $criteria = new Criteria();
 
-        $expected = new Criteria();
-        $actual = new Criteria();
+            $provider->enrichOrderCriteria($criteria);
 
-        $expected->addAssociations([
-            'currency',
-            'language.locale',
-            'addresses.country',
-            'addresses.salutation',
-            'addresses.countryState',
-            'orderCustomer.customer',
-            'deliveries.shippingMethod',
-            'deliveries.shippingOrderAddress.country',
-            'lineItems',
-            'transactions',
-        ]);
+            static::assertSame(
+                [
+                    'currency',
+                    'language',
+                    'addresses',
+                    'orderCustomer',
+                    'deliveries',
+                    'lineItems',
+                    'transactions',
+                ],
+                \array_keys($criteria->getAssociations()),
+            );
 
-        $expected->getAssociation('lineItems')->addSorting(new FieldSorting('position'));
-        $expected->getAssociation('deliveries')->addSorting(new FieldSorting('createdAt'));
+            $lineItemsSorting = $criteria->getAssociation('lineItems')->getSorting();
+            static::assertCount(1, $lineItemsSorting);
+            static::assertSame('position', $lineItemsSorting[0]->getField());
 
-        $provider->enrichOrderCriteria($actual);
+            $deliveriesSorting = $criteria->getAssociation('deliveries')->getSorting();
+            static::assertCount(1, $deliveriesSorting);
+            static::assertSame('createdAt', $deliveriesSorting[0]->getField());
 
-        static::assertSame(
-            \array_keys($expected->getAssociations()),
-            \array_keys($actual->getAssociations()),
-        );
+            $transactions = $criteria->getAssociation('transactions');
+            static::assertArrayHasKey('paymentMethod', $transactions->getAssociations());
 
-        static::assertSame(
-            $expected->getSorting(),
-            $actual->getSorting(),
-        );
+            $transactionSorting = $transactions->getSorting();
+            static::assertCount(1, $transactionSorting);
+            static::assertSame('createdAt', $transactionSorting[0]->getField());
+        });
+    }
+
+    public function testEnrichOrderCriteriaV68(): void
+    {
+        Feature::fake(['v6.8.0.0'], function (): void {
+            $provider = $this->createProvider();
+            $criteria = new Criteria();
+
+            $provider->enrichOrderCriteria($criteria);
+
+            $associations = $criteria->getAssociations();
+            static::assertArrayHasKey('primaryOrderTransaction', $associations);
+            static::assertArrayHasKey('primaryOrderDelivery', $associations);
+            static::assertArrayNotHasKey('transactions', $associations);
+
+            static::assertArrayHasKey(
+                'paymentMethod',
+                $criteria->getAssociation('primaryOrderTransaction')->getAssociations(),
+            );
+            static::assertArrayHasKey(
+                'shippingOrderAddress',
+                $criteria->getAssociation('primaryOrderDelivery')->getAssociations(),
+            );
+        });
     }
 
     /**
@@ -100,7 +126,7 @@ class InvoiceDataProviderTest extends TestCase
         );
 
         $request = new DocumentGenerationRequest(
-            $order->getId() ?? Uuid::randomHex(),
+            $order->getId(),
             $order->getVersionId() ?? Uuid::randomHex(),
             DocumentType::INVOICE,
             [DocumentFormat::PDF],
@@ -127,9 +153,25 @@ class InvoiceDataProviderTest extends TestCase
             isEu: true
         );
 
+        $validEuCountryNoPatternCheck = self::buildCountry(
+            companyTaxEnabled: true,
+            isEu: true,
+            checkVatIdPattern: false
+        );
+
         yield 'intra false - displayAdditionalNoteDelivery flag not set' => [
             'config' => [],
             'order' => self::buildOrder(),
+            'expectedIntraCommunityDelivery' => false,
+        ];
+
+        yield 'intra false - displayAdditionalNoteDelivery flag explicitly false' => [
+            'config' => ['displayAdditionalNoteDelivery' => false],
+            'order' => self::buildOrder(
+                accountType: $business,
+                country: $validEuCountry,
+                vatIds: ['DE123456789']
+            ),
             'expectedIntraCommunityDelivery' => false,
         ];
 
@@ -178,17 +220,13 @@ class InvoiceDataProviderTest extends TestCase
             'expectedIntraCommunityDelivery' => false,
         ];
 
-        yield 'intra false - country has checkVatIdPattern disabled' => [
+        yield 'intra true - country has checkVatIdPattern disabled, validator skipped' => [
             'config' => $flag,
             'order' => self::buildOrder(
                 accountType: $business,
-                country: self::buildCountry(
-                    companyTaxEnabled: true,
-                    isEu: true,
-                    checkVatIdPattern: false
-                ),
+                country: $validEuCountryNoPatternCheck,
             ),
-            'expectedIntraCommunityDelivery' => false,
+            'expectedIntraCommunityDelivery' => true,
         ];
 
         yield 'intra false - all preconditions met but customer has no vatIds' => [
@@ -282,7 +320,7 @@ class InvoiceDataProviderTest extends TestCase
     }
 
     /**
-     * @param array<string>|null $vatIds
+     * @param list<string>|null $vatIds
      */
     private static function buildOrder(
         ?string $accountType = null,
@@ -323,6 +361,7 @@ class InvoiceDataProviderTest extends TestCase
             $delivery->setShippingOrderAddress($address);
 
             $order->setDeliveries(new OrderDeliveryCollection([$delivery]));
+            $order->setPrimaryOrderDelivery($delivery);
         }
 
         return $order;

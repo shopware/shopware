@@ -1,12 +1,12 @@
 import { computed } from 'vue';
 
 import { getMeteorInheritanceConfig } from 'src/core/service/utils/meteor-inheritance.utils';
-import { isMeteorComponent as isMeteorFieldComponent } from 'src/core/service/utils/meteor-component.utils';
+import { isMeteorComponent } from 'src/core/service/utils/meteor-component.utils';
 import {
     componentNamesSupportingMapInheritance,
-    supportsMapInheritance as supportsFieldMapInheritance,
+    supportsMapInheritance,
 } from 'src/core/service/utils/field-inheritance.utils';
-import { isFieldHandlingLabelAndHelpText as fieldHandlesLabelAndHelpText } from 'src/core/service/utils/field-label.utils';
+import { isFieldHandlingLabelAndHelpText } from 'src/core/service/utils/field-label.utils';
 import template from './sw-custom-field-set-renderer.html.twig';
 import './sw-custom-field-set-renderer.scss';
 
@@ -433,37 +433,37 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed, use `Shopware.Utils.supportsMapInheritance` instead.
          */
         supportsMapInheritance(customField) {
-            return supportsFieldMapInheritance(customField);
+            return supportsMapInheritance(customField);
         },
 
         /**
          * @deprecated tag:v6.8.0 - Will be removed, use `Shopware.Utils.isMeteorComponent` instead.
          */
         isMeteorComponent(customField) {
-            return isMeteorFieldComponent(customField);
+            return isMeteorComponent(customField);
         },
 
         getBind(customField, props) {
             const customFieldClone = Shopware.Utils.object.cloneDeep(customField);
 
-            const isMeteorComponent = isMeteorFieldComponent(customField);
-            const supportsMapInheritance = supportsFieldMapInheritance(customFieldClone);
+            const fieldIsMeteorComponent = isMeteorComponent(customField);
+            const fieldSupportsMapInheritance = supportsMapInheritance(customFieldClone);
             const inheritedCustomFieldValue = props.isInheritField ? this.getInheritedCustomField(customField.name) : null;
 
             if (customFieldClone.type === 'bool') {
                 customFieldClone.config.bordered = true;
             }
 
-            if (supportsMapInheritance) {
+            if (fieldSupportsMapInheritance) {
                 customFieldClone.mapInheritance = props;
             }
 
-            if (isMeteorComponent) {
+            if (fieldIsMeteorComponent) {
                 Object.assign(customFieldClone, getMeteorInheritanceConfig(props, inheritedCustomFieldValue));
                 customFieldClone.disabled = this.disabled || props.isInherited;
             }
 
-            if (supportsMapInheritance || isMeteorComponent) {
+            if (fieldSupportsMapInheritance || fieldIsMeteorComponent) {
                 return customFieldClone;
             }
 
@@ -482,10 +482,10 @@ export default {
         },
 
         getElementEventListeners(customField, props) {
-            const isMeteorComponent = isMeteorFieldComponent(customField);
+            const fieldIsMeteorComponent = isMeteorComponent(customField);
             const eventHandler = {};
 
-            if (isMeteorComponent) {
+            if (fieldIsMeteorComponent) {
                 eventHandler['inheritance-remove'] = props.removeInheritance;
                 eventHandler['inheritance-restore'] = props.restoreInheritance;
             }
@@ -494,7 +494,7 @@ export default {
         },
 
         getInheritWrapperBind(customField) {
-            if (fieldHandlesLabelAndHelpText(customField, { renderedByFormFieldRenderer: true })) {
+            if (isFieldHandlingLabelAndHelpText(customField, { renderedByFormFieldRenderer: true })) {
                 return {};
             }
 

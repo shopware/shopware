@@ -5,8 +5,8 @@ const { Mixin } = Shopware;
 const Criteria = Shopware.Data.Criteria;
 const {
     getMeteorInheritanceConfig,
-    isFieldHandlingInheritanceItself: fieldHandlesInheritanceItself,
-    isFieldHandlingLabelAndHelpText: fieldHandlesLabelAndHelpText,
+    isFieldHandlingInheritanceItself,
+    isFieldHandlingLabelAndHelpText,
     isMeteorComponent,
 } = Shopware.Utils;
 const { getObjectDiff, cloneDeep, deepMergeObject } = Shopware.Utils.object;
@@ -706,7 +706,7 @@ export default {
         getBind(field, inheritance = null, inheritedValue = null) {
             const config = Object.assign({}, field);
 
-            if (!fieldHandlesLabelAndHelpText(field)) {
+            if (!isFieldHandlingLabelAndHelpText(field)) {
                 config.label = undefined;
                 config.labelSnippetKey = undefined;
                 config.helpText = undefined;
@@ -729,7 +729,7 @@ export default {
             }
 
             if (inheritance) {
-                if (fieldHandlesInheritanceItself(field)) {
+                if (isFieldHandlingInheritanceItself(field)) {
                     config.mapInheritance = inheritance;
                 }
 
@@ -742,7 +742,7 @@ export default {
         },
 
         getElementEventListeners(field, inheritance = null) {
-            if (!inheritance || !fieldHandlesInheritanceItself(field)) {
+            if (!inheritance || !isFieldHandlingInheritanceItself(field)) {
                 return {};
             }
 
@@ -778,14 +778,14 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed, use `Shopware.Utils.isFieldHandlingInheritanceItself` instead.
          */
         isFieldHandlingInheritanceItself(field) {
-            return fieldHandlesInheritanceItself(field);
+            return isFieldHandlingInheritanceItself(field);
         },
 
         /**
          * @deprecated tag:v6.8.0 - Will be removed, use `Shopware.Utils.isFieldHandlingLabelAndHelpText` instead.
          */
         isFieldHandlingLabelAndHelpText(field) {
-            return fieldHandlesLabelAndHelpText(field);
+            return isFieldHandlingLabelAndHelpText(field);
         },
 
         /**
@@ -796,7 +796,7 @@ export default {
          * @returns {string}
          */
         getFieldLabel(field, fieldName) {
-            if (fieldHandlesLabelAndHelpText(field)) {
+            if (isFieldHandlingLabelAndHelpText(field)) {
                 return null;
             }
 
@@ -816,7 +816,7 @@ export default {
          * @returns {string|null}
          */
         getHelpText(field) {
-            if (fieldHandlesLabelAndHelpText(field)) {
+            if (isFieldHandlingLabelAndHelpText(field)) {
                 return null;
             }
 

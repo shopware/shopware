@@ -4,8 +4,8 @@
 import ErrorResolverSystemConfig from 'src/core/data/error-resolver.system-config.data';
 import { deepCloneWithEntity } from 'src/core/service/extension-api-data.service';
 import { supportsMapInheritance } from 'src/core/service/utils/field-inheritance.utils';
-import { isMeteorComponent as isMeteorFieldComponent } from 'src/core/service/utils/meteor-component.utils';
-import { isFieldHandlingLabelAndHelpText as fieldHandlesLabelAndHelpText } from 'src/core/service/utils/field-label.utils';
+import { isMeteorComponent } from 'src/core/service/utils/meteor-component.utils';
+import { isFieldHandlingLabelAndHelpText } from 'src/core/service/utils/field-label.utils';
 import template from './sw-system-config.html.twig';
 import './sw-system-config.scss';
 
@@ -247,7 +247,7 @@ export default {
         },
 
         getInheritWrapperBind(element) {
-            if (fieldHandlesLabelAndHelpText(element, { renderedByFormFieldRenderer: true })) {
+            if (isFieldHandlingLabelAndHelpText(element, { renderedByFormFieldRenderer: true })) {
                 return {};
             }
 
@@ -321,7 +321,7 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed, use `Shopware.Utils.isMeteorComponent` instead.
          */
         isMeteorComponent(element) {
-            return isMeteorFieldComponent(element);
+            return isMeteorComponent(element);
         },
 
         getMeteorElementBind(element, mapInheritance) {

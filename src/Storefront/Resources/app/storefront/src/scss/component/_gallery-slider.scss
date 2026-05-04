@@ -31,6 +31,13 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
         .gallery-slider-thumbnails-col.is-underneath {
             display: none;
         }
+
+        .gallery-slider-thumbnails-col.is-left {
+            .gallery-slider-thumbnails {
+                max-height: 425px;
+                overflow: hidden;
+            }
+        }
     }
 
     &.is-single-image {
@@ -50,6 +57,22 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
 
     .gallery-slider-image {
         display: block;
+    }
+
+    &.has-vertical-align {
+        display: flex;
+
+        &.is-align-top {
+            align-items: flex-start;
+        }
+
+        &.is-align-center {
+            align-items: center;
+        }
+
+        &.is-align-bottom {
+            align-items: flex-end;
+        }
     }
 }
 
@@ -279,13 +302,100 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
     }
 }
 
+.spatial-anim-container {
+    .spatial-anim-button {
+        height: 40px;
+        width: 40px;
+        border: none;
+        outline: none;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.7);
+
+        &.spatial-anim-play {
+            .icon-play {
+                display: none;
+            }
+        }
+
+        &:not(.spatial-anim-play) {
+            .icon-pause {
+                display: none;
+            }
+        }
+
+        .icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--bs-white);
+            width: 16px;
+            height: 16px;
+
+            svg {
+                top: unset;
+            }
+        }
+    }
+
+    .spatial-anim-button-circle {
+        --stroke-width: 3px;
+        --circomference: calc((50% - (var(--stroke-width) / 2)) * 3.14 * 2);
+        width: 100%;
+        height: 100%;
+        transform: rotate(-90deg);
+
+        circle {
+            fill: none;
+            stroke-width: var(--stroke-width);
+            stroke: var(--bs-white, #fff);
+            stroke-dasharray: var(--circomference);
+            stroke-dashoffset: calc(var(--circomference) * (1 - var(--progress, 0)));
+            stroke-linecap: round;
+            position: relative;
+        }
+    }
+
+    .spatial-anim-switch-container {
+        .icon {
+            position: absolute;
+            right: 12px;
+            width: 12px;
+            height: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--bs-white);
+            pointer-events: none;
+        }
+
+        svg {
+            top: unset;
+        }
+    }
+
+    .spatial-anim-switch {
+        appearance: none;
+        height: 40px;
+        width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        background-color: rgba(0, 0, 0, 0.7);
+        color: var(--bs-white, #fff);
+        border-radius: 8px;
+        border: none;
+        outline: none;
+        padding: 0 34px 0 12px;
+    }
+}
+
 // @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
 .spatial-canvas-note {
     position: absolute;
     bottom: 36px;
     left: 50%;
     transform: translateX(-50%);
-    background-color: $gray-600;
+    background-color: $gray-800;
     color: $sw-background-color;
     padding: 0 8px;
     border-radius: 8px;

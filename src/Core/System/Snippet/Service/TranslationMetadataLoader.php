@@ -71,7 +71,7 @@ class TranslationMetadataLoader
 
     protected function getPath(): string
     {
-        return Path::join(TranslationLoader::TRANSLATION_DIR, self::CROWDIN_METADATA_LOCK);
+        return Path::join(AbstractTranslationLoader::TRANSLATION_DIR, self::CROWDIN_METADATA_LOCK);
     }
 
     private function downloadFile(): ResponseInterface
@@ -88,7 +88,7 @@ class TranslationMetadataLoader
      */
     private function decode(string $content): array
     {
-        $data = json_decode($content, true, \JSON_THROW_ON_ERROR);
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
 
         return array_column($data, null, 'locale');
     }

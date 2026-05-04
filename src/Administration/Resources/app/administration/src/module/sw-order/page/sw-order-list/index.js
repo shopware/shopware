@@ -5,7 +5,7 @@ import './sw-order-list.scss';
  * @sw-package checkout
  */
 
-const { Mixin } = Shopware;
+const { Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -151,48 +151,48 @@ export default {
                 'order-number-filter': {
                     property: 'orderNumber',
                     type: 'string-filter',
-                    label: this.$tc('sw-order.filters.orderNumberFilter.label'),
-                    placeholder: this.$tc('sw-order.filters.orderNumberFilter.placeholder'),
+                    label: this.$t('sw-order.filters.orderNumberFilter.label'),
+                    placeholder: this.$t('sw-order.filters.orderNumberFilter.placeholder'),
                     valueProperty: 'key',
                     labelProperty: 'key',
                     criteriaFilterType: 'equalsAny',
                 },
                 'sales-channel-filter': {
                     property: 'salesChannel',
-                    label: this.$tc('sw-order.filters.salesChannelFilter.label'),
-                    placeholder: this.$tc('sw-order.filters.salesChannelFilter.placeholder'),
+                    label: this.$t('sw-order.filters.salesChannelFilter.label'),
+                    placeholder: this.$t('sw-order.filters.salesChannelFilter.placeholder'),
                     criteria: this.salesChannelCriteria,
                 },
                 'order-value-filter': {
                     property: 'amountTotal',
                     type: 'number-filter',
-                    label: this.$tc('sw-order.filters.orderValueFilter.label'),
+                    label: this.$t('sw-order.filters.orderValueFilter.label'),
                     fromFieldLabel: null,
                     toFieldLabel: null,
-                    fromPlaceholder: this.$tc('global.default.from'),
-                    toPlaceholder: this.$tc('global.default.to'),
+                    fromPlaceholder: this.$t('global.default.from'),
+                    toPlaceholder: this.$t('global.default.to'),
                 },
                 'payment-status-filter': {
                     property: 'primaryOrderTransaction.stateMachineState',
                     criteria: this.getStatusCriteria('order_transaction.state'),
-                    label: this.$tc('sw-order.filters.paymentStatusFilter.label'),
-                    placeholder: this.$tc('sw-order.filters.paymentStatusFilter.placeholder'),
+                    label: this.$t('sw-order.filters.paymentStatusFilter.label'),
+                    placeholder: this.$t('sw-order.filters.paymentStatusFilter.placeholder'),
                 },
                 'delivery-status-filter': {
                     property: 'primaryOrderDelivery.stateMachineState',
                     criteria: this.getStatusCriteria('order_delivery.state'),
-                    label: this.$tc('sw-order.filters.deliveryStatusFilter.label'),
-                    placeholder: this.$tc('sw-order.filters.deliveryStatusFilter.placeholder'),
+                    label: this.$t('sw-order.filters.deliveryStatusFilter.label'),
+                    placeholder: this.$t('sw-order.filters.deliveryStatusFilter.placeholder'),
                 },
                 'status-filter': {
                     property: 'stateMachineState',
                     criteria: this.getStatusCriteria('order.state'),
-                    label: this.$tc('sw-order.filters.statusFilter.label'),
-                    placeholder: this.$tc('sw-order.filters.statusFilter.placeholder'),
+                    label: this.$t('sw-order.filters.statusFilter.label'),
+                    placeholder: this.$t('sw-order.filters.statusFilter.placeholder'),
                 },
                 'order-date-filter': {
                     property: 'orderDateTime',
-                    label: this.$tc('sw-order.filters.orderDateFilter.label'),
+                    label: this.$t('sw-order.filters.orderDateFilter.label'),
                     dateType: 'date',
                     fromFieldLabel: null,
                     toFieldLabel: null,
@@ -201,77 +201,77 @@ export default {
                 'customer-number-filter': {
                     property: 'orderCustomer.customer.customerNumber',
                     type: 'string-filter',
-                    label: this.$tc('sw-order.filters.customerNumberFilter.label'),
-                    placeholder: this.$tc('sw-order.filters.customerNumberFilter.placeholder'),
+                    label: this.$t('sw-order.filters.customerNumberFilter.label'),
+                    placeholder: this.$t('sw-order.filters.customerNumberFilter.placeholder'),
                     valueProperty: 'key',
                     labelProperty: 'key',
                     criteriaFilterType: 'equals',
                 },
                 'tag-filter': {
                     property: 'tags',
-                    label: this.$tc('sw-order.filters.tagFilter.label'),
-                    placeholder: this.$tc('sw-order.filters.tagFilter.placeholder'),
+                    label: this.$t('sw-order.filters.tagFilter.label'),
+                    placeholder: this.$t('sw-order.filters.tagFilter.placeholder'),
                 },
                 'affiliate-code-filter': {
                     property: 'affiliateCode',
                     type: 'string-filter',
-                    label: this.$tc('sw-order.filters.affiliateCodeFilter.label'),
-                    placeholder: this.$tc('sw-order.filters.affiliateCodeFilter.placeholder'),
+                    label: this.$t('sw-order.filters.affiliateCodeFilter.label'),
+                    placeholder: this.$t('sw-order.filters.affiliateCodeFilter.placeholder'),
                     valueProperty: 'key',
                     labelProperty: 'key',
                 },
                 'campaign-code-filter': {
                     property: 'campaignCode',
                     type: 'string-filter',
-                    label: this.$tc('sw-order.filters.campaignCodeFilter.label'),
-                    placeholder: this.$tc('sw-order.filters.campaignCodeFilter.placeholder'),
+                    label: this.$t('sw-order.filters.campaignCodeFilter.label'),
+                    placeholder: this.$t('sw-order.filters.campaignCodeFilter.placeholder'),
                     valueProperty: 'key',
                     labelProperty: 'key',
                 },
                 'promotion-code-filter': {
                     property: 'lineItems.payload.code',
                     type: 'string-filter',
-                    label: this.$tc('sw-order.filters.promotionCodeFilter.label'),
-                    placeholder: this.$tc('sw-order.filters.promotionCodeFilter.placeholder'),
+                    label: this.$t('sw-order.filters.promotionCodeFilter.label'),
+                    placeholder: this.$t('sw-order.filters.promotionCodeFilter.placeholder'),
                     valueProperty: 'key',
                     labelProperty: 'key',
                 },
                 'document-filter': {
                     property: 'documents',
-                    label: this.$tc('sw-order.filters.documentFilter.label'),
-                    placeholder: this.$tc('sw-order.filters.documentFilter.placeholder'),
-                    optionHasCriteria: this.$tc('sw-order.filters.documentFilter.textHasCriteria'),
-                    optionNoCriteria: this.$tc('sw-order.filters.documentFilter.textNoCriteria'),
+                    label: this.$t('sw-order.filters.documentFilter.label'),
+                    placeholder: this.$t('sw-order.filters.documentFilter.placeholder'),
+                    optionHasCriteria: this.$t('sw-order.filters.documentFilter.textHasCriteria'),
+                    optionNoCriteria: this.$t('sw-order.filters.documentFilter.textNoCriteria'),
                 },
                 'payment-method-filter': {
                     property: 'primaryOrderTransaction.paymentMethod',
-                    label: this.$tc('sw-order.filters.paymentMethodFilter.label'),
-                    placeholder: this.$tc('sw-order.filters.paymentMethodFilter.placeholder'),
+                    label: this.$t('sw-order.filters.paymentMethodFilter.label'),
+                    placeholder: this.$t('sw-order.filters.paymentMethodFilter.placeholder'),
                 },
                 'shipping-method-filter': {
                     property: 'primaryOrderDelivery.shippingMethod',
-                    label: this.$tc('sw-order.filters.shippingMethodFilter.label'),
-                    placeholder: this.$tc('sw-order.filters.shippingMethodFilter.placeholder'),
+                    label: this.$t('sw-order.filters.shippingMethodFilter.label'),
+                    placeholder: this.$t('sw-order.filters.shippingMethodFilter.placeholder'),
                 },
                 'billing-country-filter': {
                     property: 'billingAddress.country',
-                    label: this.$tc('sw-order.filters.billingCountryFilter.label'),
-                    placeholder: this.$tc('sw-order.filters.billingCountryFilter.placeholder'),
+                    label: this.$t('sw-order.filters.billingCountryFilter.label'),
+                    placeholder: this.$t('sw-order.filters.billingCountryFilter.placeholder'),
                 },
                 'shipping-country-filter': {
                     property: 'primaryOrderDelivery.shippingOrderAddress.country',
-                    label: this.$tc('sw-order.filters.shippingCountryFilter.label'),
-                    placeholder: this.$tc('sw-order.filters.shippingCountryFilter.placeholder'),
+                    label: this.$t('sw-order.filters.shippingCountryFilter.label'),
+                    placeholder: this.$t('sw-order.filters.shippingCountryFilter.placeholder'),
                 },
                 'customer-group-filter': {
                     property: 'orderCustomer.customer.group',
-                    label: this.$tc('sw-order.filters.customerGroupFilter.label'),
-                    placeholder: this.$tc('sw-order.filters.customerGroupFilter.placeholder'),
+                    label: this.$t('sw-order.filters.customerGroupFilter.label'),
+                    placeholder: this.$t('sw-order.filters.customerGroupFilter.placeholder'),
                 },
                 'line-item-filter': {
                     property: 'lineItems.product',
-                    label: this.$tc('sw-order.filters.productFilter.label'),
-                    placeholder: this.$tc('sw-order.filters.productFilter.placeholder'),
+                    label: this.$t('sw-order.filters.productFilter.label'),
+                    placeholder: this.$t('sw-order.filters.productFilter.placeholder'),
                     criteria: this.productCriteria,
                     displayVariants: true,
                 },
@@ -303,14 +303,13 @@ export default {
         assetFilter() {
             return Shopware.Filter.getByName('asset');
         },
-    },
 
-    watch: {
-        orderCriteria: {
-            handler() {
-                this.getList();
-            },
-            deep: true,
+        adminEsEnable() {
+            if (!Shopware.Feature.isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+                return false;
+            }
+
+            return Context.app.adminEsEnable ?? false;
         },
     },
 
@@ -358,7 +357,11 @@ export default {
 
             let criteria = await Shopware.Service('filterService').mergeWithStoredFilters(this.storeKey, this.orderCriteria);
 
-            criteria = await this.addQueryScores(this.term, criteria);
+            if (this.adminEsEnable) {
+                criteria.setTerm(this.term);
+            } else {
+                criteria = await this.addQueryScores(this.term, criteria);
+            }
 
             this.activeFilterNumber = criteria.filters.length;
 
@@ -539,10 +542,12 @@ export default {
             });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Use listing mixin implementation directly
+         */
         updateCriteria(criteria) {
-            this.page = 1;
-
-            this.filterCriteria = criteria;
+            // Delegate to listing mixin implementation
+            return Mixin.getByName('listing').methods.updateCriteria.call(this, criteria);
         },
 
         getStatusCriteria(value) {

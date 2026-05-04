@@ -107,6 +107,9 @@
             <directory suffix=".php">src/Storefront/Migration/V6_3</directory>
             <directory suffix=".php">src/Storefront/Migration/V6_4</directory>
             <directory suffix=".php">src/Storefront/Migration/V6_5</directory>
+
+            <!-- Helper class and its output DTOs and exception, which could not be unit tested -->
+            <directory suffix=".php">src/Core/Framework/Util/Database</directory>
         </exclude>
     </source>
     <php>
@@ -136,11 +139,11 @@
             <file>tests/integration/Core/Framework/AdditionalPermissionValidationTest.php</file>
             <file>tests/integration/Core/Framework/ApiRoutesHaveASchemaTest.php</file>
             <file>tests/integration/Core/Framework/KernelTest.php</file>
-            <file>tests/integration/Core/Framework/ServiceDefinitionTest.php</file>
             <directory>tests/integration/Core/Framework/Adapter</directory>
             <directory>tests/integration/Core/Framework/Api</directory>
             <directory>tests/integration/Core/Framework/App</directory>
             <directory>tests/integration/Core/Framework/CustomField</directory>
+            <directory>tests/integration/Core/Framework/Validation</directory>
         </testsuite>
 
         <testsuite name="core-framework-batch2">

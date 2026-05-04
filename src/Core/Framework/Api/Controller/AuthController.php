@@ -35,10 +35,14 @@ class AuthController extends AbstractController
     {
         $response = new Response();
 
-        try {
-            $cacheKey = $request->get('username') . '-' . $request->getClientIp();
+        $usernameKey = strtolower($request->request->getString('username'));
+        $clientIpKey = (string) $request->getClientIp();
+        $combinedKey = $usernameKey . '-' . $clientIpKey;
 
-            $this->rateLimiter->ensureAccepted(RateLimiter::OAUTH, $cacheKey);
+        try {
+            $this->rateLimiter->ensureAccepted(RateLimiter::OAUTH, $combinedKey);
+            $this->rateLimiter->ensureAcceptedIfConfigured(RateLimiter::OAUTH_USER, $usernameKey);
+            $this->rateLimiter->ensureAcceptedIfConfigured(RateLimiter::OAUTH_CLIENT, $clientIpKey);
         } catch (RateLimitExceededException $exception) {
             throw ApiException::notificationThrottled($exception->getWaitTime(), $exception);
         }
@@ -48,7 +52,9 @@ class AuthController extends AbstractController
 
         $response = $this->authorizationServer->respondToAccessTokenRequest($psr7Request, $psr7Response);
 
-        $this->rateLimiter->reset(RateLimiter::OAUTH, $cacheKey);
+        $this->rateLimiter->reset(RateLimiter::OAUTH, $combinedKey);
+        $this->rateLimiter->resetIfConfigured(RateLimiter::OAUTH_USER, $usernameKey);
+        $this->rateLimiter->resetIfConfigured(RateLimiter::OAUTH_CLIENT, $clientIpKey);
 
         return (new HttpFoundationFactory())->createResponse($response);
     }

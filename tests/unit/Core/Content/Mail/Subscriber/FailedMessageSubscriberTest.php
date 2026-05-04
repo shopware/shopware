@@ -31,7 +31,7 @@ class FailedMessageSubscriberTest extends TestCase
             ->method('insert')
             ->with(
                 static::equalTo('log_entry'),
-                static::callback(function (array $entry) {
+                static::callback(static function (array $entry) {
                     static::assertArrayHasKey('id', $entry);
                     static::assertArrayHasKey('message', $entry);
                     static::assertArrayHasKey('level', $entry);

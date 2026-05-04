@@ -3,7 +3,6 @@
 /**
  * @sw-package framework
  */
-/* eslint-disable max-len */
 import { mount } from '@vue/test-utils';
 import ShopwareError from 'src/core/data/ShopwareError';
 import { MtTextField, MtUrlField } from '@shopware-ag/meteor-component-library';
@@ -758,6 +757,41 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         expect(selectionText.text()).toBe('Headless');
     });
 
+    it('should allow removing inheritance from disabled Meteor switch fields', async () => {
+        const fieldName = 'ConfigRenderer.config.boolField';
+
+        wrapper = await createWrapper({
+            'ConfigRenderer.config': {
+                null: {
+                    [fieldName]: true,
+                },
+            },
+        });
+
+        await flushPromises();
+
+        wrapper.vm.onSalesChannelChanged(uuid.get('headless'));
+        await flushPromises();
+
+        let field = wrapper.find(`.sw-system-config--field-${kebabCase(fieldName)}`);
+        const switchInput = field.find('input[type="checkbox"]');
+        expect(switchInput.element.disabled).toBe(true);
+
+        let inheritanceSwitch = field.find('.mt-inheritance-switch');
+        expect(inheritanceSwitch.attributes('aria-label')).toBe('Unlink inheritance');
+        expect(inheritanceSwitch.attributes('disabled')).toBeUndefined();
+        expect(wrapper.vm.actualConfigData[uuid.get('headless')][fieldName]).toBeUndefined();
+        expect(switchInput.element.checked).toBe(true);
+
+        await inheritanceSwitch.trigger('click');
+        await flushPromises();
+
+        field = wrapper.find(`.sw-system-config--field-${kebabCase(fieldName)}`);
+        inheritanceSwitch = field.find('.mt-inheritance-switch');
+        expect(inheritanceSwitch.attributes('aria-label')).toBe('Link inheritance');
+        expect(wrapper.vm.actualConfigData[uuid.get('headless')][fieldName]).toBe(true);
+    });
+
     it('should return ShopwareError when has error', async () => {
         Shopware.Store.get('error').addApiError({
             expression: 'SYSTEM_CONFIG.null.dummyKey',
@@ -1010,6 +1044,75 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
             // check if value in actualConfigData is null to inherit value from parent
             expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toBeNull();
         });
+
+        it(`should render field with type "${type || name}" as disabled when inherited`, async () => {
+            const domValue = _test.defaultValueDom || config.defaultValue;
+            const inheritanceSwitchSelector = config.legacy ? '.sw-inheritance-switch' : '.mt-inheritance-switch';
+
+            // Setup with parent value only (child inherits)
+            wrapper = await createWrapper({
+                'ConfigRenderer.config': {
+                    null: {
+                        [name]: config.defaultValue,
+                    },
+                },
+            });
+
+            await flushPromises();
+
+            // Switch to child sales channel (Headless)
+            const salesChannelSwitch = wrapper.find('.sw-field[label="sw-settings.system-config.labelSalesChannelSelect"]');
+            let selectionText = salesChannelSwitch.find('.sw-entity-single-select__selection-text');
+            expect(selectionText.text()).toBe('sw-sales-channel-switch.labelDefaultOption');
+
+            // Open salesChannel switch field
+            await salesChannelSwitch.find('.sw-select__selection').trigger('click');
+            await flushPromises();
+
+            // Select headless sales channel
+            const selectOptionTwo = salesChannelSwitch.find('.sw-select-option--2');
+            expect(selectOptionTwo.text()).toBe('Headless');
+            await selectOptionTwo.trigger('click');
+            await flushPromises();
+
+            // Verify headless sales channel is activated
+            selectionText = salesChannelSwitch.find('.sw-entity-single-select__selection-text');
+            expect(selectionText.text()).toBe('Headless');
+
+            // Verify field shows inherited value in DOM
+            const field = wrapper.find(`.sw-system-config--field-${kebabCase(name)}`);
+            await _test.domValueCheck(field, domValue);
+
+            // Verify inheritance switch shows "Unlink inheritance"
+            const inheritanceSwitch = field.find(inheritanceSwitchSelector);
+            expect(inheritanceSwitch.attributes('aria-label')).toBe('Unlink inheritance');
+
+            // Verify field is disabled in DOM
+            // Check for disabled state based on field type
+            if (type === 'textarea') {
+                const textareaElement = field.find('textarea').element;
+                expect(textareaElement.disabled).toBe(true);
+            } else if (type === 'bool' || type === 'checkbox') {
+                const inputElement = field.find('input[type="checkbox"]').element;
+                expect(inputElement.disabled).toBe(true);
+            } else if (type === 'single-select' || type === 'multi-select') {
+                const inputElement = field.find('input[type="text"]').element;
+                expect(inputElement.disabled).toBe(true);
+            } else if (config.componentName === 'sw-entity-single-select') {
+                expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toBeUndefined();
+            } else if (config.componentName === 'sw-media-field') {
+                expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toBeUndefined();
+            } else if (config.componentName === 'sw-text-editor') {
+                const inputElement = field.find('input').element;
+                expect(inputElement.disabled).toBe(true);
+            } else {
+                const inputElement = field.find('input').element;
+                expect(inputElement.disabled).toBe(true);
+            }
+
+            // Verify value in actualConfigData is undefined (inheriting)
+            expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toBeUndefined();
+        });
     });
 
     it('should contain ai badge in second card', async () => {
@@ -1018,6 +1121,104 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
 
         expect(wrapper.find('.sw-system-config__card--0 sw-ai-copilot-badge-stub').exists()).toBe(false);
         expect(wrapper.find('.sw-system-config__card--1 sw-ai-copilot-badge-stub').exists()).toBe(true);
+    });
+
+    it('should set hideClearableButton for required single-select fields', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const element = {
+            type: 'single-select',
+            config: {
+                required: true,
+                options: [],
+            },
+        };
+
+        const bind = wrapper.vm.getMeteorElementBind(element, {});
+        expect(bind.config.hideClearableButton).toBe(true);
+    });
+
+    it('should set hideClearableButton for required multi-select fields', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const element = {
+            type: 'multi-select',
+            config: {
+                required: true,
+                options: [],
+            },
+        };
+
+        const bind = wrapper.vm.getMeteorElementBind(element, {});
+        expect(bind.config.hideClearableButton).toBe(true);
+    });
+
+    it('should not set hideClearableButton for non-required select fields', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const element = {
+            type: 'single-select',
+            config: {
+                options: [],
+            },
+        };
+
+        const bind = wrapper.vm.getMeteorElementBind(element, {});
+        expect(bind.config.hideClearableButton).toBeUndefined();
+    });
+
+    it('should not mutate source config in meteor bind path', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const element = {
+            type: 'single-select',
+            config: {
+                required: true,
+                options: [],
+            },
+        };
+
+        expect(element.config.hideClearableButton).toBeUndefined();
+
+        const bind = wrapper.vm.getMeteorElementBind(element, {});
+
+        expect(bind.config.hideClearableButton).toBe(true);
+        expect(element.config.hideClearableButton).toBeUndefined();
+    });
+
+    it('should set hideClearableButton for required select fields in legacy bind path', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const element = {
+            type: 'single-select',
+            config: {
+                required: true,
+                options: [],
+            },
+        };
+
+        const bind = wrapper.vm.getElementBind(element, {});
+        expect(bind.config.hideClearableButton).toBe(true);
+    });
+
+    it('should not set hideClearableButton for non-required select fields in legacy bind path', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const element = {
+            type: 'multi-select',
+            config: {
+                options: [],
+            },
+        };
+
+        const bind = wrapper.vm.getElementBind(element, {});
+        expect(bind.config.hideClearableButton).toBeUndefined();
     });
 
     it('should reinitialize on domain change', async () => {

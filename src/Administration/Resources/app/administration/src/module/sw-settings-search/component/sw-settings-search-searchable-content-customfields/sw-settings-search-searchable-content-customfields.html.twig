@@ -3,7 +3,7 @@
     {% block sw_settings_search_searchable_content_customfields_empty_state %}
     <sw-empty-state
         v-if="isEmpty"
-        :title="$tc('sw-settings-search.generalTab.textEmptyStateSearchableContent')"
+        :title="$t('sw-settings-search.generalTab.textEmptyStateSearchableContent')"
         :show-description="false"
         :has-action-slot="true"
         :absolute="false"
@@ -12,7 +12,7 @@
             {% block sw_settings_search_searchable_content_customfields_state_image %}
             <img
                 :src="assetFilter('administration/administration/static/img/empty-states/settings-empty-state.svg')"
-                :alt="$tc('sw-settings-search.generalTab.textEmptyStateSearchableContent')"
+                :alt="$t('sw-settings-search.generalTab.textEmptyStateSearchableContent')"
             >
             {% endblock %}
         </template>
@@ -26,7 +26,7 @@
                 variant="secondary"
                 @click="onAddField"
             >
-                {{ $tc('sw-settings-search.generalTab.buttonAddContent') }}
+                {{ $t('sw-settings-search.generalTab.buttonAddContent') }}
             </mt-button>
             {% endblock %}
         </template>
@@ -45,7 +45,7 @@
         :show-settings="false"
         :show-selection="false"
         :is-loading="isLoading"
-        :items="searchConfigs"
+        :data-source="searchConfigs"
         :allow-inline-edit="acl.can('product_search_config.editor')"
         :allow-edit="acl.can('product_search_config.editor')"
         :allow-delete="acl.can('product_search_config.deleter')"
@@ -115,13 +115,13 @@
                     v-if="item.searchable"
                     class="is--active"
                     name="regular-checkmark-xs"
-                    size="16px"
+                    size="var(--scale-size-16)"
                 />
                 <mt-icon
                     v-else
                     class="is--inactive"
                     name="regular-times-s"
-                    size="16px"
+                    size="var(--scale-size-16)"
                 />
                 {% endblock %}
             </template>
@@ -144,13 +144,13 @@
                     v-if="item.tokenize"
                     class="is--active"
                     name="regular-checkmark-xs"
-                    size="16px"
+                    size="var(--scale-size-16)"
                 />
                 <mt-icon
                     v-else
                     class="is--inactive"
                     name="regular-times-s"
-                    size="16px"
+                    size="var(--scale-size-16)"
                 />
                 {% endblock %}
             </template>
@@ -165,7 +165,7 @@
                 :disabled="!acl.can('product_search_config.editor')"
                 @click="onResetRanking(item)"
             >
-                {{ $tc('sw-settings-search.generalTab.list.textResetRanking') }}
+                {{ $t('sw-settings-search.generalTab.list.textResetRanking') }}
             </sw-context-menu-item>
             {% endblock %}
 
@@ -175,7 +175,7 @@
                 :disabled="!acl.can('product_search_config.deleter')"
                 @click="onRemove(item)"
             >
-                {{ $tc('sw-settings-search.generalTab.list.textRemove') }}
+                {{ $t('sw-settings-search.generalTab.list.textRemove') }}
             </sw-context-menu-item>
             {% endblock %}
         </template>

@@ -4,7 +4,7 @@
 import template from './sw-promotion-v2-list.html.twig';
 import './sw-promotion-v2-list.scss';
 
-const { Mixin } = Shopware;
+const { Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -56,7 +56,7 @@ export default {
 
         addButtonTooltip() {
             return {
-                message: this.$tc('sw-privileges.tooltip.warning'),
+                message: this.$t('sw-privileges.tooltip.warning'),
                 disabled: this.acl.can('promotion.creator'),
                 showOnDisabledElements: true,
                 position: 'bottom',
@@ -70,13 +70,27 @@ export default {
         allowBulkDelete() {
             return !this.selectionArray.some((item) => item.orderCount > 0);
         },
+
+        adminEsEnable() {
+            if (!Shopware.Feature.isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+                return false;
+            }
+
+            return Context.app.adminEsEnable ?? false;
+        },
     },
 
     methods: {
         async getList() {
             this.isLoading = true;
 
-            const criteria = await this.addQueryScores(this.term, this.promotionCriteria);
+            let criteria;
+            if (this.adminEsEnable) {
+                criteria = this.promotionCriteria;
+                criteria.setTerm(this.term);
+            } else {
+                criteria = await this.addQueryScores(this.term, this.promotionCriteria);
+            }
             if (!this.entitySearchable) {
                 this.isLoading = false;
                 this.total = 0;
@@ -140,7 +154,7 @@ export default {
             try {
                 const behavior = {
                     overwrites: {
-                        name: `${referencePromotion.name} ${this.$tc('global.default.copy')}`,
+                        name: `${referencePromotion.name} ${this.$t('global.default.copy')}`,
                         code: null,
                         useCodes: false,
                         useIndividualCodes: false,
@@ -161,7 +175,7 @@ export default {
                 });
 
                 this.createNotificationInfo({
-                    message: this.$tc('sw-promotion-v2.list.duplicatePromotionInfo'),
+                    message: this.$t('sw-promotion-v2.list.duplicatePromotionInfo'),
                 });
             } catch (error) {
                 throw new Error(error);
@@ -173,7 +187,7 @@ export default {
         deleteDisabledTooltip(promotion) {
             return {
                 showDelay: 300,
-                message: this.$tc('sw-promotion-v2.list.deleteDisabledToolTip'),
+                message: this.$t('sw-promotion-v2.list.deleteDisabledToolTip'),
                 disabled: promotion.orderCount === 0,
             };
         },

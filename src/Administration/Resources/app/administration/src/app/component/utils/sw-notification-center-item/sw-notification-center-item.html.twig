@@ -5,42 +5,55 @@
         class="sw-notification-center-item__header"
         :class="itemHeaderClass"
     >
-        {% block sw_notification_center_item_header_title %}
-        <p class="sw-notification-center-item__title">
-            {{ notification.title }}
-        </p>
-        {% endblock %}
-        {% block sw_notification_center_item_header_timestamp %}
-        <p class="sw-notification-center-item__timestamp">
-            <sw-time-ago
-                :date="notification.timestamp"
-                :date-time-format="{ month: '2-digit', day: '2-digit' }"
+        <div class="sw-notification-center-item__header-left">
+            <div
+                v-if="!notification.visited"
+                class="sw-notification-center-item__header-dot"
+            ></div>
+
+            {% block sw_notification_center_item_header_title %}
+            <p class="sw-notification-center-item__title">
+                {{ $te(notification.title) ? $t(notification.title) : notification.title }}
+            </p>
+            {% endblock %}
+        </div>
+
+        <div class="sw-notification-center-item__header-right">
+            {% block sw_notification_center_item_header_timestamp %}
+            <p class="sw-notification-center-item__timestamp">
+                <sw-time-ago
+                    :date="notification.timestamp"
+                    :date-time-format="{ month: '2-digit', day: '2-digit' }"
+                />
+            </p>
+            {% endblock %}
+
+            {% block sw_notification_center_item_header_delete %}
+            <mt-icon
+                class="sw-notification-center-item__delete"
+                name="regular-times-s"
+                size="12px"
+                @click.stop="onDelete"
             />
-        </p>
-        {% endblock %}
-        {% block sw_notification_center_item_header_delete %}
-        <mt-icon
-            class="sw-notification-center-item__delete"
-            name="regular-times-xs"
-            size="12px"
-            @click.stop="onDelete"
-        />
-        {% endblock %}
+            {% endblock %}
+        </div>
     </div>
     {% endblock %}
+
     {% block sw_notification_center_item_content %}
     <div class="sw-notification-center-item__content">
         {% block sw_notification_center_item_content_message %}
         <p
             class="sw-notification-center-item__message"
-            v-html="$sanitize(notification.message, { ALLOWED_TAGS: ['a', 'b', 'i', 'u', 'strong', 'em', 'br'], ALLOWED_ATTR: ['href', 'target'] })"
+            v-html="$sanitize($te(notification.message) ? $t(notification.message) : notification.message, { ALLOWED_TAGS: ['a', 'b', 'i', 'u', 'strong', 'em', 'br'], ALLOWED_ATTR: ['href', 'target'] })"
         ></p>
         {% endblock %}
+
         {% block sw_notification_center_item_loader %}
         <sw-loader
             v-if="notification.isLoading"
             class="sw-notification-center-item__loader"
-            size="20px"
+            size="12px"
         />
         {% endblock %}
     </div>
@@ -58,9 +71,7 @@
             :key="action.label"
         >
             {% block sw_notification_center_item_actions_item_container %}
-            <div
-                class="sw-notification-center-item__actions-item-container"
-            >
+            <div class="sw-notification-center-item__actions-item-container">
                 {% block sw_notification_center_item_actions_item %}
                 <mt-button
                     block

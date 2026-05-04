@@ -135,7 +135,7 @@ class NavigationController extends StorefrontController
 
         return $this->renderStorefront('@Storefront/storefront/layout/header.html.twig', [
             'header' => $header,
-            'headerParameters' => $request->get('headerParameters') ?? [],
+            'headerParameters' => $request->query->all()['headerParameters'] ?? [],
         ]);
     }
 
@@ -157,7 +157,7 @@ class NavigationController extends StorefrontController
 
         return $this->renderStorefront('@Storefront/storefront/layout/footer.html.twig', [
             'footer' => $footer,
-            'footerParameters' => $request->get('footerParameters') ?? [],
+            'footerParameters' => $request->query->all()['footerParameters'] ?? [],
         ]);
     }
 }

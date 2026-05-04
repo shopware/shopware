@@ -22,16 +22,13 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
  * @internal
- *
- * @phpstan-import-type BillingAddressMapping from OrderAddressService
- * @phpstan-import-type ShippingAddressMapping from OrderAddressService
  */
 #[CoversClass(OrderAddressService::class)]
 #[Package('checkout')]
 class OrderAddressServiceTest extends TestCase
 {
     /**
-     * @param list<BillingAddressMapping|ShippingAddressMapping> $mappings
+     * @param list<array{customerAddressId?: string, type?: string, deliveryId?: string}> $mappings
      */
     #[DataProvider('provideInvalidMappings')]
     public function testValidateInvalidMapping(array $mappings): void
@@ -45,6 +42,7 @@ class OrderAddressServiceTest extends TestCase
 
         $this->expectException(OrderException::class);
 
+        /** @phpstan-ignore argument.type (Intentionally wrong array shape for test purpose) */
         $orderAddressService->updateOrderAddresses(Uuid::randomHex(), $mappings, Context::createDefaultContext());
     }
 

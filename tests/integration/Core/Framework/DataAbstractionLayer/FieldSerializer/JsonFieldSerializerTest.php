@@ -53,7 +53,7 @@ class JsonFieldSerializerTest extends TestCase
     }
 
     /**
-     * @return array<int, array<int, array<string, array<string, string>|float|int|string>|JsonField|string|null>>
+     * @return list<array{JsonField, array<string, mixed>|null, string|null}>
      */
     public static function encodeProvider(): array
     {
@@ -74,11 +74,10 @@ class JsonFieldSerializerTest extends TestCase
     }
 
     /**
-     * @param string|null $input
-     * @param array<string, string|float|int> $expected
+     * @param array<string, mixed>|null $input
      */
     #[DataProvider('encodeProvider')]
-    public function testEncode(JsonField $field, $input, $expected): void
+    public function testEncode(JsonField $field, ?array $input, ?string $expected): void
     {
         $field->compile(static::getContainer()->get(DefinitionInstanceRegistry::class));
 
@@ -89,7 +88,7 @@ class JsonFieldSerializerTest extends TestCase
     }
 
     /**
-     * @return array<int, array<int, array<string, array<string, string>|float|int|string>|JsonField|string|null>>
+     * @return list<array{JsonField, string|null, array<string, mixed>|null}>
      */
     public static function decodeProvider(): array
     {
@@ -111,11 +110,10 @@ class JsonFieldSerializerTest extends TestCase
     }
 
     /**
-     * @param string|null $input
-     * @param array<string, string|float|int> $expected
+     * @param array<string, mixed>|null $expected
      */
     #[DataProvider('decodeProvider')]
-    public function testDecode(JsonField $field, $input, $expected): void
+    public function testDecode(JsonField $field, ?string $input, ?array $expected): void
     {
         $field->compile(static::getContainer()->get(DefinitionInstanceRegistry::class));
         $actual = $this->serializer->decode($field, $input);

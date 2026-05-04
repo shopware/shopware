@@ -82,7 +82,7 @@ class UnusedMediaSubscriberTest extends TestCase
 
         $mediaIds = array_values($ids->all());
 
-        $event = new UnusedMediaSearchEvent($mediaIds);
+        $event = new UnusedMediaSearchEvent($mediaIds, Context::createDefaultContext());
         $listener = new UnusedMediaSubscriber(static::getContainer()->get(Connection::class));
 
         $listener->removeUsedMedia($event);
@@ -93,7 +93,7 @@ class UnusedMediaSubscriberTest extends TestCase
     public function testMediaIdsFromAllPossibleLocationsAreRemovedFromEvent(): void
     {
         $mediaIds = $this->createContent();
-        $event = new UnusedMediaSearchEvent($mediaIds);
+        $event = new UnusedMediaSearchEvent($mediaIds, Context::createDefaultContext());
         $listener = new UnusedMediaSubscriber(static::getContainer()->get(Connection::class));
 
         $listener->removeUsedMedia($event);
@@ -142,7 +142,7 @@ class UnusedMediaSubscriberTest extends TestCase
                 [
                     'sliderItems' => [
                         'source' => 'static',
-                        'value' => array_map(fn (string $id) => ['mediaId' => $id], array_values($ids->getList(['media-9', 'media-10']))),
+                        'value' => array_map(static fn (string $id) => ['mediaId' => $id], array_values($ids->getList(['media-9', 'media-10']))),
                     ],
                     'speed' => ['source' => 'static', 'value' => 300],
                     'autoSlide' => ['source' => 'static', 'value' => false],
@@ -192,7 +192,7 @@ class UnusedMediaSubscriberTest extends TestCase
                 [
                     'sliderItems' => [
                         'source' => 'static',
-                        'value' => array_map(fn (string $id) => ['mediaId' => $id], array_values($ids->getList(['media-13', 'media-14']))),
+                        'value' => array_map(static fn (string $id) => ['mediaId' => $id], array_values($ids->getList(['media-13', 'media-14']))),
                     ],
                     'speed' => ['source' => 'static', 'value' => 300],
                     'autoSlide' => ['source' => 'static', 'value' => false],

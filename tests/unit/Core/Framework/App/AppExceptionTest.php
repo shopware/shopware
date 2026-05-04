@@ -12,6 +12,7 @@ use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\Validation\Error\AppNameError;
+use Shopware\Core\Framework\App\Validation\Requirements\UnmetRequirement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
@@ -207,5 +208,38 @@ class AppExceptionTest extends TestCase
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
         static::assertSame('FRAMEWORK__APP_INVALID_SHOP_ID_CONFIGURATION', $e->getErrorCode());
         static::assertSame('The configuration values for "core.app.shopIdV2" and "core.app.shopId" in the system config are invalid.', $e->getMessage());
+    }
+
+    public function testInvalidAppUrl(): void
+    {
+        $e = AppException::invalidAppUrl('invalid-url');
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__APP_URL_INVALID', $e->getErrorCode());
+        static::assertSame('APP_URL is invalid: invalid-url', $e->getMessage());
+    }
+
+    public function testRequirementsNotMet(): void
+    {
+        $violation1 = new UnmetRequirement(
+            appName: 'TestApp1',
+            requirementName: 'PHP Version',
+            actionableResolution: 'Upgrade to PHP 8.2 or higher'
+        );
+
+        $violation2 = new UnmetRequirement(
+            appName: 'TestApp2',
+            requirementName: 'MySQL Version',
+            actionableResolution: 'Upgrade to MySQL 8.0 or higher'
+        );
+
+        $e = AppException::requirementsNotMet($violation1, $violation2);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__APP_REQUIREMENTS_NOT_MET', $e->getErrorCode());
+        static::assertSame('The app requirements are not met: App "TestApp1" - Requirement "PHP Version": Upgrade to PHP 8.2 or higher; App "TestApp2" - Requirement "MySQL Version": Upgrade to MySQL 8.0 or higher', $e->getMessage());
+
+        $expectedViolations = 'App "TestApp1" - Requirement "PHP Version": Upgrade to PHP 8.2 or higher; App "TestApp2" - Requirement "MySQL Version": Upgrade to MySQL 8.0 or higher';
+        static::assertSame(['violations' => $expectedViolations], $e->getParameters());
     }
 }

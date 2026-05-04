@@ -153,7 +153,7 @@ class AccountProfileControllerTest extends TestCase
         $controller->method('addFlash')->willReturnSelf();
 
         $controller->method('redirectToRoute')->willReturnCallback(
-            function (string $route) {
+            static function (string $route) {
                 $response = new RedirectResponse('/account/profile');
                 $response->headers->set('X-Redirect-Route', $route);
 
@@ -162,7 +162,7 @@ class AccountProfileControllerTest extends TestCase
         );
 
         $controller->method('forwardToRoute')->willReturnCallback(
-            function (string $routeName) {
+            static function (string $routeName) {
                 $response = new Response();
                 $response->headers->set('X-Forwarded-Route', $routeName);
 
@@ -171,15 +171,15 @@ class AccountProfileControllerTest extends TestCase
         );
 
         $controller->method('createActionResponse')->willReturnCallback(
-            function (Request $request) {
+            static function (Request $request) {
                 $response = new Response();
 
-                if ($request->get('redirectTo')) {
-                    $response->headers->set('X-Redirect-Route', $request->get('redirectTo'));
+                if ($request->request->get('redirectTo')) {
+                    $response->headers->set('X-Redirect-Route', (string) $request->request->get('redirectTo'));
                 }
 
-                if ($request->get('forwardTo')) {
-                    $response->headers->set('X-Forward-Route', $request->get('forwardTo'));
+                if ($request->request->get('forwardTo')) {
+                    $response->headers->set('X-Forward-Route', (string) $request->request->get('forwardTo'));
                 }
 
                 return $response;

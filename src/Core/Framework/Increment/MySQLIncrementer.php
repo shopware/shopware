@@ -72,7 +72,7 @@ class MySQLIncrementer extends AbstractIncrementer
                 ->setParameter('key', $key);
         }
 
-        RetryableQuery::retryable($this->connection, function () use ($query): void {
+        RetryableQuery::retryable($this->connection, static function () use ($query): void {
             $query->executeStatement();
         });
     }
@@ -86,12 +86,12 @@ class MySQLIncrementer extends AbstractIncrementer
             ->setParameter('pool', $this->poolName)
             ->setParameter('cluster', $cluster);
 
-        if (!empty($keys)) {
+        if ($keys !== []) {
             $query->andWhere('`key` IN (:keys)')
                 ->setParameter('keys', $keys, ArrayParameterType::STRING);
         }
 
-        RetryableQuery::retryable($this->connection, function () use ($query): void {
+        RetryableQuery::retryable($this->connection, static function () use ($query): void {
             $query->executeStatement();
         });
     }

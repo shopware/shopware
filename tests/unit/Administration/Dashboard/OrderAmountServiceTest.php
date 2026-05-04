@@ -38,7 +38,7 @@ class OrderAmountServiceTest extends TestCase
         parent::setUp();
         $this->connection = $this->createMock(Connection::class);
         $this->cashRounding = $this->createMock(CashRounding::class);
-        $this->cashRounding->method('cashRound')->willReturnCallback(fn ($amount) => round($amount, 2));
+        $this->cashRounding->method('cashRound')->willReturnCallback(static fn ($amount) => round($amount, 2));
         $this->context = Context::createDefaultContext();
         $this->queryBuilder = $this->createMock(QueryBuilder::class);
         $this->result = $this->createMock(Result::class);

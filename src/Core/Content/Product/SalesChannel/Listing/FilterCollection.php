@@ -50,7 +50,7 @@ class FilterCollection extends Collection
 
     public function filtered(): FilterCollection
     {
-        return $this->filter(fn (Filter $filter) => $filter->isFiltered());
+        return $this->filter(static fn (Filter $filter) => $filter->isFiltered());
     }
 
     /**
@@ -58,7 +58,7 @@ class FilterCollection extends Collection
      */
     public function getFilters(): array
     {
-        return $this->fmap(fn (Filter $filter) => $filter->getFilter());
+        return $this->fmap(static fn (Filter $filter) => $filter->getFilter());
     }
 
     protected function getExpectedClass(): ?string

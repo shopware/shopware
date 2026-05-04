@@ -64,9 +64,9 @@ class NavigationControllerTest extends TestCase
 
         $this->seoUrlReplacer = $this->createMock(SeoUrlPlaceholderHandler::class);
         $this->seoUrlReplacer->method('replace')
-            ->willReturnCallback(fn (string $url) => $url);
+            ->willReturnCallback(static fn (string $url) => $url);
         $this->seoUrlReplacer->method('generate')
-            ->willReturnCallback(function (string $route, array $parameters) {
+            ->willReturnCallback(static function (string $route, array $parameters) {
                 return match ($route) {
                     'frontend.detail.page' => '/product/' . $parameters['productId'],
                     'frontend.navigation.page' => '/navigation/' . $parameters['navigationId'],

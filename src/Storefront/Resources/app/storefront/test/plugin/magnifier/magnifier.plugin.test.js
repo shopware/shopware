@@ -22,6 +22,7 @@ describe('MagnifierPlugin tests', () => {
         window.PluginManager = {
             getPluginInstancesFromElement: jest.fn(() => new Map()),
             getPlugin: jest.fn(() => new Map([["instances", []]])),
+            initializePluginsInParentElement: jest.fn(),
         };
 
         // Ensure deterministic viewport height
@@ -40,6 +41,28 @@ describe('MagnifierPlugin tests', () => {
         magnifierPlugin = undefined;
         element = undefined;
         document.body.innerHTML = '';
+    });
+
+    describe('init', () => {
+        test('should not register events when zoom image container is missing (e.g. CMS pages without product context)', () => {
+            document.body.innerHTML = `
+                <div data-magnifier>
+                    <div class="js-magnifier-container">
+                        <img class="js-magnifier-image" src="#" />
+                    </div>
+                </div>
+            `;
+
+            const el = document.querySelector('[data-magnifier]');
+            const plugin = new MagnifierPlugin(el);
+
+            expect(plugin._zoomImageContainer).toBeNull();
+
+            const image = el.querySelector('.js-magnifier-image');
+            expect(() => {
+                image.dispatchEvent(new MouseEvent('mousemove'));
+            }).not.toThrow();
+        });
     });
 
     describe('_setZoomImageSize', () => {
@@ -82,6 +105,50 @@ describe('MagnifierPlugin tests', () => {
 
             expect(magnifierPlugin._zoomImage.style.height).toBe('500px');
             expect(magnifierPlugin._zoomImage.style.minHeight).toBe('500px');
+        });
+    });
+
+    describe('_createOverlay and _createZoomImage', () => {
+        test('should return the created elements instead of the insertAdjacentHTML return value', () => {
+            const imageContainer = document.querySelector('.js-magnifier-container');
+
+            const overlay = magnifierPlugin._createOverlay(imageContainer);
+            const zoomImage = magnifierPlugin._createZoomImage();
+
+            expect(overlay).toBeInstanceOf(HTMLElement);
+            expect(zoomImage).toBeInstanceOf(HTMLElement);
+            expect(imageContainer.querySelector('.js-magnifier-overlay')).toBe(overlay);
+            expect(document.querySelector('.js-magnifier-zoom-image-container .js-magnifier-zoom-image')).toBe(zoomImage);
+        });
+    });
+
+    describe('_onMouseMove', () => {
+        test('should continue the first hover flow when the zoom containers start empty', () => {
+            const imageContainer = document.querySelector('.js-magnifier-container');
+            const image = document.querySelector('.js-magnifier-image');
+
+            image.setAttribute('data-full-image', '/full/image.jpg');
+            Object.defineProperty(image, 'naturalWidth', { value: 1200, configurable: true });
+            Object.defineProperty(image, 'naturalHeight', { value: 800, configurable: true });
+            image.getBoundingClientRect = () => ({ width: 400, height: 300, top: 20, left: 10, right: 0, bottom: 0 });
+            imageContainer.getBoundingClientRect = () => ({ top: 20, left: 10, width: 400, height: 300, right: 0, bottom: 0 });
+
+            jest.spyOn(magnifierPlugin, '_isActive').mockReturnValue(true);
+            const setOverlayPositionSpy = jest.spyOn(magnifierPlugin, '_setOverlayPosition');
+            const setZoomImageSpy = jest.spyOn(magnifierPlugin, '_setZoomImage');
+
+            magnifierPlugin._zoomImageContainer.innerHTML = '';
+            magnifierPlugin._overlay = undefined;
+            magnifierPlugin._zoomImage = undefined;
+
+            expect(() => {
+                magnifierPlugin._onMouseMove({ pageX: 100, pageY: 120 }, imageContainer, image);
+            }).not.toThrow();
+
+            expect(magnifierPlugin._overlay).toBeInstanceOf(HTMLElement);
+            expect(magnifierPlugin._zoomImage).toBeInstanceOf(HTMLElement);
+            expect(setOverlayPositionSpy).toHaveBeenCalled();
+            expect(setZoomImageSpy).toHaveBeenCalled();
         });
     });
 });

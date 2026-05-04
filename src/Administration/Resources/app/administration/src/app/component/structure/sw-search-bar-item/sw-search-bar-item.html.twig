@@ -138,7 +138,7 @@
                 {% block sw_search_bar_item_order_label_name %}
                 <sw-highlight-text
                     :search-term="searchTerm"
-                    :text="`${item.orderCustomer.firstName} ${item.orderCustomer.lastName}`"
+                    :text="`${item.orderCustomer?.firstName || ''} ${item.orderCustomer?.lastName || ''}`"
                 />
                 {% endblock %}
 
@@ -263,7 +263,7 @@
 
             {% block sw_search_bar_item_module_label_action %}
             <sw-highlight-text
-                :text="$tc(`global.sw-search-bar-item.${item.action ? 'typeLabelAction': 'typeLabelModule'}`)"
+                :text="$t(`global.sw-search-bar-item.${item.action ? 'typeLabelAction': 'typeLabelModule'}`)"
             />
             {% endblock %}
         </span>

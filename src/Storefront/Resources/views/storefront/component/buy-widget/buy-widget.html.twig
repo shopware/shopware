@@ -1,128 +1,143 @@
 {% block buy_widget %}
     <div class="product-detail-buy{% if elementId %}-{{ elementId }}{% endif %} js-magnifier-zoom-image-container">
         {% block buy_widget_rich_snippets %}
-            {% block buy_widget_rich_snippets_brand %}
-                {% if product.manufacturer %}
-                    <div itemprop="brand" itemtype="https://schema.org/Brand" itemscope>
-                        <meta itemprop="name" content="{{ product.manufacturer.translated.name }}">
-                    </div>
-                {% endif %}
-            {% endblock %}
+            {# @deprecated tag:v6.8.0 - Product microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
+            {% if not feature('JSON_LD_DATA') %}
+                {% block buy_widget_rich_snippets_brand %}
+                    {% if product.manufacturer %}
+                        <div itemprop="brand" itemtype="https://schema.org/Brand" itemscope>
+                            <meta itemprop="name" content="{{ product.manufacturer.translated.name }}">
+                        </div>
+                    {% endif %}
+                {% endblock %}
 
-            {% block buy_widget_rich_snippets_gtin13 %}
-                {% if product.ean %}
-                    <meta itemprop="gtin13"
-                          content="{{ product.ean }}">
-                {% endif %}
-            {% endblock %}
+                {% block buy_widget_rich_snippets_gtin13 %}
+                    {% if product.ean %}
+                        <meta itemprop="gtin13"
+                              content="{{ product.ean }}">
+                    {% endif %}
+                {% endblock %}
 
-            {% block buy_widget_rich_snippets_mpn %}
-                {% if product.manufacturerNumber %}
-                    <meta itemprop="mpn"
-                          content="{{ product.manufacturerNumber }}">
-                {% endif %}
-            {% endblock %}
+                {% block buy_widget_rich_snippets_mpn %}
+                    {% if product.manufacturerNumber %}
+                        <meta itemprop="mpn"
+                              content="{{ product.manufacturerNumber }}">
+                    {% endif %}
+                {% endblock %}
 
-            {% block buy_widget_rich_snippets_weight %}
-                {% if product.measurements.type('weight') %}
-                    {% set weightUnit = product.measurements.type('weight').unit %}
-                    {% set weightValue = product.measurements.type('weight').value %}
-                {% else %}
-                    {% set weightUnit = 'kg' %}
-                    {% set weightValue = product.weight %}
-                {% endif %}
-                {% if weightValue and weightValue > 0 %}
-                    <meta itemprop="weight"
-                          content="{{ weightValue }} {{ weightUnit }}">
-                {% endif %}
-            {% endblock %}
+                {% block buy_widget_rich_snippets_weight %}
+                    {% if product.measurements.type('weight') %}
+                        {% set weightUnit = product.measurements.type('weight').unit %}
+                        {% set weightValue = product.measurements.type('weight').value %}
+                    {% else %}
+                        {% set weightUnit = 'kg' %}
+                        {% set weightValue = product.weight %}
+                    {% endif %}
+                    {% if weightValue and weightValue > 0 %}
+                        <meta itemprop="weight"
+                              content="{{ weightValue }} {{ weightUnit }}">
+                    {% endif %}
+                {% endblock %}
 
-            {% block buy_widget_rich_snippets_height %}
-                {% if product.measurements.type('height') %}
-                    {% set heightUnit = product.measurements.type('height').unit %}
-                    {% set heightValue = product.measurements.type('height').value %}
-                {% else %}
-                    {% set heightUnit = 'mm' %}
-                    {% set heightValue = product.height %}
-                {% endif %}
+                {% block buy_widget_rich_snippets_height %}
+                    {% if product.measurements.type('height') %}
+                        {% set heightUnit = product.measurements.type('height').unit %}
+                        {% set heightValue = product.measurements.type('height').value %}
+                    {% else %}
+                        {% set heightUnit = 'mm' %}
+                        {% set heightValue = product.height %}
+                    {% endif %}
 
-                {% if heightValue and heightValue > 0 %}
-                    <meta itemprop="height"
-                          content="{{ heightValue }} {{ heightUnit }}">
-                {% endif %}
-            {% endblock %}
+                    {% if heightValue and heightValue > 0 %}
+                        <meta itemprop="height"
+                              content="{{ heightValue }} {{ heightUnit }}">
+                    {% endif %}
+                {% endblock %}
 
-            {% block buy_widget_rich_snippets_width %}
-                {% if product.measurements.type('width') %}
-                    {% set widthUnit = product.measurements.type('width').unit %}
-                    {% set widthValue = product.measurements.type('width').value %}
-                {% else %}
-                    {% set widthUnit = 'mm' %}
-                    {% set widthValue = product.width %}
-                {% endif %}
+                {% block buy_widget_rich_snippets_width %}
+                    {% if product.measurements.type('width') %}
+                        {% set widthUnit = product.measurements.type('width').unit %}
+                        {% set widthValue = product.measurements.type('width').value %}
+                    {% else %}
+                        {% set widthUnit = 'mm' %}
+                        {% set widthValue = product.width %}
+                    {% endif %}
 
-                {% if widthValue and widthValue > 0 %}
-                    <meta itemprop="width"
-                          content="{{ widthValue }} {{ widthUnit }}">
-                {% endif %}
-            {% endblock %}
+                    {% if widthValue and widthValue > 0 %}
+                        <meta itemprop="width"
+                              content="{{ widthValue }} {{ widthUnit }}">
+                    {% endif %}
+                {% endblock %}
 
-            {% block buy_widget_rich_snippets_depth %}
-                {% if product.measurements.type('length') %}
-                    {% set lengthUnit = product.measurements.type('length').unit %}
-                    {% set lengthValue = product.measurements.type('length').value %}
-                {% else %}
-                    {% set lengthUnit = 'mm' %}
-                    {% set lengthValue = product.length %}
-                {% endif %}
+                {% block buy_widget_rich_snippets_depth %}
+                    {% if product.measurements.type('length') %}
+                        {% set lengthUnit = product.measurements.type('length').unit %}
+                        {% set lengthValue = product.measurements.type('length').value %}
+                    {% else %}
+                        {% set lengthUnit = 'mm' %}
+                        {% set lengthValue = product.length %}
+                    {% endif %}
 
-                {% if lengthValue and lengthValue > 0 %}
-                    <meta itemprop="length"
-                          content="{{ lengthValue }} {{ lengthUnit }}">
-                {% endif %}
-            {% endblock %}
+                    {% if lengthValue and lengthValue > 0 %}
+                        <meta itemprop="depth"
+                              content="{{ lengthValue }} {{ lengthUnit }}">
+                    {% endif %}
+                {% endblock %}
 
-            {% block buy_widget_rich_snippets_release_date %}
-                {% if product.releaseDate %}
-                    <meta itemprop="releaseDate"
-                          content="{{ product.releaseDate|format_date(pattern='Y-MM-dd') }}">
-                {% endif %}
-            {% endblock %}
+                {% block buy_widget_rich_snippets_release_date %}
+                    {% if product.releaseDate %}
+                        <meta itemprop="releaseDate"
+                              content="{{ product.releaseDate|format_date(pattern='Y-MM-dd') }}">
+                    {% endif %}
+                {% endblock %}
+            {% endif %}
         {% endblock %}
 
         {% block buy_widget_buy_container %}
-            <div itemprop="offers"
+            {# @deprecated tag:v6.8.0 - Offer microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
+            <div {% if not feature('JSON_LD_DATA') %}
+                 itemprop="offers"
                  itemscope
-                 itemtype="{% if product.calculatedPrices|length > 1 %}https://schema.org/AggregateOffer{% else %}https://schema.org/Offer{% endif %}">
+                 itemtype="{% if product.calculatedPrices|length > 1 %}https://schema.org/AggregateOffer{% else %}https://schema.org/Offer{% endif %}"
+                 {% endif %}>
                 {% block buy_widget_data %}
                     {% block buy_widget_data_rich_snippet_url %}
-                        <meta itemprop="url"
-                              content="{{ seoUrl('frontend.detail.page', { productId: product.id }) }}">
+                        {# @deprecated tag:v6.8.0 - Offer url microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
+                        {% if not feature('JSON_LD_DATA') %}
+                            <meta itemprop="url"
+                                  content="{{ seoUrl('frontend.detail.page', { productId: product.id }) }}">
+                        {% endif %}
                     {% endblock %}
 
                     {% block buy_widget_data_rich_snippet_price_range %}
-                        {% if product.calculatedPrices|length > 1 %}
-                            {% set lowestPrice = false %}
-                            {% set highestPrice = false %}
+                        {# @deprecated tag:v6.8.0 - AggregateOffer price range microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
+                        {% if not feature('JSON_LD_DATA') %}
+                            {% if product.calculatedPrices|length > 1 %}
+                                {% set lowestPrice = false %}
+                                {% set highestPrice = false %}
 
-                            {% for price in product.calculatedPrices %}
-                                {% if not lowestPrice or price.unitPrice < lowestPrice %}
-                                    {% set lowestPrice = price.unitPrice %}
-                                {% endif %}
-                                {% if not highestPrice or price.unitPrice > highestPrice %}
-                                    {% set highestPrice = price.unitPrice %}
-                                {% endif %}
-                            {% endfor %}
+                                {% for price in product.calculatedPrices %}
+                                    {% if not lowestPrice or price.unitPrice < lowestPrice %}
+                                        {% set lowestPrice = price.unitPrice %}
+                                    {% endif %}
+                                    {% if not highestPrice or price.unitPrice > highestPrice %}
+                                        {% set highestPrice = price.unitPrice %}
+                                    {% endif %}
+                                {% endfor %}
 
-                            <meta itemprop="lowPrice" content="{{ lowestPrice }}">
-                            <meta itemprop="highPrice" content="{{ highestPrice }}">
-                            <meta itemprop="offerCount" content="{{ product.calculatedPrices|length }}">
+                                <meta itemprop="lowPrice" content="{{ lowestPrice }}">
+                                <meta itemprop="highPrice" content="{{ highestPrice }}">
+                                <meta itemprop="offerCount" content="{{ product.calculatedPrices|length }}">
+                            {% endif %}
                         {% endif %}
                     {% endblock %}
 
                     {% block buy_widget_data_rich_snippet_price_currency %}
-                        <meta itemprop="priceCurrency"
-                              content="{{ context.currency.translated.shortName }}">
+                        {# @deprecated tag:v6.8.0 - Offer priceCurrency microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
+                        {% if not feature('JSON_LD_DATA') %}
+                            <meta itemprop="priceCurrency"
+                                  content="{{ context.currency.translated.shortName }}">
+                        {% endif %}
                     {% endblock %}
 
                     {% block buy_widget_price %}
@@ -130,6 +145,40 @@
                             {% sw_include '@Storefront/storefront/component/buy-widget/buy-widget-price.html.twig' %}
                         </div>
                     {% endblock %}
+
+                    {% if product.purchaseUnit %}
+                        {% block buy_widget_price_unit %}
+                            <div class="product-detail-price-unit">
+                                {% block buy_widget_price_unit_label %}
+                                    <span class="price-unit-label">
+                                        {{ 'detail.priceUnitName'|trans|sw_sanitize }}
+                                    </span>
+                                {% endblock %}
+
+                                {% block buy_widget_price_unit_content %}
+                                    <span class="price-unit-content">
+                                        {{ product.purchaseUnit }} {{ product.unit.translated.name }}
+                                    </span>
+                                {% endblock %}
+
+                                {% set price = product.calculatedPrice %}
+
+                                {% if product.calculatedPrices|length == 1 %}
+                                    {% set price = product.calculatedPrices.first %}
+                                {% endif %}
+
+                                {% if product.calculatedPrices|length <= 1 %}
+                                    {% if price.referencePrice is not null %}
+                                        {% block buy_widget_price_unit_reference_content %}
+                                            <span class="price-unit-reference-content">
+                                                ({{ price.referencePrice.price|currency }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }})
+                                            </span>
+                                        {% endblock %}
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        {% endblock %}
+                    {% endif %}
 
                     {% block buy_widget_tax %}
                         <div class="product-detail-tax-container">
@@ -146,7 +195,8 @@
                                     <button class="btn btn-link-inline product-detail-tax-link"
                                             type="button"
                                             data-ajax-modal="true"
-                                            data-url="{{ cmsPath }}">
+                                            data-url="{{ cmsPath }}"
+                                            aria-haspopup="dialog">
                                         {{ taxText }}
                                     </button>
                                 {% endblock %}
@@ -237,10 +287,13 @@
                     {% endblock %}
 
                     {% block buy_widget_ordernumber %}
-                        <meta itemprop="productID"
-                              content="{{ product.id }}">
+                        {# @deprecated tag:v6.8.0 - productID and sku microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
+                        {% if not feature('JSON_LD_DATA') %}
+                            <meta itemprop="productID"
+                                  content="{{ product.id }}">
+                        {% endif %}
                         <span class="product-detail-ordernumber"
-                              itemprop="sku">
+                              {% if not feature('JSON_LD_DATA') %}itemprop="sku"{% endif %}>
                             {{ product.productNumber }}
                         </span>
                     {% endblock %}

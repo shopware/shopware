@@ -41,7 +41,7 @@
                 class="sw-order-customer-grid__content"
                 :show-selection="false"
                 :show-settings="false"
-                :items="customers"
+                :data-source="customers"
                 :columns="customerColumns"
                 :repository="customerRepository"
                 :is-loading="isLoading"
@@ -74,7 +74,7 @@
                     <div
                         v-else
                         v-tooltip.top="{
-                            message: $tc('sw-order.initialModal.tooltip.customerUnavailable'),
+                            message: $t('sw-order.initialModal.tooltip.customerUnavailable'),
                             disabled: !customerUnavailable(item),
                         }"
                     >
@@ -84,7 +84,7 @@
                 {% endblock %}
 
                 <template #column-salesChannel="{ item }">
-                    {{ item.boundSalesChannelId ? item?.boundSalesChannel.translated.name : $tc('sw-order.initialModal.customerGrid.labelAllChannel') }}
+                    {{ item.boundSalesChannelId ? item?.boundSalesChannel.translated.name : $t('sw-order.initialModal.customerGrid.labelAllChannel') }}
                 </template>
 
                 {% block sw_settings_product_feature_set_list_grid_columns_actions %}
@@ -94,7 +94,7 @@
                         rel="noopener"
                         :router-link="{ name: 'sw.customer.detail', params: { id: item.id } }"
                     >
-                        {{ $tc('sw-order.initialModal.customerGrid.contextOpenButton') }}
+                        {{ $t('sw-order.initialModal.customerGrid.contextOpenButton') }}
                     </sw-context-menu-item>
                 </template>
                 {% endblock %}
@@ -112,7 +112,7 @@
                 <template #icon>
                     <img
                         :src="assetFilter('/administration/administration/static/img/empty-states/customer-empty-state.svg')"
-                        :alt="$tc('sw-customer.list.messageEmpty')"
+                        :alt="$t('sw-customer.list.messageEmpty')"
                     >
                 </template>
                 {% endblock %}
@@ -132,13 +132,13 @@
         <sw-modal
             v-if="showSalesChannelSelectModal"
             class="sw-order-customer-grid__sales-channel-selection-modal"
-            :title="$tc('sw-order.initialModal.customerGrid.titleSelectSalesChannel')"
+            :title="$t('sw-order.initialModal.customerGrid.titleSelectSalesChannel')"
             @modal-close="onCloseSalesChannelSelectModal"
         >
             <template #default>
                 {% block sw_order_customer_grid_sales_channel_description %}
                 <p class="sw-order-customer-grid__sales-channel-selection--description">
-                    {{ $tc('sw-order.initialModal.customerGrid.descriptionSelectSalesChannel') }}
+                    {{ $t('sw-order.initialModal.customerGrid.descriptionSelectSalesChannel') }}
                 </p>
                 {% endblock %}
 
@@ -147,8 +147,8 @@
                     class="sw-order-customer-grid__sales-channel-selection"
                     entity="sales_channel"
                     :criteria="salesChannelCriteria"
-                    :label="$tc('sw-order.initialModal.customerGrid.labelSalesChannel')"
-                    :placeholder="$tc('sw-order.initialModal.customerGrid.placeholderSalesChannel')"
+                    :label="$t('sw-order.initialModal.customerGrid.labelSalesChannel')"
+                    :placeholder="$t('sw-order.initialModal.customerGrid.placeholderSalesChannel')"
                     :value="customer.salesChannelId"
                     @update:value="onSalesChannelChange"
                 />
@@ -160,7 +160,7 @@
                     variant="attention"
                     :show-icon="false"
                 >
-                    {{ $tc('sw-order.initialModal.customerGrid.alertSelectSalesChannel') }}
+                    {{ $t('sw-order.initialModal.customerGrid.alertSelectSalesChannel') }}
                 </mt-banner>
                 {% endblock %}
             </template>
@@ -173,7 +173,7 @@
                     data-analytics-id="sw-order-customer-grid.close-sales-channel-select-modal"
                     @click="onCloseSalesChannelSelectModal"
                 >
-                    {{ $tc('global.default.cancel') }}
+                    {{ $t('global.default.cancel') }}
                 </mt-button>
                 {% endblock %}
 
@@ -186,7 +186,7 @@
                     data-analytics-id="sw-order-customer-grid.select-sales-channel"
                     @click="onSelectSalesChannel"
                 >
-                    {{ $tc('sw-order.initialModal.customerGrid.buttonSelectSalesChannel') }}
+                    {{ $t('sw-order.initialModal.customerGrid.buttonSelectSalesChannel') }}
                 </mt-button>
                 {% endblock %}
             </template>
@@ -197,13 +197,13 @@
         <sw-modal
             v-if="showCustomerChangesModal"
             class="sw-order-customer-grid__customer-changes-modal"
-            :title="$tc('sw-order.initialModal.customerGrid.titleCustomerChanges')"
+            :title="$t('sw-order.initialModal.customerGrid.titleCustomerChanges')"
             @modal-close="onCloseSalesChannelSelectModal"
         >
             <template #default>
                 {% block sw_order_customer_grid_customer_changes_modal_description %}
                 <p class="sw-order-customer-grid__customer-changes--description">
-                    {{ $tc('sw-order.initialModal.customerGrid.descriptionCustomerChanges') }}
+                    {{ $t('sw-order.initialModal.customerGrid.descriptionCustomerChanges') }}
                 </p>
                 {% endblock %}
             </template>
@@ -216,7 +216,7 @@
                     data-analytics-id="sw-order-customer-grid.close-customer-changes-modal"
                     @click="onCloseCustomerChangesModal"
                 >
-                    {{ $tc('global.default.cancel') }}
+                    {{ $t('global.default.cancel') }}
                 </mt-button>
                 {% endblock %}
 
@@ -228,7 +228,7 @@
                     data-analytics-id="sw-order-customer-grid.change-customer"
                     @click="onChangeCustomer"
                 >
-                    {{ $tc('sw-order.initialModal.customerGrid.buttonChangeCustomer') }}
+                    {{ $t('sw-order.initialModal.customerGrid.buttonChangeCustomer') }}
                 </mt-button>
                 {% endblock %}
             </template>

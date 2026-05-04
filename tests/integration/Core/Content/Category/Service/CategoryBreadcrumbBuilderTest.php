@@ -26,6 +26,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
@@ -57,6 +58,11 @@ class CategoryBreadcrumbBuilderTest extends TestCase
      */
     private EntityRepository $productRepository;
 
+    /**
+     * @var EntityRepository<TaxCollection>
+     */
+    private EntityRepository $taxRepository;
+
     private KernelBrowser $browser;
 
     private AbstractSalesChannelContextFactory $contextFactory;
@@ -78,6 +84,18 @@ class CategoryBreadcrumbBuilderTest extends TestCase
 
         $this->categoryRepository = static::getContainer()->get('category.repository');
         $this->productRepository = static::getContainer()->get('product.repository');
+        $this->taxRepository = static::getContainer()->get('tax.repository');
+
+        $this->taxRepository->create(
+            [
+                [
+                    'id' => $this->ids->create('tax'),
+                    'taxRate' => 19,
+                    'name' => 'tax',
+                ],
+            ],
+            Context::createDefaultContext()
+        );
 
         $this->contextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $this->salesChannelContext = $this->contextFactory->create('', $this->ids->get('sales-channel'));
@@ -201,6 +219,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
                 'active' => true,
                 'weight' => 999,
                 'visibilities' => [
+                    ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
                     ['salesChannelId' => $this->ids->get('sales-channel-2'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
                 ],
             ],
@@ -608,7 +627,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
                 'name' => 'amazing brand',
             ],
             'productNumber' => 'P1234',
-            'tax' => ['id' => Uuid::randomHex(), 'taxRate' => 19, 'name' => 'tax'],
+            'taxId' => $this->ids->get('tax'),
             'price' => [
                 [
                     'currencyId' => Defaults::CURRENCY,

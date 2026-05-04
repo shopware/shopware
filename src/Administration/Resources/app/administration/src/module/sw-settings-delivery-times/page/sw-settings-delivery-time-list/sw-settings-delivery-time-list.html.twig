@@ -6,12 +6,12 @@
         {% block sw_settings_delivery_time_list_smart_bar_header_title %}
         <h2>
             {% block sw_settings_delivery_time_list_smart_bar_header_title_text %}
-            {{ $tc('sw-settings.index.title') }}
+            {{ $t('sw-settings.index.title') }}
             <mt-icon
                 name="regular-chevron-right-xs"
                 size="12px"
             />
-            {{ $tc('sw-settings-delivery-time.list.textHeadline') }}
+            {{ $t('sw-settings-delivery-time.list.textHeadline') }}
             {% endblock %}
         </h2>
         {% endblock %}
@@ -22,7 +22,7 @@
     <template #search-bar>
         <sw-search-bar
             initial-search-type="delivery_time"
-            :placeholder="$tc('sw-settings-delivery-time.general.placeholder')"
+            :placeholder="$t('sw-settings-delivery-time.general.placeholder')"
             :initial-search="term"
             @search="onSearch"
         />
@@ -40,7 +40,7 @@
         {% block sw_settings_delivery_time_list_smart_bar_actions_create %}
         <mt-button
             v-tooltip.bottom="{
-                message: $tc('sw-privileges.tooltip.warning'),
+                message: $t('sw-privileges.tooltip.warning'),
                 disabled: acl.can('delivery_times.creator'),
                 showOnDisabledElements: true
             }"
@@ -50,7 +50,7 @@
             size="default"
             @click="$router.push({ name: 'sw.settings.delivery.time.create' })"
         >
-            {{ $tc('sw-settings-delivery-time.general.buttonCreate') }}
+            {{ $t('sw-settings-delivery-time.general.buttonCreate') }}
         </mt-button>
         {% endblock %}
     </template>
@@ -69,7 +69,7 @@
                     {% block sw_settings_delivery_time_list_grid %}
                     <sw-entity-listing
                         class="sw-settings-delivery-time-list-grid"
-                        :items="deliveryTimes"
+                        :data-source="deliveryTimes"
                         :columns="deliveryTimeColumns()"
                         :repository="deliveryTimeRepository"
                         detail-route="sw.settings.delivery.time.detail"
@@ -90,7 +90,7 @@
 
                         {% block sw_settings_delivery_time_list_grid_column_unit %}
                         <template #column-unit="{ item }">
-                            {{ $tc(`sw-settings-delivery-time.list.columnUnit_${item.unit}`) }}
+                            {{ $t(`sw-settings-delivery-time.list.columnUnit_${item.unit}`) }}
                         </template>
                         {% endblock %}
                     </sw-entity-listing>

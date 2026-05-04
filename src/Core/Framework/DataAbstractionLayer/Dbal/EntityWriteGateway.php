@@ -39,6 +39,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -84,7 +87,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
     {
         $state = $this->getCurrentState($definition, $primaryKey, $commandQueue);
 
-        $exists = !empty($state);
+        $exists = $state !== [];
 
         $isChild = $this->isChild($definition, $data, $state, $primaryKey, $commandQueue);
 
@@ -141,7 +144,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
         $this->generateChangeSets($commands);
 
-        $context->getExceptions()->tryToThrow();
+        $this->validateCommands($commands, $context);
 
         $previous = null;
         $mappings = new MultiInsertQueryQueue($this->connection, $this->batchSize, false, true);
@@ -499,7 +502,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             $primaryKeys[$entity][] = $command->getPrimaryKey();
         }
 
-        if (empty($primaryKeys)) {
+        if ($primaryKeys === []) {
             return;
         }
 
@@ -564,7 +567,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             // check if current loop matches the command primary key
             $primaryKey = array_intersect($command->getPrimaryKey(), $state);
 
-            if (\count(array_diff_assoc($command->getPrimaryKey(), $primaryKey)) === 0) {
+            if (array_diff_assoc($command->getPrimaryKey(), $primaryKey) === []) {
                 return new ChangeSet($state, $command->getPayload(), $command instanceof DeleteCommand);
             }
         }
@@ -791,5 +794,67 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         }
 
         return $this->getExistence($parent, $parentPrimaryKey, [], $commandQueue)->isChild();
+    }
+
+    /**
+     * @param list<WriteCommand> $commands
+     */
+    private function validateCommands(array $commands, WriteContext $context): void
+    {
+        foreach ($commands as $command) {
+            if (!$command instanceof UpdateCommand) {
+                continue;
+            }
+
+            $immutableFieldsChanges = $command->getImmutableFieldsChanges();
+            if ($immutableFieldsChanges === []) {
+                continue;
+            }
+
+            $changeset = $command->getChangeSet();
+            if (!$changeset instanceof ChangeSet) {
+                continue;
+            }
+
+            foreach ($immutableFieldsChanges as $immutableField) {
+                // if there was no value before, we can set it now
+                if ($changeset->getBefore($immutableField) === null) {
+                    continue;
+                }
+
+                // if the value did not change, we can ignore it
+                if (!$changeset->getAfter($immutableField)) {
+                    continue;
+                }
+
+                $this->addImmutableViolation($immutableField, $changeset->getBefore($immutableField), $changeset->getAfter($immutableField), $command->getEntityName(), $context);
+            }
+        }
+
+        $context->getExceptions()->tryToThrow();
+    }
+
+    private function addImmutableViolation(string $fieldName, mixed $initialValue, mixed $invalidValue, string $entityName, WriteContext $context): void
+    {
+        $message = \sprintf('The field "%s" of "%s" is immutable and cannot be updated.', $fieldName, $entityName);
+
+        $violationList = new ConstraintViolationList();
+        $violationList->add(
+            new ConstraintViolation(
+                $message,
+                $message,
+                [
+                    'field' => $fieldName,
+                    'entity' => $entityName,
+                ],
+                $initialValue,
+                $fieldName,
+                $invalidValue
+            )
+        );
+
+        $context->getExceptions()->add(
+            new WriteConstraintViolationException($violationList)
+        );
     }
 }

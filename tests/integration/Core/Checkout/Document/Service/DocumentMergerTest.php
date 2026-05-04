@@ -230,7 +230,7 @@ class DocumentMergerTest extends TestCase
             0,
             true,
             true,
-            function (?RenderedDocument $mergeResult): void {
+            static function (?RenderedDocument $mergeResult): void {
                 static::assertNull($mergeResult);
             },
         ];
@@ -239,7 +239,7 @@ class DocumentMergerTest extends TestCase
             1,
             false,
             true,
-            function (?RenderedDocument $mergeResult): void {
+            static function (?RenderedDocument $mergeResult): void {
                 static::assertInstanceOf(RenderedDocument::class, $mergeResult);
             },
         ];
@@ -248,7 +248,7 @@ class DocumentMergerTest extends TestCase
             1,
             true,
             false,
-            function (?RenderedDocument $mergeResult): void {
+            static function (?RenderedDocument $mergeResult): void {
                 static::assertNull($mergeResult);
             },
         ];
@@ -257,7 +257,7 @@ class DocumentMergerTest extends TestCase
             2,
             false,
             true,
-            function (?RenderedDocument $mergeResult): void {
+            static function (?RenderedDocument $mergeResult): void {
                 static::assertInstanceOf(RenderedDocument::class, $mergeResult);
                 static::assertSame('Dummy output', $mergeResult->getContent());
                 static::assertSame(PdfRenderer::FILE_CONTENT_TYPE, $mergeResult->getContentType());
@@ -268,7 +268,7 @@ class DocumentMergerTest extends TestCase
             2,
             true,
             false,
-            function (?RenderedDocument $mergeResult): void {
+            static function (?RenderedDocument $mergeResult): void {
                 static::assertNull($mergeResult);
             },
         ];
@@ -277,7 +277,7 @@ class DocumentMergerTest extends TestCase
             2,
             true,
             true,
-            function (?RenderedDocument $mergeResult): void {
+            static function (?RenderedDocument $mergeResult): void {
                 static::assertInstanceOf(RenderedDocument::class, $mergeResult);
                 static::assertSame('Dummy output', $mergeResult->getContent());
                 static::assertSame(PdfRenderer::FILE_CONTENT_TYPE, $mergeResult->getContentType());

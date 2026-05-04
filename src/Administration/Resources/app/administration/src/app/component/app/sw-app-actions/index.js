@@ -152,7 +152,7 @@ export default {
                     });
                     break;
                 case actionTypeConstants.ACTION_RELOAD_DATA:
-                    window.location.reload();
+                    this._reloadPage();
                     break;
                 case actionTypeConstants.ACTION_OPEN_MODAL:
                     await this.getUserConfig();
@@ -180,7 +180,7 @@ export default {
                 }
 
                 this.createNotificationError({
-                    message: this.$tc('sw-app.component.sw-app-actions.messageErrorFetchButtons'),
+                    message: this.$t('sw-app.component.sw-app-actions.messageErrorFetchButtons'),
                 });
             }
         },
@@ -230,6 +230,11 @@ export default {
                     };
                 }
             });
+        },
+
+        /** Thin wrapper so tests can spy on navigation without mocking window.location (non-configurable in JSDOM v26). */
+        _reloadPage() {
+            window.location.reload();
         },
 
         saveConfig(value) {

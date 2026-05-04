@@ -22,6 +22,7 @@ process.env.JEST_CACHE_DIR = process.env.JEST_CACHE_DIR || '<rootDir>.jestcache'
 const isCi = (() => {
     return process.argv.some((arg) => arg === '--ci');
 })();
+const isDocker = existsSync('/.dockerenv');
 
 if (isCi) {
     // eslint-disable-next-line no-console
@@ -32,8 +33,11 @@ if (isCi) {
 }
 
 module.exports = {
+    roots: [
+        '<rootDir>',
+        '<rootDir>/../../../../Storefront/Resources/app/administration',
+    ],
     cacheDirectory: process.env.JEST_CACHE_DIR,
-    preset: '@shopware-ag/jest-preset-sw6-admin',
     globals: {
         adminPath: process.env.ADMIN_PATH,
         projectRoot: process.env.PROJECT_ROOT,
@@ -41,11 +45,30 @@ module.exports = {
 
     globalTeardown: '<rootDir>test/globalTeardown.js',
 
-    testRunner: 'jest-jasmine2',
-
     resolver: '<rootDir>/test/_helper_/jest-resolver.js',
 
-    runner: 'groups',
+    // Use default jest-circus runner (Jest 30+), removed deprecated jest-jasmine2
+    testEnvironment: 'jsdom',
+
+    // Worker configuration - prevent OOM kills while maximizing parallelism
+    // Memory limit per worker to prevent SIGSEGV crashes from memory pressure
+    workerIdleMemoryLimit: '1GB',
+    // Full CPU parallelism can cause worker OOM kills in constrained CI/Docker runners.
+    maxWorkers: process.env.JEST_MAX_WORKERS || (isDocker ? '100%' : '50%'),
+    testTimeout: process.env.JEST_TEST_TIMEOUT ? Number(process.env.JEST_TEST_TIMEOUT) : (isCi || isDocker ? 10000 : 5000),
+    collectCoverage: isCi,
+    clearMocks: true,
+    restoreMocks: true,
+    moduleFileExtensions: ['js', 'ts', 'vue', 'json'],
+
+    // Performance optimizations
+    // Skip node_modules transformation where possible (already handled by transformIgnorePatterns)
+    // Cache transformed files aggressively
+    cache: true,
+    // Use native ESM where possible for faster execution
+    extensionsToTreatAsEsm: ['.ts'],
+    // Shard support for parallel CI execution (use with --shard flag)
+    // Example: npm run unit -- --shard=1/4
 
     coverageDirectory: join(process.env.PROJECT_ROOT, '/build/artifacts/jest'),
 
@@ -54,6 +77,9 @@ module.exports = {
         'src/**/*.ts',
         '!src/**/*.spec.js',
         '!**/*.d.ts',
+        '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.js',
+        '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.ts',
+        '!<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec.js',
 
         // Exception in the build dir for vite plugins
         'build/vite-plugins/**/*.ts',
@@ -66,15 +92,36 @@ module.exports = {
         'html-spa',
     ],
 
+    setupFiles: [
+        resolve(join(__dirname, '/test/_setup/jsdom-polyfills.js')),
+    ],
+
     setupFilesAfterEnv: [
+        resolve(join(__dirname, '/test/_setup/setup-shopware.js')),
         'jest-expect-message',
         resolve(join(__dirname, '/test/_setup/prepare_environment.js')),
     ],
 
     transform: {
-        // stringify svg imports
+        // Files using import.meta.glob need the Babel plugin for transformation
+        '(module/index|core/service/api/index|app/mixin/index|app/decorator/index|app/plugin/index|app/directive/index|app/filter/index)\\.[jt]sx?$': ['babel-jest', {
+            presets: [
+                '@babel/preset-typescript',
+                ['@babel/preset-env', { targets: { node: 'current' } }],
+            ],
+            plugins: [
+                'shopware-vite-meta-glob',
+            ],
+        }],
+        '^.+\\.[jt]sx?$': ['@swc/jest', {
+            jsc: {
+                parser: { syntax: 'typescript', decorators: true },
+                target: 'es2021',
+            },
+        }],
+        '^.+(\\.twig|\\.html)$': '<rootDir>/test/transformer/twigToVueTransformer.js',
         '.*\\.(svg)$': '<rootDir>/test/transformer/svgStringifyTransformer.js',
-        '^.+\\.vue$': "@vue/vue3-jest",
+        '^.+\\.vue$': '@vue/vue3-jest',
     },
 
     transformIgnorePatterns: [
@@ -82,12 +129,15 @@ module.exports = {
     ],
 
     moduleNameMapper: {
+        '\\.(css|less|scss)$': '<rootDir>/test/_mocks_/styleMock.js',
+        '^src(.*)$': '<rootDir>/src$1',
         '^lodash-es/debounce$': '<rootDir>/test/_mocks_/lodash-es-debounce.js',
         '^test(.*)$': '<rootDir>/test$1',
         '^\@shopware-ag\/admin-extension-sdk\/es\/(.*)': '<rootDir>/node_modules/@shopware-ag/admin-extension-sdk/umd/$1',
         '^\@shopware-ag\/meteor-admin-sdk\/es\/(.*)': '<rootDir>/node_modules/@shopware-ag/meteor-admin-sdk/umd/$1',
         '^@shopware-ag/meteor-component-library$': '<rootDir>/node_modules/@shopware-ag/meteor-component-library/dist/common/index.js',
         '^@shopware-ag/meteor-component-library/dist/esm/(.*)$': '<rootDir>/node_modules/@shopware-ag/meteor-component-library/dist/common/$1',
+        '^@vue/test-utils$': '<rootDir>/node_modules/@vue/test-utils',
         '^lodash-es$': 'lodash',
         '^lodash-es/(.*)$': 'lodash/$1',
         vue$: 'vue/dist/vue.cjs.js',
@@ -115,6 +165,7 @@ module.exports = {
     testMatch: [
         '<rootDir>/src/**/*.spec.js',
         '<rootDir>/src/**/*.spec.ts',
+        '<rootDir>/../../../../Storefront/Resources/app/administration/src/**/*.spec.js',
         '<rootDir>/eslint-rules/**/*.spec.js',
         '<rootDir>/build/vite-plugins/**/*.spec.ts',
         '<rootDir>/build/vite-plugins/**/*.spec.js',

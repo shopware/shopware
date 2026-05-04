@@ -12,8 +12,11 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\ListPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\RegulationPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
@@ -368,5 +371,69 @@ class ProductCartProcessorTest extends TestCase
         $lineItem = $cart->getLineItems()->get('A');
         static::assertInstanceOf(LineItem::class, $lineItem);
         static::assertNull($lineItem->getCover());
+    }
+
+    public function testRegulationPriceIsTransferredToLineItemPriceDefinition(): void
+    {
+        $cart = new Cart('test');
+        $lineItem = new LineItem('A', 'product', 'A');
+
+        $cart->setLineItems(new LineItemCollection([$lineItem]));
+
+        $regulationPrice = new RegulationPrice(15.0);
+        $listPrice = ListPrice::createFromUnitPrice(10.0, 12.0);
+        $referencePrice = new ReferencePrice(20.0, 0.5, 1.0, 'kg');
+
+        $calculatedPrice = new EmptyPrice(
+            unitPrice: 10.0,
+            totalPrice: 10.0,
+            regulationPrice: $regulationPrice,
+            listPrice: $listPrice,
+            referencePrice: $referencePrice
+        );
+
+        $product = (new SalesChannelProductEntity())->assign([
+            'id' => 'A',
+            'calculatedPrice' => $calculatedPrice,
+            'calculatedPrices' => new PriceCollection(),
+            'calculatedMaxPurchase' => 1,
+            'productNumber' => 'A',
+            'stock' => 1,
+        ]);
+
+        $processor = new ProductCartProcessor(
+            $this->createMock(ProductGateway::class),
+            $this->createMock(QuantityPriceCalculator::class),
+            $this->createMock(ProductFeatureBuilder::class),
+            $this->createMock(ProductPriceCalculator::class),
+            $this->createMock(EntityCacheKeyGenerator::class),
+            $this->createMock(Connection::class)
+        );
+
+        $context = $this->createMock(SalesChannelContext::class);
+
+        $data = new CartDataCollection();
+        $data->set('product-A', $product);
+
+        $processor->collect($data, $cart, $context, new CartBehavior());
+
+        $lineItem = $cart->getLineItems()->get('A');
+        static::assertInstanceOf(LineItem::class, $lineItem);
+
+        $priceDefinition = $lineItem->getPriceDefinition();
+        static::assertInstanceOf(QuantityPriceDefinition::class, $priceDefinition);
+
+        // Verify regulation price is transferred
+        static::assertSame(15.0, $priceDefinition->getRegulationPrice());
+
+        // Verify list price is transferred
+        static::assertSame(12.0, $priceDefinition->getListPrice());
+
+        // Verify reference price is transferred
+        $refPriceDef = $priceDefinition->getReferencePriceDefinition();
+        static::assertNotNull($refPriceDef);
+        static::assertSame(0.5, $refPriceDef->getPurchaseUnit());
+        static::assertSame(1.0, $refPriceDef->getReferenceUnit());
+        static::assertSame('kg', $refPriceDef->getUnitName());
     }
 }

@@ -134,7 +134,7 @@ class PaymentControllerTest extends TestCase
             ->with($order, Context::createDefaultContext())
             ->willReturn($salesChannelContext);
 
-        Feature::silent('v6.8.0.0', function () use (&$fakeTokenStruct): void {
+        Feature::silent('v6.8.0.0', static function () use (&$fakeTokenStruct): void {
             $fakeTokenStruct = new TokenStruct();
         });
 
@@ -223,7 +223,7 @@ class PaymentControllerTest extends TestCase
             ->with($order, Context::createDefaultContext())
             ->willReturn($salesChannelContext);
 
-        Feature::silent('v6.8.0.0', function () use (&$fakeTokenStruct): void {
+        Feature::silent('v6.8.0.0', static function () use (&$fakeTokenStruct): void {
             $fakeTokenStruct = new TokenStruct();
         });
 
@@ -312,7 +312,7 @@ class PaymentControllerTest extends TestCase
             ->with($order, Context::createDefaultContext())
             ->willReturn($salesChannelContext);
 
-        Feature::silent('v6.8.0.0', function () use (&$fakeTokenStruct): void {
+        Feature::silent('v6.8.0.0', static function () use (&$fakeTokenStruct): void {
             $fakeTokenStruct = new TokenStruct();
         });
 

@@ -571,7 +571,7 @@ class AddressControllerTest extends TestCase
         $this->addEventListener(
             static::getContainer()->get('event_dispatcher'),
             StorefrontRenderEvent::class,
-            function (StorefrontRenderEvent $event): void {
+            static function (StorefrontRenderEvent $event): void {
                 $data = $event->getParameters();
 
                 static::assertArrayHasKey('formViolations', $data);

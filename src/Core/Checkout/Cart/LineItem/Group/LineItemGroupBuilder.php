@@ -56,7 +56,7 @@ class LineItemGroupBuilder implements ResetInterface
             unset($groupDefinitions[$index]);
         }
 
-        if (empty($groupDefinitions)) {
+        if ($groupDefinitions === []) {
             return $result;
         }
 
@@ -150,7 +150,7 @@ class LineItemGroupBuilder implements ResetInterface
                 unset($lineItemsToRemove[$item->getId()]);
 
                 // If we have removed all items we wanted to remove, break the loop.
-                if (empty($lineItemsToRemove)) {
+                if ($lineItemsToRemove === []) {
                     break;
                 }
 

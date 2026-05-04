@@ -27,7 +27,6 @@ export default {
         allowEdit: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },
@@ -64,13 +63,6 @@ export default {
             const criteria = new Criteria(1, 25);
 
             criteria.addFilter(Criteria.not('and', [Criteria.equals('id', this.product.id)]));
-            criteria.addFilter(
-                Criteria.multi('or', [
-                    Criteria.equals('childCount', 0),
-                    Criteria.not('and', [Criteria.equals('parentId', null)]),
-                ]),
-            );
-
             criteria.addAssociation('options.group');
 
             return criteria;
@@ -95,20 +87,20 @@ export default {
             return [
                 {
                     property: 'product.translated.name',
-                    label: this.$tc('sw-product.list.columnName'),
+                    label: this.$t('sw-product.list.columnName'),
                     primary: true,
                     allowResize: true,
                     sortable: false,
                 },
                 {
                     property: 'product.productNumber',
-                    label: this.$tc('sw-product.list.columnProductNumber'),
+                    label: this.$t('sw-product.list.columnProductNumber'),
                     allowResize: true,
                     sortable: false,
                 },
                 {
                     property: 'position',
-                    label: this.$tc('sw-product.crossselling.inputCrossSellingPosition'),
+                    label: this.$t('sw-product.crossselling.inputCrossSellingPosition'),
                     allowResize: true,
                     sortable: false,
                 },

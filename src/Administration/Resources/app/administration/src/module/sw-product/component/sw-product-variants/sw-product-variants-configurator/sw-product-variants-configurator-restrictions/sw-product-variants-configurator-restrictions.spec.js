@@ -313,7 +313,7 @@ describe('components/base/sw-product-variants-configurator-restrictions', () => 
         expect(wrapper.vm.product.variantRestrictions).toEqual([]);
     });
 
-    it('should test saveAddRestriction', async () => {
+    it('should not save restriction with empty options', async () => {
         await wrapper.setProps({
             product: {
                 variantRestrictions: null,
@@ -323,14 +323,133 @@ describe('components/base/sw-product-variants-configurator-restrictions', () => 
         await wrapper.vm.addEmptyRestrictionCombination();
         await wrapper.vm.saveAddRestriction();
 
+        // Empty restrictions should not be saved
+        expect(wrapper.vm.product.variantRestrictions).toBeNull();
+        expect(wrapper.vm.actualRestriction).toEqual({});
+        expect(wrapper.vm.restrictionModalIsOpen).toBe(false);
+    });
+
+    it('should save restriction with valid options', async () => {
+        await wrapper.setProps({
+            product: {
+                variantRestrictions: null,
+                configuratorSettings: [
+                    {
+                        optionId: 'option1',
+                        option: {
+                            id: 'option1',
+                            groupId: 'group1',
+                            name: 'Red',
+                            group: {
+                                id: 'color',
+                                name: 'color',
+                            },
+                            translated: {
+                                name: 'option1',
+                            },
+                        },
+                        isDeleted: false,
+                    },
+                ],
+            },
+            selectedGroups: [
+                {
+                    id: 'group1',
+                    options: ['option1'],
+                    translated: {
+                        name: 'group1',
+                    },
+                },
+            ],
+        });
+
+        wrapper.vm.actualRestriction = {
+            id: 'test-restriction-id',
+            values: [
+                {
+                    id: 'test-value-id',
+                    group: 'group1',
+                    options: ['option1'],
+                },
+            ],
+        };
+
+        await wrapper.vm.saveAddRestriction();
+
         expect(wrapper.vm.product.variantRestrictions).toEqual([
             {
-                id: expect.any(String),
+                id: 'test-restriction-id',
                 values: [
                     {
-                        id: expect.any(String),
+                        id: 'test-value-id',
                         group: 'group1',
-                        options: [],
+                        options: ['option1'],
+                    },
+                ],
+            },
+        ]);
+    });
+
+    it('should filter out empty values when saving restriction with mixed values', async () => {
+        await wrapper.setProps({
+            product: {
+                variantRestrictions: [],
+                configuratorSettings: [
+                    {
+                        optionId: 'option1',
+                        option: {
+                            id: 'option1',
+                            groupId: 'group1',
+                            name: 'Red',
+                            group: {
+                                id: 'color',
+                                name: 'color',
+                            },
+                            translated: {
+                                name: 'option1',
+                            },
+                        },
+                        isDeleted: false,
+                    },
+                ],
+            },
+            selectedGroups: [
+                {
+                    id: 'group1',
+                    options: ['option1'],
+                    translated: {
+                        name: 'group1',
+                    },
+                },
+            ],
+        });
+
+        wrapper.vm.actualRestriction = {
+            id: 'test-restriction-id',
+            values: [
+                {
+                    id: 'empty-value',
+                    group: 'group1',
+                    options: [],
+                },
+                {
+                    id: 'valid-value',
+                    group: 'group1',
+                    options: ['option1'],
+                },
+            ],
+        };
+
+        await wrapper.vm.saveAddRestriction();
+
+        expect(wrapper.vm.product.variantRestrictions).toEqual([
+            {
+                id: 'test-restriction-id',
+                values: [
+                    {
+                        id: 'valid-value',
+                        group: 'group1',
+                        options: ['option1'],
                     },
                 ],
             },

@@ -44,18 +44,20 @@ class CmsRouteTest extends TestCase
 
     public function testLoadHandlesSlotsAsArray(): void
     {
+        $slots = [
+            $this->ids->get('slot-1'),
+            $this->ids->get('slot-2'),
+            $this->ids->get('slot-3'),
+        ];
+
         $request = new Request([
-            'slots' => [
-                $this->ids->get('slot-1'),
-                $this->ids->get('slot-2'),
-                $this->ids->get('slot-3'),
-            ],
+            'slots' => $slots,
         ]);
 
         $expectedCmsPage = new CmsPageEntity();
 
         $searchResult = $this->getSearchResult($expectedCmsPage);
-        $criteria = $this->getExpectedCriteria($request->get('slots'));
+        $criteria = $this->getExpectedCriteria($slots);
         $context = Generator::generateSalesChannelContext();
 
         $pageLoader = $this->createMock(SalesChannelCmsPageLoaderInterface::class);

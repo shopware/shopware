@@ -49,7 +49,7 @@ describe('src/app/mixin/notification.mixin.ts', () => {
         });
     });
 
-    it('should dispatch a notification on createNotificationSuccess', () => {
+    it('should dispatch a notification on createNotificationSuccess with translation key', () => {
         wrapper.vm.createNotificationSuccess({
             message: 'The unique message',
         });
@@ -61,7 +61,32 @@ describe('src/app/mixin/notification.mixin.ts', () => {
         });
     });
 
-    it('should dispatch a notification on createNotificationInfo', () => {
+    it('should dispatch a notification on createNotificationSuccess without translating title', () => {
+        wrapper.vm.createNotificationSuccess({
+            message: 'The unique message',
+        });
+
+        expect(createNotificationSpy).toHaveBeenCalledWith(
+            expect.objectContaining({
+                title: 'global.default.success', // Should be the key, not translated
+            }),
+        );
+    });
+
+    it('should dispatch a notification on createNotificationSuccess with custom title', () => {
+        wrapper.vm.createNotificationSuccess({
+            message: 'The unique message',
+            title: 'Custom success title',
+        });
+
+        expect(createNotificationSpy).toHaveBeenCalledWith({
+            message: 'The unique message',
+            variant: 'success',
+            title: 'Custom success title',
+        });
+    });
+
+    it('should dispatch a notification on createNotificationInfo with translation key', () => {
         wrapper.vm.createNotificationInfo({
             message: 'The unique message',
         });
@@ -73,7 +98,32 @@ describe('src/app/mixin/notification.mixin.ts', () => {
         });
     });
 
-    it('should dispatch a notification on createNotificationWarning', () => {
+    it('should dispatch a notification on createNotificationInfo without translating title', () => {
+        wrapper.vm.createNotificationInfo({
+            message: 'The unique message',
+        });
+
+        expect(createNotificationSpy).toHaveBeenCalledWith(
+            expect.objectContaining({
+                title: 'global.default.info', // Should be the key, not translated
+            }),
+        );
+    });
+
+    it('should dispatch a notification on createNotificationInfo with custom title', () => {
+        wrapper.vm.createNotificationInfo({
+            message: 'The unique message',
+            title: 'Custom info title',
+        });
+
+        expect(createNotificationSpy).toHaveBeenCalledWith({
+            message: 'The unique message',
+            variant: 'info',
+            title: 'Custom info title',
+        });
+    });
+
+    it('should dispatch a notification on createNotificationWarning with translation key', () => {
         wrapper.vm.createNotificationWarning({
             message: 'The unique message',
         });
@@ -85,7 +135,32 @@ describe('src/app/mixin/notification.mixin.ts', () => {
         });
     });
 
-    it('should dispatch a notification on createNotificationError', () => {
+    it('should dispatch a notification on createNotificationWarning without translating title', () => {
+        wrapper.vm.createNotificationWarning({
+            message: 'The unique message',
+        });
+
+        expect(createNotificationSpy).toHaveBeenCalledWith(
+            expect.objectContaining({
+                title: 'global.default.warning', // Should be the key, not translated
+            }),
+        );
+    });
+
+    it('should dispatch a notification on createNotificationWarning with custom title', () => {
+        wrapper.vm.createNotificationWarning({
+            message: 'The unique message',
+            title: 'Custom warning title',
+        });
+
+        expect(createNotificationSpy).toHaveBeenCalledWith({
+            message: 'The unique message',
+            variant: 'warning',
+            title: 'Custom warning title',
+        });
+    });
+
+    it('should dispatch a notification on createNotificationError with translation key', () => {
         wrapper.vm.createNotificationError({
             message: 'The unique message',
         });
@@ -94,6 +169,31 @@ describe('src/app/mixin/notification.mixin.ts', () => {
             message: 'The unique message',
             variant: 'error',
             title: 'global.default.error',
+        });
+    });
+
+    it('should dispatch a notification on createNotificationError without translating title', () => {
+        wrapper.vm.createNotificationError({
+            message: 'The unique message',
+        });
+
+        expect(createNotificationSpy).toHaveBeenCalledWith(
+            expect.objectContaining({
+                title: 'global.default.error', // Should be the key, not translated
+            }),
+        );
+    });
+
+    it('should dispatch a notification on createNotificationError with custom title', () => {
+        wrapper.vm.createNotificationError({
+            message: 'The unique message',
+            title: 'Custom error title',
+        });
+
+        expect(createNotificationSpy).toHaveBeenCalledWith({
+            message: 'The unique message',
+            variant: 'error',
+            title: 'Custom error title',
         });
     });
 

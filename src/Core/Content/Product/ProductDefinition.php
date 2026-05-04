@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlistProduct\CustomerWi
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
+use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryTreeDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingDefinition;
@@ -39,6 +40,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiCriteriaAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Choice;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Immutable;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
@@ -155,6 +157,7 @@ class ProductDefinition extends EntityDefinition
             (new ReferenceVersionField(self::class, 'canonical_product_version_id'))->addFlags(new ApiAware(), new Inherited(), new Required()),
             (new FkField('cms_page_id', 'cmsPageId', CmsPageDefinition::class))->addFlags(new ApiAware(), new Inherited())->setDescription('Unique identity of CMS page.'),
             (new ReferenceVersionField(CmsPageDefinition::class))->addFlags(new Inherited(), new Required(), new ApiAware()),
+            (new FkField('open_graph_media_id', 'openGraphMediaId', MediaDefinition::class))->addFlags(new ApiAware(), new Inherited())->setDescription('Media used as Open Graph image for social media sharing.'),
 
             (new PriceField('price', 'price'))->addFlags(new Inherited(), new Required(), new ApiCriteriaAware())->setDescription('Price of the product.'),
             (new NumberRangeField('product_number', 'productNumber'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING, false), new Required())->setDescription('Unique number assigned to individual products. Define rules for automatic assignment of every product creation as per your number range.'),
@@ -163,7 +166,6 @@ class ProductDefinition extends EntityDefinition
             (new BoolField('active', 'active'))->addFlags(new ApiAware(), new Inherited())->setDescription('When boolean value is `true`, the products are available for selection in the storefront for purchase.'),
             (new BoolField('available', 'available'))->addFlags(new ApiAware(), new WriteProtected())->setDescription('Indicates weather the product is available or not.'),
             (new BoolField('is_closeout', 'isCloseout'))->addFlags(new ApiAware(), new Inherited())->setDescription('When the value is set to true, the product is hidden when sold out.'),
-            (new IntField('available_stock', 'availableStock'))->addFlags(new ApiAware(), new WriteProtected())->setDescription('Indicates the number of products still available. This value results from the stock minus the open orders.'),
             (new IntField('stock', 'stock'))->addFlags(new ApiAware(), new Required())->setDescription('Indicates the number of products available.'),
 
             (new ListField('variation', 'variation', StringField::class))->addFlags(new Runtime(['options.name', 'options.group.name']))->setDescription('Internal field.'),
@@ -207,6 +209,8 @@ class ProductDefinition extends EntityDefinition
             (new TranslatedField('customFields'))->addFlags(new ApiAware(), new Inherited()),
             (new TranslatedField('slotConfig'))->addFlags(new Inherited()),
             (new TranslatedField('customSearchKeywords'))->addFlags(new Inherited(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new TranslatedField('ogTitle'))->addFlags(new ApiAware(), new Inherited()),
+            (new TranslatedField('ogDescription'))->addFlags(new ApiAware(), new Inherited()),
 
             // associations
             (new ParentAssociationField(self::class, 'id'))->addFlags(new ApiAware())->setDescription('Unique identity of the product.'),
@@ -221,6 +225,8 @@ class ProductDefinition extends EntityDefinition
             (new ManyToOneAssociationField('unit', 'unit_id', UnitDefinition::class, 'id'))->addFlags(new ApiAware(), new Inherited())->setDescription('Product unit of measure (e.g., piece, liter, kg)'),
 
             (new ManyToOneAssociationField('cover', 'product_media_id', ProductMediaDefinition::class, 'id'))->addFlags(new ApiAware(), new Inherited())->setDescription('Main product image displayed in listings and detail pages'),
+
+            (new ManyToOneAssociationField('openGraphMedia', 'open_graph_media_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware(), new Inherited())->setDescription('Open Graph image for social media sharing'),
 
             (new ManyToOneAssociationField('featureSet', 'product_feature_set_id', ProductFeatureSetDefinition::class, 'id'))->addFlags(new Inherited()),
 
@@ -244,7 +250,7 @@ class ProductDefinition extends EntityDefinition
 
             (new OneToManyAssociationField('productReviews', ProductReviewDefinition::class, 'product_id'))->addFlags(new ApiAware(), new CascadeDelete(false))->setDescription('Customer reviews and ratings for the product'),
 
-            (new OneToManyAssociationField('mainCategories', MainCategoryDefinition::class, 'product_id'))->addFlags(new ApiAware(), new CascadeDelete())->setDescription('Primary category assignments per sales channel for SEO and navigation'),
+            (new OneToManyAssociationField('mainCategories', MainCategoryDefinition::class, 'product_id'))->addFlags(new ApiAware(), new CascadeDelete(), new Inherited())->setDescription('Primary category assignments per sales channel for SEO and navigation'),
 
             (new OneToManyAssociationField('seoUrls', SeoUrlDefinition::class, 'foreign_key'))->addFlags(new ApiAware())->setDescription('SEO-friendly URLs for the product across different sales channels'),
 
@@ -271,16 +277,28 @@ class ProductDefinition extends EntityDefinition
 
         if (Feature::isActive('v6.8.0.0')) {
             $fields->add(
-                (new StringField('type', 'type'))->addFlags(new ApiAware(), new Immutable(), new Required())->setDescription('The type of the product, e.g., physical or digital.'),
+                (new StringField('type', 'type'))->addFlags(new ApiAware(), new Immutable(), new Required(), new Choice([
+                    self::TYPE_PHYSICAL,
+                    self::TYPE_DIGITAL,
+                ]))->setDescription('The type of the product, e.g., physical or digital.'),
             );
         } else {
             $fields->add(
-                (new StringField('type', 'type'))->addFlags(new ApiAware(), new Immutable())->setDescription('The type of the product, e.g., physical or digital.'),
+                (new StringField('type', 'type'))->addFlags(new ApiAware(), new Immutable(), new Choice([
+                    self::TYPE_PHYSICAL,
+                    self::TYPE_DIGITAL,
+                ]))->setDescription('The type of the product, e.g., physical or digital.'),
             );
 
             $fields->add(
                 (new ListField('states', 'states', StringField::class))
                     ->addFlags(new ApiAware(), new WriteProtected(), new Deprecated('v6.7.6.0', 'v6.8.0.0', 'type'))->setDescription('Internal field.'),
+            );
+
+            $fields->add(
+                (new IntField('available_stock', 'availableStock'))
+                    ->addFlags(new ApiAware(), new WriteProtected(), new Deprecated('v6.7.8.2', 'v6.8.0.0', 'stock'))
+                    ->setDescription('Indicates the number of products still available. This value results from the stock minus the open orders.')
             );
         }
 

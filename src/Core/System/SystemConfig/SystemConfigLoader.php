@@ -88,7 +88,7 @@ class SystemConfigLoader extends AbstractSystemConfigLoader
     {
         $key = \array_shift($keys);
 
-        if (empty($keys)) {
+        if ($keys === []) {
             // Configs can be overwritten with sales_channel_id
             $inheritedValuePresent = \array_key_exists($key, $configValues);
             $valueConsideredEmpty = !\is_bool($value) && empty($value);
@@ -116,7 +116,7 @@ class SystemConfigLoader extends AbstractSystemConfigLoader
      */
     private function filterNotActivatedPlugins(array $configValues): array
     {
-        $notActivatedPlugins = $this->kernel->getPluginLoader()->getPluginInstances()->filter(fn (Plugin $plugin) => !$plugin->isActive())->all();
+        $notActivatedPlugins = $this->kernel->getPluginLoader()->getPluginInstances()->filter(static fn (Plugin $plugin) => !$plugin->isActive())->all();
 
         foreach ($notActivatedPlugins as $plugin) {
             if (isset($configValues[$plugin->getName()])) {

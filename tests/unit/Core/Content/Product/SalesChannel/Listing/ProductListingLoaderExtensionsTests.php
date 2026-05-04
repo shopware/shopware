@@ -3,9 +3,13 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Listing;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Content\Product\Extension\ResolveListingExtension;
 use Shopware\Core\Content\Product\Extension\ResolveListingIdsExtension;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -33,11 +37,15 @@ class ProductListingLoaderExtensionsTests extends TestCase
 {
     public function testResolveListingIdsExtensions(): void
     {
-        /** @phpstan-ignore shopware.mockingSimpleObjects (for test purpose) */
-        $client = $this->createMock(Client::class);
-        $client->expects($this->once())
-            ->method('get')
-            ->willReturn(new Response(200, [], json_encode(['ids' => ['plugin-id'], 'total' => 1], \JSON_THROW_ON_ERROR)));
+        $responseBody = json_encode(['ids' => ['plugin-id'], 'total' => 1], \JSON_THROW_ON_ERROR);
+
+        $mockHandler = new MockHandler([new Response(200, [], $responseBody)]);
+        $handlerStack = HandlerStack::create($mockHandler);
+
+        $history = [];
+        $handlerStack->push(Middleware::history($history));
+
+        $client = new Client(['handler' => $handlerStack]);
 
         $example = new ResolveListingIdsExample($client);
 
@@ -58,17 +66,26 @@ class ProductListingLoaderExtensionsTests extends TestCase
         );
 
         static::assertInstanceOf(IdSearchResult::class, $result);
-
         static::assertSame(['plugin-id'], $result->getIds());
+        static::assertIsArray($history);
+        static::assertCount(1, $history);
+
+        $request = $history[0]['request'];
+        static::assertInstanceOf(RequestInterface::class, $request);
+        static::assertSame('GET', $request->getMethod());
     }
 
     public function testResolveListingExtension(): void
     {
-        /** @phpstan-ignore shopware.mockingSimpleObjects (for test purpose) */
-        $client = $this->createMock(Client::class);
-        $client->expects($this->once())
-            ->method('get')
-            ->willReturn(new Response(200, [], json_encode(['ids' => ['plugin-id'], 'total' => 1], \JSON_THROW_ON_ERROR)));
+        $responseBody = json_encode(['ids' => ['plugin-id'], 'total' => 1], \JSON_THROW_ON_ERROR);
+
+        $mockHandler = new MockHandler([new Response(200, [], $responseBody)]);
+        $handlerStack = HandlerStack::create($mockHandler);
+
+        $history = [];
+        $handlerStack->push(Middleware::history($history));
+
+        $client = new Client(['handler' => $handlerStack]);
 
         /** @var StaticEntityRepository<ProductCollection> $productRepo */
         $productRepo = new StaticEntityRepository([
@@ -87,7 +104,7 @@ class ProductListingLoaderExtensionsTests extends TestCase
         $result = (new ExtensionDispatcher($dispatcher))->publish(
             name: ResolveListingExtension::NAME,
             extension: $extension,
-            function: function () {
+            function: static function () {
                 return new EntitySearchResult(
                     'product',
                     1,
@@ -102,7 +119,12 @@ class ProductListingLoaderExtensionsTests extends TestCase
         );
 
         static::assertInstanceOf(EntitySearchResult::class, $result);
-
         static::assertSame(['plugin-id'], array_values($result->getIds()));
+        static::assertIsArray($history);
+        static::assertCount(1, $history);
+
+        $request = $history[0]['request'];
+        static::assertInstanceOf(RequestInterface::class, $request);
+        static::assertSame('GET', $request->getMethod());
     }
 }

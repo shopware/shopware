@@ -8,6 +8,7 @@ import './sw-sales-channel-detail-base.scss';
 const { Component, Mixin, Context, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
 const domUtils = Shopware.Utils.dom;
+const objectHelper = Shopware.Utils.object;
 const ShopwareError = Shopware.Classes.ShopwareError;
 const utils = Shopware.Utils;
 
@@ -19,13 +20,17 @@ const FOREIGN_KEY_CONSTRAINT_VIOLATION_CODE = '1451';
 export default {
     template,
 
-    inject: [
-        'salesChannelService',
-        'productExportService',
-        'repositoryFactory',
-        'knownIpsService',
-        'acl',
-    ],
+    inject: {
+        salesChannelService: 'salesChannelService',
+        productExportService: 'productExportService',
+        repositoryFactory: 'repositoryFactory',
+        knownIpsService: 'knownIpsService',
+        acl: 'acl',
+        swSalesChannelDetailGetAgenticCommerceExportConfig: {
+            from: 'swSalesChannelDetailGetAgenticCommerceExportConfig',
+            default: () => [],
+        },
+    },
 
     emits: [
         'template-selected',
@@ -43,7 +48,6 @@ export default {
     ],
 
     props: {
-        // eslint-disable-next-line vue/require-prop-types
         salesChannel: {
             required: true,
         },
@@ -54,7 +58,6 @@ export default {
             required: true,
         },
 
-        // eslint-disable-next-line vue/require-default-prop
         storefrontSalesChannelCriteria: {
             type: Criteria,
             required: false,
@@ -88,6 +91,12 @@ export default {
         templateName: {
             type: String,
             default: null,
+        },
+
+        agenticCommerceExportConfig: {
+            type: Array,
+            required: false,
+            default: () => [],
         },
     },
 
@@ -135,6 +144,26 @@ export default {
 
         isProductComparison() {
             return this.salesChannel && this.salesChannel.typeId === Defaults.productComparisonTypeId;
+        },
+
+        isAgenticCommerce() {
+            return this.salesChannel && this.salesChannel.typeId === Defaults.agenticCommerceTypeId;
+        },
+
+        isProductExportChannel() {
+            return this.isProductComparison || this.isAgenticCommerce;
+        },
+
+        resolvedAgenticCommerceExportConfig() {
+            if (Array.isArray(this.agenticCommerceExportConfig) && this.agenticCommerceExportConfig.length > 0) {
+                return this.agenticCommerceExportConfig;
+            }
+
+            if (typeof this.swSalesChannelDetailGetAgenticCommerceExportConfig === 'function') {
+                return this.swSalesChannelDetailGetAgenticCommerceExportConfig() ?? [];
+            }
+
+            return [];
         },
 
         isHeadlessSalesChannel() {
@@ -215,6 +244,10 @@ export default {
         },
 
         unservedLanguages() {
+            if (this.isProductExportChannel) {
+                return [];
+            }
+
             return (
                 this.salesChannel.languages?.filter(
                     (language) =>
@@ -260,75 +293,75 @@ export default {
             return [
                 {
                     id: 0,
-                    label: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.0'),
+                    label: this.$t('sw-sales-channel.detail.productComparison.intervalLabels.0'),
                 },
                 {
                     id: 120,
-                    label: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.120'),
+                    label: this.$t('sw-sales-channel.detail.productComparison.intervalLabels.120'),
                 },
                 {
                     id: 300,
-                    label: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.300'),
+                    label: this.$t('sw-sales-channel.detail.productComparison.intervalLabels.300'),
                 },
                 {
                     id: 600,
-                    label: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.600'),
+                    label: this.$t('sw-sales-channel.detail.productComparison.intervalLabels.600'),
                 },
                 {
                     id: 900,
-                    label: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.900'),
+                    label: this.$t('sw-sales-channel.detail.productComparison.intervalLabels.900'),
                 },
                 {
                     id: 1800,
-                    label: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.1800'),
+                    label: this.$t('sw-sales-channel.detail.productComparison.intervalLabels.1800'),
                 },
                 {
                     id: 3600,
-                    label: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.3600'),
+                    label: this.$t('sw-sales-channel.detail.productComparison.intervalLabels.3600'),
                 },
                 {
                     id: 7200,
-                    label: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.7200'),
+                    label: this.$t('sw-sales-channel.detail.productComparison.intervalLabels.7200'),
                 },
                 {
                     id: 14400,
-                    label: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.14400'),
+                    label: this.$t('sw-sales-channel.detail.productComparison.intervalLabels.14400'),
                 },
                 {
                     id: 28800,
-                    label: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.28800'),
+                    label: this.$t('sw-sales-channel.detail.productComparison.intervalLabels.28800'),
                 },
                 {
                     id: 43200,
-                    label: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.43200'),
+                    label: this.$t('sw-sales-channel.detail.productComparison.intervalLabels.43200'),
                 },
                 {
                     id: 86400,
-                    label: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.86400'),
+                    label: this.$t('sw-sales-channel.detail.productComparison.intervalLabels.86400'),
                 },
                 {
                     id: 172800,
-                    label: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.172800'),
+                    label: this.$t('sw-sales-channel.detail.productComparison.intervalLabels.172800'),
                 },
                 {
                     id: 259200,
-                    label: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.259200'),
+                    label: this.$t('sw-sales-channel.detail.productComparison.intervalLabels.259200'),
                 },
                 {
                     id: 345600,
-                    label: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.345600'),
+                    label: this.$t('sw-sales-channel.detail.productComparison.intervalLabels.345600'),
                 },
                 {
                     id: 432000,
-                    label: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.432000'),
+                    label: this.$t('sw-sales-channel.detail.productComparison.intervalLabels.432000'),
                 },
                 {
                     id: 518400,
-                    label: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.518400'),
+                    label: this.$t('sw-sales-channel.detail.productComparison.intervalLabels.518400'),
                 },
                 {
                     id: 604800,
-                    label: this.$tc('sw-sales-channel.detail.productComparison.intervalLabels.604800'),
+                    label: this.$t('sw-sales-channel.detail.productComparison.intervalLabels.604800'),
                 },
             ];
         },
@@ -337,11 +370,11 @@ export default {
             return [
                 {
                     id: 'csv',
-                    label: this.$tc('sw-sales-channel.detail.productComparison.fileFormatLabels.csv'),
+                    label: this.$t('sw-sales-channel.detail.productComparison.fileFormatLabels.csv'),
                 },
                 {
                     id: 'xml',
-                    label: this.$tc('sw-sales-channel.detail.productComparison.fileFormatLabels.xml'),
+                    label: this.$t('sw-sales-channel.detail.productComparison.fileFormatLabels.xml'),
                 },
             ];
         },
@@ -376,13 +409,13 @@ export default {
                 name: 'sw.settings.tax.index',
             };
 
-            return this.$tc(
+            return this.$t(
                 'sw-sales-channel.detail.helpTextTaxCalculation.label',
                 {
                     link: `<sw-internal-link
                            :router-link=${JSON.stringify(link)}
                            :inline="true">
-                           ${this.$tc('sw-sales-channel.detail.helpTextTaxCalculation.linkText')}
+                           ${this.$t('sw-sales-channel.detail.helpTextTaxCalculation.linkText')}
                       </sw-internal-link>`,
                 },
                 0,
@@ -393,13 +426,13 @@ export default {
             return [
                 {
                     value: 'horizontal',
-                    name: this.$tc('sw-sales-channel.detail.taxCalculation.horizontalName'),
-                    description: this.$tc('sw-sales-channel.detail.taxCalculation.horizontalDescription'),
+                    name: this.$t('sw-sales-channel.detail.taxCalculation.horizontalName'),
+                    description: this.$t('sw-sales-channel.detail.taxCalculation.horizontalDescription'),
                 },
                 {
                     value: 'vertical',
-                    name: this.$tc('sw-sales-channel.detail.taxCalculation.verticalName'),
-                    description: this.$tc('sw-sales-channel.detail.taxCalculation.verticalDescription'),
+                    name: this.$t('sw-sales-channel.detail.taxCalculation.verticalName'),
+                    description: this.$t('sw-sales-channel.detail.taxCalculation.verticalDescription'),
                 },
             ];
         },
@@ -426,6 +459,7 @@ export default {
             'encoding',
             'fileName',
             'fileFormat',
+            'storefrontSalesChannelId',
             'salesChannelDomainId',
             'currencyId',
         ]),
@@ -468,15 +502,15 @@ export default {
         },
 
         navigationCategoryPlaceholder() {
-            return this.salesChannel.navigationCategoryId ? '' : this.$tc('sw-category.base.link.categoryPlaceholder');
+            return this.salesChannel.navigationCategoryId ? '' : this.$t('sw-category.base.link.categoryPlaceholder');
         },
 
         footerCategoryPlaceholder() {
-            return this.salesChannel.footerCategoryId ? '' : this.$tc('sw-category.base.link.categoryPlaceholder');
+            return this.salesChannel.footerCategoryId ? '' : this.$t('sw-category.base.link.categoryPlaceholder');
         },
 
         serviceCategoryPlaceholder() {
-            return this.salesChannel.serviceCategoryId ? '' : this.$tc('sw-category.base.link.categoryPlaceholder');
+            return this.salesChannel.serviceCategoryId ? '' : this.$t('sw-category.base.link.categoryPlaceholder');
         },
 
         salesChannelFavoritesService() {
@@ -499,6 +533,12 @@ export default {
             return criteria;
         },
 
+        productStreamCriteria() {
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.equals('internal', false));
+            return criteria;
+        },
+
         /**
          * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
          */
@@ -511,18 +551,25 @@ export default {
                 return '';
             }
 
-            // eslint-disable-next-line max-len
             return `php bin/console product-export:generate ${this.salesChannel.productExports[0].storefrontSalesChannelId} ${this.salesChannel.productExports[0].id}`;
         },
 
         templateSelectOptions() {
-            return this.templateOptions.map((templateOption) => {
-                return {
-                    value: templateOption.name,
-                    id: templateOption.name,
-                    label: this.$tc(templateOption.translationKey),
-                };
-            });
+            return this.templateOptions
+                .filter((exportTemplate) => {
+                    if (this.isAgenticCommerce) {
+                        return exportTemplate.salesChannelTypeId === Defaults.agenticCommerceTypeId;
+                    }
+
+                    return !exportTemplate.salesChannelTypeId;
+                })
+                .map((templateOption) => {
+                    return {
+                        value: templateOption.name,
+                        id: templateOption.name,
+                        label: this.$t(templateOption.translationKey),
+                    };
+                });
         },
     },
 
@@ -555,7 +602,7 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-sales-channel.detail.messageAPIError'),
+                        message: this.$t('sw-sales-channel.detail.messageAPIError'),
                     });
                 });
         },
@@ -569,19 +616,19 @@ export default {
 
                     if (displaySaveNotification) {
                         this.createNotificationInfo({
-                            message: this.$tc('sw-sales-channel.detail.productComparison.messageAccessKeyChanged'),
+                            message: this.$t('sw-sales-channel.detail.productComparison.messageAccessKeyChanged'),
                         });
                     }
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-sales-channel.detail.messageAPIError'),
+                        message: this.$t('sw-sales-channel.detail.messageAPIError'),
                     });
                 });
         },
 
         onToggleActive() {
-            if (this.salesChannel.active !== true || this.isProductComparison || this.isHeadlessSalesChannel) {
+            if (this.salesChannel.active !== true || this.isProductExportChannel || this.isHeadlessSalesChannel) {
                 return;
             }
 
@@ -595,7 +642,7 @@ export default {
 
                 this.salesChannel.active = false;
                 this.createNotificationError({
-                    message: this.$tc(
+                    message: this.$t(
                         'sw-sales-channel.detail.messageActivateWithoutThemeError',
                         {
                             name: this.salesChannel.name || this.placeholder(this.salesChannel, 'name'),
@@ -670,18 +717,26 @@ export default {
             try {
                 await domUtils.copyStringToClipboard(this.salesChannel.accessKey);
                 this.createNotificationSuccess({
-                    message: this.$tc('global.sw-field.notification.notificationCopySuccessMessage'),
+                    message: this.$t('global.sw-field.notification.notificationCopySuccessMessage'),
                 });
-            } catch (err) {
+            } catch (_err) {
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
-                    message: this.$tc('global.sw-field.notification.notificationCopyFailureMessage'),
+                    title: this.$t('global.default.error'),
+                    message: this.$t('global.sw-field.notification.notificationCopyFailureMessage'),
                 });
             }
         },
 
         onStorefrontSelectionChange(storefrontSalesChannelId) {
+            this.productExport.salesChannelDomainId = null;
+            this.productExport.salesChannelDomain = null;
+            this.loadStorefrontDomains(storefrontSalesChannelId);
+
             this.salesChannelRepository.get(storefrontSalesChannelId).then((entity) => {
+                if (!entity) {
+                    return;
+                }
+
                 this.salesChannel.languageId = entity.languageId;
                 this.salesChannel.currencyId = entity.currencyId;
                 this.salesChannel.paymentMethodId = entity.paymentMethodId;
@@ -834,6 +889,54 @@ export default {
 
         validateMaintenanceIpCidr(term) {
             return utils.string.isValidIp(term) || utils.string.isValidCidr(term);
+        },
+
+        getAgenticCommerceExportElementBind(element) {
+            const bind = objectHelper.deepCopyObject(element);
+
+            if (
+                [
+                    'single-select',
+                    'multi-select',
+                ].includes(bind.type)
+            ) {
+                bind.config.labelProperty = 'name';
+                bind.config.valueProperty = 'id';
+            }
+
+            if (bind.type === 'text-editor') {
+                bind.config.componentName = 'sw-text-editor';
+            }
+
+            return bind;
+        },
+
+        getAgenticCommerceExportCardTitle(configEntry) {
+            if (configEntry?.titleSnippet) {
+                return this.$t(configEntry.titleSnippet);
+            }
+
+            return configEntry?.provider ?? '';
+        },
+
+        getAgenticCommerceExportCardPositionIdentifier(configEntry) {
+            if (configEntry?.positionIdentifier) {
+                return configEntry.positionIdentifier;
+            }
+
+            return 'sw-sales-channel-detail-base-agentic-commerce-export-config-open-ai';
+        },
+
+        onAgenticCommerceExportFieldUpdate(configEntry, fieldName, value) {
+            configEntry.values[fieldName] = value;
+
+            if (configEntry.errors?.[fieldName]) {
+                delete configEntry.errors[fieldName];
+            }
+        },
+
+        onTrackingConfigChange(config) {
+            this.salesChannel.configuration = config;
         },
     },
 };

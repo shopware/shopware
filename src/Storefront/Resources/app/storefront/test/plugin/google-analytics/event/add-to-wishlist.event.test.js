@@ -9,6 +9,7 @@ describe('plugin/google-analytics/events/add-to-wishlist.event', () => {
         // Mock PluginManager for EventAwareAnalyticsEvent
         window.PluginManager = {
             getPlugin: jest.fn(() => null),
+            initializePluginsInParentElement: jest.fn(),
         };
 
         addToWishlistEvent = new AddToWishlistEvent();

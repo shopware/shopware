@@ -8,22 +8,22 @@
     <template #default="{ active }">
         {% block sw_cms_el_config_form_tab_content %}
         <sw-tabs-item
-            :title="$tc('sw-cms.elements.general.config.tab.content')"
+            :title="$t('sw-cms.elements.general.config.tab.content')"
             name="content"
             :active-tab="active"
         >
-            {{ $tc('sw-cms.elements.general.config.tab.content') }}
+            {{ $t('sw-cms.elements.general.config.tab.content') }}
         </sw-tabs-item>
         {% endblock %}
 
         {% block sw_cms_el_form_config_tab_options %}
         <sw-tabs-item
-            v-if="element.config.type.value === 'contact'"
-            :title="$tc('sw-cms.elements.general.config.tab.settings')"
+            v-if="requireConfigTab"
+            :title="$t('sw-cms.elements.general.config.tab.settings')"
             name="options"
             :active-tab="active"
         >
-            {{ $tc('sw-cms.elements.general.config.tab.settings') }}
+            {{ $t('sw-cms.elements.general.config.tab.settings') }}
         </sw-tabs-item>
         {% endblock %}
     </template>
@@ -70,7 +70,7 @@
 
             {% block sw_cms_el_form_config_content_form_confirmation_text %}
             <sw-cms-inherit-wrapper
-                v-if="element.config.type.value === 'contact'"
+                v-if="requireConfigTab"
                 field="confirmationText"
                 :element="element"
                 :label="$t('sw-cms.elements.form.config.label.confirmationText')"
@@ -88,7 +88,7 @@
 
         {% block sw_cms_el_form_config_options %}
         <sw-container
-            v-else-if="active === 'options' && element.config.type.value === 'contact'"
+            v-else-if="active === 'options' && requireConfigTab"
             class="sw-cms-el-config-form__tab-options"
         >
             <sw-cms-inherit-wrapper

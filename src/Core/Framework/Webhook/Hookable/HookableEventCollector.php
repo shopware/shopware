@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Webhook\Hookable;
 
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
+use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Entity as EntityAttribute;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -11,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventDefinition;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Webhook\Hookable;
+use Shopware\Core\Framework\Webhook\WebhookException;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
@@ -23,35 +24,28 @@ class HookableEventCollector implements ResetInterface
     private const PRIVILEGES = 'privileges';
 
     /**
-     * @var string[][][]
-     */
-    private array $hookableEventNamesWithPrivileges = [];
-
-    /**
-     * @var array<string>|null
+     * @var list<string>|null
      */
     private ?array $hookableEntities = null;
 
     /**
      * @param iterable<EntityDefinition|Entity> $hookableEntityDefinitions
+     * @param iterable<HookableEventDescriber> $hookableEventDescribers
      */
     public function __construct(
         private readonly BusinessEventCollector $businessEventCollector,
         private readonly DefinitionInstanceRegistry $definitionRegistry,
-        private readonly iterable $hookableEntityDefinitions
+        private readonly iterable $hookableEntityDefinitions,
+        private readonly iterable $hookableEventDescribers,
     ) {
     }
 
     /**
-     * @return array<array<array<string>>>
+     * @return array<string, array{privileges: list<string>}>
      */
-    public function getHookableEventNamesWithPrivileges(Context $context): array
+    public function getHookableEventNamesWithPrivileges(Context $context, Manifest $manifest): array
     {
-        if (!$this->hookableEventNamesWithPrivileges) {
-            $this->hookableEventNamesWithPrivileges = $this->getEventNamesWithPrivileges($context);
-        }
-
-        return $this->hookableEventNamesWithPrivileges;
+        return $this->getEventNamesWithPrivileges($context, $manifest);
     }
 
     /**
@@ -93,7 +87,7 @@ class HookableEventCollector implements ResetInterface
     /**
      * Dynamically discovers all hookable entities by checking for services tagged with 'shopware.entity.hookable'.
      *
-     * @return array<string>
+     * @return list<string>
      */
     public function getHookableEntities(): array
     {
@@ -110,7 +104,7 @@ class HookableEventCollector implements ResetInterface
                 $reflection = new \ReflectionClass($definition::class);
                 $collection = $reflection->getAttributes(EntityAttribute::class);
 
-                if (empty($collection)) {
+                if ($collection === []) {
                     continue;
                 }
 
@@ -120,37 +114,51 @@ class HookableEventCollector implements ResetInterface
             }
         }
 
-        $this->hookableEntities = array_unique($hookableEntities);
+        $this->hookableEntities = array_values(array_unique($hookableEntities));
 
         return $this->hookableEntities;
     }
 
     public function reset(): void
     {
-        $this->hookableEventNamesWithPrivileges = [];
         $this->hookableEntities = null;
     }
 
     /**
      * @return array<string, array{privileges: list<string>}>
      */
-    private function getEventNamesWithPrivileges(Context $context): array
+    private function getEventNamesWithPrivileges(Context $context, Manifest $manifest): array
     {
         return array_merge(
             $this->getEntityWrittenEventNamesWithPrivileges(),
             $this->getBusinessEventNamesWithPrivileges($context),
-            $this->getHookableEventNames()
+            $this->getHookableEventNames($manifest)
         );
     }
 
     /**
      * @return array<string, array{privileges: list<string>}>
      */
-    private function getHookableEventNames(): array
+    private function getHookableEventNames(Manifest $manifest): array
     {
-        return array_reduce(array_values(
-            array_map(static fn ($hookableEvent) => [$hookableEvent => [self::PRIVILEGES => []]], Hookable::HOOKABLE_EVENTS)
-        ), 'array_merge', []);
+        $events = [];
+
+        foreach ($this->hookableEventDescribers as $describer) {
+            $describerClass = $describer::class;
+
+            foreach ($describer->describeForValidation($manifest) as $eventDescription) {
+                if (isset($events[$eventDescription->eventName])) {
+                    throw WebhookException::duplicateDescribedEvent(
+                        $eventDescription->eventName,
+                        $describerClass
+                    );
+                }
+
+                $events[$eventDescription->eventName] = [self::PRIVILEGES => $eventDescription->privileges];
+            }
+        }
+
+        return $events;
     }
 
     /**

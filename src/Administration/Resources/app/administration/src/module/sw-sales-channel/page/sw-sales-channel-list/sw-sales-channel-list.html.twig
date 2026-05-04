@@ -4,7 +4,7 @@
     <template #search-bar>
         <sw-search-bar
             initial-search-type="sales_channel"
-            :placeholder="$tc('sw-sales-channel.list.placeholderSearchBar')"
+            :placeholder="$t('sw-sales-channel.list.placeholderSearchBar')"
             :initial-search="term"
             @search="onSearch"
         />
@@ -16,7 +16,7 @@
         {% block sw_sales_channel_list_smart_bar_header_title %}
         <h2>
             {% block sw_sales_channel_list_smart_bar_header_title_text %}
-            {{ $tc('sw-sales-channel.list.title') }}
+            {{ $t('sw-sales-channel.list.title') }}
             {% endblock %}
 
             {% block sw_sales_channel_list_smart_bar_header_amount %}
@@ -37,7 +37,7 @@
         {% block sw_sales_channel_list_smart_bar_actions %}
         <mt-button
             v-tooltip.bottom="{
-                message: $tc('sw-privileges.tooltip.warning'),
+                message: $t('sw-privileges.tooltip.warning'),
                 disabled: acl.can('sales_channel.creator'),
                 showOnDisabledElements: true
             }"
@@ -46,7 +46,7 @@
             size="default"
             @click="onAddSalesChannel"
         >
-            {{ $tc('sw-sales-channel.list.buttonAddSalesChannel') }}
+            {{ $t('sw-sales-channel.list.buttonAddSalesChannel') }}
         </mt-button>
         {% endblock %}
     </template>
@@ -59,8 +59,8 @@
             <mt-card
                 v-if="entitySearchable && total > 0"
                 position-identifier="sw-sales-channel-list"
-                :title="$tc('sw-sales-channel.list.title')"
-                :subtitle="$tc('sw-sales-channel.list.subTitle')"
+                :title="$t('sw-sales-channel.list.title')"
+                :subtitle="$t('sw-sales-channel.list.subTitle')"
             >
                 {% block sw_sales_channel_list_grid %}
                 <template #grid>
@@ -69,7 +69,7 @@
                         identifier="sw-sales-channel-list"
                         :columns="salesChannelColumns"
                         :repository="salesChannelRepository"
-                        :items="salesChannels"
+                        :data-source="salesChannels"
                         :full-page="false"
                         :show-selection="false"
                         :sort-by="currentSortBy"
@@ -97,19 +97,19 @@
                         <template #column-status="{ item }">
                             <template v-if="item.maintenance">
                                 <sw-status color="orange">
-                                    {{ $tc('sw-sales-channel.list.status.maintenance') }}
+                                    {{ $t('sw-sales-channel.list.status.maintenance') }}
                                 </sw-status>
                             </template>
 
                             <template v-else-if="item.active">
                                 <sw-status color="green">
-                                    {{ $tc('sw-sales-channel.list.status.online') }}
+                                    {{ $t('sw-sales-channel.list.status.online') }}
                                 </sw-status>
                             </template>
 
                             <template v-else>
                                 <sw-status color="gray">
-                                    {{ $tc('sw-sales-channel.list.status.offline') }}
+                                    {{ $t('sw-sales-channel.list.status.offline') }}
                                 </sw-status>
                             </template>
                         </template>
@@ -125,7 +125,7 @@
                         <template #column-id="{ item }">
 
                             <mt-switch
-                                v-tooltip.right="{ message: $tc('sw-sales-channel.detail.favouriteLabel') }"
+                                v-tooltip.right="{ message: $t('sw-sales-channel.detail.favouriteLabel') }"
                                 class="favorite-switch"
                                 :disabled="!acl.can('user_config:create') || !acl.can('user_config:update')"
                                 :model-value="isFavorite(item.id)"
@@ -143,7 +143,7 @@
                                     params: { id: item.id }
                                 }"
                             >
-                                {{ $tc('sw-sales-channel.list.contextMenuEdit') }}
+                                {{ $t('sw-sales-channel.list.contextMenuEdit') }}
                             </sw-context-menu-item>
                             {% endblock %}
 
@@ -153,7 +153,7 @@
                                 :disabled="!item.active || !checkForDomainLink(item)"
                                 @click.prevent="openStorefrontLink(item.domainLink)"
                             >
-                                {{ $tc('sw-sales-channel.general.tooltipOpenStorefront') }}
+                                {{ $t('sw-sales-channel.general.tooltipOpenStorefront') }}
                             </sw-context-menu-item>
                             {% endblock %}
                         </template>
@@ -170,7 +170,7 @@
                     v-if="isValidTerm(term)"
                     :style="{ minHeight: '200px' }"
                     :icon="$route.meta.$module.icon"
-                    :headline="$tc('sw-empty-state.messageNoResultTitle')"
+                    :headline="$t('sw-empty-state.messageNoResultTitle')"
                     :link-text="$t('sw-empty-state.messageNoResultLink')"
                     :link-href="$router.resolve({ name: 'sw.profile.index.searchPreferences' }).href"
                 />

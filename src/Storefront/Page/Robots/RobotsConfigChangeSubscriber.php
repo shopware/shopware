@@ -46,7 +46,7 @@ class RobotsConfigChangeSubscriber implements EventSubscriberInterface
         $salesChannelId = $event->getSalesChannelId();
         $parsed = $this->parser->parse($value, Context::createDefaultContext(), $salesChannelId);
 
-        if (\count($parsed->issues) === 0) {
+        if ($parsed->issues === []) {
             return;
         }
 

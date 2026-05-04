@@ -197,13 +197,6 @@ describe('module/sw-product/page/sw-product-detail', () => {
         }
     });
 
-    it('should show advanced mode settings', async () => {
-        Shopware.Store.get('swProductDetail').product = { parentId: '' };
-        await nextTick();
-        const contextButton = wrapper.find('.sw-product-settings-mode');
-        expect(contextButton.exists()).toBe(true);
-    });
-
     it('should show item tabs', async () => {
         await wrapper.setProps({
             productId: '1234',
@@ -866,6 +859,152 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(wrapper.vm.product.purchasePrices).toEqual([{ currencyId: undefined, net: 0, linked: true, gross: 0 }]);
     });
 
+    it('should not overwrite purchase price for variant products with parentId when null', async () => {
+        wrapper = await createWrapper(
+            () => Promise.resolve([]),
+            () =>
+                Promise.resolve({
+                    id: 'test',
+                    parentId: 'parent-id',
+                    price: null,
+                    purchasePrices: null,
+                }),
+        );
+
+        await wrapper.setProps({
+            productId: '1234',
+        });
+
+        await wrapper.vm.loadProduct();
+        await flushPromises();
+
+        expect(wrapper.vm.product.id).toBe('test');
+        expect(wrapper.vm.product.purchasePrices).toBeNull();
+    });
+
+    it('should not overwrite purchase price for variant products with parentId when undefined', async () => {
+        wrapper = await createWrapper(
+            () => Promise.resolve([]),
+            () =>
+                Promise.resolve({
+                    id: 'test',
+                    parentId: 'parent-id',
+                    price: null,
+                    purchasePrices: undefined,
+                }),
+        );
+
+        await wrapper.setProps({
+            productId: '1234',
+        });
+
+        await wrapper.vm.loadProduct();
+        await flushPromises();
+
+        expect(wrapper.vm.product.id).toBe('test');
+        expect(wrapper.vm.product.purchasePrices).toBeNull();
+    });
+
+    it('should keep existing purchase price for variant products with their own values', async () => {
+        wrapper = await createWrapper(
+            () => Promise.resolve([]),
+            () =>
+                Promise.resolve({
+                    id: 'test',
+                    parentId: 'parent-id',
+                    price: [
+                        {
+                            currencyId: undefined,
+                            net: 10,
+                            gross: 12,
+                            linked: true,
+                        },
+                    ],
+                    purchasePrices: [
+                        {
+                            currencyId: undefined,
+                            net: 5,
+                            gross: 6,
+                            linked: true,
+                        },
+                    ],
+                }),
+        );
+
+        await wrapper.setProps({
+            productId: '1234',
+        });
+
+        await wrapper.vm.loadProduct();
+        await flushPromises();
+
+        expect(wrapper.vm.product.id).toBe('test');
+        expect(wrapper.vm.product.purchasePrices).toEqual([{ currencyId: undefined, net: 5, linked: true, gross: 6 }]);
+    });
+
+    it('should sync purchasePrices to null when price is inherited but purchasePrices is not', async () => {
+        wrapper = await createWrapper(
+            () => Promise.resolve([]),
+            () =>
+                Promise.resolve({
+                    id: 'test',
+                    parentId: 'parent-id',
+                    price: null,
+                    purchasePrices: [
+                        {
+                            currencyId: undefined,
+                            net: 5,
+                            gross: 6,
+                            linked: true,
+                        },
+                    ],
+                }),
+        );
+
+        await wrapper.setProps({
+            productId: '1234',
+        });
+
+        await wrapper.vm.loadProduct();
+        await flushPromises();
+
+        expect(wrapper.vm.product.id).toBe('test');
+        expect(wrapper.vm.product.purchasePrices).toBeNull();
+    });
+
+    it('should sync purchasePrices from parent when price is not inherited but purchasePrices is', async () => {
+        wrapper = await createWrapper(
+            () => Promise.resolve([]),
+            (id) => {
+                if (id === 'parent-id') {
+                    return Promise.resolve({
+                        id: 'parent-id',
+                        price: [{ currencyId: undefined, net: 84, gross: 100, linked: true }],
+                        purchasePrices: [{ currencyId: undefined, net: 42, gross: 50, linked: true }],
+                    });
+                }
+
+                return Promise.resolve({
+                    id: 'variant-id',
+                    parentId: 'parent-id',
+                    price: [{ currencyId: undefined, net: 84, gross: 100, linked: true }],
+                    purchasePrices: null,
+                });
+            },
+        );
+
+        await wrapper.setProps({
+            productId: '1234',
+        });
+
+        await wrapper.vm.loadProduct();
+        await flushPromises();
+
+        expect(wrapper.vm.product.purchasePrices).toEqual([
+            { currencyId: undefined, gross: 50, net: 42, linked: true },
+        ]);
+    });
+
     it('should ignore purchase price if its set', async () => {
         wrapper = await createWrapper(
             () => Promise.resolve([]),
@@ -892,5 +1031,106 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
         expect(wrapper.vm.product.id).toBe('test');
         expect(wrapper.vm.product.purchasePrices).toEqual([{ currencyId: undefined, net: 10, linked: false, gross: 19 }]);
+    });
+
+    it('should reset mode settings to default when creating a new product', async () => {
+        wrapper = await createWrapper(
+            () => Promise.resolve([]),
+            () => Promise.resolve({}),
+            null,
+        );
+
+        await flushPromises();
+
+        expect(wrapper.vm.modeSettings).toEqual([
+            'general_information',
+            'prices',
+            'deliverability',
+            'visibility_structure',
+            'media',
+            'labelling',
+            'measurement',
+            'selling_packaging',
+            'properties',
+            'essential_characteristics',
+            'custom_fields',
+        ]);
+    });
+
+    it('should load mode settings from user config when editing existing product', async () => {
+        // Mock user config with 'prices' disabled (enabled: false)
+        const mockSettings = {
+            first: () => ({
+                value: {
+                    advancedMode: {
+                        label: 'sw-product.general.textAdvancedMode',
+                        enabled: true,
+                    },
+                    settings: [
+                        {
+                            key: 'prices',
+                            label: 'sw-product.detailBase.cardTitlePrices',
+                            enabled: false,
+                            name: 'general',
+                        },
+                    ],
+                },
+            }),
+            total: 1,
+        };
+
+        wrapper = await createWrapper(
+            (criteria) => {
+                const isUserConfigSearch = criteria.filters.some(
+                    (f) => f.field === 'key' && f.value === 'mode.setting.advancedModeSettings',
+                );
+                if (isUserConfigSearch) {
+                    return Promise.resolve(mockSettings);
+                }
+                return Promise.resolve([]);
+            },
+            () => Promise.resolve({}),
+            null,
+        );
+
+        await flushPromises();
+
+        await wrapper.setProps({ productId: '1234' });
+        await flushPromises();
+
+        // 'prices' should be missing from modeSettings
+        expect(wrapper.vm.modeSettings).toEqual([
+            'general_information',
+            'deliverability',
+            'visibility_structure',
+            'media',
+            'labelling',
+            'measurement',
+            'selling_packaging',
+            'properties',
+            'essential_characteristics',
+            'custom_fields',
+        ]);
+    });
+
+    it('should clear stale variant data when opening create page after viewing a variant product', async () => {
+        await wrapper.unmount();
+
+        const store = Shopware.Store.get('swProductDetail');
+        store.product = {
+            id: 'variant-123',
+            parentId: 'parent-456',
+            variation: [],
+        };
+        store.parentProduct = { id: 'parent-456', name: 'Parent Product' };
+
+        wrapper = await createWrapper(
+            () => Promise.resolve([]),
+            () => Promise.resolve({ variation: [] }),
+            null,
+        );
+
+        await flushPromises();
+        expect(store.parentProduct).toEqual({});
     });
 });

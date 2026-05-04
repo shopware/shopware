@@ -83,7 +83,7 @@ class RegisterRouteTest extends TestCase
         $customerRepository
             ->expects($this->once())
             ->method('create')
-            ->willReturnCallback(function (array $create) {
+            ->willReturnCallback(static function (array $create) {
                 static::assertCount(1, $create);
                 static::assertArrayHasKey('accountType', $create[0]);
                 static::assertSame(CustomerEntity::ACCOUNT_TYPE_PRIVATE, $create[0]['accountType']);
@@ -139,7 +139,7 @@ class RegisterRouteTest extends TestCase
         $addressValidation->method('create')->willReturn($definition);
 
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
-        $dispatcher->method('dispatch')->willReturnCallback(function (Event $event) use ($definition) {
+        $dispatcher->method('dispatch')->willReturnCallback(static function (Event $event) use ($definition) {
             if ($event instanceof BuildValidationEvent && $event->getName() === 'framework.validation.address.create') {
                 $definition->add('company', new NotBlank());
                 $definition->set('zipcode', new CustomerZipCode(countryId: '123'));
@@ -202,7 +202,7 @@ class RegisterRouteTest extends TestCase
         $addressValidation->method('create')->willReturn($definition);
 
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
-        $dispatcher->method('dispatch')->willReturnCallback(function (Event $event) {
+        $dispatcher->method('dispatch')->willReturnCallback(static function (Event $event) {
             if ($event instanceof BuildValidationEvent && $event->getName() === 'framework.validation.address.create') {
                 $definition = new DataValidationDefinition('address.create');
 
@@ -265,7 +265,7 @@ class RegisterRouteTest extends TestCase
         $addressValidation->method('create')->willReturn($definition);
 
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
-        $dispatcher->method('dispatch')->willReturnCallback(function (Event $event) {
+        $dispatcher->method('dispatch')->willReturnCallback(static function (Event $event) {
             if ($event instanceof BuildValidationEvent && $event->getName() === 'framework.validation.address.create') {
                 $definition = new DataValidationDefinition('address.create');
 
@@ -327,7 +327,7 @@ class RegisterRouteTest extends TestCase
         $customerRepository
             ->expects($this->once())
             ->method('create')
-            ->willReturnCallback(function (array $create) {
+            ->willReturnCallback(static function (array $create) {
                 static::assertSame(['mapped' => 1], $create[0]['customFields']);
 
                 return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([]), []);
@@ -387,7 +387,7 @@ class RegisterRouteTest extends TestCase
         $customerRepository
             ->expects($this->once())
             ->method('create')
-            ->willReturnCallback(function (array $create) use ($salutationId) {
+            ->willReturnCallback(static function (array $create) use ($salutationId) {
                 static::assertCount(1, $create);
                 static::assertArrayHasKey('salutationId', $create[0]);
                 static::assertSame($create[0]['salutationId'], $salutationId);
@@ -441,7 +441,7 @@ class RegisterRouteTest extends TestCase
         $customerRepository
             ->expects($this->once())
             ->method('create')
-            ->willReturnCallback(function (array $create) use ($salutationId) {
+            ->willReturnCallback(static function (array $create) use ($salutationId) {
                 static::assertCount(1, $create);
                 static::assertArrayHasKey('salutationId', $create[0]);
                 static::assertSame($create[0]['salutationId'], $salutationId);
@@ -506,7 +506,7 @@ class RegisterRouteTest extends TestCase
             ->expects($this->atLeast(1))
             ->method('dispatch')
             ->with(
-                static::callback(function (Event $event): bool {
+                static::callback(static function (Event $event): bool {
                     if ($event instanceof CustomerDoubleOptInRegistrationEvent) {
                         $query = [];
                         $queryString = \parse_url($event->getConfirmUrl(), \PHP_URL_QUERY);
@@ -569,7 +569,7 @@ class RegisterRouteTest extends TestCase
             ->expects($this->atLeast(1))
             ->method('dispatch')
             ->with(
-                static::callback(function ($event): bool {
+                static::callback(static function ($event): bool {
                     if ($event instanceof CustomerDoubleOptInRegistrationEvent) {
                         $query = [];
                         $queryString = \parse_url($event->getConfirmUrl(), \PHP_URL_QUERY);
@@ -674,7 +674,7 @@ class RegisterRouteTest extends TestCase
         $dataValidator
             ->expects($this->once())
             ->method('getViolations')
-            ->with($data, static::callback(function (DataValidationDefinition $definition) {
+            ->with($data, static::callback(static function (DataValidationDefinition $definition) {
                 $subs = $definition->getSubDefinitions();
 
                 static::assertArrayHasKey('billingAddress', $subs);
@@ -786,7 +786,7 @@ class RegisterRouteTest extends TestCase
         $dataValidator
             ->expects($this->once())
             ->method('getViolations')
-            ->with($data, static::callback(function (DataValidationDefinition $definition) {
+            ->with($data, static::callback(static function (DataValidationDefinition $definition) {
                 $subs = $definition->getSubDefinitions();
 
                 static::assertArrayHasKey('billingAddress', $subs);
@@ -887,7 +887,7 @@ class RegisterRouteTest extends TestCase
         $dataValidator
             ->expects($this->once())
             ->method('getViolations')
-            ->with($data, static::callback(function (DataValidationDefinition $definition) {
+            ->with($data, static::callback(static function (DataValidationDefinition $definition) {
                 $subs = $definition->getSubDefinitions();
 
                 static::assertArrayNotHasKey('billingAddress', $subs);
@@ -1006,6 +1006,66 @@ class RegisterRouteTest extends TestCase
         static::expectException(ConstraintViolationException::class);
         $registerRoute->register(
             new RequestDataBag($data),
+            Generator::generateSalesChannelContext(),
+            false
+        );
+    }
+
+    public function testRegisterPreservesShippingAddressSalutation(): void
+    {
+        $customerEntity = new CustomerEntity();
+        $customerEntity->setDoubleOptInRegistration(false);
+        $customerEntity->setId('customer-1');
+        $customerEntity->setGuest(false);
+
+        $result = $this->createMock(EntitySearchResult::class);
+        $result->method('getEntities')->willReturn(new CustomerCollection([$customerEntity]));
+
+        $customerRepository = $this->createMock(EntityRepository::class);
+        $customerRepository->method('getDefinition')->willReturn(new CustomerDefinition());
+        $customerRepository->method('search')->willReturn($result);
+        $customerRepository
+            ->expects($this->once())
+            ->method('create')
+            ->willReturnCallback(static function (array $create) {
+                static::assertCount(1, $create);
+                static::assertCount(2, $create[0]['addresses']);
+                $billingAddress = array_values(array_filter(
+                    $create[0]['addresses'],
+                    static fn (array $address): bool => $address['firstName'] === 'John'
+                ))[0];
+                $shippingAddress = array_values(array_filter(
+                    $create[0]['addresses'],
+                    static fn (array $address): bool => $address['firstName'] === 'Jane'
+                ))[0];
+
+                static::assertSame('billing-salutation', $billingAddress['salutationId']);
+                static::assertSame('shipping-salutation', $shippingAddress['salutationId']);
+
+                return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([]), []);
+            });
+
+        $dataValidator = $this->createMock(DataValidator::class);
+        $dataValidator
+            ->expects($this->once())
+            ->method('getViolations')
+            ->willReturn(new ConstraintViolationList());
+
+        $registerRoute = $this->createRegisterRoute(
+            dataValidator: $dataValidator,
+            customerRepository: $customerRepository
+        );
+
+        $registerRoute->register(
+            new RequestDataBag($this->createRegistrationData([
+                'salutationId' => 'billing-salutation',
+                'shippingAddress' => [
+                    'firstName' => 'Jane',
+                    'lastName' => 'Doe',
+                    'countryId' => Uuid::randomHex(),
+                    'salutationId' => 'shipping-salutation',
+                ],
+            ])),
             Generator::generateSalesChannelContext(),
             false
         );

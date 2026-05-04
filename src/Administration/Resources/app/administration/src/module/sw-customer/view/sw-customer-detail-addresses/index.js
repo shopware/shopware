@@ -68,7 +68,6 @@ export default {
 
         sortedAddresses() {
             if (this.addressSortProperty) {
-                // eslint-disable-next-line vue/no-side-effects-in-computed-properties
                 return this.activeCustomer.addresses.sort((a, b) => {
                     const aValue = a[this.addressSortProperty];
                     const bValue = b[this.addressSortProperty];
@@ -149,42 +148,42 @@ export default {
             return [
                 {
                     property: 'defaultShippingAddress',
-                    label: this.$tc('sw-customer.detailAddresses.columnDefaultShippingAddress'),
+                    label: this.$t('sw-customer.detailAddresses.columnDefaultShippingAddress'),
                     align: 'center',
                     iconLabel: 'regular-shopping-cart',
-                    iconTooltip: this.$tc('sw-customer.detailAddresses.columnDefaultShippingAddress'),
+                    iconTooltip: this.$t('sw-customer.detailAddresses.columnDefaultShippingAddress'),
                 },
                 {
                     property: 'defaultBillingAddress',
-                    label: this.$tc('sw-customer.detailAddresses.columnDefaultBillingAddress'),
+                    label: this.$t('sw-customer.detailAddresses.columnDefaultBillingAddress'),
                     align: 'center',
                     iconLabel: 'regular-file-text',
-                    iconTooltip: this.$tc('sw-customer.detailAddresses.columnDefaultBillingAddress'),
+                    iconTooltip: this.$t('sw-customer.detailAddresses.columnDefaultBillingAddress'),
                 },
                 {
                     property: 'lastName',
-                    label: this.$tc('sw-customer.detailAddresses.columnLastName'),
+                    label: this.$t('sw-customer.detailAddresses.columnLastName'),
                 },
                 {
                     property: 'firstName',
-                    label: this.$tc('sw-customer.detailAddresses.columnFirstName'),
+                    label: this.$t('sw-customer.detailAddresses.columnFirstName'),
                 },
                 {
                     property: 'company',
-                    label: this.$tc('sw-customer.detailAddresses.columnCompany'),
+                    label: this.$t('sw-customer.detailAddresses.columnCompany'),
                 },
                 {
                     property: 'street',
-                    label: this.$tc('sw-customer.detailAddresses.columnStreet'),
+                    label: this.$t('sw-customer.detailAddresses.columnStreet'),
                 },
                 {
                     property: 'zipcode',
-                    label: this.$tc('sw-customer.detailAddresses.columnZipCode'),
+                    label: this.$t('sw-customer.detailAddresses.columnZipCode'),
                     align: 'right',
                 },
                 {
                     property: 'city',
-                    label: this.$tc('sw-customer.detailAddresses.columnCity'),
+                    label: this.$t('sw-customer.detailAddresses.columnCity'),
                 },
             ];
         },

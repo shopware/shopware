@@ -6,7 +6,6 @@ namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\Migratio
 
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
-use PHPUnit\Framework\Attributes\CoversClass;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Migration\NoDropStatementInUpdateRule;
 
 /**
@@ -14,7 +13,6 @@ use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Migration\NoDropStatementIn
  *
  * @extends  RuleTestCase<NoDropStatementInUpdateRule>
  */
-#[CoversClass(NoDropStatementInUpdateRule::class)]
 class NoDropStatementInUpdateRuleTest extends RuleTestCase
 {
     public function testRule(): void
@@ -26,14 +24,14 @@ class NoDropStatementInUpdateRuleTest extends RuleTestCase
         ], [
             // Helper method calls
             ['Usage of method "dropColumnIfExists" is disallowed in the "update" method of a migration to avoid blue green compatibility breaks.', 19],
-            ['Usage of method "dropForeignKeyIfExists" is disallowed in the "update" method of a migration to avoid blue green compatibility breaks.', 20],
+            ['Usage of method "dropForeignKeyIfExists" is disallowed in the "update" method of a migration to avoid blue green compatibility breaks. Dropping FKs is OK if immediately re-added, or if not breaking old app version validation. Use @phpstan-ignore shopware.dropStatement if intentional.', 20],
             ['Usage of method "dropTableIfExists" is disallowed in the "update" method of a migration to avoid blue green compatibility breaks.', 21],
 
             // SQL statements
             ['Usage of "DROP COLUMN" statements is disallowed in the "update" method of a migration to avoid blue green compatibility breaks.', 25],
             ['Usage of "DROP COLUMN" statements is disallowed in the "update" method of a migration to avoid blue green compatibility breaks.', 26],
             ['Usage of "DROP" statements is disallowed in the "update" method of a migration to avoid blue green compatibility breaks.', 27],
-            ['Usage of "DROP FOREIGN KEY" statements is disallowed in the "update" method of a migration to avoid blue green compatibility breaks.', 28],
+            ['Usage of "DROP FOREIGN KEY" statements is disallowed in the "update" method of a migration to avoid blue green compatibility breaks. Dropping FKs is OK if immediately re-added, or if not breaking old app version validation. Use @phpstan-ignore shopware.dropStatement if intentional.', 28],
             ['Usage of "DROP TABLE" statements is disallowed in the "update" method of a migration to avoid blue green compatibility breaks.', 29],
 
             // within private method

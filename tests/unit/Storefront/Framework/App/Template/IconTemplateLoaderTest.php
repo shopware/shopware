@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Test\Stub\App\StaticSourceResolver;
 use Shopware\Storefront\Framework\App\Template\IconTemplateLoader;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
+use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
 
 /**
  * @internal
@@ -34,7 +35,8 @@ class IconTemplateLoaderTest extends TestCase
             new TemplateLoader($sourceResolver),
             new StorefrontPluginConfigurationFactory(
                 $this->createMock(KernelPluginLoader::class),
-                $sourceResolver
+                $sourceResolver,
+                new SymfonyFilesystem(),
             ),
             $sourceResolver,
         );

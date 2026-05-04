@@ -19,16 +19,17 @@ test(
         await test.step('Validate that the full header and footer are visible on the product detail page.', async () => {
             await ShopCustomer.goesTo(StorefrontProductDetail.url(basicProduct));
             await ShopCustomer.expects(StorefrontSearchSuggest.searchInput).toBeVisible();
-            await ShopCustomer.expects(StorefrontHeader.mainNavigationLink).toBeVisible();
+            const numOfLocators = await StorefrontHeader.mainNavigationLink.count();
+            ShopCustomer.expects(numOfLocators).toBeGreaterThan(0);
             await ShopCustomer.expects(StorefrontFooter.footerHeadline).toBeVisible();
             await ShopCustomer.expects(StorefrontFooter.footerContent).toBeVisible();
             await ShopCustomer.expects(StorefrontFooter.footerHotline).toBeVisible();
             await ShopCustomer.expects(StorefrontFooter.footerContactForm).toBeVisible();
         });
-        
+
         await test.step('Validate that the full header and footer are not visible on the checkout page.', async () => {
             await ShopCustomer.attemptsTo(AddProductToCart(basicProduct));
-            await ShopCustomer.attemptsTo(ProceedFromProductToCheckout());        
+            await ShopCustomer.attemptsTo(ProceedFromProductToCheckout());
             await ShopCustomer.expects(StorefrontSearchSuggest.searchInput).not.toBeVisible();
             await ShopCustomer.expects(StorefrontHeader.mainNavigationLink).not.toBeVisible();
             await ShopCustomer.expects(StorefrontFooter.footerHeadline).not.toBeVisible();

@@ -20,7 +20,7 @@
         <mt-button
             v-if="editable || allowCreateFolder"
             v-tooltip="{
-                message: $tc('sw-privileges.tooltip.warning'),
+                message: $t('sw-privileges.tooltip.warning'),
                 disabled: acl.can('media.creator'),
                 showOnDisabledElements: true
             }"
@@ -31,7 +31,7 @@
             variant="secondary"
             @click="createFolder"
         >
-            {{ $tc('sw-media.index.buttonCreateFolder') }}
+            {{ $t('sw-media.index.buttonCreateFolder') }}
         </mt-button>
         {% endblock %}
     </div>
@@ -113,7 +113,7 @@
                     variant="secondary"
                     @click="loadNextItems"
                 >
-                    {{ $tc('sw-media.mediaLibrary.labelButtonLoadMore') }}
+                    {{ $t('sw-media.mediaLibrary.labelButtonLoadMore') }}
                 </mt-button>
                 {% endblock %}
             </sw-media-grid>
@@ -128,7 +128,7 @@
         class="sw-media-library__empty-state"
         :centered="true"
         :icon="$route.meta.$module.icon"
-        :headline="$tc('sw-empty-state.messageNoResultTitle')"
+        :headline="$t('sw-empty-state.messageNoResultTitle')"
         :link-text="$t('sw-empty-state.messageNoResultLink')"
         :link-href="$router.resolve({ name: 'sw.profile.index.searchPreferences' }).href"
     />

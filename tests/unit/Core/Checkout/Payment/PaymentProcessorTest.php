@@ -176,7 +176,7 @@ class PaymentProcessorTest extends TestCase
         $this->tokenGenerator
             ->expects($this->once())
             ->method('encode')
-            ->with(static::callback(function (PaymentToken $token) use ($salesChannelContext): bool {
+            ->with(static::callback(static function (PaymentToken $token) use ($salesChannelContext): bool {
                 $token->jti = 'token-id';
                 $token->exp = new \DateTimeImmutable();
                 static::assertSame('order-transaction-id', $token->transactionId);
@@ -306,7 +306,7 @@ class PaymentProcessorTest extends TestCase
         $this->tokenGenerator
             ->expects($this->once())
             ->method('encode')
-            ->with(static::callback(function (PaymentToken $token) use ($salesChannelContext): bool {
+            ->with(static::callback(static function (PaymentToken $token) use ($salesChannelContext): bool {
                 $token->jti = 'token-id';
                 $token->exp = new \DateTimeImmutable();
                 static::assertSame('order-transaction-id', $token->transactionId);
@@ -440,7 +440,7 @@ class PaymentProcessorTest extends TestCase
         $this->tokenGenerator
             ->expects($this->once())
             ->method('encode')
-            ->with(static::callback(function (PaymentToken $token) use ($salesChannelContext): bool {
+            ->with(static::callback(static function (PaymentToken $token) use ($salesChannelContext): bool {
                 $token->jti = 'token-id';
                 $token->exp = new \DateTimeImmutable();
                 static::assertSame('order-transaction-id', $token->transactionId);
@@ -529,7 +529,7 @@ class PaymentProcessorTest extends TestCase
         $this->tokenGenerator
             ->expects($this->once())
             ->method('encode')
-            ->with(static::callback(function (PaymentToken $token) use ($salesChannelContext): bool {
+            ->with(static::callback(static function (PaymentToken $token) use ($salesChannelContext): bool {
                 $token->jti = 'token-id';
                 $token->exp = new \DateTimeImmutable();
                 static::assertSame('order-transaction-id', $token->transactionId);
@@ -599,7 +599,7 @@ class PaymentProcessorTest extends TestCase
             ->with('token-id');
 
         $fakeTokenStruct = null;
-        Feature::silent('v6.8.0.0', function () use (&$fakeTokenStruct): void {
+        Feature::silent('v6.8.0.0', static function () use (&$fakeTokenStruct): void {
             $fakeTokenStruct = new TokenStruct();
         });
         static::assertInstanceOf(TokenStruct::class, $fakeTokenStruct);
@@ -648,7 +648,7 @@ class PaymentProcessorTest extends TestCase
         $token->transactionId = 'order-transaction-id';
 
         $fakeTokenStruct = null;
-        Feature::silent('v6.8.0.0', function () use (&$fakeTokenStruct): void {
+        Feature::silent('v6.8.0.0', static function () use (&$fakeTokenStruct): void {
             $fakeTokenStruct = new TokenStruct();
         });
         static::assertInstanceOf(TokenStruct::class, $fakeTokenStruct);
@@ -873,7 +873,7 @@ class PaymentProcessorTest extends TestCase
             ->with('order-transaction-id', $salesChannelContext->getContext());
 
         $fakeTokenStruct = null;
-        Feature::silent('v6.8.0.0', function () use (&$fakeTokenStruct): void {
+        Feature::silent('v6.8.0.0', static function () use (&$fakeTokenStruct): void {
             $fakeTokenStruct = new TokenStruct();
         });
         static::assertInstanceOf(TokenStruct::class, $fakeTokenStruct);

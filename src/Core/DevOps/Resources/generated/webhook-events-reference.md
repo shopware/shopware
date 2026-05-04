@@ -25,6 +25,7 @@
 |`newsletter.unsubscribe` | __EMPTY__ | `newsletter_recipient:read` | {"entity":"newsletter_recipient"}
 |`product_export.log` | __EMPTY__ | - | {"name":"string"}
 |`review_form.send` | Triggers when a product review form is send | `product:read` | {"reviewFormData":"object","entity":"product"}
+|`revocation_request.sent` | __EMPTY__ | - | {"revocationRequestFormData":"object"}
 |`state_enter.order.state.cancelled` | __EMPTY__ | `order:read` | {"entity":"order"}
 |`state_enter.order.state.completed` | __EMPTY__ | `order:read` | {"entity":"order"}
 |`state_enter.order.state.in_progress` | __EMPTY__ | `order:read` | {"entity":"order"}
@@ -117,3 +118,8 @@
 |`app.permissions.updated` | Fires when an apps permissions were updated with a list of the currently accepted permissions, eg after new were accepted or revoked | - | 
 |`shopware.updated` | Fires after an shopware update has been finished | - | 
 |`app.config.changed` | Fires when a system config value is changed | `system_config:read` | 
+|`app.system_heartbeat` | Fires as a recurrent task. Indicates to the app that the system is up and running. | - | 
+|`consent.backend_data.accepted` | Fires when the backend_data consent is accepted. | `consent:backend_data:read` | 
+|`consent.backend_data.revoked` | Fires when the backend_data consent is revoked. | `consent:backend_data:read` | 
+|`consent.product_analytics.accepted` | Fires when the product_analytics consent is accepted. | `consent:product_analytics:read` | 
+|`consent.product_analytics.revoked` | Fires when the product_analytics consent is revoked. | `consent:product_analytics:read` | 

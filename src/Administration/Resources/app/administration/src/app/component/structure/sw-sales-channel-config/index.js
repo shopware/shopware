@@ -28,7 +28,6 @@ export default {
             required: false,
             default: '',
         },
-        // eslint-disable-next-line vue/require-default-prop
         value: {
             type: Object,
             required: false,
@@ -95,7 +94,7 @@ export default {
                     res.add({
                         id: null,
                         translated: {
-                            name: this.$tc('sw-sales-channel-switch.labelDefaultOption'),
+                            name: this.$t('sw-sales-channel-switch.labelDefaultOption'),
                         },
                     });
 

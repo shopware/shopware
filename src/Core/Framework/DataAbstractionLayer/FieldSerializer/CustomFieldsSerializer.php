@@ -56,7 +56,7 @@ class CustomFieldsSerializer extends JsonFieldSerializer
         $field->setPropertyMapping($this->getFields(array_keys($attributes)));
         $encoded = $this->validateMapping($field, $attributes, $parameters);
 
-        if (empty($encoded)) {
+        if ($encoded === []) {
             return;
         }
 
@@ -120,7 +120,7 @@ class CustomFieldsSerializer extends JsonFieldSerializer
             $pks = array_combine(
                 array_keys($existence->getPrimaryKey()),
                 array_map(
-                    function (string $pkFieldStorageName) use ($definition, $existence, $parameters): mixed {
+                    static function (string $pkFieldStorageName) use ($definition, $existence, $parameters): mixed {
                         $pkFieldValue = $existence->getPrimaryKey()[$pkFieldStorageName];
                         /** @var Field|null $field */
                         $field = $definition->getFields()->getByStorageName($pkFieldStorageName);

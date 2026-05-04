@@ -33,6 +33,9 @@ use Twig\TwigFilter;
 use Twig\TwigFunction;
 use Twig\TwigTest;
 
+/**
+ * @deprecated tag:v6.8.0 - reason:becomes-internal - Will be internal in v6.8.0
+ */
 #[Package('framework')]
 class PhpSyntaxExtension extends AbstractExtension
 {
@@ -95,7 +98,7 @@ class PhpSyntaxExtension extends AbstractExtension
                 /**
                  * @param int<1, max> $depth
                  */
-                function (mixed $var, int $options = 0, $depth = 512) {
+                static function (mixed $var, int $options = 0, $depth = 512) {
                     try {
                         FieldVisibility::$isInTwigRenderingContext = true;
 
@@ -105,7 +108,7 @@ class PhpSyntaxExtension extends AbstractExtension
                     }
                 }
             ),
-            new TwigFilter('md5', function (mixed $var) {
+            new TwigFilter('md5', static function (mixed $var) {
                 if (\is_array($var)) {
                     $var = \json_encode($var, \JSON_THROW_ON_ERROR);
                 }

@@ -57,29 +57,29 @@ class CriteriaArrayConverter
         }
 
         /** @var array<string, mixed> $array */
-        if (\count($criteria->getIds())) {
+        if ($criteria->getIds() !== []) {
             $array['ids'] = $criteria->getIds();
         }
 
         /** @var array<string, mixed> $array */
-        if (\count($criteria->getFilters())) {
+        if ($criteria->getFilters() !== []) {
             $array['filter'] = array_map(static fn (Filter $filter) => QueryStringParser::toArray($filter), $criteria->getFilters());
         }
 
         /** @var array<string, mixed> $array */
-        if (\count($criteria->getPostFilters())) {
+        if ($criteria->getPostFilters() !== []) {
             $array['post-filter'] = array_map(static fn (Filter $filter) => QueryStringParser::toArray($filter), $criteria->getPostFilters());
         }
 
         /** @var array<string, mixed> $array */
-        if (\count($criteria->getAssociations())) {
+        if ($criteria->getAssociations() !== []) {
             foreach ($criteria->getAssociations() as $assocName => $association) {
                 $array['associations'][$assocName] = $this->convert($association);
             }
         }
 
         /** @var array<string, mixed> $array */
-        if (\count($criteria->getSorting())) {
+        if ($criteria->getSorting() !== []) {
             $array['sort'] = json_decode(json_encode($criteria->getSorting(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
             foreach ($array['sort'] as &$sort) {
@@ -90,7 +90,7 @@ class CriteriaArrayConverter
         }
 
         /** @var array<string, mixed> $array */
-        if (\count($criteria->getQueries())) {
+        if ($criteria->getQueries() !== []) {
             $array['query'] = [];
 
             foreach ($criteria->getQueries() as $query) {
@@ -105,7 +105,7 @@ class CriteriaArrayConverter
         }
 
         /** @var array<string, mixed> $array */
-        if (\count($criteria->getGroupFields())) {
+        if ($criteria->getGroupFields() !== []) {
             $array['grouping'] = [];
 
             foreach ($criteria->getGroupFields() as $groupField) {
@@ -114,7 +114,7 @@ class CriteriaArrayConverter
         }
 
         /** @var array<string, mixed> $array */
-        if (\count($criteria->getAggregations())) {
+        if ($criteria->getAggregations() !== []) {
             $array['aggregations'] = $this->aggregationParser->toArray($criteria->getAggregations());
         }
 

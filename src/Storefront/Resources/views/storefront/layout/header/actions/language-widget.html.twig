@@ -24,10 +24,12 @@
                                     aria-expanded="false"
                                     aria-label="{{ 'header.languageTrigger'|trans({ '%lang%': context.languageInfo.name })|striptags }}">
                                 {% block layout_header_actions_language_widget_content_inner %}
-                                    {% if not feature('v6.8.0.0') %}
+                                    {% if feature('v6.8.0.0') %}
+                                        <span class="top-bar-nav-text">{{ context.languageInfo.name }}</span>
+                                    {% else %}
                                         <span aria-hidden="true" class="top-bar-list-icon language-flag country-{{ country }} language-{{ language }}"></span>
+                                        <span class="top-bar-nav-text d-none d-md-inline">{{ context.languageInfo.name }}</span>
                                     {% endif %}
-                                    <span class="top-bar-nav-text d-none d-md-inline">{{ context.languageInfo.name }}</span>
                                 {% endblock %}
                             </button>
 

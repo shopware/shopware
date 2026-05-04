@@ -2,16 +2,16 @@ import CmsPageTypeService from './service/cms-page-type.service';
 import defaultSearchConfiguration from './default-search-configuration';
 import initCmsPageTypes from './init/cmsPageTypes.init';
 import './service/cms.service';
-import './service/cmsDataResolver.service';
-import './service/cms-block-favorites.service';
-import './service/cms-element-favorites.service';
-import './store/cms-page.store';
+import './acl';
+import './blocks';
+import './component';
+import './elements';
 import './mixin/sw-cms-element.mixin';
 import './mixin/sw-cms-state.mixin';
-import './blocks';
-import './elements';
-import './component';
-import './acl';
+import './store/cms-page.store';
+import './service/cms-block-favorites.service';
+import './service/cms-element-favorites.service';
+import './service/cmsDataResolver.service';
 
 /**
  * @private

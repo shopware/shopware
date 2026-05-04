@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Adapter\Database\ReplicaConnection;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -49,6 +50,7 @@ class OrderRoute extends AbstractOrderRoute
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AccountService $accountService,
         private readonly GuestAuthenticator $guestAuthenticator,
+        private readonly int $deepLinkExpireDays = 30,
     ) {
     }
 
@@ -79,8 +81,12 @@ class OrderRoute extends AbstractOrderRoute
             $criteria->addAssociation('deliveries');
         }
 
-        $deepLinkFilter = \current(array_filter($criteria->getFilters(), static fn (Filter $filter) => \in_array('order.deepLinkCode', $filter->getFields(), true)
-            || \in_array('deepLinkCode', $filter->getFields(), true))) ?: null;
+        $deepLinkFilter = \current(array_filter(
+            $criteria->getFilters(),
+            static fn (Filter $filter) => $filter instanceof EqualsFilter && ($filter->getField() === 'order.deepLinkCode' || $filter->getField() === 'deepLinkCode')
+        )) ?: null;
+
+        \assert($deepLinkFilter === null || $deepLinkFilter instanceof EqualsFilter);
 
         if ($context->getCustomer()) {
             $criteria->addFilter(new EqualsFilter('order.orderCustomer.customerId', $context->getCustomerId()));
@@ -103,7 +109,7 @@ class OrderRoute extends AbstractOrderRoute
         }
 
         // Handle guest authentication if deeplink is set
-        if (!$context->getCustomer() && $deepLinkFilter instanceof EqualsFilter) {
+        if ($deepLinkFilter !== null && !$context->getCustomer()) {
             try {
                 $cacheKey = strtolower((string) $deepLinkFilter->getValue()) . '-' . $request->getClientIp();
 
@@ -125,7 +131,7 @@ class OrderRoute extends AbstractOrderRoute
                 $this->checkGuestAuth($order, $request);
             }
 
-            if ($request->get('login') && $customerId = $order->getOrderCustomer()?->getCustomerId()) {
+            if (RequestParamHelper::get($request, 'login') && $customerId = $order->getOrderCustomer()?->getCustomerId()) {
                 $newContextToken = $this->accountService->loginById($customerId, $context);
             }
         }
@@ -224,9 +230,9 @@ class OrderRoute extends AbstractOrderRoute
     private function filterOldOrders(OrderCollection $orders): OrderCollection
     {
         // Search with deepLinkCode needs updatedAt Filter
-        $latestOrderDate = (new \DateTime())->setTimezone(new \DateTimeZone('UTC'))->modify(-abs(30) . ' Day');
+        $latestOrderDate = (new \DateTime())->setTimezone(new \DateTimeZone('UTC'))->modify(-abs($this->deepLinkExpireDays) . ' Day');
 
-        return $orders->filter(fn (OrderEntity $order) => $order->getCreatedAt() > $latestOrderDate || $order->getUpdatedAt() > $latestOrderDate);
+        return $orders->filter(static fn (OrderEntity $order) => $order->getCreatedAt() > $latestOrderDate || $order->getUpdatedAt() > $latestOrderDate);
     }
 
     /**

@@ -7,6 +7,8 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\Type;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
@@ -29,6 +31,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createApiSection())
                 ->append($this->createStoreSection())
                 ->append($this->createCartSection())
+                ->append($this->createOrderSection())
                 ->append($this->createSalesChannelContextSection())
                 ->append($this->createAdminWorkerSection())
                 ->append($this->createAutoUpdateSection())
@@ -56,6 +59,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createProductStreamSection())
                 ->append($this->createSsoLoginSection())
                 ->append($this->createProductTypesSection())
+                ->append($this->createWebhookSection())
             ->end();
 
         return $treeBuilder;
@@ -236,6 +240,7 @@ class Configuration implements ConfigurationInterface
                     ->defaultValue(true)
                 ->end()
                 ->booleanNode('enable_queue_stats_worker')
+                    ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option is deprecated and will be removed in 6.8.0. The increment-based message queue statistics will be removed, please use "shopware.messenger.stats.enabled" as alternative.')
                     ->defaultValue(true)
                 ->end()
                 ->booleanNode('enable_notification_worker')
@@ -339,7 +344,19 @@ class Configuration implements ConfigurationInterface
                 ->booleanNode('enable_url_upload_feature')->end()
                 ->booleanNode('enable_url_validation')->end()
                 ->scalarNode('url_upload_max_size')->defaultValue(0)
-                    ->validate()->always()->then(fn ($value) => abs(MemorySizeCalculator::convertToBytes((string) $value)))->end()
+                    ->validate()->always()->then(static fn ($value) => abs(MemorySizeCalculator::convertToBytes((string) $value)))->end()
+                ->end()
+                ->arrayNode('presigned_upload')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->booleanNode('enabled')->defaultFalse()->end()
+                        ->integerNode('expiration_minutes')
+                            ->defaultValue(5)
+                            ->min(1)
+                            ->max(10080)
+                            ->end()
+                    ->end()
+                ->end()
             ->end();
 
         return $rootNode;
@@ -362,7 +379,7 @@ class Configuration implements ConfigurationInterface
                     ->end()
                 ->end()
                 ->beforeNormalization()
-                    ->always()->then(function ($flags) {
+                    ->always()->then(static function ($flags) {
                         foreach ($flags as $key => $flag) {
                             // support old syntax
                             if (\is_int($key) && \is_string($flag)) {
@@ -416,6 +433,7 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('redis_prefix')->end()
                 ->booleanNode('cache_compression')->defaultTrue()->end()
                 ->scalarNode('cache_compression_method')->defaultValue('gzip')->end()
+                ->booleanNode('disable_stampede_protection')->defaultFalse()->end()
                 ->arrayNode('twig')
                     ->children()
                         ->scalarNode('string_template_renderer_cache_dir')->end()
@@ -440,6 +458,9 @@ class Configuration implements ConfigurationInterface
                             ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option is deprecated and will be removed in 6.8.0 as cache states will be removed.')
                             ->performNoDeepMerging()
                             ->prototype('scalar')->end()
+                        ->end()
+                        ->booleanNode('tag_invalidation_log_enabled')
+                            ->defaultFalse()
                         ->end()
                         // @deprecated tag:v6.8.0 - remove all route specific invalidation options
                         ->arrayNode('product_listing_route')
@@ -591,6 +612,24 @@ class Configuration implements ConfigurationInterface
         return $rootNode;
     }
 
+    private function createOrderSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('order');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+                ->arrayNode('deep_link')
+                    ->children()
+                        ->integerNode('expire_days')
+                            ->min(1)
+                            ->defaultValue(30)
+                    ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
     private function createNumberRangeSection(): ArrayNodeDefinition
     {
         $treeBuilder = new TreeBuilder('number_range');
@@ -603,9 +642,15 @@ class Configuration implements ConfigurationInterface
                 ->defaultValue('mysql')
                 ->end()
             ->arrayNode('config')
+                ->addDefaultsIfNotSet()
                 ->children()
                     ->scalarNode('connection')->defaultValue(null)->end()
                 ->end()
+            ->end()
+            ->end()
+            ->validate()
+                ->ifTrue(static fn (array $v) => $v['increment_storage'] === 'redis' && ($v['config']['connection'] ?? null) === null)
+                ->thenInvalid('The "config.connection" option is required when "increment_storage" is set to "redis".')
             ->end();
 
         return $rootNode;
@@ -635,8 +680,14 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
             ->arrayNode('allowed_types')
-                ->defaultValue([ProductDefinition::TYPE_PHYSICAL, ProductDefinition::TYPE_PHYSICAL])
+                ->defaultValue([ProductDefinition::TYPE_PHYSICAL, ProductDefinition::TYPE_DIGITAL])
                 ->scalarPrototype()->end()
+            ->end()
+            ->arrayNode('search_keyword')
+                ->addDefaultsIfNotSet()
+                ->children()
+                    ->booleanNode('indexing')->defaultTrue()->end()
+                ->end()
             ->end();
 
         return $rootNode;
@@ -666,6 +717,27 @@ class Configuration implements ConfigurationInterface
                             ->arrayNode('tags')
                                 ->defaultValue([])
                                 ->scalarPrototype()->end()
+                            ->end()
+                            ->arrayNode('custom_tags')
+                                ->arrayPrototype()
+                                    ->children()
+                                        ->scalarNode('tag')
+                                        ->end()
+                                        ->scalarNode('type')
+                                        ->end()
+                                        ->scalarNode('contents')
+                                            ->defaultValue('Flow')
+                                        ->end()
+                                        ->arrayNode('attr_collections')
+                                            ->defaultValue([])
+                                            ->scalarPrototype()->end()
+                                        ->end()
+                                        ->arrayNode('attributes')
+                                            ->defaultValue([])
+                                            ->scalarPrototype()->end()
+                                        ->end()
+                                    ->end()
+                                ->end()
                             ->end()
                             ->arrayNode('attributes')
                                 ->defaultValue([])
@@ -890,6 +962,13 @@ class Configuration implements ConfigurationInterface
                         ->booleanNode('check_for_existence')->defaultTrue()->end()
                     ->end()
                 ->end()
+                ->arrayNode('system_config')
+                    ->useAttributeAsKey('scope')
+                    ->arrayPrototype()
+                        ->useAttributeAsKey('key')
+                        ->variablePrototype()->end()
+                    ->end()
+                ->end()
             ->end();
 
         return $rootNode;
@@ -901,8 +980,18 @@ class Configuration implements ConfigurationInterface
 
         $rootNode = $treeBuilder->getRootNode();
         $rootNode
-            ->children()
-                ->arrayNode('default')->scalarPrototype()->end()
+            ->arrayPrototype()->scalarPrototype()->end()
+            ->end()
+            ->validate()
+            ->ifFalse(
+                static fn (array $v) => \count(
+                    array_filter(
+                        array_keys($v),
+                        static fn (string $key) => $key !== 'default' && !Uuid::isValid($key)
+                    )
+                ) === 0
+            )
+            ->thenInvalid('Key must be "default" or a valid UUID')
             ->end();
 
         return $rootNode;
@@ -963,11 +1052,11 @@ class Configuration implements ConfigurationInterface
                         ->end()
                     ->end()
                     ->validate()
-                        ->ifTrue(function ($areas) {
+                        ->ifTrue(static function ($areas) {
                             $allowedAreas = ['storefront', 'store_api'];
                             $providedAreas = array_keys($areas);
 
-                            return !empty(array_diff($providedAreas, $allowedAreas));
+                            return array_diff($providedAreas, $allowedAreas) !== [];
                         })
                         ->thenInvalid('Only "storefront" and "store_api" areas are currently supported in default_policies. Config contains unsupported area(s): %s')
                     ->end()
@@ -987,20 +1076,39 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('reverse_proxy')
                     ->children()
                         ->booleanNode('enabled')->end()
-                        ->booleanNode('use_varnish_xkey')->defaultFalse()->end()
+                        ->booleanNode('use_varnish_xkey')
+                            ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option has no effect anymore and therefore will be removed in 6.8.0.')
+                            ->defaultFalse()
+                        ->end()
                         ->arrayNode('hosts')->performNoDeepMerging()
                             ->scalarPrototype()->end()
                         ->end()
                         ->integerNode('max_parallel_invalidations')->defaultValue(2)->end()
-                        ->scalarNode('ban_method')->defaultValue('BAN')->end()
-                        ->arrayNode('ban_headers')->performNoDeepMerging()->defaultValue([])
+                        ->scalarNode('ban_method')
+                            ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option has no effect anymore and therefore will be removed in 6.8.0.')
+                            ->defaultValue('BAN')
+                        ->end()
+                        ->arrayNode('ban_headers')
+                            ->performNoDeepMerging()
+                            ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option has no effect anymore and therefore will be removed in 6.8.0.')
+                            ->defaultValue([])
                             ->scalarPrototype()->end()
                         ->end()
                         ->arrayNode('purge_all')
+                            ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option has no effect anymore and therefore will be removed in 6.8.0.')
                             ->children()
-                                ->scalarNode('ban_method')->defaultValue('BAN')->end()
-                                ->arrayNode('ban_headers')->performNoDeepMerging()->defaultValue([])->scalarPrototype()->end()->end()
-                                ->arrayNode('urls')->performNoDeepMerging()->defaultValue(['/'])->scalarPrototype()->end()->end()
+                                ->scalarNode('ban_method')
+                                    ->defaultValue('BAN')
+                                    ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option has no effect anymore and therefore will be removed in 6.8.0.')
+                                ->end()
+                                ->arrayNode('ban_headers')
+                                    ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option has no effect anymore and therefore will be removed in 6.8.0.')
+                                    ->performNoDeepMerging()->defaultValue([])->scalarPrototype()->end()
+                                ->end()
+                                ->arrayNode('urls')
+                                    ->setDeprecated('shopware/core', '6.8.0', 'The "%node%" option has no effect anymore and therefore will be removed in 6.8.0.')
+                                    ->performNoDeepMerging()->defaultValue(['/'])->scalarPrototype()->end()
+                                ->end()
                             ->end()
                         ->end()
                         ->arrayNode('fastly')
@@ -1017,7 +1125,7 @@ class Configuration implements ConfigurationInterface
                 ->end()
             ->end()
             ->validate()
-                ->ifTrue(function (array $config) {
+                ->ifTrue(static function (array $config) {
                     $policies = array_keys($config['policies'] ?? []);
 
                     // Check default_policies references
@@ -1114,7 +1222,7 @@ class Configuration implements ConfigurationInterface
                             ->children()
                                 ->enumNode('type')
                                     ->isRequired()
-                                    ->values(array_map(fn (Type $type) => $type->value, Type::cases()))
+                                    ->values(array_map(static fn (Type $type) => $type->value, Type::cases()))
                                 ->end()
                                 ->scalarNode('description')->end()
                                 ->scalarNode('unit')->end()
@@ -1197,6 +1305,23 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('jwks_path')->isRequired()->end()
                 ->scalarNode('scope')->isRequired()->end()
                 ->scalarNode('register_url')->isRequired()->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createWebhookSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('webhook');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+                ->enumNode('failure_strategy')
+                    ->info('@experimental stableVersion:v6.8.0 feature:WEBHOOK_FAILURE_STRATEGY this is a temporary solution until webhooks are refactored with a circuit breaker implementation')
+                    ->values(WebhookFailureStrategy::values())
+                    ->defaultValue(WebhookFailureStrategy::DisableOnThreshold->value)
+                ->end()
             ->end();
 
         return $rootNode;

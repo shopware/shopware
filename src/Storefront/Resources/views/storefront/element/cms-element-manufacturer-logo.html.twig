@@ -24,8 +24,8 @@
             {% endif %}
 
             {% block element_manufacturer_logo_link %}
-                {% if manufacturer.translated.link %}
-                    <a href="{{ manufacturer.translated.link }}"
+                {% if manufacturer.link %}
+                    <a href="{{ manufacturer.link }}"
                         class="cms-image-link product-detail-manufacturer-link"
                         {% if config.newTab.value %}target="_blank" rel="noreferrer noopener"{% endif %}
                         title="{{ manufacturer.name }}">
@@ -64,7 +64,7 @@
                         {{ manufacturer.name }}
                     {% endblock %}
                 {% endif %}
-                {% if manufacturer.translated.link %}
+                {% if manufacturer.link %}
                     </a>
                 {% else %}
                     </div>

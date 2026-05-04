@@ -3,9 +3,9 @@
 namespace Shopware\Core\Migration\V6_7;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -20,7 +20,7 @@ class Migration1763125891AddProductTypeColumn extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        if (!EntityDefinitionQueryHelper::columnExists($connection, 'product', 'type')) {
+        if (!TableHelper::columnExists($connection, 'product', 'type')) {
             $this->addColumn(
                 $connection,
                 'product',
@@ -33,19 +33,20 @@ class Migration1763125891AddProductTypeColumn extends MigrationStep
             $connection->executeStatement('CREATE INDEX `idx.product.type` ON `product` (`type`)');
         }
 
+        if (!TableHelper::indexExists($connection, 'product', 'idx.product.type')) {
+            $connection->executeStatement('CREATE INDEX `idx.product.type` ON `product` (`type`)');
+        }
+
         $batchSize = 5000;
 
         do {
-            $affected = $connection->executeStatement(<<<SQL
-                UPDATE `product`
+            $affected = $connection->executeStatement(
+                "UPDATE `product`
                  SET `product`.`type` = 'digital'
-                 WHERE JSON_CONTAINS(states, '\"is-download\"')
-                 LIMIT {$batchSize}
-            SQL);
+                 WHERE `type` <> 'digital' AND JSON_CONTAINS(states, '\"is-download\"')
+                 ORDER BY `id`
+                 LIMIT {$batchSize};"
+            );
         } while ($affected > 0);
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
     }
 }

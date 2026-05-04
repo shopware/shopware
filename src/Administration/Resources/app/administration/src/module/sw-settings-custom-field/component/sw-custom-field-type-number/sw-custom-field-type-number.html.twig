@@ -9,7 +9,7 @@
     {% block sw_custom_field_type_number_container_numbertype %}
     <mt-select
         v-model="currentCustomField.config.numberType"
-        :label="$tc('sw-settings-custom-field.customField.detail.labelNumberType')"
+        :label="$t('sw-settings-custom-field.customField.detail.labelNumberType')"
         :options="numberTypes"
     />
     {% endblock %}
@@ -17,21 +17,24 @@
     {% block sw_custom_field_type_number_container_step %}
     <mt-number-field
         v-model="currentCustomField.config.step"
-        :label="$tc('sw-settings-custom-field.customField.detail.labelStep')"
+        :label="$t('sw-settings-custom-field.customField.detail.labelStep')"
+        :number-type="currentCustomField.config.numberType"
     />
     {% endblock %}
 
     {% block sw_custom_field_type_number_container_min %}
     <mt-number-field
         v-model="currentCustomField.config.min"
-        :label="$tc('sw-settings-custom-field.customField.detail.labelMin')"
+        :label="$t('sw-settings-custom-field.customField.detail.labelMin')"
+        :number-type="currentCustomField.config.numberType"
     />
     {% endblock %}
 
     {% block sw_custom_field_type_number_container_max %}
     <mt-number-field
         v-model="currentCustomField.config.max"
-        :label="$tc('sw-settings-custom-field.customField.detail.labelMax')"
+        :label="$t('sw-settings-custom-field.customField.detail.labelMax')"
+        :number-type="currentCustomField.config.numberType"
     />
     {% endblock %}
 </sw-container>

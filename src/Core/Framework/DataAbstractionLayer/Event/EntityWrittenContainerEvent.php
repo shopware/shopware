@@ -132,7 +132,7 @@ class EntityWrittenContainerEvent extends NestedEvent
      */
     public function getDeletedPrimaryKeys(string $entity): array
     {
-        return $this->findPrimaryKeys($entity, fn (EntityWriteResult $result) => $result->getOperation() === EntityWriteResult::OPERATION_DELETE);
+        return $this->findPrimaryKeys($entity, static fn (EntityWriteResult $result) => $result->getOperation() === EntityWriteResult::OPERATION_DELETE);
     }
 
     /**
@@ -144,15 +144,15 @@ class EntityWrittenContainerEvent extends NestedEvent
     {
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0'),
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'),
         );
 
-        return $this->findPrimaryKeys($entity, function (EntityWriteResult $result) {
+        return $this->findPrimaryKeys($entity, static function (EntityWriteResult $result) {
             if ($result->getOperation() === EntityWriteResult::OPERATION_DELETE) {
                 return true;
             }
 
-            return !empty($result->getPayload());
+            return $result->getPayload() !== [];
         });
     }
 
@@ -163,12 +163,12 @@ class EntityWrittenContainerEvent extends NestedEvent
      */
     public function getPrimaryKeysWithPayloadIgnoringFields(string $entity, array $ignoredFields): array
     {
-        return $this->findPrimaryKeys($entity, function (EntityWriteResult $result) use ($ignoredFields) {
+        return $this->findPrimaryKeys($entity, static function (EntityWriteResult $result) use ($ignoredFields) {
             if ($result->getOperation() === EntityWriteResult::OPERATION_DELETE) {
                 return true;
             }
 
-            return !empty(array_diff(array_keys($result->getPayload()), $ignoredFields));
+            return array_diff(array_keys($result->getPayload()), $ignoredFields) !== [];
         });
     }
 
@@ -179,7 +179,7 @@ class EntityWrittenContainerEvent extends NestedEvent
      */
     public function getPrimaryKeysWithPropertyChange(string $entity, array $properties): array
     {
-        return $this->findPrimaryKeys($entity, function (EntityWriteResult $result) use ($properties) {
+        return $this->findPrimaryKeys($entity, static function (EntityWriteResult $result) use ($properties) {
             $payload = $result->getPayload();
 
             foreach ($properties as $property) {

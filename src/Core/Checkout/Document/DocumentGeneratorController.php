@@ -45,7 +45,7 @@ class DocumentGeneratorController extends AbstractController
     {
         $documents = $this->serializer->decode($request->getContent(), 'json');
 
-        if (empty($documents) || !\is_array($documents)) {
+        if (!\is_array($documents) || $documents === []) {
             throw DocumentException::invalidRequestParameter('Request parameters must be an array of documents object');
         }
 

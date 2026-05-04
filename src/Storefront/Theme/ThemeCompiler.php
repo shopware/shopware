@@ -352,7 +352,7 @@ class ThemeCompiler implements ThemeCompilerInterface
     {
         $allFeatures = Feature::getAll();
 
-        $featuresScss = implode(',', array_map(fn ($value, $key) => \sprintf('"%s": %s', $key, json_encode($value, \JSON_THROW_ON_ERROR)), $allFeatures, array_keys($allFeatures)));
+        $featuresScss = implode(',', array_map(static fn ($value, $key) => \sprintf('"%s": %s', $key, json_encode($value, \JSON_THROW_ON_ERROR)), $allFeatures, array_keys($allFeatures)));
 
         return \sprintf('$sw-features: (%s);', $featuresScss);
     }
@@ -367,7 +367,7 @@ class ThemeCompiler implements ThemeCompilerInterface
      */
     private function formatVariables(array $variables): array
     {
-        return array_map(fn ($value, $key) => \sprintf(
+        return array_map(static fn ($value, $key) => \sprintf(
             '$%s: %s;',
             $key,
             isset($value) && $value !== '' ? $value : 'null'
@@ -456,7 +456,7 @@ PHP_EOL;
         FileCollection $styleFiles,
         string $salesChannelId
     ): string {
-        $styles = $styleFiles->map(fn (File $file) => \sprintf('@import \'%s\';', $file->getFilepath()));
+        $styles = $styleFiles->map(static fn (File $file) => \sprintf('@import \'%s\';', $file->getFilepath()));
 
         $concatenatedStylesEvent = new ThemeCompilerConcatenatedStylesEvent(
             implode("\n", $styles),

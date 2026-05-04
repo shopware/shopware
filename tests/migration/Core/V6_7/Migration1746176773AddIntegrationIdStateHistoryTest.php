@@ -3,18 +3,18 @@
 namespace Shopware\Tests\Migration\Core\V6_7;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Schema\ForeignKeyConstraint;
-use Doctrine\DBAL\Types\BinaryType;
+use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1746176773AddIntegrationIdStateHistory;
 
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('checkout')]
 #[CoversClass(Migration1746176773AddIntegrationIdStateHistory::class)]
 class Migration1746176773AddIntegrationIdStateHistoryTest extends TestCase
 {
@@ -32,34 +32,20 @@ class Migration1746176773AddIntegrationIdStateHistoryTest extends TestCase
         // Run twice to ensure idempotency
         $migration->update($connection);
 
-        $manager = $connection->createSchemaManager();
-        $columns = $manager->listTableColumns('state_machine_history');
-        $foreignKeys = $manager->listTableForeignKeys('state_machine_history');
+        $foreignKey = TableHelper::getForeignKeyOfTable($connection, 'state_machine_history', 'fk.state_machine_history.integration_id');
+        static::assertSame('id', $foreignKey->referencedColumnNames[0]);
 
-        $filteredForeignKeys = array_filter($foreignKeys, static fn (ForeignKeyConstraint $key) => $key->getName() === 'fk.state_machine_history.integration_id');
-        $foreignKey = array_pop($filteredForeignKeys);
-
-        static::assertInstanceOf(ForeignKeyConstraint::class, $foreignKey);
-        static::assertSame('id', $foreignKey->getReferencedColumnNames()[0]->toString());
-        static::assertArrayHasKey('integration_id', $columns);
-        static::assertInstanceOf(BinaryType::class, $columns['integration_id']->getType());
-        static::assertSame(16, $columns['integration_id']->getLength());
-        static::assertFalse($columns['integration_id']->getNotnull());
+        $integrationIdColumn = TableHelper::getColumnOfTable($connection, 'state_machine_history', 'integration_id');
+        static::assertSame(Types::BINARY, $integrationIdColumn->type);
+        static::assertSame(16, $integrationIdColumn->length);
+        static::assertFalse($integrationIdColumn->isNotNull);
     }
 
     private function revertMigration(Connection $connection): void
     {
-        if ($this->columnExists($connection, 'state_machine_history', 'integration_id')) {
+        if (TableHelper::indexExists($connection, 'state_machine_history', 'integration_id')) {
             $connection->executeStatement('ALTER TABLE `state_machine_history` DROP FOREIGN KEY `fk.state_machine_history.integration_id`');
             $connection->executeStatement('ALTER TABLE `state_machine_history` DROP COLUMN `integration_id`');
         }
-    }
-
-    private function columnExists(Connection $connection, string $table, string $column): bool
-    {
-        return \array_key_exists(
-            strtolower($column),
-            $connection->createSchemaManager()->listTableColumns($table)
-        );
     }
 }

@@ -1,11 +1,13 @@
 {% block sw_chart_card %}
 <mt-card
+    class="sw-chart-card"
     :subtitle="cardSubtitle"
     :position-identifier="positionIdentifier"
+    :is-loading="isLoading"
 >
     {% block sw_chart_card_title %}
     <template #title>
-        <div class="sw-card__title">
+        <div class="sw-chart-card__title">
             {% block sw_chart_card_title_slot %}
             <slot name="header-title">
                 {{ cardTitle }}
@@ -18,7 +20,7 @@
                 v-tooltip="helpText"
                 class="sw-chart-card__title-help-text"
                 name="solid-question-circle"
-                size="20"
+                size="16px"
             />
             {% endblock %}
         </div>

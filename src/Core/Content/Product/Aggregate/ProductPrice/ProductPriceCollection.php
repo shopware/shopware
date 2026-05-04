@@ -20,17 +20,17 @@ class ProductPriceCollection extends EntityCollection
 
     public function filterByRuleId(string $ruleId): self
     {
-        return $this->filter(fn (ProductPriceEntity $price) => $ruleId === $price->getRuleId());
+        return $this->filter(static fn (ProductPriceEntity $price) => $ruleId === $price->getRuleId());
     }
 
     public function sortByQuantity(): void
     {
-        $this->sort(fn (ProductPriceEntity $a, ProductPriceEntity $b) => $a->getQuantityStart() <=> $b->getQuantityStart());
+        $this->sort(static fn (ProductPriceEntity $a, ProductPriceEntity $b) => $a->getQuantityStart() <=> $b->getQuantityStart());
     }
 
     public function sortByPrice(Context $context): void
     {
-        $this->sort(function (ProductPriceEntity $a, ProductPriceEntity $b) use ($context) {
+        $this->sort(static function (ProductPriceEntity $a, ProductPriceEntity $b) use ($context) {
             $a = $a->getPrice()->first();
             $b = $b->getPrice()->first();
 

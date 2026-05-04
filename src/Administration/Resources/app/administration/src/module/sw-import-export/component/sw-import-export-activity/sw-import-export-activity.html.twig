@@ -4,7 +4,7 @@
     <sw-entity-listing
         v-if="showGrid"
         :repository="logRepository"
-        :items="logs"
+        :data-source="logs"
         :columns="exportActivityColumns"
         sort-by="createdAt"
         sort-direction="DESC"

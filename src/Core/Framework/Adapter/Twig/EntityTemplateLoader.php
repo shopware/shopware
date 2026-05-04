@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Adapter\Twig;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigLoaderConfigCompilerPass;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -18,9 +19,9 @@ use Twig\Source;
 class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface, ResetInterface
 {
     /**
-     * @var array<string, array<string, array{template: string, hash: string, updatedAt: \DateTimeInterface|null}|null>>
+     * @var array<string, array<string, array{template: string, hash: string, updatedAt: \DateTimeInterface|null}|null>>|null
      */
-    private array $databaseTemplateCache = [];
+    private ?array $databaseTemplateCache = null;
 
     /**
      * @internal
@@ -38,7 +39,7 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface,
 
     public function reset(): void
     {
-        $this->databaseTemplateCache = [];
+        $this->databaseTemplateCache = null;
     }
 
     public function getSourceContext(string $name): Source
@@ -104,7 +105,13 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface,
         $namespace = $templateName['namespace'];
         $path = $templateName['path'];
 
-        if (empty($this->databaseTemplateCache)) {
+        if ($this->databaseTemplateCache === null) {
+            $this->databaseTemplateCache = [];
+
+            if (MySQLFactory::hasNoDatabaseAvailable()) {
+                return null;
+            }
+
             /** @var list<array{path: string, template: string, updatedAt: string|null, namespace: string, hash: string}> $templates */
             $templates = $this->connection->fetchAllAssociative('
                 SELECT

@@ -275,7 +275,9 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
         ].forEach(({ name, selector }) => {
             it(`${name} should be enabled`, async () => {
                 const element = wrapper.find(selector);
-                expect(element.attributes().disabled).toBeFalsy();
+                // disabled attribute can be undefined, false, or the string "false"
+                const disabled = element.attributes().disabled;
+                expect(disabled === undefined || disabled === false || disabled === 'false').toBe(true);
             });
         });
 

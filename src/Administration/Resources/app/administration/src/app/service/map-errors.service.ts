@@ -7,7 +7,7 @@ export type CamelCasePath<T extends string> = T extends `${infer A}.${infer B}`
     ? `${Capitalize<Lowercase<A>>}${CamelCasePath<Capitalize<B>>}`
     : Capitalize<T>;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations, max-len
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function mapPropertyErrors<T extends string, K extends string>(
     entityName: T,
     properties: K[] = [],
@@ -25,7 +25,6 @@ export function mapPropertyErrors<T extends string, K extends string>(
                 return null;
             }
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
             return Shopware.Store.get('error').getApiError(entity, property);
         };
     });
@@ -35,11 +34,10 @@ export function mapPropertyErrors<T extends string, K extends string>(
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function mapSystemConfigErrors(entityName: string, saleChannelId: string | null, key: string = ''): $TSFixMe {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     return Shopware.Store.get('error').getSystemConfigApiError(entityName, saleChannelId!, key);
 }
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations, max-len
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function mapCollectionPropertyErrors<T extends string, K extends string>(
     entityCollectionName: T,
     properties: K[] = [],
@@ -56,8 +54,7 @@ export function mapCollectionPropertyErrors<T extends string, K extends string>(
                 return null;
             }
 
-            // eslint-disable-next-line max-len
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-argument
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             return entityCollection.map((entity) => Shopware.Store.get('error').getApiError(entity, property));
         };
     });
@@ -65,7 +62,7 @@ export function mapCollectionPropertyErrors<T extends string, K extends string>(
     return computedValues;
 }
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations, max-len
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function mapPageErrors<T extends string>(
     errorConfig: Record<T, Record<string, string[]>>,
 ): Record<`${Uncapitalize<CamelCasePath<T>>}Error`, () => boolean> {
@@ -74,7 +71,6 @@ export function mapPageErrors<T extends string>(
         const subjects = errorConfig[routeName as T];
         map[`${Shopware.Utils.string.camelCase(routeName)}Error`] = function getterPropertyError() {
             return Object.keys(subjects).some((entityName) => {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
                 return Shopware.Store.get('error').existsErrorInProperty(entityName, subjects[entityName]);
             });
         };

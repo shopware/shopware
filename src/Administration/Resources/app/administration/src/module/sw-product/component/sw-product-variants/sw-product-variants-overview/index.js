@@ -127,42 +127,42 @@ export default {
             const columns = [
                 {
                     property: 'name',
-                    label: this.$tc('sw-product.variations.generatedListColumnVariation'),
+                    label: this.$t('sw-product.variations.generatedListColumnVariation'),
                     allowResize: true,
                 },
                 ...this.currencyColumns,
                 {
                     property: 'sales',
                     dataIndex: 'sales',
-                    label: this.$tc('sw-product.list.columnSales'),
+                    label: this.$t('sw-product.list.columnSales'),
                     allowResize: true,
                     align: 'right',
                 },
                 {
                     property: 'stock',
-                    label: this.$tc('sw-product.variations.generatedListColumnStock'),
+                    label: this.$t('sw-product.variations.generatedListColumnStock'),
                     allowResize: true,
                     inlineEdit: 'number',
-                    width: '125px',
+                    width: 'calc(var(--scale-size-80) + var(--scale-size-40) + var(--scale-size-6))',
                     align: 'right',
                 },
                 {
                     property: 'productNumber',
-                    label: this.$tc('sw-product.variations.generatedListColumnProductNumber'),
+                    label: this.$t('sw-product.variations.generatedListColumnProductNumber'),
                     allowResize: true,
                     inlineEdit: 'string',
-                    width: '150px',
+                    width: 'calc(var(--scale-size-128) + var(--scale-size-22))',
                 },
                 {
                     property: 'media',
-                    label: this.$tc('sw-product.detailBase.cardTitleMedia'),
+                    label: this.$t('sw-product.detailBase.cardTitleMedia'),
                     allowResize: true,
                     inlineEdit: true,
                     sortable: false,
                 },
                 {
                     property: 'active',
-                    label: this.$tc('sw-product.variations.generatedListColumnActive'),
+                    label: this.$t('sw-product.variations.generatedListColumnActive'),
                     allowResize: true,
                     inlineEdit: 'boolean',
                     align: 'center',
@@ -173,7 +173,7 @@ export default {
             if (this.productType === 'digital') {
                 columns.splice(columns.length - 1, 0, {
                     property: 'downloads',
-                    label: this.$tc('sw-product.variations.generatedListColumnDownload'),
+                    label: this.$t('sw-product.variations.generatedListColumnDownload'),
                     allowResize: true,
                     inlineEdit: true,
                     sortable: false,
@@ -200,7 +200,7 @@ export default {
                         primary: false,
                         rawData: false,
                         inlineEdit: 'number',
-                        width: '250px',
+                        width: 'calc(var(--scale-size-224) + var(--scale-size-26))',
                     };
                 });
         },
@@ -305,7 +305,7 @@ export default {
         getList() {
             // Promise needed for inline edit error handling
             return new Promise((resolve) => {
-                if (this.product.parentId) {
+                if (!this.product?.id || this.product.parentId) {
                     return;
                 }
 
@@ -352,7 +352,7 @@ export default {
 
                 // check for other sort values
                 if (this.sortBy === 'name') {
-                    searchCriteria.addSorting(Criteria.sort('product.options.name', this.sortDirection));
+                    searchCriteria.addSorting(Criteria.sort('product.options.name', this.sortDirection, true));
                 } else {
                     searchCriteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
                 }
@@ -658,8 +658,8 @@ export default {
                 .save(variation)
                 .then(() => {
                     // create success notification
-                    const titleSaveSuccess = this.$tc('global.default.success');
-                    const messageSaveSuccess = this.$tc(
+                    const titleSaveSuccess = this.$t('global.default.success');
+                    const messageSaveSuccess = this.$t(
                         'sw-product.detail.messageSaveSuccess',
                         {
                             name: productName,
@@ -677,8 +677,8 @@ export default {
                 })
                 .catch(() => {
                     // create error notification
-                    const titleSaveError = this.$tc('global.default.error');
-                    const messageSaveError = this.$tc(
+                    const titleSaveError = this.$t('global.default.error');
+                    const messageSaveError = this.$t(
                         'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
                     );
 
@@ -698,7 +698,6 @@ export default {
             this.toBeDeletedVariantIds = [];
         },
 
-        /* eslint-disable no-unused-vars */
         onConfirmDelete() {
             this.modalLoading = true;
             this.showDeleteModal = false;
@@ -710,7 +709,7 @@ export default {
                     this.toBeDeletedVariantIds = [];
 
                     this.createNotificationError({
-                        message: this.$tc('sw-product.variations.generatedListMessageDeleteErrorCanonicalUrl'),
+                        message: this.$t('sw-product.variations.generatedListMessageDeleteErrorCanonicalUrl'),
                     });
 
                     return;
@@ -718,17 +717,27 @@ export default {
 
                 this.updateVariantListingConfig(variantIds);
 
-                this.productRepository.syncDeleted(variantIds).then(() => {
-                    this.modalLoading = false;
-                    this.toBeDeletedVariantIds = [];
+                this.productRepository
+                    .syncDeleted(variantIds)
+                    .then(() => {
+                        this.modalLoading = false;
+                        this.toBeDeletedVariantIds = [];
 
-                    this.createNotificationSuccess({
-                        message: this.$tc('sw-product.variations.generatedListMessageDeleteSuccess'),
+                        this.createNotificationSuccess({
+                            message: this.$t('sw-product.variations.generatedListMessageDeleteSuccess'),
+                        });
+
+                        this.$refs.variantGrid.resetSelection();
+                        this.getList();
+                    })
+                    .catch(() => {
+                        this.modalLoading = false;
+                        this.toBeDeletedVariantIds = [];
+
+                        this.createNotificationError({
+                            message: this.$t('sw-product.variations.generatedListMessageDeleteError'),
+                        });
                     });
-
-                    this.$refs.variantGrid.resetSelection();
-                    this.getList();
-                });
             });
         },
 

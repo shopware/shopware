@@ -52,7 +52,7 @@ abstract class AbstractDocumentRenderer
      */
     protected function isAllowIntraCommunityDelivery(array $config, OrderEntity $order): bool
     {
-        if (empty($config['displayAdditionalNoteDelivery'])) {
+        if (($config['displayAdditionalNoteDelivery'] ?? false) === false) {
             return false;
         }
 

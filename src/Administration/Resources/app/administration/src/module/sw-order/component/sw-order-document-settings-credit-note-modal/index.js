@@ -3,6 +3,7 @@
  */
 import template from './sw-order-document-settings-credit-note-modal.html.twig';
 import './sw-order-document-settings-credit-note-modal.scss';
+import { DOCUMENT_TYPES } from '../../order.types';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -48,6 +49,16 @@ export default {
             },
         },
 
+        invoices() {
+            return this.order.documents.filter((document) => {
+                return (
+                    document.documentType.technicalName === DOCUMENT_TYPES.INVOICE ||
+                    document.documentType.technicalName === DOCUMENT_TYPES.ZUGFERD_INVOICE ||
+                    document.documentType.technicalName === DOCUMENT_TYPES.ZUGFERD_EMBEDDED_INVOICE
+                );
+            });
+        },
+
         invoiceNumberOptions() {
             return this.invoiceNumbers.map((item) => {
                 return {
@@ -66,41 +77,47 @@ export default {
         createdComponent() {
             this.$super('createdComponent');
 
-            const invoiceNumbers = this.order.documents
-                .filter((document) => {
-                    return (
-                        document.documentType.technicalName === 'invoice' ||
-                        document.documentType.technicalName === 'zugferd_invoice' ||
-                        document.documentType.technicalName === 'zugferd_embedded_invoice'
-                    );
-                })
-                .map((item) => {
-                    return item.config.custom.invoiceNumber;
-                });
+            const invoiceNumbers = this.invoices.map((item) => {
+                return item.config.custom.invoiceNumber;
+            });
 
             this.invoiceNumbers = [...new Set(invoiceNumbers)].sort();
         },
 
-        onCreateDocument(additionalAction = false) {
+        async reserveDocumentNumber(isPreview = false) {
+            const { number } = await this.numberRangeService.reserve(
+                `document_${DOCUMENT_TYPES.CREDIT_NOTE}`,
+                this.order.salesChannelId,
+                isPreview,
+            );
+
+            return number;
+        },
+
+        async onCreateDocument(additionalAction = false) {
             this.$emit('loading-document');
 
+            const selectedInvoice = this.invoices.find((item) => {
+                return item.config.custom.invoiceNumber === this.documentConfig.custom.invoiceNumber;
+            });
+
             if (this.documentNumberPreview === this.documentConfig.documentNumber) {
-                this.numberRangeService
-                    .reserve(`document_${this.currentDocumentType.technicalName}`, this.order.salesChannelId, false)
-                    .then((response) => {
-                        this.documentConfig.custom.creditNoteNumber = response.number;
-                        if (response.number !== this.documentConfig.documentNumber) {
-                            this.createNotificationInfo({
-                                message: this.$tc('sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED'),
-                            });
-                        }
-                        this.documentConfig.documentNumber = response.number;
-                        this.callDocumentCreate(additionalAction);
+                const number = await this.reserveDocumentNumber();
+
+                this.documentConfig.custom.creditNoteNumber = number;
+
+                if (number !== this.documentConfig.documentNumber) {
+                    this.createNotificationInfo({
+                        message: this.$t('sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED'),
                     });
+                }
+
+                this.documentConfig.documentNumber = number;
             } else {
                 this.documentConfig.custom.creditNoteNumber = this.documentConfig.documentNumber;
-                this.callDocumentCreate(additionalAction);
             }
+
+            this.callDocumentCreate(additionalAction, selectedInvoice?.id);
         },
     },
 };

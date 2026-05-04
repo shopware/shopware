@@ -1,15 +1,16 @@
 import template from './sw-theme-manager-detail.html.twig';
 import './sw-theme-manager-detail.scss';
-/**
- * @package discovery
- */
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const Criteria = Shopware.Data.Criteria;
 const { getObjectDiff, cloneDeep, deepMergeObject } = Shopware.Utils.object;
 const { isArray } = Shopware.Utils.types;
 
-Component.register('sw-theme-manager-detail', {
+/**
+ * @deprecated tag:v6.8.0 - Will be @private
+ * @sw-package discovery
+ */
+export default {
     template,
 
     inject: ['acl', 'feature'],
@@ -145,16 +146,26 @@ Component.register('sw-theme-manager-detail', {
             return this.theme.id === this.defaultTheme.id;
         },
 
-        tabItems() {
+        orderedTabs() {
             const tabs = this.structuredThemeFields?.tabs || {};
-            const entries = Object.entries(tabs);
+            if (!Object.prototype.hasOwnProperty.call(tabs, 'default')) {
+                return tabs;
+            }
 
-            const items = entries.map(([name, tab]) => ({
+            const { default: defaultTab, ...nonDefaultTabs } = tabs;
+            return {
+                default: defaultTab,
+                ...nonDefaultTabs,
+            };
+        },
+
+        tabItems() {
+            const entries = Object.entries(this.orderedTabs);
+
+            return entries.map(([name, tab]) => ({
                 name,
                 label: this.getTabLabel(tab.labelSnippetKey, tab.label) || name,
             }));
-
-            return items;
         }
     },
 
@@ -308,7 +319,10 @@ Component.register('sw-theme-manager-detail', {
             this.currentThemeConfigInitial[field].value = false;
         },
 
-        restoreMediaInheritance(currentValue, value) {
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
+        restoreMediaInheritance(currentValue) {
             return currentValue;
         },
 
@@ -428,7 +442,10 @@ Component.register('sw-theme-manager-detail', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            return Promise.all([this.saveSalesChannels(), this.saveThemeConfig(clean)]).then(() => {
+            // Sequential to ensure config is persisted and avoid race condition
+            return this.saveThemeConfig(clean).then(() => {
+                return this.saveSalesChannels();
+            }).then(() => {
                 this.getTheme();
                 this.themeConfigErrors = {};
             }).catch((error) => {
@@ -683,10 +700,11 @@ Component.register('sw-theme-manager-detail', {
         getBind(field) {
             const config = Object.assign({}, field);
 
-            const isCheckboxType = ['switch', 'checkbox'].includes(config?.type);
-            const isCheckboxField = ['sw-switch-field', 'sw-checkbox-field'].includes(config.custom?.componentName);
-            if (!isCheckboxType && !isCheckboxField) {
-                config.label = '';
+            if (!this.isFieldHandlingLabelAndHelpText(field)) {
+                config.label = undefined;
+                config.labelSnippetKey = undefined;
+                config.helpText = undefined;
+                config.helpTextSnippetKey = undefined;
             }
 
             delete config.type;
@@ -729,6 +747,11 @@ Component.register('sw-theme-manager-detail', {
             return fallback;
         },
 
+        isFieldHandlingLabelAndHelpText(field) {
+            return ['switch', 'checkbox'].includes(field.type) ||
+                    ['sw-switch-field', 'sw-checkbox-field'].includes(field.custom?.componentName);
+        },
+
         /**
          * Retrieves the field label with the config key appended in parentheses if a label is set.
          *
@@ -737,6 +760,10 @@ Component.register('sw-theme-manager-detail', {
          * @returns {string}
          */
         getFieldLabel(field, fieldName) {
+            if (this.isFieldHandlingLabelAndHelpText(field)) {
+                return null;
+            }
+
             const label = this.getSnippet(field.labelSnippetKey, field.label) || '';
 
             if (label.length < 1 || label === fieldName) {
@@ -753,6 +780,10 @@ Component.register('sw-theme-manager-detail', {
          * @returns {string|null}
          */
         getHelpText(field) {
+            if (this.isFieldHandlingLabelAndHelpText(field)) {
+                return null;
+            }
+
             const helpText = this.getSnippet(field.helpTextSnippetKey, field.helpText);
 
             if (typeof helpText === 'string' && helpText.length > 0) {
@@ -784,7 +815,7 @@ Component.register('sw-theme-manager-detail', {
         selectionDisablingMethod(selection) {
             if (!this.isDefaultTheme) {
                 return false;
-        }
+            }
 
             return this.theme.getOrigin().salesChannels.has(selection.id);
         },
@@ -809,6 +840,6 @@ Component.register('sw-theme-manager-detail', {
             }
 
             this.onAddMediaToTheme(items[0], this.currentThemeConfig[this.activeMediaField]);
-        }
-    }
-});
+        },
+    },
+};

@@ -95,7 +95,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 
         $schemaPaths = [$this->schemaPath];
 
-        if (!empty($bundleName)) {
+        if ($bundleName !== null && $bundleName !== '') {
             $schemaPaths = array_merge([$this->schemaPath . '/components', $this->schemaPath . '/tags'], $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName));
         } else {
             $schemaPaths = array_merge($schemaPaths, $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName));
@@ -199,7 +199,6 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 
         foreach ($openApi->paths as $path) {
             foreach (self::OPERATION_KEYS as $key) {
-                // @phpstan-ignore property.dynamicName (We check the keys via OPERATION_KEYS)
                 $operation = $path->$key;
 
                 if (!$operation instanceof Operation) {
@@ -351,7 +350,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
             }
 
             $doc = $this->getAssociationsDocumentation($def);
-            if (!empty($doc)) {
+            if ($doc !== '') {
                 $associationDocs[$def->getEntityName()] = $doc;
             }
         }
@@ -623,7 +622,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
             $associations[] = $line;
         }
 
-        if (empty($associations)) {
+        if ($associations === []) {
             return '';
         }
 

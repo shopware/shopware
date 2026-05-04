@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\CustomEntity\Xml\Config\AdminUi;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\System\CustomEntity\CustomEntityException;
 use Shopware\Core\System\CustomEntity\Exception\CustomEntityXmlParsingException;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchema;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\AdminUi;
@@ -142,17 +143,8 @@ class AdminUiXmlSchemaTest extends TestCase
 
     public function testThrowsExceptionWithInvalidPath(): void
     {
-        try {
-            AdminUiXmlSchema::createFromXmlFile('invalid_path');
-            static::fail('no Exception was thrown');
-        } catch (CustomEntityXmlParsingException $exception) {
-            static::assertSame(
-                'Unable to parse file "invalid_path". Message: Resource "invalid_path" is not a file.',
-                $exception->getMessage()
-            );
-            static::assertSame('SYSTEM_CUSTOM_ENTITY__XML_PARSE_ERROR', $exception->getErrorCode());
-            static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
-        }
+        $this->expectExceptionObject(CustomEntityException::xmlParsingException('invalid_path', 'Resource "invalid_path" is not a file.'));
+        AdminUiXmlSchema::createFromXmlFile('invalid_path');
     }
 
     public function testThrowsExceptionWithXmlFile(): void
@@ -178,8 +170,7 @@ class AdminUiXmlSchemaTest extends TestCase
             ['custom_entity_field']
         );
 
-        $detail = $customEntityTest->getDetail();
-        $tabs = $detail->getTabs();
+        $tabs = $customEntityTest->getDetail()->getTabs();
         static::assertCount(1, $tabs->getContent());
 
         $cards = $this->checkTab($tabs->getContent()[0], 'main');
@@ -193,7 +184,7 @@ class AdminUiXmlSchemaTest extends TestCase
     }
 
     /**
-     * @return Entity[]
+     * @return array<string, Entity>
      */
     private function getEntities(AdminUiXmlSchema $adminUiXmlSchema): array
     {
@@ -201,7 +192,7 @@ class AdminUiXmlSchemaTest extends TestCase
     }
 
     /**
-     * @param Entity[] $entities
+     * @param array<string, Entity> $entities
      */
     private function checkEntity(array $entities, string $name): Entity
     {
@@ -216,20 +207,21 @@ class AdminUiXmlSchemaTest extends TestCase
      */
     private function checkListing(Entity $entity, array $refs): void
     {
-        $listing = $entity->getListing();
-        $columns = $listing->getColumns();
+        $columns = $entity->getListing()->getColumns();
         static::assertCount(\count($refs), $columns->getContent());
 
         foreach ($columns->getContent() as $column) {
             static::assertInstanceOf(Column::class, $column);
             static::assertContains($column->getRef(), $refs);
-            unset($refs[array_search($column->getRef(), $refs, true)]);
+            $position = array_search($column->getRef(), $refs, true);
+            static::assertIsInt($position);
+            unset($refs[$position]);
         }
         static::assertCount(0, $refs);
     }
 
     /**
-     * @return Card[]
+     * @return list<Card>
      */
     private function checkTab(
         Tab $tab,
@@ -241,7 +233,7 @@ class AdminUiXmlSchemaTest extends TestCase
     }
 
     /**
-     * @param string[] $refs
+     * @param list<string> $refs
      */
     private function checkCard(
         Card $card,
@@ -257,7 +249,9 @@ class AdminUiXmlSchemaTest extends TestCase
             static::assertInstanceOf(CardField::class, $cardField);
             static::assertContains($cardField->getRef(), $refs);
 
-            unset($refs[array_search($cardField->getRef(), $refs, true)]);
+            $position = array_search($cardField->getRef(), $refs, true);
+            static::assertIsInt($position);
+            unset($refs[$position]);
         }
         static::assertCount(0, $refs);
     }

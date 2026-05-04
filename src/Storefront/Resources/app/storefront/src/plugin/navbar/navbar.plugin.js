@@ -6,7 +6,7 @@ export default class NavbarPlugin extends Plugin {
         /**
          * Hover debounce delay.
          */
-        debounceTime: 125,
+        debounceTime: 200,
         /**
          * Class to select the main navigation items, which contain both the top level link and the dropdown navigation.
          */
@@ -64,10 +64,14 @@ export default class NavbarPlugin extends Plugin {
         if (event.type === 'mouseenter') {
             this._isMouseOver = true;
             this._debounce(() => {
-                if (this._isMouseOver && currentDropdown?._menu && !currentDropdown._menu.classList.contains('show')) {
+                if (this._isMouseOver) {
                     this._closeAllDropdowns();
-                    currentDropdown.show();
-                    topLevelLink.blur();
+
+                    if (currentDropdown?._menu && !currentDropdown._menu.classList.contains('show')) {
+                        currentDropdown.show();
+                        topLevelLink.blur();
+                    }
+
                     this.$emitter.publish('showDropdown');
                 }
             }, this.options.debounceTime);
@@ -106,7 +110,7 @@ export default class NavbarPlugin extends Plugin {
             }
 
             if (topLevelLink.parentNode.classList.contains('dropdown')) {
-                window.location.href = topLevelLink.href;
+                this._navigateTo(topLevelLink.href);
             }
         }
     }
@@ -161,6 +165,14 @@ export default class NavbarPlugin extends Plugin {
                 activeNavItem.classList.add(this.options.activeClass);
             }
         });
+    }
+
+    /**
+     * Thin wrapper so tests can spy on navigation without mocking window.location
+     * (non-configurable in JSDOM v26).
+     */
+    _navigateTo(url) {
+        window.location.href = url;
     }
 
     /**

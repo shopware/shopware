@@ -211,7 +211,7 @@ class EntityWriter implements EntityWriterInterface
     private function validateSyncOperationInput(SyncOperation $operation): void
     {
         $errors = $operation->validate();
-        if (\count($errors)) {
+        if ($errors !== []) {
             throw DataAbstractionLayerException::invalidSyncOperationException(\sprintf('Invalid sync operation. %s', implode(' ', $errors)));
         }
     }
@@ -307,7 +307,7 @@ class EntityWriter implements EntityWriterInterface
 
             /** @var AssociationField $associationField */
             $associationField = $setNullFields
-                ->filter(fn (Field $setNullField) => $setNullField instanceof AssociationField && $setNullField->getReferenceField() === $field)
+                ->filter(static fn (Field $setNullField) => $setNullField instanceof AssociationField && $setNullField->getReferenceField() === $field)
                 ->first();
 
             $flag = $associationField->getFlag(SetNullOnDelete::class);
@@ -353,7 +353,7 @@ class EntityWriter implements EntityWriterInterface
 
             foreach ($fields as $field) {
                 $property = $field->getPropertyName();
-                if (!($field instanceof StorageAware)) {
+                if (!$field instanceof StorageAware) {
                     continue;
                 }
 
@@ -400,7 +400,7 @@ class EntityWriter implements EntityWriterInterface
         if (!$definition instanceof MappingEntityDefinition) {
             $restrictions = $this->foreignKeyResolver->getAffectedDeleteRestrictions($definition, $resolved, $writeContext->getContext(), true);
 
-            if (!empty($restrictions)) {
+            if ($restrictions !== []) {
                 throw DataAbstractionLayerException::restrictDeleteViolations($definition, $restrictions);
             }
         }

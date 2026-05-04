@@ -5,7 +5,9 @@ namespace Shopware\Core\Content\Product\SalesChannel\FindVariant;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductException;
+use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -16,6 +18,7 @@ use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -31,6 +34,8 @@ class FindProductVariantRoute extends AbstractFindProductVariantRoute
     public function __construct(
         private readonly SalesChannelRepository $productRepository,
         private readonly CacheTagCollector $cacheTagCollector,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory,
     ) {
     }
 
@@ -47,9 +52,9 @@ class FindProductVariantRoute extends AbstractFindProductVariantRoute
     )]
     public function load(string $productId, Request $request, SalesChannelContext $context): FindProductVariantRouteResponse
     {
-        $switchedGroup = $request->get('switchedGroup');
+        $switchedGroup = RequestParamHelper::get($request, 'switchedGroup');
 
-        $options = $request->get('options') ? $request->get('options', []) : [];
+        $options = RequestParamHelper::get($request, 'options', []);
 
         foreach ($options as $optionId) {
             if (!\is_string($optionId)) {
@@ -100,6 +105,13 @@ class FindProductVariantRoute extends AbstractFindProductVariantRoute
 
         foreach ($options as $optionId) {
             $criteria->addFilter(new EqualsFilter('product.optionIds', $optionId));
+        }
+
+        if ($this->systemConfigService->getBool(
+            'core.listing.hideCloseoutProductsWhenOutOfStock',
+            $salesChannelContext->getSalesChannelId()
+        )) {
+            $criteria->addFilter($this->productCloseoutFilterFactory->create($salesChannelContext));
         }
 
         return $this->productRepository->searchIds($criteria, $salesChannelContext)->firstId();

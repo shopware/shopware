@@ -69,7 +69,6 @@ export default {
     },
 
     props: {
-        // eslint-disable-next-line vue/require-prop-types
         source: {
             required: true,
         },
@@ -89,21 +88,18 @@ export default {
         transparency: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
         useThumbnails: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
         hideTooltip: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -211,6 +207,10 @@ export default {
         },
 
         previewUrl() {
+            if (!this.trueSource) {
+                return '';
+            }
+
             if (this.isFile) {
                 this.getDataUrlFromFile();
                 return this.dataUrl;
@@ -248,7 +248,7 @@ export default {
 
         mediaName() {
             if (!this.trueSource) {
-                return this.$tc('global.sw-media-preview-v2.textNoMedia');
+                return this.$t('global.sw-media-preview-v2.textNoMedia');
             }
 
             return this.mediaNameFilter(this.trueSource, this.trueSource.fileName);
@@ -296,6 +296,13 @@ export default {
             this.urlPreviewFailed = false;
             this.imagePreviewFailed = false;
             this.fetchSourceIfNecessary();
+        },
+        previewUrl(newUrl, oldUrl) {
+            if (!newUrl || newUrl === oldUrl) {
+                return;
+            }
+
+            this.reloadMediaElement();
         },
     },
 
@@ -361,6 +368,20 @@ export default {
             }
 
             this.dataUrl = await fileReader.readAsDataURL(this.trueSource);
+        },
+
+        reloadMediaElement() {
+            if (!this.isPlayable || (this.mimeTypeGroup !== 'video' && this.mimeTypeGroup !== 'audio')) {
+                return;
+            }
+
+            this.$nextTick(() => {
+                const element = this.$refs.mediaElement;
+
+                if (typeof element?.load === 'function') {
+                    element.load();
+                }
+            });
         },
 
         removeUrlPreview() {

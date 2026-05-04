@@ -52,19 +52,19 @@ final readonly class ReferenceInvoiceLoader
         $builder->orderBy('`document`.`sent`', 'DESC');
         $builder->addOrderBy('`document`.`created_at`', 'DESC');
 
-        if (!empty($referenceDocumentId)) {
+        if ($referenceDocumentId && Uuid::isValid($referenceDocumentId)) {
             $builder->andWhere('`document`.`id` = :documentId');
             $builder->setParameter('documentId', Uuid::fromHexToBytes($referenceDocumentId));
         }
 
         $documents = $builder->executeQuery()->fetchAllAssociative();
 
-        if (empty($documents)) {
+        if ($documents === []) {
             return [];
         }
 
-        $results = array_filter($documents, function (array $document) use ($deepLinkCodeRendererConfig) {
-            if (!empty($deepLinkCodeRendererConfig)) {
+        $results = array_filter($documents, static function (array $document) use ($deepLinkCodeRendererConfig) {
+            if ($deepLinkCodeRendererConfig !== null && $deepLinkCodeRendererConfig !== '') {
                 return $document['orderVersionId'] === $document['versionId']
                     && $deepLinkCodeRendererConfig === $document['deepLinkCode'];
             }
@@ -76,6 +76,6 @@ final readonly class ReferenceInvoiceLoader
         $documents[0]['orderVersionId'] = Defaults::LIVE_VERSION;
 
         // Return the first document from the filtered results, or the first document if no filter was applied
-        return empty($results) ? $documents[0] : reset($results);
+        return $results === [] ? $documents[0] : reset($results);
     }
 }

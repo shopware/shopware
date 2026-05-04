@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Sso;
 
+use Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Sso\Config\LoginConfig;
 use Shopware\Core\Framework\Sso\Config\LoginConfigService;
@@ -14,11 +15,17 @@ class SsoService
 {
     public function __construct(
         private readonly LoginConfigService $loginConfigService,
+        private readonly RefreshTokenRepository $refreshTokenRepository,
     ) {
     }
 
     public function isSso(): bool
     {
         return $this->loginConfigService->getConfig() instanceof LoginConfig;
+    }
+
+    public function revokeUserTokens(string $userId): void
+    {
+        $this->refreshTokenRepository->revokeRefreshTokensForUser($userId);
     }
 }

@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Service\AppInfo;
 use Shopware\Core\Service\Event\ServiceInstalledEvent;
 use Shopware\Core\Service\Event\ServiceUpdatedEvent;
+use Shopware\Core\Service\Requirement\RequirementsValidator;
 use Shopware\Core\Service\ServiceClient;
 use Shopware\Core\Service\ServiceClientFactory;
 use Shopware\Core\Service\ServiceException;
@@ -67,11 +68,13 @@ class ServiceLifecycleTest extends TestCase
 
     private EventDispatcherInterface&MockObject $eventDispatcher;
 
+    private RequirementsValidator&MockObject $requirementsValidator;
+
     protected function setUp(): void
     {
         $this->appLifecycle = $this->createMock(AbstractAppLifecycle::class);
         $this->entry = new ServiceEntry('MyCoolService', 'MyCoolService', 'https://example.com', '/service/lifecycle/choose-app');
-        $this->appInfo = new AppInfo('MyCoolService', '6.6.0.0', 'a1bcd', '6.6.0.0-a1bcd', 'https://example.com/service/lifecycle/app-zip/6.6.0.0', 'sha256', '6.6.0.0');
+        $this->appInfo = new AppInfo('MyCoolService', '6.6.0.0', 'a1bcd', '6.6.0.0-a1bcd', 'https://example.com/service/lifecycle/app-zip/6.6.0.0', ['service_consent'], 'sha256', '6.6.0.0');
         $this->logger = $this->createMock(LoggerInterface::class);
         $this->manifestFactory = $this->createMock(ManifestFactory::class);
         $this->serviceClient = $this->createMock(ServiceClient::class);
@@ -83,6 +86,8 @@ class ServiceLifecycleTest extends TestCase
             [], // empty search for app -> service migration
         ]);
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $this->requirementsValidator = $this->createMock(RequirementsValidator::class);
+        $this->requirementsValidator->method('isValidSet')->willReturn(true);
     }
 
     public function testInstallDoesNotLogErrorIfAppCannotBeDownloaded(): void
@@ -110,7 +115,8 @@ class ServiceLifecycleTest extends TestCase
             $this->manifestFactory,
             $this->sourceResolver,
             $this->appState,
-            $this->eventDispatcher
+            $this->eventDispatcher,
+            $this->requirementsValidator
         );
 
         $lifecycle->install($this->entry, Context::createDefaultContext());
@@ -143,7 +149,7 @@ class ServiceLifecycleTest extends TestCase
 
         $this->logger
             ->expects($this->once())
-            ->method('debug')
+            ->method('warning')
             ->with('Cannot install service "MyCoolService" because of error: "App MyCoolService is not compatible with this Shopware version"');
 
         $this->eventDispatcher->expects($this->never())->method('dispatch');
@@ -157,7 +163,8 @@ class ServiceLifecycleTest extends TestCase
             $manifestFactory,
             $this->sourceResolver,
             $this->appState,
-            $this->eventDispatcher
+            $this->eventDispatcher,
+            $this->requirementsValidator
         );
 
         static::assertFalse($lifecycle->install($this->entry, Context::createDefaultContext()));
@@ -186,7 +193,7 @@ class ServiceLifecycleTest extends TestCase
 
         $this->appLifecycle->expects($this->once())
             ->method('install')
-            ->willReturnCallback(function (Manifest $manifest): void {
+            ->willReturnCallback(static function (Manifest $manifest): void {
                 static::assertSame('https://example.com', $manifest->getPath());
                 static::assertSame([
                     'version' => '6.6.0.0',
@@ -195,6 +202,7 @@ class ServiceLifecycleTest extends TestCase
                     'zip-url' => 'https://example.com/service/lifecycle/app-zip/6.6.0.0',
                     'hash-algorithm' => 'sha256',
                     'min-shop-supported-version' => '6.6.0.0',
+                    'requirements' => ['service_consent'],
                 ], $manifest->getSourceConfig());
                 static::assertTrue($manifest->getMetadata()->isSelfManaged());
                 static::assertSame('6.6.0.0-a1bcd', $manifest->getMetadata()->getVersion());
@@ -204,7 +212,7 @@ class ServiceLifecycleTest extends TestCase
             ->expects($this->once())
             ->method('dispatch')
             ->with(
-                static::callback(function ($event) {
+                static::callback(static function ($event) {
                     return $event instanceof ServiceInstalledEvent && $event->service === 'MyCoolService';
                 }),
             );
@@ -218,7 +226,8 @@ class ServiceLifecycleTest extends TestCase
             $this->manifestFactory,
             $this->sourceResolver,
             $this->appState,
-            $this->eventDispatcher
+            $this->eventDispatcher,
+            $this->requirementsValidator
         );
 
         static::assertTrue($lifecycle->install($this->entry, Context::createDefaultContext()));
@@ -234,7 +243,7 @@ class ServiceLifecycleTest extends TestCase
         $app->assign(['name' => 'MyCoolService', 'version' => '1.0.0', 'aclRoleId' => Uuid::randomHex()]);
         /** @var StaticEntityRepository<AppCollection> $appRepo */
         $appRepo = new StaticEntityRepository([
-            function (Criteria $criteria) use ($app) {
+            static function (Criteria $criteria) use ($app) {
                 static::assertCount(2, $criteria->getFilters());
 
                 $filters = $criteria->getFilters();
@@ -249,7 +258,7 @@ class ServiceLifecycleTest extends TestCase
 
                 return [$app];
             },
-            function (Criteria $criteria) use ($app) { // second load during update
+            static function (Criteria $criteria) use ($app) { // second load during update
                 $app->setSelfManaged(true);
 
                 return [$app];
@@ -281,7 +290,7 @@ class ServiceLifecycleTest extends TestCase
 
         $this->appLifecycle->expects($this->once())
             ->method('update')
-            ->willReturnCallback(function (Manifest $manifest): void {
+            ->willReturnCallback(static function (Manifest $manifest): void {
                 static::assertSame('https://example.com', $manifest->getPath());
                 static::assertSame([
                     'version' => '6.6.0.0',
@@ -290,6 +299,7 @@ class ServiceLifecycleTest extends TestCase
                     'zip-url' => 'https://example.com/service/lifecycle/app-zip/6.6.0.0',
                     'hash-algorithm' => 'sha256',
                     'min-shop-supported-version' => '6.6.0.0',
+                    'requirements' => ['service_consent'],
                 ], $manifest->getSourceConfig());
                 static::assertTrue($manifest->getMetadata()->isSelfManaged());
                 static::assertSame('6.6.0.0-a1bcd', $manifest->getMetadata()->getVersion());
@@ -299,7 +309,7 @@ class ServiceLifecycleTest extends TestCase
             ->expects($this->once())
             ->method('dispatch')
             ->with(
-                static::callback(function ($event) {
+                static::callback(static function ($event) {
                     return $event instanceof ServiceUpdatedEvent && $event->service === 'MyCoolService';
                 }),
             );
@@ -313,7 +323,8 @@ class ServiceLifecycleTest extends TestCase
             $this->manifestFactory,
             $this->sourceResolver,
             $this->appState,
-            $this->eventDispatcher
+            $this->eventDispatcher,
+            $this->requirementsValidator
         );
 
         static::assertTrue($lifecycle->install($this->entry, $context));
@@ -354,7 +365,7 @@ class ServiceLifecycleTest extends TestCase
 
         $this->appLifecycle->expects($this->once())
             ->method('install')
-            ->willReturnCallback(function (Manifest $manifest, AppInstallParameters $options): void {
+            ->willReturnCallback(static function (Manifest $manifest, AppInstallParameters $options): void {
                 static::assertFalse($options->activate);
                 static::assertSame('https://example.com', $manifest->getPath());
                 static::assertSame([
@@ -364,6 +375,7 @@ class ServiceLifecycleTest extends TestCase
                     'zip-url' => 'https://example.com/service/lifecycle/app-zip/6.6.0.0',
                     'hash-algorithm' => 'sha256',
                     'min-shop-supported-version' => '6.6.0.0',
+                    'requirements' => ['service_consent'],
                 ], $manifest->getSourceConfig());
                 static::assertTrue($manifest->getMetadata()->isSelfManaged());
                 static::assertSame('6.6.0.0-a1bcd', $manifest->getMetadata()->getVersion());
@@ -373,7 +385,7 @@ class ServiceLifecycleTest extends TestCase
             ->expects($this->once())
             ->method('dispatch')
             ->with(
-                static::callback(function ($event) {
+                static::callback(static function ($event) {
                     return $event instanceof ServiceInstalledEvent && $event->service === 'MyCoolService';
                 }),
             );
@@ -387,7 +399,8 @@ class ServiceLifecycleTest extends TestCase
             $this->manifestFactory,
             $this->sourceResolver,
             $this->appState,
-            $this->eventDispatcher
+            $this->eventDispatcher,
+            $this->requirementsValidator
         );
 
         static::assertTrue($lifecycle->install($entry, Context::createDefaultContext()));
@@ -415,7 +428,8 @@ class ServiceLifecycleTest extends TestCase
             $manifestFactory,
             $this->sourceResolver,
             $this->appState,
-            $this->eventDispatcher
+            $this->eventDispatcher,
+            $this->requirementsValidator
         );
 
         static::assertFalse($lifecycle->update('MyCoolService', Context::createDefaultContext()));
@@ -452,7 +466,8 @@ class ServiceLifecycleTest extends TestCase
             $this->manifestFactory,
             $this->sourceResolver,
             $this->appState,
-            $this->eventDispatcher
+            $this->eventDispatcher,
+            $this->requirementsValidator
         );
 
         static::assertFalse($lifecycle->update('MyCoolService', Context::createDefaultContext()));
@@ -481,7 +496,8 @@ class ServiceLifecycleTest extends TestCase
             $this->manifestFactory,
             $this->sourceResolver,
             $this->appState,
-            $this->eventDispatcher
+            $this->eventDispatcher,
+            $this->requirementsValidator
         );
 
         static::assertTrue($lifecycle->update('MyCoolService', Context::createDefaultContext()));
@@ -530,7 +546,8 @@ class ServiceLifecycleTest extends TestCase
             $this->manifestFactory,
             $this->sourceResolver,
             $this->appState,
-            $this->eventDispatcher
+            $this->eventDispatcher,
+            $this->requirementsValidator
         );
 
         static::assertFalse($lifecycle->update('MyCoolService', Context::createDefaultContext()));
@@ -560,7 +577,7 @@ class ServiceLifecycleTest extends TestCase
 
         $this->appLifecycle->expects($this->once())
             ->method('update')
-            ->willReturnCallback(function (Manifest $manifest): void {
+            ->willReturnCallback(static function (Manifest $manifest): void {
                 static::assertSame('https://example.com', $manifest->getPath());
                 static::assertSame([
                     'version' => '6.6.0.0',
@@ -569,6 +586,7 @@ class ServiceLifecycleTest extends TestCase
                     'zip-url' => 'https://example.com/service/lifecycle/app-zip/6.6.0.0',
                     'hash-algorithm' => 'sha256',
                     'min-shop-supported-version' => '6.6.0.0',
+                    'requirements' => ['service_consent'],
                 ], $manifest->getSourceConfig());
                 static::assertTrue($manifest->getMetadata()->isSelfManaged());
                 static::assertSame('6.6.0.0-a1bcd', $manifest->getMetadata()->getVersion());
@@ -580,7 +598,7 @@ class ServiceLifecycleTest extends TestCase
             ->expects($this->once())
             ->method('dispatch')
             ->with(
-                static::callback(function ($event) {
+                static::callback(static function ($event) {
                     return $event instanceof ServiceUpdatedEvent && $event->service === 'MyCoolService';
                 }),
             );
@@ -594,10 +612,97 @@ class ServiceLifecycleTest extends TestCase
             $this->manifestFactory,
             $this->sourceResolver,
             $this->appState,
-            $this->eventDispatcher
+            $this->eventDispatcher,
+            $this->requirementsValidator
         );
 
         static::assertTrue($lifecycle->update('MyCoolService', Context::createDefaultContext()));
+    }
+
+    public function testInstallReturnsFalseWhenRequirementsAreInvalid(): void
+    {
+        $invalidAppInfo = new AppInfo('MyCoolService', '6.6.0.0', 'a1bcd', '6.6.0.0-a1bcd', 'https://example.com/service/lifecycle/app-zip/6.6.0.0', ['invalid_requirement'], 'sha256', '6.6.0.0');
+
+        $this->serviceClient->expects($this->once())->method('latestAppInfo')->willReturn($invalidAppInfo);
+        $this->serviceClientFactory->expects($this->once())->method('newFor')->with($this->entry)->willReturn($this->serviceClient);
+
+        $requirementsValidator = $this->createMock(RequirementsValidator::class);
+        $requirementsValidator
+            ->expects($this->once())
+            ->method('isValidSet')
+            ->with(['invalid_requirement'])
+            ->willReturn(false);
+
+        $this->sourceResolver->expects($this->never())->method('filesystemForVersion');
+        $this->manifestFactory->expects($this->never())->method('createFromXmlFile');
+        $this->appLifecycle->expects($this->never())->method('install');
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+
+        $this->logger
+            ->expects($this->once())
+            ->method('debug')
+            ->with('Cannot install service "MyCoolService" because of invalid requirements: "invalid_requirement"');
+
+        $lifecycle = new ServiceLifecycle(
+            $this->serviceRegistryClient,
+            $this->serviceClientFactory,
+            $this->appLifecycle,
+            $this->buildAppRepository(),
+            $this->logger,
+            $this->manifestFactory,
+            $this->sourceResolver,
+            $this->appState,
+            $this->eventDispatcher,
+            $requirementsValidator
+        );
+
+        static::assertFalse($lifecycle->install($this->entry, Context::createDefaultContext()));
+    }
+
+    public function testUpdateReturnsFalseWhenRequirementsAreInvalid(): void
+    {
+        $app = new AppEntity();
+        $app->setId(Uuid::randomHex());
+        $app->setUniqueIdentifier(Uuid::randomHex());
+        $app->assign(['name' => 'MyCoolService', 'version' => '6.0.0', 'aclRoleId' => Uuid::randomHex()]);
+
+        $invalidAppInfo = new AppInfo('MyCoolService', '6.6.0.0', 'a1bcd', '6.6.0.0-a1bcd', 'https://example.com/service/lifecycle/app-zip/6.6.0.0', ['invalid_requirement'], 'sha256', '6.6.0.0');
+
+        $this->serviceClient->expects($this->once())->method('latestAppInfo')->willReturn($invalidAppInfo);
+        $this->serviceClientFactory->expects($this->once())->method('newFor')->with($this->entry)->willReturn($this->serviceClient);
+        $this->serviceRegistryClient->expects($this->once())->method('get')->with('MyCoolService')->willReturn($this->entry);
+
+        $requirementsValidator = $this->createMock(RequirementsValidator::class);
+        $requirementsValidator
+            ->expects($this->once())
+            ->method('isValidSet')
+            ->with(['invalid_requirement'])
+            ->willReturn(false);
+
+        $this->sourceResolver->expects($this->never())->method('filesystemForVersion');
+        $this->manifestFactory->expects($this->never())->method('createFromXmlFile');
+        $this->appLifecycle->expects($this->never())->method('update');
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+
+        $this->logger
+            ->expects($this->once())
+            ->method('debug')
+            ->with('Cannot update service "MyCoolService" because of invalid requirements: "invalid_requirement"');
+
+        $lifecycle = new ServiceLifecycle(
+            $this->serviceRegistryClient,
+            $this->serviceClientFactory,
+            $this->appLifecycle,
+            $this->buildAppRepository([$app]),
+            $this->logger,
+            $this->manifestFactory,
+            $this->sourceResolver,
+            $this->appState,
+            $this->eventDispatcher,
+            $requirementsValidator
+        );
+
+        static::assertFalse($lifecycle->update('MyCoolService', Context::createDefaultContext()));
     }
 
     /**

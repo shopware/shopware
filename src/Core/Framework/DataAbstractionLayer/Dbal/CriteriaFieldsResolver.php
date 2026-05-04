@@ -19,7 +19,7 @@ class CriteriaFieldsResolver
      */
     public function resolve(Criteria $criteria, EntityDefinition $definition): array
     {
-        if (empty($criteria->getFields())) {
+        if ($criteria->getFields() === []) {
             return [];
         }
 
@@ -58,7 +58,7 @@ class CriteriaFieldsResolver
         foreach ($criteria->getFields() as $field) {
             $fields = EntityDefinitionQueryHelper::getFieldsOfAccessor($definition, $field);
 
-            if (empty($fields)) {
+            if ($fields === []) {
                 continue;
             }
 

@@ -43,7 +43,7 @@ export default {
                 return '';
             }
 
-            return this.loginConfig.url;
+            return `${this.loginConfig.url}&usePromptLogin=1`;
         },
 
         email() {

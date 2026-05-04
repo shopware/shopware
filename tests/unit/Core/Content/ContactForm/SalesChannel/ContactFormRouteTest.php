@@ -69,7 +69,7 @@ class ContactFormRouteTest extends TestCase
         $entityRepository->expects($this->once())->method('search')->willReturn($salutationEntitySearchResult);
 
         $mock = $this->createMock(DataValidator::class);
-        $mock->method('validate')->willReturnCallback(function (array $data, DataValidationDefinition $definition) use ($properties, $constraints): void {
+        $mock->method('validate')->willReturnCallback(static function (array $data, DataValidationDefinition $definition) use ($properties, $constraints): void {
             foreach ($properties as $propertyName => $value) {
                 static::assertSame($value, $data[$propertyName] ?? null);
                 static::assertSame($definition->getProperties()[$propertyName] ?? null, $constraints);

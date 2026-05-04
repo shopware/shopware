@@ -2,15 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Document\Renderer;
 
-use horstoeko\zugferd\exception\ZugferdUnknownXmlContentException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use setasign\Fpdi\PdfParser\PdfParserException;
 use Shopware\Core\Checkout\Document\Renderer\AbstractDocumentRenderer;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Renderer\RendererResult;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedRenderer;
+use Shopware\Core\Checkout\Document\Service\ZugferdEmbeddedService;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -27,74 +26,51 @@ class ZugferdEmbeddedRendererTest extends TestCase
         $renderer = new ZugferdEmbeddedRenderer(
             $this->createMock(AbstractDocumentRenderer::class),
             $this->createMock(AbstractDocumentRenderer::class),
-            'random-version'
+            new ZugferdEmbeddedService(),
+            'version'
         );
 
         static::assertSame('zugferd_embedded_invoice', $renderer->supports());
     }
 
-    public function testRender(): void
+    public function testRenderCallsService(): void
     {
-        $invoiceResult = new RendererResult();
-        $invoiceResult->addSuccess('success', new RenderedDocument(content: $this->getPDFContent()));
-        $invoiceResult->addSuccess('emptyXML', new RenderedDocument(content: $this->getPDFContent()));
-        $invoiceResult->addSuccess('emptyPDF', new RenderedDocument());
-        $invoiceResult->addSuccess('invoiceSuccess', new RenderedDocument(content: $this->getPDFContent()));
-        $invoiceResult->addSuccess('missingZugferd', new RenderedDocument());
-        $invoiceResult->addError('zugferdSuccess', new \RuntimeException('invoice broken'));
+        $xml = \file_get_contents(__DIR__ . '/_fixtures/invoice_1.xml');
+        static::assertIsString($xml);
+
+        $pdf = \file_get_contents(__DIR__ . '/_fixtures/invoice_1.pdf');
+        static::assertIsString($pdf);
+
+        $baseResult = new RendererResult();
+        $baseResult->addSuccess('order1', new RenderedDocument(content: $pdf));
+
+        $electronicResult = new RendererResult();
+        $electronicResult->addSuccess('order1', new RenderedDocument(content: $xml));
 
         $invoiceRenderer = $this->createMock(AbstractDocumentRenderer::class);
         $invoiceRenderer
             ->method('render')
-            ->willReturn($invoiceResult);
+            ->willReturn($baseResult);
 
-        $zugferdResult = new RendererResult();
-        $zugferdResult->addSuccess('success', new RenderedDocument(content: $this->getXMLContent()));
-        $zugferdResult->addSuccess('emptyXML', new RenderedDocument());
-        $zugferdResult->addSuccess('emptyPDF', new RenderedDocument(content: $this->getXMLContent()));
-        $zugferdResult->addError('invoiceSuccess', new \RuntimeException('zugferd document broken'));
-        $zugferdResult->addSuccess('zugferdSuccess', new RenderedDocument(content: $this->getXMLContent()));
-
-        $zugferdRenderer = $this->createMock(AbstractDocumentRenderer::class);
-        $zugferdRenderer
+        $electronicRenderer = $this->createMock(AbstractDocumentRenderer::class);
+        $electronicRenderer
             ->method('render')
-            ->willReturn($zugferdResult);
+            ->willReturn($electronicResult);
 
-        $embeddedRenderer = new ZugferdEmbeddedRenderer($invoiceRenderer, $zugferdRenderer, 'random-version');
+        $renderer = new ZugferdEmbeddedRenderer(
+            $invoiceRenderer,
+            $electronicRenderer,
+            new ZugferdEmbeddedService(),
+            'version'
+        );
 
-        $result = $embeddedRenderer->render([
-            'success' => new DocumentGenerateOperation('success'),
-            'emptyXML' => new DocumentGenerateOperation('emptyXML'),
-            'emptyPDF' => new DocumentGenerateOperation('emptyPDF'),
-            'invoiceSuccess' => new DocumentGenerateOperation('invoiceSuccess'),
-            'missingZugferd' => new DocumentGenerateOperation('missingZugferd'),
-            'zugferdSuccess' => new DocumentGenerateOperation('zugferdSuccess'),
-        ], Context::createDefaultContext(), new DocumentRendererConfig());
+        $result = $renderer->render(
+            ['order1' => new DocumentGenerateOperation('order1')],
+            Context::createDefaultContext(),
+            new DocumentRendererConfig()
+        );
 
-        static::assertInstanceOf(RenderedDocument::class, $result->getOrderSuccess('success'));
-
-        static::assertInstanceOf(ZugferdUnknownXmlContentException::class, $result->getOrderError('emptyXML'));
-        static::assertInstanceOf(PdfParserException::class, $result->getOrderError('emptyPDF'));
-        static::assertInstanceOf(\RuntimeException::class, $result->getOrderError('invoiceSuccess'));
-        static::assertInstanceOf(\RuntimeException::class, $result->getOrderError('missingZugferd'));
-        static::assertInstanceOf(\RuntimeException::class, $result->getOrderError('zugferdSuccess'));
-    }
-
-    protected function getXMLContent(): string
-    {
-        $content = file_get_contents(__DIR__ . '/_fixtures/invoice_1.xml');
-
-        static::assertIsString($content);
-
-        return $content;
-    }
-
-    protected function getPDFContent(): string
-    {
-        $content = file_get_contents(__DIR__ . '/_fixtures/invoice_1.pdf');
-
-        static::assertIsString($content);
-
-        return $content;
+        $renderedDocument = $result->getOrderSuccess('order1');
+        static::assertInstanceOf(RenderedDocument::class, $renderedDocument);
     }
 }

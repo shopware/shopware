@@ -903,7 +903,7 @@ class LanguageValidatorTest extends TestCase
         } catch (WriteException $exception) {
             $stack = $exception;
         }
-        if (!empty($expectedCodePathPairs)) {
+        if ($expectedCodePathPairs !== []) {
             static::assertInstanceOf(WriteException::class, $stack);
         }
 
@@ -1024,7 +1024,7 @@ class LanguageValidatorTest extends TestCase
         if (!isset($lang['translationCode']) && !isset($lang['translationCodeId'])) {
             $id = Uuid::randomHex();
             $lang['translationCode'] = [
-                'code' => 'x-tst_' . $id,
+                'code' => 'de-DE-' . $id,
                 'name' => 'test translation code ' . $id,
                 'territory' => 'test translation territory ' . $id,
             ];
@@ -1032,7 +1032,7 @@ class LanguageValidatorTest extends TestCase
         if (isset($lang['parent']) && !isset($lang['parent']['translationCode']) && !isset($lang['parent']['translationCodeId'])) {
             $id = Uuid::randomHex();
             $lang['parent']['translationCode'] = [
-                'code' => 'x-tst_' . $id,
+                'code' => 'de-DE-' . $id,
                 'name' => 'test translation code parent ' . $id,
                 'territory' => 'test translation territory ' . $id,
             ];

@@ -97,9 +97,9 @@ export default {
                     name: 'orderTransactions',
                     config: {
                         componentName: 'sw-single-select',
-                        changeLabel: this.$tc('sw-bulk-edit.order.status.payment.label'),
+                        changeLabel: this.$t('sw-bulk-edit.order.status.payment.label'),
                         entity: 'state_machine_state',
-                        placeholder: this.$tc('sw-bulk-edit.order.status.payment.placeholder'),
+                        placeholder: this.$t('sw-bulk-edit.order.status.payment.placeholder'),
                         options: this.transactionStatus,
                     },
                 },
@@ -107,9 +107,9 @@ export default {
                     name: 'orderDeliveries',
                     config: {
                         componentName: 'sw-single-select',
-                        changeLabel: this.$tc('sw-bulk-edit.order.status.shipping.label'),
+                        changeLabel: this.$t('sw-bulk-edit.order.status.shipping.label'),
                         entity: 'state_machine_state',
-                        placeholder: this.$tc('sw-bulk-edit.order.status.shipping.placeholder'),
+                        placeholder: this.$t('sw-bulk-edit.order.status.shipping.placeholder'),
                         options: this.deliveryStatus,
                     },
                 },
@@ -117,26 +117,33 @@ export default {
                     name: 'orders',
                     config: {
                         componentName: 'sw-single-select',
-                        changeLabel: this.$tc('sw-bulk-edit.order.status.order.label'),
+                        changeLabel: this.$t('sw-bulk-edit.order.status.order.label'),
                         entity: 'state_machine_state',
-                        placeholder: this.$tc('sw-bulk-edit.order.status.order.placeholder'),
+                        placeholder: this.$t('sw-bulk-edit.order.status.order.placeholder'),
                         options: this.orderStatus,
                     },
                 },
                 {
+                    name: 'transitionInternalComment',
+                    config: {
+                        componentName: 'sw-textarea-field',
+                        changeLabel: this.$t('sw-bulk-edit.order.status.transitionInternalComment.label'),
+                    },
+                },
+                {
                     name: 'statusMails',
-                    labelHelpText: this.$tc('sw-bulk-edit.order.status.statusMails.helpText'),
+                    labelHelpText: this.$t('sw-bulk-edit.order.status.statusMails.helpText'),
                     config: {
                         hidden: true,
-                        changeLabel: this.$tc('sw-bulk-edit.order.status.statusMails.label'),
+                        changeLabel: this.$t('sw-bulk-edit.order.status.statusMails.label'),
                     },
                 },
                 {
                     name: 'documents',
-                    labelHelpText: this.$tc('sw-bulk-edit.order.status.documents.helpText'),
+                    labelHelpText: this.$t('sw-bulk-edit.order.status.documents.helpText'),
                     config: {
                         componentName: 'sw-bulk-edit-order-documents',
-                        changeLabel: this.$tc('sw-bulk-edit.order.status.documents.label'),
+                        changeLabel: this.$t('sw-bulk-edit.order.status.documents.label'),
                         documents: this.bulkEditData?.documents,
                     },
                 },
@@ -151,44 +158,52 @@ export default {
             return [
                 {
                     name: 'invoice',
-                    labelHelpText: this.$tc('sw-bulk-edit.order.documents.generateInvoice.helpText'),
+                    labelHelpText: this.$t('sw-bulk-edit.order.documents.generateInvoice.helpText'),
                     config: {
                         componentName: 'sw-bulk-edit-order-documents-generate-invoice',
-                        changeLabel: this.$tc('sw-bulk-edit.order.documents.generateInvoice.label'),
+                        changeLabel: this.$t('sw-bulk-edit.order.documents.generateInvoice.label'),
                     },
                 },
                 {
                     name: 'storno',
-                    labelHelpText: this.$tc('sw-bulk-edit.order.documents.generateCancellationInvoice.helpText'),
+                    labelHelpText: this.$t('sw-bulk-edit.order.documents.generateCancellationInvoice.helpText'),
                     config: {
                         componentName: 'sw-bulk-edit-order-documents-generate-cancellation-invoice',
-                        changeLabel: this.$tc('sw-bulk-edit.order.documents.generateCancellationInvoice.label'),
-                        changeSubLabel: this.$tc('sw-bulk-edit.order.documents.generateCancellationInvoice.changeSubLabel'),
+                        changeLabel: this.$t('sw-bulk-edit.order.documents.generateCancellationInvoice.label'),
+                        changeSubLabel: this.$t('sw-bulk-edit.order.documents.generateCancellationInvoice.changeSubLabel'),
                     },
                 },
                 {
                     name: 'delivery_note',
-                    labelHelpText: this.$tc('sw-bulk-edit.order.documents.generateDeliveryNote.helpText'),
+                    labelHelpText: this.$t('sw-bulk-edit.order.documents.generateDeliveryNote.helpText'),
                     config: {
                         componentName: 'sw-bulk-edit-order-documents-generate-delivery-note',
-                        changeLabel: this.$tc('sw-bulk-edit.order.documents.generateDeliveryNote.label'),
+                        changeLabel: this.$t('sw-bulk-edit.order.documents.generateDeliveryNote.label'),
                     },
                 },
                 {
                     name: 'credit_note',
-                    labelHelpText: this.$tc('sw-bulk-edit.order.documents.generateCreditNote.helpText'),
+                    labelHelpText: this.$t('sw-bulk-edit.order.documents.generateCreditNote.helpText'),
                     config: {
                         componentName: 'sw-bulk-edit-order-documents-generate-credit-note',
-                        changeLabel: this.$tc('sw-bulk-edit.order.documents.generateCreditNote.label'),
-                        changeSubLabel: this.$tc('sw-bulk-edit.order.documents.generateCreditNote.changeSubLabel'),
+                        changeLabel: this.$t('sw-bulk-edit.order.documents.generateCreditNote.label'),
+                        changeSubLabel: this.$t('sw-bulk-edit.order.documents.generateCreditNote.changeSubLabel'),
                     },
                 },
                 {
                     name: 'download',
-                    labelHelpText: this.$tc('sw-bulk-edit.order.documents.downloadDocuments.helpText'),
+                    labelHelpText: this.$t('sw-bulk-edit.order.documents.downloadDocuments.helpText'),
                     config: {
                         componentName: 'sw-bulk-edit-order-documents-download-documents',
-                        changeLabel: this.$tc('sw-bulk-edit.order.documents.downloadDocuments.label'),
+                        changeLabel: this.$t('sw-bulk-edit.order.documents.downloadDocuments.label'),
+                    },
+                },
+                {
+                    name: 'delete',
+                    labelHelpText: this.$t('sw-bulk-edit.order.documents.deleteDocuments.helpText'),
+                    config: {
+                        componentName: 'sw-bulk-edit-order-documents-delete-documents',
+                        changeLabel: this.$t('sw-bulk-edit.order.documents.deleteDocuments.label'),
                     },
                 },
             ];
@@ -205,8 +220,8 @@ export default {
                         allowClear: true,
                         allowAdd: true,
                         allowRemove: true,
-                        changeLabel: this.$tc('sw-bulk-edit.order.tags.changeLabel'),
-                        placeholder: this.$tc('sw-bulk-edit.order.tags.placeholder'),
+                        changeLabel: this.$t('sw-bulk-edit.order.tags.changeLabel'),
+                        placeholder: this.$t('sw-bulk-edit.order.tags.placeholder'),
                     },
                 },
             ];
@@ -230,9 +245,12 @@ export default {
         isStatusSelected() {
             if (!this.isStatusSelected) {
                 this.bulkEditData.statusMails.isChanged = false;
+                this.bulkEditData.transitionInternalComment.isChanged = false;
+                this.bulkEditData.transitionInternalComment.value = null;
             }
 
             this.bulkEditData.statusMails.disabled = !this.isStatusSelected;
+            this.bulkEditData.transitionInternalComment.disabled = !this.isStatusSelected;
         },
 
         isStatusMailsSelected() {
@@ -251,6 +269,7 @@ export default {
     methods: {
         async createdComponent() {
             this.setRouteMetaModule();
+            Shopware.Store.get('swBulkEdit').resetOrderDocumentsIsChanged();
 
             this.isLoading = true;
 
@@ -274,7 +293,7 @@ export default {
                 this.$route.meta.$module = {};
             }
 
-            this.$route.meta.$module.color = '#A092F0';
+            this.$route.meta.$module.color = 'var(--color-purple-500)';
             this.$route.meta.$module.icon = 'regular-shopping-bag';
         },
 
@@ -301,6 +320,7 @@ export default {
             };
 
             this.bulkEditData.statusMails.disabled = true;
+            this.bulkEditData.transitionInternalComment.disabled = true;
             this.bulkEditData.documents.disabled = true;
 
             this.order.documents = {
@@ -469,9 +489,12 @@ export default {
                             }
 
                             payload.sendMail = this.bulkEditData?.statusMails?.isChanged;
+                            payload.internalComment = this.bulkEditData?.transitionInternalComment?.isChanged
+                                ? this.bulkEditData?.transitionInternalComment?.value?.trim() || null
+                                : null;
                             payload.value = this.order?.[key];
                             data.statusData.push(payload);
-                        } else if (key !== 'documents' && key !== 'statusMails') {
+                        } else if (key !== 'documents' && key !== 'statusMails' && key !== 'delete' && key !== 'download') {
                             data.syncData.push(payload);
                         }
                     }

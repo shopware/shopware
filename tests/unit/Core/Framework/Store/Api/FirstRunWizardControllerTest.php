@@ -18,8 +18,8 @@ use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Store\Api\FirstRunWizardController;
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
-use Shopware\Core\Framework\Store\Exception\StoreInvalidCredentialsException;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
+use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\Framework\Store\Struct\PluginRecommendationCollection;
 use Shopware\Core\Framework\Store\Struct\PluginRegionCollection;
 use Shopware\Core\Framework\Store\Struct\StorePluginStruct;
@@ -374,7 +374,7 @@ class FirstRunWizardControllerTest extends TestCase
 
         $frwController = $this->createFirstRunWizardController();
 
-        static::expectException(StoreInvalidCredentialsException::class);
+        static::expectExceptionObject(StoreException::invalidCredentials());
         $frwController->frwLogin($requestDataBag, $this->createContext());
     }
 
@@ -389,7 +389,7 @@ class FirstRunWizardControllerTest extends TestCase
 
         $frwController = $this->createFirstRunWizardController();
 
-        static::expectException(StoreInvalidCredentialsException::class);
+        static::expectExceptionObject(StoreException::invalidCredentials());
         $frwController->frwLogin($requestDataBag, $this->createContext());
     }
 

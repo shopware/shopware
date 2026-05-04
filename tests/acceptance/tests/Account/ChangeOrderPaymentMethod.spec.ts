@@ -15,11 +15,20 @@ test('Customers can update the payment method for an existing order in the store
         customer
     );
 
+    const untouchedOrder = await TestDataService.createOrder(
+        [{ product: product, quantity: 1 }],
+        customer
+    )
+
     const newPaymentMethod = await TestDataService.createBasicPaymentMethod({ afterOrderEnabled: true });
     await TestDataService.assignSalesChannelPaymentMethod(TestDataService.defaultSalesChannel.id, newPaymentMethod.id);
 
     await ShopCustomer.attemptsTo(Login(customer));
     await ShopCustomer.goesTo(StorefrontAccountOrder.url());
+
+    const untouchedOrderItemLocators = await StorefrontAccountOrder.getOrderByOrderNumber(untouchedOrder.orderNumber);
+    await ShopCustomer.expects(untouchedOrderItemLocators.orderPaymentMethod).toContainText('Invoice');
+
     const orderItemLocators = await StorefrontAccountOrder.getOrderByOrderNumber(order.orderNumber);
     await ShopCustomer.expects(orderItemLocators.orderPaymentMethod).toContainText('Invoice');
 
@@ -31,4 +40,6 @@ test('Customers can update the payment method for an existing order in the store
 
     await ShopCustomer.goesTo(StorefrontAccountOrder.url());
     await ShopCustomer.expects(orderItemLocators.orderPaymentMethod).toContainText(newPaymentMethod.name);
+    // check that other order is not touched
+    await ShopCustomer.expects(untouchedOrderItemLocators.orderPaymentMethod).toContainText('Invoice');
 });

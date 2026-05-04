@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_7\Migration1763316536ChangeProductManufacturerLink;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -142,11 +143,12 @@ SQL
         static::assertFalse($this->existLinkColumn('product_manufacturer'));
     }
 
+    /**
+     * @param non-empty-string $table
+     */
     private function existLinkColumn(string $table): bool
     {
-        $existingColumns = $this->connection->createSchemaManager()->listTableColumns($table);
-
-        return \array_key_exists('link', $existingColumns);
+        return TableHelper::columnExists($this->connection, $table, 'link');
     }
 
     private function createProductManufacturer(string $name, ?string $link): void

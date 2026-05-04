@@ -302,11 +302,13 @@ export default {
         },
 
         isFirstMapping(item) {
-            return item.position === 0;
+            const firstPosition = this.sortedMappings.at(0)?.position;
+
+            return item.position === firstPosition;
         },
 
         isLastMapping(item) {
-            const lastPosition = this.profile.mapping.length - 1;
+            const lastPosition = this.sortedMappings.at(-1)?.position;
 
             return item.position === lastPosition;
         },

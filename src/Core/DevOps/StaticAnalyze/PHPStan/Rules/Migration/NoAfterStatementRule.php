@@ -46,7 +46,7 @@ class NoAfterStatementRule implements Rule
             return [];
         }
 
-        if (empty($node->getArgs())) {
+        if ($node->getArgs() === []) {
             return [];
         }
 

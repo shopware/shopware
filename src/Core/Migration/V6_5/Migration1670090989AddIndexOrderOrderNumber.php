@@ -3,9 +3,9 @@
 namespace Shopware\Core\Migration\V6_5;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -18,17 +18,9 @@ class Migration1670090989AddIndexOrderOrderNumber extends MigrationStep
         return 1670090989;
     }
 
-    /**
-     * @throws Exception
-     * @throws \Doctrine\DBAL\Driver\Exception
-     */
     public function update(Connection $connection): void
     {
-        $key = $connection->executeQuery(
-            'SHOW KEYS FROM `order` WHERE Column_name="order_number" AND Key_name="idx.order_number"'
-        )->fetchAssociative();
-
-        if (!empty($key)) {
+        if (TableHelper::indexExists($connection, 'order', 'idx.order_number')) {
             return;
         }
 

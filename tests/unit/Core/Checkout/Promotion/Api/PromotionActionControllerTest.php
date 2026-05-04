@@ -84,7 +84,7 @@ class PromotionActionControllerTest extends TestCase
         $this->filterServiceRegistry
             ->expects($this->once())
             ->method('getPickers')
-            ->willReturnCallback(fn () => yield $picker);
+            ->willReturnCallback(static fn () => yield $picker);
 
         $response = $this->promotionActionController->getDiscountFilterPickers();
 

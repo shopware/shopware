@@ -1,25 +1,22 @@
 {% block sw_order_document_card %}
 <mt-card
     position-identifier="sw-order-document-card"
-    :title="$tc('sw-order.documentCard.cardTitle')"
+    :title="$t('sw-order.documentCard.cardTitle')"
     :class="documentCardStyles"
     class="sw-order-detail-base__document-grid"
 >
     <template #grid>
         {% block sw_order_document_card_header %}
         <sw-card-section
-            divider="bottom"
             :secondary="showCardFilter"
             slim
         >
-
             {% block sw_order_document_card_header_filter %}
             <sw-card-filter
                 v-if="showCardFilter"
-                :placeholder="$tc('sw-order.documentCard.searchBarPlaceholder')"
+                :placeholder="$t('sw-order.documentCard.searchBarPlaceholder')"
                 @sw-card-filter-term-change="onSearchTermChange"
             >
-
                 <template #filter>
                     {% block sw_order_document_card_header_create_document_context_button %}
                     <mt-button
@@ -37,26 +34,24 @@
                         data-analytics-id="sw-order-document-card.show-select-document-type-modal-from-filter"
                         @click="onShowSelectDocumentTypeModal"
                     >
-
                         {% block sw_order_document_card_header_create_document_button_label %}
-                        {{ $tc('sw-order.documentCard.labelCreateNew') }}
+                        {{ $t('sw-order.documentCard.labelCreateNew') }}
                         {% endblock %}
-
                     </mt-button>
                     {% endblock %}
-
                 </template>
             </sw-card-filter>
             {% endblock %}
-
         </sw-card-section>
         {% endblock %}
 
         {% block sw_order_document_card_grid %}
         <sw-entity-listing
             v-if="!documentsEmpty"
+            ref="entityListing"
+            class="sw-order-document-card__grid"
             :repository="documentRepository"
-            :items="documents"
+            :data-source="documents"
             :is-loading="documentsLoading"
             :columns="getDocumentColumns"
             :show-settings="false"
@@ -64,8 +59,8 @@
             :allow-column-edit="false"
             :full-page="false"
             :plain-appearance="true"
+            :allow-delete="!attachView"
         >
-
             {% block sw_order_document_card_grid_column_date %}
             <template #column-createdAt="{ item }">
                 {% block sw_order_document_card_grid_column_date_label %}
@@ -123,7 +118,7 @@
                     @click="onOpenDocument(item.id, item.deepLinkCode, item.documentMediaFile?.fileExtension)"
                 >
                     {% block sw_order_document_card_grid_action_open_label %}
-                    {{ $tc('sw-order.documentCard.labelOpenDocument') }}
+                    {{ $t('sw-order.documentCard.labelOpenDocument') }}
                     {% endblock %}
                 </sw-context-menu-item>
                 {% endblock %}
@@ -136,7 +131,7 @@
                     @click="onDownload(item.id, item.deepLinkCode, item.documentMediaFile?.fileExtension)"
                 >
                     {% block sw_order_document_card_grid_action_download_label %}
-                    {{ $tc('sw-order.documentCard.labelDownloadPdf') }}
+                    {{ $t('sw-order.documentCard.labelDownloadPdf') }}
                     {% endblock %}
                 </sw-context-menu-item>
                 {% endblock %}
@@ -149,7 +144,7 @@
                     @click="onSendDocument(item.id)"
                 >
                     {% block sw_order_document_card_grid_action_send_label %}
-                    {{ $tc('sw-order.documentCard.labelSendDocument') }}
+                    {{ $t('sw-order.documentCard.labelSendDocument') }}
                     {% endblock %}
                 </sw-context-menu-item>
                 {% endblock %}
@@ -162,7 +157,7 @@
                     @click="onMarkDocumentAsSent(item.id)"
                 >
                     {% block sw_order_document_card_grid_action_mark_sent_label %}
-                    {{ $tc('sw-order.documentCard.labelMarkAsSent') }}
+                    {{ $t('sw-order.documentCard.labelMarkAsSent') }}
                     {% endblock %}
                 </sw-context-menu-item>
                 {% endblock %}
@@ -175,16 +170,36 @@
                     @click="onMarkDocumentAsUnsent(item.id)"
                 >
                     {% block sw_order_document_card_grid_action_mark_unsent_label %}
-                    {{ $tc('sw-order.documentCard.labelMarkAsUnsent') }}
+                    {{ $t('sw-order.documentCard.labelMarkAsUnsent') }}
+                    {% endblock %}
+                </sw-context-menu-item>
+                {% endblock %}
+
+                {% block sw_order_document_card_grid_action_delete %}
+                <sw-context-menu-item
+                    :disabled="!acl.can('document.deleter')"
+                    class="sw-order-document-card__context-button-delete"
+                    data-analytics-id="sw-order-document-card.delete-document"
+                    @click="$refs.entityListing.showDelete(item.id)"
+                >
+                    {% block sw_order_document_card_grid_action_delete_label %}
+                    {{ $t('global.default.delete') }}
                     {% endblock %}
                 </sw-context-menu-item>
                 {% endblock %}
             </template>
-            {% endblock %}
 
+            <template #delete-confirm-text>
+                <mt-banner
+                    variant="attention"
+                >
+                    {{ $t('sw-order.documentCard.confirmDeleteText') }}
+                </mt-banner>
+                <span>{{ $t('global.entity-components.deleteMessage') }}</span>
+            </template>
+            {% endblock %}
         </sw-entity-listing>
         {% endblock %}
-
     </template>
 
     {% block sw_order_document_card_grid_column_modal %}
@@ -226,8 +241,10 @@
     {% block sw_order_document_card_empty_state %}
     <mt-empty-state
         v-if="documentsEmpty && !isDataLoading && !term"
+        class="sw-order-document-card__empty-state"
         :icon="$route.meta.$module.icon"
         :headline="emptyStateTitle"
+        centered
     >
         <template #button>
             <mt-button
@@ -245,11 +262,9 @@
                 data-analytics-id="sw-order-document-card.show-select-document-type-modal"
                 @click="onShowSelectDocumentTypeModal"
             >
-
                 {% block sw_order_document_card_header_create_document_button_label %}
-                {{ $tc('sw-order.documentCard.labelCreateNew') }}
+                {{ $t('sw-order.documentCard.labelCreateNew') }}
                 {% endblock %}
-
             </mt-button>
         </template>
     </mt-empty-state>

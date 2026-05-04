@@ -74,7 +74,7 @@ class MediaVisibilityRestrictionSubscriber implements EventSubscriberInterface
 
     private function sanitizeAllAggregations(Criteria $criteria, Filter $restrictionFilter): void
     {
-        if (\count($criteria->getAggregations()) === 0) {
+        if ($criteria->getAggregations() === []) {
             return;
         }
 

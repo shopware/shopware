@@ -66,7 +66,7 @@ class MultiInsertQueryQueue
 
     public function execute(): void
     {
-        if (empty($this->inserts)) {
+        if ($this->inserts === []) {
             return;
         }
 
@@ -134,7 +134,7 @@ class MultiInsertQueryQueue
      */
     private function prepareOnDuplicateKeyUpdatePart(array $fieldsToUpdate): string
     {
-        if (\count($fieldsToUpdate) === 0) {
+        if ($fieldsToUpdate === []) {
             return '';
         }
 

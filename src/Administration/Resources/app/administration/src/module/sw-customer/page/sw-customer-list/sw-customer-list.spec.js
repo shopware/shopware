@@ -100,10 +100,13 @@ async function createWrapper(privileges = []) {
                 },
                 'sw-search-bar': true,
                 'sw-entity-listing': {
-                    props: ['items'],
+                    props: [
+                        'items',
+                        'dataSource',
+                    ],
                     template: `
                         <div>
-                            <template v-for="item in items">
+                            <template v-for="item in (dataSource || items)">
                                 <slot name="actions" v-bind="{ item }"></slot>
                             </template>
                         </div>`,
@@ -302,5 +305,25 @@ describe('module/sw-customer/page/sw-customer-list', () => {
 
         const manualLabel = wrapper.find('.sw-customer-list__created-by-admin-label');
         expect(manualLabel).toBeTruthy();
+    });
+
+    it('should consider criteria filters via updateCriteria', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const filter = Criteria.equals('foo', 'bar');
+        wrapper.vm.updateCriteria([filter]);
+        await flushPromises();
+
+        expect(wrapper.vm.filterCriteria).toContainEqual(filter);
+    });
+
+    it('should sort the customer group column by its name field', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const customerGroupColumn = wrapper.vm.customerColumns.find((column) => column.property === 'group');
+
+        expect(customerGroupColumn.dataIndex).toBe('group.name');
     });
 });

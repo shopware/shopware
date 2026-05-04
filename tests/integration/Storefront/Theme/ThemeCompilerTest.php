@@ -5,12 +5,11 @@ namespace Shopware\Tests\Integration\Storefront\Theme;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\Exception\InvalidPlatformVersion;
 use League\Flysystem\Filesystem;
-use PHPUnit\Framework\Attributes\CoversClass;
+use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
-use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInputFactory;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Source\SourceResolver;
@@ -51,7 +50,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
-#[CoversClass(ThemeCompiler::class)]
 class ThemeCompilerTest extends TestCase
 {
     use AppSystemTestBehaviour;
@@ -442,8 +440,8 @@ PHP_EOL;
         $config = new StorefrontPluginConfiguration('test');
         $config->setAssetPaths(['bla']);
 
-        $fs = new Filesystem(new MemoryFilesystemAdapter());
-        $tmpFs = new Filesystem(new MemoryFilesystemAdapter());
+        $fs = new Filesystem(new InMemoryFilesystemAdapter());
+        $tmpFs = new Filesystem(new InMemoryFilesystemAdapter());
 
         $compiler = new ThemeCompiler(
             $fs,

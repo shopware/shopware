@@ -45,6 +45,7 @@ class PluginException extends HttpException
      */
     public const KERNEL_PLUGIN_LOADER_ERROR = 'FRAMEWORK__KERNEL_PLUGIN_LOADER_ERROR';
     public const PLUGIN_EXTRACTION_FAILED = 'FRAMEWORK__PLUGIN_EXTRACTION_FAILED';
+    public const PLUGIN_CREATION_INVALID_ENTRY = 'FRAMEWORK__PLUGIN_CREATION_INVALID_ENTRY';
 
     /**
      * @internal will be removed once store extensions are installed over composer
@@ -292,5 +293,17 @@ class PluginException extends HttpException
     public static function pluginExtractionError(string $message): self
     {
         return new PluginExtractionException($message);
+    }
+
+    public static function invalidPluginCreationInputError(string $reason): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PLUGIN_CREATION_INVALID_ENTRY,
+            'Invalid input provided during plugin creation. Error: {{ reason }}',
+            [
+                'reason' => $reason,
+            ]
+        );
     }
 }

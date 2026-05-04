@@ -13,8 +13,8 @@
     <div class="sw-configuration-option-list__toolbar">
         {% block sw_product_variant_modal_toolbar_container %}
         <sw-container
-            columns="1fr minmax(50px, max-content)"
-            gap="0 16px"
+            columns="1fr minmax(calc(var(--scale-size-40) + var(--scale-size-10)), max-content)"
+            gap="0 var(--scale-size-16)"
         >
 
             {% block sw_product_variant_modal_body_label_search %}
@@ -36,7 +36,7 @@
                     variant="secondary"
                     @click="toggleFilterMenu"
                 >
-                    {{ $tc('sw-product.variations.generatedFilterList') }}
+                    {{ $t('sw-product.variations.generatedFilterList') }}
                     <mt-icon
                         name="regular-filter"
                         size="16"
@@ -51,7 +51,7 @@
                 >
                     <sw-container
                         columns="1fr"
-                        gap="5px"
+                        gap="var(--scale-size-6)"
                     >
 
                         {% block sw_product_variant_modal_option_list_toolbar_container_filter_tree %}
@@ -84,7 +84,7 @@
                                 variant="secondary"
                                 @click="resetFilterOptions"
                             >
-                                {{ $tc('sw-product.variations.overview.filterReset') }}
+                                {{ $t('sw-product.variations.overview.filterReset') }}
                             </mt-button>
                             {% endblock %}
 
@@ -93,7 +93,7 @@
                                 variant="primary"
                                 @click="fetchProductVariants"
                             >
-                                {{ $tc('sw-product.variations.overview.filter') }}
+                                {{ $t('sw-product.variations.overview.filter') }}
                             </mt-button>
                             {% endblock %}
                         </div>
@@ -135,7 +135,7 @@
                 tabindex="0"
                 @click="toggleBulkEditModal"
             >
-                {{ $tc('global.default.bulkEdit') }}
+                {{ $t('global.default.bulkEdit') }}
             </span>
             {% endblock %}
 
@@ -147,7 +147,7 @@
                 tabindex="0"
                 @click="onClickBulkDelete"
             >
-                {{ $tc('global.default.delete') }}
+                {{ $t('global.default.delete') }}
             </span>
             {% endblock %}
         </template>
@@ -191,7 +191,7 @@
                         v-if="variantIsDigital(item)"
                         class="sw-product-variant-modal__digital-indicator"
                     >
-                        {{ $tc('sw-product.variations.generatedListColumnContentProductState.is-download') }}
+                        {{ $t('sw-product.variations.generatedListColumnContentProductState.is-download') }}
                     </sw-label>
                 </template>
                 {% endblock %}
@@ -225,13 +225,13 @@
                         v-if="item.active === true"
                         class="mt-icon--product-status is--active"
                         name="regular-checkmark-xs"
-                        size="16px"
+                        size="var(--scale-size-16)"
                     />
                     <mt-icon
                         v-else-if="item.active === false"
                         class="mt-icon--product-status is--inactive"
                         name="regular-times-s"
-                        size="16px"
+                        size="var(--scale-size-16)"
                     />
                     <mt-icon
                         v-else
@@ -270,7 +270,7 @@
             <mt-text-field
                 v-if="isInlineEdit"
                 v-model="item.name"
-                :placeholder="$tc('sw-product.list.variantModalInlineEditProductNamePlaceholder')"
+                :placeholder="$t('sw-product.list.variantModalInlineEditProductNamePlaceholder')"
                 size="small"
             />
             {% endblock %}
@@ -313,7 +313,7 @@
                     v-if="variantIsDigital(item)"
                     class="sw-product-variant-modal__digital-indicator"
                 >
-                    {{ $tc('sw-product.variations.generatedListColumnContentProductState.is-download') }}
+                    {{ $t('sw-product.variations.generatedListColumnContentProductState.is-download') }}
                 </sw-label>
             </template>
             {% endblock %}
@@ -366,7 +366,8 @@
             <mt-number-field
                 v-if="isInlineEdit"
                 v-model="item.stock"
-                :placeholder="$tc('sw-product.list.variantModalInlineEditStockPlaceholder')"
+                number-type="int"
+                :placeholder="$t('sw-product.list.variantModalInlineEditStockPlaceholder')"
                 size="small"
             />
             {% endblock %}
@@ -406,7 +407,7 @@
                 <mt-icon
                     v-if="item.active === true"
                     name="regular-checkmark-xs"
-                    size="16px"
+                    size="var(--scale-size-16)"
                     class="mt-icon--product-status is--active"
                 />
                 {% endblock %}
@@ -415,7 +416,7 @@
                 <mt-icon
                     v-else-if="item.active === false"
                     name="regular-times-s"
-                    size="16px"
+                    size="var(--scale-size-16)"
                     class="mt-icon--product-status is--inactive"
                 />
                 {% endblock %}
@@ -475,7 +476,7 @@
                 :disabled="!acl.can('product.deleter')"
                 @click="onDeleteVariant(item)"
             >
-                {{ $tc('global.default.delete') }}
+                {{ $t('global.default.delete') }}
             </sw-context-menu-item>
             {% endblock %}
         </template>
@@ -500,7 +501,7 @@
     <mt-empty-state
         v-else
         :icon="$route.meta.$module.icon"
-        :headline="$tc('sw-product.list.variantGridEmptyStateSubline')"
+        :headline="$t('sw-product.list.variantGridEmptyStateSubline')"
     />
     {% endblock %}
 
@@ -508,7 +509,7 @@
     <sw-modal
         v-if="showDeleteModal"
         class="sw-product-variant-modal__delete-modal"
-        :title="$tc('sw-product.list.variantDeleteModalTitle')"
+        :title="$t('sw-product.list.variantDeleteModalTitle')"
         variant="small"
         @modal-close="closeDeleteModal"
     >
@@ -522,7 +523,7 @@
 
             {% block sw_product_variant_modal_body_delete_modal_body_multiple_subline %}
             <p class="sw-product-variant-modal__delete-modal-subline">
-                ({{ $tc('sw-product.list.multipleVariantsDeleteModalSubline') }})
+                ({{ $t('sw-product.list.multipleVariantsDeleteModalSubline') }})
             </p>
             {% endblock %}
         </template>
@@ -543,7 +544,7 @@
                 variant="secondary"
                 @click="closeDeleteModal"
             >
-                {{ $tc('global.default.cancel') }}
+                {{ $t('global.default.cancel') }}
             </mt-button>
             {% endblock %}
 
@@ -557,7 +558,7 @@
                 @click="deleteVariants"
                 @update:process-success="closeDeleteModal"
             >
-                {{ $tc('global.default.delete') }}
+                {{ $t('global.default.delete') }}
             </sw-button-process>
             {% endblock %}
         </template>
@@ -585,7 +586,7 @@
             variant="secondary"
             @click="$emit('modal-close')"
         >
-            {{ $tc('global.sw-modal.labelClose') }}
+            {{ $t('global.sw-modal.labelClose') }}
         </mt-button>
         {% endblock %}
     </template>

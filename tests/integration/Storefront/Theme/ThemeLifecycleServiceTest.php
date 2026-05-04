@@ -343,7 +343,7 @@ class ThemeLifecycleServiceTest extends TestCase
     public function testItUsesEnglishTranslationsAsFallbackIfDefaultLanguageIsNotProvided(): void
     {
         $bundle = $this->getThemeConfigWithLabels();
-        $this->changeDefaultLanguageLocale('xx-XX');
+        $this->changeDefaultLanguageLocale('de-DE-1');
 
         $this->themeLifecycleService->refreshTheme($bundle, $this->context);
 
@@ -351,7 +351,7 @@ class ThemeLifecycleServiceTest extends TestCase
 
         static::assertInstanceOf(ThemeTranslationCollection::class, $theme->getTranslations());
         static::assertCount(2, $theme->getTranslations());
-        $translation = $this->getTranslationByLocale('xx-XX', $theme->getTranslations());
+        $translation = $this->getTranslationByLocale('de-DE-1', $theme->getTranslations());
         static::assertSame([
             'fields.sw-image' => 'test label',
         ], $translation->getLabels());
@@ -386,6 +386,10 @@ class ThemeLifecycleServiceTest extends TestCase
         foreach ($themeMedia as $media) {
             static::assertSame($themeDefaultFolderId, $media->getMediaFolderId());
         }
+
+        $this->themeRuntimeConfigService->expects($this->once())
+            ->method('deleteByTechnicalName')
+            ->with($bundle->getTechnicalName());
 
         $this->themeLifecycleService->removeTheme($bundle->getTechnicalName(), $this->context);
 
@@ -430,6 +434,10 @@ class ThemeLifecycleServiceTest extends TestCase
         foreach ($themeMedia as $media) {
             static::assertSame($themeDefaultFolderId, $media->getMediaFolderId());
         }
+
+        $this->themeRuntimeConfigService->expects($this->once())
+            ->method('deleteByTechnicalName')
+            ->with($bundle->getTechnicalName());
 
         $this->themeLifecycleService->removeTheme($bundle->getTechnicalName(), $this->context);
 

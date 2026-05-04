@@ -6,7 +6,7 @@
     <template #search-bar>
         <sw-search-bar
             initial-search-type="rule"
-            :placeholder="$tc('sw-settings-rule.general.placeholderSearchBar')"
+            :placeholder="$t('sw-settings-rule.general.placeholderSearchBar')"
             :initial-search="term"
             @search="onSearch"
         />
@@ -18,11 +18,11 @@
         {% block sw_settings_rule_list_smart_bar_header_title %}
         <h2>
             {% block sw_settings_rule_list_smart_bar_header_title_text %}
-            {{ $tc('sw-settings.index.title') }}
+            {{ $t('sw-settings.index.title') }}
             <mt-icon
                 name="regular-chevron-right-xs"
                 size="12px"
-            /> {{ $tc('sw-settings-rule.list.textHeadline') }}
+            /> {{ $t('sw-settings-rule.list.textHeadline') }}
             {% endblock %}
 
             {% block sw_settings_rule_list_smart_bar_header_title_amount %}
@@ -43,7 +43,7 @@
         {% block sw_settings_rule_list_smart_bar_actions_add %}
         <mt-button
             v-tooltip="{
-                message: $tc('sw-privileges.tooltip.warning'),
+                message: $t('sw-privileges.tooltip.warning'),
                 disabled: acl.can('rule.creator'),
                 showOnDisabledElements: true
             }"
@@ -52,7 +52,7 @@
             size="default"
             @click="$router.push({ name: 'sw.settings.rule.create' })"
         >
-            {{ $tc('sw-settings-rule.list.buttonAddRule') }}
+            {{ $t('sw-settings-rule.list.buttonAddRule') }}
         </mt-button>
         {% endblock %}
     </template>
@@ -74,7 +74,7 @@
                 ref="swRuleGrid"
                 identifier="sw-settings-rule-list"
                 class="sw-rule-list-grid"
-                :items="rules"
+                :data-source="rules"
                 :columns="getRuleColumns()"
                 :repository="ruleRepository"
                 :is-loading="isLoading"
@@ -107,10 +107,10 @@
 
                 <template #column-invalid="{item}">
                     <template v-if="item.invalid">
-                        {{ $tc('sw-settings-rule.list.invalid') }}
+                        {{ $t('sw-settings-rule.list.invalid') }}
                     </template>
                     <template v-else>
-                        {{ $tc('sw-settings-rule.list.valid') }}
+                        {{ $t('sw-settings-rule.list.valid') }}
                     </template>
                 </template>
 
@@ -132,7 +132,7 @@
                         :disabled="!acl.can('rule.creator')"
                         @click="onDuplicate(item)"
                     >
-                        {{ $tc('sw-settings-rule.list.contextMenuDuplicate') }}
+                        {{ $t('sw-settings-rule.list.contextMenuDuplicate') }}
                     </sw-context-menu-item>
                     {% endblock %}
                 </template>
@@ -144,7 +144,7 @@
             <mt-empty-state
                 v-else-if="!isLoading && !total"
                 :icon="$route.meta.$module.icon"
-                :headline="$tc('sw-settings-rule.list.messageEmpty')"
+                :headline="$t('sw-settings-rule.list.messageEmpty')"
             />
             {% endblock %}
         </div>
@@ -157,7 +157,7 @@
             {% block sw_settings_rule_list_sidebar_refresh %}
             <sw-sidebar-item
                 icon="regular-undo"
-                :title="$tc('sw-settings-rule.list.titleSidebarItemRefresh')"
+                :title="$t('sw-settings-rule.list.titleSidebarItemRefresh')"
                 @click="onRefresh"
             />
             {% endblock %}

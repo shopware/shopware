@@ -51,7 +51,8 @@ class SearchKeywordUpdater implements ResetInterface
         private readonly Connection $connection,
         private readonly EntityRepository $languageRepository,
         private readonly EntityRepository $productRepository,
-        private readonly ProductSearchKeywordAnalyzerInterface $analyzer
+        private readonly ProductSearchKeywordAnalyzerInterface $analyzer,
+        private readonly bool $searchKeywordIndexingEnabled = true,
     ) {
     }
 
@@ -60,7 +61,11 @@ class SearchKeywordUpdater implements ResetInterface
      */
     public function update(array $ids, Context $context): void
     {
-        if (empty($ids)) {
+        if (!$this->searchKeywordIndexingEnabled) {
+            return;
+        }
+
+        if ($ids === []) {
             return;
         }
 
@@ -234,15 +239,15 @@ class SearchKeywordUpdater implements ResetInterface
         foreach ($accessors as $accessor) {
             $fields = EntityDefinitionQueryHelper::getFieldsOfAccessor($definition, $accessor);
 
-            $fields = array_filter($fields, fn (Field $field) => $field instanceof AssociationField);
+            $fields = array_filter($fields, static fn (Field $field) => $field instanceof AssociationField);
 
-            if (empty($fields)) {
+            if ($fields === []) {
                 continue;
             }
 
             $lastAssociationField = $fields[\count($fields) - 1];
 
-            $path = array_map(fn (Field $field) => $field->getPropertyName(), $fields);
+            $path = array_map(static fn (Field $field) => $field->getPropertyName(), $fields);
 
             $association = implode('.', $path);
             if ($criteria->hasAssociation($association)) {
@@ -304,15 +309,15 @@ class SearchKeywordUpdater implements ResetInterface
         /** @var list<ConfigField> $all */
         $all = $query->executeQuery()->fetchAllAssociative();
 
-        $fields = array_filter($all, fn (array $field) => $field['language_id'] === $languageId);
+        $fields = array_filter($all, static fn (array $field) => $field['language_id'] === $languageId);
 
-        if (!empty($fields)) {
+        if ($fields !== []) {
             $this->config[$languageId] = $fields;
 
             return $fields;
         }
 
-        $fields = array_filter($all, fn (array $field) => $field['language_id'] === Defaults::LANGUAGE_SYSTEM);
+        $fields = array_filter($all, static fn (array $field) => $field['language_id'] === Defaults::LANGUAGE_SYSTEM);
         $this->config[$languageId] = $fields;
 
         return $fields;
@@ -331,7 +336,7 @@ class SearchKeywordUpdater implements ResetInterface
         return array_filter(array_merge(
             [$defaultLanguage],
             $languages->filterByProperty('parentId', null)->getElements(),
-            $languages->filter(fn (LanguageEntity $language) => $language->getParentId() !== null)->getElements()
+            $languages->filter(static fn (LanguageEntity $language) => $language->getParentId() !== null)->getElements()
         ));
     }
 }

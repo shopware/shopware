@@ -15,6 +15,22 @@
         display: grid;
         position: relative;
 
+        &.has-vertical-align {
+            display: flex;
+
+            &.is-align-top {
+                align-items: flex-start;
+            }
+
+            &.is-align-center {
+                align-items: center;
+            }
+
+            &.is-align-bottom {
+                align-items: flex-end;
+            }
+        }
+
         .sw-cms-el-image-slider__image,
         .sw-cms-el-image-slider__video {
             margin: 0 auto;

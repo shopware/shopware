@@ -79,7 +79,7 @@ class EmailSenderTest extends TestCase
             ->method('send')
             ->with(
                 static::callback(
-                    fn (Email $email) => $email->getSubject() === $mail->getSubject() && $email->getHtmlBody() === $mail->getHtmlBody()
+                    static fn (Email $email) => $email->getSubject() === $mail->getSubject() && $email->getHtmlBody() === $mail->getHtmlBody()
                 )
             );
 

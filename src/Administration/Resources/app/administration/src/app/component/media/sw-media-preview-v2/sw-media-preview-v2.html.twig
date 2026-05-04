@@ -57,6 +57,7 @@
             >
             <video
                 v-else
+                ref="mediaElement"
                 :controls="showControls"
                 :autoplay="autoplay"
                 :poster="hasVideoCover ? videoCoverPoster : null"
@@ -68,7 +69,7 @@
                     :src="previewUrl"
                     :type="mimeType"
                 >
-                {{ $tc('global.sw-media-preview-v2.fallbackVideoTagSupport') }}
+                {{ $t('global.sw-media-preview-v2.fallbackVideoTagSupport') }}
             </video>
             <button
                 v-if="!showControls && !mediaIsPrivate"
@@ -97,6 +98,7 @@
             >
             <!-- eslint-disable-next-line vuejs-accessibility/media-has-caption -->
             <audio
+                ref="mediaElement"
                 :controls="showControls"
                 :autoplay="autoplay"
                 controlsList="nodownload"
@@ -106,7 +108,7 @@
                     :src="previewUrl"
                     :type="mimeType"
                 >
-                {{ $tc('global.sw-media-preview-v2.fallbackAudioTagSupport') }}
+                {{ $t('global.sw-media-preview-v2.fallbackAudioTagSupport') }}
             </audio>
             <button
                 v-if="!showControls"

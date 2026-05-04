@@ -16,7 +16,7 @@
         {% block sw_notification_center_context_button_button_slot %}
         <mt-icon
             name="regular-bell"
-            size="20px"
+            size="18px"
         />
         {% endblock %}
     </template>
@@ -26,7 +26,7 @@
         {% block sw_notification_center_content_header %}
         <div class="sw-notification-center__header">
             <h3 class="sw-notification-center__title">
-                {{ $tc('global.notification-center.title') }}
+                {{ $t('global.notification-center.title') }}
             </h3>
 
             {% block sw_notification_center_content_context_menu %}
@@ -35,7 +35,7 @@
                     variant="danger"
                     @click="openDeleteModal"
                 >
-                    {{ $tc('global.notification-center.deleteModal.title') }}
+                    {{ $t('global.notification-center.deleteModal.title') }}
                 </sw-context-menu-item>
             </sw-context-button>
             {% endblock %}
@@ -57,7 +57,7 @@
                 v-show="notifications.length === 0"
                 class="sw-notification-center__empty-text"
             >
-                {{ $tc('global.notification-center.emptyText') }}
+                {{ $t('global.notification-center.emptyText') }}
             </div>
         </div>
         {% endblock %}
@@ -66,13 +66,13 @@
     {% block sw_notification_center_delete_modal %}
     <sw-modal
         v-if="showDeleteModal"
-        :title="$tc('global.notification-center.deleteModal.title')"
+        :title="$t('global.notification-center.deleteModal.title')"
         variant="small"
         @modal-close="onCloseDeleteModal"
     >
         {% block sw_notification_center_delete_modal_confirm_delete_text %}
         <p class="sw_notification_center__confirm-delete-text">
-            {{ $tc('global.notification-center.deleteModal.textConfirm') }}
+            {{ $t('global.notification-center.deleteModal.textConfirm') }}
         </p>
         {% endblock %}
 
@@ -84,7 +84,7 @@
                 variant="secondary"
                 @click="onCloseDeleteModal"
             >
-                {{ $tc('global.default.cancel') }}
+                {{ $t('global.default.cancel') }}
             </mt-button>
             {% endblock %}
 
@@ -94,7 +94,7 @@
                 size="small"
                 @click="onConfirmDelete"
             >
-                {{ $tc('global.default.delete') }}
+                {{ $t('global.default.delete') }}
             </mt-button>
             {% endblock %}
         </template>

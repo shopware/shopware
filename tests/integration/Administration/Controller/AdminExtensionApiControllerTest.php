@@ -104,7 +104,7 @@ class AdminExtensionApiControllerTest extends TestCase
             return;
         }
 
-        if (empty($hosts)) {
+        if ($hosts === []) {
             static::assertIsString($targetUrl);
             $this->expectException(AppException::class);
             $this->expectExceptionMessage(\sprintf('The host "%s" you tried to call is not listed in the allowed hosts in the manifest file for app "%s".', $targetUrl, $appName));

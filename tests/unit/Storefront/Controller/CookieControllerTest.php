@@ -33,7 +33,7 @@ class CookieControllerTest extends TestCase
         $cookieRoute->expects($this->once())
             ->method('getCookieGroups')
             ->with($request, $salesChannelContext)
-            ->willReturn(new CookieRouteResponse($cookieGroups, 'test-hash'));
+            ->willReturn(new CookieRouteResponse($cookieGroups, 'test-hash', 'test-language-id'));
 
         $controller = new CookieControllerTestClass($cookieRoute);
 
@@ -77,7 +77,7 @@ class CookieControllerTest extends TestCase
         $cookieRoute->expects($this->once())
             ->method('getCookieGroups')
             ->with($request, $salesChannelContext)
-            ->willReturn(new CookieRouteResponse($cookieGroups, 'test-hash'));
+            ->willReturn(new CookieRouteResponse($cookieGroups, 'test-hash', 'test-language-id'));
 
         $controller = new CookieControllerTestClass($cookieRoute);
 
@@ -101,7 +101,7 @@ class CookieControllerTest extends TestCase
 
         $cookieRoute = $this->createMock(AbstractCookieRoute::class);
         $cookieRoute->method('getCookieGroups')
-            ->willReturn(new CookieRouteResponse($cookieGroups, 'test-hash'));
+            ->willReturn(new CookieRouteResponse($cookieGroups, 'test-hash', 'test-language-id'));
 
         $controller = new CookieControllerTestClass($cookieRoute);
 
@@ -160,13 +160,13 @@ class CookieControllerTest extends TestCase
         $cookieRoute->expects($this->once())
             ->method('getCookieGroups')
             ->with($request, $salesChannelContext)
-            ->willReturn(new CookieRouteResponse($cookieGroups, 'test-hash'));
+            ->willReturn(new CookieRouteResponse($cookieGroups, 'test-hash', 'test-language-id'));
 
         $controller = new CookieControllerTestClass($cookieRoute);
 
         // Override the json method to capture the data being passed to it
         $jsonData = null;
-        $controller->jsonCallback = function ($data) use (&$jsonData) {
+        $controller->jsonCallback = static function ($data) use (&$jsonData) {
             $jsonData = $data;
 
             return new JsonResponse($data);

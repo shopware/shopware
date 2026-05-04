@@ -142,7 +142,7 @@ class AppStateServiceThemeTest extends TestCase
         static::assertIsString($appId);
 
         $eventWasReceived = false;
-        $onAppDeactivation = function (AppDeactivatedEvent $event) use (&$eventWasReceived, $appId, $context): void {
+        $onAppDeactivation = static function (AppDeactivatedEvent $event) use (&$eventWasReceived, $appId, $context): void {
             $eventWasReceived = true;
             static::assertSame($appId, $event->getApp()->getId());
             static::assertSame($context, $event->getContext());
@@ -173,7 +173,7 @@ class AppStateServiceThemeTest extends TestCase
         static::assertIsString($appId);
 
         $eventWasReceived = false;
-        $onAppActivation = function (AppActivatedEvent $event) use (&$eventWasReceived, $appId, $context): void {
+        $onAppActivation = static function (AppActivatedEvent $event) use (&$eventWasReceived, $appId, $context): void {
             $eventWasReceived = true;
             static::assertSame($appId, $event->getApp()->getId());
             static::assertSame($context, $event->getContext());

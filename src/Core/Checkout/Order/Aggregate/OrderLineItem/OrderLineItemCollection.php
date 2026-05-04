@@ -20,17 +20,17 @@ class OrderLineItemCollection extends EntityCollection
      */
     public function getOrderIds(): array
     {
-        return $this->fmap(fn (OrderLineItemEntity $orderLineItem) => $orderLineItem->getOrderId());
+        return $this->fmap(static fn (OrderLineItemEntity $orderLineItem) => $orderLineItem->getOrderId());
     }
 
     public function filterByOrderId(string $id): self
     {
-        return $this->filter(fn (OrderLineItemEntity $orderLineItem) => $orderLineItem->getOrderId() === $id);
+        return $this->filter(static fn (OrderLineItemEntity $orderLineItem) => $orderLineItem->getOrderId() === $id);
     }
 
     public function sortByCreationDate(string $sortDirection = FieldSorting::ASCENDING): void
     {
-        $this->sort(function (OrderLineItemEntity $a, OrderLineItemEntity $b) use ($sortDirection) {
+        $this->sort(static function (OrderLineItemEntity $a, OrderLineItemEntity $b) use ($sortDirection) {
             if ($sortDirection === FieldSorting::ASCENDING) {
                 return $a->getCreatedAt() <=> $b->getCreatedAt();
             }
@@ -41,7 +41,7 @@ class OrderLineItemCollection extends EntityCollection
 
     public function sortByPosition(): void
     {
-        $this->sort(fn (OrderLineItemEntity $a, OrderLineItemEntity $b) => $a->getPosition() <=> $b->getPosition());
+        $this->sort(static fn (OrderLineItemEntity $a, OrderLineItemEntity $b) => $a->getPosition() <=> $b->getPosition());
     }
 
     /**
@@ -49,7 +49,7 @@ class OrderLineItemCollection extends EntityCollection
      */
     public function getPayloadsProperty(string $property): array
     {
-        return $this->fmap(function (OrderLineItemEntity $lineItem) use ($property) {
+        return $this->fmap(static function (OrderLineItemEntity $lineItem) use ($property) {
             $payload = $lineItem->getPayload() ?? [];
 
             return $payload[$property] ?? null;
@@ -58,7 +58,7 @@ class OrderLineItemCollection extends EntityCollection
 
     public function filterByType(string $type): self
     {
-        return $this->filter(fn (OrderLineItemEntity $lineItem) => $lineItem->getType() === $type);
+        return $this->filter(static fn (OrderLineItemEntity $lineItem) => $lineItem->getType() === $type);
     }
 
     /**

@@ -16,7 +16,7 @@
             v-model="countryState.name"
             name="sw-field--countryState-name"
             :disabled="!acl.can('country.editor') || undefined"
-            :label="$tc('sw-country-state-detail.labelName')"
+            :label="$t('sw-country-state-detail.labelName')"
             :placeholder="placeholder(countryState, 'name')"
         />
         {% endblock %}
@@ -27,7 +27,7 @@
             v-model="countryState.shortCode"
             name="sw-field--countryState-shortCode"
             :disabled="!acl.can('country.editor') || undefined"
-            :label="$tc('sw-country-state-detail.labelShortCode')"
+            :label="$t('sw-country-state-detail.labelShortCode')"
         />
         {% endblock %}
 
@@ -36,9 +36,9 @@
             v-model="countryState.position"
             name="sw-field--countryState-position"
             :disabled="!acl.can('country.editor') || undefined"
-            :tooltip-text="$tc('sw-country-state-detail.tooltipPosition')"
+            :tooltip-text="$t('sw-country-state-detail.tooltipPosition')"
             number-type="int"
-            :label="$tc('sw-country-state-detail.labelPosition')"
+            :label="$t('sw-country-state-detail.labelPosition')"
         />
         {% endblock %}
     </sw-container>
@@ -48,10 +48,10 @@
         {% block sw_country_state_detail_modal_footer_cancel %}
         <mt-button
             size="small"
-            @click="onCancel"
             variant="secondary"
+            @click="onCancel"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -64,7 +64,7 @@
             :disabled="!acl.can('country.editor') || undefined"
             @click="onSave"
         >
-            {{ $tc('sw-country-state-detail.buttonSave') }}
+            {{ $t('sw-country-state-detail.buttonSave') }}
         </mt-button>
         {% endblock %}
     </template>

@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -22,12 +23,7 @@ class Migration1625505190AddOrderTotalAmountToCustomerTable extends MigrationSte
 
     public function update(Connection $connection): void
     {
-        $orderTotalAmountColumn = $connection->fetchOne(
-            'SHOW COLUMNS FROM `customer` WHERE `Field` LIKE :column;',
-            ['column' => 'order_total_amount']
-        );
-
-        if ($orderTotalAmountColumn !== false) {
+        if (TableHelper::columnExists($connection, 'customer', 'order_total_amount')) {
             return;
         }
 
@@ -66,10 +62,5 @@ class Migration1625505190AddOrderTotalAmountToCustomerTable extends MigrationSte
             'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
             'state' => OrderStates::STATE_COMPLETED,
         ]);
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
     }
 }

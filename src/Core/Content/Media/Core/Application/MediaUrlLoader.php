@@ -45,7 +45,7 @@ class MediaUrlLoader
 
         $mapping = $this->map($entities);
 
-        if (empty($mapping)) {
+        if ($mapping === []) {
             return;
         }
 

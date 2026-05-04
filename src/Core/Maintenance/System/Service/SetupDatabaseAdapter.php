@@ -67,7 +67,7 @@ class SetupDatabaseAdapter
             ->select('SCHEMA_NAME')
             ->from('information_schema.SCHEMATA');
 
-        if (!empty($ignoredSchemas)) {
+        if ($ignoredSchemas !== []) {
             $query->andWhere('SCHEMA_NAME NOT IN (:ignoredSchemas)')
                 ->setParameter('ignoredSchemas', $ignoredSchemas, ArrayParameterType::STRING);
         }

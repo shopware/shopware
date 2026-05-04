@@ -61,7 +61,7 @@ class PromotionRedemptionLocker implements EventSubscriberInterface
             $locks[$key] = $lock;
         }
 
-        if (empty($locks)) {
+        if ($locks === []) {
             return;
         }
 

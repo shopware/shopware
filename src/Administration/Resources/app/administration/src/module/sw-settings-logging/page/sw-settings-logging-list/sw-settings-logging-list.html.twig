@@ -5,7 +5,7 @@
     <template #search-bar>
         <sw-search-bar
             initial-search-type="Logs"
-            :placeholder="$tc('sw-settings-logging.general.placeholderSearchBar')"
+            :placeholder="$t('sw-settings-logging.general.placeholderSearchBar')"
             :initial-search="term"
             @search="onSearch"
         />
@@ -17,12 +17,12 @@
         {% block sw_settings_logging_list_smart_bar_header_title %}
         <h2>
             {% block sw_settings_logging_list_smart_bar_header_title_text %}
-            {{ $tc('sw-settings.index.title') }}
+            {{ $t('sw-settings.index.title') }}
             <mt-icon
                 name="regular-chevron-right-xs"
                 size="12px"
             />
-            {{ $tc('sw-settings-logging.list.title') }}
+            {{ $t('sw-settings-logging.list.title') }}
             {% endblock %}
         </h2>
         {% endblock %}
@@ -37,7 +37,7 @@
     <template #content>
         {% block sw_settings_logging_list_content_listing %}
         <sw-entity-listing
-            :items="logs"
+            :data-source="logs"
             :columns="logColumns"
             :full-page="true"
             :show-settings="true"
@@ -100,7 +100,7 @@
                 {% block sw_settings_logging_list_content_listing_actions %}
                 <sw-context-menu-item @click="showInfoModal(item)">
                     {% block sw_settings_logging_list_content_listing_action_show_label %}
-                    {{ $tc('sw-settings-logging.list.actionShowInfo') }}
+                    {{ $t('sw-settings-logging.list.actionShowInfo') }}
                     {% endblock %}
                 </sw-context-menu-item>
                 {% endblock %}
@@ -127,7 +127,7 @@
             {% block sw_settings_logging_list_sidebar_refresh %}
             <sw-sidebar-item
                 icon="regular-undo"
-                :title="$tc('sw-settings-logging.list.titleSidebarItemRefresh')"
+                :title="$t('sw-settings-logging.list.titleSidebarItemRefresh')"
                 @click="onRefresh"
             />
             {% endblock %}

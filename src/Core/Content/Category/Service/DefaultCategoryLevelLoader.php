@@ -71,6 +71,9 @@ class DefaultCategoryLevelLoader implements DefaultCategoryLevelLoaderInterface
             }
 
             $parentId = $category->getParentId();
+            if ($parentId === null) {
+                continue;
+            }
             $counts[$parentId] ??= 0;
             ++$counts[$parentId];
         }
@@ -95,7 +98,7 @@ class DefaultCategoryLevelLoader implements DefaultCategoryLevelLoaderInterface
             ->aggregate($criteria, $context)
             ->get('category-ids');
 
-        if (!($termsResult instanceof TermsResult)) {
+        if (!$termsResult instanceof TermsResult) {
             return;
         }
 

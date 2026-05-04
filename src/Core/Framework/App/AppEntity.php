@@ -26,6 +26,8 @@ use Shopware\Core\System\TaxProvider\TaxProviderCollection;
 /**
  * @phpstan-type Module array{name: string, label: array<string, string>, parent: string, source: string|null, position: int}
  * @phpstan-type Cookie array{snippet_name: string, snippet_description?: string, cookie?: string, value?: string, expiration?: string, entries?: list<array{snippet_name: string, snippet_description?: string, cookie: string, value?: string, expiration?: string}>}
+ *
+ * @phpstan-import-type SourceConfig from AppDefinition
  */
 #[Package('framework')]
 class AppEntity extends Entity
@@ -150,7 +152,7 @@ class AppEntity extends Entity
     protected string $sourceType = 'local';
 
     /**
-     * @var array<string, string|null>
+     * @var SourceConfig
      */
     protected array $sourceConfig = [];
 
@@ -671,7 +673,7 @@ class AppEntity extends Entity
     }
 
     /**
-     * @return array<string, string|null>
+     * @return SourceConfig
      */
     public function getSourceConfig(): array
     {
@@ -679,7 +681,7 @@ class AppEntity extends Entity
     }
 
     /**
-     * @param array<string, string|null> $config
+     * @param SourceConfig $config
      */
     public function setSourceConfig(array $config): void
     {

@@ -13,6 +13,7 @@ export interface Property {
     type?: string;
     relation?: 'one_to_one' | 'one_to_many' | 'many_to_one' | 'many_to_many';
     entity?: string;
+    description?: string;
 }
 
 interface Properties {

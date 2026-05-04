@@ -97,7 +97,7 @@ class UserController extends AbstractController
 
         $allowedChanges = ['firstName', 'lastName', 'username', 'localeId', 'email', 'avatarMedia', 'avatarId', 'password'];
 
-        if (!empty(array_diff(array_keys($request->request->all()), $allowedChanges))) {
+        if (array_diff(array_keys($request->request->all()), $allowedChanges) !== []) {
             throw ApiException::missingPrivileges(['user:update']);
         }
 
@@ -124,6 +124,27 @@ class UserController extends AbstractController
         if ($result->getTotal() === 0) {
             throw OAuthServerException::invalidCredentials();
         }
+
+        return new Response(null, Response::HTTP_NO_CONTENT);
+    }
+
+    #[Route(
+        path: '/api/_action/user/logout',
+        name: 'api.action.user.logout',
+        methods: [Request::METHOD_POST]
+    )]
+    public function logout(Context $context): Response
+    {
+        if (!$context->getSource() instanceof AdminApiSource) {
+            throw ApiException::invalidAdminSource($context->getSource()::class);
+        }
+
+        $userId = $context->getSource()->getUserId();
+        if (!$userId) {
+            throw ApiException::userNotLoggedIn();
+        }
+
+        $this->ssoService->revokeUserTokens($userId);
 
         return new Response(null, Response::HTTP_NO_CONTENT);
     }
@@ -207,6 +228,7 @@ class UserController extends AbstractController
         $events = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => $this->userRepository->upsert([$data], $context));
         $eventIds = $events->getEventByEntityName(UserDefinition::ENTITY_NAME)?->getIds() ?? [];
         $entityId = array_last($eventIds);
+        \assert(\is_string($entityId), 'There should be a user ID, as it just was written');
 
         return $factory->createRedirectResponse($this->userRepository->getDefinition(), $entityId, $request, $context);
     }

@@ -294,7 +294,8 @@ export default class FormValidation {
      * @returns {boolean}
      */
     validateEmail(value) {
-        const emailRegEx = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        // https://regex101.com/r/bfI8Ea/1
+        const emailRegEx = /^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
         let emailAddress = value;
 
         if (emailAddress.includes('@')) {
@@ -484,7 +485,7 @@ export default class FormValidation {
         const label = document.querySelector(`[for="${field.id}"]`);
         const requiredLabel = label.querySelector('.form-required-label');
 
-        if (validationRules) {
+        if (validationRules && validationRules.includes('required')) {
             const rules = validationRules.split(',');
             rules.splice(rules.indexOf('required'), 1);
             field.setAttribute('data-validation', rules.join(','));

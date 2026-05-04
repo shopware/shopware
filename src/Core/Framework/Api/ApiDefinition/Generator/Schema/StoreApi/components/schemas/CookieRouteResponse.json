@@ -23,9 +23,15 @@
             "type": "string",
             "description": "Hash of the current cookie configuration. Can be used to detect changes in cookie configuration.",
             "example": "f86b6a872cb83dbd22d838ceda1aa3d4"
+          },
+          "languageId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The language ID for which the cookie configuration was generated. Used to store hashes per language.",
+            "example": "2fbb5fe2e29a4d70aa5854ce7ce3e20b"
           }
         },
-        "required": ["elements", "hash", "apiAlias"],
+        "required": ["elements", "hash", "languageId", "apiAlias"],
         "example": {
           "apiAlias": "cookie_groups_hash",
           "elements": [
@@ -105,7 +111,8 @@
               "apiAlias": "cookie_group"
             }
           ],
-          "hash": "f86b6a872cb83dbd22d838ceda1aa3d4"
+          "hash": "f86b6a872cb83dbd22d838ceda1aa3d4",
+          "languageId": "2fbb5fe2e29a4d70aa5854ce7ce3e20b"
         }
       }
     }

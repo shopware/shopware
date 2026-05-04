@@ -5,15 +5,15 @@
     <sw-many-to-many-assignment-card
         v-if="category.type !== 'folder'"
         display-variants
-        :title="$tc('sw-category.base.products.productAssignmentHeadline')"
+        :title="$t('sw-category.base.products.productAssignmentHeadline')"
         :entity-collection="category.products"
         :columns="productColumns"
         :is-loading="isLoading"
         :disabled="!acl.can('category.editor')"
         :local-mode="category.isNew()"
         :criteria="productCriteria"
-        :select-label="$tc('sw-category.base.products.productAssignmentLabel')"
-        :placeholder="$tc('sw-category.base.products.productAssignmentPlaceholder')"
+        :select-label="$t('sw-category.base.products.productAssignmentLabel')"
+        :placeholder="$t('sw-category.base.products.productAssignmentPlaceholder')"
         @paginate="onPaginateManualProductAssignment"
     >
 
@@ -24,12 +24,13 @@
             <sw-single-select
                 v-model:value="category.productAssignmentType"
                 class="sw-category-detail-products__product-assignment-type-select"
-                :label="$tc('sw-category.base.products.productAssignmentTypeLabel')"
+                :label="$t('sw-category.base.products.productAssignmentTypeLabel')"
                 :error="categoryProductAssignmentTypeError"
                 :options="productAssignmentTypes"
                 :disabled="!acl.can('category.editor')"
                 required
                 show-clearable-button
+                @update:value="onUpdateProductAssignmentType"
             />
             {% endblock %}
 
@@ -38,7 +39,7 @@
                 v-if="category.productAssignmentType === 'product_stream' && manualAssignedProductsCount > 0"
                 variant="info"
             >
-                {{ $tc('sw-category.base.products.alertManualAssignedProductsOnAssignmentTypeStream') }}
+                {{ $t('sw-category.base.products.alertManualAssignedProductsOnAssignmentTypeStream') }}
             </mt-banner>
             {% endblock %}
         </template>
@@ -55,11 +56,12 @@
                 v-model:value="category.productStreamId"
                 class="sw-category-detail-products__product-stream-select"
                 entity="product_stream"
+                :criteria="productStreamCriteria"
                 show-clearable-button
                 :disabled="!acl.can('category.editor')"
-                :label="$tc('sw-category.base.products.productAssignmentTypeStreamLabel')"
+                :label="$t('sw-category.base.products.productAssignmentTypeStreamLabel')"
                 :help-text="dynamicProductGroupHelpText"
-                :placeholder="$tc('sw-category.base.products.productAssignmentTypeStreamPlaceholder')"
+                :placeholder="$t('sw-category.base.products.productAssignmentTypeStreamPlaceholder')"
                 :error="productStreamInvalidError || categoryProductStreamIdError"
             />
             {% endblock %}
@@ -70,7 +72,7 @@
                     v-if="category.productStreamId"
                     :to="{ name: 'sw.product.stream.detail', params: { id: category.productStreamId } }"
                 >
-                    {{ $tc('sw-category.base.products.dynamicProductGroupDetailLinkText') }}
+                    {{ $t('sw-category.base.products.dynamicProductGroupDetailLinkText') }}
                     <mt-icon
                         name="regular-long-arrow-right"
                         size="16px"
@@ -121,7 +123,7 @@
         <template #empty-state>
             <mt-empty-state
                 :icon="$route.meta.$module.icon"
-                :headline="$tc('sw-category.base.products.productAssignmentEmptyStateDescription')"
+                :headline="$t('sw-category.base.products.productAssignmentEmptyStateDescription')"
             />
         </template>
         {% endblock %}

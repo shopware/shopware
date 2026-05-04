@@ -36,7 +36,6 @@ export default {
         changeLanguageOnParentClick: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },
@@ -71,7 +70,7 @@ export default {
         infoText() {
             // Actual language is system default, because we are creating a new entity
             if (this.isNewEntity) {
-                return this.$tc(
+                return this.$t(
                     'sw-language-info.infoTextNewEntity',
                     {
                         entityDescription: this.entityDescription,
@@ -86,7 +85,7 @@ export default {
 
             // Actual language is a child language with the root language as fallback
             if (this.language.parentId !== null && this.language.parentId.length > 0) {
-                return this.$tc(
+                return this.$t(
                     'sw-language-info.infoTextChildLanguage',
                     {
                         entityDescription: this.entityDescription,
@@ -102,7 +101,7 @@ export default {
             }
 
             // Actual language is a root language with the system default language as fallback
-            return this.$tc(
+            return this.$t(
                 'sw-language-info.infoTextRootLanguage',
                 {
                     entityDescription: this.entityDescription,

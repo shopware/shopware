@@ -10,7 +10,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\UrlEncoder;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -48,8 +50,9 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
 
     public function load(string $documentType, string $salesChannelId, Context $context): DocumentConfiguration
     {
-        if (!empty($this->configs[$documentType][$salesChannelId])) {
-            return $this->configs[$documentType][$salesChannelId];
+        $config = $this->configs[$documentType][$salesChannelId] ?? null;
+        if ($config instanceof DocumentConfiguration) {
+            return $config;
         }
 
         $criteria = (new Criteria())
@@ -63,9 +66,10 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
 
         $globalConfig = $documentConfigs->filterByProperty('global', true)->first();
 
-        $salesChannelConfig = $documentConfigs->filter(fn (DocumentBaseConfigEntity $config) => ((int) $config->getSalesChannels()?->count()) > 0)->first();
+        $salesChannelConfig = $documentConfigs->filter(static fn (DocumentBaseConfigEntity $config) => ((int) $config->getSalesChannels()?->count()) > 0)->first();
 
         $config = DocumentConfigurationFactory::createConfiguration([], $globalConfig, $salesChannelConfig);
+        $this->encodeLogoUrl($config);
 
         if (Uuid::isValid($config->getCompanyCountryId())) {
             $country = $this->countryRepository->search(new Criteria([$config->getCompanyCountryId()]), $context)->first();
@@ -84,5 +88,35 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
     public function reset(): void
     {
         $this->configs = [];
+    }
+
+    /**
+     * Remove this fallback with v6.8.0.0, where media paths are encoded by MediaUrlGenerator.
+     */
+    private function encodeLogoUrl(DocumentConfiguration $config): void
+    {
+        if (Feature::isActive('v6.8.0.0')) {
+            return;
+        }
+
+        $logo = $config->getLogo();
+
+        if ($logo === null) {
+            return;
+        }
+
+        $url = $logo->getUrl();
+
+        if ($url === '') {
+            return;
+        }
+
+        $encodedUrl = UrlEncoder::encodeUrl($url);
+
+        if ($encodedUrl === null) {
+            return;
+        }
+
+        $logo->setUrl($encodedUrl);
     }
 }

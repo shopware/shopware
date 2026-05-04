@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cookie\CookieException;
 use Shopware\Core\Content\Cookie\SalesChannel\CookieRoute;
+use Shopware\Core\Content\Cookie\SalesChannel\CookieRouteResponse;
 use Shopware\Core\Content\Cookie\Service\CookieProvider;
 use Shopware\Core\Content\Cookie\Struct\CookieEntry;
 use Shopware\Core\Content\Cookie\Struct\CookieEntryCollection;
@@ -19,6 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
  * @internal
  */
 #[CoversClass(CookieRoute::class)]
+#[CoversClass(CookieRouteResponse::class)]
 class CookieRouteTest extends TestCase
 {
     public function testItThrowsDecorationPatternException(): void
@@ -54,6 +56,10 @@ class CookieRouteTest extends TestCase
 
         // Verify hash consistency for same configuration
         static::assertSame($response1->getHash(), $response2->getHash());
+
+        // Verify languageId is included and matches the sales channel context
+        static::assertSame($salesChannelContext->getLanguageId(), $response1->getLanguageId());
+        static::assertSame($salesChannelContext->getLanguageId(), $response2->getLanguageId());
     }
 
     public function testHashChangesWithDifferentCookieConfiguration(): void
@@ -183,7 +189,7 @@ class CookieRouteTest extends TestCase
                 $this->timestamp = time();
                 $this->objectProperty = new \stdClass();
                 $this->objectProperty->dynamic = random_int(1, 1000);
-                $this->callableProperty = fn () => 'dynamic';
+                $this->callableProperty = static fn () => 'dynamic';
             }
         };
 

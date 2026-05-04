@@ -90,7 +90,7 @@ class ElasticsearchHelper
     {
         $ids = $criteria->getIds();
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
@@ -109,7 +109,7 @@ class ElasticsearchHelper
     public function addFilters(EntityDefinition $definition, Criteria $criteria, Search $search, Context $context): void
     {
         $filters = $criteria->getFilters();
-        if (empty($filters)) {
+        if ($filters === []) {
             return;
         }
 
@@ -126,7 +126,7 @@ class ElasticsearchHelper
     public function addPostFilters(EntityDefinition $definition, Criteria $criteria, Search $search, Context $context): void
     {
         $postFilters = $criteria->getPostFilters();
-        if (empty($postFilters)) {
+        if ($postFilters === []) {
             return;
         }
 
@@ -160,9 +160,11 @@ class ElasticsearchHelper
     public function addQueries(EntityDefinition $definition, Criteria $criteria, Search $search, Context $context): void
     {
         $queries = $criteria->getQueries();
-        if (empty($queries)) {
+        if ($queries === []) {
             return;
         }
+
+        $hasTermQuery = $criteria->getTerm() !== null && $criteria->getTerm() !== '';
 
         $bool = new BoolQuery();
 
@@ -178,7 +180,19 @@ class ElasticsearchHelper
                 $parsed->addParameter('fuzziness', '2');
             }
 
+            // in mysql implementation (@See: \Shopware\Core\Framework\DataAbstractionLayer\Dbal\CriteriaQueryBuilder::build), the term query is split into separate score queries and added to the main query with the OR operator.
+            // in Elasticsearch implementation, the term query can be added directly into the main query (@See: \Shopware\Elasticsearch\Framework\ElasticsearchHelper::addTerm, so the term query and score queries can co-exist (without extract term as mysql implementation) but if there is already a term query, we need to group it with other queries to the main query with the OR operator.
+            if ($hasTermQuery) {
+                $search->addQuery($parsed, BoolQuery::SHOULD);
+
+                continue;
+            }
+
             $bool->add($parsed, BoolQuery::SHOULD);
+        }
+
+        if ($hasTermQuery) {
+            return;
         }
 
         $bool->addParameter('minimum_should_match', '1');
@@ -197,7 +211,7 @@ class ElasticsearchHelper
     public function addAggregations(EntityDefinition $definition, Criteria $criteria, Search $search, Context $context): void
     {
         $aggregations = $criteria->getAggregations();
-        if (empty($aggregations)) {
+        if ($aggregations === []) {
             return;
         }
 

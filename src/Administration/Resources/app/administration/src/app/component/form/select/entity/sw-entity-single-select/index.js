@@ -34,14 +34,13 @@ export default {
     ],
 
     props: {
-        // eslint-disable-next-line vue/require-prop-types
+        // null is a common value here, e.g. passed by the inheritance system.
         value: {
-            required: true,
+            required: false,
         },
         highlightSearchTerm: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         placeholder: {
@@ -80,7 +79,7 @@ export default {
             type: Object,
             required: false,
             default(props) {
-                return new Criteria(1, props.resultLimit);
+                return new Criteria(1, props.resultLimit).setTotalCountMode(0);
             },
         },
         context: {
@@ -159,7 +158,6 @@ export default {
         disabled: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: undefined,
         },
         label: {
@@ -176,6 +174,11 @@ export default {
             type: Array,
             required: false,
             default: () => [],
+        },
+        autocomplete: {
+            type: String,
+            required: false,
+            default: undefined,
         },
     },
 
@@ -326,7 +329,7 @@ export default {
                             this.resultCollection = result;
 
                             const newEntity = this.repository.create(this.context, -1);
-                            newEntity.name = this.$tc(
+                            newEntity.name = this.$t(
                                 'global.sw-single-select.labelEntityAdd',
                                 {
                                     term: this.searchTerm,
@@ -593,7 +596,7 @@ export default {
 
                     this.$emit('option-select', Utils.string.camelCase(this.entity), entity);
                     this.createNotificationSuccess({
-                        message: this.$tc(
+                        message: this.$t(
                             'global.sw-single-select.labelEntityAddedSuccess',
                             {
                                 term: entity.name,
@@ -605,7 +608,7 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc(
+                        message: this.$t(
                             'global.notification.notificationSaveErrorMessage',
                             {
                                 entityName: this.entity,

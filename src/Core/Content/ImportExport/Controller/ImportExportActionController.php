@@ -227,13 +227,13 @@ class ImportExportActionController extends AbstractController
         $mappings = $profile->getMapping() ?? [];
 
         $mappedKeys = array_column($mappings, 'key');
-        $propertyPaths = array_map(fn (string $key): array => explode('.', $key), $mappedKeys);
+        $propertyPaths = array_map(static fn (string $key): array => explode('.', $key), $mappedKeys);
 
         foreach ($propertyPaths as $properties) {
             $missingPrivileges = $this->getMissingPrivileges($properties, $definition, $context, $missingPrivileges);
         }
 
-        if (!empty($missingPrivileges)) {
+        if ($missingPrivileges !== []) {
             throw ImportExportException::missingPrivilege($missingPrivileges);
         }
     }
@@ -265,7 +265,7 @@ class ImportExportActionController extends AbstractController
             $missingPrivileges[] = $privilege;
         }
 
-        if (!empty($properties)) {
+        if ($properties !== []) {
             $missingPrivileges = $this->getMissingPrivileges($properties, $definition, $context, $missingPrivileges);
         }
 

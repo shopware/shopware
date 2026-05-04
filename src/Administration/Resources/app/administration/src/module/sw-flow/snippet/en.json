@@ -169,6 +169,7 @@
         "placeholderDescription": "Enter rule description...",
         "labelType": "Type",
         "placeholderType": "Select rule type...",
+        "productStatesConditionWarning": "The condition \"Item with product state\" is deprecated and will be removed in v6.8. Please use \"Item with product type\" instead.",
         "placeholderDelayType": "Select delay..."
       },
       "tag": {
@@ -250,6 +251,7 @@
         "labelAdmin": "Admin",
         "labelCustom": "Custom",
         "labelContactFormMail": "Inquirer",
+        "labelRevocationRequestFormMail": "Inquirer",
         "labelRecipient": "Recipient",
         "placeholderRecipient": "Select email recipient...",
         "useDifferentReplyToLabel": "Sender",
@@ -304,6 +306,8 @@
       "paymentMethod": "Payment method",
       "contactForm": "Contact form",
       "reviewForm": "Product review",
+      "revocationRequestMerchant": "Revocation request received",
+      "revocationRequestCustomer": "Revocation request sent",
       "group": "Group",
       "recovery": "Recovery",
       "registration": "Registration",

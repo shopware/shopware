@@ -62,7 +62,7 @@
                 {% block sw_cms_element_vimeo_video_config_autoplay %}
                 <mt-switch
                     v-model="element.config.autoplay.value"
-                    :help-text="$tc('sw-cms.elements.vimeoVideo.config.helpText.autoPlay')"
+                    :help-text="$t('sw-cms.elements.vimeoVideo.config.helpText.autoPlay')"
                     :disabled="isInherited"
                     :label="$t('sw-cms.elements.vimeoVideo.config.label.autoPlay')"
                 />
@@ -78,7 +78,7 @@
             <template #default="{ isInherited }">
                 <mt-switch
                     v-model="element.config.doNotTrack.value"
-                    :help-text="$tc('sw-cms.elements.vimeoVideo.config.helpText.advancedPrivacy')"
+                    :help-text="$t('sw-cms.elements.vimeoVideo.config.helpText.advancedPrivacy')"
                     :disabled="isInherited"
                     :label="$t('sw-cms.elements.vimeoVideo.config.label.advancedPrivacy')"
                 />
@@ -204,13 +204,13 @@
                     :source="previewSource"
                     :allow-multi-select="false"
                     :default-folder="cmsPageState.pageEntityName"
-                    :caption="$tc('sw-cms.elements.general.config.caption.mediaUpload')"
+                    :caption="$t('sw-cms.elements.general.config.caption.mediaUpload')"
                     :disabled="isInherited"
                     @media-upload-sidebar-open="onOpenMediaModal"
                     @media-upload-remove-image="onImageRemove"
                 />
 
-                    {% block sw_cms_element_vimeo_video_config_preview_media_display %}
+                {% block sw_cms_element_vimeo_video_config_preview_media_display %}
                 <template #preview="{ demoValue }">
                     <div class="sw-cms-el-config-image__mapping-preview">
                         <img
@@ -223,26 +223,26 @@
                             class="sw-cms-el-config-image__preview-info"
                             variant="info"
                         >
-                            {{ $tc('sw-cms.detail.label.mappingEmptyPreview') }}
+                            {{ $t('sw-cms.detail.label.mappingEmptyPreview') }}
                         </mt-banner>
                     </div>
                 </template>
-                    {% endblock %}
+                {% endblock %}
             </sw-cms-mapping-field>
 
-                {% block sw_cms_element_vimeo_video_config_preview_media_upload_listener %}
+            {% block sw_cms_element_vimeo_video_config_preview_media_upload_listener %}
             <sw-upload-listener
                 :upload-tag="uploadTag"
                 auto-upload
                 @media-upload-finish="onImageUpload"
             />
-                {% endblock %}
+            {% endblock %}
 
-                {% block sw_cms_element_vimeo_video_config_preview_media_modal %}
+            {% block sw_cms_element_vimeo_video_config_preview_media_modal %}
             <sw-media-modal-v2
                 v-if="mediaModalIsOpen"
                 variant="full"
-                :caption="$tc('sw-cms.elements.general.config.caption.mediaUpload')"
+                :caption="$t('sw-cms.elements.general.config.caption.mediaUpload')"
                 :entity-context="cmsPageState.entityName"
                 :allow-multi-select="false"
                 :initial-folder-id="cmsPageState.defaultMediaFolderId"
@@ -250,7 +250,7 @@
                 @media-modal-selection-change="onSelectionChanges"
                 @modal-close="onCloseModal"
             />
-                {% endblock %}
+            {% endblock %}
             {% endblock %}
         </template>
     </sw-cms-inherit-wrapper>

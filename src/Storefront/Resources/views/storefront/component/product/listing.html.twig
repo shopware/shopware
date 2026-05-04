@@ -67,10 +67,18 @@
                                 {% for product in searchResult %}
                                     <div class="cms-listing-col {{ listingColumns }}" role="listitem">
                                         {% block element_product_listing_box %}
-                                            {% sw_include '@Storefront/storefront/component/product/card/box.html.twig' with {
-                                                layout: boxLayout,
-                                                displayMode: displayMode
-                                            } %}
+                                            {% if feature('v6.8.0.0') or feature('BREADCRUMB_REWORK') %}
+                                                {% sw_include '@Storefront/storefront/component/product/card/box.html.twig' with {
+                                                    layout: boxLayout,
+                                                    displayMode: displayMode,
+                                                    referrerCategoryId: config('core.listing.buildBreadcrumbByReferrerCategory') ? shopware.navigation.id : null,
+                                                } %}
+                                            {% else %}
+                                                {% sw_include '@Storefront/storefront/component/product/card/box.html.twig' with {
+                                                    layout: boxLayout,
+                                                    displayMode: displayMode
+                                                } %}
+                                            {% endif %}
                                         {% endblock %}
                                     </div>
                                 {% endfor %}
@@ -81,7 +89,8 @@
                                     {% block element_product_listing_col_empty_alert %}
                                         {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                                             type: 'info',
-                                            content: 'listing.emptyResultMessage'|trans|sw_sanitize
+                                            content: 'listing.emptyResultMessage'|trans|sw_sanitize,
+                                            announceOnLoad: true,
                                         } %}
                                     {% endblock %}
                                 </div>

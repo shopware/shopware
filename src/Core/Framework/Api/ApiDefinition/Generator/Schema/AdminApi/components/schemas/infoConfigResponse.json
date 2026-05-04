@@ -29,7 +29,8 @@
               },
               "enableQueueStatsWorker": {
                 "type": "boolean",
-                "description": "Whether the queue statistics worker is enabled."
+                "description": "Whether the queue statistics worker is enabled. Deprecated: This property will be removed in v6.8.0. The increment-based message queue statistics are deprecated.",
+                "deprecated": true
               },
               "enableNotificationWorker": {
                 "type": "boolean",
@@ -122,6 +123,10 @@
                 "type": "boolean",
                 "description": "True if at least one installed app requires a reachable APP_URL."
               },
+              "firstMigrationDate": {
+                "type": ["string", "null"],
+                "description": "Timestamp of the first executed migration in ISO-8601 UTC format, used for Product Analytics consent eligibility."
+              },
               "private_allowed_extensions": {
                 "type": "array",
                 "description": "Whitelisted file extensions for private filesystem uploads.",
@@ -138,8 +143,13 @@
               "disableExtensionManagement": {
                 "type": "boolean",
                 "description": "True if runtime extension management is disabled."
+              },
+              "presignedUploadSupported": {
+                "type": "boolean",
+                "description": "Whether presigned S3 upload is available. True when presigned upload is enabled and an S3 filesystem is configured."
               }
             },
+            "required": ["firstMigrationDate"],
             "additionalProperties": false
           },
           "inAppPurchases": {

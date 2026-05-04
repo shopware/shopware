@@ -3,149 +3,132 @@
     v-if="acl.can('order.viewer')"
     class="sw-dashboard-statistics"
 >
-    <template v-if="isLoading">
-        <sw-skeleton variant="detail" />
-        <sw-skeleton variant="detail" />
-    </template>
+    <template v-if="hasOrderToday">
+        <div class="sw-dashboard-statistics__card-headline">
+            <h1>{{ $t('sw-dashboard.todayStats.headline') }}</h1>
 
-    <template v-else>
-        <template v-if="hasOrderToday">
-            <div class="sw-dashboard-statistics__card-headline">
-                <h1>{{ $tc('sw-dashboard.todayStats.headline') }}</h1>
+            <span class="sw-dashboard-statistics__card-headline-timerange">
+                {{ formatChartHeadlineDate(today) }}
+            </span>
+        </div>
 
-                <span class="sw-dashboard-statistics__card-headline-timerange">
-                    {{ formatChartHeadlineDate(today) }}
-                </span>
-            </div>
+        <mt-card
+            :is-loading="!todayOrderDataLoaded"
+            class="sw-dashboard-statistics__intro-stats"
+            position-identifier=""
+        >
+            <div class="sw-dashboard-statistics__intro-stats-today">
+                <div
+                    v-if="hasOrderToday"
+                    class="sw-dashboard-statistics__intro-stats-today-stats"
+                >
+                    <div class="sw-dashboard-statistics__intro-stats-today-single-stat">
+                        <span class="sw-dashboard-statistics__intro-stats-today-single-stat-number-type">{{ $t('sw-dashboard.todayStats.orders') }}</span>
+                        <span class="sw-dashboard-statistics__intro-stats-today-single-stat-number-value">{{ orderCountToday }}</span>
+                    </div>
 
-            <mt-card position-identifier="">
-                <div class="sw-dashboard-statistics__intro-stats-today">
-                    <div
-                        v-if="hasOrderToday"
-                        class="sw-dashboard-statistics__intro-stats-today-stats"
-                    >
-                        <div class="sw-dashboard-statistics__intro-stats-today-single-stat">
-                            <span class="sw-dashboard-statistics__intro-stats-today-single-stat-number-type">{{ $tc('sw-dashboard.todayStats.orders') }}</span>
-                            <span class="sw-dashboard-statistics__intro-stats-today-single-stat-number-value">{{ orderCountToday }}</span>
-                        </div>
-
-                        <div class="sw-dashboard-statistics__intro-stats-today-single-stat">
-                            <span class="sw-dashboard-statistics__intro-stats-today-single-stat-number-type">{{ $tc('sw-dashboard.todayStats.turnover') }}</span>
-                            {# price aggregations do not support currencies yet, see NEXT-5069 #}
-                            <span class="sw-dashboard-statistics__intro-stats-today-single-stat-number-value">{{ currencyFilter(orderSumToday, systemCurrencyISOCode, 2) }}</span>
-                        </div>
+                    <div class="sw-dashboard-statistics__intro-stats-today-single-stat">
+                        <span class="sw-dashboard-statistics__intro-stats-today-single-stat-number-type">{{ $t('sw-dashboard.todayStats.turnover') }}</span>
+                        <span class="sw-dashboard-statistics__intro-stats-today-single-stat-number-value">{{ currencyFilter(orderSumToday, systemCurrencyISOCode, 2) }}</span>
                     </div>
                 </div>
+            </div>
 
-                <template #grid>
-                    <sw-entity-listing
-                        v-if="todayOrderDataLoaded"
-                        :sort-by="todayOrderDataSortBy"
-                        :sort-direction="todayOrderDataSortDirection"
-                        :repository="orderRepository"
-                        :items="todayOrderData"
-                        :columns="orderGridColumns()"
-                        :show-selection="false"
-                        :allow-column-edit="false"
-                        :full-page="false"
+            <template #grid>
+                <sw-entity-listing
+                    :sort-by="todayOrderDataSortBy"
+                    :sort-direction="todayOrderDataSortDirection"
+                    :repository="orderRepository"
+                    :data-source="todayOrderData"
+                    :columns="orderGridColumns()"
+                    :show-selection="false"
+                    :allow-column-edit="false"
+                    :full-page="false"
+                >
+                    <template #column-orderDateTime="{ item }">
+                        <sw-time-ago
+                            :date="item.orderDateTime"
+                            :date-time-format="{ month: '2-digit', day: '2-digit' }"
+                        />
+                    </template>
+
+                    <template #column-orderCustomer.firstName="{ item }">
+                        <router-link
+                            :to="{ name: 'sw.order.detail', params: { id: item.id } }"
+                            class="sw-data-grid__cell-value"
+                        >
+                            {{ item.orderCustomer.firstName }} {{ item.orderCustomer.lastName }}
+                        </router-link>
+                    </template>
+
+                    <template
+                        #column-amountTotal="{ item }"
                     >
-                        <template #column-orderDateTime="{ item }">
-                            <sw-time-ago
-                                :date="item.orderDateTime"
-                                :date-time-format="{ month: '2-digit', day: '2-digit' }"
-                            />
-                        </template>
+                        {{ currencyFilter(item.amountTotal, item.currency.isoCode) }}
+                    </template>
 
-                        <template #column-orderCustomer.firstName="{ item }">
-                            <router-link
-                                :to="{ name: 'sw.order.detail', params: { id: item.id } }"
-                                class="sw-data-grid__cell-value"
-                            >
-                                {{ item.orderCustomer.firstName }} {{ item.orderCustomer.lastName }}
-                            </router-link>
-                        </template>
-
-                        <template
-                            #column-amountTotal="{ item }"
+                    <template #column-stateMachineState.name="{ item }">
+                        <sw-label
+                            :variant="getVariantFromOrderState(item)"
+                            appearance="pill"
                         >
-                            {{ currencyFilter(item.amountTotal, item.currency.isoCode) }}
-                        </template>
+                            {{ item?.stateMachineState?.translated?.name }}
+                        </sw-label>
+                    </template>
 
-                        <template #column-stateMachineState.name="{ item }">
-                            <sw-label
-                                :variant="getVariantFromOrderState(item)"
-                                appearance="pill"
-                            >
-                                {{ item?.stateMachineState?.translated?.name }}
-                            </sw-label>
-                        </template>
-
-                        <template
-                            #actions="{ item }"
+                    <template
+                        #actions="{ item }"
+                    >
+                        <sw-context-menu-item
+                            class="sw-order-list__order-view-action"
+                            :router-link="{ name: 'sw.order.detail', params: { id: item.id } }"
                         >
-                            <sw-context-menu-item
-                                class="sw-order-list__order-view-action"
-                                :router-link="{ name: 'sw.order.detail', params: { id: item.id } }"
-                            >
-                                {{ $tc('sw-order.list.contextMenuView') }}
-                            </sw-context-menu-item>
+                            {{ $t('sw-order.list.contextMenuView') }}
+                        </sw-context-menu-item>
+                    </template>
+                </sw-entity-listing>
+            </template>
+        </mt-card>
+    </template>
 
-                        </template>
+    <template v-if="isLoading || hasOrderInMonth">
+        <sw-chart-card
+            class="sw-dashboard-statistics__statistics-count"
+            :available-ranges="availableRanges"
+            :card-subtitle="getCardSubtitle(ordersDateRange)"
+            :series="orderCountSeries"
+            :options="chartOptionsOrderCount"
+            :fill-empty-values="ordersDateRange.aggregate"
+            :card-title="$t('sw-dashboard.monthStats.orderNumber')"
+            :is-loading="isLoading"
+            type="line"
+            sort
+            position-identifier=""
+            @sw-chart-card-range-update="onOrdersRangeUpdate"
+        >
+            <template #range-option="{ range }">
+                {{ $t(`sw-dashboard.monthStats.dateRanges.${range}`) }}
+            </template>
+        </sw-chart-card>
 
-                    </sw-entity-listing>
-
-                    <sw-loader v-else-if="!todayOrderDataLoaded" />
-                </template>
-            </mt-card>
-        </template>
-
-        <template v-if="hasOrderInMonth">
-            <sw-chart-card
-                class="sw-dashboard-statistics__statistics-count"
-                :available-ranges="availableRanges"
-                :card-subtitle="getCardSubtitle(ordersDateRange)"
-                :series="orderCountSeries"
-                :options="chartOptionsOrderCount"
-                :fill-empty-values="ordersDateRange.aggregate"
-                type="line"
-                sort
-                position-identifier=""
-                @sw-chart-card-range-update="onOrdersRangeUpdate"
-            >
-                <template #header-title>
-                    {{ $tc('sw-dashboard.monthStats.orderNumber') }}
-                </template>
-
-                <template #range-option="{ range }">
-                    {{ $tc(`sw-dashboard.monthStats.dateRanges.${range}`) }}
-                </template>
-            </sw-chart-card>
-
-            <sw-chart-card
-                class="sw-dashboard-statistics__statistics-sum"
-                :available-ranges="availableRanges"
-                :card-subtitle="getCardSubtitle(turnoverDateRange)"
-                :series="orderSumSeries"
-                :options="chartOptionsOrderSum"
-                :fill-empty-values="turnoverDateRange.aggregate"
-                type="line"
-                sort
-                position-identifier=""
-                @sw-chart-card-range-update="onTurnoverRangeUpdate"
-            >
-                <template #header-title>
-                    {{ $tc('sw-dashboard.monthStats.turnover') }}
-                    <sw-help-text
-                        class="sw-dashboard-index__help-text"
-                        :text="$tc('sw-dashboard.monthStats.helperText')"
-                    />
-                </template>
-
-                <template #range-option="{ range }">
-                    {{ $tc(`sw-dashboard.monthStats.dateRanges.${range}`) }}
-                </template>
-            </sw-chart-card>
-        </template>
-
+        <sw-chart-card
+            class="sw-dashboard-statistics__statistics-sum"
+            :available-ranges="availableRanges"
+            :card-subtitle="getCardSubtitle(turnoverDateRange)"
+            :series="orderSumSeries"
+            :options="chartOptionsOrderSum"
+            :fill-empty-values="turnoverDateRange.aggregate"
+            :card-title="$t('sw-dashboard.monthStats.turnover')"
+            :help-text="$t('sw-dashboard.monthStats.helperText')"
+            :is-loading="isLoading"
+            type="line"
+            sort
+            position-identifier=""
+            @sw-chart-card-range-update="onTurnoverRangeUpdate"
+        >
+            <template #range-option="{ range }">
+                {{ $t(`sw-dashboard.monthStats.dateRanges.${range}`) }}
+            </template>
+        </sw-chart-card>
     </template>
 </div>

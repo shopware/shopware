@@ -1,7 +1,7 @@
 {% block sw_settings_country_new_snippet_modal %}
 <sw-modal
     class="sw-settings-country-new-snippet-modal"
-    :title="$tc('sw-settings-country.detail.newSnippetModalTitle')"
+    :title="$t('sw-settings-country.detail.newSnippetModalTitle')"
     @modal-close="onCloseModal"
 >
     <sw-contextual-field
@@ -17,7 +17,7 @@
                 v-model="searchTerm"
                 type="text"
                 class="sw-settings-country-new-snippet-modal__input-field"
-                :placeholder="$tc('sw-settings-country.detail.placeholderSearchSnippet')"
+                :placeholder="$t('sw-settings-country.detail.placeholderSearchSnippet')"
                 :disabled="disabled"
                 @input="debouncedSearch"
             >
@@ -88,7 +88,7 @@
                         variant="secondary"
                         @click="addElement(item.data)"
                     >
-                        {{ $tc('sw-settings-country.detail.buttonInsertSnippet') }}
+                        {{ $t('sw-settings-country.detail.buttonInsertSnippet') }}
                     </mt-button>
                 </template>
             </sw-tree-item>
@@ -154,7 +154,7 @@
             variant="primary"
             @click="onCloseModal"
         >
-            {{ $tc('global.default.apply') }}
+            {{ $t('global.default.apply') }}
         </mt-button>
     </template>
 </sw-modal>

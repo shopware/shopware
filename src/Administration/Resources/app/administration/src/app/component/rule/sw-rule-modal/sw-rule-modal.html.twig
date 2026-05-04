@@ -13,22 +13,22 @@
         gap="0px 32px"
     >
         {% block sw_rule_modal_basic_info_name %}
-
         <mt-text-field
             v-model="rule.name"
             name="sw-field--rule-name"
-            :label="$tc('sw-rule-modal.labelName')"
-            :placeholder="$tc('sw-rule-modal.placeholderName')"
+            :label="$t('sw-rule-modal.labelName')"
+            :placeholder="$t('sw-rule-modal.placeholderName')"
             :error="ruleNameError"
             required
         />
         {% endblock %}
+
         {% block sw_rule_modal_basic_info_priority %}
         <mt-number-field
             v-model="rule.priority"
             name="sw-field--rule-priority"
-            :label="$tc('sw-rule-modal.labelPriority')"
-            :placeholder="$tc('sw-rule-modal.placeholderPriority')"
+            :label="$t('sw-rule-modal.labelPriority')"
+            :placeholder="$t('sw-rule-modal.placeholderPriority')"
             :error="rulePriorityError"
             required
         />
@@ -40,8 +40,8 @@
         v-if="rule"
         v-model="rule.description"
         name="sw-field--rule-description"
-        :label="$tc('sw-rule-modal.labelDescription')"
-        :placeholder="$tc('sw-rule-modal.placeholderDescription')"
+        :label="$t('sw-rule-modal.labelDescription')"
+        :placeholder="$t('sw-rule-modal.placeholderDescription')"
     />
     {% endblock %}
     {% endblock %}
@@ -69,7 +69,7 @@
             variant="secondary"
             @click="$emit('modal-close')"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -81,7 +81,7 @@
             variant="primary"
             @click="saveAndClose"
         >
-            {{ $tc('global.default.save') }}
+            {{ $t('global.default.save') }}
         </mt-button>
         {% endblock %}
         {% endblock %}

@@ -84,7 +84,7 @@ export default class CountryStateSelectPlugin extends Plugin {
         const countrySelect = event.target.options[event.target.selectedIndex];
         const stateRequired = !!countrySelect.getAttribute(this.options.stateRequired);
         this.requestStateData(countryId, null, stateRequired);
-        const vatIdRequired = countrySelect.getAttribute(this.options.vatIdRequired);
+        const vatIdRequired = !!countrySelect.getAttribute(this.options.vatIdRequired);
         const vatIdInput = document.querySelector(this.options.vatIdFieldInput);
 
         const zipcodeInputs = this.scopeElement.querySelectorAll(this.options.zipcodeFieldInput);

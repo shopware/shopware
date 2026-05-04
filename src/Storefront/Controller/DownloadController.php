@@ -33,7 +33,7 @@ class DownloadController extends StorefrontController
             return $this->redirectToRoute(
                 'frontend.account.order.single.page',
                 [
-                    'deepLinkCode' => $request->get('deepLinkCode', false),
+                    'deepLinkCode' => $request->query->get('deepLinkCode') ?? false,
                 ]
             );
         }

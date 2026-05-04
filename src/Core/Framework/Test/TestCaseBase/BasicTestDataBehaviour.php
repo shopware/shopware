@@ -211,18 +211,23 @@ trait BasicTestDataBehaviour
         return $id;
     }
 
-    protected function getDeCountryId(): string
+    protected function getCountryIdByIsoCode(string $isoCode): string
     {
         /** @var EntityRepository<CountryCollection> $repository */
         $repository = static::getContainer()->get('country.repository');
 
         $criteria = (new Criteria())->setLimit(1)
-            ->addFilter(new EqualsFilter('iso', 'DE'));
+            ->addFilter(new EqualsFilter('iso', $isoCode));
 
         $id = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
         \assert($id !== null);
 
         return $id;
+    }
+
+    protected function getDeCountryId(): string
+    {
+        return $this->getCountryIdByIsoCode('DE');
     }
 
     protected function getValidCategoryId(): string

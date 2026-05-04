@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Log\Package;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
+/**
+ * @deprecated tag:v6.8.0 - reason:becomes-internal - Will be internal in v6.8.0
+ */
 #[Package('framework')]
 class MediaExtension extends AbstractExtension
 {
@@ -34,7 +37,7 @@ class MediaExtension extends AbstractExtension
      */
     public function searchMedia(array $ids, Context $context): MediaCollection
     {
-        if (empty($ids)) {
+        if ($ids === []) {
             return new MediaCollection();
         }
 

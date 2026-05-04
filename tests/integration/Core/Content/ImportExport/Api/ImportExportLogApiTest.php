@@ -82,7 +82,7 @@ class ImportExportLogApiTest extends TestCase
     {
         foreach ([0, 5] as $num) {
             $data = $this->prepareImportExportLogTestData($num);
-            if (!empty($data)) {
+            if ($data !== []) {
                 $this->logRepository->create(array_values($data), $this->context);
             }
 

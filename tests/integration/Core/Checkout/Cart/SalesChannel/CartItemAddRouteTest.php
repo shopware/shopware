@@ -311,12 +311,12 @@ class CartItemAddRouteTest extends TestCase
         static::assertCount(2, $shippingCostCalculatedTaxes = $shippingCost['calculatedTaxes']);
 
         // assert there is shipping cost calculated taxes for product and custom items in cart
-        $calculatedTaxForCustomItem = array_filter($shippingCostCalculatedTaxes, fn ($tax) => $tax['taxRate'] === $taxForCustomItem);
+        $calculatedTaxForCustomItem = array_filter($shippingCostCalculatedTaxes, static fn ($tax) => $tax['taxRate'] === $taxForCustomItem);
 
         static::assertNotEmpty($calculatedTaxForCustomItem);
         static::assertCount(1, $calculatedTaxForCustomItem);
 
-        $calculatedTaxForProductItem = array_filter($shippingCostCalculatedTaxes, fn ($tax) => $tax['taxRate'] === $taxForProductItem);
+        $calculatedTaxForProductItem = array_filter($shippingCostCalculatedTaxes, static fn ($tax) => $tax['taxRate'] === $taxForProductItem);
 
         static::assertNotEmpty($calculatedTaxForProductItem);
         static::assertCount(1, $calculatedTaxForProductItem);

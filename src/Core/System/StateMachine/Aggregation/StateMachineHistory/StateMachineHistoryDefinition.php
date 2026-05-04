@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -62,6 +63,7 @@ class StateMachineHistoryDefinition extends EntityDefinition
             (new StringField('action_name', 'transitionActionName'))->setDescription('Unique name of transition action.'),
             (new FkField('user_id', 'userId', UserDefinition::class))->setDescription('Unique identity of user.'),
             new FkField('integration_id', 'integrationId', IntegrationDefinition::class),
+            new LongTextField('internal_comment', 'internalComment'),
 
             new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, 'id', false),
             new ManyToOneAssociationField('integration', 'integration_id', IntegrationDefinition::class, 'id', false),

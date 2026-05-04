@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Util\Base64;
 use Shopware\Core\Framework\Util\Exception\Base64DecodingException;
 
 /**
- * @interal
+ * @internal
  */
 #[Package('framework')]
 class CompressedCriteriaDecoder

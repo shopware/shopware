@@ -1,6 +1,5 @@
 {% block sw_settings_newsletter_index %}
 <sw-page class="sw-settings-newsletter">
-
     {% block sw_settings_newsletter_search_bar %}
     <template #search-bar>
         <sw-search-bar />
@@ -12,12 +11,14 @@
         {% block sw_settings_newsletter_smart_bar_header_title %}
         <h2>
             {% block sw_settings_newsletter_smart_bar_header_title_text %}
-            {{ $tc('sw-settings.index.title') }}
+            <span>{{ $t('sw-settings.index.title') }}</span>
+
             <mt-icon
                 name="regular-chevron-right-xs"
                 size="12px"
             />
-            {{ $tc('sw-settings-newsletter.general.textHeadline') }}
+
+            <span>{{ $t('sw-settings-newsletter.general.textHeadline') }}</span>
             {% endblock %}
 
             {% block sw_settings_newsletter_smart_bar_header_amount %}
@@ -45,7 +46,7 @@
             @update:process-success="saveFinish"
             @click="onSave"
         >
-            {{ $tc('sw-settings-newsletter.general.buttonSave') }}
+            {{ $t('sw-settings-newsletter.general.buttonSave') }}
         </sw-button-process>
         {% endblock %}
     </template>
@@ -54,12 +55,8 @@
     {% block sw_settings_newsletter_content %}
     <template #content>
         <sw-card-view>
-            <sw-skeleton v-if="isLoading" />
-
             {% block sw_setting_newsletter_system_config %}
-            {# v-show is used here as underlying components influence the loading state and v-if would destroy this behaviour #}
             <sw-system-config
-                v-show="!isLoading"
                 ref="systemConfig"
                 sales-channel-switchable
                 domain="core.newsletter"

@@ -24,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedByField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\WasModifiedByUserField;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
@@ -218,7 +219,7 @@ class WriteCommandExtractor
         // without child association
         $data = $this->map($mainFields, $stack, $existence, $parameters);
 
-        $this->updateCommandQueue($definition, $parameters, $existence, $pkData, $data);
+        $this->updateCommandQueue($definition, $parameters, $existence, $pkData, $data, $mainFields);
 
         $translation = $definition->getField('translations');
         if ($translation instanceof TranslationsAssociationField) {
@@ -228,7 +229,7 @@ class WriteCommandExtractor
         // call map with child associations only
         $children = array_filter($fields, static fn (Field $field) => $field instanceof ChildrenAssociationField);
 
-        if (\count($children) > 0) {
+        if ($children !== []) {
             $this->map($children, $stack, $existence, $parameters);
         }
 
@@ -308,11 +309,6 @@ class WriteCommandExtractor
             }
 
             try {
-                if ($field->is(Immutable::class) && !$isCreate && !$kvPair->isDefault()) {
-                    $this->addImmutableViolation($kvPair, $parameters);
-                    continue;
-                }
-
                 if ($field->is(WriteProtected::class) && !$kvPair->isDefault()) {
                     $this->validateContextHasPermission($field, $kvPair, $parameters);
                 }
@@ -340,7 +336,7 @@ class WriteCommandExtractor
         $create = !$existence->exists() || $existence->childChangedToParent();
 
         if (
-            (!$field instanceof UpdatedAtField && !$field instanceof CreatedByField && !$field instanceof UpdatedByField)
+            (!$field instanceof UpdatedAtField && !$field instanceof CreatedByField && !$field instanceof UpdatedByField && !$field instanceof WasModifiedByUserField)
             && (!$create || !$field->is(Required::class))
         ) {
             return true;
@@ -412,18 +408,27 @@ class WriteCommandExtractor
     /**
      * @param array<string, string> $pkData
      * @param array<string, mixed> $data
+     * @param array<Field> $fields
      */
     private function updateCommandQueue(
         EntityDefinition $definition,
         WriteParameterBag $parameterBag,
         EntityExistence $existence,
         array $pkData,
-        array $data
+        array $data,
+        array $fields
     ): void {
         $queue = $parameterBag->getCommandQueue();
 
         if ($existence->exists()) {
             $command = new UpdateCommand($definition, $data, $pkData, $existence, $parameterBag->getPath());
+
+            $immutableFieldsChanges = $this->getImmutableFieldsChanges($fields, $data);
+
+            if ($immutableFieldsChanges !== []) {
+                $command->requestChangeSet();
+                $command->setImmutableFieldsChanges($immutableFieldsChanges);
+            }
         } else {
             $command = new InsertCommand($definition, array_merge($pkData, $data), $pkData, $existence, $parameterBag->getPath());
         }
@@ -570,24 +575,28 @@ class WriteCommandExtractor
         );
     }
 
-    private function addImmutableViolation(KeyValuePair $data, WriteParameterBag $parameters): void
+    /**
+     * @param array<string, mixed> $data
+     * @param array<Field> $fields
+     *
+     * @return array<string>
+     */
+    private function getImmutableFieldsChanges(array $fields, array $data): array
     {
-        $message = \sprintf('The field "%s" of "%s" is immutable and cannot be updated.', $data->getKey(), $parameters->getDefinition()->getEntityName());
+        $changes = [];
 
-        $violationList = new ConstraintViolationList();
-        $violationList->add(
-            new ConstraintViolation(
-                $message,
-                $message,
-                [],
-                $data->getValue(),
-                $data->getKey(),
-                $data->getValue()
-            )
-        );
+        foreach ($fields as $field) {
+            if (!$field instanceof StorageAware || !$field->is(Immutable::class)) {
+                continue;
+            }
 
-        $parameters->getContext()->getExceptions()->add(
-            new WriteConstraintViolationException($violationList, $parameters->getPath() . '/')
-        );
+            if (!isset($data[$field->getStorageName()])) {
+                continue;
+            }
+
+            $changes[] = $field->getStorageName();
+        }
+
+        return $changes;
     }
 }

@@ -108,7 +108,7 @@ class ThemeCompileCommandTest extends TestCase
         $themeService->expects($this->exactly(2))
             ->method('compileTheme')
             ->willReturnCallback(
-                function (
+                static function (
                     string $actualSalesChannelId,
                     string $actualThemeId
                 ) use (
@@ -153,7 +153,7 @@ class ThemeCompileCommandTest extends TestCase
         $themeService->expects($this->exactly(2))
             ->method('compileTheme')
             ->willReturnCallback(
-                function (
+                static function (
                     string $actualSalesChannelId,
                     string $actualThemeId
                 ) use (
@@ -199,7 +199,7 @@ class ThemeCompileCommandTest extends TestCase
         $themeService->expects($this->exactly(2))
             ->method('compileTheme')
             ->willReturnCallback(
-                function (
+                static function (
                     string $actualSalesChannelId,
                     string $actualThemeId
                 ) use (
@@ -245,7 +245,7 @@ class ThemeCompileCommandTest extends TestCase
         $themeService->expects($this->exactly(2))
             ->method('compileTheme')
             ->willReturnCallback(
-                function (
+                static function (
                     string $actualSalesChannelId,
                     string $actualThemeId
                 ) use (

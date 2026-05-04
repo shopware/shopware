@@ -4,8 +4,10 @@ namespace Shopware\Core\System\UsageData\EntitySync;
 
 use Doctrine\DBAL\ConnectionException;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\UsageData\Consent\ConsentService;
+use Shopware\Core\System\Consent\Definition\BackendData;
+use Shopware\Core\System\Consent\Service\ConsentService;
 use Shopware\Core\System\UsageData\Services\EntityDefinitionService;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
@@ -40,10 +42,10 @@ final readonly class IterateEntityMessageHandler
             ));
         }
 
-        $lastApprovalDate = $this->consentService->getLastConsentIsAcceptedDate();
-        if ($lastApprovalDate === null) {
+        $acceptedUntil = $this->consentService->getConsentState(BackendData::NAME, Context::createDefaultContext())->acceptedUntil;
+        if ($acceptedUntil === null) {
             throw new UnrecoverableMessageHandlingException(\sprintf(
-                'No approval date found. Skipping dispatching of entity sync message. Entity: %s, Operation: %s',
+                'The consent was never accepted. Skipping dispatching of entity sync message. Entity: %s, Operation: %s',
                 $message->entityName,
                 $message->operation->value,
             ));

@@ -8,7 +8,7 @@ import useUpdateClock from './updateClock';
  * @status ready
  * @example-type dynamic
  * @component-example
- * <sw-time-ago date=""2021-08-25T11:08:48.940+00:00""></sw-time-ago>
+ * <sw-time-ago date="2021-08-25T11:08:48.940+00:00"></sw-time-ago>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
@@ -109,6 +109,12 @@ export default Shopware.Component.wrapComponentConfig({
         });
     },
 
+    watch: {
+        date() {
+            this.formattedRelativeTime = this.formatRelativeTime();
+        },
+    },
+
     methods: {
         formatRelativeTime(): string {
             const diff = Date.now() - this.dateObject.getTime();
@@ -118,20 +124,20 @@ export default Shopware.Component.wrapComponentConfig({
 
             if (diff >= 0) {
                 if (this.lessThanOneMinute) {
-                    return this.$tc('global.sw-time-ago.justNow');
+                    return this.$t('global.sw-time-ago.justNow');
                 }
 
                 if (this.lessThanOneHour) {
-                    return this.$tc('global.sw-time-ago.minutesAgo', { minutesAgo }, minutesAgo);
+                    return this.$t('global.sw-time-ago.minutesAgo', { minutesAgo }, minutesAgo);
                 }
             } else {
                 if (this.lessThanOneMinuteFromNow) {
-                    return this.$tc('global.sw-time-ago.aboutNow');
+                    return this.$t('global.sw-time-ago.aboutNow');
                 }
 
                 if (this.lessThanOneHourFromNow) {
                     const minutesFromNow = Math.abs(minutesAgo);
-                    return this.$tc('global.sw-time-ago.minutesFromNow', { minutesFromNow }, minutesFromNow);
+                    return this.$t('global.sw-time-ago.minutesFromNow', { minutesFromNow }, minutesFromNow);
                 }
             }
 

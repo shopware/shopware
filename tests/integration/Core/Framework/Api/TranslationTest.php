@@ -264,7 +264,7 @@ class TranslationTest extends TestCase
                 ],
             ],
             [
-                'code' => 'test',
+                'code' => 'de-DE-3',
                 'translations' => [
                     Defaults::LANGUAGE_SYSTEM => ['name' => 'default', 'territory' => 'translated by default'],
                     $langId => [
@@ -297,7 +297,7 @@ class TranslationTest extends TestCase
                 ],
             ],
             [
-                'code' => 'test',
+                'code' => 'de-DE-3',
                 'translations' => [
                     Defaults::LANGUAGE_SYSTEM => ['name' => 'default', 'territory' => 'translated by default'],
                     $langId => [
@@ -321,7 +321,7 @@ class TranslationTest extends TestCase
 
         $notTranslated = [
             'id' => $id,
-            'code' => 'test',
+            'code' => 'de-DE-3',
             'name' => 'not translated',
             'territory' => 'not translated',
         ];
@@ -593,7 +593,7 @@ class TranslationTest extends TestCase
         $responseData = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertCount(\count($errors), $responseData['errors']);
 
-        $actualErrors = array_map(function ($error) {
+        $actualErrors = array_map(static function ($error) {
             $e = [
                 'code' => $error['code'],
                 'status' => $error['status'],
@@ -662,7 +662,7 @@ class TranslationTest extends TestCase
                 'name' => 'test language ' . $fallbackId,
                 'locale' => [
                     'id' => $fallbackLocaleId,
-                    'code' => 'x-tst_' . $fallbackLocaleId,
+                    'code' => 'de-DE-1',
                     'name' => 'Test locale ' . $fallbackLocaleId,
                     'territory' => 'Test territory ' . $fallbackLocaleId,
                 ],
@@ -680,7 +680,7 @@ class TranslationTest extends TestCase
             'parentId' => $fallbackId,
             'locale' => [
                 'id' => $localeId,
-                'code' => 'x-tst_' . $localeId,
+                'code' => 'de-DE-2',
                 'name' => 'Test locale ' . $localeId,
                 'territory' => 'Test territory ' . $localeId,
             ],

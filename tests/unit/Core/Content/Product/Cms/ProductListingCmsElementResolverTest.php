@@ -152,12 +152,12 @@ class ProductListingCmsElementResolverTest extends TestCase
 
     private function assertRequestPayload(Request $request): void
     {
-        static::assertNull($request->get('property-whitelist'));
-        static::assertTrue($request->get('manufacturer-filter'));
-        static::assertTrue($request->get('rating-filter'));
-        static::assertTrue($request->get('shipping-free-filter'));
-        static::assertTrue($request->get('price-filter'));
-        static::assertTrue($request->get('property-filter'));
-        static::assertSame('expected-sorting', $request->get('order'));
+        static::assertNull($request->request->get('property-whitelist'));
+        static::assertTrue($request->request->get('manufacturer-filter'));
+        static::assertTrue($request->request->get('rating-filter'));
+        static::assertTrue($request->request->get('shipping-free-filter'));
+        static::assertTrue($request->request->get('price-filter'));
+        static::assertTrue($request->request->get('property-filter'));
+        static::assertSame('expected-sorting', $request->request->get('order'));
     }
 }

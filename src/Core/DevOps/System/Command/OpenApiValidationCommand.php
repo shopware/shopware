@@ -66,7 +66,7 @@ class OpenApiValidationCommand extends Command
             $content['schemaValidationMessages'] ?? []
         );
 
-        if (\count($messages) === 0) {
+        if ($messages === []) {
             return Command::SUCCESS;
         }
 

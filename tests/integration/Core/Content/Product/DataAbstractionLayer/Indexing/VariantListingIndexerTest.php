@@ -346,14 +346,13 @@ class VariantListingIndexerTest extends TestCase
             ['parentId' => Uuid::fromHexToBytes($this->productId)]
         );
 
-        /** @var array<array<string>> $optionIds */
-        $optionIds = array_map(fn ($item) => json_decode((string) $item['option_ids'], true, 512, \JSON_THROW_ON_ERROR), $listing);
+        $optionIds = array_map(static fn ($item) => json_decode((string) $item['option_ids'], true, 512, \JSON_THROW_ON_ERROR), $listing);
 
-        if (!empty($optionIds)) {
+        if ($optionIds !== []) {
             $optionIds = array_merge(...$optionIds);
         }
 
-        return new Listing(array_column($listing, 'id'), $optionIds);
+        return new Listing(array_column($listing, 'id'), array_values($optionIds));
     }
 }
 
@@ -363,8 +362,8 @@ class VariantListingIndexerTest extends TestCase
 class Listing
 {
     /**
-     * @param string[] $ids
-     * @param string[] $optionIds
+     * @param list<string> $ids
+     * @param list<string> $optionIds
      */
     public function __construct(
         public array $ids,

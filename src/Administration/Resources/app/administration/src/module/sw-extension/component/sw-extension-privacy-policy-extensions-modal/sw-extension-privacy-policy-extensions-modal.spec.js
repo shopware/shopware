@@ -4,7 +4,7 @@ async function createWrapper(props) {
     return mount(await wrapTestComponent('sw-extension-privacy-policy-extensions-modal', { sync: true }), {
         global: {
             mocks: {
-                $tc: (path, values, choice) => {
+                $t: (path, values, choice) => {
                     if (values) {
                         return JSON.stringify({ path, choice, values });
                     }
@@ -14,7 +14,6 @@ async function createWrapper(props) {
             },
             stubs: {
                 'sw-modal': {
-                    // eslint-disable-next-line max-len
                     template:
                         '<div class="sw-modal"><p class="title">{{ title }}</p><slot></slot><slot name="modal-footer"></slot></div>',
                     props: ['title'],

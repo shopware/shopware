@@ -5,10 +5,10 @@ export const AddCreditItem = base.extend<{ AddCreditItem: Task }, FixtureTypes>(
     AddCreditItem: async ({ AdminApiContext, ShopAdmin }, use)=> {
         const task = (orderId: string)   => {
             return async function AddCreditItem() {
-
                 const creditItem = {
                     'identifier': orderId,
                     'orderId': orderId,
+                    'type': 'credit',
                     'quantity': 1,
                     'label': 'CreditItem',
                     'payload': [],
@@ -41,6 +41,7 @@ export const AddCreditItem = base.extend<{ AddCreditItem: Task }, FixtureTypes>(
                 const productResponse = await AdminApiContext.post('order-line-item', {
                     data: creditItem,
                 });
+
                 ShopAdmin.expects(productResponse.ok()).toBeTruthy();
             }
         };

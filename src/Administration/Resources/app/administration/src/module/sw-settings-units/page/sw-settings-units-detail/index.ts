@@ -102,9 +102,8 @@ export default Component.wrapComponentConfig({
                 this.isLoading = false;
             })
             .catch(() => {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                 this.createNotificationError({
-                    message: this.$tc('sw-settings-units.notification.errorMessage'),
+                    message: this.$t('sw-settings-units.notification.errorMessage'),
                 });
 
                 this.isLoading = false;
@@ -123,9 +122,8 @@ export default Component.wrapComponentConfig({
                     this.isLoading = false;
                 })
                 .catch((error: { message: string }) => {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                     this.createNotificationError({
-                        message: this.$tc(error.message),
+                        message: this.$t(error.message),
                     });
                 });
         },
@@ -149,9 +147,8 @@ export default Component.wrapComponentConfig({
                     this.isLoading = false;
                 })
                 .catch(() => {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-units.notification.errorMessage'),
+                        message: this.$t('sw-settings-units.notification.errorMessage'),
                     });
 
                     this.isLoading = false;

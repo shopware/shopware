@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetCollection;
@@ -26,11 +27,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * @internal
  */
 #[Package('discovery')]
-class TranslationLoader
+class TranslationLoader extends AbstractTranslationLoader
 {
-    public const TRANSLATION_DIR = '/translation';
-    public const TRANSLATION_LOCALE_SUB_DIR = 'locale';
-
     private const PLATFORM_BUNDLES = [
         'Administration' => 'administration.json',
         'Core' => 'messages.json',
@@ -56,6 +54,11 @@ class TranslationLoader
         private readonly TranslationConfig $config,
         private readonly ValidatorInterface $validator,
     ) {
+    }
+
+    public function getDecorated(): AbstractTranslationLoader
+    {
+        throw new DecorationPatternException(self::class);
     }
 
     public function load(string $locale, Context $context, bool $activate = true): void
@@ -93,7 +96,7 @@ class TranslationLoader
 
     public function getLocalesBasePath(): string
     {
-        return Path::join(self::TRANSLATION_DIR, self::TRANSLATION_LOCALE_SUB_DIR);
+        return Path::join(static::TRANSLATION_DIR, static::TRANSLATION_LOCALE_SUB_DIR);
     }
 
     public function getLocalePath(string $locale): string
@@ -105,7 +108,7 @@ class TranslationLoader
             return '';
         }
 
-        return Path::join(self::TRANSLATION_DIR, self::TRANSLATION_LOCALE_SUB_DIR, $locale);
+        return Path::join(static::TRANSLATION_DIR, static::TRANSLATION_LOCALE_SUB_DIR, $locale);
     }
 
     private function fetchPluginSnippets(string $locale): void

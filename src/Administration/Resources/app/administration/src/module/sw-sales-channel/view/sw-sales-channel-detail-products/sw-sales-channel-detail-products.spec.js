@@ -124,12 +124,13 @@ async function createWrapper({ salesChannel, products } = {}) {
                     'sw-entity-listing': {
                         props: [
                             'items',
+                            'dataSource',
                             'allowEdit',
                             'allowDelete',
                         ],
                         template: `
                         <div class="sw-entity-listing">
-                            <template v-for="item in items">
+                            <template v-for="item in (dataSource || items)">
                                 <slot name="actions" v-bind="{ item }"></slot>
                             </template>
                         </div>
@@ -218,7 +219,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         });
         await flushPromises();
 
-        expect(wrapper.getComponent('.sw-entity-listing').props('items')).toEqual(productsMock);
+        expect(wrapper.getComponent('.sw-entity-listing').props('dataSource')).toEqual(productsMock);
     });
 
     it('should delete product successful', async () => {

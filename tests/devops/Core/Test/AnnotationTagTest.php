@@ -3,7 +3,6 @@
 namespace Shopware\Tests\DevOps\Core\Test;
 
 use Composer\InstalledVersions;
-use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Test\AnnotationTagTester;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -16,7 +15,6 @@ use Symfony\Component\Finder\Finder;
  * @internal
  */
 #[Package('framework')]
-#[CoversNothing]
 class AnnotationTagTest extends TestCase
 {
     /**
@@ -42,10 +40,12 @@ class AnnotationTagTest extends TestCase
         'administration/eslint-rules',
         // checks for deprecations too and annotation fails
         'DataAbstractionLayer/DefinitionValidator.php',
-        // Annotation tags of course use @deprecated string a lot
+        // Test/AnnotationTagTest.php
         'Test/AnnotationTagTest.php',
         'Test/AnnotationTagTester.php',
         'Test/AnnotationTagTesterTest.php',
+        // hook and service reference generator test fixtures intentionally omit annotations
+        'unit/Core/DevOps/Docs/Script/_fixtures',
         // uses @experimental annotation check
         'Core/Framework/ApiRoutesHaveASchemaTest.php',
         // copies DBAL code that don't use our deprecation policies
@@ -203,7 +203,7 @@ class AnnotationTagTest extends TestCase
     private function getCurrentManifestVersion(array $versions): string
     {
         $versions = array_filter($versions);
-        if (empty($versions)) {
+        if ($versions === []) {
             throw new \LogicException('no version applied');
         }
 

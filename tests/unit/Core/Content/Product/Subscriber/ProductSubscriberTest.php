@@ -20,6 +20,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\ProductMaxPurchaseCalculator;
 use Shopware\Core\Content\Product\ProductVariationBuilder;
+use Shopware\Core\Content\Product\PropertyGroupSorter;
 use Shopware\Core\Content\Product\SalesChannel\Price\AbstractProductPriceCalculator;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
@@ -206,8 +207,7 @@ class ProductSubscriberTest extends TestCase
         $productVariationBuilder = $this->createMock(ProductVariationBuilder::class);
         $productVariationBuilder->expects($this->once())->method('build');
 
-        $propertyGroupSorter = $this->createMock(AbstractPropertyGroupSorter::class);
-        $propertyGroupSorter->expects($this->once())->method('sort');
+        $propertyGroupSorter = new PropertyGroupSorter();
 
         $subscriber = new ProductSubscriber(
             $productVariationBuilder,
@@ -287,7 +287,7 @@ class ProductSubscriberTest extends TestCase
         $measurementBuilder->expects($this->exactly(1))
             ->method('build')
             ->with($product, 'ft', 'lb')
-            ->willReturnCallback(function (ProductEntity $product, $from, $to) {
+            ->willReturnCallback(static function (ProductEntity $product, $from, $to) {
                 // Simulate conversion logic
                 // For the sake of this example, we will just double the value
 
@@ -371,7 +371,7 @@ class ProductSubscriberTest extends TestCase
     }
 
     /**
-     * @param array<string, float> $productDimensions
+     * @param array<string, float|string|null> $productDimensions
      * @param array<string, string> $headers
      * @param array<string, ConvertedUnit> $expectedFinalValues
      */
@@ -396,7 +396,7 @@ class ProductSubscriberTest extends TestCase
             $measurementBuilder->expects($this->exactly(1))
                 ->method('build')
                 ->with($product, $headers[PlatformRequest::HEADER_MEASUREMENT_LENGTH_UNIT] ?? 'mm', $headers[PlatformRequest::HEADER_MEASUREMENT_WEIGHT_UNIT] ?? 'kg')
-                ->willReturnCallback(function (ProductEntity $product, $from, $to) {
+                ->willReturnCallback(static function (ProductEntity $product, $from, $to) {
                     // Simulate conversion logic
                     // For the sake of this example, we will just double the value
 
@@ -583,7 +583,7 @@ class ProductSubscriberTest extends TestCase
         $measurementUnitConverter = $this->createMock(AbstractMeasurementUnitConverter::class);
         $measurementUnitConverter->expects($this->exactly(4))
             ->method('convert')
-            ->willReturnCallback(function ($value, $from, $to) {
+            ->willReturnCallback(static function ($value, $from, $to) {
                 return new ConvertedUnit($value * 2.0, $to);
             });
 
@@ -621,14 +621,14 @@ class ProductSubscriberTest extends TestCase
 
         $command->expects($this->exactly(4))
             ->method('hasField')
-            ->willReturnCallback(function ($field) {
+            ->willReturnCallback(static function ($field) {
                 return \in_array($field, ['width', 'height', 'length', 'weight'], true);
             });
 
         $addPayloadCallCount = 0;
         $command->expects($this->exactly(4))
             ->method('addPayload')
-            ->willReturnCallback(function ($field, $value) use (&$addPayloadCallCount): void {
+            ->willReturnCallback(static function ($field, $value) use (&$addPayloadCallCount): void {
                 $expectedValues = [
                     'width' => 20.0,
                     'height' => 40.0,
@@ -721,7 +721,7 @@ class ProductSubscriberTest extends TestCase
     }
 
     /**
-     * @param array<string, float> $payload
+     * @param array<string, float|string> $payload
      * @param array<string, string> $headers
      * @param array<string, bool> $hasFieldReturns
      * @param array<string, float> $expectedConversions
@@ -735,7 +735,7 @@ class ProductSubscriberTest extends TestCase
     ): void {
         $measurementUnitConverter = $this->createMock(AbstractMeasurementUnitConverter::class);
 
-        if (!empty($expectedConversions)) {
+        if ($expectedConversions !== []) {
             $measurementUnitConverter->expects($this->exactly(\count($expectedConversions)))
                 ->method('convert')
                 ->willReturn(new ConvertedUnit(2.0, 'm'));
@@ -769,11 +769,11 @@ class ProductSubscriberTest extends TestCase
 
         $command->expects($this->any())
             ->method('hasField')
-            ->willReturnCallback(function ($field) use ($hasFieldReturns) {
+            ->willReturnCallback(static function ($field) use ($hasFieldReturns) {
                 return $hasFieldReturns[$field] ?? false;
             });
 
-        if (!empty($expectedConversions)) {
+        if ($expectedConversions !== []) {
             $command->expects($this->exactly(\count($expectedConversions)))
                 ->method('addPayload');
         } else {
@@ -979,7 +979,7 @@ class ProductSubscriberTest extends TestCase
         $successCallback = null;
         $event->expects($this->once())
             ->method('addSuccess')
-            ->willReturnCallback(function ($callback) use (&$successCallback): void {
+            ->willReturnCallback(static function ($callback) use (&$successCallback): void {
                 $successCallback = $callback;
             });
 
@@ -1043,7 +1043,7 @@ class ProductSubscriberTest extends TestCase
         $successCallback = null;
         $event->expects($this->once())
             ->method('addSuccess')
-            ->willReturnCallback(function ($callback) use (&$successCallback): void {
+            ->willReturnCallback(static function ($callback) use (&$successCallback): void {
                 $successCallback = $callback;
             });
 

@@ -85,19 +85,20 @@ async function createWrapper(privileges = []) {
                     'sw-entity-listing': {
                         props: [
                             'items',
+                            'dataSource',
                             'allowEdit',
                             'allowDelete',
                         ],
                         template: `
                     <div>
-                        <template v-for="item in items">
+                        <template v-for="item in (dataSource || items)">
                             <slot name="actions" v-bind="{item}">
                                 <slot name="detail-action" v-bind="{ item }" >
                                     <sw-context-menu-item
                                         class="sw-salutation-list__edit-action"
                                         :disabled="!allowEdit || undefined"
                                     >
-                                        {{ $tc('global.default.edit') }}
+                                        {{ $t('global.default.edit') }}
                                     </sw-context-menu-item>
                                 </slot>
                                 <slot name="delete-action" v-bind="{ item }" >
@@ -105,7 +106,7 @@ async function createWrapper(privileges = []) {
                                         class="sw-salutation-list__delete-action"
                                         :disabled="!allowDelete || undefined"
                                     >
-                                        {{ $tc('global.default.edit') }}
+                                        {{ $t('global.default.edit') }}
                                     </sw-context-menu-item>
                                 </slot>
                             </slot>

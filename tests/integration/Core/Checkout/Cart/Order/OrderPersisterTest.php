@@ -80,7 +80,7 @@ class OrderPersisterTest extends TestCase
         $repository->expects($this->once())
             ->method('create')
             ->with(
-                static::callback(function (array $payload) use ($positionByIdentifier) {
+                static::callback(static function (array $payload) use ($positionByIdentifier) {
                     foreach ($payload[0]['lineItems'] as $lineItem) {
                         if ($positionByIdentifier[$lineItem['identifier']] !== $lineItem['position']) {
                             return false;

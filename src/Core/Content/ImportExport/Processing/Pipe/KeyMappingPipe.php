@@ -58,7 +58,7 @@ class KeyMappingPipe extends AbstractPipe
             $sorted[$m->getMappedKey()] = $mapped[$m->getMappedKey()] ?? '';
         }
 
-        if (empty($sorted)) {
+        if ($sorted === []) {
             return;
         }
 

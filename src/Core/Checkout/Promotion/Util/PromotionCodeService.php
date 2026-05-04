@@ -102,7 +102,7 @@ class PromotionCodeService
 
         $pattern = $promotion->getIndividualCodePattern();
 
-        if (empty($pattern)) {
+        if ($pattern === null || $pattern === '') {
             throw PromotionException::patternNotComplexEnough();
         }
 

@@ -166,7 +166,7 @@ class OrderConverter
             if ((!$isRecalculation || !$cart->getBehavior()?->hasPermission(CheckoutPermissions::SKIP_PRIMARY_ORDER_IDS)) && $cart->getDeliveries()->count() > 0) {
                 usort(
                     $data['deliveries'],
-                    function (array $deliveryA, array $deliveryB) {
+                    static function (array $deliveryA, array $deliveryB) {
                         return $deliveryB['shippingCosts']->getTotalPrice() <=> $deliveryA['shippingCosts']->getTotalPrice();
                     }
                 );

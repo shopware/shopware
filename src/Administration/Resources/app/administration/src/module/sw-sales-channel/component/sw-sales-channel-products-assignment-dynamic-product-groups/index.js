@@ -74,6 +74,7 @@ export default {
         productStreamCriteria() {
             const criteria = new Criteria(this.page, this.limit);
 
+            criteria.addFilter(Criteria.equals('internal', false));
             if (this.term) {
                 criteria.setTerm(this.term);
             }
@@ -85,7 +86,7 @@ export default {
             return [
                 {
                     property: 'name',
-                    label: this.$tc('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.columnName'),
+                    label: this.$t('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.columnName'),
                     sortable: false,
                 },
             ];

@@ -66,7 +66,7 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
             $ids[] = $pk['customerGroupId'];
         }
 
-        if (\count($ids) === 0) {
+        if ($ids === []) {
             return;
         }
 
@@ -87,7 +87,7 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
             }
         }
 
-        if (\count($ids) === 0) {
+        if ($ids === []) {
             return;
         }
 
@@ -106,7 +106,7 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
             $ids[] = $pk['customerGroupId'];
         }
 
-        if (\count($ids) === 0) {
+        if ($ids === []) {
             return;
         }
 
@@ -116,7 +116,7 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
 
         $ids = $this->seoUrlRepository->searchIds($criteria, $event->getContext())->getIds();
 
-        if (\count($ids) === 0) {
+        if ($ids === []) {
             return;
         }
 
@@ -166,7 +166,7 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
 
                     $title = $this->getTranslatedTitle($group->getTranslations(), $language);
 
-                    if (empty($title)) {
+                    if ($title === '') {
                         continue;
                     }
 

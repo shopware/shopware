@@ -4,16 +4,18 @@
         invisible: config('core.basicInformation.activeCaptchasV2.googleReCaptchaV2.config.invisible')
     } %}
 
+    {% set feedbackId = "#{formId}-grecaptcha-v2-feedback" %}
+
     <div class="captcha-google-re-captcha-v2"
          data-google-re-captcha-v2="true"
          data-google-re-captcha-v2-options="{{ googleReCaptchaV2Options|json_encode }}">
         <input
-            type="text"
-            class="d-none grecaptcha-v2-input"
+            type="hidden"
+            class="grecaptcha-v2-input"
             name="{{ constant('Shopware\\Storefront\\Framework\\Captcha\\GoogleReCaptchaV2::CAPTCHA_REQUEST_PARAMETER') }}"
-            data-validation="grecaptcha,required"
+            data-validation="grecaptcha"
             data-validate-hidden="true"
-            aria-describedby="grecaptcha-feedback-container">
+            aria-describedby="{{ feedbackId }}">
 
         <div class="grecaptcha-v2-container"></div>
 
@@ -27,6 +29,6 @@
             {% endif %}
         {% endif %}
 
-        <div id="grecaptcha-feedback-container" class="form-field-feedback" style="display: none;"></div>
+        <div id="{{ feedbackId }}" class="form-field-feedback"></div>
     </div>
 {% endblock %}

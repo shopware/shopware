@@ -1,6 +1,7 @@
 parameters:
     default_cdn_strategy: "id"
     env(APP_URL): ''
+    env(PRODUCT_ANALYTICS_GATEWAY_URL): 'https://product-analytics-gateway.services.shopware.io'
     APP_URL: "%env(string:APP_URL)%"
     env(REDIS_PREFIX): ''
 
@@ -214,6 +215,7 @@ shopware:
             #     config:
             #         url: 'redis://localhost'
 
+        # @deprecated tag:v6.8.0, will be removed
         message_queue:
             type: 'mysql'
 
@@ -299,6 +301,17 @@ shopware:
                       interval: '60 seconds'
                     - limit: 10
                       interval: '90 seconds'
+            revocation_request_form:
+                enabled: true
+                policy: 'time_backoff'
+                reset: '24 hours'
+                limits:
+                    - limit: 3
+                      interval: '30 seconds'
+                    - limit: 5
+                      interval: '60 seconds'
+                    - limit: 10
+                      interval: '90 seconds'
             notification:
                 enabled: true
                 policy: 'time_backoff'
@@ -321,6 +334,17 @@ shopware:
                       interval: '60 seconds'
                     - limit: 10
                       interval: '90 seconds'
+            newsletter_unsubscribe_form:
+                enabled: true
+                policy: 'time_backoff'
+                reset: '24 hours'
+                limits:
+                    - limit: 3
+                      interval: '30 seconds'
+                    - limit: 5
+                      interval: '60 seconds'
+                    - limit: 10
+                      interval: '90 seconds'
             cart_add_line_item:
                 enabled: true
                 policy: 'system_config'
@@ -328,6 +352,11 @@ shopware:
                 limits:
                     -   domain: 'core.cart.lineItemAddLimit'
                         interval: '60 seconds'
+            app_shop_verify:
+                enabled: true
+                policy: 'sliding_window'
+                limit: 60
+                interval: '60 minutes'
 
     admin_worker:
         enable_admin_worker: true
@@ -361,6 +390,9 @@ shopware:
         remote_thumbnails:
             enable: false
             pattern: '{mediaUrl}/{mediaPath}?width={width}&ts={mediaUpdatedAt}'
+        presigned_upload:
+            enabled: false
+            expiration_minutes: 5
 
     dal:
         batch_size: 125
@@ -380,6 +412,10 @@ shopware:
             # supported types: mysql, redis
             # for redis also the shopware.cart.storage.config.connection is required to point to a valid redis connection
             type: "mysql"
+
+    order:
+        deep_link:
+            expire_days: 30
 
     number_range:
         # supported types: mysql, redis
@@ -516,6 +552,9 @@ shopware:
             CONTENT__MEDIA_DUPLICATED_FILE_NAME: notice
             CONTENT__MEDIA_NOT_FOUND: notice
             CONTENT__MEDIA_MISSING_FILE: notice
+            CONTENT__MEDIA_PRESIGNED_UPLOAD_DISABLED: notice
+            CONTENT__MEDIA_PRESIGNED_UPLOAD_NOT_SUPPORTED: notice
+            CONTENT__MEDIA_PRESIGNED_UPLOAD_FINALIZE_FAILED: notice
             CONTENT__NEWSLETTER_RECIPIENT_THROTTLED: notice
             CONTENT__PRODUCT_EXPORT_EMPTY: notice
             ELASTICSEARCH_PRODUCT__CANNOT_CHANGE_CUSTOM_FIELD_TYPE: notice
@@ -554,6 +593,7 @@ shopware:
 
     cache:
         redis_prefix: '%env(REDIS_PREFIX)%'
+        disable_stampede_protection: false
         twig:
             string_template_renderer_cache_dir: '%kernel.cache_dir%/twig/string-template-renderer'
         invalidation:
@@ -561,6 +601,7 @@ shopware:
             delay_options:
                 storage: mysql
             http_cache: ['logged-in', 'cart-filled']
+            tag_invalidation_log_enabled: false
 
     twig:
         allowed_php_functions: []
@@ -617,3 +658,9 @@ shopware:
         allowed_types:
           - physical
           - digital
+        search_keyword:
+            indexing: true
+
+    webhook:
+        #@experimental stableVersion:v6.8.0 feature:WEBHOOK_FAILURE_STRATEGY this is a temporary solution until webhooks are refactored with a circuit breaker implementation
+        failure_strategy: disable_on_threshold

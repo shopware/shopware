@@ -26,7 +26,7 @@ class CustomFieldRule
     /**
      * @param array<string, string|array<string, string>> $renderedField
      *
-     * @return array<string, array<int, mixed>>
+     * @return array<string, list<Constraint>>
      */
     public static function getConstraints(array $renderedField): array
     {
@@ -96,7 +96,7 @@ class CustomFieldRule
      */
     public static function getValue(array $customFields, array $renderedField, ?SalesChannelContext $context = null): array|float|bool|int|string|null
     {
-        if (!empty($customFields) && \is_string($renderedField['name']) && \array_key_exists($renderedField['name'], $customFields)) {
+        if ($customFields !== [] && \is_string($renderedField['name']) && \array_key_exists($renderedField['name'], $customFields)) {
             $value = $customFields[$renderedField['name']];
 
             if (self::isPrice($renderedField) && $value instanceof PriceCollection) {
@@ -194,7 +194,7 @@ class CustomFieldRule
     /**
      * @param array<string, string|array<string, string>> $renderedField
      *
-     * @return Constraint[]
+     * @return list<Constraint>
      */
     private static function getRenderedFieldValueConstraints(array $renderedField): array
     {

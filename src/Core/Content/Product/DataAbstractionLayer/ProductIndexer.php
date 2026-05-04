@@ -85,7 +85,7 @@ class ProductIndexer extends EntityIndexer
 
         $ids = $iterator->fetch();
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return null;
         }
 
@@ -96,7 +96,7 @@ class ProductIndexer extends EntityIndexer
     {
         $ids = $event->getPrimaryKeys(ProductDefinition::ENTITY_NAME);
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return null;
         }
 
@@ -161,7 +161,7 @@ class ProductIndexer extends EntityIndexer
         }
 
         $ids = array_values(array_unique(array_filter($ids)));
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
@@ -206,8 +206,8 @@ class ProductIndexer extends EntityIndexer
         }
 
         if ($message->allow(self::RATING_AVERAGE_UPDATER)) {
-            Profiler::trace('product:indexer:rating', function () use ($parentIds, $context): void {
-                $this->ratingAverageUpdater->update($parentIds, $context);
+            Profiler::trace('product:indexer:rating', function () use ($ids, $parentIds, $context): void {
+                $this->ratingAverageUpdater->update(array_unique([...$parentIds, ...$this->getParentIds($ids)]), $context);
             });
         }
 

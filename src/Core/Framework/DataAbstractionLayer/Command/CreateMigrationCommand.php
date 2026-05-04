@@ -14,6 +14,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Path;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
@@ -133,8 +134,8 @@ class CreateMigrationCommand extends Command
 
         $queries = $this->queryGenerator->generateQueries($entityDefinition);
 
-        if (!empty($queries)) {
-            $path = $directory . '/' . MigrationFileRenderer::createMigrationClassName($timestamp, $entity) . '.php';
+        if ($queries !== []) {
+            $path = Path::join($directory, MigrationFileRenderer::createMigrationClassName($timestamp, $entity) . '.php');
 
             $className = MigrationFileRenderer::createMigrationClassName($timestamp, $entity);
             $content = $this->migrationFileRenderer->render($namespace, $className, $timestamp, $queries, $package);

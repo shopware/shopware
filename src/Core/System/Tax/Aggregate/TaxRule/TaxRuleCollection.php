@@ -13,22 +13,22 @@ class TaxRuleCollection extends EntityCollection
 {
     public function sortByTypePosition(): void
     {
-        $this->sort(fn (TaxRuleEntity $entityA, TaxRuleEntity $entityB) => $entityA->getType()->getPosition() <=> $entityB->getType()->getPosition());
+        $this->sort(static fn (TaxRuleEntity $entityA, TaxRuleEntity $entityB) => $entityA->getType()->getPosition() <=> $entityB->getType()->getPosition());
     }
 
     public function filterByTypePosition(int $position): TaxRuleCollection
     {
-        return $this->filter(fn (TaxRuleEntity $taxRule) => $taxRule->getType()->getPosition() === $position);
+        return $this->filter(static fn (TaxRuleEntity $taxRule) => $taxRule->getType()->getPosition() === $position);
     }
 
     public function highestTypePosition(): ?TaxRuleEntity
     {
-        return $this->reduce(fn (?TaxRuleEntity $result, TaxRuleEntity $item) => $result === null || $item->getType()->getPosition() < $result->getType()->getPosition() ? $item : $result);
+        return $this->reduce(static fn (?TaxRuleEntity $result, TaxRuleEntity $item) => $result === null || $item->getType()->getPosition() < $result->getType()->getPosition() ? $item : $result);
     }
 
     public function latestActivationDate(): ?TaxRuleEntity
     {
-        return $this->reduce(fn (?TaxRuleEntity $result, TaxRuleEntity $item) => $result === null || $item->getActiveFrom() > $result->getActiveFrom() ? $item : $result);
+        return $this->reduce(static fn (?TaxRuleEntity $result, TaxRuleEntity $item) => $result === null || $item->getActiveFrom() > $result->getActiveFrom() ? $item : $result);
     }
 
     public function getApiAlias(): string

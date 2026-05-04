@@ -75,12 +75,11 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
     function addGlobalNavigationGuard(router) {
         const assetPath = getAssetPath();
 
-        router.beforeEach((to) => {
+        router.beforeEach(async (to) => {
             Shopware.Service('userActivityService').updateLastUserActivity();
 
             setModuleFavicon(to, assetPath);
             const loggedIn = LoginService.isLoggedIn();
-            const tokenHandler = new Shopware.Helper.RefreshTokenHelper();
             const loginAllowlist = [
                 '/login/',
                 '/login',
@@ -123,17 +122,15 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
                     }),
                 );
 
-                if (!tokenHandler.isRefreshing) {
-                    return tokenHandler
-                        .fireRefreshTokenRequest()
-                        .then(() => {
-                            return addModuleInfoToTarget(to);
-                        })
-                        .catch(() => {
-                            return {
-                                name: 'sw.login.index',
-                            };
-                        });
+                if (!(await LoginService.isRefreshing())) {
+                    try {
+                        await LoginService.refreshToken();
+                        return addModuleInfoToTarget(to);
+                    } catch {
+                        return {
+                            name: 'sw.login.index',
+                        };
+                    }
                 }
             }
 

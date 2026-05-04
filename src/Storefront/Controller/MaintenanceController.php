@@ -46,13 +46,15 @@ class MaintenanceController extends StorefrontController
     )]
     public function renderMaintenancePage(Request $request, SalesChannelContext $context): ?Response
     {
-        $salesChannel = $context->getSalesChannel();
-
         if ($this->maintenanceModeResolver->shouldRedirectToShop($request)) {
+            if ($request->query->getString('redirectTo') !== '') {
+                return $this->createActionResponse($request);
+            }
+
             return $this->redirectToRoute('frontend.home.page');
         }
 
-        $salesChannelId = $salesChannel->getId();
+        $salesChannelId = $context->getSalesChannelId();
         $maintenanceLayoutId = $this->systemConfigService->getString('core.basicInformation.maintenancePage', $salesChannelId);
 
         if ($maintenanceLayoutId === '') {

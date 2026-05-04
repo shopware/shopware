@@ -79,14 +79,14 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         pageTypeTitle(name?: string): string {
-            const fallback = this.$tc('sw-category.base.cms.defaultDesc');
+            const fallback = this.$t('sw-category.base.cms.defaultDesc');
 
             if (!name) {
                 return fallback;
             }
 
             const pageType = this.cmsPageTypeService.getType(this.cmsPage?.type);
-            return pageType ? this.$tc(pageType.title) : fallback;
+            return pageType ? this.$t(pageType.title) : fallback;
         },
     },
 
@@ -214,7 +214,6 @@ export default Shopware.Component.wrapComponentConfig({
                             if (configField.entity) {
                                 delete configField.entity;
                             }
-                            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                             if (configField.hasOwnProperty('required')) {
                                 delete configField.required;
                             }

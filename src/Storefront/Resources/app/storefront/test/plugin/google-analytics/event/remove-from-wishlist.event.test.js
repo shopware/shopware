@@ -9,6 +9,7 @@ describe('plugin/google-analytics/events/remove-from-wishlist.event', () => {
         // Mock PluginManager
         window.PluginManager = {
             getPlugin: jest.fn(() => null),
+            initializePluginsInParentElement: jest.fn(),
         };
 
         removeFromWishlistEvent = new RemoveFromWishlistEvent();

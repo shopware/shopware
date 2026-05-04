@@ -27,7 +27,7 @@ class LineItemDownloadLoader
     }
 
     /**
-     * @param mixed[][] $lineItems
+     * @param list<array<string, mixed>> $lineItems
      *
      * @return array<int, list<array{position: int, mediaId: string, accessGranted: bool}>>
      */
@@ -45,18 +45,15 @@ class LineItemDownloadLoader
                 $isLineItemDownloadable = $isLineItemDownloadable || (\is_array($states) && \in_array(State::IS_DOWNLOAD, $states, true));
             }
 
-            if (
-                !$productId
-                || !$isLineItemDownloadable
-                || !empty($lineItem['downloads'])
-            ) {
+            $downloads = $lineItem['downloads'] ?? null;
+            if (!$productId || !$isLineItemDownloadable || $downloads) {
                 continue;
             }
 
-            $lineItemKeys[(string) $productId] = (int) $key;
+            $lineItemKeys[(string) $productId] = $key;
         }
 
-        if (empty($lineItemKeys)) {
+        if ($lineItemKeys === []) {
             return [];
         }
 

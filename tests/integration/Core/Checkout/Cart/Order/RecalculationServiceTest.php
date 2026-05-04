@@ -1350,7 +1350,7 @@ class RecalculationServiceTest extends TestCase
         static::assertSame($order->getLineItems()->count(), 2);
 
         // delete all line items
-        $ids = $order->getLineItems()->fmap(fn (OrderLineItemEntity $lineItem) => ['id' => $lineItem->getId()]);
+        $ids = $order->getLineItems()->fmap(static fn (OrderLineItemEntity $lineItem) => ['id' => $lineItem->getId()]);
         static::getContainer()->get('order_line_item.repository')->delete(array_values($ids), $versionContext);
 
         $order = $this->orderRepository->search($criteria, $versionContext)->get($orderId);

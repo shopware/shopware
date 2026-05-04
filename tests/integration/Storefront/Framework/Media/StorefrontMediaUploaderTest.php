@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Storefront\Framework\Media\Exception\MediaValidatorMissingException;
 use Shopware\Storefront\Framework\Media\StorefrontMediaUploader;
 use Shopware\Storefront\Framework\Media\StorefrontMediaValidatorRegistry;
 use Shopware\Storefront\Framework\StorefrontFrameworkException;
@@ -76,8 +75,7 @@ class StorefrontMediaUploaderTest extends TestCase
 
     public function testUploadUnknownType(): void
     {
-        $this->expectException(MediaValidatorMissingException::class);
-        $this->expectExceptionMessage('No validator for notExistingType was found.');
+        $this->expectExceptionObject(StorefrontFrameworkException::mediaValidatorMissing('notExistingType'));
 
         $file = $this->getUploadFixture('image.png');
         $this->getUploadService()->upload($file, 'test', 'notExistingType', Context::createDefaultContext());

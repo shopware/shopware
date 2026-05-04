@@ -255,6 +255,26 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         expect(upwardsButton.attributes('disabled')).toBeDefined();
     });
 
+    it.each([
+        ['.sw-data-grid__row--0 .sw-button-group .mt-button:first-of-type'],
+        ['.sw-data-grid__row--2 .sw-button-group .mt-button:last-of-type'],
+    ])('should have first and last position buttons disabled with shifted positions', async (selector) => {
+        const profileMock = getProfileMock();
+        profileMock.systemDefault = false;
+
+        // shifted positions can occur when mappings are added and deleted again
+        profileMock.mapping[0].position = 2;
+        profileMock.mapping[1].position = 3;
+        profileMock.mapping[2].position = 4;
+
+        wrapper = await createWrapper(profileMock);
+        await flushPromises();
+
+        const upwardsButton = wrapper.find(selector);
+
+        expect(upwardsButton.attributes('disabled')).toBeDefined();
+    });
+
     it('should add a mapping', async () => {
         const profileMock = getProfileMock();
         profileMock.systemDefault = false;

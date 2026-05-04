@@ -84,7 +84,7 @@ class SitemapGenerateCommandTest extends TestCase
 
         $this->exporter->expects($this->once())
             ->method('generate')
-            ->with(static::callback(function (SalesChannelContext $context) use ($storefrontId) {
+            ->with(static::callback(static function (SalesChannelContext $context) use ($storefrontId) {
                 static::assertSame($storefrontId, $context->getSalesChannelId());
 
                 return true;

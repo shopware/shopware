@@ -211,7 +211,7 @@ export default {
 
         async onStateSelected(stateType, actionName) {
             if (!stateType || !actionName) {
-                this.createStateChangeErrorNotification(this.$tc('sw-order.stateCard.labelErrorNoAction'));
+                this.createStateChangeErrorNotification(this.$t('sw-order.stateCard.labelErrorNoAction'));
                 return;
             }
 
@@ -236,12 +236,13 @@ export default {
             this.showStateChangeModal = false;
         },
 
-        onLeaveModalConfirm(docIds, sendMail = true) {
+        onLeaveModalConfirm(docIds, sendMail = true, internalComment = null) {
             this.showStateChangeModal = false;
 
             this.stateTransitionMethod(this.entity.id, this.currentActionName, {
                 documentIds: docIds,
                 sendMail,
+                internalComment,
             })
                 .then(() => {
                     this.getLastChange();
@@ -262,7 +263,7 @@ export default {
 
         createStateChangeErrorNotification(errorMessage) {
             this.createNotificationError({
-                message: this.$tc('sw-order.stateCard.labelErrorStateChange') + errorMessage,
+                message: this.$t('sw-order.stateCard.labelErrorStateChange') + errorMessage,
             });
         },
 

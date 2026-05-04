@@ -109,7 +109,7 @@ class RegisterRoute extends AbstractRegisterRoute
 
         $isGuest = $data->getBoolean('guest');
 
-        if ($data->has('accountType') && empty($data->get('accountType'))) {
+        if ($data->has('accountType') && $data->getString('accountType') === '') {
             $data->remove('accountType');
         }
 
@@ -329,7 +329,7 @@ class RegisterRoute extends AbstractRegisterRoute
             $billingAddress->set('salutationId', $data->get('salutationId'));
         }
 
-        if ($shippingAddress instanceof DataBag) {
+        if (($shippingAddress instanceof DataBag) && !$shippingAddress->get('salutationId')) {
             $shippingAddress->set('salutationId', $data->get('salutationId'));
         }
 
@@ -377,9 +377,9 @@ class RegisterRoute extends AbstractRegisterRoute
         }
 
         if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
-            $countryId = $shippingAddress instanceof DataBag
-                ? $shippingAddress->get('countryId')
-                : ($billingAddress instanceof DataBag ? $billingAddress->get('countryId') : null);
+            $countryId = $billingAddress instanceof DataBag
+                ? $billingAddress->get('countryId')
+                : ($shippingAddress instanceof DataBag ? $shippingAddress->get('countryId') : null);
 
             if ($countryId) {
                 if ($this->requiredVatIdField($countryId, $context)) {
@@ -621,13 +621,10 @@ class RegisterRoute extends AbstractRegisterRoute
 
     private function getConfirmUrl(SalesChannelContext $context, CustomerEntity $customer): string
     {
-        $urlTemplate = $this->systemConfigService->get(
+        $urlTemplate = $this->systemConfigService->getString(
             'core.loginRegistration.confirmationUrl',
             $context->getSalesChannelId()
-        );
-        if (!\is_string($urlTemplate)) {
-            $urlTemplate = '/registration/confirm?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%';
-        }
+        ) ?: '/registration/confirm?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%';
 
         $emailHash = Hasher::hash($customer->getEmail(), 'sha1');
 

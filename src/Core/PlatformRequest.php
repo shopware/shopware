@@ -77,6 +77,18 @@ final class PlatformRequest
     public const ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST = '_loginRequiredAllowGuest';
     public const ATTRIBUTE_IS_ALLOWED_IN_MAINTENANCE = 'allow_maintenance';
 
+    public const ATTRIBUTE_INTERNAL_ROUTE_PARAMS = [
+        self::ATTRIBUTE_CAPTCHA,
+        self::ATTRIBUTE_ROUTE_SCOPE,
+        self::ATTRIBUTE_ENTITY,
+        self::ATTRIBUTE_NO_STORE,
+        self::ATTRIBUTE_HTTP_CACHE,
+        self::ATTRIBUTE_CONTEXT_TOKEN_REQUIRED,
+        self::ATTRIBUTE_LOGIN_REQUIRED,
+        self::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST,
+        self::ATTRIBUTE_IS_ALLOWED_IN_MAINTENANCE,
+    ];
+
     /**
      * CSP
      */

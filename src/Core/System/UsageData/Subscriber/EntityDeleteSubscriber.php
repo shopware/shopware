@@ -7,12 +7,16 @@ use Doctrine\DBAL\Exception as DbalException;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\UsageData\Consent\ConsentService;
+use Shopware\Core\System\Consent\ConsentStatus;
+use Shopware\Core\System\Consent\Definition\BackendData;
+use Shopware\Core\System\Consent\Service\ConsentService;
 use Shopware\Core\System\UsageData\Services\EntityDefinitionService;
 use Shopware\Core\System\UsageData\Services\EntityDeleteEventHelper;
 use Symfony\Component\Clock\ClockInterface;
@@ -48,7 +52,7 @@ class EntityDeleteSubscriber implements EventSubscriberInterface
             return;
         }
 
-        if (!$this->consentService->isConsentAccepted()) {
+        if (!$this->isConsentAccepted($event->getContext())) {
             return;
         }
 
@@ -76,23 +80,22 @@ class EntityDeleteSubscriber implements EventSubscriberInterface
     private function storeDeletions(string $entityName, array $primaryKeys, \DateTimeImmutable $now): void
     {
         try {
-            $this->connection->beginTransaction();
-            $statement = $this->connection->prepare($this->getInsertQuery()->getSQL());
+            RetryableTransaction::transactional($this->connection, function () use ($entityName, $primaryKeys, $now): void {
+                $statement = $this->connection->prepare($this->getInsertQuery()->getSQL());
 
-            $formattedNow = $now->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+                $formattedNow = $now->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
-            foreach ($primaryKeys as $primaryKey) {
-                $statement->bindValue(':id', Uuid::randomBytes(), ParameterType::BINARY);
-                $statement->bindValue(':entity_name', $entityName);
-                $statement->bindValue(':entity_ids', \json_encode($primaryKey, \JSON_THROW_ON_ERROR));
-                $statement->bindValue(':deleted_at', $formattedNow);
+                foreach ($primaryKeys as $primaryKey) {
+                    $statement->bindValue(':id', Uuid::randomBytes(), ParameterType::BINARY);
+                    $statement->bindValue(':entity_name', $entityName);
+                    $statement->bindValue(':entity_ids', \json_encode($primaryKey, \JSON_THROW_ON_ERROR));
+                    $statement->bindValue(':deleted_at', $formattedNow);
 
-                $statement->executeStatement();
-            }
-
-            $this->connection->commit();
+                    $statement->executeStatement();
+                }
+            });
         } catch (DbalException) {
-            $this->connection->rollBack();
+            // usage data failure should not stop execution
         }
     }
 
@@ -109,5 +112,10 @@ class EntityDeleteSubscriber implements EventSubscriberInterface
         ]);
 
         return $queryBuilder;
+    }
+
+    private function isConsentAccepted(Context $context): bool
+    {
+        return $this->consentService->getConsentState(BackendData::NAME, $context)->status === ConsentStatus::ACCEPTED;
     }
 }

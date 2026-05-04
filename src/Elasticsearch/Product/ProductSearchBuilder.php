@@ -4,6 +4,7 @@ namespace Shopware\Elasticsearch\Product;
 
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
@@ -33,13 +34,13 @@ class ProductSearchBuilder implements ProductSearchBuilderInterface
             return;
         }
 
-        $search = $request->get('search');
+        $search = RequestParamHelper::get($request, 'search');
 
         $term = \is_array($search) ? implode(' ', $search) : (string) $search;
 
         $term = mb_substr(trim($term), 0, $this->searchTermMaxLength);
 
-        if (empty($term)) {
+        if ($term === '') {
             throw RoutingException::missingRequestParameter('search');
         }
 

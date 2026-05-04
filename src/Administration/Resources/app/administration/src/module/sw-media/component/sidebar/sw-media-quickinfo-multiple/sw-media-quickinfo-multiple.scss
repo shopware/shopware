@@ -1,6 +1,4 @@
-@import "~scss/variables";
-
-$sw-media-quickinfo-color-second-headline: $color-darkgray-200;
+$sw-media-quickinfo-color-second-headline: var(--color-text-primary-default);
 
 .sw-media-quickinfo-multiple {
     .sw-media-sidebar__quickaction--disabled {

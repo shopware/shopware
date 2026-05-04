@@ -296,6 +296,7 @@ class InfoControllerTest extends TestCase
             $this->shopIdProvider,
             $this->statsService,
             $this->eventDispatcher,
+            null,
         );
     }
 }

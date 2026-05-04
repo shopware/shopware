@@ -91,43 +91,24 @@ class ElasticsearchTestAnalyzerCommandTest extends TestCase
         static::assertStringContainsString('sw_ngram_analyzer', $tester->getDisplay());
     }
 
-    public function testBuiltInAnalyzersAreSentByName(): void
+    public function testBuiltInAnalyzersAreSkippedByDefault(): void
     {
-        $indices = $this->createMock(IndicesNamespace::class);
-        $client = $this->createMock(Client::class);
-        $client->method('indices')->willReturn($indices);
+        $analyzers = [
+            'sw_whitespace_analyzer' => [
+                'type' => 'custom',
+                'tokenizer' => 'whitespace',
+                'filter' => ['lowercase'],
+            ],
+        ];
 
-        $sentBodies = [];
-        $indices->method('analyze')->willReturnCallback(function (array $params) use (&$sentBodies): array {
-            $sentBodies[] = $params['body'];
-
-            return ['tokens' => [['token' => 'foo']]];
-        });
-
-        $tester = new CommandTester(new ElasticsearchTestAnalyzerCommand($client, [], []));
-        $tester->execute(['term' => 'foo']);
-
-        $standard = null;
-        foreach ($sentBodies as $body) {
-            if (($body['analyzer'] ?? null) === 'standard') {
-                $standard = $body;
-
-                break;
-            }
-        }
-
-        static::assertNotNull($standard);
-        static::assertSame('foo', $standard['text']);
-    }
-
-    public function testLanguageAnalyzersAreSkippedByDefault(): void
-    {
         $indices = $this->createMock(IndicesNamespace::class);
         $client = $this->createMock(Client::class);
         $client->method('indices')->willReturn($indices);
 
         $analyzedNames = [];
-        $indices->method('analyze')->willReturnCallback(function (array $params) use (&$analyzedNames): array {
+        $sentBodies = [];
+        $indices->method('analyze')->willReturnCallback(function (array $params) use (&$analyzedNames, &$sentBodies): array {
+            $sentBodies[] = $params['body'];
             if (isset($params['body']['analyzer'])) {
                 $analyzedNames[] = $params['body']['analyzer'];
             }
@@ -135,16 +116,18 @@ class ElasticsearchTestAnalyzerCommandTest extends TestCase
             return ['tokens' => []];
         });
 
-        $tester = new CommandTester(new ElasticsearchTestAnalyzerCommand($client, [], []));
+        $tester = new CommandTester(new ElasticsearchTestAnalyzerCommand($client, $analyzers, []));
         $tester->execute(['term' => 'foo']);
 
-        static::assertContains('standard', $analyzedNames);
+        static::assertNotContains('standard', $analyzedNames);
         static::assertNotContains('german', $analyzedNames);
-        static::assertNotContains('english', $analyzedNames);
+        static::assertCount(1, $sentBodies, 'only the configured custom analyzer should run by default');
+        static::assertStringContainsString('Custom analyzers', $tester->getDisplay());
+        static::assertStringNotContainsString('Default analyzers', $tester->getDisplay());
         static::assertStringNotContainsString('Default language analyzers', $tester->getDisplay());
     }
 
-    public function testLanguageAnalyzersIncludedWithFlag(): void
+    public function testBuiltInAnalyzersIncludedWithAllFlag(): void
     {
         $indices = $this->createMock(IndicesNamespace::class);
         $client = $this->createMock(Client::class);
@@ -160,10 +143,12 @@ class ElasticsearchTestAnalyzerCommandTest extends TestCase
         });
 
         $tester = new CommandTester(new ElasticsearchTestAnalyzerCommand($client, [], []));
-        $tester->execute(['term' => 'foo', '--with-language-analyzers' => true]);
+        $tester->execute(['term' => 'foo', '--all' => true]);
 
+        static::assertContains('standard', $analyzedNames);
         static::assertContains('german', $analyzedNames);
         static::assertContains('english', $analyzedNames);
+        static::assertStringContainsString('Default analyzers', $tester->getDisplay());
         static::assertStringContainsString('Default language analyzers', $tester->getDisplay());
     }
 }

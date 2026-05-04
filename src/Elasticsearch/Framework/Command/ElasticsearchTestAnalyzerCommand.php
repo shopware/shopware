@@ -40,10 +40,10 @@ class ElasticsearchTestAnalyzerCommand extends Command
         $this
             ->addArgument('term', InputArgument::REQUIRED)
             ->addOption(
-                'with-language-analyzers',
-                null,
+                'all',
+                'a',
                 InputOption::VALUE_NONE,
-                'Also run the built-in Elasticsearch language analyzers (arabic, english, german, ...).',
+                'Also run the built-in Elasticsearch analyzers (standard, whitespace, ..., english, german, ...) for comparison.',
             );
     }
 
@@ -52,10 +52,10 @@ class ElasticsearchTestAnalyzerCommand extends Command
         $this->io = new SymfonyStyle($input, $output);
 
         $term = $input->getArgument('term');
-        $withLanguageAnalyzers = (bool) $input->getOption('with-language-analyzers');
+        $includeBuiltIn = (bool) $input->getOption('all');
 
         $rows = [];
-        foreach ($this->getSections($withLanguageAnalyzers) as $headline => $analyzers) {
+        foreach ($this->getSections($includeBuiltIn) as $headline => $analyzers) {
             $rows[] = [$headline];
             $rows[] = ['###############'];
             foreach ($analyzers as $name => $body) {
@@ -84,31 +84,34 @@ class ElasticsearchTestAnalyzerCommand extends Command
      *
      * @return array<string, array<string, array<string, mixed>>>
      */
-    private function getSections(bool $withLanguageAnalyzers): array
+    private function getSections(bool $includeBuiltIn): array
     {
         $sections = [
             'Custom analyzers (elasticsearch.yaml)' => $this->buildCustomBodies(),
-            'Default analyzers' => $this->buildBuiltInBodies([
-                'standard',
-                'simple',
-                'whitespace',
-                'stop',
-                'keyword',
-                'pattern',
-                'fingerprint',
-            ]),
         ];
 
-        if ($withLanguageAnalyzers) {
-            $sections['Default language analyzers'] = $this->buildBuiltInBodies([
-                'arabic', 'armenian', 'basque', 'bengali', 'brazilian', 'bulgarian',
-                'catalan', 'cjk', 'czech', 'danish', 'dutch', 'english', 'finnish',
-                'french', 'galician', 'german', 'greek', 'hindi', 'hungarian',
-                'indonesian', 'irish', 'italian', 'latvian', 'lithuanian', 'norwegian',
-                'persian', 'portuguese', 'romanian', 'russian', 'sorani', 'spanish',
-                'swedish', 'turkish', 'thai',
-            ]);
+        if (!$includeBuiltIn) {
+            return $sections;
         }
+
+        $sections['Default analyzers'] = $this->buildBuiltInBodies([
+            'standard',
+            'simple',
+            'whitespace',
+            'stop',
+            'keyword',
+            'pattern',
+            'fingerprint',
+        ]);
+
+        $sections['Default language analyzers'] = $this->buildBuiltInBodies([
+            'arabic', 'armenian', 'basque', 'bengali', 'brazilian', 'bulgarian',
+            'catalan', 'cjk', 'czech', 'danish', 'dutch', 'english', 'finnish',
+            'french', 'galician', 'german', 'greek', 'hindi', 'hungarian',
+            'indonesian', 'irish', 'italian', 'latvian', 'lithuanian', 'norwegian',
+            'persian', 'portuguese', 'romanian', 'russian', 'sorani', 'spanish',
+            'swedish', 'turkish', 'thai',
+        ]);
 
         return $sections;
     }

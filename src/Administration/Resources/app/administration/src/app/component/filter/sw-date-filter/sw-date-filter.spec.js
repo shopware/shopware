@@ -164,6 +164,90 @@ describe('src/app/component/filter/sw-date-filter', () => {
         }
     });
 
+    it('should produce a 23h range on a DST spring-forward day', async () => {
+        Shopware.Store.get('session').setCurrentUser({
+            firstName: 'John',
+            lastName: 'Doe',
+            timeZone: 'Europe/Berlin',
+        });
+
+        try {
+            const wrapper = await createWrapper();
+
+            // 2024-03-31 in Berlin is the spring-forward day; the calendar day is only 23h long.
+            const fromInput = wrapper.find('.sw-date-filter__from').find('input');
+            await fromInput.setValue('2024-03-31T10:30:00.000Z');
+            await fromInput.trigger('input');
+            await flushPromises();
+
+            const toInput = wrapper.find('.sw-date-filter__to').find('input');
+            await toInput.setValue('2024-03-31T10:30:00.000Z');
+            await toInput.trigger('input');
+            await flushPromises();
+
+            // 00:00 Berlin (CET, UTC+1) → 2024-03-30T23:00Z; 23:59:59.999 Berlin (CEST, UTC+2) → 2024-03-31T21:59:59.999Z.
+            const lastEmit = wrapper.emitted()['filter-update'].at(-1);
+            expect(lastEmit).toEqual([
+                'releaseDate',
+                [
+                    Criteria.range('releaseDate', {
+                        gte: '2024-03-30T23:00:00.000Z',
+                        lte: '2024-03-31T21:59:59.999Z',
+                    }),
+                ],
+                {
+                    from: '2024-03-30T23:00:00.000Z',
+                    to: '2024-03-31T21:59:59.999Z',
+                    timeframe: 'custom',
+                },
+            ]);
+        } finally {
+            Shopware.Store.get('session').removeCurrentUser();
+        }
+    });
+
+    it('should produce a 25h range on a DST fall-back day', async () => {
+        Shopware.Store.get('session').setCurrentUser({
+            firstName: 'John',
+            lastName: 'Doe',
+            timeZone: 'Europe/Berlin',
+        });
+
+        try {
+            const wrapper = await createWrapper();
+
+            // 2024-10-27 in Berlin is the fall-back day; the calendar day is 25h long.
+            const fromInput = wrapper.find('.sw-date-filter__from').find('input');
+            await fromInput.setValue('2024-10-27T10:00:00.000Z');
+            await fromInput.trigger('input');
+            await flushPromises();
+
+            const toInput = wrapper.find('.sw-date-filter__to').find('input');
+            await toInput.setValue('2024-10-27T10:00:00.000Z');
+            await toInput.trigger('input');
+            await flushPromises();
+
+            // 00:00 Berlin (CEST, UTC+2) → 2024-10-26T22:00Z; 23:59:59.999 Berlin (CET, UTC+1) → 2024-10-27T22:59:59.999Z.
+            const lastEmit = wrapper.emitted()['filter-update'].at(-1);
+            expect(lastEmit).toEqual([
+                'releaseDate',
+                [
+                    Criteria.range('releaseDate', {
+                        gte: '2024-10-26T22:00:00.000Z',
+                        lte: '2024-10-27T22:59:59.999Z',
+                    }),
+                ],
+                {
+                    from: '2024-10-26T22:00:00.000Z',
+                    to: '2024-10-27T22:59:59.999Z',
+                    timeframe: 'custom',
+                },
+            ]);
+        } finally {
+            Shopware.Store.get('session').removeCurrentUser();
+        }
+    });
+
     it('should emit `filter-reset` event when user clicks Reset button when from value exists', async () => {
         const wrapper = await createWrapper();
 

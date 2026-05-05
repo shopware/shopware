@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\DocumentV2\Generation;
 
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -28,9 +27,7 @@ final readonly class DocumentGenerationRequest
         public string $orderVersionId,
         DocumentType|string $documentType,
         array $requestedFormats,
-        public Context $apiContext,
         public ?string $documentNumber = null,
-        public ?Context $languageAwareContext = null,
     ) {
         $this->documentType = $documentType instanceof DocumentType ? $documentType->value : $documentType;
         $this->requestedFormats = array_map(
@@ -46,22 +43,7 @@ final readonly class DocumentGenerationRequest
             $this->orderVersionId,
             $this->documentType,
             $this->requestedFormats,
-            $this->apiContext,
             $documentNumber,
-            $this->languageAwareContext,
-        );
-    }
-
-    public function withLanguageAwareContext(Context $languageAwareContext): self
-    {
-        return new self(
-            $this->orderId,
-            $this->orderVersionId,
-            $this->documentType,
-            $this->requestedFormats,
-            $this->apiContext,
-            $this->documentNumber,
-            $languageAwareContext,
         );
     }
 }

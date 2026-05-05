@@ -114,11 +114,10 @@ class InvoiceDataProviderTest extends TestCase
             $order->getVersionId() ?? Uuid::randomHex(),
             DocumentType::INVOICE,
             [DocumentFormat::PDF],
-            Context::createDefaultContext(),
             '12345',
         );
 
-        $result = $provider->provideRenderingData($order, $request);
+        $result = $provider->provideRenderingData($order, $request, Context::createDefaultContext());
         $configData = $result->configuration->jsonSerialize();
 
         static::assertNotNull($configData['documentDate']);

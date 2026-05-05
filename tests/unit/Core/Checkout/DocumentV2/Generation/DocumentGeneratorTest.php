@@ -57,7 +57,6 @@ class DocumentGeneratorTest extends TestCase
             $orderVersionId,
             DocumentType::INVOICE,
             [DocumentFormat::PDF],
-            $context,
         );
 
         $order = new OrderEntity();
@@ -67,7 +66,10 @@ class DocumentGeneratorTest extends TestCase
 
         /** @var StaticEntityRepository<OrderCollection> $orderRepository */
         $orderRepository = new StaticEntityRepository([
-            function (Criteria $criteria, Context $searchContext) use ($order, $orderId, $orderVersionId): EntitySearchResult {
+            function (
+                Criteria $criteria,
+                Context $searchContext,
+            ) use ($order, $orderId, $orderVersionId): EntitySearchResult {
                 static::assertSame([$orderId], $criteria->getIds());
                 static::assertSame('document-v2-generator::load-order-language', $criteria->getTitle());
                 static::assertSame(['languageId'], $criteria->getFields());
@@ -82,7 +84,10 @@ class DocumentGeneratorTest extends TestCase
                     $searchContext,
                 );
             },
-            function (Criteria $criteria, Context $searchContext) use ($order, $orderId, $orderVersionId, $orderLanguageId): EntitySearchResult {
+            function (
+                Criteria $criteria,
+                Context $searchContext,
+            ) use ($order, $orderId, $orderVersionId, $orderLanguageId): EntitySearchResult {
                 static::assertSame([$orderId], $criteria->getIds());
                 static::assertSame('document-v2-generator::load-order', $criteria->getTitle());
                 static::assertSame($orderVersionId, $searchContext->getVersionId());
@@ -120,7 +125,7 @@ class DocumentGeneratorTest extends TestCase
             $document,
         );
 
-        $result = $generator->generate($generationRequest);
+        $result = $generator->generate($generationRequest, $context);
 
         static::assertSame($document, $result);
         static::assertCount(1, $documentRepository->creates);
@@ -151,7 +156,7 @@ class DocumentGeneratorTest extends TestCase
 
         static::expectExceptionObject($exception);
 
-        $generator->generate($generationRequest);
+        $generator->generate($generationRequest, Context::createDefaultContext());
     }
 
     /**
@@ -165,7 +170,6 @@ class DocumentGeneratorTest extends TestCase
                 Uuid::randomHex(),
                 DocumentType::INVOICE,
                 [],
-                Context::createDefaultContext(),
             ),
             'exception' => DocumentV2Exception::missingFormats(),
         ];
@@ -176,7 +180,6 @@ class DocumentGeneratorTest extends TestCase
                 Defaults::LIVE_VERSION,
                 DocumentType::INVOICE,
                 [DocumentFormat::PDF],
-                Context::createDefaultContext(),
             ),
             'exception' => DocumentV2Exception::liveVersionNotAllowed(),
         ];
@@ -200,7 +203,11 @@ class DocumentGeneratorTest extends TestCase
         /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             [],
-            function (Criteria $criteria, Context $context, StaticEntityRepository $repository) use ($document): DocumentCollection {
+            function (
+                Criteria $criteria,
+                Context $context,
+                StaticEntityRepository $repository,
+            ) use ($document): DocumentCollection {
                 static::assertCount(1, $repository->creates);
                 $document->setId($repository->creates[0][0]['id']);
 

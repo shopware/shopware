@@ -737,6 +737,10 @@
           "solution": "Bitte versuche es erneut oder wende Dich an unseren Support."
         }
       }
+    },
+    "animation": {
+      "toggle": "Animation ein/aus",
+      "select": "Animation auswählen"
     }
   },
   "wishlist": {
@@ -848,7 +852,9 @@
         "increase": "Anzahl erhöhen",
         "increaseOfProduct": "Erhöhe die Anzahl von %product%",
         "decrease": "Anzahl verringern",
-        "decreaseOfProduct": "Verringere die Anzahl %product%"
+        "decreaseOfProduct": "Verringere die Anzahl %product%",
+        "stockAdjusted": "Ihre Menge wurde auf %quantity% aktualisiert.",
+        "outOfStock": "Das Produkt ist nicht mehr verfügbar."
       },
       "configurator": {
         "legend": "%group_name%<span class=\"%hidden_cls%\">&nbsp;auswählen</span>"

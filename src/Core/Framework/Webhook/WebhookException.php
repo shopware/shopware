@@ -13,6 +13,7 @@ class WebhookException extends HttpException
     public const APP_WEBHOOK_FAILED = 'FRAMEWORK__APP_WEBHOOK_FAILED';
     public const INVALID_DATA_MAPPING = 'FRAMEWORK__WEBHOOK_INVALID_DATA_MAPPING';
     public const UNKNOWN_DATA_TYPE = 'FRAMEWORK__WEBHOOK_UNKNOWN_DATA_TYPE';
+    public const DUPLICATE_DESCRIBED_EVENT = 'FRAMEWORK__WEBHOOK_DUPLICATE_DESCRIBED_EVENT';
 
     public static function webhookFailedException(string $webhookId, \Throwable $e): self
     {
@@ -59,6 +60,19 @@ class WebhookException extends HttpException
             self::UNKNOWN_DATA_TYPE,
             'Unknown EventDataType: {{ type }}',
             ['type' => $type]
+        );
+    }
+
+    public static function duplicateDescribedEvent(string $eventName, string $describer): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DUPLICATE_DESCRIBED_EVENT,
+            'Duplicate hookable event "{{ eventName }}" described by "{{ describer }}".',
+            [
+                'eventName' => $eventName,
+                'describer' => $describer,
+            ]
         );
     }
 }

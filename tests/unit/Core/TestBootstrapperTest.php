@@ -4,10 +4,16 @@ declare(strict_types=1);
 
 namespace Shopware\Tests\Unit\Core;
 
+use Composer\Autoload\ClassLoader;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Kernel;
 use Shopware\Core\TestBootstrapper;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * @internal
@@ -57,5 +63,54 @@ class TestBootstrapperTest extends TestCase
         $activePlugins = (new \ReflectionProperty($testBootstrapper, 'activePlugins'))->getValue($testBootstrapper);
 
         static::assertSame(['Test'], $activePlugins);
+    }
+
+    public function testBootstrapShutsDownKernelBeforeReturning(): void
+    {
+        $previousKernel = KernelLifecycleAccessor::currentKernel();
+
+        $result = static::createStub(Result::class);
+        $result->method('fetchAllAssociative')->willReturn([]);
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('executeQuery')->willReturn($result);
+
+        $container = static::createStub(ContainerInterface::class);
+        $container->method('get')->willReturn($connection);
+
+        $kernel = $this->createMock(Kernel::class);
+        $kernel->method('getContainer')->willReturn($container);
+        $kernel->expects($this->once())->method('shutdown');
+
+        KernelLifecycleAccessor::setKernel($kernel);
+
+        try {
+            $bootstrapper = (new TestBootstrapper())
+                ->setClassLoader(static::createStub(ClassLoader::class))
+                ->setDatabaseUrl('mysql://irrelevant')
+                ->setLoadEnvFile(false);
+
+            $bootstrapper->bootstrap();
+
+            static::assertNull(KernelLifecycleAccessor::currentKernel(), 'bootstrap() must leave no residual kernel');
+        } finally {
+            KernelLifecycleAccessor::setKernel($previousKernel);
+        }
+    }
+}
+
+/**
+ * @internal
+ */
+class KernelLifecycleAccessor extends KernelLifecycleManager
+{
+    public static function setKernel(?Kernel $kernel): void
+    {
+        static::$kernel = $kernel;
+    }
+
+    public static function currentKernel(): ?Kernel
+    {
+        return static::$kernel;
     }
 }

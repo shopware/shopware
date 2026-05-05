@@ -4,6 +4,10 @@
 
 <details>
 
+### Minimum value constraints added to quantity fields in ProductPriceDefinition
+
+The fields `quantityStart` and `quantityEnd` of ProductPriceDefinition now require a minimum value of `1`.
+
 ## Default CMS page ID now persisted for categories
 
 The default CMS page ID is now automatically written to the database when a category is saved without a `cmsPageId`.
@@ -70,6 +74,17 @@ The `/api/_action/mail-template/validate` route has been removed without replace
 From now on, the defined fields of an EntityDefinition are applied after the default fields.
 This makes it possible to properly overwrite the current default fields `createdAt` and `updatedAt`.
 Check your EntityDefinitions if your entities still behave like intended. (Only applicable if you manually add `CreatedAtField` and/or `UpdatedAtField`)
+
+## `CreatedByField` and `UpdatedByField` default write scopes changed
+
+The default write scopes of `Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedByField` and `Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedByField` now include `Context::CRUD_API_SCOPE` in addition to `Context::SYSTEM_SCOPE`.
+
+If you rely on the previous system-only behavior, pass the desired scopes explicitly when instantiating the field, for example:
+
+```php
+new CreatedByField([Context::SYSTEM_SCOPE]);
+new UpdatedByField([Context::SYSTEM_SCOPE]);
+```
 
 ## Multiple payment finalize calls allowed
 
@@ -264,6 +279,11 @@ Set the values directly into the `mediaEntity` property.
 The `\Shopware\Core\System\SalesChannel\Context\BaseSalesChannelContextFactory` now uses the language repository directly to fetch language information.
 As a consequence the query with the title `base-context-factory::sales-channel` no longer adds the `languages` association,
 which means the `salesChannel` property of the `BaseSalesChannelContext` no longer contains the current language object.
+
+## Removal of `permisionsLocked` property of `SalesChannelContext`
+
+The `permisionsLocked` property of the `SalesChannelContext` was removed.
+Use `permissionsLocked` property or `SalesChannelContext::isPermissionsLocked()` instead.
 
 ## `RequestParamHelper::get` ignores `attribute` bag
 
@@ -561,11 +581,38 @@ shopware:
           type: 'mysql'
 ```
 
+## Events require `Context` constructor parameter
+
+The following events now require `Context` as the last constructor parameter and implement `ShopwareEvent`.
+The deprecated `getNullableContext()` method was removed.
+
+```php
+// Before
+$event = new ThemeAssignedEvent($themeId, $salesChannelId);
+
+// After
+$event = new ThemeAssignedEvent($themeId, $salesChannelId, $context);
+```
+
+- `Shopware\Core\Content\ImportExport\Event\EnrichExportCriteriaEvent`
+- `Shopware\Core\Content\ImportExport\Event\ImportExportBeforeExportRecordEvent`
+- `Shopware\Core\Content\ImportExport\Event\ImportExportExceptionImportExportHandlerEvent`
+- `Shopware\Core\Content\Seo\Event\SeoUrlUpdateEvent`
+- `Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent`
+- `Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent`
+- `Shopware\Storefront\Theme\Event\ThemeAssignedEvent`
+- `Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent`
+- `Shopware\Storefront\Theme\Event\ThemeConfigResetEvent`
+
 ### Changed Exception Classes towards domain exceptions
 
 The following exception classes were removed and replaced by domain exceptions:
 * `\Shopware\Core\System\NumberRange\Exception\IncrementStorageNotFoundException` -> `\Shopware\Core\System\NumberRange\Exception\NumberRangeException::incrementStorageNotFound()`
 * `\Shopware\Core\System\NumberRange\Exception\NoConfigurationException` -> `\Shopware\Core\System\NumberRange\NumberRangeException::noConfigurationForEntity()`
+
+### Removed non-used `MAIL_TEMPLATE_SALES_CHANNEL_*_EVENT` constants
+
+Removed the constants `Shopware\Core\Content\MailTemplate\MAIL_TEMPLATE_SALES_CHANNEL_{WRITTEN,DELETED,LOADED,SEARCH_RESULT_LOADED,AGGREGATION_LOADED,ID_SEARCH_RESULT_LOADED}_EVENT` as the entity has been removed with Shopware 6.5 and the events were not fired anymore.
 
 </details>
 
@@ -901,6 +948,10 @@ Use the parent blocks instead
 ## File accessibility changed from public to private
 `administration/src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/index.js`
 
+## The following template blocks have been replaced due to a typo in their name
+* `sw_condiiton_date_range_field_to_date` -> `sw_condition_date_range_field_to_date`
+* `sw_cms_detail_stage_empty_stade_content` -> `sw_cms_detail_stage_empty_stage_content`
+
 ## Removed .png and .jpg images
 
 In favor of WebP the following images have been removed:
@@ -1026,6 +1077,10 @@ The following templates no longer contain any microdata attributes:
 | `page/error/error-maintenance.html.twig` | `WebPage` on `<html>` |
 
 If your plugin or theme adds structured data by extending blocks in the templates above, migrate your overrides to the new JSON-LD template extension points described below.
+
+## Cookie bar moved to the top of the page
+
+The default cookie bar (block `base_cookie_permission`) has been moved from the bottom of the page to the top of the page (after the opening `<body>` element).
 
 ## New JSON-LD structured data block system
 

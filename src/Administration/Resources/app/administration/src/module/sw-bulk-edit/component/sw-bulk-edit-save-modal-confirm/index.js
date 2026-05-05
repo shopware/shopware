@@ -67,10 +67,10 @@ export default {
                     value,
                 ]) => {
                     if (
-                        key === this.$tc(`sw-bulk-edit.modal.confirm.triggeredFlows.${key}.key`) &&
+                        key === this.$t(`sw-bulk-edit.modal.confirm.triggeredFlows.${key}.key`) &&
                         value.isChanged === true
                     ) {
-                        triggeredFlows.push(this.$tc(`sw-bulk-edit.modal.confirm.triggeredFlows.${key}.label`));
+                        triggeredFlows.push(this.$t(`sw-bulk-edit.modal.confirm.triggeredFlows.${key}.label`));
                     }
                 },
             );
@@ -94,21 +94,21 @@ export default {
         },
 
         setTitle() {
-            this.$emit('title-set', this.$tc('sw-bulk-edit.modal.confirm.title'));
+            this.$emit('title-set', this.$t('sw-bulk-edit.modal.confirm.title'));
         },
 
         updateButtons() {
             const buttonConfig = [
                 {
                     key: 'cancel',
-                    label: this.$tc('global.sw-modal.labelClose'),
+                    label: this.$t('global.sw-modal.labelClose'),
                     position: 'left',
                     action: '',
                     disabled: false,
                 },
                 {
                     key: 'next',
-                    label: this.$tc('sw-bulk-edit.modal.confirm.buttons.applyChanges'),
+                    label: this.$t('sw-bulk-edit.modal.confirm.buttons.applyChanges'),
                     position: 'right',
                     variant: 'primary',
                     action: 'process',

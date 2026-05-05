@@ -175,7 +175,7 @@ export default {
         getModuleTitle(entityName) {
             const module = Module.getModuleByEntityName(entityName);
 
-            return this.$tc(module?.manifest.title);
+            return this.$t(module?.manifest.title);
         },
 
         onChangeSearchPreference(searchPreference) {

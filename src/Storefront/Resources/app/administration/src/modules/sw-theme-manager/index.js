@@ -1,16 +1,33 @@
 /**
- * @package discovery
+ * @sw-package discovery
  */
 
 import './mixin/sw-theme.mixin';
-import './page/sw-theme-manager-detail';
-import './page/sw-theme-manager-list';
-import './component/sw-theme-list-item/';
-import './component/sw-theme-modal/';
 import './acl';
 
 const { Module } = Shopware;
 
+/**
+ * @deprecated tag:v6.8.0 - Will be @private
+ */
+Shopware.Component.register('sw-theme-manager-detail', () => import('./page/sw-theme-manager-detail'));
+
+/**
+ * @deprecated tag:v6.8.0 - Will be @private
+ */
+Shopware.Component.register('sw-theme-manager-list', () => import('./page/sw-theme-manager-list'));
+
+/**
+ * @deprecated tag:v6.8.0 - Will be @private
+ */
+Shopware.Component.register('sw-theme-list-item', () => import('./component/sw-theme-list-item'));
+
+/**
+ * @deprecated tag:v6.8.0 - Will be @private
+ */
+Shopware.Component.register('sw-theme-modal', () => import('./component/sw-theme-modal'));
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-theme-manager', {
     type: 'core',
     title: 'sw-theme-manager.general.mainMenuItemGeneral',
@@ -27,17 +44,17 @@ Module.register('sw-theme-manager', {
             component: 'sw-theme-manager-list',
             path: 'index',
             meta: {
-                privilege: 'theme.viewer'
-            }
+                privilege: 'theme.viewer',
+            },
         },
         detail: {
             component: 'sw-theme-manager-detail',
             path: 'detail/:id',
             meta: {
                 parentPath: 'sw.theme.manager.index',
-                privilege: 'theme.viewer'
-            }
-        }
+                privilege: 'theme.viewer',
+            },
+        },
     },
 
     navigation: [{
@@ -48,7 +65,7 @@ Module.register('sw-theme-manager', {
         path: 'sw.theme.manager.index',
         privilege: 'theme.viewer',
         position: 80,
-        parent: 'sw-content'
+        parent: 'sw-content',
     }],
 
     // Add theme route to sales channel
@@ -65,11 +82,11 @@ Module.register('sw-theme-manager', {
                 path: '/sw/sales/channel/detail/:id/theme',
                 meta: {
                     parentPath: 'sw.sales.channel.list',
-                    privilege: 'sales_channel.viewer'
-                }
+                    privilege: 'sales_channel.viewer',
+                },
             });
         }
 
         next(currentRoute);
-    }
+    },
 });

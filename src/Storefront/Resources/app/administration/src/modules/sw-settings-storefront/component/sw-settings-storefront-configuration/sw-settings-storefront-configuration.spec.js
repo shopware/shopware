@@ -2,7 +2,9 @@
  * @sw-package framework
  */
 import { shallowMount } from '@vue/test-utils';
-import './index';
+import swSettingsStorefrontConfiguration from './index';
+
+Shopware.Component.register('sw-settings-storefront-configuration', swSettingsStorefrontConfiguration);
 
 describe('sw-settings-storefront-configuration', () => {
     it('renders with required storefront settings', async () => {

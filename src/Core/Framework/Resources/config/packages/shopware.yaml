@@ -390,6 +390,9 @@ shopware:
         remote_thumbnails:
             enable: false
             pattern: '{mediaUrl}/{mediaPath}?width={width}&ts={mediaUpdatedAt}'
+        presigned_upload:
+            enabled: false
+            expiration_minutes: 5
 
     dal:
         batch_size: 125
@@ -409,6 +412,10 @@ shopware:
             # supported types: mysql, redis
             # for redis also the shopware.cart.storage.config.connection is required to point to a valid redis connection
             type: "mysql"
+
+    order:
+        deep_link:
+            expire_days: 30
 
     number_range:
         # supported types: mysql, redis
@@ -545,6 +552,9 @@ shopware:
             CONTENT__MEDIA_DUPLICATED_FILE_NAME: notice
             CONTENT__MEDIA_NOT_FOUND: notice
             CONTENT__MEDIA_MISSING_FILE: notice
+            CONTENT__MEDIA_PRESIGNED_UPLOAD_DISABLED: notice
+            CONTENT__MEDIA_PRESIGNED_UPLOAD_NOT_SUPPORTED: notice
+            CONTENT__MEDIA_PRESIGNED_UPLOAD_FINALIZE_FAILED: notice
             CONTENT__NEWSLETTER_RECIPIENT_THROTTLED: notice
             CONTENT__PRODUCT_EXPORT_EMPTY: notice
             ELASTICSEARCH_PRODUCT__CANNOT_CHANGE_CUSTOM_FIELD_TYPE: notice
@@ -648,6 +658,8 @@ shopware:
         allowed_types:
           - physical
           - digital
+        search_keyword:
+            indexing: true
 
     webhook:
         #@experimental stableVersion:v6.8.0 feature:WEBHOOK_FAILURE_STRATEGY this is a temporary solution until webhooks are refactored with a circuit breaker implementation

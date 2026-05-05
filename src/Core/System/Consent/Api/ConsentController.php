@@ -36,8 +36,16 @@ class ConsentController
     public function acceptConsent(Context $context, Request $request): Response
     {
         $consent = $request->request->getString('consent');
+        $revision = $request->request->getString('revision') ?: null;
 
-        return new JsonResponse($this->consentService->acceptConsent($consent, $context), Response::HTTP_OK);
+        return new JsonResponse(
+            $this->consentService->acceptConsent(
+                $consent,
+                $context,
+                $revision,
+            ),
+            Response::HTTP_OK,
+        );
     }
 
     #[Route(path: '/api/consents/revoke', name: 'api.consents.revoke', defaults: ['auth_required' => true], methods: ['POST'])]

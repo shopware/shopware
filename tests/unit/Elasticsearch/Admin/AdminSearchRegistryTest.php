@@ -483,6 +483,43 @@ class AdminSearchRegistryTest extends TestCase
         ]), []));
     }
 
+    public function testRefreshIndicesNoEmptyDbCall(): void
+    {
+        $client = $this->createMock(Client::class);
+        $indices = $this->createMock(IndicesNamespace::class);
+        $indices->expects($this->never())->method('existsAlias');
+
+        $client->method('indices')->willReturn($indices);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('executeStatement');
+
+        $searchHelper = new AdminElasticsearchHelper(true, true, 'sw-admin', 'test', true, new NullLogger());
+        $index = new AdminSearchRegistry(
+            [],
+            $connection,
+            $this->createMock(MessageBusInterface::class),
+            $this->createMock(EventDispatcherInterface::class),
+            $client,
+            $searchHelper,
+            $this->createMock(LoggerInterface::class),
+            [],
+            [],
+            'test'
+        );
+
+        $index->refresh(new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([
+            new EntityWrittenEvent('promotion', [
+                new EntityWriteResult(
+                    'c1a28776116d4431a2208eb2960ec340',
+                    [],
+                    'promotion',
+                    EntityWriteResult::OPERATION_INSERT
+                ),
+            ], Context::createDefaultContext()),
+        ]), []));
+    }
+
     public function testHandle(): void
     {
         $this->indexer->method('getName')->willReturn('promotion-listing');

@@ -93,7 +93,10 @@ class AdminSearchRegistry implements EventSubscriberInterface
         }
 
         $indexers = $this->getIndexersArray();
-        /** @var list<string> $entities */
+        if ($indexers === []) {
+            return;
+        }
+
         $entities = array_keys($indexers);
 
         if ($indexingBehavior->getOnlyEntities()) {
@@ -135,6 +138,11 @@ class AdminSearchRegistry implements EventSubscriberInterface
             return;
         }
 
+        $indexers = $this->getIndexersArray();
+        if ($indexers === []) {
+            return;
+        }
+
         if ($this->adminEsHelper->getRefreshIndices()) {
             try {
                 $this->refreshIndices();
@@ -147,12 +155,11 @@ class AdminSearchRegistry implements EventSubscriberInterface
 
         /** @var array<string, string> $indices */
         $indices = $this->connection->fetchAllKeyValue('SELECT `alias`, `index` FROM admin_elasticsearch_index_task');
-
         if ($indices === []) {
             return;
         }
 
-        foreach ($this->indexer as $indexer) {
+        foreach ($indexers as $indexer) {
             $ids = $indexer->getUpdatedIds($event);
             $deletedIds = $event->getDeletedPrimaryKeys($indexer->getEntity());
             $ids = array_values(array_diff($ids, $deletedIds));
@@ -308,6 +315,10 @@ class AdminSearchRegistry implements EventSubscriberInterface
             ];
         }
 
+        if ($indices === []) {
+            return $indices;
+        }
+
         $this->connection->executeStatement(
             'DELETE FROM admin_elasticsearch_index_task WHERE `entity` IN (:entities)',
             ['entities' => $entities],
@@ -323,8 +334,8 @@ class AdminSearchRegistry implements EventSubscriberInterface
 
     private function refreshIndices(): void
     {
-        $entities = [];
         $indexTasks = [];
+        $entities = [];
         foreach ($this->indexer as $indexer) {
             $alias = $this->adminEsHelper->getIndex($indexer->getName());
 
@@ -345,6 +356,10 @@ class AdminSearchRegistry implements EventSubscriberInterface
                 '`alias`' => $alias,
                 '`doc_count`' => $iterator->fetchCount(),
             ];
+        }
+
+        if ($entities === []) {
+            return;
         }
 
         $this->connection->executeStatement(

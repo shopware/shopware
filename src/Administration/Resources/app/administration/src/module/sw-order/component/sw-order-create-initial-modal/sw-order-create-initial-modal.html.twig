@@ -2,8 +2,8 @@
 <sw-modal
     class="sw-order-create-initial-modal"
     :closable="false"
-    :title="$tc('sw-order.initialModal.titleNewOrder')"
-    variant="large"
+    :title="$t('sw-order.initialModal.titleNewOrder')"
+    variant="full"
     @modal-close="onCloseModal"
 >
     <template #default>
@@ -20,7 +20,7 @@
                     name="customer"
                     :active-tab="active"
                 >
-                    {{ $tc('sw-order.initialModal.tabCustomer') }}
+                    {{ $t('sw-order.initialModal.tabCustomer') }}
                 </sw-tabs-item>
                 {% endblock %}
 
@@ -31,7 +31,7 @@
                     :active-tab="active"
                     :disabled="!customer || undefined"
                 >
-                    {{ $tc('sw-order.initialModal.tabProducts') }}
+                    {{ $t('sw-order.initialModal.tabProducts') }}
                 </sw-tabs-item>
                 {% endblock %}
 
@@ -42,7 +42,7 @@
                     :active-tab="active"
                     :disabled="!customer || undefined"
                 >
-                    {{ $tc('sw-order.initialModal.tabOptions') }}
+                    {{ $t('sw-order.initialModal.tabOptions') }}
                 </sw-tabs-item>
                 {% endblock %}
 
@@ -99,7 +99,7 @@
             data-analytics-id="sw-order-create-initial-modal.cancel"
             @click="onCloseModal"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -113,7 +113,7 @@
             data-analytics-id="sw-order-create-initial-modal.preview-order"
             @click="onPreviewOrder"
         >
-            {{ $tc('sw-order.initialModal.buttonPreviewOrder') }}
+            {{ $t('sw-order.initialModal.buttonPreviewOrder') }}
         </mt-button>
         {% endblock %}
     </template>

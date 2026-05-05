@@ -71,6 +71,7 @@ const baseRules = {
         ],
     }],
     'sw-core-rules/require-package-annotation': ['error'],
+    'sw-core-rules/no-tc-translation': 'error',
     'sw-deprecation-rules/private-feature-declarations': 'error',
     'no-restricted-exports': 'off',
     'filename-rules/match': [2, /^.*(?:\.js|\.ts|\.html|\.html\.twig)$/],

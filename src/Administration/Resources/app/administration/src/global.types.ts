@@ -5,7 +5,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 import type { default as Bottle, Decorator } from 'bottlejs';
-import type { NavigationGuardNext, RouteLocationNormalizedLoaded, RouteLocationRaw, Router } from 'vue-router';
+import type { NavigationGuardNext, RouteLocationNormalized, RouteLocationNormalizedLoaded, Router } from 'vue-router';
 // Import explicitly global types from meteor-admin-sdk
 import '@shopware-ag/meteor-admin-sdk';
 import type FeatureService from 'src/app/service/feature.service';
@@ -66,7 +66,6 @@ import type RuleConditionService from './app/service/rule-condition.service';
 import type SystemConfigApiService from './core/service/api/system-config.api.service';
 import type UpdateApiService from './core/service/api/update.api.service';
 import type UserRecoveryApiService from './core/service/api/user-recovery.api.service';
-import type { UsageDataApiService } from './core/service/api/usage-data.api.service';
 import type ConfigApiService from './core/service/api/config.api.service';
 import type ImportExportService from './module/sw-import-export/service/importExport.service';
 import type WorkerNotificationFactory from './core/factory/worker-notification.factory';
@@ -120,7 +119,6 @@ import type { SidebarStore } from './app/store/sidebar.store';
 import type { MenuItemStore } from './app/store/menu-item.store';
 import type { NotificationStore } from './app/store/notification.store';
 import type { TabsStore } from './app/store/tabs.store';
-import type { UsageData } from './app/store/usage-data.store';
 import type { SessionStore } from './app/store/session.store';
 import type { SwCategoryDetailStore } from './module/sw-category/page/sw-category-detail/store';
 import type { SwSeoUrlStore } from './module/sw-settings-seo/component/sw-seo-url/store';
@@ -222,7 +220,7 @@ declare global {
         _sw_extension_component_collection: DevtoolComponent[];
         _swLoginOverrides?: Array<() => void>;
         startApplication: () => void;
-        _pageLoadTime_: number;
+        removePageLoadingIndicator: () => void;
     }
 
     const _features_: {
@@ -287,7 +285,6 @@ declare global {
         systemConfigApiService: SystemConfigApiService;
         timezoneService: $TSFixMe;
         updateService: UpdateApiService;
-        usageDataService: UsageDataApiService;
         userActivityService: UserActivityService;
         userRecoveryService: UserRecoveryApiService;
         userService: UserApiService;
@@ -415,7 +412,6 @@ declare global {
         menuItem: MenuItemStore;
         notification: NotificationStore;
         tabs: TabsStore;
-        usageData: UsageData;
         session: SessionStore;
         swCategoryDetail: SwCategoryDetailStore;
         swSeoUrl: SwSeoUrlStore;
@@ -548,8 +544,16 @@ declare module '@vue/runtime-core' {
             helpText?: string;
         };
 
-        beforeRouteEnter?: (to: RouteLocationRaw, from: RouteLocationRaw, next: NavigationGuardNext) => void;
-        beforeRouteLeave?: (to: RouteLocationRaw, from: RouteLocationRaw, next: NavigationGuardNext) => void;
+        beforeRouteEnter?: (
+            to: RouteLocationNormalized,
+            from: RouteLocationNormalizedLoaded,
+            next: NavigationGuardNext,
+        ) => void;
+        beforeRouteLeave?: (
+            to: RouteLocationNormalized,
+            from: RouteLocationNormalizedLoaded,
+            next: NavigationGuardNext,
+        ) => void;
     }
 
     interface PropOptions {

@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { getMeteorInheritanceConfig } from './meteor-inheritance.utils';
+import { mapInheritanceSlotPropsToMeteorProps } from './meteor-inheritance.utils';
 
 describe('src/core/service/utils/meteor-inheritance.utils', () => {
     it('builds meteor inheritance config from sw-inherit-wrapper slot props', () => {
@@ -13,7 +13,7 @@ describe('src/core/service/utils/meteor-inheritance.utils', () => {
             restoreInheritance: jest.fn(),
         };
 
-        expect(getMeteorInheritanceConfig(inheritance, 'parent value')).toEqual({
+        expect(mapInheritanceSlotPropsToMeteorProps(inheritance, 'parent value')).toEqual({
             isInheritanceField: true,
             isInherited: true,
             inheritanceRemove: inheritance.removeInheritance,
@@ -30,7 +30,7 @@ describe('src/core/service/utils/meteor-inheritance.utils', () => {
             restoreInheritance: jest.fn(),
         };
 
-        expect(getMeteorInheritanceConfig(inheritance, 'parent value')).toEqual({
+        expect(mapInheritanceSlotPropsToMeteorProps(inheritance, 'parent value')).toEqual({
             isInheritanceField: false,
             isInherited: false,
             inheritanceRemove: inheritance.removeInheritance,
@@ -40,6 +40,6 @@ describe('src/core/service/utils/meteor-inheritance.utils', () => {
     });
 
     it('returns an empty config without inheritance props', () => {
-        expect(getMeteorInheritanceConfig()).toEqual({});
+        expect(mapInheritanceSlotPropsToMeteorProps()).toEqual({});
     });
 });

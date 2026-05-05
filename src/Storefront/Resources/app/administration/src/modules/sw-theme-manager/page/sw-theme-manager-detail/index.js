@@ -3,7 +3,7 @@ import './sw-theme-manager-detail.scss';
 
 const { Mixin } = Shopware;
 const Criteria = Shopware.Data.Criteria;
-const { getMeteorInheritanceConfig } = Shopware.Utils;
+const { mapInheritanceSlotPropsToMeteorProps } = Shopware.Utils;
 const { getObjectDiff, cloneDeep, deepMergeObject } = Shopware.Utils.object;
 const { isArray } = Shopware.Utils.types;
 
@@ -724,7 +724,7 @@ export default {
             }
 
             if (inheritance && this.isFieldHandlingLabelAndHelpText(field)) {
-                Object.assign(config, getMeteorInheritanceConfig(inheritance, inheritedValue));
+                Object.assign(config, mapInheritanceSlotPropsToMeteorProps(inheritance, inheritedValue));
                 config.mapInheritance = inheritance;
             }
 

@@ -52,7 +52,7 @@ class MetricLabelProcessor
             }
 
             $labelConfig = $configuredLabels[$name];
-            $policy = LabelPolicy::tryFrom($labelConfig['policy'] ?? '') ?? $this->defaultPolicyForType($metricConfig->type);
+            $policy = $labelConfig->policy ?? $this->defaultPolicyForType($metricConfig->type);
 
             if ($policy === LabelPolicy::OPEN) {
                 $processed[$name] = $value;
@@ -60,7 +60,7 @@ class MetricLabelProcessor
                 continue;
             }
 
-            $allowedValues = $labelConfig['allowed_values'] ?? [];
+            $allowedValues = $labelConfig->allowedValues ?? [];
 
             if (\in_array($value, $allowedValues, true)) {
                 $processed[$name] = $value;

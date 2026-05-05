@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\Metric;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\Type;
+use Shopware\Core\Framework\Telemetry\Metrics\MetricLabelProcessor;
 use Shopware\Core\Framework\Telemetry\Metrics\MetricTransportInterface;
 use Shopware\Core\Framework\Telemetry\Metrics\Transport\TransportCollection;
 use Shopware\Core\Framework\Telemetry\TelemetryException;
@@ -35,8 +36,41 @@ class MeterTest extends TestCase
 
         $collection = $this->createTransportCollectionMock([$transport1, $transport2]);
 
-        $meter = new Meter($collection, $this->configProviderWithSuccessfulExpectation($metricConfig), $this->createMock(LoggerInterface::class), 'prod');
+        $meter = new Meter(
+            $collection,
+            $this->configProviderWithSuccessfulExpectation($metricConfig),
+            $this->createPassthroughLabelProcessor(),
+            $this->createMock(LoggerInterface::class),
+            'prod',
+            true,
+        );
         $meter->emit($configuredMetric);
+    }
+
+    public function testEmitDoesNothingWhenDisabled(): void
+    {
+        $transport = $this->createMock(MetricTransportInterface::class);
+        $transport->expects($this->never())->method('emit');
+
+        $collection = $this->createMock(TransportCollection::class);
+        $collection->expects($this->never())->method('getIterator');
+
+        $configProvider = $this->createMock(MetricConfigProvider::class);
+        $configProvider->expects($this->never())->method('get');
+
+        $labelProcessor = $this->createMock(MetricLabelProcessor::class);
+        $labelProcessor->expects($this->never())->method('process');
+
+        $meter = new Meter(
+            $collection,
+            $configProvider,
+            $labelProcessor,
+            $this->createMock(LoggerInterface::class),
+            'prod',
+            false,
+        );
+
+        $meter->emit(new ConfiguredMetric('test', 1));
     }
 
     public function testTransportErrorDoesNotBreakApplication(): void
@@ -51,7 +85,14 @@ class MeterTest extends TestCase
         $logger->expects($this->once())->method('warning');
         $collection = $this->createTransportCollectionMock([$transport1, $transport2]);
 
-        $meter = new Meter($collection, $this->configProviderWithSuccessfulExpectation($metricConfig), $logger, 'prod');
+        $meter = new Meter(
+            $collection,
+            $this->configProviderWithSuccessfulExpectation($metricConfig),
+            $this->createPassthroughLabelProcessor(),
+            $logger,
+            'prod',
+            true,
+        );
         $meter->emit($configuredMetric);
     }
 
@@ -75,7 +116,14 @@ class MeterTest extends TestCase
 
         $collection = $this->createTransportCollectionMock([$transport]);
 
-        $meter = new Meter($collection, $this->configProviderWithSuccessfulExpectation($metricConfig), $logger, 'prod');
+        $meter = new Meter(
+            $collection,
+            $this->configProviderWithSuccessfulExpectation($metricConfig),
+            $this->createPassthroughLabelProcessor(),
+            $logger,
+            'prod',
+            true,
+        );
         $meter->emit($configuredMetric);
     }
 
@@ -103,7 +151,39 @@ class MeterTest extends TestCase
         $collection = $this->createMock(TransportCollection::class);
         $collection->expects($this->never())->method('getIterator');
 
-        $meter = new Meter($collection, $metricConfigProvider, $logger, 'prod');
+        $meter = new Meter(
+            $collection,
+            $metricConfigProvider,
+            $this->createMock(MetricLabelProcessor::class),
+            $logger,
+            'prod',
+            true,
+        );
+        $meter->emit($configuredMetric);
+    }
+
+    public function testLabelProcessorDiscardPreventsEmission(): void
+    {
+        $configuredMetric = new ConfiguredMetric('test', 1, ['region' => 'unknown']);
+        $metricConfig = new MetricConfig(name: 'test', description: 'test', type: Type::GAUGE, enabled: true, parameters: []);
+
+        $labelProcessor = $this->createMock(MetricLabelProcessor::class);
+        $labelProcessor->expects($this->once())->method('process')->willReturn(null);
+
+        $transport = $this->createMock(MetricTransportInterface::class);
+        $transport->expects($this->never())->method('emit');
+
+        $collection = $this->createMock(TransportCollection::class);
+        $collection->expects($this->never())->method('getIterator');
+
+        $meter = new Meter(
+            $collection,
+            $this->configProviderWithSuccessfulExpectation($metricConfig),
+            $labelProcessor,
+            $this->createMock(LoggerInterface::class),
+            'prod',
+            true,
+        );
         $meter->emit($configuredMetric);
     }
 
@@ -114,7 +194,7 @@ class MeterTest extends TestCase
     {
         $configuredMetric = new ConfiguredMetric('test', 1, ['test' => 'test']);
         $metricConfig = new MetricConfig(name: 'test', description: 'test', type: Type::COUNTER, enabled: true, parameters: [], unit: 'unit');
-        $metric = Metric::fromConfigured($configuredMetric, $metricConfig);
+        $metric = Metric::fromConfigured($configuredMetric, $metricConfig, ['test' => 'test']);
         $transportCall = static::callback(static function (Metric $inputMetric) use ($metric) {
             self::assertEquals($metric, $inputMetric);
 
@@ -130,6 +210,16 @@ class MeterTest extends TestCase
         $metricConfigProvider->expects($this->once())->method('get')->with('test')->willReturn($metricConfig);
 
         return $metricConfigProvider;
+    }
+
+    private function createPassthroughLabelProcessor(): MetricLabelProcessor&MockObject
+    {
+        $processor = $this->createMock(MetricLabelProcessor::class);
+        $processor->method('process')->willReturnCallback(
+            static fn (MetricConfig $config, array $labels) => $labels,
+        );
+
+        return $processor;
     }
 
     /**

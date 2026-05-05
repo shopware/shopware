@@ -48,7 +48,7 @@ async function createWrapper() {
 describe('src/app/component/filter/sw-date-filter', () => {
     beforeAll(() => {
         jest.useFakeTimers('modern');
-        jest.setSystemTime(new Date(1337, 11, 31));
+        jest.setSystemTime(new Date(Date.UTC(2024, 11, 31)));
     });
 
     afterAll(() => {
@@ -274,28 +274,28 @@ describe('src/app/component/filter/sw-date-filter', () => {
     const cases = {
         'a year': {
             timeframe: -365,
-            expectedFrom: '1336-12-31T00:00:00.000Z',
-            expectedTo: '1337-12-31T00:00:00.000Z',
+            expectedFrom: '2023-01-01T00:00:00.000Z',
+            expectedTo: '2023-12-31T23:59:59.999Z',
         },
         'a quarter': {
             timeframe: 'lastQuarter',
-            expectedFrom: '1337-07-01T00:00:00.000Z',
-            expectedTo: '1337-09-30T23:59:59.000Z',
+            expectedFrom: '2024-07-01T00:00:00.000Z',
+            expectedTo: '2024-09-30T23:59:59.999Z',
         },
         'a month': {
             timeframe: -30,
-            expectedFrom: '1337-12-01T00:00:00.000Z',
-            expectedTo: '1337-12-31T00:00:00.000Z',
+            expectedFrom: '2024-11-01T00:00:00.000Z',
+            expectedTo: '2024-11-30T23:59:59.999Z',
         },
         'a week': {
             timeframe: -7,
-            expectedFrom: '1337-12-24T00:00:00.000Z',
-            expectedTo: '1337-12-31T00:00:00.000Z',
+            expectedFrom: '2024-12-23T00:00:00.000Z',
+            expectedTo: '2024-12-29T23:59:59.999Z',
         },
         'a day': {
             timeframe: -1,
-            expectedFrom: '1337-12-30T00:00:00.000Z',
-            expectedTo: '1337-12-31T00:00:00.000Z',
+            expectedFrom: '2024-12-30T00:00:00.000Z',
+            expectedTo: '2024-12-30T23:59:59.999Z',
         },
     };
 
@@ -350,11 +350,11 @@ describe('src/app/component/filter/sw-date-filter', () => {
 
     describe('lastQuarter boundary when today is in Q1', () => {
         beforeEach(() => {
-            jest.setSystemTime(new Date(1337, 1, 15));
+            jest.setSystemTime(new Date(Date.UTC(2024, 1, 15)));
         });
 
         afterEach(() => {
-            jest.setSystemTime(new Date(1337, 11, 31));
+            jest.setSystemTime(new Date(Date.UTC(2024, 11, 31)));
         });
 
         it('should compute last quarter as Oct-Dec of the previous year', async () => {
@@ -376,23 +376,64 @@ describe('src/app/component/filter/sw-date-filter', () => {
                 [
                     'releaseDate',
                     [
-                        {
-                            field: 'releaseDate',
-                            parameters: {
-                                gte: '1336-10-01T00:00:00.000Z',
-                                lte: '1336-12-31T23:59:59.000Z',
-                            },
-                            type: 'range',
-                        },
+                        Criteria.range('releaseDate', {
+                            gte: '2023-10-01T00:00:00.000Z',
+                            lte: '2023-12-31T23:59:59.999Z',
+                        }),
                     ],
                     {
-                        from: '1336-10-01T00:00:00.000Z',
+                        from: '2023-10-01T00:00:00.000Z',
                         timeframe: 'lastQuarter',
-                        to: '1336-12-31T23:59:59.000Z',
+                        to: '2023-12-31T23:59:59.999Z',
                     },
                 ],
             ]);
         });
+    });
+
+    it('should snap timeframe bounds to user timezone calendar day for last day', async () => {
+        Shopware.Store.get('session').setCurrentUser({
+            firstName: 'John',
+            lastName: 'Doe',
+            timeZone: 'America/Los_Angeles',
+        });
+
+        try {
+            const wrapper = await createWrapper();
+
+            await wrapper.setProps({
+                filter: {
+                    property: 'releaseDate',
+                    name: 'releaseDate',
+                    label: 'Release Date',
+                    dateType: 'date',
+                    showTimeframe: true,
+                },
+            });
+
+            wrapper.vm.onTimeframeSelect(-1);
+
+            // 2024-12-31T00:00:00Z = 2024-12-30T16:00 PST, so today in LA is Dec 30,
+            // and "yesterday in LA" is Dec 29 spanning Dec 29 08:00Z to Dec 30 07:59:59.999Z.
+            expect(wrapper.emitted()['filter-update']).toEqual([
+                [
+                    'releaseDate',
+                    [
+                        Criteria.range('releaseDate', {
+                            gte: '2024-12-29T08:00:00.000Z',
+                            lte: '2024-12-30T07:59:59.999Z',
+                        }),
+                    ],
+                    {
+                        from: '2024-12-29T08:00:00.000Z',
+                        to: '2024-12-30T07:59:59.999Z',
+                        timeframe: -1,
+                    },
+                ],
+            ]);
+        } finally {
+            Shopware.Store.get('session').removeCurrentUser();
+        }
     });
 
     it('should console.error for invalid timeframe', async () => {

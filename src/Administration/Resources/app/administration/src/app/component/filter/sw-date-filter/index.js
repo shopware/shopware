@@ -162,32 +162,43 @@ export default {
 
             this.resetFilter();
 
-            let from = new Date();
-            let to = new Date();
+            const tz = this.userTimeZone();
+            const today = this.tzCalendar(tz, new Date());
 
-            from.setDate(from.getDate() + timeframe);
-            from.setHours(0, 0, 0);
+            let fromCal;
+            let toCal;
 
-            if (timeframe === 'lastQuarter') {
-                ({ startDate: from, endDate: to } = this.getPreviousQuarterDates());
+            if (timeframe === -1) {
+                fromCal = this.calendarOf(today.year, today.month, today.day - 1);
+                toCal = fromCal;
+            } else if (timeframe === -7) {
+                const daysSinceMonday = (today.weekday + 6) % 7;
+                fromCal = this.calendarOf(today.year, today.month, today.day - daysSinceMonday - 7);
+                toCal = this.calendarOf(fromCal.year, fromCal.month, fromCal.day + 6);
+            } else if (timeframe === -30) {
+                fromCal = this.calendarOf(today.year, today.month - 1, 1);
+                toCal = this.calendarOf(today.year, today.month, 0);
+            } else if (timeframe === 'lastQuarter') {
+                const firstMonthOfLastQuarter = Math.floor(today.month / 3) * 3 - 3;
+                fromCal = this.calendarOf(today.year, firstMonthOfLastQuarter, 1);
+                toCal = this.calendarOf(fromCal.year, fromCal.month + 3, 0);
+            } else {
+                fromCal = this.calendarOf(today.year - 1, 0, 1);
+                toCal = this.calendarOf(today.year - 1, 11, 31);
             }
 
             const params = {
-                gte: from.toISOString(),
-                lte: to.toISOString(),
+                gte: this.startOfDayInTz(fromCal.year, fromCal.month, fromCal.day, tz).toISOString(),
+                lte: this.endOfDayInTz(toCal.year, toCal.month, toCal.day, tz).toISOString(),
             };
-
-            const filterCriteria = [
-                Criteria.range(this.filter.property, params),
-            ];
 
             this.dateValue = {
                 from: params.gte,
                 to: params.lte,
-                timeframe: timeframe,
+                timeframe,
             };
 
-            this.$emit('filter-update', this.filter.name, filterCriteria, this.dateValue);
+            this.$emit('filter-update', this.filter.name, [Criteria.range(this.filter.property, params)], this.dateValue);
         },
 
         resetFilter() {
@@ -199,32 +210,27 @@ export default {
             this.dateValue.timeframe = 'custom';
         },
 
-        getPreviousQuarterDates() {
-            const date = new Date();
-            const quarter = Math.floor(date.getMonth() / 3);
-
-            const startDate = new Date(date.getFullYear(), quarter * 3 - 3, 1, 0, 0, 0);
-            const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 3, 0, 23, 59, 59);
-
-            return {
-                startDate: startDate,
-                endDate: endDate,
-            };
-        },
-
         userTimeZone() {
             return Shopware?.Store?.get('session')?.currentUser?.timeZone ?? 'UTC';
         },
 
-        /**
-         * mt-datepicker in date-only mode may emit an ISO instant whose wall-clock
-         * time is not midnight (e.g. it carries over the current time on the
-         * picked day). Snap to the start of the picked day in the given timezone
-         * and derive the end of that same day so filter bounds cover the full
-         * intended calendar day as the list's date formatter displays it.
-         */
-        dayBoundsInTz(iso, tz) {
-            const instant = new Date(iso);
+        tzCalendar(tz, instant) {
+            const parts = new Intl.DateTimeFormat('en-GB', {
+                timeZone: tz,
+                hour12: false,
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+            }).formatToParts(instant);
+            const read = (type) => parseInt(parts.find((p) => p.type === type)?.value ?? '0', 10);
+            const year = read('year');
+            const month = read('month') - 1;
+            const day = read('day');
+            const weekday = new Date(Date.UTC(year, month, day)).getUTCDay();
+            return { year, month, day, weekday };
+        },
+
+        tzTimeOfDayMs(tz, instant) {
             const parts = new Intl.DateTimeFormat('en-GB', {
                 timeZone: tz,
                 hour12: false,
@@ -232,24 +238,47 @@ export default {
                 minute: '2-digit',
                 second: '2-digit',
             }).formatToParts(instant);
-
             const read = (type) => parseInt(parts.find((p) => p.type === type)?.value ?? '0', 10);
-
             let hour = read('hour');
             if (hour === 24) {
                 hour = 0;
             }
-            const minute = read('minute');
-            const second = read('second');
-            const ms = instant.getUTCMilliseconds();
+            return ((hour * 60 + read('minute')) * 60 + read('second')) * 1000 + instant.getUTCMilliseconds();
+        },
 
-            const offsetIntoDayMs = ((hour * 60 + minute) * 60 + second) * 1000 + ms;
-            const startMs = instant.getTime() - offsetIntoDayMs;
-            const oneDayMs = 24 * 60 * 60 * 1000;
+        instantFromWallClockInTz(year, month, day, hour, minute, second, ms, tz) {
+            const guess = Date.UTC(year, month, day, hour, minute, second, ms);
+            const probe = new Date(guess);
+            const cal = this.tzCalendar(tz, probe);
+            const renderedAsUtc = Date.UTC(cal.year, cal.month, cal.day) + this.tzTimeOfDayMs(tz, probe);
+            return new Date(guess - (renderedAsUtc - guess));
+        },
 
+        startOfDayInTz(year, month, day, tz) {
+            return this.instantFromWallClockInTz(year, month, day, 0, 0, 0, 0, tz);
+        },
+
+        endOfDayInTz(year, month, day, tz) {
+            return this.instantFromWallClockInTz(year, month, day, 23, 59, 59, 999, tz);
+        },
+
+        calendarOf(year, month, day) {
+            const d = new Date(Date.UTC(year, month, day));
+            return { year: d.getUTCFullYear(), month: d.getUTCMonth(), day: d.getUTCDate() };
+        },
+
+        /**
+         * mt-datepicker in date-only mode may emit an ISO instant whose wall-clock
+         * time is not midnight. Snap to the start of the picked day in the given
+         * timezone and derive the end of that same day so filter bounds cover the
+         * full intended calendar day. Wall-clock-in-tz arithmetic produces correct
+         * 23h or 25h ranges across DST transitions.
+         */
+        dayBoundsInTz(iso, tz) {
+            const { year, month, day } = this.tzCalendar(tz, new Date(iso));
             return {
-                gte: new Date(startMs).toISOString(),
-                lte: new Date(startMs + oneDayMs - 1).toISOString(),
+                gte: this.startOfDayInTz(year, month, day, tz).toISOString(),
+                lte: this.endOfDayInTz(year, month, day, tz).toISOString(),
             };
         },
     },

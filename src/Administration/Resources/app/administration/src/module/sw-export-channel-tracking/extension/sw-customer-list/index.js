@@ -51,4 +51,4 @@ Component.override('sw-customer-list', {
             return columns;
         },
     },
-});
+}, Component.CONST.OVERRIDE_PRIORITY.CORE);

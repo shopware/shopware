@@ -51,4 +51,4 @@ Component.override('sw-order-list', {
             return columns;
         },
     },
-});
+}, Component.CONST.OVERRIDE_PRIORITY.CORE);

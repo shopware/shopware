@@ -16,6 +16,7 @@ module.exports = {
         'replace-top-level-blocks-to-extends': require(path.resolve(__dirname, 'replace-top-level-blocks-to-extends.js')),
         'enforce-async-component-registers': require(path.resolve(__dirname, 'enforce-async-component-registers.js')),
         'no-tc-translation': require(path.resolve(__dirname, 'no-tc-translation.js')),
+        'require-override-priority': require(path.resolve(__dirname, 'require-override-priority.js')),
         /* eslint-enable global-require,import/no-dynamic-require */
     },
 };

@@ -16,4 +16,4 @@ Component.override('sw-admin-menu', {
             return this.acl.can('sales_channel.viewer');
         },
     },
-});
+}, Component.CONST.OVERRIDE_PRIORITY.CORE);

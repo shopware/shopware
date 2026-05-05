@@ -141,6 +141,7 @@ class ShopwareClass implements CustomShopwareProperties {
         getOverrideRegistry: AsyncComponentFactory.getOverrideRegistry,
         createExtendableSetup: createExtendableSetup,
         overrideComponentSetup: overrideComponentSetup,
+        CONST: AsyncComponentFactory.CONST,
 
         /**
          * @experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM

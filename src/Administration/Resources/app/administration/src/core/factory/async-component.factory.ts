@@ -37,6 +37,28 @@ import { defineComponent } from 'vue';
 
 const wrapComponentConfig = defineComponent;
 
+
+/**
+ * Public constants for `Component.override` priorities — overrides merge from lowest to highest.
+ *
+ * @public
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export const CONST = {
+    OVERRIDE_PRIORITY: {
+        CORE: -300,
+        STOREFRONT_ADMIN_MODULES: -200,
+        COMMERCIAL: -100,
+        DEFAULT: 0,
+    },
+} as const;
+
+/**
+ * @public
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export type ComponentOverridePriority = (typeof CONST.OVERRIDE_PRIORITY)[keyof typeof CONST.OVERRIDE_PRIORITY];
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     register,
@@ -54,6 +76,7 @@ export default {
     markComponentTemplatesAsNotResolved,
     isSyncComponent,
     markComponentAsSync,
+    CONST,
 };
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

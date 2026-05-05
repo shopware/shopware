@@ -44,4 +44,4 @@ Component.override('sw-sales-channel-detail', {
             }
         },
     },
-});
+}, Component.CONST.OVERRIDE_PRIORITY.STOREFRONT_ADMIN_MODULES);

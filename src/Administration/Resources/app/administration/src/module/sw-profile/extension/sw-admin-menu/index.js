@@ -8,4 +8,4 @@ const { Component } = Shopware;
 Component.override('sw-admin-menu', {
     template,
     inject: ['acl'],
-});
+}, Component.CONST.OVERRIDE_PRIORITY.CORE);

@@ -101,6 +101,7 @@ class HtmlRendererTest extends TestCase
         $this->orderRepository->update([
             [
                 'id' => $orderId,
+                'orderNumber' => '10000',
                 'orderDateTime' => '2026-05-05T12:00:00+00:00',
             ],
         ], $this->context);

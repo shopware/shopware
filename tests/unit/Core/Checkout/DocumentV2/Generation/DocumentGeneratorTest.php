@@ -133,7 +133,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertSame($orderId, $documentRepository->creates[0][0]['orderId']);
         static::assertSame($orderVersionId, $documentRepository->creates[0][0]['orderVersionId']);
         static::assertSame($documentTypeId, $documentRepository->creates[0][0]['documentTypeId']);
-        static::assertSame('generated-number', $documentRepository->creates[0][0]['documentNumber']);
+        static::assertSame('generated-number', $documentRepository->creates[0][0]['config']['documentNumber']);
         static::assertCount(1, $documentFileRepository->creates);
         static::assertSame(DocumentFormat::PDF->value, $documentFileRepository->creates[0][0]['documentFormat']);
         static::assertIsString($documentFileRepository->creates[0][0]['mediaId']);

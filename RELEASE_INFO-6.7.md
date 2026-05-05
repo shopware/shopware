@@ -155,7 +155,7 @@ New entities for monitoring orders and customers for Agentic Commerce sales chan
 
 ### Date filter respects user timezone for day boundaries
 
-The `sw-date-filter` component (used in listing filter panels) now snaps `from`/`to` bounds to the start and end of the picked day in the current user's profile timezone. Previously the bounds were derived in UTC, so for non-UTC users the filter range did not align with the calendar day shown in list date columns. The component also no longer mutates its internal `dateValue` during emit, which prevented a duplicate `filter-update` event when a single field changed.
+The `sw-date-filter` component (used in listing filter panels) now snaps `from`/`to` bounds to the start and end of the picked day in the current user's profile timezone, including across DST transitions where the calendar day is 23 or 25 hours long. Previously the bounds were derived in UTC, so for non-UTC users the filter range did not align with the calendar day shown in list date columns. Timeframe presets (last day, last week, last month, last quarter, last year) now resolve in the user's timezone as full calendar periods: last week is the previous Monday–Sunday, last month is the previous full calendar month, and last year is the previous full calendar year. The component also no longer mutates its internal `dateValue` during emit, which prevented a duplicate `filter-update` event when a single field changed.
 
 ## Storefront
 

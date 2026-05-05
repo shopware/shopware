@@ -22,6 +22,10 @@ The end boundary is now derived from the quarter's start year rather than the cu
 When the sidebar is collapsed, hovering a menu entry near the bottom of the sidebar could cause the flyout submenu to extend beyond the viewport, making lower entries inaccessible.
 The flyout now calculates a dynamic `max-height` from the remaining viewport space and scrolls vertically when its content exceeds that limit.
 
+### Administration sidebar off-canvas closes on mobile navigation
+
+The Administration sidebar off-canvas now closes reliably on very small viewports after selecting a navigation entry, clicking outside the sidebar, or changing routes.
+
 ## Storefront
 
 ## App System
@@ -111,11 +115,6 @@ This fixes stale iframe content when switching locations in Meteor Admin SDK int
 
 The Administration order list now shows internal order comments via a dedicated tooltip icon.
 This helps merchants spot internal notes directly from the list view without opening the order detail page.
-
-### Administration sidebar off-canvas closes on mobile navigation
-
-The Administration sidebar off-canvas now closes reliably on very small viewports after selecting a navigation entry, clicking outside the sidebar, or changing routes.
-No extension changes are required.
 
 ### [Experimental] Agentic Commerce sales channel views and tracking entities
 

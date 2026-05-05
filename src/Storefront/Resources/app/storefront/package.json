@@ -49,7 +49,7 @@
     "sass-loader": "16.0.4",
     "style-loader": "4.0.0",
     "swc-loader": "0.2.6",
-    "terser-webpack-plugin": "5.3.11",
+    "terser-webpack-plugin": "5.3.17",
     "tiny-slider": "2.9.4",
     "typescript": "5.7.3",
     "webpack": "5.104.1",
@@ -85,7 +85,21 @@
     "xml2js": "0.6.2"
   },
   "overrides": {
+    "@tootallnate/once": "3.0.1",
+    "brace-expansion": "5.0.5",
+    "flatted": "3.4.2",
+    "follow-redirects": "1.16.0",
+    "immutable": "5.1.5",
+    "lodash": "4.18.1",
+    "minimatch": "10.2.4",
+    "path-to-regexp": "0.1.13",
+    "picomatch@2": "2.3.2",
+    "picomatch@4": "4.0.4",
+    "postcss": "8.5.12",
+    "serialize-javascript": "7.0.5",
+    "test-exclude": "8.0.0",
     "tmp": "0.2.5",
-    "qs": "6.14.2"
+    "qs": "6.14.2",
+    "yaml": "2.8.3"
   }
 }

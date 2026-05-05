@@ -20,5 +20,7 @@ runNpmAudit({
     ignoredGHSAs: [
         'https://github.com/advisories/GHSA-848j-6mx2-7j84', // elliptic ECDSA flaw, low severity, devDep only (vite-plugin-node-polyfills/crypto-browserify), no patch available
         'https://github.com/advisories/GHSA-3ppc-4f35-3m26', // minimatch ReDoS, high severity, devDep only, needs ESLint 9 migration to drop eslint-plugin-import
+        // @lhci/cli is dev-only and uses uuid.v4; advisory affects v3/v5/v6 buffers.
+        'https://github.com/advisories/GHSA-w5hq-g745-h8pq',
     ],
 });

@@ -32,6 +32,8 @@ class StateMachineLocker implements ResetInterface
     {
         $lockKey = $this->getLockKey($transition, $context);
 
+        // If the lock is already acquired for this process, we can skip acquiring it again
+        // this is a guard against deadlocks in the same process
         if (isset($this->acquiredLocks[$lockKey])) {
             return $closure();
         }

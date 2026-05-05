@@ -15,7 +15,6 @@ use OpenSearch\TransportFactory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Elasticsearch\Framework\ConfiguredClient;
 use Shopware\Elasticsearch\Profiler\ClientProfiler;
 
 /**
@@ -30,7 +29,7 @@ class ClientProfilerTest extends TestCase
     #[DataProvider('providerSearchQueries')]
     public function testSearching(string|array $index, string $expectedUrl): void
     {
-        $profiler = new ClientProfiler($this->createClient());
+        $profiler = $this->createClientProfiler();
 
         $request = ['index' => $index, 'body' => ['query' => ['match_all' => []]]];
         $profiler->search($request);
@@ -50,7 +49,7 @@ class ClientProfilerTest extends TestCase
     #[DataProvider('providerMSearchQueries')]
     public function testMSearching(string|array $index, string $expectedUrl): void
     {
-        $profiler = new ClientProfiler($this->createClient());
+        $profiler = $this->createClientProfiler();
 
         $request = ['index' => $index, 'body' => ['query' => ['match_all' => []]]];
         $profiler->msearch($request);
@@ -67,7 +66,7 @@ class ClientProfilerTest extends TestCase
     public function testBulk(): void
     {
         $index = 'testIndex';
-        $profiler = new ClientProfiler($this->createClient());
+        $profiler = $this->createClientProfiler();
 
         $request = ['index' => $index, 'body' => ['index' => ['_id' => 'XYZ'], ['field' => 'value']]];
         $profiler->bulk($request);
@@ -83,7 +82,7 @@ class ClientProfilerTest extends TestCase
 
     public function testPutScript(): void
     {
-        $profiler = new ClientProfiler($this->createClient());
+        $profiler = $this->createClientProfiler();
 
         $params = ['id' => 'numeric_translated_field_sorting', 'body' => ['script' => ['lang' => 'painless', 'source' => 'return doc[params.field].value;']]];
         $profiler->putScript($params);
@@ -129,7 +128,7 @@ class ClientProfilerTest extends TestCase
         ];
     }
 
-    private function createClient(): ConfiguredClient
+    private function createClientProfiler(): ClientProfiler
     {
         $httpFactory = new HttpFactory();
         $serializer = new SmartSerializer();
@@ -144,6 +143,9 @@ class ClientProfilerTest extends TestCase
             ->setRequestFactory($requestFactory)
             ->create();
 
-        return new ConfiguredClient($transport, $endpointFactory, [], new Uri('http://localhost:9200/'));
+        $profiler = new ClientProfiler($transport, $endpointFactory, []);
+        $profiler->setBaseUri(new Uri('http://localhost:9200'));
+
+        return $profiler;
     }
 }

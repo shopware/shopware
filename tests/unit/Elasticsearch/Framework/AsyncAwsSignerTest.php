@@ -6,11 +6,9 @@ use AsyncAws\Core\Configuration;
 use AsyncAws\Core\Credentials\CredentialProvider;
 use AsyncAws\Core\Credentials\Credentials;
 use GuzzleHttp\Psr7\HttpFactory;
-use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\AsyncAwsSigner;
@@ -42,23 +40,14 @@ class AsyncAwsSignerTest extends TestCase
 
         $credentialProvider = $this->createMock(CredentialProvider::class);
         $credentialProvider->method('getCredentials')->willReturn(new Credentials('key', 'secret'));
-        $client = $this->createMock(ClientInterface::class);
-        $client->expects($this->once())
-            ->method('sendRequest')
-            ->with(static::callback(static function ($request): bool {
-                return $request instanceof \Psr\Http\Message\RequestInterface
-                    && (string) $request->getUri() === 'https://example.com/test'
-                    && $request->hasHeader('Authorization');
-            }))
-            ->willReturn(new Response(200));
 
-        $signer = new AsyncAwsSigner($configuration, $this->logger, 'es', 'us-east-1', $credentialProvider, $client);
+        $signer = new AsyncAwsSigner($configuration, $this->logger, 'es', 'us-east-1', $credentialProvider);
 
         $request = (new HttpFactory())->createRequest('GET', 'https://example.com/test');
 
-        $result = $signer->sendRequest($request);
+        $result = $signer($request);
 
-        static::assertSame(200, $result->getStatusCode());
+        static::assertStringContainsString('key', $result->getHeader('Authorization')[0]);
     }
 
     public function testInvokeLogsErrorOnFailure(): void
@@ -73,7 +62,6 @@ class AsyncAwsSignerTest extends TestCase
             'es',
             'test',
             $this->credentialProvider,
-            $this->createMock(ClientInterface::class)
         );
 
         $this->logger->expects($this->once())
@@ -85,6 +73,6 @@ class AsyncAwsSignerTest extends TestCase
 
         $request = (new HttpFactory())->createRequest('GET', 'https://example.com/test');
 
-        $signer->sendRequest($request);
+        ($signer)($request);
     }
 }

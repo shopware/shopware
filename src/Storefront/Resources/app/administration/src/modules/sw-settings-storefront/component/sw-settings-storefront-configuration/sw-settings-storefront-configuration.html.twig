@@ -1,34 +1,37 @@
 {% block sw_settings_storefront %}
 <div class="sw-settings-storefront-configuration">
     {% block sw_settings_storefront_settings_icon_cache %}
-    <sw-switch-field
-        v-model:value="storefrontSettings['core.storefrontSettings.iconCache']"
-        :label="$t('sw-settings-storefront.configuration.iconCache')"
+    <mt-switch
+        v-model="storefrontSettings['core.storefrontSettings.iconCache']"
         v-tooltip.top="{
-                        message: $t('sw-settings-storefront.configuration.iconCacheToolTip'),
-                        showOnDisabledElements: true
-                    }"
+            message: $t('sw-settings-storefront.configuration.iconCacheToolTip'),
+            showOnDisabledElements: true
+        }"
+        bordered
+        :label="$t('sw-settings-storefront.configuration.iconCache')"
     />
     {% endblock %}
     {% block sw_settings_storefront_settings_theme_async %}
-        <sw-switch-field
-            v-model:value="storefrontSettings['core.storefrontSettings.asyncThemeCompilation']"
-            :label="$t('sw-settings-storefront.configuration.theme.async')"
-            v-tooltip.top="{
-                        message: $t('sw-settings-storefront.configuration.theme.asyncTooltip'),
-                        showOnDisabledElements: true
-                    }"
-        />
+    <mt-switch
+        v-model="storefrontSettings['core.storefrontSettings.asyncThemeCompilation']"
+        v-tooltip.top="{
+            message: $t('sw-settings-storefront.configuration.theme.asyncTooltip'),
+            showOnDisabledElements: true
+        }"
+        bordered
+        :label="$t('sw-settings-storefront.configuration.theme.async')"
+    />
     {% endblock %}
     {% block sw_settings_storefront_settings_speculation_rules %}
-        <sw-switch-field
-            v-model:value="storefrontSettings['core.storefrontSettings.speculationRules']"
-            :label="$t('sw-settings-storefront.configuration.speculationRules.title')"
-            v-tooltip.top="{
-                        message: $t('sw-settings-storefront.configuration.speculationRules.description'),
-                        showOnDisabledElements: true
-                    }"
-        />
+    <mt-switch
+        v-model="storefrontSettings['core.storefrontSettings.speculationRules']"
+        v-tooltip.top="{
+            message: $t('sw-settings-storefront.configuration.speculationRules.description'),
+            showOnDisabledElements: true
+        }"
+        bordered
+        :label="$t('sw-settings-storefront.configuration.speculationRules.title')"
+    />
     {% endblock %}
 </div>
 {% endblock %}

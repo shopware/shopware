@@ -1,6 +1,8 @@
 import GoogleReCaptchaBasePlugin from 'src/plugin/captcha/google-re-captcha/google-re-captcha-base.plugin';
 
 export default class GoogleReCaptchaV3Plugin extends GoogleReCaptchaBasePlugin {
+    static RECAPTCHA_PENDING_VALUE = 'recaptcha-pending';
+
     static options = {
         siteKey: null,
         grecaptchaInputSelector: '.grecaptcha_v3-input',
@@ -11,6 +13,7 @@ export default class GoogleReCaptchaV3Plugin extends GoogleReCaptchaBasePlugin {
     }
 
     onFormSubmit() {
+        this.grecaptchaInput.value = GoogleReCaptchaV3Plugin.RECAPTCHA_PENDING_VALUE;
         this.grecaptcha.ready(this._onGreCaptchaReady.bind(this));
     }
 

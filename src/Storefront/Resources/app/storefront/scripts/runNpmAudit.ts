@@ -19,5 +19,7 @@ import { runNpmAudit } from '../../../../../../.github/bin/js/run-npm-audit.ts';
 runNpmAudit({
     ignoredGHSAs: [
         'https://github.com/advisories/GHSA-3ppc-4f35-3m26', // minimatch ReDoS, high severity, devDep only, fix planned in ESLint 9 + Jest 30 update
+        // Dev-only reporters/servers use uuid.v1/v4; advisory affects v3/v5/v6 buffers.
+        'https://github.com/advisories/GHSA-w5hq-g745-h8pq',
     ],
 });

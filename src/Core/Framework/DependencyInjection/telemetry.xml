@@ -40,6 +40,14 @@
             <tag name="shopware.scheduled.task"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Telemetry\Metrics\Subscriber\TelemetryFlushListener">
+            <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\Transport\TransportCollection"/>
+            <argument type="service" id="logger"/>
+
+            <tag name="kernel.event_subscriber"/>
+            <tag name="shopware.telemetry.subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Telemetry\Metrics\ScheduledTask\CollectSlowMetricsTaskHandler">
             <argument type="service" id="scheduled_task.repository"/>
             <argument type="service" id="logger"/>

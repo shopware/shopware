@@ -25,6 +25,11 @@ Plugins can now mark technical `media` associations with the new DAL flag `Ignor
 This prevents `media:delete-unused` from treating metadata-only extensions as real media usage and helps avoid false negatives when removing unused files.
 Third-party developers should add this flag to media associations that store technical metadata but do not represent an actual assignment of the media file.
 
+### Deprecation of RegisterScheduleTaskMessage
+
+The `RegisterScheduleTaskMessage` class and the accompanying message handler `RegisterScheduledTaskHandler` is deprecated and will be removed in Shopware 6.8.0.0, as the message wasn't dispatched anymore.
+If you dispatched that message manually, you should call the `TaskScheduler::registerTask()` method directly instead.
+
 ## Administration
 
 ### Fixed "Last Quarter" timeframe returning the wrong year in `sw-date-filter`

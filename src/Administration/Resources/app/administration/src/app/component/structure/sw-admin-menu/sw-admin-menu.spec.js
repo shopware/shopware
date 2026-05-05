@@ -304,6 +304,35 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         expect(thirdLevelEntries.at(0).text()).toContain('first child of third top level entry');
     });
 
+    it('should close off-canvas menu on route changes on mobile', async () => {
+        const emitSpy = jest.spyOn(Shopware.Utils.EventBus, 'emit');
+
+        wrapper.vm.$device.getViewportWidth.mockReturnValue(375);
+        await wrapper.setData({ isOffCanvasShown: true });
+
+        wrapper.vm.$options.watch.$route.call(wrapper.vm);
+
+        expect(wrapper.vm.isOffCanvasShown).toBe(false);
+        expect(emitSpy).toHaveBeenCalledWith('sw-admin-menu/toggle-offcanvas', false);
+
+        wrapper.vm.$device.getViewportWidth.mockReturnValue(1920);
+        emitSpy.mockRestore();
+    });
+
+    it('should not close off-canvas menu on route changes on desktop', async () => {
+        const emitSpy = jest.spyOn(Shopware.Utils.EventBus, 'emit');
+
+        wrapper.vm.$device.getViewportWidth.mockReturnValue(1920);
+        await wrapper.setData({ isOffCanvasShown: true });
+
+        wrapper.vm.$options.watch.$route.call(wrapper.vm);
+
+        expect(wrapper.vm.isOffCanvasShown).toBe(true);
+        expect(emitSpy).not.toHaveBeenCalledWith('sw-admin-menu/toggle-offcanvas', false);
+
+        emitSpy.mockRestore();
+    });
+
     it('should close off-canvas menu when clicking a navigation item on mobile', async () => {
         const emitSpy = jest.spyOn(Shopware.Utils.EventBus, 'emit');
         const target = document.createElement('li');

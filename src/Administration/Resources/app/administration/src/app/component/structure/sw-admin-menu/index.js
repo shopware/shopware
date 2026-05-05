@@ -225,7 +225,9 @@ The admin menu only supports up to three levels of nesting.`,
         },
 
         $route() {
-            this.closeOffCanvas();
+            if (this.isMobileViewport()) {
+                this.closeOffCanvas();
+            }
         },
     },
 

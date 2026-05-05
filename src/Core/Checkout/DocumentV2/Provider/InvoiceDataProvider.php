@@ -76,7 +76,7 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
         $config = clone $this->documentConfigLoader->load(
             $generationRequest->documentType,
             $order->getSalesChannelId(),
-            $generationRequest->orderVersionContext ?? $generationRequest->apiContext,
+            $generationRequest->languageAwareContext ?? $generationRequest->apiContext,
         );
 
         $isIntraCommunityDelivery = $this->isIntraCommunityDelivery(

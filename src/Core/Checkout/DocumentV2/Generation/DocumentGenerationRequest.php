@@ -9,11 +9,9 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('after-sales')]
-final class DocumentGenerationRequest
+final readonly class DocumentGenerationRequest
 {
     /**
      * @var list<string>
@@ -32,12 +30,38 @@ final class DocumentGenerationRequest
         array $requestedFormats,
         public Context $apiContext,
         public ?string $documentNumber = null,
-        public ?Context $orderVersionContext = null,
+        public ?Context $languageAwareContext = null,
     ) {
         $this->documentType = $documentType instanceof DocumentType ? $documentType->value : $documentType;
         $this->requestedFormats = array_map(
             static fn (DocumentFormat|string $f) => $f instanceof DocumentFormat ? $f->value : $f,
             $requestedFormats,
+        );
+    }
+
+    public function withDocumentNumber(string $documentNumber): self
+    {
+        return new self(
+            $this->orderId,
+            $this->orderVersionId,
+            $this->documentType,
+            $this->requestedFormats,
+            $this->apiContext,
+            $documentNumber,
+            $this->languageAwareContext,
+        );
+    }
+
+    public function withLanguageAwareContext(Context $languageAwareContext): self
+    {
+        return new self(
+            $this->orderId,
+            $this->orderVersionId,
+            $this->documentType,
+            $this->requestedFormats,
+            $this->apiContext,
+            $this->documentNumber,
+            $languageAwareContext,
         );
     }
 }

@@ -69,8 +69,8 @@ final readonly class DocumentGenerator
             $provider->enrichOrderCriteria($criteria);
         }
 
-        $orderVersionContext = $this->createOrderVersionContext($generationRequest);
-        $generationRequest->orderVersionContext = $orderVersionContext;
+        [$orderVersionContext, $languageAwareContext] = $this->createGenerationContexts($generationRequest);
+        $generationRequest = $generationRequest->withLanguageAwareContext($languageAwareContext);
 
         $order = $this->loadOrder(
             $criteria,
@@ -83,7 +83,7 @@ final readonly class DocumentGenerator
             $order,
         );
 
-        $generationRequest->documentNumber = $documentNumber;
+        $generationRequest = $generationRequest->withDocumentNumber($documentNumber);
 
         $providerData = $this->collectProviderData($providers, $order, $generationRequest);
 
@@ -156,21 +156,27 @@ final readonly class DocumentGenerator
 
     /**
      * @throws DocumentV2Exception
+     *
+     * @return array{0: Context, 1: Context}
      */
-    private function createOrderVersionContext(DocumentGenerationRequest $generationRequest): Context
+    private function createGenerationContexts(DocumentGenerationRequest $generationRequest): array
     {
-        $orderContext = $generationRequest->apiContext
-            ->createWithVersionId($generationRequest->orderVersionId);
-
         $orderLanguageId = $this->loadOrderLanguageId($generationRequest);
 
-        $orderContext->assign([
+        $langChain = [
             'languageIdChain' => array_values(array_unique(array_filter(
-                [$orderLanguageId, ...$orderContext->getLanguageIdChain()]
+                [$orderLanguageId, ...$generationRequest->apiContext->getLanguageIdChain()]
             ))),
-        ]);
+        ];
 
-        return $orderContext;
+        $orderVersionContext = $generationRequest->apiContext
+            ->createWithVersionId($generationRequest->orderVersionId);
+        $orderVersionContext->assign($langChain);
+
+        $languageAwareContext = clone $generationRequest->apiContext;
+        $languageAwareContext->assign($langChain);
+
+        return [$orderVersionContext, $languageAwareContext];
     }
 
     /**

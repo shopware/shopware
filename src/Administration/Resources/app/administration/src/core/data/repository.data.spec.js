@@ -197,7 +197,7 @@ describe('repository.data.ts', () => {
         const request = clientMock.history.post[0];
 
         expect(request.url).toBe('_action/sync');
-        expect(request.headers['single-operation']).toBe(true);
+        expect(request.headers['single-operation']).toBe('true');
 
         expect(request.data).toEqual(
             JSON.stringify([

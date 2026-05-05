@@ -157,9 +157,10 @@ readonly class TaskScheduler
         $taskClass = $taskEntity->getScheduledTaskClass();
 
         if (!class_exists($taskClass)) {
-            $this->logger->warning(sprintf(
+            $this->logger->warning(\sprintf(
                 'Scheduled task class "%s" does not exist, this might be due to version mismatch during deployments when a new scheduled task is already registered, but the worker still running on an older version where that task does not exist yet.',
-                $taskClass));
+                $taskClass
+            ));
 
             return;
         }

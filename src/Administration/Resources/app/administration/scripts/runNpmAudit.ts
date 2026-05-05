@@ -26,8 +26,10 @@ runNpmAudit({
         'https://github.com/advisories/GHSA-fp25-p6mj-qqg6', // locutus RCE via call_user_func_array, high severity, devDep only (twig), fix requires twig semver major
         'https://github.com/advisories/GHSA-vh9h-29pq-r5m8', // locutus RCE via create_function(), critical severity, devDep only (twig), fix requires twig semver major
         'https://github.com/advisories/GHSA-qpx9-hpmf-5gmw', // underscore unlimited recursion DoS, high severity, devDep only, no fix available in 1.x
-        'https://github.com/advisories/GHSA-qj83-cq47-w5f8', // axios HTTP/2 cleanup issue, legacy default client intentionally stays on axios 0.31.0 while opt-in traffic uses axios-v1 1.15.0
-        'https://github.com/advisories/GHSA-3p68-rc4w-qgx5', // axios NO_PROXY SSRF advisory, ignored for the same legacy dual-client compatibility setup
-        'https://github.com/advisories/GHSA-fvcv-3m26-pcqx', // axios header injection/cloud metadata advisory, ignored for the same legacy dual-client compatibility setup
+        'https://github.com/advisories/GHSA-qj83-cq47-w5f8', // axios HTTP/2 cleanup issue, legacy dual-client compatibility setup
+        'https://github.com/advisories/GHSA-3p68-rc4w-qgx5', // axios NO_PROXY SSRF advisory, legacy dual-client compatibility setup
+        'https://github.com/advisories/GHSA-fvcv-3m26-pcqx', // axios header injection/cloud metadata advisory, legacy dual-client compatibility setup
+        'https://github.com/advisories/GHSA-rp42-5vxx-qpwr', // basic-ftp DoS, high severity, devDep only via @lhci/cli/proxy-agent, no compatible @lhci fix available
+        'https://github.com/advisories/GHSA-w5hq-g745-h8pq', // uuid buffer bounds check, moderate severity, devDep only via @lhci/cli, no compatible @lhci fix available
     ],
 });

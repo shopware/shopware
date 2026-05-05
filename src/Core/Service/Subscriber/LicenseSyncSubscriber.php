@@ -6,18 +6,22 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\Event\AppActivatedEvent;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
+use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Service\Event\CommercialLicenseProvidedEvent;
 use Shopware\Core\Service\ServiceClientFactory;
 use Shopware\Core\Service\ServiceRegistry\Client;
 use Shopware\Core\System\SystemConfig\Event\BeforeSystemConfigChangedEvent;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -38,6 +42,7 @@ class LicenseSyncSubscriber implements EventSubscriberInterface
         private readonly EntityRepository $appRepository,
         private readonly LoggerInterface $logger,
         private readonly ServiceClientFactory $clientFactory,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -46,6 +51,7 @@ class LicenseSyncSubscriber implements EventSubscriberInterface
         return [
             AppInstalledEvent::class => 'serviceInstalled',
             AppUpdatedEvent::class => 'serviceInstalled',
+            AppActivatedEvent::class => 'serviceActivated',
             BeforeSystemConfigChangedEvent::class => 'syncLicense',
         ];
     }
@@ -66,24 +72,11 @@ class LicenseSyncSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $context = Context::createDefaultContext();
-
-        $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('active', true))
-            ->addFilter(new EqualsFilter('selfManaged', true));
-
-        $apps = $this->appRepository->search($criteria, $context)->getEntities();
-
         $licenseKey = $key === self::CONFIG_STORE_LICENSE_KEY ? $value : $this->config->getString(self::CONFIG_STORE_LICENSE_KEY);
         $licenseHost = $key === self::CONFIG_STORE_LICENSE_HOST ? $value : $this->config->getString(self::CONFIG_STORE_LICENSE_HOST);
 
-        foreach ($apps as $app) {
-            if (!$app->getAppSecret() || !$app->isSelfManaged()) {
-                continue;
-            }
-
-            $this->syncLicenseByService($app, $context, $licenseKey, $licenseHost);
-        }
+        $this->syncLicenseByLegacyEndpoint($licenseKey, $licenseHost);
+        $this->eventDispatcher->dispatch(CommercialLicenseProvidedEvent::forAll($licenseKey, $licenseHost));
     }
 
     public function serviceInstalled(AppInstalledEvent|AppUpdatedEvent $event): void
@@ -100,12 +93,51 @@ class LicenseSyncSubscriber implements EventSubscriberInterface
             return;
         }
 
+        if ($this->manifestDefinesWebhook($event->getManifest())) {
+            return;
+        }
+
         $this->syncLicenseByService(
             $app,
             $context,
             $this->config->getString(self::CONFIG_STORE_LICENSE_KEY),
             $this->config->getString(self::CONFIG_STORE_LICENSE_HOST)
         );
+    }
+
+    public function serviceActivated(AppActivatedEvent $event): void
+    {
+        $app = $event->getApp();
+
+        if (!$app->isSelfManaged()) {
+            return;
+        }
+
+        $this->eventDispatcher->dispatch(CommercialLicenseProvidedEvent::forService(
+            $app->getId(),
+            $this->config->getString(self::CONFIG_STORE_LICENSE_KEY),
+            $this->config->getString(self::CONFIG_STORE_LICENSE_HOST),
+        ));
+    }
+
+    private function syncLicenseByLegacyEndpoint(string $licenseKey, string $licenseHost): void
+    {
+        $context = Context::createDefaultContext();
+
+        $criteria = (new Criteria())
+            ->addAssociation('webhooks')
+            ->addFilter(new EqualsFilter('active', true))
+            ->addFilter(new EqualsFilter('selfManaged', true));
+
+        $apps = $this->appRepository->search($criteria, $context)->getEntities();
+
+        foreach ($apps as $app) {
+            if (!$app->getAppSecret() || !$app->isSelfManaged() || $this->appDefinedWebhook($app)) {
+                continue;
+            }
+
+            $this->syncLicenseByService($app, $context, $licenseKey, $licenseHost);
+        }
     }
 
     private function syncLicenseByService(AppEntity $app, Context $context, string $licenseKey, string $licenseHost): void
@@ -123,5 +155,28 @@ class LicenseSyncSubscriber implements EventSubscriberInterface
         } catch (\Throwable $e) {
             $this->logger->warning('Could not sync license', ['exception' => $e->getMessage()]);
         }
+    }
+
+    private function appDefinedWebhook(AppEntity $app): bool
+    {
+        $webhooks = $app->getWebhooks();
+
+        return $webhooks !== null && $webhooks->filterForEvent(CommercialLicenseProvidedEvent::NAME)->count() > 0;
+    }
+
+    private function manifestDefinesWebhook(Manifest $manifest): bool
+    {
+        $webhooks = $manifest->getWebhooks();
+        if ($webhooks === null) {
+            return false;
+        }
+
+        foreach ($webhooks->getWebhooks() as $webhook) {
+            if ($webhook->getEvent() === CommercialLicenseProvidedEvent::NAME) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

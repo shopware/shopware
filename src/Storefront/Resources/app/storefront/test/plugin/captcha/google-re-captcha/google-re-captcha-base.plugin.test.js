@@ -124,16 +124,24 @@ describe('GoogleReCaptchaBasePlugin tests', () => {
 
         googleReCaptchaBasePlugin._formSubmitting = true;
 
-        const submitEvent = new Event('submit');
+        const blockedSubmitEvent = new Event('submit');
+        jest.spyOn(blockedSubmitEvent, 'preventDefault');
+        jest.spyOn(blockedSubmitEvent, 'stopImmediatePropagation');
 
-        googleReCaptchaBasePlugin._onFormSubmitCallback(submitEvent);
+        googleReCaptchaBasePlugin._onFormSubmitCallback(blockedSubmitEvent);
 
+        expect(blockedSubmitEvent.preventDefault).toHaveBeenCalled();
+        expect(blockedSubmitEvent.stopImmediatePropagation).toHaveBeenCalled();
         expect(googleReCaptchaBasePlugin.onFormSubmit).not.toHaveBeenCalled();
         expect(googleReCaptchaBasePlugin._formSubmitting).toEqual(true);
 
         googleReCaptchaBasePlugin._formSubmitting = false;
 
+        const submitEvent = new Event('submit');
+        jest.spyOn(submitEvent, 'preventDefault');
+
         googleReCaptchaBasePlugin._onFormSubmitCallback(submitEvent);
+        expect(submitEvent.preventDefault).toHaveBeenCalled();
         expect(googleReCaptchaBasePlugin.onFormSubmit).toHaveBeenCalled();
     });
 

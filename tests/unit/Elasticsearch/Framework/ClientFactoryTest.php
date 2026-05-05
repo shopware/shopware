@@ -10,6 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Client\ClientInterface;
 use Psr\Log\NullLogger;
 use Shopware\Elasticsearch\Framework\ClientFactory;
+use Shopware\Elasticsearch\Profiler\ClientProfiler;
 
 /**
  * @internal
@@ -20,6 +21,21 @@ class ClientFactoryTest extends TestCase
     public function testBuildClient(): void
     {
         $client = ClientFactory::createClient('test', new NullLogger(), false, ['verify_server_cert' => false, 'sigV4' => ['enabled' => false]]);
+        static::assertNotInstanceOf(ClientProfiler::class, $client);
+        $config = $this->getGuzzleConfig($client);
+
+        static::assertSame('http://test:9200/', (string) $config['base_uri']);
+        static::assertFalse($config['verify']);
+    }
+
+    public function testBuildDebugClientCreatesClientProfiler(): void
+    {
+        $client = ClientFactory::createClient('test', new NullLogger(), true, ['verify_server_cert' => false, 'sigV4' => ['enabled' => false]]);
+        static::assertInstanceOf(ClientProfiler::class, $client);
+
+        $baseUriProperty = new \ReflectionProperty(ClientProfiler::class, 'baseUri');
+        static::assertSame('http://test:9200/', (string) $baseUriProperty->getValue($client));
+
         $config = $this->getGuzzleConfig($client);
 
         static::assertSame('http://test:9200/', (string) $config['base_uri']);
@@ -29,13 +45,15 @@ class ClientFactoryTest extends TestCase
     public function testBuildClientWithoutConfiguredHostFallsBackToLocalhost(): void
     {
         $client = ClientFactory::createClient('', new NullLogger(), false, ['verify_server_cert' => false, 'sigV4' => ['enabled' => false]]);
+        static::assertNotInstanceOf(ClientProfiler::class, $client);
 
         static::assertSame('http://localhost:9200/', (string) $this->getGuzzleConfig($client)['base_uri']);
     }
 
     public function testBuildHttpsClient(): void
     {
-        $client = ClientFactory::createClient('https://test', new NullLogger(), true, ['verify_server_cert' => true, 'cert_path' => 'cert.pem', 'cert_key_path' => 'cert.key', 'sigV4' => ['enabled' => true]]);
+        $client = ClientFactory::createClient('https://test', new NullLogger(), false, ['verify_server_cert' => true, 'cert_path' => 'cert.pem', 'cert_key_path' => 'cert.key', 'sigV4' => ['enabled' => true]]);
+        static::assertNotInstanceOf(ClientProfiler::class, $client);
         $config = $this->getGuzzleConfig($client);
 
         static::assertSame('https://test:9200/', (string) $config['base_uri']);
@@ -46,7 +64,8 @@ class ClientFactoryTest extends TestCase
 
     public function testBuildHttpsClientWithSigV4CredentialProvider(): void
     {
-        $client = ClientFactory::createClient('https://test', new NullLogger(), true, ['verify_server_cert' => true, 'cert_path' => 'cert.pem', 'cert_key_path' => 'cert.key', 'sigV4' => ['enabled' => true, 'region' => 'us-east-2', 'service' => 'es', 'credentials_provider' => ['key_id' => 'key', 'secret_key' => 'secret']]]);
+        $client = ClientFactory::createClient('https://test', new NullLogger(), false, ['verify_server_cert' => true, 'cert_path' => 'cert.pem', 'cert_key_path' => 'cert.key', 'sigV4' => ['enabled' => true, 'region' => 'us-east-2', 'service' => 'es', 'credentials_provider' => ['key_id' => 'key', 'secret_key' => 'secret']]]);
+        static::assertNotInstanceOf(ClientProfiler::class, $client);
 
         static::assertSame('https://test:9200/', (string) $this->getGuzzleConfig($client)['base_uri']);
     }

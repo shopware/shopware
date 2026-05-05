@@ -6,15 +6,15 @@
     align-items: center;
     gap: 4px;
     padding: 2px 8px;
-    background-color: $color-neutrals-slate-100;
+    background-color: var(--color-background-brand-default);
     border-radius: $border-radius-default;
 
     .mt-icon {
-        color: $color-shopware-brand-900;
+        color: var(--color-icon-brand-default);
     }
 
     .sw-ai-copilot-badge__label {
-        color: $color-darkgray-700;
+        color: var(--color-text-brand-default);
         font-size: $font-size-xs;
         font-weight: $font-weight-medium;
         line-height: $line-height-sm;

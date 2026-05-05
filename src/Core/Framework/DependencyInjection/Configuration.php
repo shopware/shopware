@@ -7,6 +7,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\Type;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
@@ -30,6 +31,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createApiSection())
                 ->append($this->createStoreSection())
                 ->append($this->createCartSection())
+                ->append($this->createOrderSection())
                 ->append($this->createSalesChannelContextSection())
                 ->append($this->createAdminWorkerSection())
                 ->append($this->createAutoUpdateSection())
@@ -343,6 +345,18 @@ class Configuration implements ConfigurationInterface
                 ->booleanNode('enable_url_validation')->end()
                 ->scalarNode('url_upload_max_size')->defaultValue(0)
                     ->validate()->always()->then(static fn ($value) => abs(MemorySizeCalculator::convertToBytes((string) $value)))->end()
+                ->end()
+                ->arrayNode('presigned_upload')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->booleanNode('enabled')->defaultFalse()->end()
+                        ->integerNode('expiration_minutes')
+                            ->defaultValue(5)
+                            ->min(1)
+                            ->max(10080)
+                            ->end()
+                    ->end()
+                ->end()
             ->end();
 
         return $rootNode;
@@ -592,6 +606,24 @@ class Configuration implements ConfigurationInterface
                             ->children()
                                 ->scalarNode('connection')->defaultValue(null)->end()
                             ->end()
+                    ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createOrderSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('order');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+                ->arrayNode('deep_link')
+                    ->children()
+                        ->integerNode('expire_days')
+                            ->min(1)
+                            ->defaultValue(30)
                     ->end()
             ->end();
 
@@ -948,8 +980,18 @@ class Configuration implements ConfigurationInterface
 
         $rootNode = $treeBuilder->getRootNode();
         $rootNode
-            ->children()
-                ->arrayNode('default')->scalarPrototype()->end()
+            ->arrayPrototype()->scalarPrototype()->end()
+            ->end()
+            ->validate()
+            ->ifFalse(
+                static fn (array $v) => \count(
+                    array_filter(
+                        array_keys($v),
+                        static fn (string $key) => $key !== 'default' && !Uuid::isValid($key)
+                    )
+                ) === 0
+            )
+            ->thenInvalid('Key must be "default" or a valid UUID')
             ->end();
 
         return $rootNode;

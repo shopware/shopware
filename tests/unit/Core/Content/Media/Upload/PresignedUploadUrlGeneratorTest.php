@@ -351,17 +351,6 @@ class PresignedUploadUrlGeneratorTest extends TestCase
         $generator->generate($location, 'image/jpeg');
     }
 
-    public function testVerifyUploadWhenNotSupported(): void
-    {
-        $generator = PresignedUploadUrlGenerator::create(
-            $this->mediaPathStrategy,
-            ['type' => 'local'],
-            new NullLogger(),
-        );
-
-        static::assertFalse($generator->verifyUpload('media/ab/cd/test.jpg'));
-    }
-
     public function testGetFileMetadataWhenNotSupported(): void
     {
         $generator = PresignedUploadUrlGenerator::create(
@@ -398,6 +387,6 @@ class PresignedUploadUrlGeneratorTest extends TestCase
             httpClient: $httpClient,
         );
 
-        $generator->verifyUpload('media/test.jpg');
+        $generator->getFileMetadata('media/test.jpg');
     }
 }

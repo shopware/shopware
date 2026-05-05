@@ -202,7 +202,7 @@ export default class Repository<EntityName extends keyof EntitySchema.Entities> 
         }
 
         const headers = this.buildHeaders(context);
-        headers['single-operation'] = true;
+        headers['single-operation'] = 'true';
 
         if (operations.length <= 0) {
             return Promise.resolve();

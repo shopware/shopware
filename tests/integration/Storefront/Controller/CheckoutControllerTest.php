@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Storefront\Controller;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -542,6 +543,30 @@ class CheckoutControllerTest extends TestCase
         static::assertArrayHasKey(CheckoutCartPageLoadedHook::HOOK_NAME, $traces);
     }
 
+    public function testCheckoutCartPageRendersOptionalCheckoutAssistForms(): void
+    {
+        $browser = $this->getBrowserWithLoggedInCustomer();
+        $browserSalesChannelId = $browser->getServerParameter('test-sales-channel-id');
+
+        $productId = Uuid::randomHex();
+        $this->createProductOnDatabase($productId, 'test.123', $browserSalesChannelId);
+
+        $browser->request('POST', '/checkout/product/add-by-number', ['number' => 'test.123']);
+        $browser->request('GET', '/checkout/cart');
+
+        $content = $browser->getResponse()->getContent();
+        static::assertNotFalse($content);
+
+        $crawler = new Crawler();
+        $crawler->addHtmlContent($content);
+
+        static::assertCount(1, $crawler->filterXPath('//label[@for="addProductInput" and contains(concat(" ", normalize-space(@class), " "), " mb-1 ")]'));
+        static::assertCount(1, $crawler->filterXPath('//input[@id="addProductInput" and not(@required)]'));
+        static::assertCount(1, $crawler->filterXPath('//button[@id="addProductButton"]'));
+        static::assertCount(1, $crawler->filterXPath('//input[@id="addPromotionInput" and not(@required)]'));
+        static::assertCount(1, $crawler->filterXPath('//button[@id="addPromotion"]'));
+    }
+
     public function testCheckoutConfirmPageLoadedHookScriptsAreExecuted(): void
     {
         $contextToken = Uuid::randomHex();
@@ -556,6 +581,35 @@ class CheckoutControllerTest extends TestCase
 
         $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
         static::assertArrayHasKey(CheckoutConfirmPageLoadedHook::HOOK_NAME, $traces);
+    }
+
+    public function testCheckoutConfirmPageConstraintViolationErrorWithInvalidAddress(): void
+    {
+        $contextToken = Uuid::randomHex();
+
+        $cart = $this->fillCart($contextToken);
+        $customerId = $this->createCustomer();
+
+        static::getContainer()->get(Connection::class)->executeStatement(
+            'UPDATE `customer_address` SET `city` = " " WHERE `customer_id` = :customerId',
+            ['customerId' => Uuid::fromHexToBytes($customerId)]
+        );
+
+        $salesChannelContext = $this->createSalesChannelContext($contextToken, null, $customerId);
+        static::getContainer()->get(CartPersister::class)->save($cart, $salesChannelContext);
+
+        $request = $this->createRequest($salesChannelContext);
+
+        $response = static::getContainer()->get(CheckoutController::class)->confirmPage($request, $salesChannelContext);
+        $crawler = new Crawler();
+        $crawler->addHtmlContent((string) $response->getContent());
+
+        $translatedMessage = static::getContainer()->get('translator')->trans('checkout.billing-address-invalid', [
+            '%url%' => static::getContainer()->get('router')->generate('frontend.account.address.edit.page', ['addressId' => $customerId]),
+        ]);
+        $errorContent = $crawler->filterXPath('//div[@class="flashbags"]//div[@class="alert-content-container"]')->html();
+
+        static::assertStringContainsString($translatedMessage, $errorContent);
     }
 
     public function testJsonCart(): void
@@ -652,6 +706,27 @@ class CheckoutControllerTest extends TestCase
         $response = static::getContainer()->get(CheckoutController::class)->info($request, $salesChannelContext);
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
         static::assertEmpty($response->getContent());
+    }
+
+    public function testCheckoutOffcanvasRendersOptionalPromotionField(): void
+    {
+        $browser = $this->getBrowserWithLoggedInCustomer();
+        $browserSalesChannelId = $browser->getServerParameter('test-sales-channel-id');
+
+        $productId = Uuid::randomHex();
+        $this->createProductOnDatabase($productId, 'test.123', $browserSalesChannelId);
+
+        $browser->request('POST', '/checkout/product/add-by-number', ['number' => 'test.123']);
+        $browser->request('GET', '/checkout/offcanvas');
+
+        $content = $browser->getResponse()->getContent();
+        static::assertNotFalse($content);
+
+        $crawler = new Crawler();
+        $crawler->addHtmlContent($content);
+
+        static::assertCount(1, $crawler->filterXPath('//input[@id="addPromotionOffcanvasCartInput" and not(@required)]'));
+        static::assertCount(1, $crawler->filterXPath('//button[@id="addPromotionOffcanvasCart"]'));
     }
 
     public function testCheckoutOffcanvasWidgetLoadedHookScriptsAreExecuted(): void
@@ -893,11 +968,11 @@ class CheckoutControllerTest extends TestCase
         return new RequestDataBag(['tos' => true, OrderService::CUSTOMER_COMMENT_KEY => $customerComment]);
     }
 
-    private function createSalesChannelContext(string $contextToken, ?string $paymentMethodId = null): SalesChannelContext
+    private function createSalesChannelContext(string $contextToken, ?string $paymentMethodId = null, ?string $customerId = null): SalesChannelContext
     {
         $this->updateSalesChannel(TestDefaults::SALES_CHANNEL);
         $salesChannelData = [
-            SalesChannelContextService::CUSTOMER_ID => $this->createCustomer(),
+            SalesChannelContextService::CUSTOMER_ID => $customerId ?? $this->createCustomer(),
         ];
         if ($paymentMethodId !== null) {
             $salesChannelData[SalesChannelContextService::PAYMENT_METHOD_ID] = $paymentMethodId;

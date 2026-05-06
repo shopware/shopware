@@ -84,13 +84,13 @@ export default {
                 },
                 {
                     property: 'amount',
-                    label: this.$tc('sw-settings-country.detail.taxFreeFrom'),
+                    label: this.$t('sw-settings-country.detail.taxFreeFrom'),
                     inlineEdit: 'string',
                     primary: true,
                 },
                 {
                     property: 'enabled',
-                    label: this.$tc('sw-settings-country.detail.baseCurrency'),
+                    label: this.$t('sw-settings-country.detail.baseCurrency'),
                     inlineEdit: 'string',
                 },
             ];

@@ -88,12 +88,12 @@ export default {
             return [
                 {
                     property: 'currency.translated.name',
-                    label: this.$tc('sw-promotion.detail.main.discounts.pricesModal.labelCurrency'),
+                    label: this.$t('sw-promotion.detail.main.discounts.pricesModal.labelCurrency'),
                 },
                 {
                     property: 'price',
                     dataIndex: 'price',
-                    label: this.$tc('sw-promotion.detail.main.discounts.pricesModal.labelPrice'),
+                    label: this.$t('sw-promotion.detail.main.discounts.pricesModal.labelPrice'),
                 },
             ];
         },
@@ -102,22 +102,22 @@ export default {
             const scopes = [
                 {
                     key: DiscountScopes.CART,
-                    name: this.$tc('sw-promotion.detail.main.discounts.valueScopeCart'),
+                    name: this.$t('sw-promotion.detail.main.discounts.valueScopeCart'),
                 },
                 {
                     key: DiscountScopes.DELIVERY,
-                    name: this.$tc('sw-promotion.detail.main.discounts.valueScopeDelivery'),
+                    name: this.$t('sw-promotion.detail.main.discounts.valueScopeDelivery'),
                 },
                 {
                     key: DiscountScopes.SET,
-                    name: this.$tc('sw-promotion.detail.main.discounts.valueScopeSet'),
+                    name: this.$t('sw-promotion.detail.main.discounts.valueScopeSet'),
                 },
             ];
 
             let index = 1;
             this.availableSetGroups.forEach(() => {
                 const keyValue = `${DiscountScopes.SETGROUP}-${index}`;
-                const nameValue = `${this.$tc('sw-promotion.detail.main.discounts.valueScopeSetGroup')}-${index}`;
+                const nameValue = `${this.$t('sw-promotion.detail.main.discounts.valueScopeSetGroup')}-${index}`;
                 scopes.push({ key: keyValue, name: nameValue });
                 index += 1;
             });
@@ -129,15 +129,15 @@ export default {
             const availableTypes = [
                 {
                     key: DiscountTypes.ABSOLUTE,
-                    name: this.$tc('sw-promotion.detail.main.discounts.valueTypeAbsolute'),
+                    name: this.$t('sw-promotion.detail.main.discounts.valueTypeAbsolute'),
                 },
                 {
                     key: DiscountTypes.PERCENTAGE,
-                    name: this.$tc('sw-promotion.detail.main.discounts.valueTypePercentage'),
+                    name: this.$t('sw-promotion.detail.main.discounts.valueTypePercentage'),
                 },
                 {
                     key: DiscountTypes.FIXED_UNIT,
-                    name: this.$tc('sw-promotion.detail.main.discounts.valueTypeFixedUnit'),
+                    name: this.$t('sw-promotion.detail.main.discounts.valueTypeFixedUnit'),
                 },
             ];
 
@@ -147,7 +147,7 @@ export default {
             if (!this.cartScope) {
                 availableTypes.push({
                     key: DiscountTypes.FIXED,
-                    name: this.$tc('sw-promotion.detail.main.discounts.valueTypeFixed'),
+                    name: this.$t('sw-promotion.detail.main.discounts.valueTypeFixed'),
                 });
             }
 
@@ -156,7 +156,7 @@ export default {
             if (this.cartScope && this.discount.considerAdvancedRules) {
                 availableTypes.push({
                     key: DiscountTypes.FIXED,
-                    name: this.$tc('sw-promotion.detail.main.discounts.valueTypeFixed'),
+                    name: this.$t('sw-promotion.detail.main.discounts.valueTypeFixed'),
                 });
             }
 
@@ -200,7 +200,7 @@ export default {
                 this.discount.maxValue !== null &&
                 this.discount.promotionDiscountPrices.length > 0
             ) {
-                return this.$tc('sw-promotion.detail.main.discounts.helpTextMaxValueAdvancedPrices');
+                return this.$t('sw-promotion.detail.main.discounts.helpTextMaxValueAdvancedPrices');
             }
             return '';
         },
@@ -223,7 +223,7 @@ export default {
             this.sorterKeys.forEach((keyValue) => {
                 result.push({
                     key: keyValue,
-                    name: this.$tc(`sw-promotion-v2.detail.conditions.filter.sorter.${keyValue}`),
+                    name: this.$t(`sw-promotion-v2.detail.conditions.filter.sorter.${keyValue}`),
                 });
             });
 
@@ -236,7 +236,7 @@ export default {
             this.pickerKeys.forEach((keyValue) => {
                 result.push({
                     key: keyValue,
-                    name: this.$tc(`sw-promotion-v2.detail.conditions.filter.picker.${keyValue}`),
+                    name: this.$t(`sw-promotion-v2.detail.conditions.filter.picker.${keyValue}`),
                 });
             });
 
@@ -259,7 +259,7 @@ export default {
             const appliers = [
                 {
                     key: 'ALL',
-                    name: this.$tc('sw-promotion-v2.detail.conditions.filter.applier.ALL'),
+                    name: this.$t('sw-promotion-v2.detail.conditions.filter.applier.ALL'),
                 },
             ];
 
@@ -281,7 +281,7 @@ export default {
             for (i = 1; i <= maxCount; i += 1) {
                 appliers.push({
                     key: i.toString(),
-                    name: this.$tc('sw-promotion-v2.detail.conditions.filter.applier.SELECT', { count: i }, 0),
+                    name: this.$t('sw-promotion-v2.detail.conditions.filter.applier.SELECT', { count: i }, 0),
                 });
             }
 
@@ -292,7 +292,7 @@ export default {
             const counts = [
                 {
                     key: 'ALL',
-                    name: this.$tc('sw-promotion-v2.detail.conditions.filter.counter.ALL'),
+                    name: this.$t('sw-promotion-v2.detail.conditions.filter.counter.ALL'),
                 },
             ];
 
@@ -300,7 +300,7 @@ export default {
             for (i = 1; i < 10; i += 1) {
                 counts.push({
                     key: i.toString(),
-                    name: this.$tc('sw-promotion-v2.detail.conditions.filter.counter.SELECT', { count: i }, 0),
+                    name: this.$t('sw-promotion-v2.detail.conditions.filter.counter.SELECT', { count: i }, 0),
                 });
             }
 
@@ -328,7 +328,7 @@ export default {
         },
 
         promotionDiscountSnippet() {
-            return this.$tc(
+            return this.$t(
                 this.ruleConditionDataProviderService.getAwarenessConfigurationByAssignmentName('promotionDiscounts')
                     .snippet,
                 2,

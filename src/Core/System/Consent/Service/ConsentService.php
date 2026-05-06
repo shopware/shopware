@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Consent\ConsentDefinition;
+use Shopware\Core\System\Consent\ConsentDefinitionRegistry;
 use Shopware\Core\System\Consent\ConsentException;
 use Shopware\Core\System\Consent\ConsentRepository;
 use Shopware\Core\System\Consent\ConsentScope;
@@ -29,22 +30,16 @@ class ConsentService implements ResetInterface
     private array $consentScopes;
 
     /**
-     * @var array<string, ConsentDefinition>
-     */
-    private array $consentDefinitions;
-
-    /**
      * @var array<string, ConsentState>
      */
     private ?array $states = null;
 
     /**
      * @param iterable<ConsentScope> $consentScopes
-     * @param iterable<ConsentDefinition> $consentDefinitions
      */
     public function __construct(
         iterable $consentScopes,
-        iterable $consentDefinitions,
+        private readonly ConsentDefinitionRegistry $consentDefinitionRegistry,
         private readonly ConsentRepository $consentRepository,
         private readonly EventDispatcherInterface $eventDispatcher
     ) {
@@ -53,12 +48,6 @@ class ConsentService implements ResetInterface
             $scopes[$scope->getName()] = $scope;
         }
         $this->consentScopes = $scopes;
-
-        $definitions = [];
-        foreach ($consentDefinitions as $definition) {
-            $definitions[$definition->getName()] = $definition;
-        }
-        $this->consentDefinitions = $definitions;
     }
 
     /**
@@ -81,12 +70,12 @@ class ConsentService implements ResetInterface
                 acceptedRevision: null,
                 latestRevision: $consent->getLatestRevision(),
             );
-        }, $this->consentDefinitions);
+        }, $this->consentDefinitionRegistry->all());
     }
 
     public function getConsentState(string $name, Context $context): ConsentState
     {
-        $consent = $this->getConsentDefinition($name);
+        $consent = $this->consentDefinitionRegistry->get($name);
         $key = $this->key($consent, $context);
 
         $states = $this->fetchStates($context);
@@ -108,7 +97,7 @@ class ConsentService implements ResetInterface
 
     public function acceptConsent(string $name, Context $context, ?string $revision = null): ConsentState
     {
-        $consent = $this->getConsentDefinition($name);
+        $consent = $this->consentDefinitionRegistry->get($name);
         $this->validatePermissions($context, $consent);
 
         $stored = $this->findStoredStateRecord($consent, $context);
@@ -147,7 +136,7 @@ class ConsentService implements ResetInterface
 
     public function revokeConsent(string $name, Context $context): ConsentState
     {
-        $this->validatePermissions($context, $this->getConsentDefinition($name));
+        $this->validatePermissions($context, $this->consentDefinitionRegistry->get($name));
         $updatedState = $this->updateState($name, ConsentStatus::REVOKED, $context);
 
         \assert(\is_string($updatedState->actor));
@@ -180,15 +169,6 @@ class ConsentService implements ResetInterface
         return $latestRevision;
     }
 
-    private function getConsentDefinition(string $name): ConsentDefinition
-    {
-        if (!isset($this->consentDefinitions[$name])) {
-            throw ConsentException::notFound($name);
-        }
-
-        return $this->consentDefinitions[$name];
-    }
-
     /**
      * @return array<string, ConsentState>
      */
@@ -202,7 +182,7 @@ class ConsentService implements ResetInterface
 
         foreach ($this->consentRepository->fetchAllConsentStates() as $record) {
             $state = ConsentState::fromDefinitionAndRecord(
-                $this->getConsentDefinition($record->name),
+                $this->consentDefinitionRegistry->get($record->name),
                 $record
             );
 
@@ -267,7 +247,7 @@ class ConsentService implements ResetInterface
 
     private function updateState(string $name, ConsentStatus $status, Context $context, ?string $revision = null): ConsentState
     {
-        $consent = $this->getConsentDefinition($name);
+        $consent = $this->consentDefinitionRegistry->get($name);
         $revision = $status === ConsentStatus::ACCEPTED ? $revision : null;
 
         $key = $this->key($consent, $context);

@@ -47,7 +47,7 @@ export default Shopware.Component.wrapComponentConfig({
                 {
                     dataIndex: 'cmsAwareTitle',
                     property: 'cmsAwareTitle',
-                    label: this.$tc('sw-category.base.customEntity.instanceAssignment.title'),
+                    label: this.$t('sw-category.base.customEntity.instanceAssignment.title'),
                 },
             ];
         },

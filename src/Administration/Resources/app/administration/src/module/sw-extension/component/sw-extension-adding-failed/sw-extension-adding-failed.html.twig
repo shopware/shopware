@@ -24,7 +24,7 @@
     {% block sw_extension_adding_failed_licence_cancellation %}
     <template v-if="isRent">
         <p class="sw-extension-adding-failed__text-licence-cancellation">
-            {{ $tc('sw-extension-store.component.sw-extension-adding-failed.installationFailed.notificationLicense') }}
+            {{ $t('sw-extension-store.component.sw-extension-adding-failed.installationFailed.notificationLicense') }}
         </p>
 
         <i18n-t
@@ -33,14 +33,14 @@
             scope="local"
         >
             <template #mail>
-                <a :href="`mailto:${$tc('sw-extension-store.component.sw-extension-adding-failed.installationFailed.supportEmail')}`">
-                    {{ $tc('sw-extension-store.component.sw-extension-adding-failed.installationFailed.supportEmail') }}
+                <a :href="`mailto:${$t('sw-extension-store.component.sw-extension-adding-failed.installationFailed.supportEmail')}`">
+                    {{ $t('sw-extension-store.component.sw-extension-adding-failed.installationFailed.supportEmail') }}
                 </a>
             </template>
 
             <template #phone>
-                <a :href="`tel:${$tc('sw-extension-store.component.sw-extension-adding-failed.installationFailed.supportPhone')}`">
-                    {{ $tc('sw-extension-store.component.sw-extension-adding-failed.installationFailed.supportPhone') }}
+                <a :href="`tel:${$t('sw-extension-store.component.sw-extension-adding-failed.installationFailed.supportPhone')}`">
+                    {{ $t('sw-extension-store.component.sw-extension-adding-failed.installationFailed.supportPhone') }}
                 </a>
             </template>
         </i18n-t>
@@ -53,7 +53,7 @@
         block
         @click="$emit('close')"
     >
-        {{ $tc('global.default.close') }}
+        {{ $t('global.default.close') }}
     </mt-button>
     {% endblock %}
 </div>

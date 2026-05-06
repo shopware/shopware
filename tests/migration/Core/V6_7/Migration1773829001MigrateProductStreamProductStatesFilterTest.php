@@ -56,6 +56,46 @@ class Migration1773829001MigrateProductStreamProductStatesFilterTest extends Tes
         static::assertSame(1773829001, $migration->getCreationTimestamp());
     }
 
+    public function testUpdateIsNoOp(): void
+    {
+        $createdAt = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+
+        $this->connection->insert('product_stream', [
+            'id' => $this->streamId,
+            'api_filter' => null,
+            'invalid' => 0,
+            'created_at' => $createdAt,
+            'updated_at' => null,
+        ]);
+
+        $this->connection->insert('product_stream_filter', [
+            'id' => $this->simpleFilterId,
+            'product_stream_id' => $this->streamId,
+            'parent_id' => null,
+            'type' => 'equalsAny',
+            'field' => 'states',
+            'operator' => null,
+            'value' => 'is-download',
+            'parameters' => null,
+            'position' => 1,
+            'custom_fields' => null,
+            'created_at' => $createdAt,
+            'updated_at' => null,
+        ]);
+
+        $migration = new Migration1773829001MigrateProductStreamProductStatesFilter();
+        $migration->update($this->connection);
+
+        // update() must not convert filters, conversion was moved to updateDestructive()
+        static::assertSame(
+            'states',
+            $this->connection->fetchOne(
+                'SELECT `field` FROM `product_stream_filter` WHERE `id` = :id',
+                ['id' => $this->simpleFilterId]
+            )
+        );
+    }
+
     public function testMigration(): void
     {
         $createdAt = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
@@ -116,8 +156,8 @@ class Migration1773829001MigrateProductStreamProductStatesFilterTest extends Tes
         $migration = new Migration1773829001MigrateProductStreamProductStatesFilter();
 
         // make sure the migration is idempotent
-        $migration->update($this->connection);
-        $migration->update($this->connection);
+        $migration->updateDestructive($this->connection);
+        $migration->updateDestructive($this->connection);
 
         $simpleFilter = $this->connection->fetchAssociative(
             'SELECT `field`, `value` FROM `product_stream_filter` WHERE `id` = :id',

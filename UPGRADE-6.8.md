@@ -4,6 +4,10 @@
 
 <details>
 
+### Minimum value constraints added to quantity fields in ProductPriceDefinition
+
+The fields `quantityStart` and `quantityEnd` of ProductPriceDefinition now require a minimum value of `1`.
+
 ## Default CMS page ID now persisted for categories
 
 The default CMS page ID is now automatically written to the database when a category is saved without a `cmsPageId`.
@@ -307,6 +311,11 @@ The default value for the `serializer` parameter in the `#[Serialized]` field at
 You need to explicitly set the serializer to use for your field.
 Additionally, the `SerializedField` class is now internal, as you should not use it directly in classic `EntityDefinitions`. It's only intended use case is in combination with the `#[Serialized]` attribute in attribute entities.
 
+## Removal of `RegisterScheduledTaskMessage`
+
+The class `\Shopware\Core\Framework\MessageQueue\ScheduledTask\MessageQueue\RegisterScheduledTaskMessage` and it's accompanying handler `\Shopware\Core\Framework\MessageQueue\ScheduledTask\MessageQueue\RegisterScheduledTaskHandler` were removed, as the message was no longer dispatched.
+If you dispatched that message manually, you should call the `TaskScheduler::registerTask()` method directly instead.
+
 ## Removal of `EntityDefinition` constructor
 
 The constructor of the `EntityDefinition` has been removed, therefore the call of child classes to it need to be removed as well, i.e:
@@ -605,6 +614,10 @@ $event = new ThemeAssignedEvent($themeId, $salesChannelId, $context);
 The following exception classes were removed and replaced by domain exceptions:
 * `\Shopware\Core\System\NumberRange\Exception\IncrementStorageNotFoundException` -> `\Shopware\Core\System\NumberRange\Exception\NumberRangeException::incrementStorageNotFound()`
 * `\Shopware\Core\System\NumberRange\Exception\NoConfigurationException` -> `\Shopware\Core\System\NumberRange\NumberRangeException::noConfigurationForEntity()`
+
+### Removed non-used `MAIL_TEMPLATE_SALES_CHANNEL_*_EVENT` constants
+
+Removed the constants `Shopware\Core\Content\MailTemplate\MAIL_TEMPLATE_SALES_CHANNEL_{WRITTEN,DELETED,LOADED,SEARCH_RESULT_LOADED,AGGREGATION_LOADED,ID_SEARCH_RESULT_LOADED}_EVENT` as the entity has been removed with Shopware 6.5 and the events were not fired anymore.
 
 </details>
 
@@ -940,6 +953,10 @@ Use the parent blocks instead
 ## File accessibility changed from public to private
 `administration/src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/index.js`
 
+## The following template blocks have been replaced due to a typo in their name
+* `sw_condiiton_date_range_field_to_date` -> `sw_condition_date_range_field_to_date`
+* `sw_cms_detail_stage_empty_stade_content` -> `sw_cms_detail_stage_empty_stage_content`
+
 ## Removed .png and .jpg images
 
 In favor of WebP the following images have been removed:
@@ -1065,6 +1082,10 @@ The following templates no longer contain any microdata attributes:
 | `page/error/error-maintenance.html.twig` | `WebPage` on `<html>` |
 
 If your plugin or theme adds structured data by extending blocks in the templates above, migrate your overrides to the new JSON-LD template extension points described below.
+
+## Cookie bar moved to the top of the page
+
+The default cookie bar (block `base_cookie_permission`) has been moved from the bottom of the page to the top of the page (after the opening `<body>` element).
 
 ## New JSON-LD structured data block system
 

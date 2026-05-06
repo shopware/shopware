@@ -5,16 +5,16 @@
         v-model="generateData.documentDate"
         class="sw-bulk-edit-order-documents-generate-invoice__item"
         hide-hint
-        :label="$tc('sw-bulk-edit.order.documents.generateInvoice.labelDatePicker')"
-        :placeholder="$tc('sw-datepicker.date.placeholder')"
+        :label="$t('sw-bulk-edit.order.documents.generateInvoice.labelDatePicker')"
+        :placeholder="$t('sw-datepicker.date.placeholder')"
     />
     {% endblock %}
 
     {% block sw_bulk_edit_order_documents_generate_invoice_textarea %}
     <mt-textarea
         v-model="generateData.documentComment"
-        :label="$tc('sw-bulk-edit.order.documents.generateInvoice.labelTextarea')"
-        :placeholder="$tc('sw-bulk-edit.order.documents.generateInvoice.placeholderTextarea')"
+        :label="$t('sw-bulk-edit.order.documents.generateInvoice.labelTextarea')"
+        :placeholder="$t('sw-bulk-edit.order.documents.generateInvoice.placeholderTextarea')"
     />
     {% endblock %}
 
@@ -22,8 +22,8 @@
 
     <mt-switch
         v-model="generateData.forceDocumentCreation"
-        :label="$tc('sw-bulk-edit.order.documents.forceDocumentCreation')"
-        :help-text="$tc('sw-bulk-edit.order.documents.forceDocumentCreationHelpText')"
+        :label="$t('sw-bulk-edit.order.documents.forceDocumentCreation')"
+        :help-text="$t('sw-bulk-edit.order.documents.forceDocumentCreationHelpText')"
     />
     {% endblock %}
 

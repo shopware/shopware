@@ -132,7 +132,7 @@ Shopware.Application.view = {
         delete target[propertyName];
     },
     root: {
-        $tc: v => v,
+        $t: v => v,
     },
     i18n: {
         global: {
@@ -317,6 +317,10 @@ global.allowedErrors = [
     {
         method: 'warn',
         msg: '[MtCheckbox] The `checked` prop is deprecated and will be removed. Please use v-model (modelValue/update:modelValue) instead.',
+    },
+    {
+        method: 'warn',
+        msg: '[MtNumberField] The `allowEmpty` prop is deprecated and will be removed. There will be no replacement.',
     },
     {
         method: 'warn',

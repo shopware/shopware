@@ -436,7 +436,7 @@ export default {
                 return;
             }
 
-            this.mailService
+            return this.mailService
                 .sendMailTemplate(
                     this.testerMail,
                     this.testerMail,

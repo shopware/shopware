@@ -366,7 +366,15 @@ export default [
 
     // Test files
     {
-        files: ['**/*.spec.js', '**/*.spec.ts', '**/fixtures/*.js', 'test/**/*.js', 'test/**/*.ts'],
+        files: [
+            '**/*.spec.js',
+            '**/*.spec.ts',
+            '**/*.spec/*.js',
+            '**/*.spec/*.ts',
+            '**/fixtures/*.js',
+            'test/**/*.js',
+            'test/**/*.ts',
+        ],
         ...jestPlugin.configs['flat/recommended'],
         languageOptions: {
             ...jestPlugin.configs['flat/recommended'].languageOptions,
@@ -394,6 +402,13 @@ export default [
             'jest/valid-expect': ['error', { maxArgs: 2 }],
             'jest/no-disabled-tests': 'error',
             'func-names': 'off',
+        },
+    },
+    {
+        files: ['**/*.spec.js', '**/*.spec.ts', '**/*.spec/*.spec.js', '**/*.spec/*.spec.ts'],
+        rules: {
+            'sw-test-rules/test-file-max-lines-warning': ['warn', { max: 500 }],
+            'sw-test-rules/test-file-max-lines-error': ['error', { max: 1000 }],
         },
     },
 

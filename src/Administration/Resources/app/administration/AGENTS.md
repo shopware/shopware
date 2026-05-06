@@ -53,6 +53,7 @@ Jest                # Testing framework
 
 ## Scripts
 Run the composer commands in the root of the repository. These commands are wrapper scripts around the NPM scripts.
+In a Docker environment prepend `docker compose exec web ...`.
 
 ```bash
 # Linting

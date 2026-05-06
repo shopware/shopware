@@ -30,7 +30,7 @@ src/module/sw-import-export/component/sw-import-export-activity/
 
 Jest discovers both colocated single-file specs and split specs in `.spec` directories. The Administration baseline test treats a `.spec` directory with at least one `*.spec.js` or `*.spec.ts` file as test coverage for the corresponding source file.
 
-ESLint warns when an Administration test file grows beyond 500 lines and errors when it grows beyond 1000 lines. Existing test files above 1000 lines are listed as legacy exceptions and should be migrated to split specs before the exception is removed.
+ESLint warns when an Administration test file reaches 500 lines and errors when it reaches 1000 lines.
 
 ## Consequences
 New large test suites can be organized by behavior instead of being forced into a single file. Helper files in `.spec` directories, such as fixtures or builders, are allowed but are not executed as tests unless they use the `*.spec.js` or `*.spec.ts` suffix.

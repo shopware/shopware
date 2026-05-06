@@ -140,6 +140,36 @@ class CriteriaQueryBuilder
                 continue;
             }
 
+            if ($this->isDisplayParentCustomFieldGrouping($definition, $criteria, $sorting, $context)) {
+                $considerInheritance = $context->considerInheritance();
+                $context->setConsiderInheritance(false);
+
+                try {
+                    $displayParentAccessor = $this->helper->getFieldAccessor(
+                        'parent.variantListingConfig.displayParent',
+                        $definition,
+                        $definition->getEntityName(),
+                        $context
+                    );
+                    $parentAccessor = $this->helper->getFieldAccessor(
+                        'parent.' . $this->normalizeSortingField($sorting->getField()),
+                        $definition,
+                        $definition->getEntityName(),
+                        $context
+                    );
+                } finally {
+                    $context->setConsiderInheritance($considerInheritance);
+                }
+
+                $accessor = \sprintf(
+                    'IF(%s = "1", COALESCE(%s, %s), %s)',
+                    $displayParentAccessor,
+                    $parentAccessor,
+                    $accessor,
+                    $accessor
+                );
+            }
+
             if (!\in_array($sorting->getField(), ['product.cheapestPrice', 'cheapestPrice'], true)) {
                 if ($sorting->getDirection() === FieldSorting::ASCENDING) {
                     $accessor = 'MIN(' . $accessor . ')';
@@ -265,6 +295,32 @@ class CriteriaQueryBuilder
         return $query->hasState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN) || $criteria->getGroupFields() !== [];
     }
 
+    private function isDisplayParentCustomFieldGrouping(EntityDefinition $definition, Criteria $criteria, FieldSorting $sorting, Context $context): bool
+    {
+        if (!$context->considerInheritance() || !$definition->isInheritanceAware()) {
+            return false;
+        }
+
+        if (!$definition->getFields()->has('displayGroup') || !$definition->getFields()->has('parent') || !$definition->getFields()->has('variantListingConfig')) {
+            return false;
+        }
+
+        $field = $this->normalizeSortingField($sorting->getField());
+        if (!str_starts_with($field, 'customFields.')) {
+            return false;
+        }
+
+        foreach ($criteria->getGroupFields() as $grouping) {
+            if ($this->normalizeSortingField($grouping->getField()) !== 'displayGroup') {
+                continue;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
     /**
      * @param list<string> $additionalFields
      *
@@ -301,6 +357,11 @@ class CriteriaQueryBuilder
     private function hasQueriesOrTerm(Criteria $criteria): bool
     {
         return $criteria->getQueries() !== [] || $criteria->getTerm();
+    }
+
+    private function normalizeSortingField(string $field): string
+    {
+        return preg_replace('/^product\./', '', $field) ?? $field;
     }
 
     private function validateSortingDirection(string $direction): void

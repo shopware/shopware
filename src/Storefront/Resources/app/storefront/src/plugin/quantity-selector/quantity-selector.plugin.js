@@ -32,7 +32,6 @@ export default class QuantitySelectorPlugin extends Plugin {
             this._initAriaLiveUpdates();
         }
 
-        this._updateUnitLabel();
         this._registerEvents();
         this._registerLivePurchaseLimitEvents();
     }

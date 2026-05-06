@@ -53,22 +53,27 @@ class PropertyGroupCollection extends EntityCollection
                 continue;
             }
 
-            $columns = [];
+            $positions = [];
+            $names = [];
             $entities = [];
 
             $sortingType = $group->getSortingType();
 
             foreach ($options->getIterator() as $option) {
-                if ($sortingType === PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC) {
-                    $columns[] = (string) ($option->getTranslation('name') ?? '');
-                } else {
-                    $columns[] = (int) ($option->getTranslation('position') ?? $option->getPosition() ?? 0);
+                $names[] = (string) ($option->getTranslation('name') ?? '');
+
+                if ($sortingType !== PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC) {
+                    $positions[] = (int) ($option->getTranslation('position') ?? $option->getPosition() ?? 0);
                 }
 
                 $entities[] = $option;
             }
 
-            array_multisort($columns, \SORT_ASC, \SORT_NATURAL, $entities);
+            if ($sortingType === PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC) {
+                array_multisort($names, \SORT_ASC, \SORT_NATURAL, $entities);
+            } else {
+                array_multisort($positions, \SORT_ASC, \SORT_NUMERIC, $names, \SORT_ASC, \SORT_NATURAL, $entities);
+            }
 
             $sortedOptions = new PropertyGroupOptionCollection();
             // Bypass expected class validation for performance optimization

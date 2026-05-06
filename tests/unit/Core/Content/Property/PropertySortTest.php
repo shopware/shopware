@@ -129,6 +129,24 @@ class PropertySortTest extends TestCase
         );
     }
 
+    public function testPositionSortingUsesNamesAsTieBreaker(): void
+    {
+        $propertyGroups = $this->getPropertyGroupPositionWithSamePositions();
+        $propertyGroups->sortByConfig();
+        $propertyGroup = $propertyGroups->first();
+        static::assertNotNull($propertyGroup);
+        $propertyOptionsArray = json_decode(json_encode($propertyGroup->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(
+            ['Alpha', 'Beta', 'Gamma'],
+            array_column($propertyOptionsArray, 'name')
+        );
+        static::assertSame(
+            [1, 1, 1],
+            array_column($propertyOptionsArray, 'position')
+        );
+    }
+
     private function getPropertyGroupAlphaNumericOnlyNumbers(): PropertyGroupCollection
     {
         $propertyGroup = new PropertyGroupEntity();
@@ -190,6 +208,53 @@ class PropertySortTest extends TestCase
         $propertyGroup->setDisplayType(PropertyGroupDefinition::DISPLAY_TYPE_TEXT);
         $propertyGroup->setPosition(1);
         $propertyGroup->setOptions($this->getPropertyOptionsMixed());
+
+        return new PropertyGroupCollection([$propertyGroup]);
+    }
+
+    private function getPropertyGroupPositionWithSamePositions(): PropertyGroupCollection
+    {
+        $propertyGroup = new PropertyGroupEntity();
+        $propertyGroup->setId(Uuid::randomHex());
+        $propertyGroup->setName('Position with same positions');
+        $propertyGroup->setSortingType(PropertyGroupDefinition::SORTING_TYPE_POSITION);
+        $propertyGroup->setDisplayType(PropertyGroupDefinition::DISPLAY_TYPE_TEXT);
+        $propertyGroup->setPosition(1);
+
+        $optionA = new PropertyGroupOptionEntity();
+        $optionA->setId(Uuid::randomHex());
+        $optionA->setName('Gamma');
+        $optionA->setPosition(1);
+        $optionA->setTranslated([
+            'name' => 'Gamma',
+            'description' => '',
+            'position' => 1,
+            'customFields' => [],
+        ]);
+
+        $optionB = new PropertyGroupOptionEntity();
+        $optionB->setId(Uuid::randomHex());
+        $optionB->setName('Alpha');
+        $optionB->setPosition(1);
+        $optionB->setTranslated([
+            'name' => 'Alpha',
+            'description' => '',
+            'position' => 1,
+            'customFields' => [],
+        ]);
+
+        $optionC = new PropertyGroupOptionEntity();
+        $optionC->setId(Uuid::randomHex());
+        $optionC->setName('Beta');
+        $optionC->setPosition(1);
+        $optionC->setTranslated([
+            'name' => 'Beta',
+            'description' => '',
+            'position' => 1,
+            'customFields' => [],
+        ]);
+
+        $propertyGroup->setOptions(new PropertyGroupOptionCollection([$optionA, $optionB, $optionC]));
 
         return new PropertyGroupCollection([$propertyGroup]);
     }

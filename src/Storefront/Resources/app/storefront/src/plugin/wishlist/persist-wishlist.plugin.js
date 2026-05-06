@@ -22,8 +22,18 @@ export default class WishlistPersistStoragePlugin extends BaseWishlistStoragePlu
                     'Content-Type': 'application/json',
                 },
             })
-                .then(response => response.json())
                 .then(response => {
+                    if (!response.ok) {
+                        return null;
+                    }
+
+                    return response.json();
+                })
+                .then(response => {
+                    if (!response) {
+                        return;
+                    }
+
                     this.products = response;
 
                     super.load();
@@ -39,8 +49,18 @@ export default class WishlistPersistStoragePlugin extends BaseWishlistStoragePlu
                 'Content-Type': 'application/json',
             },
         })
-            .then(response => response.json())
             .then(response => {
+                if (!response.ok) {
+                    return null;
+                }
+
+                return response.json();
+            })
+            .then(response => {
+                if (!response) {
+                    return;
+                }
+
                 if (response.success) {
                     super.add(productId);
 
@@ -59,8 +79,18 @@ export default class WishlistPersistStoragePlugin extends BaseWishlistStoragePlu
                 'Content-Type': 'application/json',
             },
         })
-            .then(response => response.json())
             .then(response => {
+                if (!response.ok) {
+                    return null;
+                }
+
+                return response.json();
+            })
+            .then(response => {
+                if (!response) {
+                    return;
+                }
+
                 if (Object.prototype.hasOwnProperty.call(response, 'success')) {
                     if (response.success === false) {
                         console.warn('unable to remove product to wishlist');
@@ -90,8 +120,18 @@ export default class WishlistPersistStoragePlugin extends BaseWishlistStoragePlu
                     'Content-Type': 'application/json',
                 },
             })
-                .then(response => response.text())
                 .then(response => {
+                    if (!response.ok) {
+                        return null;
+                    }
+
+                    return response.text();
+                })
+                .then(response => {
+                    if (response === null) {
+                        return;
+                    }
+
                     if (!response) {
                         throw new Error('Unable to merge product wishlist from anonymous user');
                     }
@@ -121,7 +161,13 @@ export default class WishlistPersistStoragePlugin extends BaseWishlistStoragePlu
                 'Content-Type': 'application/json',
             },
         })
-            .then(response => response.text())
+            .then(response => {
+                if (!response.ok) {
+                    return null;
+                }
+
+                return response.text();
+            })
             .then(response => {
                 if (!response) {
                     return;

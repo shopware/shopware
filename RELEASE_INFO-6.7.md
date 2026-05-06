@@ -2,6 +2,21 @@
 
 ## Features
 
+### [Experimental] MCP Server for AI tool integration
+
+Shopware now includes an experimental MCP (Model Context Protocol) server that lets AI clients like Claude Desktop or Cursor interact with your Shopware instance through a standardized protocol.
+
+The server exposes the full MCP capability set:
+- **Tools** for entity management (search, read, create, update, delete), system configuration, state machine transitions, cache management, and storefront product search with sales channel context.
+- **Prompts** that give the AI client context about Shopware's data model, criteria format, and best practices.
+- **Resources** that expose static reference data (entity list, sales channels, state machines, business events, flow actions) as readable URIs.
+
+All operations respect the authenticated user's ACL permissions and integrate with the Admin API authentication. Integration credentials can be passed directly via `sw-access-key` and `sw-secret-access-key` headers. No separate OAuth token exchange is required. Per-integration allowlists are configurable under Settings -> Integrations to limit which tools, prompts, and resources a given client can see.
+
+To enable this feature, set the `MCP_SERVER` feature flag to `true`. The MCP endpoint is available at `/api/_mcp` and uses the Streamable HTTP transport. Plugins register additional MCP capabilities by tagging services with `mcp.tool`, `mcp.prompt`, or `mcp.resource`. Apps can declare them in their app manifest.
+
+A `debug:mcp` CLI command is available to list all registered MCP tools, prompts, and resources.
+
 ## API
 
 ### Mail template preview and send routes support richer rendering context
@@ -346,15 +361,6 @@ A new internal comment field was added to the state change modal which can be us
 The internal comment is only visible in the administration and not shown to customers.
 It can be found in the state machine state history modal (state change modal) on the detail page of an order.
 
-### [Experimental] MCP Server for AI tool integration
-
-Shopware now includes an experimental MCP (Model Context Protocol) server that allows AI clients like Claude Desktop, Cursor, or any MCP-compatible tool to interact with your Shopware instance through a standardized protocol.
-
-The MCP server exposes tools for entity management (search, read, create, update, delete), system configuration, state machine transitions, cache management, and storefront product search with sales channel context. All operations respect the authenticated user's ACL permissions and integrate with the Admin API OAuth authentication.
-
-To enable this feature, set the `MCP_SERVER` feature flag to `true`. The MCP endpoint is available at `/api/_mcp` and supports Streamable HTTP transport. Plugins can provide additional MCP tools by tagging services with `shopware.mcp.tool`.
-
-A `debug:mcp` CLI command is available to list all registered MCP tools, prompts, and resources.
 ### Use JSON-LD format for Structured Data
 
 The Storefront now emits structured data as JSON-LD (`<script type="application/ld+json">` in the `<head>`) instead of scattered inline microdata attributes (`itemscope`, `itemtype`, `itemprop`).

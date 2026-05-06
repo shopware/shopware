@@ -285,6 +285,7 @@
             <argument type="service" id="unit.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
             <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
 
             <tag name="kernel.reset" method="reset"/>
         </service>

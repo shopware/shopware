@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Price;
 
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection as CalculatedPriceCollection;
@@ -22,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Unit\UnitCollection;
 
@@ -39,6 +42,7 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
         private readonly EntityRepository $unitRepository,
         private readonly QuantityPriceCalculator $calculator,
         private readonly ExtensionDispatcher $extensions,
+        private readonly Connection $connection,
     ) {
     }
 
@@ -70,11 +74,13 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
      */
     private function _calculate(iterable $products, SalesChannelContext $context): void
     {
+        $products = \is_array($products) ? $products : iterator_to_array($products, false);
         $units = $this->getUnits($context);
+        $inheritedAdvancedPriceBases = $this->loadInheritedAdvancedPriceBases($products, $context);
 
         foreach ($products as $product) {
             $this->calculatePrice($product, $context, $units);
-            $this->calculateAdvancePrices($product, $context, $units);
+            $this->calculateAdvancePrices($product, $context, $units, $inheritedAdvancedPriceBases);
             $this->calculateCheapestPrice($product, $context, $units);
         }
     }
@@ -98,7 +104,10 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
         ]);
     }
 
-    private function calculateAdvancePrices(Entity $product, SalesChannelContext $context, UnitCollection $units): void
+    /**
+     * @param array<string, PriceCollection> $inheritedAdvancedPriceBases
+     */
+    private function calculateAdvancePrices(Entity $product, SalesChannelContext $context, UnitCollection $units, array $inheritedAdvancedPriceBases): void
     {
         $prices = $product->get('prices');
 
@@ -131,7 +140,14 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
 
             $quantity = \is_int($quantityEnd) ? $quantityEnd : $quantityStart;
 
-            $definition = $this->buildDefinition($product, $priceObj, $context, $units, $reference, $quantity);
+            $definition = $this->buildDefinition(
+                $product,
+                $this->resolveInheritedAdvancedPrice($product, $price, $priceObj, $inheritedAdvancedPriceBases, $context),
+                $context,
+                $units,
+                $reference,
+                $quantity
+            );
 
             $calculated->add($this->calculator->calculate($definition, $context));
         }
@@ -271,6 +287,209 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
         }
 
         return $value;
+    }
+
+    /**
+     * @param array<Entity> $products
+     *
+     * @return array<string, PriceCollection>
+     */
+    private function loadInheritedAdvancedPriceBases(array $products, SalesChannelContext $context): array
+    {
+        $ownerIds = [];
+
+        foreach ($products as $product) {
+            $prices = $product->get('prices');
+
+            if (!$prices instanceof EntityCollection) {
+                continue;
+            }
+
+            $productId = $product->getUniqueIdentifier();
+
+            foreach ($prices as $price) {
+                $ownerId = $price->getVars()['productId'] ?? null;
+
+                if (!\is_string($ownerId) || $ownerId === $productId) {
+                    continue;
+                }
+
+                $ownerIds[$ownerId] = true;
+            }
+        }
+
+        if ($ownerIds === []) {
+            return [];
+        }
+
+        $rows = $this->connection->fetchAllKeyValue(
+            'SELECT LOWER(HEX(id)) as id, price
+             FROM product
+             WHERE id IN (:ids)
+             AND version_id = :version',
+            [
+                'ids' => Uuid::fromHexToBytesList(array_keys($ownerIds)),
+                'version' => Uuid::fromHexToBytes($context->getContext()->getVersionId()),
+            ],
+            [
+                'ids' => ArrayParameterType::BINARY,
+            ]
+        );
+
+        $basePrices = [];
+        foreach ($rows as $ownerId => $price) {
+            if (!\is_string($ownerId) || !\is_string($price)) {
+                continue;
+            }
+
+            $basePrices[$ownerId] = $this->decodePriceCollection($price);
+        }
+
+        return $basePrices;
+    }
+
+    /**
+     * @param array<string, PriceCollection> $inheritedAdvancedPriceBases
+     */
+    private function resolveInheritedAdvancedPrice(Entity $product, Entity $advancedPrice, PriceCollection $price, array $inheritedAdvancedPriceBases, SalesChannelContext $context): PriceCollection
+    {
+        $ownerId = $advancedPrice->getVars()['productId'] ?? null;
+        if (!\is_string($ownerId) || $ownerId === $product->getUniqueIdentifier()) {
+            return $price;
+        }
+
+        $productPrice = $product->get('price');
+        $ownerBasePrice = $inheritedAdvancedPriceBases[$ownerId] ?? null;
+
+        if (!$productPrice instanceof PriceCollection || !$ownerBasePrice instanceof PriceCollection) {
+            return $price;
+        }
+
+        return $this->applyPriceDelta($price, $productPrice, $ownerBasePrice, $context);
+    }
+
+    private function applyPriceDelta(PriceCollection $advancedPrice, PriceCollection $productPrice, PriceCollection $ownerBasePrice, SalesChannelContext $context): PriceCollection
+    {
+        $adjusted = [];
+        $hasDelta = false;
+
+        foreach ($advancedPrice as $price) {
+            $delta = $this->resolvePriceDelta($price->getCurrencyId(), $productPrice, $ownerBasePrice, $context);
+
+            if ($delta === null) {
+                $adjusted[] = $this->clonePrice($price);
+
+                continue;
+            }
+
+            if ($delta->getNet() !== 0.0 || $delta->getGross() !== 0.0) {
+                $hasDelta = true;
+            }
+
+            $adjusted[] = $this->clonePrice($price, $delta);
+        }
+
+        if (!$hasDelta) {
+            return $advancedPrice;
+        }
+
+        return new PriceCollection($adjusted);
+    }
+
+    private function resolvePriceDelta(string $currencyId, PriceCollection $productPrice, PriceCollection $ownerBasePrice, SalesChannelContext $context): ?Price
+    {
+        $productCurrencyPrice = $productPrice->getCurrencyPrice($currencyId);
+        $ownerCurrencyPrice = $ownerBasePrice->getCurrencyPrice($currencyId);
+
+        if (!$productCurrencyPrice instanceof Price || !$ownerCurrencyPrice instanceof Price) {
+            return null;
+        }
+
+        $productValues = $this->convertPriceValues($productCurrencyPrice, $currencyId, $context);
+        $ownerValues = $this->convertPriceValues($ownerCurrencyPrice, $currencyId, $context);
+
+        if ($productValues === null || $ownerValues === null) {
+            return null;
+        }
+
+        return new Price(
+            $currencyId,
+            $productValues['net'] - $ownerValues['net'],
+            $productValues['gross'] - $ownerValues['gross'],
+            $productCurrencyPrice->getLinked()
+        );
+    }
+
+    /**
+     * @return array{net: float, gross: float}|null
+     */
+    private function convertPriceValues(Price $price, string $currencyId, SalesChannelContext $context): ?array
+    {
+        if ($price->getCurrencyId() === $currencyId) {
+            return [
+                'net' => $price->getNet(),
+                'gross' => $price->getGross(),
+            ];
+        }
+
+        if ($currencyId !== $context->getCurrencyId()) {
+            return null;
+        }
+
+        $factor = $context->getContext()->getCurrencyFactor();
+
+        return [
+            'net' => $price->getNet() * $factor,
+            'gross' => $price->getGross() * $factor,
+        ];
+    }
+
+    private function decodePriceCollection(string $value): PriceCollection
+    {
+        $decoded = json_decode($value, true, 512, \JSON_THROW_ON_ERROR);
+
+        $prices = [];
+        foreach ($decoded as $price) {
+            if (!\is_array($price)) {
+                continue;
+            }
+
+            $prices[] = $this->decodePrice($price);
+        }
+
+        return new PriceCollection($prices);
+    }
+
+    /**
+     * @param array<string, mixed> $price
+     */
+    private function decodePrice(array $price, ?string $currencyId = null, ?bool $linked = null): Price
+    {
+        $currencyId ??= (string) $price['currencyId'];
+        $linked ??= (bool) ($price['linked'] ?? false);
+
+        return new Price(
+            $currencyId,
+            (float) $price['net'],
+            (float) $price['gross'],
+            $linked,
+            isset($price['listPrice']) && \is_array($price['listPrice']) ? $this->decodePrice($price['listPrice'], $currencyId, $linked) : null,
+            isset($price['percentage']) && \is_array($price['percentage']) ? $price['percentage'] : null,
+            isset($price['regulationPrice']) && \is_array($price['regulationPrice']) ? $this->decodePrice($price['regulationPrice'], $currencyId, $linked) : null
+        );
+    }
+
+    private function clonePrice(Price $price, ?Price $delta = null): Price
+    {
+        return new Price(
+            $price->getCurrencyId(),
+            $price->getNet() + ($delta?->getNet() ?? 0.0),
+            $price->getGross() + ($delta?->getGross() ?? 0.0),
+            $price->getLinked(),
+            $price->getListPrice() ? $this->clonePrice($price->getListPrice(), $delta) : null,
+            $price->getPercentage(),
+            $price->getRegulationPrice() ? $this->clonePrice($price->getRegulationPrice(), $delta) : null
+        );
     }
 
     private function buildReferencePriceDefinition(ReferencePriceDto $definition, UnitCollection $units): ?ReferencePriceDefinition

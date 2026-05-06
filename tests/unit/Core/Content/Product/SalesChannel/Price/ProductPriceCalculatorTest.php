@@ -2,8 +2,10 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Price;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator;
@@ -22,6 +24,7 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPri
 use Shopware\Core\Content\Product\Extension\ProductPriceCalculationExtension;
 use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -48,11 +51,14 @@ class ProductPriceCalculatorTest extends TestCase
 {
     private ProductPriceCalculator $calculator;
 
+    private Connection&MockObject $connection;
+
     private EventDispatcher $eventDispatcher;
 
     protected function setUp(): void
     {
         $this->eventDispatcher = new EventDispatcher();
+        $this->connection = $this->createMock(Connection::class);
 
         /** @var StaticEntityRepository<UnitCollection> $unitRepository */
         $unitRepository = new StaticEntityRepository([
@@ -67,6 +73,7 @@ class ProductPriceCalculatorTest extends TestCase
                 new NetPriceCalculator(new TaxCalculator(), new CashRounding())
             ),
             new ExtensionDispatcher($this->eventDispatcher),
+            $this->connection,
         );
     }
 
@@ -174,7 +181,8 @@ class ProductPriceCalculatorTest extends TestCase
                 new GrossPriceCalculator(new TaxCalculator(), new CashRounding()),
                 new NetPriceCalculator(new TaxCalculator(), new CashRounding())
             ),
-            new ExtensionDispatcher($this->eventDispatcher)
+            new ExtensionDispatcher($this->eventDispatcher),
+            $this->createMock(Connection::class)
         ))->getDecorated();
     }
 
@@ -365,6 +373,126 @@ class ProductPriceCalculatorTest extends TestCase
             ]),
             [1.0],
         ];
+    }
+
+    public function testInheritedAdvancedPricesKeepVariantSurcharge(): void
+    {
+        $parentId = Uuid::randomHex();
+        $variantId = Uuid::randomHex();
+
+        $this->connection->expects($this->once())
+            ->method('fetchAllKeyValue')
+            ->willReturn([
+                $parentId => json_encode([
+                    [
+                        'currencyId' => Defaults::CURRENCY,
+                        'gross' => 100.0,
+                        'net' => 100.0,
+                        'linked' => false,
+                    ],
+                ], \JSON_THROW_ON_ERROR),
+            ]);
+
+        $product = (new PartialEntity())->assign([
+            'id' => $variantId,
+            '_uniqueIdentifier' => $variantId,
+            'parentId' => $parentId,
+            'taxId' => Uuid::randomHex(),
+            'price' => new PriceCollection([
+                new Price(Defaults::CURRENCY, 110.0, 110.0, false),
+            ]),
+            'prices' => new ProductPriceCollection([
+                (new ProductPriceEntity())->assign([
+                    'id' => Uuid::randomHex(),
+                    '_uniqueIdentifier' => Uuid::randomHex(),
+                    'productId' => $parentId,
+                    'ruleId' => Defaults::CURRENCY,
+                    'price' => new PriceCollection([
+                        new Price(Defaults::CURRENCY, 80.0, 80.0, false),
+                    ]),
+                    'quantityStart' => 1,
+                    'quantityEnd' => null,
+                ]),
+            ]),
+        ]);
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
+        $context->method('getContext')->willReturn(Context::createDefaultContext());
+        $context->method('getRuleIds')->willReturn([Defaults::CURRENCY]);
+        $context->method('buildTaxRules')->willReturn(new TaxRuleCollection([new TaxRule(0)]));
+
+        $this->calculator->calculate([$product], $context);
+
+        $prices = $product->get('calculatedPrices');
+
+        static::assertInstanceOf(CalculatedPriceCollection::class, $prices);
+        static::assertCount(1, $prices);
+        static::assertSame(90.0, $prices->first()?->getTotalPrice());
+    }
+
+    public function testInheritedAdvancedPricesKeepVariantSurchargeWithCurrencyFallback(): void
+    {
+        $parentId = Uuid::randomHex();
+        $variantId = Uuid::randomHex();
+        $currencyId = Uuid::randomHex();
+
+        $this->connection->expects($this->once())
+            ->method('fetchAllKeyValue')
+            ->willReturn([
+                $parentId => json_encode([
+                    [
+                        'currencyId' => Defaults::CURRENCY,
+                        'gross' => 100.0,
+                        'net' => 100.0,
+                        'linked' => false,
+                    ],
+                ], \JSON_THROW_ON_ERROR),
+            ]);
+
+        $product = (new PartialEntity())->assign([
+            'id' => $variantId,
+            '_uniqueIdentifier' => $variantId,
+            'parentId' => $parentId,
+            'taxId' => Uuid::randomHex(),
+            'price' => new PriceCollection([
+                new Price(Defaults::CURRENCY, 110.0, 110.0, false),
+            ]),
+            'prices' => new ProductPriceCollection([
+                (new ProductPriceEntity())->assign([
+                    'id' => Uuid::randomHex(),
+                    '_uniqueIdentifier' => Uuid::randomHex(),
+                    'productId' => $parentId,
+                    'ruleId' => Defaults::CURRENCY,
+                    'price' => new PriceCollection([
+                        new Price($currencyId, 160.0, 160.0, false),
+                    ]),
+                    'quantityStart' => 1,
+                    'quantityEnd' => null,
+                ]),
+            ]),
+        ]);
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getCurrencyId')->willReturn($currencyId);
+        $context->method('getContext')->willReturn(new Context(
+            new SystemSource(),
+            [],
+            $currencyId,
+            [Defaults::LANGUAGE_SYSTEM],
+            Defaults::LIVE_VERSION,
+            2.0
+        ));
+        $context->method('getRuleIds')->willReturn([Defaults::CURRENCY]);
+        $context->method('buildTaxRules')->willReturn(new TaxRuleCollection([new TaxRule(0)]));
+
+        $this->calculator->calculate([$product], $context);
+
+        $prices = $product->get('calculatedPrices');
+
+        static::assertInstanceOf(CalculatedPriceCollection::class, $prices);
+        static::assertCount(1, $prices);
+        static::assertSame(180.0, $prices->first()?->getTotalPrice());
     }
 
     #[DataProvider('cheapestPriceWillBeCalculatedProvider')]

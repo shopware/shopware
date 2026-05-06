@@ -22,7 +22,12 @@ const isTestAbleFile = (file) => {
     const fileExtension = path.extname(file);
     const filePathWithoutExtension = file.slice(0, -fileExtension.length);
 
-    if (!['.js', '.ts'].includes(fileExtension)) {
+    if (
+        ![
+            '.js',
+            '.ts',
+        ].includes(fileExtension)
+    ) {
         return false;
     }
 
@@ -30,7 +35,14 @@ const isTestAbleFile = (file) => {
         return false;
     }
 
-    if (['.spec', 'vue2', '.d', '/acl/index'].some((ending) => filePathWithoutExtension.endsWith(ending))) {
+    if (
+        [
+            '.spec',
+            'vue2',
+            '.d',
+            '/acl/index',
+        ].some((ending) => filePathWithoutExtension.endsWith(ending))
+    ) {
         return false;
     }
 
@@ -46,9 +58,7 @@ const testFiles = globSync(path.join(adminPath, 'src/**/*.spec.{js,ts}'), {
     ignore: ['**/node_modules/**'],
 });
 const testDirectories = new Set(
-    testFiles
-        .map((file) => path.dirname(file))
-        .filter((directory) => directory.endsWith('.spec')),
+    testFiles.map((file) => path.dirname(file)).filter((directory) => directory.endsWith('.spec')),
 );
 
 describe('Administration meta tests', () => {

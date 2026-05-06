@@ -30,6 +30,11 @@ Third-party developers should add this flag to media associations that store tec
 The `RegisterScheduleTaskMessage` class and the accompanying message handler `RegisterScheduledTaskHandler` is deprecated and will be removed in Shopware 6.8.0.0, as the message wasn't dispatched anymore.
 If you dispatched that message manually, you should call the `TaskScheduler::registerTask()` method directly instead.
 
+### Composer-managed plugins in `TestBootstrapper::addActivePlugins()`
+
+`TestBootstrapper::addActivePlugins()` can now be used with Composer-managed plugins installed below `vendor/`.
+Plugins no longer need to be copied into `custom/plugins` or `custom/static-plugins` just to be installed and activated during test bootstrap.
+
 ## Administration
 
 ### Fixed "Last Quarter" timeframe returning the wrong year in `sw-date-filter`

@@ -51,11 +51,7 @@ class TestBootstrapper
             \define('TEST_PROJECT_DIR', $_SERVER['PROJECT_ROOT']);
         }
 
-        if ($this->commercialEnabled && $this->getPluginPath('SwagCommercial')) {
-            $this->addActivePlugins('SwagCommercial');
-        }
-
-        $classLoader = $this->getClassLoader();
+        $classLoader = $this->classLoader ?? require $this->getProjectDir() . '/vendor/autoload.php';
 
         if ($this->loadEnvFile) {
             $this->loadEnvFile();
@@ -68,7 +64,7 @@ class TestBootstrapper
         if ($this->isForceInstall() || !$this->pluginTableExists()) {
             $this->install();
 
-            if ($this->activePlugins !== []) {
+            if ($this->activePlugins !== [] || $this->commercialEnabled) {
                 $this->installPlugins();
             }
         } elseif ($this->forceInstallPlugins) {
@@ -104,6 +100,7 @@ class TestBootstrapper
         if ($this->classLoader !== null) {
             return $this->classLoader;
         }
+
         $classLoader = require $this->getProjectDir() . '/vendor/autoload.php';
 
         $this->addPluginAutoloadDev($classLoader);
@@ -304,21 +301,32 @@ class TestBootstrapper
 
     public function getPluginPath(string $pluginName): ?string
     {
-        $allPluginDirectories = \glob($this->getProjectDir() . '/custom/*plugins/*', \GLOB_ONLYDIR) ?: [];
+        try {
+            $pluginInfos = $this->getKernel()->getPluginLoader()->getPluginInfos();
+        } catch (\Throwable) {
+            return null;
+        }
 
-        foreach ($allPluginDirectories as $pluginDir) {
-            if (!is_file($pluginDir . '/composer.json')) {
+        foreach ($pluginInfos as $pluginInfo) {
+            if ($pluginInfo['name'] !== $pluginName) {
                 continue;
             }
 
-            if (!is_file($pluginDir . '/src/' . $pluginName . '.php')) {
-                continue;
-            }
-
-            return $pluginDir;
+            return $this->getAbsolutePluginPath($pluginInfo['path']);
         }
 
         return null;
+    }
+
+    private function getAbsolutePluginPath(string $pluginPath): string
+    {
+        $pluginPath = rtrim($pluginPath, '/');
+
+        if (str_starts_with($pluginPath, '/')) {
+            return $pluginPath;
+        }
+
+        return $this->getProjectDir() . '/' . $pluginPath;
     }
 
     private function addPluginAutoloadDev(ClassLoader $classLoader): void
@@ -439,6 +447,10 @@ class TestBootstrapper
         $application->doRun(new ArrayInput(['command' => 'plugin:refresh']), $this->getOutput());
 
         $kernel = KernelLifecycleManager::bootKernel();
+
+        if ($this->commercialEnabled && $this->getPluginPath('SwagCommercial')) {
+            $this->addActivePlugins('SwagCommercial');
+        }
 
         $application = new Application($kernel);
 

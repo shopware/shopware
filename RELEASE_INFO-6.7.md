@@ -32,6 +32,11 @@ If you dispatched that message manually, you should call the `TaskScheduler::reg
 
 ## Administration
 
+### Split Administration test files
+
+Administration Jest tests can now be split into multiple files using `.spec` directories.
+ESLint now warns for Administration test files with 500 lines or more and errors for test files with 1000 lines or more.
+
 ### Fixed "Last Quarter" timeframe returning the wrong year in `sw-date-filter`
 
 Selecting the "Last Quarter" timeframe in any listing's date filter (orders, documents, customers, etc.) between January and March now produces a three-month range in the previous year instead of a ~15-month range that spanned both years.

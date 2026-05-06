@@ -44,8 +44,8 @@ class StateMachineRegistryTest extends TestCase
 {
     public function testTransitionWritesHistoryAndUpdatesEntityInsideLock(): void
     {
-        $transition = new Transition('order_transaction', Uuid::randomHex(), 'paid', 'stateId', 'internal comment');
-        $context = new Context(new AdminApiSource('user-id', 'integration-id'));
+        $transition = new Transition('order_transaction', Uuid::randomHex(), 'paid', 'stateId');
+        $context = new Context(new AdminApiSource('user-id'));
         $fromPlace = $this->createState('open');
         $toPlace = $this->createState('paid');
         $stateMachine = $this->createStateMachine([
@@ -64,10 +64,8 @@ class StateMachineRegistryTest extends TestCase
                     'toStateId' => $toPlace->getId(),
                     'transitionActionName' => 'paid',
                     'userId' => 'user-id',
-                    'integrationId' => 'integration-id',
                     'referencedId' => $transition->getEntityId(),
                     'referencedVersionId' => $context->getVersionId(),
-                    'internalComment' => 'internal comment',
                 ]],
                 $context
             );
@@ -157,7 +155,7 @@ class StateMachineRegistryTest extends TestCase
 
     public function testTransitionUsesLockerAndDispatchesEventsForChangedState(): void
     {
-        $transition = new Transition('order_transaction', 'transaction-id', 'paid', 'stateId', 'internal comment');
+        $transition = new Transition('order_transaction', 'transaction-id', 'paid', 'stateId');
         $context = new Context(new AdminApiSource(null));
         $transitionResult = $this->createTransitionResult(true);
         $dispatcher = new CollectingEventDispatcher();
@@ -185,7 +183,6 @@ class StateMachineRegistryTest extends TestCase
         static::assertNull($dispatcher->events[0]['name']);
         static::assertSame('order_transaction', $dispatcher->events[0]['event']->getEntityName());
         static::assertSame('transaction-id', $dispatcher->events[0]['event']->getEntityId());
-        static::assertSame('internal comment', $dispatcher->events[0]['event']->getInternalComment());
         static::assertSame($transitionResult->fromPlace, $dispatcher->events[0]['event']->getFromPlace());
         static::assertSame($transitionResult->toPlace, $dispatcher->events[0]['event']->getToPlace());
 

@@ -17,6 +17,11 @@ export type FormFieldDefinition = {
 
 type FormFieldComponentNameOptions = {
     resolveType?: boolean;
+    noTypeFallback?: boolean;
+};
+
+type FormFieldComponentFromTypeOptions = {
+    noFallback?: boolean;
 };
 
 /**
@@ -46,6 +51,7 @@ export const formFieldTypeComponentMap: Record<string, string> = {
     'single-select': 'mt-select',
     string: 'mt-text-field',
     text: 'mt-text-field',
+    'text-editor': 'sw-text-editor',
     tagged: 'sw-tagged-field',
     url: 'mt-url-field',
 };
@@ -54,8 +60,18 @@ export const formFieldTypeComponentMap: Record<string, string> = {
  * @sw-package framework
  * @private
  */
-export function getFormFieldComponentFromType(type?: string | null) {
-    return formFieldTypeComponentMap[type ?? ''] ?? 'mt-text-field';
+export function getFormFieldComponentFromType(type?: string | null, options: FormFieldComponentFromTypeOptions = {}) {
+    const componentName = formFieldTypeComponentMap[type ?? ''];
+
+    if (componentName) {
+        return componentName;
+    }
+
+    if (options.noFallback === true) {
+        return null;
+    }
+
+    return 'mt-text-field';
 }
 
 /**
@@ -86,14 +102,14 @@ export function getFormFieldComponentName(
 
     // Legacy sw-field is only a placeholder; resolve it through the configured type to get the rendered component.
     if (componentName === 'sw-field') {
-        return getFormFieldComponentFromType(getConfiguredType(field));
+        return getFormFieldComponentFromType(getConfiguredType(field), { noFallback: options.noTypeFallback });
     }
 
     if (componentName || options.resolveType === false) {
         return componentName;
     }
 
-    return getFormFieldComponentFromType(field?.type);
+    return getFormFieldComponentFromType(field?.type, { noFallback: options.noTypeFallback });
 }
 
 /**
@@ -103,7 +119,7 @@ export function getFormFieldComponentName(
 export function isSupported(
     field: FormFieldDefinition | null,
     componentNames: string[],
-    options: FormFieldComponentNameOptions = { resolveType: true },
+    options: FormFieldComponentNameOptions = { resolveType: true, noTypeFallback: false },
 ) {
     const componentName = getFormFieldComponentName(field, options);
 

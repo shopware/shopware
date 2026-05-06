@@ -34,7 +34,12 @@ describe('src/core/service/utils/meteor-component.utils', () => {
 
     it('detects meteor components by resolved component from field type', () => {
         expect(isMeteorComponent({ type: 'checkbox' })).toBe(true);
+        expect(isMeteorComponent({ type: 'text-editor' })).toBe(true);
         expect(isMeteorComponent({ type: 'single-entity-id-select' })).toBe(false);
+    });
+
+    it('does not detect unknown field types as meteor components through text field fallback', () => {
+        expect(isMeteorComponent({ type: 'unknown' })).toBe(false);
     });
 
     it.each(meteorComponentNames)('detects meteor component %s by resolved component name', (componentName) => {

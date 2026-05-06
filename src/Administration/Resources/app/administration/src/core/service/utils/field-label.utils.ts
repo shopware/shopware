@@ -2,10 +2,7 @@
  * @sw-package framework
  * @private
  */
-import {
-    getFormFieldComponentName,
-    type FormFieldDefinition,
-} from './form-field-type-mapping.utils';
+import { getFormFieldComponentName, type FormFieldDefinition } from './form-field-type-mapping.utils';
 
 type FieldLabelOptions = {
     renderedByFormFieldRenderer?: boolean;

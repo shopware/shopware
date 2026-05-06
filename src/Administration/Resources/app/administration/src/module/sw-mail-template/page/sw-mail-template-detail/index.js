@@ -443,8 +443,8 @@ export default {
                     {
                         subject: simulatedMailPreview.subject.content,
                         senderName: simulatedMailPreview.senderName.content,
-                        contentHtml: `${simulatedMailPreview.headerHtml.content}${simulatedMailPreview.contentHtml.content}${simulatedMailPreview.footerHtml.content}`,
-                        contentPlain: `${simulatedMailPreview.headerPlain.content}${simulatedMailPreview.contentPlain.content}${simulatedMailPreview.footerPlain.content}`,
+                        contentHtml: simulatedMailPreview.contentHtml.content,
+                        contentPlain: simulatedMailPreview.contentPlain.content,
                     },
                     this.mailTemplateMedia,
                     this.testMailSalesChannelId,

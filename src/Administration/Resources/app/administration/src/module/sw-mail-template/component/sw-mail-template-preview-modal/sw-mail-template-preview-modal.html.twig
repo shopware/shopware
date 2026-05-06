@@ -6,9 +6,9 @@
 >
     <template v-if="!isLoading">
         <div class="sw-mail-template-preview-modal__subject">
-            <div class="sw-mail-template-preview-modal__subject-title">
+            <h3 class="sw-mail-template-preview-modal__subject-title">
                 {{ $t('sw-mail-template.detail.options.labelSubject') }}
-            </div>
+            </h3>
             <mt-banner
                 v-if="mailPreview.subject.type === 'error'"
                 class="sw-mail-template-preview-modal__subject-error"
@@ -25,9 +25,9 @@
             </div>
         </div>
         <div class="sw-mail-template-preview-modal__sender-name">
-            <div class="sw-mail-template-preview-modal__sender-name-title">
+            <h3 class="sw-mail-template-preview-modal__sender-name-title">
                 {{ $t('sw-mail-template.detail.options.labelSenderName') }}
-            </div>
+            </h3>
             <mt-banner
                 v-if="mailPreview.senderName.type === 'error'"
                 class="sw-mail-template-preview-modal__sender-name-error"
@@ -44,9 +44,9 @@
             </div>
         </div>
         <div class="sw-mail-template-preview-modal__plain-text">
-            <div class="sw-mail-template-preview-modal__plain-text-title">
+            <h3 class="sw-mail-template-preview-modal__plain-text-title">
                 {{ $t('sw-mail-template.detail.mailText.labelContentPlain') }}
-            </div>
+            </h3>
             <mt-banner
                 v-if="mailPreview.headerPlain.type === 'error'"
                 class="sw-mail-template-preview-modal__plain-text-error"
@@ -85,9 +85,9 @@
             >{{ mailPreview.footerPlain.content }}</pre>
         </div>
         <div class="sw-mail-template-preview-modal__html">
-            <div class="sw-mail-template-preview-modal__html-title">
+            <h3 class="sw-mail-template-preview-modal__html-title">
                 {{ $t('sw-mail-template.detail.mailText.labelContentHtml') }}
-            </div>
+            </h3>
             <mt-banner
                 v-if="mailPreview.headerHtml.type === 'error'"
                 class="sw-mail-template-preview-modal__html-error"

@@ -9,7 +9,7 @@ import { DOCUMENT_TYPES } from '../../order.types';
  * @sw-package checkout
  */
 
-const mockOrderWithMailHeaderFooter = {
+const mockOrder = {
     id: uuid.get('orderId0'),
     languageId: uuid.get('languageId0'),
     orderCustomer: {
@@ -17,20 +17,14 @@ const mockOrderWithMailHeaderFooter = {
         firstName: 'Test',
         lastName: 'Tester',
     },
-    salesChannel: {
-        mailHeaderFooterId: uuid.get('headerFooter'),
-    },
     salesChannelId: uuid.get('salesChannelId0'),
 };
 
-const mockOrderWithoutMailHeaderFooter = {
+const mockOrderWithoutCustomerName = {
     id: uuid.get('orderId1'),
     languageId: uuid.get('languageId1'),
     orderCustomer: {
         email: 'test@shopware.com',
-    },
-    salesChannel: {
-        mailHeaderFooterId: null,
     },
     salesChannelId: uuid.get('salesChannelId1'),
 };
@@ -163,7 +157,7 @@ const mockMailTemplates = [
             technicalName: 'invoice_mail',
             templateData: {
                 order: {
-                    ...mockOrderWithoutMailHeaderFooter,
+                    ...mockOrderWithoutCustomerName,
                     orderCustomer: {
                         email: 'personal@ema.il',
                         firstName: 'Personal',
@@ -198,7 +192,7 @@ const mockRepositoryFactory = (entity, mailTemplates) => {
 };
 
 const defaultProps = {
-    order: mockOrderWithMailHeaderFooter,
+    order: mockOrder,
     document: mockDocuments[0],
 };
 
@@ -288,7 +282,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         );
 
         const textFields = wrapper.findAllComponents('.mt-text-field');
-        expect(textFields[0].props('modelValue')).toBe(String(mockOrderWithMailHeaderFooter.orderCustomer.email));
+        expect(textFields[0].props('modelValue')).toBe(String(mockOrder.orderCustomer.email));
         expect(textFields[1].props('modelValue')).toBe(mockMailTemplates[0].subject);
     });
 
@@ -329,8 +323,8 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         expect(wrapper.vm.mailService.previewMailTemplate).toHaveBeenCalledWith(
             mockMailTemplates[0].id,
             {
-                order: mockOrderWithMailHeaderFooter.id,
-                salesChannel: mockOrderWithMailHeaderFooter.salesChannelId,
+                order: mockOrder.id,
+                salesChannel: mockOrder.salesChannelId,
             },
             {
                 a11yDocuments: [
@@ -341,12 +335,12 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
                     },
                 ],
             },
-            mockOrderWithMailHeaderFooter.salesChannelId,
+            mockOrder.salesChannelId,
             true,
             false,
             {
                 ...Shopware.Context.api,
-                languageId: mockOrderWithMailHeaderFooter.languageId,
+                languageId: mockOrder.languageId,
             },
         );
 
@@ -354,10 +348,10 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         expect(previewContent.element.innerHTML).toBe(mockMailTemplates[0].contentHtml);
     });
 
-    it('should display the email content preview without depending on a mail header footer', async () => {
+    it('should display the email content preview for an order without customer name data', async () => {
         const wrapper = await createWrapper({
             ...defaultProps,
-            order: mockOrderWithoutMailHeaderFooter,
+            order: mockOrderWithoutCustomerName,
         });
         await flushPromises();
 
@@ -425,7 +419,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
     it('should not search the mailTemplateRepository for a not configured document type on loading', async () => {
         const wrapper = await createWrapper({
             ...defaultProps,
-            order: mockOrderWithMailHeaderFooter,
+            order: mockOrder,
             document: mockUnknownDocument,
         });
         await flushPromises();
@@ -436,7 +430,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
     it('should not try to set the mailTemplateId, subject and content, when not finding a mail template', async () => {
         const wrapper = await createWrapper({
             ...defaultProps,
-            order: mockOrderWithMailHeaderFooter,
+            order: mockOrder,
             document: mockDocuments[1],
         });
         await flushPromises();
@@ -477,10 +471,10 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         expect(wrapper.vm.mailService.getDataAndSendMailTemplate).toHaveBeenLastCalledWith(
             {
                 recipients: {
-                    [mockOrderWithMailHeaderFooter.orderCustomer.email]:
-                        `${mockOrderWithMailHeaderFooter.orderCustomer.firstName} ${mockOrderWithMailHeaderFooter.orderCustomer.lastName}`,
+                    [mockOrder.orderCustomer.email]:
+                        `${mockOrder.orderCustomer.firstName} ${mockOrder.orderCustomer.lastName}`,
                 },
-                salesChannelId: mockOrderWithMailHeaderFooter.salesChannelId,
+                salesChannelId: mockOrder.salesChannelId,
                 mediaIds: [mockMailTemplates[0].media.first().media.id],
                 subject: mockMailTemplates[0].subject,
                 senderMail: mockMailTemplates[0].senderMail,
@@ -489,8 +483,8 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
                 testMode: false,
                 mailTemplateId: mockMailTemplates[0].id,
                 entities: {
-                    order: mockOrderWithMailHeaderFooter.id,
-                    salesChannel: mockOrderWithMailHeaderFooter.salesChannelId,
+                    order: mockOrder.id,
+                    salesChannel: mockOrder.salesChannelId,
                 },
                 templateData: {
                     a11yDocuments: [
@@ -504,7 +498,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
             },
             {
                 ...Shopware.Context.api,
-                languageId: mockOrderWithMailHeaderFooter.languageId,
+                languageId: mockOrder.languageId,
             },
         );
         expect(wrapper.emitted('document-sent')).toHaveLength(1);
@@ -514,7 +508,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         const wrapper = await createWrapper(
             {
                 ...defaultProps,
-                order: mockOrderWithMailHeaderFooter,
+                order: mockOrder,
                 document: mockDocuments[0],
             },
             false,

@@ -205,12 +205,6 @@ async function createWrapper(privileges = []) {
                     template: '<textarea :disabled="disabled"></textarea>',
                 },
                 'mt-select': {
-                    props: [
-                        'modelValue',
-                        'disabled',
-                        'options',
-                        'valueProperty',
-                    ],
                     template: '<div><slot name="hint"></slot></div>',
                 },
                 'mt-banner': {

@@ -135,10 +135,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
         $product->setId('product123');
         $product->setStock($availableStock);
         $product->setIsCloseout($closeout);
-
-        if (!Feature::isActive('v6.8.0.0')) {
-            $product->setAvailableStock($availableStock);
-        }
+        $product->setAvailableStock($availableStock);
 
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId($salesChannelId);

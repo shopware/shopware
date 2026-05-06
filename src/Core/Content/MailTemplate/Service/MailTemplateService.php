@@ -67,7 +67,12 @@ class MailTemplateService
 
         foreach ($simulateRequest->templateParts as $key => $content) {
             try {
-                $rendered = $this->templateRenderer->render($content, $templateData, $context, false);
+                $rendered = $this->templateRenderer->render(
+                    $content,
+                    $templateData,
+                    $context,
+                    $this->shouldEscapeHtml($key),
+                );
 
                 $renderedResult[$key] = MailTemplateRenderResult::success($rendered);
             } catch (\Throwable $e) {
@@ -116,7 +121,12 @@ class MailTemplateService
 
         foreach ($templateContent as $key => $value) {
             try {
-                $rendered = $this->templateRenderer->render($value, $templateData, $context, false);
+                $rendered = $this->templateRenderer->render(
+                    $value,
+                    $templateData,
+                    $context,
+                    $this->shouldEscapeHtml($key),
+                );
 
                 $renderedResult[$key] = MailTemplateRenderResult::success($rendered);
             } catch (\Throwable $e) {
@@ -208,7 +218,12 @@ class MailTemplateService
     }
 
     /**
-     * @return array<int|string,string>
+     * @return array{
+     *     subject: string,
+     *     senderName: string,
+     *     contentHtml: string,
+     *     contentPlain: string
+     * }
      */
     private function getTemplateContent(MailTemplateEntity $mailTemplate): array
     {
@@ -218,5 +233,10 @@ class MailTemplateService
             'contentHtml' => $mailTemplate->getContentHtml() ?? '',
             'contentPlain' => $mailTemplate->getContentPlain() ?? '',
         ];
+    }
+
+    private function shouldEscapeHtml(string $templatePart): bool
+    {
+        return \in_array($templatePart, ['contentHtml', 'headerHtml', 'footerHtml'], true);
     }
 }

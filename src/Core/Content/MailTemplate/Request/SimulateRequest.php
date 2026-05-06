@@ -14,8 +14,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 readonly class SimulateRequest
 {
     /**
-     * @param array<int|string, string> $templateParts Associative array of mail template fields that should be rendered,
-     *                                                 e.g. subject, senderName, contentHtml, and contentPlain.
+     * @param array<string, string> $templateParts Associative array of mail template fields that should be rendered,
+     *                                             e.g. subject, senderName, contentHtml, and contentPlain.
      */
     public function __construct(
         public array $templateParts,

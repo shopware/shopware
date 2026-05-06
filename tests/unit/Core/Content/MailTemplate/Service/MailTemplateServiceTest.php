@@ -95,12 +95,12 @@ class MailTemplateServiceTest extends TestCase
         $this->templateRenderer->expects($this->exactly(2))
             ->method('render')
             ->willReturnCallback(
-                static function (string $content): string {
+                static function (string $content, array $templateData, Context $context, bool $escape): string {
                     if ($content === 'broken') {
                         throw new \RuntimeException('broken template');
                     }
 
-                    return 'rendered: ' . $content;
+                    return \sprintf('rendered:%s:%s', $escape ? 'escaped' : 'raw', $content);
                 }
             );
 
@@ -118,7 +118,7 @@ class MailTemplateServiceTest extends TestCase
         $subject = $rendered['subject'];
         static::assertInstanceOf(MailTemplateRenderResult::class, $subject);
         static::assertSame(MailTemplateRenderResult::TYPE_SUCCESS, $subject->getType());
-        static::assertSame('rendered: hello', $subject->getContent());
+        static::assertSame('rendered:raw:hello', $subject->getContent());
 
         $contentHtml = $rendered['contentHtml'];
         static::assertInstanceOf(MailTemplateRenderResult::class, $contentHtml);
@@ -142,7 +142,7 @@ class MailTemplateServiceTest extends TestCase
         $this->templateRenderer->expects($this->never())->method('disableTestMode');
         $this->templateRenderer->expects($this->once())
             ->method('render')
-            ->with('<p>{{ order.id }}</p>', ['order' => ['id' => 'order-id']], $context, false)
+            ->with('<p>{{ order.id }}</p>', ['order' => ['id' => 'order-id']], $context, true)
             ->willReturn('<p>order-id</p>');
 
         $mailTemplateService = $this->createService();
@@ -177,16 +177,22 @@ class MailTemplateServiceTest extends TestCase
         $this->templateRenderer->expects($this->once())->method('disableTestMode');
         $this->templateRenderer->expects($this->exactly(4))
             ->method('render')
-            ->willReturnCallback(static fn (string $value): string => 'rendered: ' . $value);
+            ->willReturnCallback(
+                static fn (string $value, array $templateData, Context $context, bool $escape): string => \sprintf(
+                    'rendered:%s:%s',
+                    $escape ? 'escaped' : 'raw',
+                    $value,
+                )
+            );
 
         $mailTemplateService = $this->createService();
 
         $rendered = $mailTemplateService->preview($request, $context);
 
-        static::assertSame('rendered: subject', $rendered['subject']->getContent());
-        static::assertSame('rendered: sender', $rendered['senderName']->getContent());
-        static::assertSame('rendered: <p>html</p>', $rendered['contentHtml']->getContent());
-        static::assertSame('rendered: plain', $rendered['contentPlain']->getContent());
+        static::assertSame('rendered:raw:subject', $rendered['subject']->getContent());
+        static::assertSame('rendered:raw:sender', $rendered['senderName']->getContent());
+        static::assertSame('rendered:escaped:<p>html</p>', $rendered['contentHtml']->getContent());
+        static::assertSame('rendered:raw:plain', $rendered['contentPlain']->getContent());
     }
 
     public function testPreviewDoesNotUseTestModeInStrictMode(): void
@@ -240,14 +246,20 @@ class MailTemplateServiceTest extends TestCase
         $this->templateRenderer->expects($this->once())->method('disableTestMode');
         $this->templateRenderer->expects($this->exactly(4))
             ->method('render')
-            ->willReturnCallback(static fn (string $value): string => 'rendered: ' . $value);
+            ->willReturnCallback(
+                static fn (string $value, array $templateData, Context $context, bool $escape): string => \sprintf(
+                    'rendered:%s:%s',
+                    $escape ? 'escaped' : 'raw',
+                    $value,
+                )
+            );
 
         $mailTemplateService = $this->createService();
 
         $rendered = $mailTemplateService->preview($request, $context);
 
-        static::assertSame('rendered: <header>{{ foo }}</header><p>html</p><footer>{{ foo }}</footer>', $rendered['contentHtml']->getContent());
-        static::assertSame('rendered: H {{ foo }} plain F {{ foo }}', $rendered['contentPlain']->getContent());
+        static::assertSame('rendered:escaped:<header>{{ foo }}</header><p>html</p><footer>{{ foo }}</footer>', $rendered['contentHtml']->getContent());
+        static::assertSame('rendered:raw:H {{ foo }} plain F {{ foo }}', $rendered['contentPlain']->getContent());
     }
 
     /**

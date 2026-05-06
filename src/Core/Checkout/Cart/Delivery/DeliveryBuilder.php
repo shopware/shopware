@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryTime;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
@@ -132,18 +133,25 @@ class DeliveryBuilder
                 continue;
             }
 
-            // create the estimated delivery date by detected delivery time
-            $deliveryDate = DeliveryDate::createFromDeliveryTime($deliveryTime);
+            $availableFrom = $this->resolveAvailableFromDate($item);
 
-            // create a restock date based on the detected delivery time
-            $restockDate = DeliveryDate::createFromDeliveryTime($deliveryTime);
+            // create the estimated delivery date by detected delivery time
+            $deliveryDate = DeliveryDate::createFromDeliveryTimeAt($deliveryTime, $availableFrom);
 
             $restockTime = $item->getDeliveryInformation()->getRestockTime();
+            $restockAvailableFrom = $availableFrom;
 
             // if the line item has a restock time, add this days to the restock date
             if ($restockTime) {
-                $restockDate = $restockDate->add(new \DateInterval('P' . $restockTime . 'D'));
+                $restockDateCandidate = (new \DateTimeImmutable())->add(new \DateInterval('P' . $restockTime . 'D'));
+
+                if ($restockDateCandidate > $restockAvailableFrom) {
+                    $restockAvailableFrom = $restockDateCandidate;
+                }
             }
+
+            // create a restock date based on the detected delivery time
+            $restockDate = DeliveryDate::createFromDeliveryTimeAt($deliveryTime, $restockAvailableFrom);
 
             if ($item->getPrice() === null) {
                 continue;
@@ -159,5 +167,27 @@ class DeliveryBuilder
 
             $positions->add($position);
         }
+    }
+
+    private function resolveAvailableFromDate(LineItem $item): \DateTimeImmutable
+    {
+        $releaseDate = $item->getPayloadValue('releaseDate');
+        $now = new \DateTimeImmutable();
+
+        if (!\is_string($releaseDate) || trim($releaseDate) === '') {
+            return $now;
+        }
+
+        try {
+            $releaseDateTime = new \DateTimeImmutable($releaseDate);
+        } catch (\Exception) {
+            return $now;
+        }
+
+        if ($releaseDateTime <= $now) {
+            return $now;
+        }
+
+        return $releaseDateTime;
     }
 }

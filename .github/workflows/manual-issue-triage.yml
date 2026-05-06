@@ -3,141 +3,249 @@ name: Manual issue triage
 on:
   workflow_dispatch:
     inputs:
-      issue-number:
-        description: Issue number from the open Bug + needs-triage list
+      search-query:
+        description: Search query for open bug issues that still need triage
         required: true
+        default: is:issue state:open type:Bug label:needs-triage
         type: string
-      labels:
-        description: Comma-separated labels to add during triage
-        required: false
-        type: string
-      assignees:
-        description: Comma-separated GitHub usernames to assign
-        required: false
-        type: string
-      comment:
-        description: Optional triage comment to post on the issue
-        required: false
-        type: string
-      remove-needs-triage:
-        description: Remove the needs-triage label after triage
+      max-issues:
+        description: Maximum number of matching issues to include in the summary
         required: true
-        default: true
-        type: boolean
+        default: '25'
+        type: string
 
 jobs:
-  triage-issue:
+  summarize-issues:
     if: github.repository == 'shopware/shopware'
     runs-on: ubuntu-24.04
     permissions:
-      issues: write
+      issues: read
     steps:
       - uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
         env:
-          ISSUE_NUMBER: ${{ inputs.issue-number }}
-          LABELS: ${{ inputs.labels }}
-          ASSIGNEES: ${{ inputs.assignees }}
-          COMMENT: ${{ inputs.comment }}
-          REMOVE_NEEDS_TRIAGE: ${{ inputs.remove-needs-triage }}
+          SEARCH_QUERY: ${{ inputs.search-query }}
+          MAX_ISSUES: ${{ inputs.max-issues }}
         with:
           script: |
-            const issueNumber = Number.parseInt(process.env.ISSUE_NUMBER, 10);
-            const labels = (process.env.LABELS ?? '')
-              .split(',')
-              .map((label) => label.trim())
-              .filter(Boolean);
-            const assignees = (process.env.ASSIGNEES ?? '')
-              .split(',')
-              .map((assignee) => assignee.trim())
-              .filter(Boolean);
-            const comment = (process.env.COMMENT ?? '').trim();
-            const removeNeedsTriage = process.env.REMOVE_NEEDS_TRIAGE === 'true';
+            const repoQualifier = `repo:${context.repo.owner}/${context.repo.repo}`;
+            const searchQuery = `${repoQualifier} ${(process.env.SEARCH_QUERY ?? '').trim()}`.trim();
+            const listQuery = (process.env.SEARCH_QUERY ?? '').trim() || 'is:issue state:open type:Bug label:needs-triage';
+            const maxIssues = Number.parseInt(process.env.MAX_ISSUES, 10);
+            const searchUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/issues?q=${encodeURIComponent(listQuery)}`;
 
-            if (!Number.isInteger(issueNumber) || issueNumber <= 0) {
-              throw new Error(`Invalid issue number: ${process.env.ISSUE_NUMBER}`);
+            if (!Number.isInteger(maxIssues) || maxIssues <= 0 || maxIssues > 100) {
+              throw new Error(`Invalid max issue count: ${process.env.MAX_ISSUES}`);
             }
 
-            if (!removeNeedsTriage && labels.length === 0 && assignees.length === 0 && comment.length === 0) {
-              throw new Error('No triage action requested. Provide labels, assignees, a comment or enable needs-triage removal.');
+            function escapeRegex(value) {
+              return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
             }
 
-            const issueResponse = await github.rest.issues.get({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issueNumber,
-            });
-
-            if (issueResponse.data.pull_request) {
-              throw new Error(`Issue #${issueNumber} is a pull request and cannot be triaged with this workflow.`);
-            }
-
-            if (issueResponse.data.state !== 'open') {
-              throw new Error(`Issue #${issueNumber} is not open.`);
-            }
-
-            const hasNeedsTriageLabel = issueResponse.data.labels.some((label) => {
-              if (typeof label === 'string') {
-                return label === 'needs-triage';
+            function extractSection(body, heading) {
+              if (!body) {
+                return '';
               }
 
-              return label.name === 'needs-triage';
-            });
+              const pattern = new RegExp(`(?:^|\\n)###\\s+${escapeRegex(heading)}\\s*\\n([\\s\\S]*?)(?=\\n###\\s+|$)`, 'i');
+              const match = body.match(pattern);
 
-            if (labels.length > 0) {
-              await github.rest.issues.addLabels({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issueNumber,
-                labels,
-              });
+              if (!match) {
+                return '';
+              }
+
+              return match[1].replace(/\r/g, '').trim();
             }
 
-            if (assignees.length > 0) {
-              await github.rest.issues.addAssignees({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issueNumber,
-                assignees,
-              });
+            function hasMeaningfulContent(value) {
+              if (!value) {
+                return false;
+              }
+
+              const normalized = value.trim().toLowerCase();
+
+              return normalized.length > 0 && !['-', 'n/a', 'na', 'none', 'unknown', 'not applicable'].includes(normalized);
             }
 
-            if (removeNeedsTriage && hasNeedsTriageLabel) {
-              await github.rest.issues.removeLabel({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issueNumber,
-                name: 'needs-triage',
-              });
+            function shorten(value, maxLength = 180) {
+              const singleLine = value.replace(/\s+/g, ' ').trim();
+
+              if (singleLine.length <= maxLength) {
+                return singleLine;
+              }
+
+              return `${singleLine.slice(0, maxLength - 1)}…`;
             }
 
-            if (comment.length > 0) {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issueNumber,
-                body: comment,
-              });
+            function collectMissingFields(sections) {
+              const missingFields = [];
+
+              if (!hasMeaningfulContent(sections.shopwareVersion)) {
+                missingFields.push('Shopware Version');
+              }
+
+              if (!hasMeaningfulContent(sections.affectedArea)) {
+                missingFields.push('Affected area / extension');
+              }
+
+              if (!hasMeaningfulContent(sections.actualBehaviour)) {
+                missingFields.push('Actual behaviour');
+              }
+
+              if (!hasMeaningfulContent(sections.expectedBehaviour)) {
+                missingFields.push('Expected behaviour');
+              }
+
+              if (!hasMeaningfulContent(sections.howToReproduce)) {
+                missingFields.push('How to reproduce');
+              }
+
+              return missingFields;
             }
+
+            function collectSignals(issue, sections) {
+              const signals = [];
+              const body = issue.body ?? '';
+
+              if (hasMeaningfulContent(sections.howToReproduce) && /(^|\n)\s*(\d+\.|- |\* )/.test(sections.howToReproduce)) {
+                signals.push('contains step-by-step reproduction');
+              }
+
+              if (/(exception|stack trace|traceback|sqlstate|fatal error|cannot |failed to)/i.test(body)) {
+                signals.push('contains technical error details');
+              }
+
+              if (/!\[.*?\]\(.*?\)|<img|user-images|\.png|\.jpg|\.jpeg|\.gif|\.mp4|\.mov/i.test(body)) {
+                signals.push('includes media or attachments');
+              }
+
+              if (/cloud/i.test(sections.shopwareVersion)) {
+                signals.push('reported on Shopware Cloud');
+              }
+
+              if (issue.comments > 0) {
+                signals.push(`${issue.comments} existing comment(s)`);
+              }
+
+              return signals;
+            }
+
+            function buildSuggestedNote(sections, missingFields, signals) {
+              const notes = [];
+
+              if (hasMeaningfulContent(sections.shopwareVersion)) {
+                notes.push(`Version: ${shorten(sections.shopwareVersion, 60)}.`);
+              }
+
+              if (hasMeaningfulContent(sections.affectedArea)) {
+                notes.push(`Area: ${shorten(sections.affectedArea, 60)}.`);
+              }
+
+              if (hasMeaningfulContent(sections.actualBehaviour)) {
+                notes.push(`Actual behaviour: ${shorten(sections.actualBehaviour, 160)}.`);
+              }
+
+              if (missingFields.length > 0) {
+                notes.push(`Missing template data: ${missingFields.join(', ')}.`);
+              }
+
+              if (signals.length > 0) {
+                notes.push(`Signals: ${signals.join('; ')}.`);
+              }
+
+              return notes.join(' ');
+            }
+
+            const searchResults = [];
+            let page = 1;
+
+            while (searchResults.length < maxIssues) {
+              const perPage = Math.min(100, maxIssues - searchResults.length);
+              const response = await github.rest.search.issuesAndPullRequests({
+                q: searchQuery,
+                sort: 'created',
+                order: 'asc',
+                page,
+                per_page: perPage,
+              });
+
+              const items = response.data.items.filter((item) => !item.pull_request);
+              searchResults.push(...items);
+
+              if (items.length < perPage) {
+                break;
+              }
+
+              page += 1;
+            }
+
+            const issues = await Promise.all(
+              searchResults.slice(0, maxIssues).map(async (issue) => {
+                const response = await github.rest.issues.get({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                });
+
+                return response.data;
+              }),
+            );
 
             await core.summary
-              .addHeading(`Triaged issue #${issueNumber}`)
-              .addLink(issueResponse.data.title, issueResponse.data.html_url)
-              .addTable([
-                [
-                  { data: 'Added labels', header: true },
-                  { data: labels.join(', ') || 'none', header: false },
-                ],
-                [
-                  { data: 'Assigned users', header: true },
-                  { data: assignees.join(', ') || 'none', header: false },
-                ],
-                [
-                  { data: 'Posted comment', header: true },
-                  { data: comment.length > 0 ? 'yes' : 'no', header: false },
-                ],
-                [
-                  { data: 'Removed needs-triage', header: true },
-                  { data: removeNeedsTriage && hasNeedsTriageLabel ? 'yes' : 'no', header: false },
-                ],
-              ])
-              .write();
+              .addHeading('Suggested triage notes for open bug issues')
+              .addLink('Open matching issues on GitHub', searchUrl)
+              .addRaw(`<p>Generated notes for <strong>${issues.length}</strong> issue(s) using the filter <code>${listQuery}</code>.</p>`, true);
+
+            if (issues.length === 0) {
+              await core.summary
+                .addRaw('<p>No matching issues were found.</p>', true)
+                .write();
+
+              return;
+            }
+
+            for (const issue of issues) {
+              const sections = {
+                shopwareVersion: extractSection(issue.body, 'Shopware Version'),
+                affectedArea: extractSection(issue.body, 'Affected area / extension'),
+                actualBehaviour: extractSection(issue.body, 'Actual behaviour'),
+                expectedBehaviour: extractSection(issue.body, 'Expected behaviour'),
+                howToReproduce: extractSection(issue.body, 'How to reproduce'),
+              };
+
+              const missingFields = collectMissingFields(sections);
+              const signals = collectSignals(issue, sections);
+              const suggestedNote = buildSuggestedNote(sections, missingFields, signals);
+
+              await core.summary
+                .addHeading(`#${issue.number}: ${issue.title}`, 3)
+                .addLink('Open issue', issue.html_url)
+                .addTable([
+                  [
+                    { data: 'Field', header: true },
+                    { data: 'Value', header: true },
+                  ],
+                  [
+                    { data: 'Shopware Version', header: true },
+                    { data: hasMeaningfulContent(sections.shopwareVersion) ? shorten(sections.shopwareVersion, 120) : 'missing', header: false },
+                  ],
+                  [
+                    { data: 'Affected area / extension', header: true },
+                    { data: hasMeaningfulContent(sections.affectedArea) ? shorten(sections.affectedArea, 120) : 'missing', header: false },
+                  ],
+                  [
+                    { data: 'Missing template data', header: true },
+                    { data: missingFields.join(', ') || 'none', header: false },
+                  ],
+                  [
+                    { data: 'Signals', header: true },
+                    { data: signals.join('; ') || 'none', header: false },
+                  ],
+                  [
+                    { data: 'Suggested triage note', header: true },
+                    { data: suggestedNote || 'No additional note suggested.', header: false },
+                  ],
+                ])
+                .addRaw('\n---\n', true);
+            }
+
+            await core.summary.write();

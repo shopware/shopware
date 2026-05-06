@@ -25,6 +25,11 @@ Plugins can now mark technical `media` associations with the new DAL flag `Ignor
 This prevents `media:delete-unused` from treating metadata-only extensions as real media usage and helps avoid false negatives when removing unused files.
 Third-party developers should add this flag to media associations that store technical metadata but do not represent an actual assignment of the media file.
 
+### State machine transitions are locked per entity
+
+State machine transitions now acquire a short-lived lock per entity and context version while the current state is read and the transition history is written.
+This prevents concurrent calls to `StateMachineRegistry::transition()` from creating duplicate history entries for the same entity transition.
+Extensions that use the registry automatically benefit from the lock; direct SQL or DBAL writes to state fields remain outside this protection.
 ### Deprecation of RegisterScheduleTaskMessage
 
 The `RegisterScheduleTaskMessage` class and the accompanying message handler `RegisterScheduledTaskHandler` is deprecated and will be removed in Shopware 6.8.0.0, as the message wasn't dispatched anymore.
@@ -52,6 +57,10 @@ Previously, the switch field itself was disabled as expected, but its inheritanc
 
 Administration Jest tests can now be split into multiple files using `*.spec/` directories.
 ESLint now warns for Administration test files with 500 lines or more and errors for test files with 1000 lines or more.
+### Fix theme manager inheritance for boolean fields
+
+Switch and checkbox fields in theme configuration now render and handle inheritance consistently. Before they wouldn't have shown the inheritance switch.
+Also the checkbox field is now positionally aligned with the other components.
 
 ## Storefront
 

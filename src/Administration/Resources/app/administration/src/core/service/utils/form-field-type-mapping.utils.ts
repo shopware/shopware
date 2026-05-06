@@ -2,7 +2,6 @@
  * @sw-package framework
  * @private
  */
-
 export type FormFieldDefinition = {
     type?: string;
     componentName?: string;

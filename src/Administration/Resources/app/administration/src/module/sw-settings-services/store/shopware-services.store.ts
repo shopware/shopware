@@ -1,23 +1,15 @@
 /**
  * @sw-package framework
  */
-import type { RevisionData, ServicesRevision } from '../service/service-registry-client';
+import useConsentStore, { type ConsentDTO } from 'src/core/consent/consent.store';
+import type { RevisionData, ServicesRevision } from '../service/shopware-services.service';
 
-/**
- * @private
- */
-export type PermissionsConsent = {
-    identifier: string;
-    revision: string;
-    consentingUserId: string;
-    grantedAt: string;
-};
+export const SERVICE_CONSENT_NAME = 'service_consent';
 
 /**
  * @private
  */
 export type ServiceConfiguration = {
-    permissionsConsent?: PermissionsConsent;
     disabled?: boolean;
 };
 
@@ -39,10 +31,13 @@ export const useShopwareServicesStore = Shopware.Store.register('shopwareService
     }),
 
     getters: {
-        consentGiven(): boolean {
-            const permissionsConsent = this.config?.permissionsConsent ?? false;
+        serviceConsent(): ConsentDTO | null {
+            return useConsentStore().consents[SERVICE_CONSENT_NAME] ?? null;
+        },
 
-            if (permissionsConsent === false) {
+        consentGiven(): boolean {
+            const serviceConsent = this.serviceConsent;
+            if (serviceConsent === null || serviceConsent.status !== 'accepted') {
                 return false;
             }
 
@@ -52,7 +47,7 @@ export const useShopwareServicesStore = Shopware.Store.register('shopwareService
                 return false;
             }
 
-            return currentRevision === permissionsConsent.revision;
+            return currentRevision === serviceConsent.acceptedRevision;
         },
         currentRevision(): ServicesRevision | null {
             if (!this.revisions) {

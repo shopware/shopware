@@ -46,8 +46,8 @@ export default Shopware.Component.wrapComponentConfig({
             this.showGrantPermissionsModal = isOpen;
 
             if (this.showGrantPermissionsModal && !this.feedbackLink) {
-                Shopware.Service('serviceRegistryClient')
-                    .getCurrentRevision(useSession().currentLocale.value as string)
+                Shopware.Service('shopwareServicesService')
+                    .getConsentRevision(useSession().currentLocale.value as string)
                     .then((revisions) => {
                         useShopwareServicesStore().revisions = revisions;
                     })

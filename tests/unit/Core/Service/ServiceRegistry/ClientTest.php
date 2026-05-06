@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Service\ServiceException;
 use Shopware\Core\Service\ServiceRegistry\Client as ServiceRegistryClient;
+use Shopware\Core\Service\ServiceRegistry\RevokeConsentRequest;
 use Shopware\Core\Service\ServiceRegistry\SaveConsentRequest;
 use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
 use Symfony\Component\HttpClient\Exception\TransportException;
@@ -227,7 +228,7 @@ class ClientTest extends TestCase
         $registryClient = new ServiceRegistryClient('https://example.com', 'https://example.com', $client);
 
         $saveConsentRequest = new SaveConsentRequest(
-            'service-123',
+            'service_consent',
             'user-456',
             'shop-789',
             '2023-07-01T10:00:00Z',
@@ -250,7 +251,7 @@ class ClientTest extends TestCase
         $registryClient = new ServiceRegistryClient('https://example.com', 'https://example.com', $client);
 
         $saveConsentRequest = new SaveConsentRequest(
-            'service-123',
+            'service_consent',
             'user-456',
             'shop-789',
             '2023-07-01T10:00:00Z',
@@ -270,7 +271,7 @@ class ClientTest extends TestCase
         $registryClient = new ServiceRegistryClient('https://example.com', 'https://example.com', $client);
 
         $saveConsentRequest = new SaveConsentRequest(
-            'service-123',
+            'service_consent',
             'user-456',
             'shop-789',
             '2023-07-01T10:00:00Z',
@@ -289,10 +290,14 @@ class ClientTest extends TestCase
 
         $registryClient = new ServiceRegistryClient('https://example.com', 'https://example.com', $client);
 
-        $registryClient->revokeConsent('service-123');
+        $registryClient->revokeConsent(new RevokeConsentRequest(
+            'service_consent',
+            'shop-789',
+            'https://license.example.com'
+        ));
 
-        static::assertSame('https://example.com/api/consent/revoke/service-123', $response->getRequestUrl());
-        static::assertSame('DELETE', $response->getRequestMethod());
+        static::assertSame('https://example.com/api/consent/revoke/', $response->getRequestUrl());
+        static::assertSame('POST', $response->getRequestMethod());
     }
 
     public function testRevokeConsentThrowsExceptionOnFailure(): void
@@ -304,7 +309,11 @@ class ClientTest extends TestCase
         $registryClient = new ServiceRegistryClient('https://example.com', 'https://example.com', $client);
 
         $this->expectExceptionObject(ServiceException::consentRevokeFailed('Unexpected response status code: 500'));
-        $registryClient->revokeConsent('service-123');
+        $registryClient->revokeConsent(new RevokeConsentRequest(
+            'service_consent',
+            'shop-789',
+            'https://license.example.com'
+        ));
     }
 
     public function testRevokeConsentThrowsExceptionOnNonAcceptedStatusCode(): void
@@ -316,7 +325,54 @@ class ClientTest extends TestCase
         $registryClient = new ServiceRegistryClient('https://example.com', 'https://example.com', $client);
 
         $this->expectExceptionObject(ServiceException::consentRevokeFailed('Unexpected response status code: 200'));
-        $registryClient->revokeConsent('service-123');
+        $registryClient->revokeConsent(new RevokeConsentRequest(
+            'service_consent',
+            'shop-789',
+            'https://license.example.com'
+        ));
+    }
+
+    public function testFetchConsentRevisionsSuccess(): void
+    {
+        $payload = [
+            'revisions' => [
+                'latest-revision' => '2026-05-05',
+                'available-revisions' => [
+                    [
+                        'revision' => '2026-05-05',
+                        'links' => [
+                            'feedback-url' => 'https://example.com/feedback',
+                            'docs-url' => 'https://example.com/docs',
+                            'tos-url' => 'https://example.com/tos',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $client = new MockHttpClient([
+            $response = new MockResponse((string) json_encode($payload, \JSON_THROW_ON_ERROR), ['http_code' => Response::HTTP_OK]),
+        ]);
+
+        $registryClient = new ServiceRegistryClient('https://example.com', 'https://example.com', $client);
+        $revisions = $registryClient->fetchConsentRevisions('de-DE');
+
+        static::assertSame($payload['revisions'], $revisions);
+        static::assertSame('https://example.com/api/service/permission-revisions', $response->getRequestUrl());
+        static::assertSame('GET', $response->getRequestMethod());
+        static::assertContains('Accept-Language: de-DE', $response->getRequestOptions()['headers']);
+    }
+
+    public function testFetchConsentRevisionsThrowsOnInvalidPayload(): void
+    {
+        $client = new MockHttpClient([
+            new MockResponse((string) json_encode(['revisions' => []], \JSON_THROW_ON_ERROR), ['http_code' => Response::HTTP_OK]),
+        ]);
+
+        $registryClient = new ServiceRegistryClient('https://example.com', 'https://example.com', $client);
+
+        $this->expectExceptionObject(ServiceException::couldNotFetchPermissionsRevisions('Invalid response payload'));
+        $registryClient->fetchConsentRevisions('en-GB');
     }
 
     public function testExtraBackslashDoesntBreakApp(): void

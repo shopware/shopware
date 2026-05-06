@@ -3,12 +3,10 @@
  */
 import type { SubContainer } from '../../../global.types';
 import ShopwareServicesService from './shopware-services.service';
-import ServiceRegistryClient from './service-registry-client';
 
 declare global {
     interface ServiceContainer extends SubContainer<'service'> {
         shopwareServicesService: ShopwareServicesService;
-        serviceRegistryClient: ServiceRegistryClient;
     }
 }
 
@@ -21,11 +19,4 @@ Shopware.Service().register('shopwareServicesService', () => {
         Shopware.Service('loginService'),
         Shopware.Service('systemConfigApiService'),
     );
-});
-
-/**
- * @private
- */
-Shopware.Service().register('serviceRegistryClient', () => {
-    return new ServiceRegistryClient(Shopware.Context.api.serviceRegistryUrl!);
 });

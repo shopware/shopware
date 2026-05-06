@@ -19,17 +19,18 @@ import * as permissionsComposable from '../../composables/permissions';
 
 jest.mock('../../composables/permissions', () => {
     const useShopwareServicesStore = require('../../store/shopware-services.store').useShopwareServicesStore;
+    const SERVICE_CONSENT_NAME = require('../../store/shopware-services.store').SERVICE_CONSENT_NAME;
     const _reloadPageMock = jest.fn();
     return {
         async grantPermissions() {
             const store = useShopwareServicesStore();
             const revision = store.currentRevision?.revision;
             if (!revision) throw new Error('No revision available');
-            await Shopware.Service('shopwareServicesService').acceptRevision(revision);
+            await Shopware.Service('consentApiService').accept(SERVICE_CONSENT_NAME, revision);
             _reloadPageMock();
         },
         async revokePermissions() {
-            await Shopware.Service('shopwareServicesService').revokePermissions();
+            await Shopware.Service('consentApiService').revoke(SERVICE_CONSENT_NAME);
             _reloadPageMock();
         },
         _reloadPage: _reloadPageMock,
@@ -38,19 +39,44 @@ jest.mock('../../composables/permissions', () => {
 
 describe('/src/module/sw-setting-services/page/sw-settings-services-index', () => {
     beforeAll(() => {
-        Shopware.Service().register('serviceRegistryClient', () => ({
-            getCurrentRevision: jest.fn(async () => ({
-                'latest-revision': '2025-06-25',
-                'available-revisions': [
-                    {
-                        revision: '2025-06-25',
-                        links: {
-                            'feedback-url': 'https://shopware.com/feedback',
-                            'docs-url': 'https://docs.shopware.com/services',
-                            'tos-url': 'https://shopware.com/agb',
-                        },
+        Shopware.Service().register('consentApiService', () => ({
+            list: jest.fn(async () => ({
+                data: {
+                    service_consent: {
+                        name: 'service_consent',
+                        identifier: 'system',
+                        scopeName: 'system',
+                        actor: 'user-id',
+                        status: 'accepted',
+                        updatedAt: '2025-07-08',
+                        acceptedRevision: '2025-06-25',
+                        latestRevision: '2025-06-25',
                     },
-                ],
+                },
+            })),
+            accept: jest.fn(async () => ({
+                data: {
+                    name: 'service_consent',
+                    identifier: 'system',
+                    scopeName: 'system',
+                    actor: 'user-id',
+                    status: 'accepted',
+                    updatedAt: '2025-07-08',
+                    acceptedRevision: '2025-06-25',
+                    latestRevision: '2025-06-25',
+                },
+            })),
+            revoke: jest.fn(async () => ({
+                data: {
+                    name: 'service_consent',
+                    identifier: 'system',
+                    scopeName: 'system',
+                    actor: 'user-id',
+                    status: 'revoked',
+                    updatedAt: '2025-07-08',
+                    acceptedRevision: null,
+                    latestRevision: '2025-06-25',
+                },
             })),
         }));
 
@@ -69,29 +95,22 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
             ]),
             getServicesContext: jest.fn(async () => ({
                 disabled: false,
-                permissionsConsent: {
-                    identifier: 'revision-id',
-                    revision: '2025-06-25',
-                    consentingUserId: 'user-id',
-                    grantedAt: '2025-07-08',
-                },
             })),
-            acceptRevision: jest.fn(async () => ({
-                disabled: false,
-                permissionsConsent: {
-                    identifier: 'revision-id',
-                    revision: '2025-06-25',
-                    consentingUserId: 'user-id',
-                    grantedAt: '2025-07-08',
-                },
-            })),
-            revokePermissions: jest.fn(async () => ({
-                disabled: false,
-                permissionsConsent: null,
+            getConsentRevision: jest.fn(async () => ({
+                'latest-revision': '2025-06-25',
+                'available-revisions': [
+                    {
+                        revision: '2025-06-25',
+                        links: {
+                            'feedback-url': 'https://shopware.com/feedback',
+                            'docs-url': 'https://docs.shopware.com/services',
+                            'tos-url': 'https://shopware.com/agb',
+                        },
+                    },
+                ],
             })),
             enableAllServices: jest.fn(async () => ({
                 disabled: false,
-                permissionsConsent: null,
             })),
         }));
     });
@@ -163,7 +182,20 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
     it('can grant permissions', async () => {
         Shopware.Service('shopwareServicesService').getServicesContext.mockImplementationOnce(async () => ({
             disabled: false,
-            permissionConsent: null,
+        }));
+        Shopware.Service('consentApiService').list.mockImplementationOnce(async () => ({
+            data: {
+                service_consent: {
+                    name: 'service_consent',
+                    identifier: 'system',
+                    scopeName: 'system',
+                    actor: null,
+                    status: 'unset',
+                    updatedAt: null,
+                    acceptedRevision: null,
+                    latestRevision: '2025-06-25',
+                },
+            },
         }));
 
         const page = await mountPage();
@@ -197,7 +229,20 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
 
         Shopware.Service('shopwareServicesService').getServicesContext.mockImplementationOnce(async () => ({
             disabled: true,
-            permissionConsent: null,
+        }));
+        Shopware.Service('consentApiService').list.mockImplementationOnce(async () => ({
+            data: {
+                service_consent: {
+                    name: 'service_consent',
+                    identifier: 'system',
+                    scopeName: 'system',
+                    actor: null,
+                    status: 'unset',
+                    updatedAt: null,
+                    acceptedRevision: null,
+                    latestRevision: '2025-06-25',
+                },
+            },
         }));
 
         const page = await mountPage();
@@ -213,7 +258,20 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
 
         Shopware.Service('shopwareServicesService').getServicesContext.mockImplementationOnce(async () => ({
             disabled: true,
-            permissionConsent: null,
+        }));
+        Shopware.Service('consentApiService').list.mockImplementationOnce(async () => ({
+            data: {
+                service_consent: {
+                    name: 'service_consent',
+                    identifier: 'system',
+                    scopeName: 'system',
+                    actor: null,
+                    status: 'unset',
+                    updatedAt: null,
+                    acceptedRevision: null,
+                    latestRevision: '2025-06-25',
+                },
+            },
         }));
 
         const page = await mountPage();

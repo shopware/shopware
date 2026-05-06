@@ -1,5 +1,7 @@
 import { createPinia, setActivePinia } from 'pinia';
 import { useShopwareServicesStore } from './shopware-services.store';
+import useConsentStore from 'src/core/consent/consent.store';
+import { SERVICE_CONSENT_NAME } from './shopware-services.store';
 
 describe('src/module/sw-settings-services/store/shopware-services.store.ts', () => {
     beforeEach(() => {
@@ -16,26 +18,34 @@ describe('src/module/sw-settings-services/store/shopware-services.store.ts', () 
 
     it.each([
         [
-            undefined,
+            null,
             null,
             false,
         ],
         [
             {
-                identifier: 'id',
-                revision: '2025-07-08',
-                consentingUserId: 'user-id',
-                grantedAt: '2025-07-08T00:00:00Z',
+                name: SERVICE_CONSENT_NAME,
+                identifier: 'system',
+                scopeName: 'system',
+                actor: 'user-id',
+                status: 'accepted',
+                updatedAt: '2025-07-08T00:00:00Z',
+                acceptedRevision: '2025-07-08',
+                latestRevision: '2025-07-08',
             },
             null,
             false,
         ],
         [
             {
-                identifier: 'id',
-                revision: '2025-07-08',
-                consentingUserId: 'user-id',
-                grantedAt: '2025-07-08T00:00:00Z',
+                name: SERVICE_CONSENT_NAME,
+                identifier: 'system',
+                scopeName: 'system',
+                actor: 'user-id',
+                status: 'accepted',
+                updatedAt: '2025-07-08T00:00:00Z',
+                acceptedRevision: '2025-07-08',
+                latestRevision: '2025-07-08',
             },
             {
                 'latest-revision': '2025-08-08',
@@ -45,10 +55,14 @@ describe('src/module/sw-settings-services/store/shopware-services.store.ts', () 
         ],
         [
             {
-                identifier: 'id',
-                revision: '2025-07-08',
-                consentingUserId: 'user-id',
-                grantedAt: '2025-07-08T00:00:00Z',
+                name: SERVICE_CONSENT_NAME,
+                identifier: 'system',
+                scopeName: 'system',
+                actor: 'user-id',
+                status: 'accepted',
+                updatedAt: '2025-07-08T00:00:00Z',
+                acceptedRevision: '2025-07-08',
+                latestRevision: '2025-07-08',
             },
             {
                 'latest-revision': '2025-07-08',
@@ -56,10 +70,12 @@ describe('src/module/sw-settings-services/store/shopware-services.store.ts', () 
             },
             true,
         ],
-    ])('determines the consent given state', (permissionsConsent, revisions, isConsentGiven) => {
+    ])('determines the consent given state', (serviceConsent, revisions, isConsentGiven) => {
         const shopwareServicesStore = useShopwareServicesStore();
+        const consentStore = useConsentStore();
 
-        shopwareServicesStore.config = { permissionsConsent };
+        consentStore.consents = serviceConsent ? { [SERVICE_CONSENT_NAME]: serviceConsent } : {};
+        shopwareServicesStore.config = {};
         shopwareServicesStore.revisions = revisions;
 
         expect(shopwareServicesStore.consentGiven).toBe(isConsentGiven);

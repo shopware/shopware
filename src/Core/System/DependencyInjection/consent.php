@@ -60,6 +60,12 @@ return static function (ContainerConfigurator $container): void {
     $services->set(Definition\ProductAnalytics::class)
         ->tag('shopware.consent.definition');
 
+    $services->set(Definition\ServiceConsent::class)
+        ->args([
+            new Reference(\Shopware\Core\Service\ServiceConsentRevisionProvider::class),
+        ])
+        ->tag('shopware.consent.definition');
+
     $services->set(ConsentLogInterface::class)
         ->class(DatabaseLog::class)
         ->args([

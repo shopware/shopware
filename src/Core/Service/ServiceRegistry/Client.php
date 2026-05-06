@@ -134,13 +134,15 @@ class Client implements ResetInterface
         }
     }
 
-    public function revokeConsent(string $identifier): void
+    public function revokeConsent(RevokeConsentRequest $revokeConsentRequest): void
     {
         try {
-            $response = $this->client->request('DELETE', \sprintf('%s/api/consent/revoke/%s', $this->registryUrl, $identifier), [
+            $response = $this->client->request('POST', \sprintf('%s/api/consent/revoke/', $this->registryUrl), [
                 'headers' => [
                     'Accept' => 'application/json',
+                    'Content-Type' => 'application/json',
                 ],
+                'body' => json_encode($revokeConsentRequest),
             ]);
 
             if ($response->getStatusCode() !== Response::HTTP_ACCEPTED) {
@@ -148,6 +150,65 @@ class Client implements ResetInterface
             }
         } catch (ExceptionInterface $e) {
             throw ServiceException::consentRevokeFailed($e->getMessage());
+        }
+    }
+
+    /**
+     * @return array{
+     *     latest-revision: string,
+     *     available-revisions: list<array{
+     *         revision: string,
+     *         links: array{
+     *             feedback-url: string,
+     *             docs-url: string,
+     *             tos-url: string
+     *         }
+     *     }>
+     * }
+     */
+    public function fetchConsentRevisions(string $locale): array
+    {
+        try {
+            $response = $this->client->request('GET', \sprintf('%s/api/service/permission-revisions', $this->registryUrl), [
+                'headers' => [
+                    'Accept' => 'application/json',
+                    'Accept-Language' => $locale,
+                ],
+            ]);
+
+            if ($response->getStatusCode() !== Response::HTTP_OK) {
+                throw ServiceException::couldNotFetchPermissionsRevisions('Unexpected response status code: ' . $response->getStatusCode());
+            }
+
+            $content = $response->toArray();
+
+            if (
+                !isset($content['revisions'])
+                || !\is_array($content['revisions'])
+                || !isset($content['revisions']['latest-revision'])
+                || !isset($content['revisions']['available-revisions'])
+                || !\is_array($content['revisions']['available-revisions'])
+            ) {
+                throw ServiceException::couldNotFetchPermissionsRevisions('Invalid response payload');
+            }
+
+            /** @var array{
+             *     latest-revision: string,
+             *     available-revisions: list<array{
+             *         revision: string,
+             *         links: array{
+             *             feedback-url: string,
+             *             docs-url: string,
+             *             tos-url: string
+             *         }
+             *     }>
+             * } $revisions
+             */
+            $revisions = $content['revisions'];
+
+            return $revisions;
+        } catch (ExceptionInterface $e) {
+            throw ServiceException::couldNotFetchPermissionsRevisions($e->getMessage());
         }
     }
 

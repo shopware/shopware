@@ -5,13 +5,14 @@ import * as permissionsComposable from '../../composables/permissions';
 
 jest.mock('../../composables/permissions', () => {
     const useShopwareServicesStore = require('../../store/shopware-services.store').useShopwareServicesStore;
+    const SERVICE_CONSENT_NAME = require('../../store/shopware-services.store').SERVICE_CONSENT_NAME;
     const _reloadPageMock = jest.fn();
     return {
         async grantPermissions() {
             const store = useShopwareServicesStore();
             const revision = store.currentRevision?.revision;
             if (!revision) throw new Error('No revision available');
-            await Shopware.Service('shopwareServicesService').acceptRevision(revision);
+            await Shopware.Service('consentApiService').accept(SERVICE_CONSENT_NAME, revision);
             _reloadPageMock();
         },
         revokePermissions: jest.fn(),
@@ -21,16 +22,8 @@ jest.mock('../../composables/permissions', () => {
 
 describe('src/module/sw-settings-services/component/sw-settings-services-permissions-card', () => {
     beforeAll(() => {
-        Shopware.Service().register('shopwareServicesService', () => ({
-            acceptRevision: jest.fn(() => ({
-                disabled: false,
-                permissionsConsent: {
-                    identifier: 'revision-id',
-                    revision: '2025-06-25',
-                    consentingUserId: 'user-id',
-                    grantedAt: '2025-07-08',
-                },
-            })),
+        Shopware.Service().register('consentApiService', () => ({
+            accept: jest.fn(),
         }));
     });
 
@@ -71,7 +64,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-permiss
         await flushPromises();
 
         expect(notificationSpy).not.toHaveBeenCalled();
-        expect(Shopware.Service('shopwareServicesService').acceptRevision).toHaveBeenCalledWith('2025-06-25');
+        expect(Shopware.Service('consentApiService').accept).toHaveBeenCalledWith('service_consent', '2025-06-25');
         expect(permissionsComposable._reloadPage).toHaveBeenCalled();
     });
 

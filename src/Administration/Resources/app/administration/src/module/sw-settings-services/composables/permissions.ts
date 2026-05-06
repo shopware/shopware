@@ -1,7 +1,9 @@
 /**
  * @sw-package framework
  */
+import useConsentStore from 'src/core/consent/consent.store';
 import { useShopwareServicesStore } from '../store/shopware-services.store';
+import { SERVICE_CONSENT_NAME } from '../store/shopware-services.store';
 
 let reloadFn: () => void = () => window.location.reload();
 
@@ -32,7 +34,7 @@ export async function grantPermissions() {
         throw new Error('No revision available');
     }
 
-    await Shopware.Service('shopwareServicesService').acceptRevision(currentRevision);
+    await useConsentStore().accept(SERVICE_CONSENT_NAME, currentRevision);
 
     _reloadPage();
 }
@@ -41,7 +43,7 @@ export async function grantPermissions() {
  * @private
  */
 export async function revokePermissions() {
-    await Shopware.Service('shopwareServicesService').revokePermissions();
+    await useConsentStore().revoke(SERVICE_CONSENT_NAME);
 
     _reloadPage();
 }

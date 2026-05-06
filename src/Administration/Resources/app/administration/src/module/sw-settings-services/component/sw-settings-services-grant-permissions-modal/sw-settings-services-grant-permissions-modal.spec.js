@@ -6,13 +6,14 @@ import * as permissionsComposable from '../../composables/permissions';
 
 jest.mock('../../composables/permissions', () => {
     const useShopwareServicesStore = require('../../store/shopware-services.store').useShopwareServicesStore;
+    const SERVICE_CONSENT_NAME = require('../../store/shopware-services.store').SERVICE_CONSENT_NAME;
     const _reloadPageMock = jest.fn();
     return {
         async grantPermissions() {
             const store = useShopwareServicesStore();
             const revision = store.currentRevision?.revision;
             if (!revision) throw new Error('No revision available');
-            await Shopware.Service('shopwareServicesService').acceptRevision(revision);
+            await Shopware.Service('consentApiService').accept(SERVICE_CONSENT_NAME, revision);
             _reloadPageMock();
         },
         revokePermissions: jest.fn(),
@@ -36,8 +37,8 @@ const createWrapper = async () => {
 
 describe('src/module/sw-settings-services/component/sw-settings-services-grant-permissions-modal', () => {
     beforeAll(() => {
-        Shopware.Service().register('serviceRegistryClient', () => ({
-            getCurrentRevision: jest.fn(async () => ({
+        Shopware.Service().register('shopwareServicesService', () => ({
+            getConsentRevision: jest.fn(async () => ({
                 'latest-revision': '2025-06-25',
                 'available-revisions': [
                     {
@@ -52,8 +53,8 @@ describe('src/module/sw-settings-services/component/sw-settings-services-grant-p
             })),
         }));
 
-        Shopware.Service().register('shopwareServicesService', () => ({
-            acceptRevision: jest.fn(),
+        Shopware.Service().register('consentApiService', () => ({
+            accept: jest.fn(),
         }));
     });
 
@@ -103,7 +104,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-grant-p
         await flushPromises();
 
         expect(notificationSpy).not.toHaveBeenCalled();
-        expect(Shopware.Service('shopwareServicesService').acceptRevision).toHaveBeenCalledWith('2025-06-25');
+        expect(Shopware.Service('consentApiService').accept).toHaveBeenCalledWith('service_consent', '2025-06-25');
 
         expect(permissionsComposable._reloadPage).toHaveBeenCalled();
     });
@@ -128,7 +129,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-grant-p
             title: 'global.default.error',
             message: 'No revision available',
         });
-        expect(Shopware.Service('shopwareServicesService').acceptRevision).not.toHaveBeenCalled();
+        expect(Shopware.Service('consentApiService').accept).not.toHaveBeenCalled();
         expect(permissionsComposable._reloadPage).not.toHaveBeenCalled();
     });
 });

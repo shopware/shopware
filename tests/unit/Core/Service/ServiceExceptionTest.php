@@ -179,15 +179,6 @@ class ServiceExceptionTest extends TestCase
         static::assertSame('Could not revoke consent: Server error', $e->getMessage());
     }
 
-    public function testNoCurrentPermissionsConsent(): void
-    {
-        $e = ServiceException::noCurrentPermissionsConsent();
-
-        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
-        static::assertSame(ServiceException::NO_CURRENT_PERMISSIONS_CONSENT, $e->getErrorCode());
-        static::assertSame('No current permissions consent found.', $e->getMessage());
-    }
-
     public function testInvalidPermissionsContext(): void
     {
         $e = ServiceException::invalidPermissionsContext();

@@ -10,14 +10,11 @@ use Shopware\Core\Framework\Log\Package;
  * @codeCoverageIgnore
  */
 #[Package('framework')]
-class SaveConsentRequest implements \JsonSerializable
+class RevokeConsentRequest implements \JsonSerializable
 {
     public function __construct(
         public string $consentName,
-        public string $consentingUserId,
         public string $shopIdentifier,
-        public string $consentDate,
-        public string $consentRevision,
         public ?string $licenseHost = null,
     ) {
     }
@@ -26,10 +23,7 @@ class SaveConsentRequest implements \JsonSerializable
     {
         return [
             'consentName' => $this->consentName,
-            'consentingUserId' => $this->consentingUserId,
             'shopIdentifier' => $this->shopIdentifier,
-            'consentDate' => $this->consentDate,
-            'consentRevision' => $this->consentRevision,
             'licenseHost' => $this->licenseHost,
         ];
     }

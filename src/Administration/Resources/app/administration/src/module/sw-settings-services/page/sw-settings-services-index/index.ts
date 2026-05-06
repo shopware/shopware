@@ -1,5 +1,6 @@
 import { mapState } from 'pinia';
 import useSession from 'src/app/composables/use-session';
+import useConsentStore from 'src/core/consent/consent.store';
 import { useShopwareServicesStore } from '../../store/shopware-services.store';
 import template from './sw-settings-services-index.html.twig';
 import './sw-settings-services-index.scss';
@@ -56,22 +57,24 @@ export default Shopware.Component.wrapComponentConfig({
             'config',
             'currentRevision',
             'consentGiven',
+            'serviceConsent',
         ]),
     },
 
     created() {
         const shopwareServicesService = Shopware.Service('shopwareServicesService');
-        const serviceRegistryClient = Shopware.Service('serviceRegistryClient');
         const shopwareServicesStore = useShopwareServicesStore();
+        const consentStore = useConsentStore();
         const sessionStore = useSession();
 
         Promise.all([
             this.reloadServices(),
+            consentStore.update(),
             shopwareServicesService.getServicesContext().then((servicesConsent) => {
                 shopwareServicesStore.config = servicesConsent;
             }),
-            serviceRegistryClient
-                .getCurrentRevision(sessionStore.currentLocale.value ?? 'en-GB')
+            shopwareServicesService
+                .getConsentRevision(sessionStore.currentLocale.value ?? 'en-GB')
                 .then((serviceRevisions) => {
                     shopwareServicesStore.revisions = serviceRevisions;
                 }),

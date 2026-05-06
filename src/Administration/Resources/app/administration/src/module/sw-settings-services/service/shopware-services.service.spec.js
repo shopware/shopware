@@ -46,44 +46,20 @@ describe('src/module/sw-settings-services/service/shopware-services-service.ts',
         [
             undefined,
             undefined,
-            undefined,
-            undefined,
         ],
         [
             true,
-            undefined,
             true,
-            undefined,
         ],
         [
             false,
-            undefined,
             false,
-            undefined,
-        ],
-        [
-            true,
-            JSON.stringify({
-                identifier: 'identifier',
-                revision: '2025-07-07',
-                consentingUserId: 'consenting-user-id',
-                grantedAt: '2025-07-07T00:00:00.000Z',
-            }),
-            true,
-            {
-                identifier: 'identifier',
-                revision: '2025-07-07',
-                consentingUserId: 'consenting-user-id',
-                grantedAt: '2025-07-07T00:00:00.000Z',
-            },
         ],
     ])(
         'loads the services context',
         async (
             configValueDisabled,
-            configValuePermissionsConsent,
             expectedValueDisabled,
-            expectedValuePermissionsConsent,
         ) => {
             const client = createHTTPClient();
             const clientMock = new MockAdapter(client);
@@ -93,60 +69,40 @@ describe('src/module/sw-settings-services/service/shopware-services-service.ts',
 
             clientMock.onGet('_action/system-config').reply(200, {
                 'core.services.disabled': configValueDisabled,
-                'core.services.permissionsConsent': configValuePermissionsConsent,
             });
 
             const servicesContext = await shopwareServicesService.getServicesContext();
 
             expect(servicesContext.disabled).toBe(expectedValueDisabled);
-            expect(servicesContext.permissionsConsent).toEqual(expectedValuePermissionsConsent);
         },
     );
 
-    it('accepts permissions revision', async () => {
+    it('loads consent revision metadata', async () => {
         const client = createHTTPClient();
         const clientMock = new MockAdapter(client);
         const loginService = createLoginService(client, Shopware.Context.api);
         const systemConfigService = new SystemConfigApiService(client, loginService);
         const shopwareServicesService = new ShopwareServicesService(client, loginService, systemConfigService);
 
-        const revision = '2025-07-07';
-
-        clientMock.onPost(`services/permissions/grant/${revision}`).reply(204, {
-            success: true,
+        clientMock.onGet('services/consent-revision').reply(200, {
+            'latest-revision': '2025-07-07',
+            'available-revisions': [
+                {
+                    revision: '2025-07-07',
+                    links: {
+                        'feedback-url': 'https://example.com/feedback',
+                        'docs-url': 'https://example.com/docs',
+                        'tos-url': 'https://example.com/tos',
+                    },
+                },
+            ],
         });
 
-        clientMock.onGet('_action/system-config').reply(200, {
-            'core.services.disabled': undefined,
-            'core.services.permissionsConsent': undefined,
-        });
+        const revisions = await shopwareServicesService.getConsentRevision('de-DE');
 
-        await shopwareServicesService.acceptRevision(revision);
-
-        expect(clientMock.history.post).toHaveLength(1);
-        expect(clientMock.history.post[0].url).toBe('services/permissions/grant/2025-07-07');
-    });
-
-    it('revokes permissions', async () => {
-        const client = createHTTPClient();
-        const clientMock = new MockAdapter(client);
-        const loginService = createLoginService(client, Shopware.Context.api);
-        const systemConfigService = new SystemConfigApiService(client, loginService);
-        const shopwareServicesService = new ShopwareServicesService(client, loginService, systemConfigService);
-
-        clientMock.onPost('services/permissions/revoke').reply(204, {
-            success: true,
-        });
-
-        clientMock.onGet('_action/system-config').reply(200, {
-            'core.services.disabled': undefined,
-            'core.services.permissionsConsent': undefined,
-        });
-
-        await shopwareServicesService.revokePermissions();
-
-        expect(clientMock.history.post).toHaveLength(1);
-        expect(clientMock.history.post[0].url).toBe('services/permissions/revoke');
+        expect(revisions['latest-revision']).toBe('2025-07-07');
+        expect(clientMock.history.get).toHaveLength(1);
+        expect(clientMock.history.get[0].headers['Accept-Language']).toBe('de-DE');
     });
 
     it.each([
@@ -165,7 +121,6 @@ describe('src/module/sw-settings-services/service/shopware-services-service.ts',
 
         clientMock.onGet('_action/system-config').reply(200, {
             'core.services.disabled': undefined,
-            'core.services.permissionsConsent': undefined,
         });
 
         if (action === 'disable') {

@@ -2,20 +2,7 @@
  * @sw-package framework
  * @private
  */
-import { getFormFieldComponentName } from './form-field-type-mapping.utils';
-
-type FieldInheritanceDefinition = {
-    type?: string;
-    componentName?: string;
-    config?: {
-        componentName?: string;
-        type?: string;
-    };
-    custom?: {
-        componentName?: string;
-        type?: string;
-    };
-};
+import { isSupported, type FormFieldDefinition } from './form-field-type-mapping.utils';
 
 /**
  * @sw-package framework
@@ -51,17 +38,11 @@ export const componentNamesHandlingInheritanceThemselves = [
     'sw-checkbox-field',
 ];
 
-function isSupported(field: FieldInheritanceDefinition | null, componentNames: string[]) {
-    const componentName = getFormFieldComponentName(field);
-
-    return componentName ? componentNames.includes(componentName) : false;
-}
-
 /**
  * @sw-package framework
  * @private
  */
-export function supportsMapInheritance(field: FieldInheritanceDefinition | null) {
+export function supportsMapInheritance(field: FormFieldDefinition | null) {
     return isSupported(field, componentNamesSupportingMapInheritance);
 }
 
@@ -69,6 +50,6 @@ export function supportsMapInheritance(field: FieldInheritanceDefinition | null)
  * @sw-package framework
  * @private
  */
-export function isFieldHandlingInheritanceItself(field: FieldInheritanceDefinition | null) {
+export function isFieldHandlingInheritanceItself(field: FormFieldDefinition | null) {
     return isSupported(field, componentNamesHandlingInheritanceThemselves);
 }

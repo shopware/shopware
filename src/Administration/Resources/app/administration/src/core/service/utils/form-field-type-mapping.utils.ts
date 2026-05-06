@@ -3,7 +3,7 @@
  * @private
  */
 
-type FormFieldDefinition = {
+export type FormFieldDefinition = {
     type?: string;
     componentName?: string;
     config?: {
@@ -95,4 +95,18 @@ export function getFormFieldComponentName(
     }
 
     return getFormFieldComponentFromType(field?.type);
+}
+
+/**
+ * @sw-package framework
+ * @private
+ */
+export function isSupported(
+    field: FormFieldDefinition | null,
+    componentNames: string[],
+    options: FormFieldComponentNameOptions = { resolveType: true },
+) {
+    const componentName = getFormFieldComponentName(field, options);
+
+    return componentName ? componentNames.includes(componentName) : false;
 }

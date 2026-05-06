@@ -2,20 +2,7 @@
  * @sw-package framework
  * @private
  */
-import { getFormFieldComponentName } from './form-field-type-mapping.utils';
-
-type MeteorComponentDefinition = {
-    type?: string;
-    componentName?: string;
-    config?: {
-        componentName?: string;
-        type?: string;
-    };
-    custom?: {
-        componentName?: string;
-        type?: string;
-    };
-};
+import { isSupported, type FormFieldDefinition } from './form-field-type-mapping.utils';
 
 /**
  * @sw-package framework
@@ -50,8 +37,6 @@ export const meteorComponentNames = [
  * @sw-package framework
  * @private
  */
-export function isMeteorComponent(field: MeteorComponentDefinition | null) {
-    const componentName = getFormFieldComponentName(field);
-
-    return componentName ? meteorComponentNames.includes(componentName) : false;
+export function isMeteorComponent(field: FormFieldDefinition | null) {
+    return isSupported(field, meteorComponentNames);
 }

@@ -2,20 +2,10 @@
  * @sw-package framework
  * @private
  */
-import { getFormFieldComponentName } from './form-field-type-mapping.utils';
-
-type FieldLabelDefinition = {
-    type?: string;
-    componentName?: string;
-    config?: {
-        componentName?: string;
-        type?: string;
-    };
-    custom?: {
-        componentName?: string;
-        type?: string;
-    };
-};
+import {
+    getFormFieldComponentName,
+    type FormFieldDefinition,
+} from './form-field-type-mapping.utils';
 
 type FieldLabelOptions = {
     renderedByFormFieldRenderer?: boolean;
@@ -67,7 +57,7 @@ export const fieldsHandlingLabelAndHelpText = {
  * @sw-package framework
  * @private
  */
-export function isFieldHandlingLabelAndHelpText(field: FieldLabelDefinition | null, options: FieldLabelOptions = {}) {
+export function isFieldHandlingLabelAndHelpText(field: FormFieldDefinition | null, options: FieldLabelOptions = {}) {
     const componentName = getFormFieldComponentName(field, {
         resolveType: options.renderedByFormFieldRenderer === true,
     });

@@ -6,6 +6,7 @@ import {
     getExplicitComponentName,
     getFormFieldComponentFromType,
     getFormFieldComponentName,
+    isSupported,
 } from './form-field-type-mapping.utils';
 
 describe('src/core/service/utils/form-field-type-mapping.utils', () => {
@@ -107,5 +108,19 @@ describe('src/core/service/utils/form-field-type-mapping.utils', () => {
 
     it('returns null without a field definition', () => {
         expect(getFormFieldComponentName()).toBeNull();
+    });
+
+    it('detects supported component names', () => {
+        expect(isSupported({ componentName: 'sw-text-field' }, ['sw-text-field'])).toBe(true);
+        expect(isSupported({ componentName: 'sw-media-field' }, ['sw-text-field'])).toBe(false);
+    });
+
+    it('detects supported resolved component names from field type', () => {
+        expect(isSupported({ type: 'text' }, ['mt-text-field'])).toBe(true);
+        expect(isSupported({ type: 'text' }, ['mt-switch'])).toBe(false);
+    });
+
+    it('can skip resolving the outer type fallback for support checks', () => {
+        expect(isSupported({ type: 'text' }, ['mt-text-field'], { resolveType: false })).toBe(false);
     });
 });

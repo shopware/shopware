@@ -509,10 +509,10 @@ export default {
             return this.mailService
                 .simulateMailTemplate(
                     {
-                        subject: this.mailTemplate.translated?.subject ?? this.mailTemplate.subject,
-                        senderName: this.mailTemplate.translated?.senderName ?? this.mailTemplate.senderName,
-                        contentHtml: this.mailTemplate.translated?.contentHtml ?? this.mailTemplate.contentHtml,
-                        contentPlain: this.mailTemplate.translated?.contentPlain ?? this.mailTemplate.contentPlain,
+                        subject: this.mailTemplate.subject ?? this.mailTemplate.translated?.subject,
+                        senderName: this.mailTemplate.senderName ?? this.mailTemplate.translated?.senderName,
+                        contentHtml: this.mailTemplate.contentHtml ?? this.mailTemplate.translated?.contentHtml,
+                        contentPlain: this.mailTemplate.contentPlain ?? this.mailTemplate.translated?.contentPlain,
                         headerHtml: headerFooterParts.headerHtml,
                         footerHtml: headerFooterParts.footerHtml,
                         headerPlain: headerFooterParts.headerPlain,

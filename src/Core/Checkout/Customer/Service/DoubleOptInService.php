@@ -77,7 +77,7 @@ class DoubleOptInService
             return;
         }
 
-        $this->sendDoubleOptInMail($customer, $context, $this->resolveDomainUrl($context));
+        $this->sendDoubleOptInMail($customer, $context, $this->resolveDomainUrl($context, $customer->getLanguageId()));
 
         // Update sent date as this serves as cooldown for subsequent login attempts
         $this->customerRepository->update([
@@ -142,7 +142,7 @@ class DoubleOptInService
      * and falls back to the first configured domain of the sales channel otherwise.
      * Intended for contexts where no HTTP request is available (e.g. Store API login).
      */
-    private function resolveDomainUrl(SalesChannelContext $context): string
+    private function resolveDomainUrl(SalesChannelContext $context, string $languageId): string
     {
         $domainUrl = $this->systemConfigService->getString(
             'core.loginRegistration.doubleOptInDomain',
@@ -153,13 +153,39 @@ class DoubleOptInService
             return $domainUrl;
         }
 
-        $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('salesChannelId', $context->getSalesChannelId()))
-            ->setLimit(1);
+        $domain = null;
 
-        return $this->salesChannelDomainRepository
-            ->search($criteria, $context->getContext())
-            ->getEntities()
-            ->first()?->getUrl() ?? '';
+        $domains = $context->getSalesChannel()->getDomains();
+        // Domains should never be null, as they are loaded in the `BaseSalesChannelContextFactory`
+        if ($domains !== null) {
+            // If the domain id has been set, by the request, we use this domain id
+            $domainId = $context->getDomainId();
+            if ($domainId !== null) {
+                $domain = $domains->get($domainId);
+            }
+
+            // Try to determine the correct domain by the customer language id
+            if ($domain === null) {
+                foreach ($domains as $d) {
+                    if ($d->getLanguageId() === $languageId) {
+                        $domain = $d;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if ($domain === null) {
+            $criteria = (new Criteria())
+                ->addFilter(new EqualsFilter('salesChannelId', $context->getSalesChannelId()))
+                ->setLimit(1);
+
+            $domain = $this->salesChannelDomainRepository
+                ->search($criteria, $context->getContext())
+                ->getEntities()
+                ->first();
+        }
+
+        return $domain?->getUrl() ?? '';
     }
 }

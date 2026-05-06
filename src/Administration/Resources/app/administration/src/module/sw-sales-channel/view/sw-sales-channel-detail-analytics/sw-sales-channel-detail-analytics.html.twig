@@ -62,13 +62,13 @@
 <mt-card
     v-if="salesChannel && salesChannel.analytics"
     position-identifier="sw-sales-channel-detail-analytics-tracking"
-    :title="$tc('sw-sales-channel.detail.analytics.tracking.cardTitle')"
+    :title="$t('sw-sales-channel.detail.analytics.tracking.cardTitle')"
     :is-loading="isLoading"
 >
     {% block sw_sales_channel_detail_analytics_tracking_description %}
     <p
         class="sw-sales-channel-detail-analytics__description"
-        v-html="$tc('sw-sales-channel.detail.analytics.tracking.description')"
+        v-html="$t('sw-sales-channel.detail.analytics.tracking.description')"
     ></p>
     {% endblock %}
 
@@ -79,7 +79,7 @@
     >
         <mt-switch
             v-model="salesChannel.analytics.trackOrders"
-            :label="$tc('sw-sales-channel.detail.analytics.fields.trackOrders.label')"
+            :label="$t('sw-sales-channel.detail.analytics.fields.trackOrders.label')"
             name="trackOrders"
             :disabled="!acl.can('sales_channel.editor')"
         />
@@ -87,8 +87,8 @@
         {% block sw_sales_channel_detail_analytics_fields_enhanced_conversions %}
         <mt-switch
             v-model="salesChannel.analytics.enhancedConversions"
-            :label="$tc('sw-sales-channel.detail.analytics.fields.enhancedConversions.label')"
-            :help-text="$tc('sw-sales-channel.detail.analytics.fields.enhancedConversions.helpText')"
+            :label="$t('sw-sales-channel.detail.analytics.fields.enhancedConversions.label')"
+            :help-text="$t('sw-sales-channel.detail.analytics.fields.enhancedConversions.helpText')"
             name="enhancedConversions"
             :disabled="!acl.can('sales_channel.editor') || !salesChannel.analytics.trackOrders"
         />
@@ -103,8 +103,8 @@
     >
         <mt-switch
             v-model="salesChannel.analytics.trackOffcanvasCart"
-            :label="$tc('sw-sales-channel.detail.analytics.fields.trackOffcanvasCart.label')"
-            :help-text="$tc('sw-sales-channel.detail.analytics.fields.trackOffcanvasCart.helpText')"
+            :label="$t('sw-sales-channel.detail.analytics.fields.trackOffcanvasCart.label')"
+            :help-text="$t('sw-sales-channel.detail.analytics.fields.trackOffcanvasCart.helpText')"
             name="trackOffcanvasCart"
             :disabled="!acl.can('sales_channel.editor')"
         />

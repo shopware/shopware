@@ -384,6 +384,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
 
     it('should update the email template information when changing the email template', async () => {
         const altCancellationTemplate = makeMailTemplate('cancellation_mail', {
+            id: uuid.get('alt-cancellation-mail'),
             contentHtml: '<div>Alt cancellation email template content.</div>\n',
             subject: 'Alt cancellation subject',
         });

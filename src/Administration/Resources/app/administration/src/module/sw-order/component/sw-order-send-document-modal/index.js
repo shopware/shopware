@@ -229,8 +229,7 @@ export default {
                 await this.mailService.getDataAndSendMailTemplate(
                     {
                         recipients: {
-                            [this.recipient]:
-                                `${this.order.orderCustomer.firstName} ${this.order.orderCustomer.lastName}`,
+                            [this.recipient]: `${this.order.orderCustomer.firstName} ${this.order.orderCustomer.lastName}`,
                         },
                         salesChannelId: this.order.salesChannelId,
                         mediaIds: Array.from(mediaCollection.getIds()),

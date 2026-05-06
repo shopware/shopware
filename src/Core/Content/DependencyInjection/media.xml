@@ -298,6 +298,8 @@
             <argument type="service" id="shopware.media.upload.http_client"/>
             <argument type="service" id="media_thumbnail.repository"/>
             <argument type="service" id="media_thumbnail_size.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Media\File\FileUrlValidatorInterface"/>
+            <argument>%shopware.media.enable_url_validation%</argument>
         </service>
 
         <service id="Shopware\Core\Content\Media\Service\VideoCoverService">

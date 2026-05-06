@@ -45,7 +45,8 @@ Jest                # Testing framework
 
 ## Coding guidelines
 - Write Jest tests for all new features and bug fixes
-  - Locate tests in the same folder as the code they are testing, using the `.spec.js` suffix
+  - Locate tests in the same folder as the code they are testing, using the `.spec.ts` suffix.
+  - Split big tests (500+ lines) into multiple files and locate them at `test-name.spec/*.spec.ts`
 - Use TypeScript for all new code
 - Do NOT introduce breaking changes to public APIs without prior discussion
 - Follow existing code style and patterns

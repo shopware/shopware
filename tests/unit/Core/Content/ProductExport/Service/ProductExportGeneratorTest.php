@@ -18,6 +18,7 @@ use Shopware\Core\Content\ProductExport\Service\ProductExportGenerator;
 use Shopware\Core\Content\ProductExport\Service\ProductExportRendererInterface;
 use Shopware\Core\Content\ProductExport\Service\ProductExportValidatorInterface;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
+use Shopware\Core\Content\ProductStream\Exception\NoFilterException;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
@@ -29,8 +30,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
@@ -461,6 +464,95 @@ class ProductExportGeneratorTest extends TestCase
         $generator = $this->createGenerator();
 
         static::assertNull($generator->generate($productExport, new ExportBehavior(false, false, false, false, false)));
+    }
+
+    public function testGenerateUsesUnfilteredProductsWhenProductStreamHasNoFilters(): void
+    {
+        $productExport = $this->getProductExportEntity();
+        $productStreamId = Uuid::randomHex();
+        $productExport->setProductStreamId($productStreamId);
+        $productExport->setFileFormat(ProductExportEntity::FILE_FORMAT_CSV);
+        $productExport->setEncoding(ProductExportEntity::ENCODING_UTF8);
+        $productExport->setBodyTemplate('{{ product.id }}');
+        $productExport->setIncludeVariants(false);
+
+        $context = $this->createSalesChannelContext();
+        $product = $this->createProduct('product-id');
+
+        $this->contextPersister->expects($this->once())->method('save');
+        $this->salesChannelContextService->expects($this->once())->method('get')->willReturn($context);
+        $this->languageLocaleProvider->expects($this->once())->method('getLocaleForLanguageId')->with('languageId')->willReturn('en-GB');
+        $this->translator->expects($this->once())->method('injectSettings');
+        $this->translator->expects($this->once())->method('resetInjection');
+        $this->productStreamBuilder->expects($this->once())
+            ->method('enrichCriteria')
+            ->with(static::isInstanceOf(Criteria::class), $productStreamId, $context->getContext())
+            ->willThrowException(new NoFilterException($productStreamId));
+        $this->connection->expects($this->once())
+            ->method('fetchAssociative')
+            ->with(
+                'SELECT `api_filter`, `invalid` FROM `product_stream` WHERE `id` = :id',
+                ['id' => Uuid::fromHexToBytes($productStreamId)]
+            )
+            ->willReturn(['api_filter' => '[]', 'invalid' => 0]);
+
+        $twigVariableParser = $this->createMock(TwigVariableParser::class);
+        $twigVariableParser->expects($this->once())->method('parse')->with('{{ product.id }}')->willReturn([]);
+        $this->parserFactory->expects($this->once())->method('getParser')->willReturn($twigVariableParser);
+
+        $this->productRepository->expects($this->exactly(2))
+            ->method('searchIds')
+            ->willReturnOnConsecutiveCalls(
+                IdSearchResult::fromIds(['product-id'], new Criteria(), $context->getContext()),
+                IdSearchResult::fromIds([], new Criteria(), $context->getContext())
+            );
+        $this->productRepository->expects($this->exactly(2))
+            ->method('search')
+            ->willReturnOnConsecutiveCalls(
+                $this->createProductSearchResult($product, $context),
+                $this->createEmptyProductSearchResult($context)
+            );
+        $this->productExportRender->expects($this->once())->method('renderBody')->willReturn('product');
+        $this->seoUrlPlaceholderHandler->expects($this->once())->method('replace')->with('product', '', $context)->willReturnArgument(0);
+        $this->productExportValidator->expects($this->once())->method('validate')->with($productExport, 'product')->willReturn([]);
+        $this->connection->expects($this->once())->method('delete');
+
+        $result = $this->createGenerator()->generate($productExport, new ExportBehavior(false, false, false, false, false));
+
+        static::assertNotNull($result);
+        static::assertSame('product', $result->getContent());
+    }
+
+    public function testGenerateRethrowsNoFilterExceptionWhenProductStreamIsInvalid(): void
+    {
+        $productExport = $this->getProductExportEntity();
+        $productStreamId = Uuid::randomHex();
+        $productExport->setProductStreamId($productStreamId);
+
+        $context = $this->createSalesChannelContext();
+
+        $this->contextPersister->expects($this->once())->method('save');
+        $this->salesChannelContextService->expects($this->once())->method('get')->willReturn($context);
+        $this->languageLocaleProvider->expects($this->once())->method('getLocaleForLanguageId')->with('languageId')->willReturn('en-GB');
+        $this->translator->expects($this->once())->method('injectSettings');
+        $this->productStreamBuilder->expects($this->once())
+            ->method('enrichCriteria')
+            ->with(static::isInstanceOf(Criteria::class), $productStreamId, $context->getContext())
+            ->willThrowException(new NoFilterException($productStreamId));
+        $this->connection->expects($this->once())
+            ->method('fetchAssociative')
+            ->with(
+                'SELECT `api_filter`, `invalid` FROM `product_stream` WHERE `id` = :id',
+                ['id' => Uuid::fromHexToBytes($productStreamId)]
+            )
+            ->willReturn(['api_filter' => null, 'invalid' => 1]);
+        $this->connection->expects($this->never())->method('delete');
+
+        $this->parserFactory->expects($this->once())->method('getParser')->willReturn($this->createMock(TwigVariableParser::class));
+
+        static::expectException(NoFilterException::class);
+
+        $this->createGenerator()->generate($productExport, new ExportBehavior());
     }
 
     public function testGenerateSkipsVariantsWhenIncludeVariantsIsDisabled(): void

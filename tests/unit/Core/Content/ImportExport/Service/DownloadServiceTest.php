@@ -173,8 +173,22 @@ class DownloadServiceTest extends TestCase
         $fileRepository = new StaticEntityRepository([new EntityCollection([$fileEntity])]);
 
         $fileSystem = $this->createMock(Filesystem::class);
-        $fileSystem->expects($this->once())->method('temporaryUrl')->willReturn('https://example.com/download');
+        $fileSystem->expects($this->once())->method('temporaryUrl')->with(
+            'export/foobar.txt',
+            static::isInstanceOf(\DateTimeImmutable::class),
+            [
+                'get_object_options' => [
+                    'ResponseContentDisposition' => HeaderUtils::makeDisposition(
+                        HeaderUtils::DISPOSITION_ATTACHMENT,
+                        'products.csv',
+                        'products.csv'
+                    ),
+                    'ResponseContentType' => 'text/csv',
+                ],
+            ]
+        )->willReturn('https://example.com/download');
         $fileSystem->expects($this->never())->method('readStream');
+        $fileSystem->expects($this->never())->method('fileSize');
 
         $downloadService = $this->createDownloadService(
             fileSystem: $fileSystem,

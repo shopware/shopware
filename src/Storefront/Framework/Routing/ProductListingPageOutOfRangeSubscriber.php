@@ -20,7 +20,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
  *
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class ProductListingPageOutOfRangeSubscriber implements EventSubscriberInterface
 {
     public static function getSubscribedEvents(): array
@@ -53,7 +53,7 @@ class ProductListingPageOutOfRangeSubscriber implements EventSubscriberInterface
         }
 
         // The 301 is intentionally cacheable by the reverse proxy — the cache key already
-        // includes the full URL (so /Damen/?p=99 and /Damen/?p=2 are separate entries) and
+        // includes the full URL (so /Foo/?p=99 and /Foo/?p=2 are separate entries) and
         // the sales-channel cache hash (so different rule contexts get different entries).
         $event->setResponse(new RedirectResponse($this->buildRedirectTarget($request), Response::HTTP_MOVED_PERMANENTLY));
     }
@@ -61,8 +61,7 @@ class ProductListingPageOutOfRangeSubscriber implements EventSubscriberInterface
     private function buildRedirectTarget(Request $request): string
     {
         $originalUri = $request->attributes->get(RequestTransformer::ORIGINAL_REQUEST_URI);
-        // ORIGINAL_REQUEST_URI is set by RequestTransformer for the main Storefront request only;
-        // it is not in INHERITABLE_ATTRIBUTE_NAMES, so sub-requests fall back to the current URI.
+
         if (!\is_string($originalUri) || $originalUri === '') {
             $originalUri = $request->getRequestUri();
         }
@@ -72,6 +71,7 @@ class ProductListingPageOutOfRangeSubscriber implements EventSubscriberInterface
 
         $queryString = \is_array($parts) ? ($parts['query'] ?? '') : '';
         $params = [];
+
         if (\is_string($queryString) && $queryString !== '') {
             parse_str($queryString, $params);
         }

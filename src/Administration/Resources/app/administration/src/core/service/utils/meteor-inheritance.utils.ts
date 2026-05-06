@@ -14,7 +14,10 @@ type InheritanceSlotProps = {
  * @sw-package framework
  * @private
  */
-export function mapInheritanceSlotPropsToMeteorProps(inheritance: InheritanceSlotProps | null = null, inheritedValue: unknown = null) {
+export function mapInheritanceSlotPropsToMeteorProps(
+    inheritance: InheritanceSlotProps | null = null,
+    inheritedValue: unknown = null,
+) {
     if (!inheritance) {
         return {};
     }

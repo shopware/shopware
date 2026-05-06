@@ -99,6 +99,7 @@ class LongTextFieldTest extends TestCase
             'String values are passed through' => ['test12-B', 'test12-B', [new Required()]],
             'Null is allowed without required flag' => [null, null, []],
             'Sanitation can be turned off' => ['<test>', '<test>', [new Required(), new AllowHtml(false)]],
+            'Malformed tags are preserved' => ['<11,5', '<11,5', [new Required()]],
             'Empty string is treated as null without AllowEmpty flag' => ['', null, []],
             'Empty string is passed through with AllowEmptyFlag' => ['', '', [new AllowEmptyString()]],
             'Empty string is allowed with Required and AllowEmpty flags' => ['', '', [new Required(), new AllowEmptyString()]],

@@ -81,6 +81,7 @@ class StringFieldTest extends TestCase
             ['assertion', 'test12-B', 'test12-B', [new Required()]],
             ['assertion', null, null, []],
             ['assertion', '<test>', '<test>', [new Required(), new AllowHtml(false)]],
+            ['assertion', '<11,5', '<11,5', [new Required()]],
             ['assertion', '', null, []],
             ['assertion', '', '', [new AllowEmptyString()]],
             ['assertion', '', '', [new Required(), new AllowEmptyString()]],

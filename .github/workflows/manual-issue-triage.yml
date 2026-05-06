@@ -1,0 +1,143 @@
+name: Manual issue triage
+
+on:
+  workflow_dispatch:
+    inputs:
+      issue-number:
+        description: Issue number from the open Bug + needs-triage list
+        required: true
+        type: string
+      labels:
+        description: Comma-separated labels to add during triage
+        required: false
+        type: string
+      assignees:
+        description: Comma-separated GitHub usernames to assign
+        required: false
+        type: string
+      comment:
+        description: Optional triage comment to post on the issue
+        required: false
+        type: string
+      remove-needs-triage:
+        description: Remove the needs-triage label after triage
+        required: true
+        default: true
+        type: boolean
+
+jobs:
+  triage-issue:
+    if: github.repository == 'shopware/shopware'
+    runs-on: ubuntu-24.04
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/github-script@5c56fde4671bc2d3592fb0f2c5b5bab9ddae03b1 # 7
+        env:
+          ISSUE_NUMBER: ${{ inputs.issue-number }}
+          LABELS: ${{ inputs.labels }}
+          ASSIGNEES: ${{ inputs.assignees }}
+          COMMENT: ${{ inputs.comment }}
+          REMOVE_NEEDS_TRIAGE: ${{ inputs.remove-needs-triage }}
+        with:
+          script: |
+            const issueNumber = Number.parseInt(process.env.ISSUE_NUMBER, 10);
+            const labels = (process.env.LABELS ?? '')
+              .split(',')
+              .map((label) => label.trim())
+              .filter(Boolean);
+            const assignees = (process.env.ASSIGNEES ?? '')
+              .split(',')
+              .map((assignee) => assignee.trim())
+              .filter(Boolean);
+            const comment = (process.env.COMMENT ?? '').trim();
+            const removeNeedsTriage = process.env.REMOVE_NEEDS_TRIAGE === 'true';
+
+            if (!Number.isInteger(issueNumber) || issueNumber <= 0) {
+              throw new Error(`Invalid issue number: ${process.env.ISSUE_NUMBER}`);
+            }
+
+            if (!removeNeedsTriage && labels.length === 0 && assignees.length === 0 && comment.length === 0) {
+              throw new Error('No triage action requested. Provide labels, assignees, a comment or enable needs-triage removal.');
+            }
+
+            const issueResponse = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+            });
+
+            if (issueResponse.data.pull_request) {
+              throw new Error(`Issue #${issueNumber} is a pull request and cannot be triaged with this workflow.`);
+            }
+
+            if (issueResponse.data.state !== 'open') {
+              throw new Error(`Issue #${issueNumber} is not open.`);
+            }
+
+            const hasNeedsTriageLabel = issueResponse.data.labels.some((label) => {
+              if (typeof label === 'string') {
+                return label === 'needs-triage';
+              }
+
+              return label.name === 'needs-triage';
+            });
+
+            if (labels.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                labels,
+              });
+            }
+
+            if (assignees.length > 0) {
+              await github.rest.issues.addAssignees({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                assignees,
+              });
+            }
+
+            if (removeNeedsTriage && hasNeedsTriageLabel) {
+              await github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                name: 'needs-triage',
+              });
+            }
+
+            if (comment.length > 0) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                body: comment,
+              });
+            }
+
+            await core.summary
+              .addHeading(`Triaged issue #${issueNumber}`)
+              .addLink(issueResponse.data.title, issueResponse.data.html_url)
+              .addTable([
+                [
+                  { data: 'Added labels', header: true },
+                  { data: labels.join(', ') || 'none', header: false },
+                ],
+                [
+                  { data: 'Assigned users', header: true },
+                  { data: assignees.join(', ') || 'none', header: false },
+                ],
+                [
+                  { data: 'Posted comment', header: true },
+                  { data: comment.length > 0 ? 'yes' : 'no', header: false },
+                ],
+                [
+                  { data: 'Removed needs-triage', header: true },
+                  { data: removeNeedsTriage && hasNeedsTriageLabel ? 'yes' : 'no', header: false },
+                ],
+              ])
+              .write();

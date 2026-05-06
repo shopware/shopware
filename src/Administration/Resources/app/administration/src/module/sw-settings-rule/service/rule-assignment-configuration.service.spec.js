@@ -6,7 +6,7 @@ import createRuleAssignmentConfigService from 'src/module/sw-settings-rule/servi
 describe('src/module/sw-settings-rule/service/rule-assignment-configuration.service.js', () => {
     const configuration = createRuleAssignmentConfigService().getConfiguration();
 
-    const configurationMap = Object.entries(createRuleAssignmentConfigService().getConfiguration()).map(
+    const configurationMap = Object.entries(configuration).map(
         ([
             key,
             entityConfig,

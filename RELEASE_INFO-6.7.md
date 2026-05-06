@@ -25,6 +25,10 @@ Arbitrary unknown top-level keys are still forwarded for backwards compatibility
 
 ## Core
 
+### `product.type` migration unblocked on MySQL 8.4
+
+`Migration1763125891AddProductTypeColumn` previously aborted on MySQL 8.4 with `Cannot drop index '<unknown key name>': needed in a foreign key constraint` (issue #16240, MySQL bug #118151) on shops carrying non-standard child foreign keys on the `product` table. The migration now temporarily sets `restrict_fk_on_non_standard_key=OFF` for its own session, runs the column and index DDL, and restores the previous value. Behavior on MariaDB and MySQL <8.4 is unchanged.
+
 ### Backward compatible invalid locales
 
 Added and deprecated `BackwardCompatibleNumberFormatter` to temporarily allow invalid locale strings without throwing exceptions in PHP >=8.4. It will be removed in Shopware 6.8.

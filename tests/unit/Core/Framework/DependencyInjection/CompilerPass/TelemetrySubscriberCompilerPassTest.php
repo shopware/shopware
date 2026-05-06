@@ -38,7 +38,26 @@ class TelemetrySubscriberCompilerPassTest extends TestCase
         static::assertTrue($container->getDefinition('test.regular.subscriber')->hasTag('kernel.event_subscriber'));
     }
 
-    public function testSubscribersAreKeptWhenEnabled(): void
+    public function testSlowMetricCollectorsAreRemovedWhenDisabled(): void
+    {
+        $container = new ContainerBuilder();
+        $container->setParameter('shopware.telemetry.metrics.enabled', false);
+
+        $collectorDef = new Definition(\stdClass::class);
+        $collectorDef->addTag('shopware.telemetry.slow_metric_collector');
+        $container->setDefinition('test.telemetry.collector', $collectorDef);
+
+        $unrelatedDef = new Definition(\stdClass::class);
+        $container->setDefinition('test.unrelated.service', $unrelatedDef);
+
+        $pass = new TelemetrySubscriberCompilerPass();
+        $pass->process($container);
+
+        static::assertFalse($container->hasDefinition('test.telemetry.collector'));
+        static::assertTrue($container->hasDefinition('test.unrelated.service'));
+    }
+
+    public function testSubscribersAndCollectorsAreKeptWhenEnabled(): void
     {
         $container = new ContainerBuilder();
         $container->setParameter('shopware.telemetry.metrics.enabled', true);
@@ -48,10 +67,16 @@ class TelemetrySubscriberCompilerPassTest extends TestCase
         $definition->addTag('shopware.telemetry.subscriber');
         $container->setDefinition('test.telemetry.subscriber', $definition);
 
+        $collectorDef = new Definition(\stdClass::class);
+        $collectorDef->addTag('shopware.telemetry.slow_metric_collector');
+        $container->setDefinition('test.telemetry.collector', $collectorDef);
+
         $pass = new TelemetrySubscriberCompilerPass();
         $pass->process($container);
 
         static::assertTrue($container->hasDefinition('test.telemetry.subscriber'));
         static::assertTrue($container->getDefinition('test.telemetry.subscriber')->hasTag('kernel.event_subscriber'));
+        static::assertTrue($container->hasDefinition('test.telemetry.collector'));
+        static::assertTrue($container->getDefinition('test.telemetry.collector')->hasTag('shopware.telemetry.slow_metric_collector'));
     }
 }

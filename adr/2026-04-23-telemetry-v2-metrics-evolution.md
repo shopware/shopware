@@ -122,8 +122,11 @@ Three mechanisms work together to minimize overhead at different granularities:
 
 Level 1 — Global off: When `shopware.telemetry.metrics.enabled` is `false`:
   - `Meter::emit()` checks the `enabled` flag and returns immediately. This is already near-no-op.
-  - A compiler pass removes the `kernel.event_subscriber` tag from services also tagged with
-    `shopware.telemetry.subscriber`, so telemetry subscribers are not invoked by the event dispatcher.
+  - A compiler pass removes services tagged with `shopware.telemetry.subscriber` (event subscribers,
+    flush listener) and `shopware.telemetry.slow_metric_collector` from the container, so they are
+    neither invoked by the event dispatcher nor iterated by the slow-metric task handler.
+  - The `CollectSlowMetricsTask` itself stays registered but reports `shouldRun() === false`, so the
+    scheduler keeps the row in `skipped` state without dispatching.
   - Inline emitters (e.g. `RetryableQuery` via `MeterProvider`) still call `Meter::emit()`, which
     short-circuits on the `enabled` check.
   - Result: no subscriber invocation, no metric processing. The only remaining cost is the `emit()`
@@ -143,8 +146,9 @@ Level 3 — Expensive value: When the metric is enabled but computation is costl
 The compiler pass only affects subscribers; the `enabled` check in `Meter::emit()` covers inline emitters.
 
 **Subscriber identification**: Telemetry subscribers are identified by the `shopware.telemetry.subscriber`
-DI tag, added to their service definitions. The compiler pass removes `kernel.event_subscriber` from
-tagged services when telemetry is globally disabled.
+DI tag, added to their service definitions. Slow-metric collectors are identified by the
+`shopware.telemetry.slow_metric_collector` tag. When telemetry is globally disabled, the compiler pass
+removes the entire service definition for both tag groups.
 
 **Considered alternative — marker interface (`TelemetryAwareSubscriberInterface`):**
   - Type-safe identification, discoverable via IDE.

@@ -9,19 +9,27 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 /**
  * @internal
  *
- * When telemetry metrics are globally disabled, subscribers tagged with `shopware.telemetry.subscriber` are removed to avoid overhead.
+ * When telemetry metrics are globally disabled, services tagged with `shopware.telemetry.subscriber`
+ * or `shopware.telemetry.slow_metric_collector` are removed to avoid overhead.
  */
 #[Package('framework')]
 class TelemetrySubscriberCompilerPass implements CompilerPassInterface
 {
+    private const REMOVABLE_TAGS = [
+        'shopware.telemetry.subscriber',
+        'shopware.telemetry.slow_metric_collector',
+    ];
+
     public function process(ContainerBuilder $container): void
     {
         if ($container->getParameter('shopware.telemetry.metrics.enabled')) {
             return;
         }
 
-        foreach ($container->findTaggedServiceIds('shopware.telemetry.subscriber') as $serviceId => $tags) {
-            $container->removeDefinition($serviceId);
+        foreach (self::REMOVABLE_TAGS as $tag) {
+            foreach ($container->findTaggedServiceIds($tag) as $serviceId => $tags) {
+                $container->removeDefinition($serviceId);
+            }
         }
     }
 }

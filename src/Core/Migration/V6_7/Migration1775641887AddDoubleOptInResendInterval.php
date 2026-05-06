@@ -23,7 +23,7 @@ class Migration1775641887AddDoubleOptInResendInterval extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $configPresent = $connection->fetchOne('SELECT 1 FROM `system_config` WHERE `configuration_key` = ?', [self::CONFIG_KEY]);
+        $configPresent = $connection->fetchOne('SELECT 1 FROM `system_config` WHERE `configuration_key` = ? AND `sales_channel_id` IS NULL', [self::CONFIG_KEY]);
         if ($configPresent !== false) {
             return;
         }

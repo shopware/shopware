@@ -88,6 +88,7 @@ test(
         await TestDataService.assignSalesChannelCountry(DefaultSalesChannel.salesChannel.id, nonShippableCountry.id);
 
         const address = {
+            salutation: 'Mr.', 
             firstName: 'New First Name',
             lastName: 'New Last Name',
             company: 'shopware',
@@ -99,6 +100,7 @@ test(
         };
 
         const customer = {
+            salutation: 'Mr.',
             email: `${IdProvider.getIdPair().uuid}@test.com`,
             password: 'shopware',
             country: `${nonShippableCountry.name} (Delivery not possible)`,

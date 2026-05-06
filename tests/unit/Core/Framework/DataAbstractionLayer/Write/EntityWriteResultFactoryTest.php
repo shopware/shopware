@@ -7,6 +7,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
@@ -177,6 +179,65 @@ class EntityWriteResultFactoryTest extends TestCase
                 ],
             ],
         ];
+    }
+
+    public function testBuildResultKeepsInsertOperationWhenInsertedEntityIsUpdatedInSameQueue(): void
+    {
+        $ids = new IdsCollection();
+        $registry = new StaticDefinitionInstanceRegistry(
+            [CountryDefinition::class],
+            $this->createMock(ValidatorInterface::class),
+            $this->createMock(EntityWriteGatewayInterface::class)
+        );
+
+        $queue = new WriteCommandQueue();
+        $definition = $registry->get(CountryDefinition::class);
+
+        $insert = new InsertCommandStub(
+            ['id' => $ids->getBytes('country-1'), 'active' => false],
+            ['id' => $ids->getBytes('country-1')],
+            $definition
+        );
+        $queue->add($insert->getEntityName(), WriteCommandQueue::hashedPrimary($registry, $insert), $insert);
+
+        $update = new UpdateCommandStub(
+            ['id' => $ids->getBytes('country-1'), 'position' => 10],
+            ['id' => $ids->getBytes('country-1')],
+            $definition
+        );
+        $queue->add($update->getEntityName(), WriteCommandQueue::hashedPrimary($registry, $update), $update);
+
+        $result = (new EntityWriteResultFactory(
+            $registry,
+            $this->createMock(Connection::class)
+        ))->build($queue);
+
+        static::assertCount(1, $result['country']);
+        static::assertSame(EntityWriteResult::OPERATION_INSERT, $result['country'][0]->getOperation());
+        static::assertEquals([
+            'id' => $ids->get('country-1'),
+            'active' => false,
+            'position' => 10,
+        ], $result['country'][0]->getPayload());
+    }
+}
+
+/**
+ * @internal
+ */
+class InsertCommandStub extends InsertCommand
+{
+    public function __construct(array $payload, array $primaryKey, ?EntityDefinition $definition = null)
+    {
+        $definition = $definition ?? new CountryDefinition();
+
+        parent::__construct(
+            definition: $definition,
+            payload: $payload,
+            primaryKey: $primaryKey,
+            existence: new EmptyEntityExistence(),
+            path: '/' . Uuid::randomHex()
+        );
     }
 }
 

@@ -40,7 +40,7 @@ import VueHelper from './utils/vue-helper.utils';
 import EventBus from './utils/eventBus.utils';
 import genericRuleConditionUtils from './utils/generic-rule-condition.utils';
 import unitConversionUtils from './utils/unit-conversion.utils';
-import { getMeteorInheritanceConfig } from './utils/meteor-inheritance.utils';
+import { mapInheritanceSlotPropsToMeteorProps } from './utils/meteor-inheritance.utils';
 import {
     componentNamesHandlingInheritanceThemselves,
     componentNamesSupportingMapInheritance,
@@ -193,7 +193,7 @@ export default {
     genericRuleCondition,
     unitConversion,
     extension,
-    getMeteorInheritanceConfig,
+    mapInheritanceSlotPropsToMeteorProps,
     componentNamesHandlingInheritanceThemselves,
     componentNamesSupportingMapInheritance,
     meteorComponentNames,

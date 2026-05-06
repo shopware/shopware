@@ -4,10 +4,10 @@ import './sw-theme-manager-detail.scss';
 const { Mixin } = Shopware;
 const Criteria = Shopware.Data.Criteria;
 const {
-    getMeteorInheritanceConfig,
     isFieldHandlingInheritanceItself,
     isFieldHandlingLabelAndHelpText,
     isMeteorComponent,
+    mapInheritanceSlotPropsToMeteorProps,
     supportsMapInheritance,
 } = Shopware.Utils;
 const { getObjectDiff, cloneDeep, deepMergeObject } = Shopware.Utils.object;
@@ -735,7 +735,7 @@ export default {
                 }
 
                 if (isMeteorComponent(field)) {
-                    Object.assign(config, getMeteorInheritanceConfig(inheritance, inheritedValue));
+                    Object.assign(config, mapInheritanceSlotPropsToMeteorProps(inheritance, inheritedValue));
                 }
             }
 

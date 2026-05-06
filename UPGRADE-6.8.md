@@ -311,6 +311,11 @@ The default value for the `serializer` parameter in the `#[Serialized]` field at
 You need to explicitly set the serializer to use for your field.
 Additionally, the `SerializedField` class is now internal, as you should not use it directly in classic `EntityDefinitions`. It's only intended use case is in combination with the `#[Serialized]` attribute in attribute entities.
 
+## Removal of `RegisterScheduledTaskMessage`
+
+The class `\Shopware\Core\Framework\MessageQueue\ScheduledTask\MessageQueue\RegisterScheduledTaskMessage` and it's accompanying handler `\Shopware\Core\Framework\MessageQueue\ScheduledTask\MessageQueue\RegisterScheduledTaskHandler` were removed, as the message was no longer dispatched.
+If you dispatched that message manually, you should call the `TaskScheduler::registerTask()` method directly instead.
+
 ## Removal of `EntityDefinition` constructor
 
 The constructor of the `EntityDefinition` has been removed, therefore the call of child classes to it need to be removed as well, i.e:

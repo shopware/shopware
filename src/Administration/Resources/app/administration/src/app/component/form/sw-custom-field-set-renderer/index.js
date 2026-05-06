@@ -1,6 +1,6 @@
 import { computed } from 'vue';
 
-import { getMeteorInheritanceConfig } from 'src/core/service/utils/meteor-inheritance.utils';
+import { mapInheritanceSlotPropsToMeteorProps } from 'src/core/service/utils/meteor-inheritance.utils';
 import { isMeteorComponent } from 'src/core/service/utils/meteor-component.utils';
 import {
     componentNamesSupportingMapInheritance,
@@ -459,7 +459,7 @@ export default {
             }
 
             if (fieldIsMeteorComponent) {
-                Object.assign(customFieldClone, getMeteorInheritanceConfig(props, inheritedCustomFieldValue));
+                Object.assign(customFieldClone, mapInheritanceSlotPropsToMeteorProps(props, inheritedCustomFieldValue));
                 customFieldClone.disabled = this.disabled || props.isInherited;
             }
 

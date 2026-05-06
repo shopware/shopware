@@ -140,6 +140,22 @@ class CriteriaQueryBuilder
                 continue;
             }
 
+            if ($this->isDisplayParentGrouping($definition, $criteria, $sorting)) {
+                $displayParentAccessors = $this->getDisplayParentAccessors($definition, $sorting, $query, $context);
+
+                if ($displayParentAccessors !== null) {
+                    [$displayParentAccessor, $parentAccessor] = $displayParentAccessors;
+
+                    $accessor = \sprintf(
+                        'IF(%s, COALESCE(%s, %s), %s)',
+                        $displayParentAccessor,
+                        $parentAccessor,
+                        $accessor,
+                        $accessor
+                    );
+                }
+            }
+
             if (!\in_array($sorting->getField(), ['product.cheapestPrice', 'cheapestPrice'], true)) {
                 if ($sorting->getDirection() === FieldSorting::ASCENDING) {
                     $accessor = 'MIN(' . $accessor . ')';
@@ -265,6 +281,72 @@ class CriteriaQueryBuilder
         return $query->hasState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN) || $criteria->getGroupFields() !== [];
     }
 
+    private function isDisplayParentGrouping(EntityDefinition $definition, Criteria $criteria, FieldSorting $sorting): bool
+    {
+        if (!$definition->getFields()->has('displayGroup') || !$definition->getFields()->has('parent') || !$definition->getFields()->has('variantListingConfig')) {
+            return false;
+        }
+
+        foreach ($criteria->getGroupFields() as $grouping) {
+            if ($this->normalizeSortingField($grouping->getField()) !== 'displayGroup') {
+                continue;
+            }
+
+            $field = $this->normalizeSortingField($sorting->getField());
+
+            return $field !== 'id' && $field !== 'displayGroup' && !str_starts_with($field, 'parent.');
+        }
+
+        return false;
+    }
+
+    /**
+     * @return array{string, string}|null
+     */
+    private function getDisplayParentAccessors(EntityDefinition $definition, FieldSorting $sorting, QueryBuilder $query, Context $context): ?array
+    {
+        $sortingField = $this->normalizeSortingField($sorting->getField());
+        if ($sortingField === 'cheapestPrice') {
+            $sortingField = 'price';
+        }
+
+        return $context->disableInheritance(function (Context $context) use ($definition, $query, $sortingField): ?array {
+            try {
+                $this->helper->resolveAccessor(
+                    'parent.variantListingConfig.displayParent',
+                    $definition,
+                    $definition->getEntityName(),
+                    $query,
+                    $context
+                );
+                $this->helper->resolveAccessor(
+                    'parent.' . $sortingField,
+                    $definition,
+                    $definition->getEntityName(),
+                    $query,
+                    $context
+                );
+
+                return [
+                    $this->helper->getFieldAccessor(
+                        'parent.variantListingConfig.displayParent',
+                        $definition,
+                        $definition->getEntityName(),
+                        $context
+                    ),
+                    $this->helper->getFieldAccessor(
+                        'parent.' . $sortingField,
+                        $definition,
+                        $definition->getEntityName(),
+                        $context
+                    ),
+                ];
+            } catch (DataAbstractionLayerException) {
+                return null;
+            }
+        });
+    }
+
     /**
      * @param list<string> $additionalFields
      *
@@ -301,6 +383,11 @@ class CriteriaQueryBuilder
     private function hasQueriesOrTerm(Criteria $criteria): bool
     {
         return $criteria->getQueries() !== [] || $criteria->getTerm();
+    }
+
+    private function normalizeSortingField(string $field): string
+    {
+        return preg_replace('/^product\./', '', $field) ?? $field;
     }
 
     private function validateSortingDirection(string $direction): void

@@ -541,4 +541,86 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
             fileExtension: 'html',
         });
     });
+
+    describe('auto select mail template by document type', () => {
+        it('should have a mapping entry for every DOCUMENT_TYPES value', () => {
+            Object.values(DOCUMENT_TYPES).forEach((docType) => {
+                expect(DOCUMENT_MAIL_TEMPLATE_MAPPING).toHaveProperty(docType);
+            });
+        });
+
+        it.each([
+            [
+                'invoice',
+                'invoice_mail',
+            ],
+            [
+                'delivery_note',
+                'delivery_mail',
+            ],
+            [
+                'credit_note',
+                'credit_note_mail',
+            ],
+            [
+                'storno',
+                'cancellation_mail',
+            ],
+            [
+                'zugferd_invoice',
+                'invoice_mail',
+            ],
+            [
+                'zugferd_embedded_invoice',
+                'invoice_mail',
+            ],
+            [
+                'zugferd_credit_note',
+                'credit_note_mail',
+            ],
+            [
+                'zugferd_embedded_credit_note',
+                'credit_note_mail',
+            ],
+            [
+                'zugferd_cancellation_invoice',
+                'cancellation_mail',
+            ],
+            [
+                'zugferd_embedded_cancellation_invoice',
+                'cancellation_mail',
+            ],
+        ])('should map document type "%s" to mail template type "%s"', (docType, mailTemplateType) => {
+            expect(DOCUMENT_MAIL_TEMPLATE_MAPPING[docType]).toBe(mailTemplateType);
+        });
+
+        it.each([
+            [
+                'zugferd_invoice',
+                'invoice_mail',
+            ],
+            [
+                'zugferd_embedded_invoice',
+                'invoice_mail',
+            ],
+            [
+                'zugferd_credit_note',
+                'credit_note_mail',
+            ],
+            [
+                'zugferd_cancellation_invoice',
+                'cancellation_mail',
+            ],
+        ])('should auto select correct template for %s document', async (docType, mailType) => {
+            const document = makeDocument(docType);
+            const template = makeMailTemplate(mailType);
+
+            const wrapper = await createWrapper({ ...defaultProps, document }, true, [template]);
+
+            await flushPromises();
+
+            expect(wrapper.vm.mailTemplateId).toBe(template.id);
+            expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe(mailType);
+        });
+    });
 });

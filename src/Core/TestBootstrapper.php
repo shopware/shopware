@@ -16,7 +16,6 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Dotenv\Dotenv;
-use Symfony\Component\HttpKernel\KernelInterface;
 
 #[Package('framework')]
 class TestBootstrapper
@@ -382,7 +381,7 @@ class TestBootstrapper
         return $mappedPaths;
     }
 
-    private function getKernel(): KernelInterface
+    private function getKernel(): Kernel
     {
         return KernelLifecycleManager::getKernel();
     }

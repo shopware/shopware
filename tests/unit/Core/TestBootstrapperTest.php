@@ -114,7 +114,6 @@ class TestBootstrapperTest extends TestCase
                 ->addActivePlugins('SwagCmsElements')
                 ->getClassLoader();
 
-            static::assertInstanceOf(ClassLoader::class, $classLoader);
             static::assertSame([$pluginDir . '/tests/'], $classLoader->getPrefixesPsr4()['SwagCmsElements\\Tests\\']);
         } finally {
             KernelLifecycleAccessor::setKernel($previousKernel);

@@ -57,7 +57,7 @@ class ClientFactory
      * Legacy implementation using ClientBuilder for backward compatibility with multiple hosts.
      * This method will be removed in v6.8.0.0.
      *
-     * @deprecated tag:v6.8.0.0 - Use createClient() instead
+     * @deprecated tag:v6.8.0 - Use createClient() instead
      *
      * @param list<string> $hosts
      * @param array{verify_server_cert: bool, cert_path?: string, cert_password?: string, cert_key_path?: string, cert_key_password?: string, sigV4?: array{enabled: bool, region?: string, service?: string, credentials_provider?: array{key_id?: string, secret_key?: string}}} $sslConfig

@@ -29,6 +29,26 @@ Arbitrary unknown top-level keys are still forwarded for backwards compatibility
 
 Added and deprecated `BackwardCompatibleNumberFormatter` to temporarily allow invalid locale strings without throwing exceptions in PHP >=8.4. It will be removed in Shopware 6.8.
 
+### Configurable order deep link expiry
+
+The number of days an order can be accessed via deep link is now configurable via `shopware.yaml`:
+
+    shopware:
+      order:
+        deep_link:
+          expire_days: 30
+
+### Technical media associations can be ignored by `media:delete-unused`
+
+Plugins can now mark technical `media` associations with the new DAL flag `IgnoreInUnusedMediaSearch`.
+This prevents `media:delete-unused` from treating metadata-only extensions as real media usage and helps avoid false negatives when removing unused files.
+Third-party developers should add this flag to media associations that store technical metadata but do not represent an actual assignment of the media file.
+
+### Deprecation of RegisterScheduleTaskMessage
+
+The `RegisterScheduleTaskMessage` class and the accompanying message handler `RegisterScheduledTaskHandler` is deprecated and will be removed in Shopware 6.8.0.0, as the message wasn't dispatched anymore.
+If you dispatched that message manually, you should call the `TaskScheduler::registerTask()` method directly instead.
+
 ## Administration
 
 ### Mail template preview is now sales-channel-aware and uses isolated HTML rendering
@@ -48,6 +68,12 @@ The end boundary is now derived from the quarter's start year rather than the cu
 
 When the sidebar is collapsed, hovering a menu entry near the bottom of the sidebar could cause the flyout submenu to extend beyond the viewport, making lower entries inaccessible.
 The flyout now calculates a dynamic `max-height` from the remaining viewport space and scrolls vertically when its content exceeds that limit.
+
+### Meteor Component Library updated to 4.28.6
+
+The Administration now uses Meteor Component Library `4.28.6`.
+With this update, disabled Meteor switch fields in system configuration can now unlink inherited sales channel values.
+Previously, the switch field itself was disabled as expected, but its inheritance control was disabled as well, preventing merchants from overriding inherited values for that sales channel.
 
 ## Storefront
 
@@ -73,6 +99,15 @@ The Administration includes dedicated views for configuration, product mapping, 
 
 The login and OAuth token endpoints now support optional per user (`login_user`, `oauth_user`) and per IP (`login_client`, `oauth_client`) rate limiters, in addition to the existing combined user and IP limiter.
 These are optional and can be enabled via `shopware.api.rate_limiter` in `shopware.yaml`.
+
+### Store API routes for shipping cost calculation
+
+The Store API now provides dedicated shipping-cost endpoints for product and cart previews. This allows headless storefronts and integrations to fetch shipping prices and delivery dates for multiple shipping methods without changing the customer's persisted cart or selected shipping method.
+
+For product previews, `/store-api/shipping-cost/product/{productId}` uses Shopware criteria parameters to select which shipping methods should be loaded for the calculation.
+For cart previews, `/store-api/shipping-cost/cart` returns the shipping costs for the current cart across the available shipping methods.
+
+The response contains the calculated shipping price, delivery date, and shipping method data for each result, which makes it easier to build shipping-method selectors or delivery previews in custom storefronts and apps.
 
 ### `Price` schemas now describe percentage and reference price fields
 
@@ -119,15 +154,6 @@ Product exports now support `ProductExportEntity::FILE_FORMAT_JSONL` as a third 
 ### [Experimental] Agentic Commerce product export provider abstraction
 
 The new `AbstractAgenticCommerceProductExportProvider` can be used to implement custom Agentic Commerce export providers.
-
-### Configurable order deep link expiry
-
-The number of days an order can be accessed via deep link is now configurable via `shopware.yaml`:
-
-    shopware:
-      order:
-        deep_link:
-          expire_days: 30
 
 ## Administration
 

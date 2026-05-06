@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -29,7 +30,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
  * @final
  */
 #[Package('framework')]
-class TaskScheduler
+readonly class TaskScheduler
 {
     /**
      * @internal
@@ -37,10 +38,11 @@ class TaskScheduler
      * @param EntityRepository<ScheduledTaskCollection> $scheduledTaskRepository
      */
     public function __construct(
-        private readonly EntityRepository $scheduledTaskRepository,
-        private readonly MessageBusInterface $bus,
-        private readonly ParameterBagInterface $parameterBag,
-        private readonly int $requeueTimeout,
+        private EntityRepository $scheduledTaskRepository,
+        private MessageBusInterface $bus,
+        private ParameterBagInterface $parameterBag,
+        private LoggerInterface $logger,
+        private int $requeueTimeout,
     ) {
     }
 
@@ -153,6 +155,15 @@ class TaskScheduler
     private function queueTask(ScheduledTaskEntity $taskEntity, Context $context): void
     {
         $taskClass = $taskEntity->getScheduledTaskClass();
+
+        if (!class_exists($taskClass)) {
+            $this->logger->warning(\sprintf(
+                'Scheduled task class "%s" does not exist, this might be due to version mismatch during deployments when a new scheduled task is already registered, but the worker still running on an older version where that task does not exist yet.',
+                $taskClass
+            ));
+
+            return;
+        }
 
         if (!\is_a($taskClass, ScheduledTask::class, true)) {
             throw MessageQueueException::scheduledTaskDoesNotImplementInterface($taskClass);

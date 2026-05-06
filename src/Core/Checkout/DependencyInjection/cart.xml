@@ -136,6 +136,18 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartLocker"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Cart\SalesChannel\ShippingCostRoute" public="true">
+            <argument type="service" id="shipping_method.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
+            <argument type="service" id="Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\SalesChannel\ProductShippingCostRoute" public="true">
+            <argument type="service" id="Shopware\Core\Content\Product\Cart\ProductGateway"/>
+            <argument type="service" id="shipping_method.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Processor"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\NetPriceCalculator"/>

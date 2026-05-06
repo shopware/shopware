@@ -24,6 +24,7 @@ use Shopware\Core\Content\Product\SalesChannel\ProductListResponse;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -432,6 +433,80 @@ class CartLineItemControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
+        static::assertArrayHasKey('danger', $session->getFlashBag()->peekAll());
+    }
+
+    public function testAddByProductNumberTrimsInputBeforeLookup(): void
+    {
+        $productNumber = \sprintf(' %s ', Uuid::randomHex());
+        $id = Uuid::randomHex();
+        $request = new Request([], ['number' => $productNumber]);
+        $cart = new Cart(Uuid::randomHex());
+        $context = $this->createMock(SalesChannelContext::class);
+        $product = new ProductEntity();
+        $product->setUniqueIdentifier($id);
+        $product->setId($id);
+        $item = new LineItem($id, PromotionProcessor::LINE_ITEM_TYPE);
+
+        $cart->add($item);
+        $this->productListRouteMock->expects($this->once())
+            ->method('load')
+            ->with(
+                static::callback(static function (Criteria $criteria) use ($productNumber): bool {
+                    foreach ($criteria->getFilters() as $filter) {
+                        if ($filter instanceof EqualsFilter && $filter->getField() === 'productNumber' && $filter->getValue() === $productNumber) {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                }),
+                $context
+            )
+            ->willReturn(
+                new ProductListResponse(
+                    new EntitySearchResult(
+                        ProductDefinition::ENTITY_NAME,
+                        1,
+                        new ProductCollection([$product]),
+                        null,
+                        new Criteria(),
+                        Context::createDefaultContext()
+                    )
+                )
+            );
+
+        $this->productLineItemFactoryMock->expects($this->once())->method('create')->willReturn($item);
+
+        $this->cartService->expects($this->once())
+            ->method('getCart')->willReturn($cart);
+
+        $this->cartService->expects($this->once())
+            ->method('add')
+            ->with($cart, $item, $context)
+            ->willReturn($cart);
+
+        $this->translatorCallback();
+
+        $this->controller->addProductByNumber($request, $context);
+    }
+
+    public function testAddByProductNumberWithBlankInput(): void
+    {
+        $request = new Request([], ['number' => '   ']);
+        $context = $this->createMock(SalesChannelContext::class);
+
+        $this->productListRouteMock->expects($this->never())->method('load');
+        $this->productLineItemFactoryMock->expects($this->never())->method('create');
+        $this->cartService->expects($this->never())->method('getCart');
+        $this->cartService->expects($this->never())->method('add');
+
+        $session = new Session(new MockArraySessionStorage());
+        $this->translatorCallback($session);
+
+        $response = $this->controller->addProductByNumber($request, $context);
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertArrayHasKey('danger', $session->getFlashBag()->peekAll());
     }
 

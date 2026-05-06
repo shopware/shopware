@@ -57,6 +57,7 @@ Previously, the switch field itself was disabled as expected, but its inheritanc
 
 Administration Jest tests can now be split into multiple files using `*.spec/` directories.
 ESLint now warns for Administration test files with 500 lines or more and errors for test files with 1000 lines or more.
+
 ### Fix theme manager inheritance for boolean fields
 
 Switch and checkbox fields in theme configuration now render and handle inheritance consistently. Before they wouldn't have shown the inheritance switch.

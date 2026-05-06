@@ -8,7 +8,6 @@ test('Registered shop customer should be able to buy a digital product.', { tag:
     StorefrontCheckoutFinish,
     StorefrontAccountOrder,
     Login,
-    AddProductToCart,
     ProceedFromProductToCheckout,
     ConfirmTermsAndConditions,
     ConfirmImmediateAccessToDigitalProduct,
@@ -23,7 +22,9 @@ test('Registered shop customer should be able to buy a digital product.', { tag:
 
     await ShopCustomer.goesTo(StorefrontProductDetail.url(digitalProduct));
 
-    await ShopCustomer.attemptsTo(AddProductToCart(digitalProduct));
+    await ShopCustomer.presses(StorefrontProductDetail.addToCartButton);
+    await ShopCustomer.expects(StorefrontProductDetail.offCanvasCartTitle).toBeVisible();
+    await ShopCustomer.expects(StorefrontProductDetail.offCanvasCart.getByText(digitalProduct.name)).toBeVisible();
     await ShopCustomer.attemptsTo(ProceedFromProductToCheckout());
 
     await ShopCustomer.attemptsTo(ConfirmTermsAndConditions());

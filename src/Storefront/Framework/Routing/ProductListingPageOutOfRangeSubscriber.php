@@ -25,8 +25,11 @@ class ProductListingPageOutOfRangeSubscriber implements EventSubscriberInterface
 {
     public static function getSubscribedEvents(): array
     {
+        // Priority 10 keeps us ahead of NotFoundSubscriber (-100) — which would otherwise
+        // render the 404 page — while still sitting below any plugin listener that wants to
+        // produce its own response for this exception.
         return [
-            KernelEvents::EXCEPTION => 'onKernelException',
+            KernelEvents::EXCEPTION => ['onKernelException', 10],
         ];
     }
 
@@ -49,6 +52,9 @@ class ProductListingPageOutOfRangeSubscriber implements EventSubscriberInterface
             return;
         }
 
+        // The 301 is intentionally cacheable by the reverse proxy — the cache key already
+        // includes the full URL (so /Damen/?p=99 and /Damen/?p=2 are separate entries) and
+        // the sales-channel cache hash (so different rule contexts get different entries).
         $event->setResponse(new RedirectResponse($this->buildRedirectTarget($request), Response::HTTP_MOVED_PERMANENTLY));
     }
 

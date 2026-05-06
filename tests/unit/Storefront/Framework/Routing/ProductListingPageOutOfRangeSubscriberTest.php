@@ -22,9 +22,13 @@ use Symfony\Component\HttpKernel\KernelEvents;
 #[CoversClass(ProductListingPageOutOfRangeSubscriber::class)]
 class ProductListingPageOutOfRangeSubscriberTest extends TestCase
 {
-    public function testSubscribesToKernelException(): void
+    public function testSubscribesToKernelExceptionWithExplicitPriority(): void
     {
-        static::assertArrayHasKey(KernelEvents::EXCEPTION, ProductListingPageOutOfRangeSubscriber::getSubscribedEvents());
+        $events = ProductListingPageOutOfRangeSubscriber::getSubscribedEvents();
+
+        static::assertArrayHasKey(KernelEvents::EXCEPTION, $events);
+        // Priority must be > -100 (NotFoundSubscriber) so we run before the 404 page is rendered.
+        static::assertSame(['onKernelException', 10], $events[KernelEvents::EXCEPTION]);
     }
 
     public function testRedirectsWithStrippedPParameterOnStorefrontRequest(): void

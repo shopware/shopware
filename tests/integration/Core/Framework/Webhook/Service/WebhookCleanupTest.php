@@ -127,6 +127,65 @@ class WebhookCleanupTest extends TestCase
         );
     }
 
+    public function testRemoveOldLogsPreservesQueuedLogsWithActiveDelivery(): void
+    {
+        $this->connection = static::getContainer()->get(Connection::class);
+
+        $mockedDate = new \DateTimeImmutable('2026-04-15 12:00:00');
+        $streamLockService = static::getContainer()->get(StreamLockService::class);
+
+        $systemConfigService = new StaticSystemConfigService([
+            'core.webhook.entryLifetimeSeconds' => 3600,
+        ]);
+
+        $this->connection->executeStatement('DELETE FROM webhook_delivery');
+        $this->connection->executeStatement('DELETE FROM webhook_event_log');
+        $this->connection->executeStatement('DELETE FROM webhook');
+
+        $webhookId = Uuid::randomBytes();
+        $this->connection->insert('webhook', [
+            'id' => $webhookId,
+            'name' => 'queued-hook',
+            'event_name' => 'product.written',
+            'url' => 'https://example.com/webhook',
+            'app_id' => null,
+            'created_at' => $mockedDate->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $eventLogId = Uuid::randomBytes();
+        $oldQueuedAt = $mockedDate->modify('-3 hours')->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $this->connection->insert('webhook_event_log', [
+            'id' => $eventLogId,
+            'delivery_status' => WebhookEventLogDefinition::STATUS_QUEUED,
+            'event_name' => 'product.written',
+            'webhook_name' => 'queued-hook',
+            'url' => 'https://example.com/webhook',
+            'created_at' => $oldQueuedAt,
+        ]);
+
+        $partitionKey = Hasher::hashBinary('active-queued', 'xxh128');
+        $this->connection->insert('webhook_delivery', [
+            'webhook_event_log_id' => $eventLogId,
+            'webhook_id' => $webhookId,
+            'partition_key' => $partitionKey,
+            'delivery_status' => WebhookEventLogDefinition::STATUS_QUEUED,
+            'execution_count' => 0,
+            'created_at' => $oldQueuedAt,
+        ]);
+
+        $cleanup = new WebhookCleanup($systemConfigService, $this->connection, $streamLockService, new MockClock($mockedDate));
+        $cleanup->removeOldLogs();
+
+        static::assertTrue(
+            (bool) $this->connection->fetchOne('SELECT 1 FROM webhook_event_log WHERE id = :id', ['id' => $eventLogId]),
+            'Queued event logs with an active webhook_delivery row are still the hot queue and must not be cleaned'
+        );
+        static::assertTrue(
+            (bool) $this->connection->fetchOne('SELECT 1 FROM webhook_delivery WHERE webhook_event_log_id = :id', ['id' => $eventLogId]),
+            'Active webhook_delivery row must remain with its event log'
+        );
+    }
+
     private function insertLog(string $name, string $createdAt, string $status): void
     {
         $this->connection->insert('webhook_event_log', [

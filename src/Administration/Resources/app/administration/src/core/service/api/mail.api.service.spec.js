@@ -98,4 +98,71 @@ describe('mailApiService', () => {
             expect(clientMock.history.post[0].headers['sw-language-id']).toBe(Shopware.Context.api.languageId);
         });
     });
+
+    describe('previewMailTemplate', () => {
+        it('calls the correct endpoint', async () => {
+            const { mailApiService, clientMock } = getMailApiService();
+
+            await mailApiService.previewMailTemplate(
+                'mail-template-id',
+                { order: 'order-id', salesChannel: 'sales-channel-id' },
+                { a11yDocuments: [] },
+                'sales-channel-id',
+                true,
+                true,
+                { languageId: 'language-id' },
+            );
+
+            expect(clientMock.history.post[0].url).toBe(`/_action/mail-template/preview`);
+            expect(clientMock.history.post[0].headers['sw-language-id']).toBe('language-id');
+            expect(JSON.parse(clientMock.history.post[0].data)).toEqual({
+                mailTemplateId: 'mail-template-id',
+                entities: { order: 'order-id', salesChannel: 'sales-channel-id' },
+                templateData: { a11yDocuments: [] },
+                salesChannelId: 'sales-channel-id',
+                includeHeaderFooter: true,
+                strictRendering: true,
+            });
+        });
+    });
+
+    describe('getDataAndSendMailTemplate', () => {
+        it('calls the correct endpoint', async () => {
+            const { mailApiService, clientMock } = getMailApiService();
+
+            await mailApiService.getDataAndSendMailTemplate(
+                {
+                    recipients: { 'test@example.com': 'Test User' },
+                    mailTemplateId: 'mail-template-id',
+                    entities: { order: 'order-id', salesChannel: 'sales-channel-id' },
+                    templateData: { a11yDocuments: [] },
+                },
+                { languageId: 'language-id' },
+            );
+
+            expect(clientMock.history.post[0].url).toBe(`/_action/mail-template/get-data-and-send`);
+            expect(clientMock.history.post[0].headers['sw-language-id']).toBe('language-id');
+        });
+    });
+
+    describe('simulateMailTemplate', () => {
+        it('calls the correct endpoint', async () => {
+            const { mailApiService, clientMock } = getMailApiService();
+
+            await mailApiService.simulateMailTemplate(
+                { contentHtml: '<p>Test</p>' },
+                'checkout.order.placed',
+                'sales-channel-id',
+                true,
+            );
+
+            expect(clientMock.history.post[0].url).toBe(`/_action/mail-template/simulate`);
+            expect(JSON.parse(clientMock.history.post[0].data)).toEqual({
+                templateParts: { contentHtml: '<p>Test</p>' },
+                eventName: 'checkout.order.placed',
+                strictRendering: true,
+                salesChannelId: 'sales-channel-id',
+            });
+        });
+    });
 });

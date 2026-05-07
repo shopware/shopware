@@ -39,4 +39,38 @@ class FloatFieldTest extends TestCase
         static::assertSame(['en-GB' => 'Enter a float...'], $floatField->getPlaceholder());
         static::assertFalse($floatField->getRequired());
     }
+
+    public function testToEntityPayload(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/float-field.xml');
+        static::assertNotNull($manifest->getCustomFields());
+
+        $floatField = $manifest->getCustomFields()->getCustomFieldSets()[0]->getFields()[0];
+        static::assertInstanceOf(FloatField::class, $floatField);
+
+        static::assertEquals([
+            'name' => 'test_float_field',
+            'type' => 'float',
+            'config' => [
+                'label' => [
+                    'en-GB' => 'Test float field',
+                    'de-DE' => 'Test Kommazahlenfeld',
+                ],
+                'helpText' => [
+                    'en-GB' => 'This is a float field.',
+                ],
+                'customFieldPosition' => 2,
+                'type' => 'number',
+                'placeholder' => [
+                    'en-GB' => 'Enter a float...',
+                ],
+                'componentName' => 'sw-field',
+                'customFieldType' => 'number',
+                'numberType' => 'float',
+                'max' => 1.6,
+                'min' => 0.5,
+                'step' => 2.2,
+            ],
+        ], $floatField->toEntityPayload());
+    }
 }

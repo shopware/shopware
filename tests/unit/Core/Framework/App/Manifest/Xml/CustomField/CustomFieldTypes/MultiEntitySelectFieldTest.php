@@ -36,4 +36,31 @@ class MultiEntitySelectFieldTest extends TestCase
         static::assertFalse($multiEntitySelectField->getRequired());
         static::assertSame('product', $multiEntitySelectField->getEntity());
     }
+
+    public function testToEntityPayload(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/multi-entity-select-field.xml');
+        static::assertNotNull($manifest->getCustomFields());
+
+        $multiEntitySelectField = $manifest->getCustomFields()->getCustomFieldSets()[0]->getFields()[0];
+        static::assertInstanceOf(MultiEntitySelectField::class, $multiEntitySelectField);
+
+        static::assertEquals([
+            'name' => 'test_multi_entity_select_field',
+            'type' => 'entity',
+            'config' => [
+                'label' => [
+                    'en-GB' => 'Test multi-entity-select field',
+                ],
+                'helpText' => [],
+                'customFieldPosition' => 1,
+                'entity' => 'product',
+                'placeholder' => [
+                    'en-GB' => 'Choose an entity...',
+                ],
+                'componentName' => 'sw-entity-multi-id-select',
+                'customFieldType' => 'select',
+            ],
+        ], $multiEntitySelectField->toEntityPayload());
+    }
 }

@@ -9,18 +9,18 @@ use Shopware\Tests\Integration\Core\Framework\App\CustomFieldTypeTestBehaviour;
 /**
  * @internal
  */
-class TextFieldTest extends TestCase
+class CustomFieldTypeLifecycleTest extends TestCase
 {
     use CustomFieldTypeTestBehaviour;
     use IntegrationTestBehaviour;
 
-    public function testToEntityArray(): void
+    public function testAppLifecyclePersistsCustomFieldFromManifest(): void
     {
-        $textField = $this->importCustomField(__DIR__ . '/_fixtures/text-field.xml');
+        $customField = $this->importCustomField(__DIR__ . '/_fixtures/text-field.xml');
 
-        static::assertSame('test_text_field', $textField->getName());
-        static::assertSame('text', $textField->getType());
-        static::assertTrue($textField->isActive());
+        static::assertSame('test_text_field', $customField->getName());
+        static::assertSame('text', $customField->getType());
+        static::assertTrue($customField->isActive());
         static::assertEquals([
             'type' => 'text',
             'label' => [
@@ -33,6 +33,6 @@ class TextFieldTest extends TestCase
             'componentName' => 'sw-field',
             'customFieldType' => 'text',
             'customFieldPosition' => 1,
-        ], $textField->getConfig());
+        ], $customField->getConfig());
     }
 }

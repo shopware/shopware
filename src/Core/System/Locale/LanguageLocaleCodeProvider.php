@@ -41,6 +41,14 @@ class LanguageLocaleCodeProvider implements ResetInterface
     }
 
     /**
+     * @return string[]
+     */
+    public function getParentLanguageLocalesForLanguageId(string $languageId): array
+    {
+        return $this->getParentLanguageCodes($languageId);
+    }
+
+    /**
      * @param array<string> $languageIds
      *
      * @return array<string, string>
@@ -90,5 +98,29 @@ class LanguageLocaleCodeProvider implements ResetInterface
         }
 
         return $languages;
+    }
+
+    /**
+     * @param (string|null)[] $parentLanguageCodes
+     *
+     * @return string[]
+     */
+    private function getParentLanguageCodes(string $languageId, array $parentLanguageCodes = []): array
+    {
+        $languages = $this->getLanguages();
+
+        if (!\array_key_exists($languageId, $languages)) {
+            throw LocaleException::languageNotFound($languageId);
+        }
+
+        $parentId = $languages[$languageId]['parentId'] ?? null;
+
+        if ($parentId === null) {
+            return array_unique(array_filter($parentLanguageCodes));
+        }
+
+        $parentLanguageCodes[] = $languages[$parentId]['code'] ?? null;
+
+        return $this->getParentLanguageCodes($parentId, $parentLanguageCodes);
     }
 }

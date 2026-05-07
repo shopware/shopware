@@ -14,6 +14,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\Locale\LocaleException;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Snippet\SnippetService;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\CacheWarmer\WarmableInterface;
@@ -60,6 +61,8 @@ class Translator extends AbstractTranslator
      * @var array<string, string>
      */
     private array $snippets = [];
+
+    private ?string $languageId = null;
 
     /**
      * @internal
@@ -117,6 +120,8 @@ class Translator extends AbstractTranslator
     public function getCatalogue(?string $locale = null): MessageCatalogueInterface
     {
         $catalog = $this->translator->getCatalogue($locale);
+
+        $this->addParentLanguageLocaleFallbacks($catalog);
 
         $fallbackLocale = $this->getFallbackLocale($catalog->getLocale());
         if ($this->isShopwareLocaleCatalogue($catalog) && !$this->isFallbackLocaleCatalogue($catalog, $fallbackLocale)) {
@@ -205,6 +210,7 @@ class Translator extends AbstractTranslator
         $this->salesChannelId = null;
         $this->localeBeforeInject = null;
         $this->locale = null;
+        $this->languageId = null;
         if ($this->translator instanceof SymfonyTranslator) {
             // Reset FallbackLocale in memory cache of symfony implementation
             // set fallback values from Framework/Resources/config/translation.yaml
@@ -223,7 +229,7 @@ class Translator extends AbstractTranslator
         $this->salesChannelId = $salesChannelId;
         $this->setLocale($locale);
         $this->resolveSnippetSetId($salesChannelId, $languageId, $locale);
-        $this->getCatalogue($locale);
+        $this->languageId = $languageId;
     }
 
     public function resetInjection(): void
@@ -236,6 +242,7 @@ class Translator extends AbstractTranslator
         $this->setLocale($this->localeBeforeInject);
         $this->snippetSetId = null;
         $this->salesChannelId = null;
+        $this->languageId = null;
     }
 
     public function getSnippetSetId(?string $locale = null): ?string
@@ -370,6 +377,42 @@ class Translator extends AbstractTranslator
         }
 
         $this->salesChannelId = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
+    }
+
+    private function resolveLanguageId(): void
+    {
+        if ($this->languageId !== null) {
+            return;
+        }
+
+        $request = $this->requestStack->getMainRequest();
+
+        if (!$request) {
+            return;
+        }
+
+        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
+
+        if (!$context instanceof SalesChannelContext) {
+            return;
+        }
+
+        $this->languageId = $context->getLanguageId();
+    }
+
+    private function addParentLanguageLocaleFallbacks(MessageCatalogueInterface $catalogue): void
+    {
+        $this->resolveLanguageId();
+        $parentLanguageLocales = $this->languageId !== null
+            ? $this->languageLocaleProvider->getParentLanguageLocalesForLanguageId($this->languageId)
+            : [];
+        $parentLanguageLocales = array_filter(
+            $parentLanguageLocales,
+            fn (string $locale) => $locale !== $this->translator->getLocale()
+        );
+        foreach ($parentLanguageLocales as $parentLanguageLocale) {
+            $catalogue->addFallbackCatalogue($this->translator->getCatalogue($parentLanguageLocale));
+        }
     }
 
     private function buildMergedCatalogue(MessageCatalogueInterface $catalogue, string $snippetSetId, ?string $fallbackLocale): MessageCatalogueInterface

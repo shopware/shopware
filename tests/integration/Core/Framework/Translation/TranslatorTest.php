@@ -15,8 +15,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Util\StatementHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\System\Language\LanguageCollection;
+use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetCollection;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\SnippetCollection;
 use Shopware\Core\System\Snippet\SnippetDefinition;
@@ -46,11 +50,29 @@ class TranslatorTest extends TestCase
      */
     private EntityRepository $snippetRepository;
 
+    /**
+     * @var EntityRepository<SnippetSetCollection>
+     */
+    private EntityRepository $snippetSetRepository;
+
+    /**
+     * @var EntityRepository<LanguageCollection>
+     */
+    private EntityRepository $languageRepository;
+
+    /**
+     * @var EntityRepository<LocaleCollection>
+     */
+    private EntityRepository $localeRepository;
+
     protected function setUp(): void
     {
         $this->connection = static::getContainer()->get(Connection::class);
         $this->translator = static::getContainer()->get(Translator::class);
         $this->snippetRepository = static::getContainer()->get('snippet.repository');
+        $this->snippetSetRepository = static::getContainer()->get('snippet_set.repository');
+        $this->languageRepository = static::getContainer()->get('language.repository');
+        $this->localeRepository = static::getContainer()->get('locale.repository');
 
         $this->translator->reset();
         $this->translator->warmUp('');
@@ -298,6 +320,71 @@ class TranslatorTest extends TestCase
     public function testItReplacesReservedCharacter(): void
     {
         static::assertSame('translator.<_r_strong>', Translator::buildName('</strong>'));
+    }
+
+    public function testFallbackOnParentLanguageSnippets(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $snippet = [
+            'translationKey' => 'new.unit.test.key',
+            'value' => 'Realisiert mit Unit test',
+            'setId' => $this->getSnippetSetIdForLocale('en-GB'),
+            'author' => 'Shopware',
+        ];
+        $this->snippetRepository->create([$snippet], $context);
+
+        $this->snippetSetRepository->create([
+            ['name' => 'en-US', 'baseFile' => 'messages.en-US', 'iso' => 'en-US'],
+        ], $context);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('code', 'en-US'));
+        $locale = $this->localeRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
+        static::assertNotNull($locale);
+
+        $languageId = Uuid::randomHex();
+        $languages = [[
+            'id' => $languageId,
+            'name' => 'English US',
+            'parentId' => Defaults::LANGUAGE_SYSTEM,
+            'active' => true,
+            'locale' => [
+                'id' => $locale->getId(),
+            ],
+            'translationCodeId' => $locale->getId(),
+        ]];
+        $this->languageRepository->create($languages, $context);
+
+        $salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
+            Uuid::randomHex(),
+            TestDefaults::SALES_CHANNEL
+        );
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
+        static::getContainer()->get(RequestStack::class)->push($request);
+
+        static::assertSame(
+            $snippet['value'],
+            $this->translator->trans('new.unit.test.key')
+        );
+
+        $this->translator->injectSettings(
+            $salesChannelContext->getSalesChannelId(),
+            $languageId,
+            'en-US',
+            $salesChannelContext->getContext()
+        );
+
+        static::assertSame(
+            $snippet['value'],
+            $this->translator->trans('new.unit.test.key')
+        );
+        static::assertSame(
+            'Service date equivalent to invoice date',
+            $this->translator->trans('document.serviceDateNotice')
+        );
     }
 
     public function testThemeSnippetsGetsMergedWithOverride(): void

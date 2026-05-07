@@ -404,6 +404,42 @@ export function createExtendableSetup<
 }
 
 /**
+ * The Shopware setup SFC transform emits this bridge from inside native `<script setup>`.
+ * It keeps generated SFC code thin while still routing every base component through
+ * the same createExtendableSetup runtime path as hand-written Composition API code.
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export function createScriptSetupExtendableComponent<
+    TProps extends Record<string, unknown> = Record<string, unknown>,
+    TContext = SetupContext,
+>() {
+    return function <
+        TComponentName extends keyof ComponentPublicApiMapping,
+        TSetupResult extends ComponentPublicApiMapping[TComponentName] = ComponentPublicApiMapping[TComponentName],
+        TPrivateSetupResult extends object = object,
+    >(
+        name: TComponentName,
+        setup: (bindings: { props: TProps; context: TContext }) => {
+            public?: Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]>;
+            private?: TPrivateSetupResult;
+        },
+    ): ToRefs<Reactive<Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]> & TPrivateSetupResult>> {
+        const instance = getCurrentInstance();
+        const props = (instance?.props ?? {}) as TProps;
+        const context = getComponentContext() as TContext;
+
+        return createExtendableSetup(
+            {
+                name,
+                props,
+                context,
+            },
+            () => setup({ props, context }),
+        );
+    };
+}
+
+/**
  * Types for extracting the props of a component
  */
 type InferComponentProps<T> = T extends new () => { $props: infer P } ? P : never;

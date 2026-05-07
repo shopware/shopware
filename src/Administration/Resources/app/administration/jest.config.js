@@ -84,6 +84,8 @@ module.exports = {
         // Exception in the build dir for vite plugins
         'build/vite-plugins/**/*.ts',
         '!build/vite-plugins/**/*.spec.ts',
+        'build/vue-setup-transform/**/*.js',
+        '!build/vue-setup-transform/**/*.spec.js',
     ],
 
     coverageReporters: [
@@ -121,7 +123,7 @@ module.exports = {
         }],
         '^.+(\\.twig|\\.html)$': '<rootDir>/test/transformer/twigToVueTransformer.js',
         '.*\\.(svg)$': '<rootDir>/test/transformer/svgStringifyTransformer.js',
-        '^.+\\.vue$': '@vue/vue3-jest',
+        '^.+\\.vue$': '<rootDir>/test/transformer/shopwareSetupVueTransformer.js',
     },
 
     transformIgnorePatterns: [
@@ -169,6 +171,7 @@ module.exports = {
         '<rootDir>/eslint-rules/**/*.spec.js',
         '<rootDir>/build/vite-plugins/**/*.spec.ts',
         '<rootDir>/build/vite-plugins/**/*.spec.js',
+        '<rootDir>/build/vue-setup-transform/**/*.spec.js',
         '!<rootDir>/src/**/*.spec.vue2.js',
         '<rootDir>/scripts/**/*.spec.ts',
     ],

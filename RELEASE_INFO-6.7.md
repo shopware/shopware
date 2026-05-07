@@ -37,6 +37,10 @@ If you dispatched that message manually, you should call the `TaskScheduler::reg
 
 ## Administration
 
+### Custom fields respect read-only permissions in Administration detail views
+
+Custom fields on category, landing page, sales channel, customer address, and order address detail views are now disabled when the current user only has read permissions.
+
 ### Fixed "Last Quarter" timeframe returning the wrong year in `sw-date-filter`
 
 Selecting the "Last Quarter" timeframe in any listing's date filter (orders, documents, customers, etc.) between January and March now produces a three-month range in the previous year instead of a ~15-month range that spanned both years.
@@ -52,6 +56,10 @@ The flyout now calculates a dynamic `max-height` from the remaining viewport spa
 The Administration now uses Meteor Component Library `4.28.6`.
 With this update, disabled Meteor switch fields in system configuration can now unlink inherited sales channel values.
 Previously, the switch field itself was disabled as expected, but its inheritance control was disabled as well, preventing merchants from overriding inherited values for that sales channel.
+
+### Administration sidebar off-canvas closes on mobile navigation
+
+The Administration sidebar off-canvas now closes reliably on very small viewports after selecting a navigation entry, clicking outside the sidebar, or changing routes.
 
 ### Fix theme manager inheritance for boolean fields
 

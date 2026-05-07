@@ -193,10 +193,12 @@ class EntityWriteResultFactoryTest extends TestCase
         $queue = new WriteCommandQueue();
         $definition = $registry->get(CountryDefinition::class);
 
-        $insert = new InsertCommandStub(
-            ['id' => $ids->getBytes('country-1'), 'active' => false],
-            ['id' => $ids->getBytes('country-1')],
-            $definition
+        $insert = new InsertCommand(
+            definition: $definition,
+            payload: ['id' => $ids->getBytes('country-1'), 'active' => false],
+            primaryKey: ['id' => $ids->getBytes('country-1')],
+            existence: new EmptyEntityExistence(),
+            path: '/' . Uuid::randomHex()
         );
         $queue->add($insert->getEntityName(), WriteCommandQueue::hashedPrimary($registry, $insert), $insert);
 
@@ -219,25 +221,6 @@ class EntityWriteResultFactoryTest extends TestCase
             'active' => false,
             'position' => 10,
         ], $result['country'][0]->getPayload());
-    }
-}
-
-/**
- * @internal
- */
-class InsertCommandStub extends InsertCommand
-{
-    public function __construct(array $payload, array $primaryKey, ?EntityDefinition $definition = null)
-    {
-        $definition = $definition ?? new CountryDefinition();
-
-        parent::__construct(
-            definition: $definition,
-            payload: $payload,
-            primaryKey: $primaryKey,
-            existence: new EmptyEntityExistence(),
-            path: '/' . Uuid::randomHex()
-        );
     }
 }
 

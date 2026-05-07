@@ -26,6 +26,20 @@ describe('src/core/service/utils/format.utils.js', () => {
         beforeEach(async () => {
             setLocale('en-GB');
             setTimeZone('UTC');
+            // Pin browser timezone to UTC so tests are deterministic regardless of CI environment.
+            // Our fix falls back to Intl.DateTimeFormat().resolvedOptions().timeZone when no
+            // explicit (non-UTC) timezone is stored on the user profile.
+            const originalDateTimeFormat = Intl.DateTimeFormat;
+            jest.spyOn(Intl, 'DateTimeFormat').mockImplementation(function mockDateTimeFormat(locale, options) {
+                if (!locale && !options) {
+                    return { resolvedOptions: () => ({ timeZone: 'UTC' }) };
+                }
+                return new originalDateTimeFormat(locale, options);
+            });
+        });
+
+        afterEach(() => {
+            jest.restoreAllMocks();
         });
 
         it('should return empty string for null value', async () => {
@@ -97,6 +111,17 @@ describe('src/core/service/utils/format.utils.js', () => {
         beforeEach(async () => {
             setLocale('en-GB');
             setTimeZone('UTC');
+            const originalDateTimeFormat = Intl.DateTimeFormat;
+            jest.spyOn(Intl, 'DateTimeFormat').mockImplementation(function mockDateTimeFormat(locale, options) {
+                if (!locale && !options) {
+                    return { resolvedOptions: () => ({ timeZone: 'UTC' }) };
+                }
+                return new originalDateTimeFormat(locale, options);
+            });
+        });
+
+        afterEach(() => {
+            jest.restoreAllMocks();
         });
 
         it('should convert the date correctly with timezone Pacific/Pago_Pago', async () => {
@@ -108,7 +133,7 @@ describe('src/core/service/utils/format.utils.js', () => {
             );
         });
 
-        it('should convert the date correctly with timezone UTC as fallback', async () => {
+        it('should use browser timezone as fallback when no timezone is stored', async () => {
             setTimeZone(null);
             const date = new Date(2000, 1, 1, 0, 13, 37);
 

@@ -18,15 +18,15 @@ use Symfony\Component\HttpKernel\KernelEvents;
  *
  * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
  *
- * Allows MCP clients to authenticate with integration credentials (access key + secret)
- * directly, without requiring a separate OAuth token exchange.
+ * Allows MCP clients to authenticate with either access key credentials or a standard bearer JWT.
  *
- * When `sw-access-key` and `sw-secret-access-key` headers are present on the MCP endpoint,
- * this listener validates them via the existing ClientRepository and sets up the request
- * attributes so that ApiRequestContextResolver resolves the proper AdminApiSource
- * with the integration's ACL permissions.
+ * When `sw-access-key` and `sw-secret-access-key` headers are present, this listener validates
+ * them via ClientRepository and sets the pre-authenticated request attributes so that
+ * ApiRequestContextResolver resolves the correct AdminApiSource.
  *
- * Falls through to standard bearer token auth if no integration headers are present.
+ * When neither header is present, the listener falls through to standard bearer JWT auth
+ * (password-grant or client_credentials). McpAllowlistProvider handles allowlist resolution
+ * for all auth modes, including the per-user allowlist applied to bearer JWT sessions.
  */
 #[Package('framework')]
 class McpAuthenticationListener implements EventSubscriberInterface
@@ -64,10 +64,12 @@ class McpAuthenticationListener implements EventSubscriberInterface
         $secretKey = $request->headers->get(self::HEADER_SECRET_ACCESS_KEY);
 
         if ($accessKey === null || $secretKey === null) {
+            // No access key headers — fall through to standard bearer JWT auth.
             return;
         }
 
-        if (AccessKeyHelper::getOrigin($accessKey) !== 'integration') {
+        $origin = AccessKeyHelper::getOrigin($accessKey);
+        if ($origin !== 'integration' && $origin !== 'user') {
             throw McpException::unsupportedKeyType();
         }
 

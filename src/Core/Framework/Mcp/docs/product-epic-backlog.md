@@ -25,7 +25,7 @@ Planning reference for contributors and PMs. For the public docs see [developer.
 | Theme | Outcome |
 |-------|---------|
 | **SwagMcpDevTools depth** | System/health probes, deprecation/version context, migration status, log–request correlation |
-| **Per-user MCP allowlist** | User bearer tokens + Copilot `sw-app-user-id` intersection; Admin UI on user detail page. See [gaps-user-allowlist.md](gaps-user-allowlist.md) |
+| **Per-user MCP allowlist** | Per-user allowlist on `user`; bearer JWT re-enabled; Copilot intersection implemented. See [gaps-user-allowlist.md](gaps-user-allowlist.md) |
 | **Docs depth** | Exhaustive reference, automation, full site chapter on developer.shopware.com |
 | **Analytics products** | In-admin dashboards, SIEM packs (requires V1 structured observability baseline) |
 | **Store API MCP** | Customer-authenticated MCP surface for buyer-journey tools (browsing, cart, checkout). Needs PM driver |
@@ -50,7 +50,7 @@ Planning reference for contributors and PMs. For the public docs see [developer.
 | **Structured MCP observability** (telemetry on every tool call) | **Partial** | `mcp` Monolog channel exists; no OpenTelemetry spans or metrics emission yet. Needed for adoption data and tool census | M | **V1 (GA blocker)** |
 | Feature flag `MCP_SERVER` lifecycle | **Partial** | Good for POC; needs lifecycle decision (default on, compile-time removal path) | S | V1 |
 | New integrations start with empty allowlist (enforcement) | **Open** | Current default is `NULL` (unrestricted); product direction says new integrations start with no tools selected | S | V1 |
-| **Per-user MCP allowlist** (bearer token + Copilot intersection) | **Open** | See [gaps-user-allowlist.md](gaps-user-allowlist.md) | M | **V2** |
+| **Per-user MCP allowlist** (bearer token + Copilot intersection) | **Done** | Per-user allowlist on `user`; bearer JWT re-enabled; Copilot intersection via `sw-app-user-id`. See [gaps-user-allowlist.md](gaps-user-allowlist.md) | M | — |
 | ACL on read-only resources | **Open** | Resources are reference data today; only if security review demands it | M | Later |
 | Optional discovery metadata | **Open** | Not needed if Admin allowlist + docs are sufficient | M | Later |
 | Phase 2: MCP analytics (dashboards, SIEM) | **Open** | Requires structured observability baseline first | L | V2 |
@@ -157,6 +157,7 @@ Shopware uses **Streamable HTTP** at `/api/_mcp` via `symfony/mcp-bundle`. Sessi
 - ACL + dry-run + per-integration allowlist + rate limit + conflict detection.
 - **`SwagMcpDevTools` MVP** — log streaming, log search, notifications tool (indexer/import-export events via SSE). Lives in `custom/bundles/SwagMcpDevTools/`.
 - **Merchant workflows out of core** — all 9 `merchant-*` tools in `custom/plugins/SwagMcpMerchantAssistant/`; zero merchant tools remain in `src/Core/`.
+- **Per-user MCP allowlist** — `user.mcp_allowlist`; bearer JWT re-enabled; Copilot `sw-app-user-id` intersection implemented. See [gaps-user-allowlist.md](gaps-user-allowlist.md).
 - **Public docs first cut** — shipped via `shopware/docs#2264`; in-repo `docs/` is now contributor reference only.
 - **Reference apps** — `custom/apps/McpHelloWorld/` and `custom/plugins/SwagMcpAdminUsers/` exist in-repo (org move to `shopware/*` still pending).
 
@@ -164,7 +165,6 @@ Shopware uses **Streamable HTTP** at `/api/_mcp` via `symfony/mcp-bundle`. Sessi
 
 - **Structured MCP observability** — only `mcp` Monolog channel today. No OpenTelemetry spans, no metrics emission on tool calls. Needed to prove adoption, detect zero-use tools, and judge quality.
 - **Per-integration allowlist — new integrations default empty** — current default is `NULL` (unrestricted). Product direction says new integrations start with no tools selected; enforcement not yet in place.
-- **Per-user MCP allowlist** — bearer token users bypass the allowlist; Copilot (`sw-app-user-id`) applies only the integration's list. Plan documented in [gaps-user-allowlist.md](gaps-user-allowlist.md).
 - **`shopware/*` org move for samples** — `McpHelloWorld` and `SwagMcpAdminUsers` are in-repo on this branch; need move + polish + canonical docs links.
 - Optional ACL on resources (if security review demands it).
 - Optional discovery metadata (deferred; revisit only if allowlist + docs prove insufficient).

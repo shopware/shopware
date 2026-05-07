@@ -51,7 +51,7 @@ class McpAuthenticationListenerTest extends TestCase
         static::assertFalse($event->getRequest()->attributes->has(PlatformRequest::ATTRIBUTE_OAUTH_PRE_AUTHENTICATED));
     }
 
-    public function testSkipsWhenNoAccessKeyHeaders(): void
+    public function testFallsThroughWhenNoAccessKeyHeaders(): void
     {
         $clientRepository = $this->createMock(ClientRepository::class);
         $clientRepository->expects($this->never())->method('validateClient');
@@ -64,20 +64,36 @@ class McpAuthenticationListenerTest extends TestCase
         static::assertFalse($event->getRequest()->attributes->has(PlatformRequest::ATTRIBUTE_OAUTH_PRE_AUTHENTICATED));
     }
 
-    public function testRejectsNonIntegrationKeys(): void
+    public function testFallsThroughToBearerJwtWhenNoAccessKeyHeaders(): void
+    {
+        $clientRepository = $this->createMock(ClientRepository::class);
+        $clientRepository->expects($this->never())->method('validateClient');
+
+        $listener = new McpAuthenticationListener($clientRepository, $this->createMock(RateLimiter::class));
+        $event = $this->createControllerEvent('api.mcp.endpoint', [
+            'Authorization' => 'Bearer some.jwt.token',
+        ]);
+
+        $listener->authenticate($event);
+
+        static::assertFalse($event->getRequest()->attributes->has(PlatformRequest::ATTRIBUTE_OAUTH_PRE_AUTHENTICATED));
+    }
+
+    public function testRejectsUnsupportedKeyType(): void
     {
         $listener = new McpAuthenticationListener(
             static::createStub(ClientRepository::class),
             static::createStub(RateLimiter::class),
         );
 
+        // SWSC = sales-channel key — a known prefix but not supported for MCP
         $event = $this->createControllerEvent('api.mcp.endpoint', [
-            'sw-access-key' => 'SWUAsomeuserkey1234567890',
+            'sw-access-key' => 'SWSCsomesaleschannel1234',
             'sw-secret-access-key' => 'some-secret',
         ]);
 
         static::expectException(McpException::class);
-        static::expectExceptionMessage('Only integration access keys are supported');
+        static::expectExceptionMessage('Only integration or user access keys are supported for MCP authentication.');
 
         $listener->authenticate($event);
     }
@@ -133,6 +149,36 @@ class McpAuthenticationListenerTest extends TestCase
     public function testAuthenticatesSuccessfullyAndResetsRateLimiter(): void
     {
         $accessKey = 'SWIAvalidintegrationkey12';
+        $secret = 'my-secret-key';
+
+        $clientRepository = $this->createMock(ClientRepository::class);
+        $clientRepository->method('validateClient')
+            ->with($accessKey, $secret, 'client_credentials')
+            ->willReturn(true);
+
+        $rateLimiter = $this->createMock(RateLimiter::class);
+        $rateLimiter->expects($this->once())->method('ensureAccepted')
+            ->with(RateLimiter::OAUTH, $accessKey);
+        $rateLimiter->expects($this->once())->method('reset')
+            ->with(RateLimiter::OAUTH, $accessKey);
+
+        $listener = new McpAuthenticationListener($clientRepository, $rateLimiter);
+        $event = $this->createControllerEvent('api.mcp.endpoint', [
+            'sw-access-key' => $accessKey,
+            'sw-secret-access-key' => $secret,
+        ]);
+
+        $listener->authenticate($event);
+
+        $request = $event->getRequest();
+        static::assertSame('mcp-' . $accessKey, $request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID));
+        static::assertSame($accessKey, $request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID));
+        static::assertTrue($request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_PRE_AUTHENTICATED));
+    }
+
+    public function testAuthenticatesSuccessfullyWithUserAccessKey(): void
+    {
+        $accessKey = 'SWUAvaliduseraccesskey123';
         $secret = 'my-secret-key';
 
         $clientRepository = $this->createMock(ClientRepository::class);

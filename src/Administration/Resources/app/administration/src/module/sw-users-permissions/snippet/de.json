@@ -173,7 +173,7 @@
                 "labelButtonSave": "Speichern",
                 "writeAccess": "Schreiben",
                 "readAccess": "Lesen",
-                "contextMenuEdit": "Bearbeiten",
+                "contextMenuEdit": "Integration bearbeiten",
                 "contextMenuDelete": "Löschen",
                 "textChangePassword": "Mit einem Klick auf 'Ändern' wird das Passwort direkt gespeichert.",
                 "addAccessKey": "Zugangsschlüssel erstellen",
@@ -207,6 +207,8 @@
                     "messageSaveError": "Die Integration konnte nicht gespeichert werden.",
                     "messageCreateNewError": "Die Integration konnte nicht erstellt werden."
                 },
+                "mcpAllowlistTitle": "MCP-Tool-Allowlist",
+                "mcpAllowlistSaveError": "Die MCP-Allowlist konnte nicht gespeichert werden.",
                 "notification": {
                     "saveError": {
                         "message": "Der Benutzer \"{name}\" konnte nicht gespeichert werden."

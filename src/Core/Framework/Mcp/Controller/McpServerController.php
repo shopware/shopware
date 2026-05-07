@@ -8,6 +8,8 @@ use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistFilter;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
@@ -89,6 +91,10 @@ class McpServerController
             $psrResponse = $this->filterListResponse($request, $psrResponse, $allowlist);
         }
 
+        if ($request->getMethod() === 'POST') {
+            $psrResponse = $this->enrichInitializeResponse($request, $psrResponse);
+        }
+
         $streamed = strtolower($psrResponse->getHeaderLine('Content-Type')) === 'text/event-stream';
 
         return $this->httpFoundationFactory->createResponse($psrResponse, $streamed);
@@ -113,7 +119,7 @@ class McpServerController
                 return $this->jsonRpcError(
                     $body['id'] ?? null,
                     $toolName !== ''
-                        ? \sprintf('Tool "%s" is not in the allowlist for this integration. Enable it under Settings → Integrations → Edit MCP Allowlist.', $toolName)
+                        ? \sprintf('Tool "%s" is not enabled in your MCP allowlist.', $toolName)
                         : 'Tool call rejected: no tool name provided.',
                 );
             }
@@ -125,7 +131,7 @@ class McpServerController
                 return $this->jsonRpcError(
                     $body['id'] ?? null,
                     $resourceUri !== ''
-                        ? \sprintf('Resource "%s" is not in the allowlist for this integration. Enable it under Settings → Integrations → Edit MCP Allowlist.', $resourceUri)
+                        ? \sprintf('Resource "%s" is not enabled in your MCP allowlist.', $resourceUri)
                         : 'Resource read rejected: no URI provided.',
                 );
             }
@@ -137,7 +143,7 @@ class McpServerController
                 return $this->jsonRpcError(
                     $body['id'] ?? null,
                     $promptName !== ''
-                        ? \sprintf('Prompt "%s" is not in the allowlist for this integration. Enable it under Settings → Integrations → Edit MCP Allowlist.', $promptName)
+                        ? \sprintf('Prompt "%s" is not enabled in your MCP allowlist.', $promptName)
                         : 'Prompt get rejected: no prompt name provided.',
                 );
             }
@@ -188,6 +194,65 @@ class McpServerController
         } elseif ($method === 'prompts/list' && $allowlist[McpAllowlistProvider::PROMPTS] !== null) {
             $responseData = $this->allowlistFilter->filterPromptsListResponse($responseData, $allowlist[McpAllowlistProvider::PROMPTS]);
         }
+
+        $newBody = json_encode($responseData, \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_UNICODE);
+        $newStream = $this->streamFactory->createStream($newBody);
+
+        return $psrResponse
+            ->withBody($newStream)
+            ->withHeader('Content-Length', (string) \strlen($newBody));
+    }
+
+    private function enrichInitializeResponse(Request $request, PsrResponseInterface $psrResponse): PsrResponseInterface
+    {
+        $body = $this->decodeJson($request->getContent());
+
+        if (!\is_array($body) || ($body['method'] ?? null) !== 'initialize') {
+            return $psrResponse;
+        }
+
+        $contentType = $psrResponse->getHeaderLine('Content-Type');
+        if (!str_starts_with($contentType, 'application/json')) {
+            return $psrResponse;
+        }
+
+        $responseData = $this->decodeJson((string) $psrResponse->getBody());
+        if (!\is_array($responseData)) {
+            return $psrResponse;
+        }
+
+        /** @var Context|null $context */
+        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
+        if ($context === null) {
+            return $psrResponse;
+        }
+
+        $source = $context->getSource();
+        if (!$source instanceof AdminApiSource) {
+            return $psrResponse;
+        }
+
+        $shopwareMeta = [];
+        if ($source->getUserId() !== null) {
+            $shopwareMeta['user'] = ['id' => $source->getUserId()];
+        }
+        if ($source->getIntegrationId() !== null) {
+            $shopwareMeta['integration'] = ['id' => $source->getIntegrationId()];
+        }
+
+        if ($shopwareMeta === []) {
+            return $psrResponse;
+        }
+
+        $result = $responseData['result'] ?? null;
+        if (!\is_array($result)) {
+            return $psrResponse;
+        }
+
+        $responseData['result']['_meta'] = array_merge_recursive(
+            \is_array($result['_meta'] ?? null) ? $result['_meta'] : [],
+            ['shopware' => $shopwareMeta],
+        );
 
         $newBody = json_encode($responseData, \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_UNICODE);
         $newStream = $this->streamFactory->createStream($newBody);

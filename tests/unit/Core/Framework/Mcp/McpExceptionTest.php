@@ -21,7 +21,7 @@ class McpExceptionTest extends TestCase
 
         static::assertSame(Response::HTTP_UNAUTHORIZED, $e->getStatusCode());
         static::assertSame('MCP__UNSUPPORTED_KEY_TYPE', $e->getErrorCode());
-        static::assertStringContainsString('integration access keys', $e->getMessage());
+        static::assertStringContainsString('integration or user access keys', $e->getMessage());
     }
 
     public function testInvalidCredentials(): void

@@ -173,7 +173,7 @@
                 "labelButtonSave": "Save",
                 "writeAccess": "Write",
                 "readAccess": "Read",
-                "contextMenuEdit": "Edit",
+                "contextMenuEdit": "Edit integration",
                 "contextMenuDelete": "Delete",
                 "textChangePassword": "Pressing the \"change\" button will immediately save the new password!",
                 "addAccessKey": "Create access key",
@@ -207,6 +207,8 @@
                     "messageSaveError": "Integration could not be saved.",
                     "messageCreateNewError": "Integration could not be saved."
                 },
+                "mcpAllowlistTitle": "MCP tool allowlist",
+                "mcpAllowlistSaveError": "The MCP allowlist could not be saved.",
                 "notification": {
                     "saveError": {
                         "message": "The user \"{name}\" could not be saved."

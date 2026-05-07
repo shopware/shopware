@@ -25,6 +25,7 @@ use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 use Shopware\Core\Framework\Mcp\Controller\IntegrationMcpAllowlistController;
 use Shopware\Core\Framework\Mcp\Controller\McpServerController;
 use Shopware\Core\Framework\Mcp\Controller\McpToolListController;
+use Shopware\Core\Framework\Mcp\Controller\UserMcpAllowlistController;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpCapabilityExecutor;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpPrivilegeProvider;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpPromptLoader;
@@ -141,6 +142,12 @@ return static function (ContainerConfigurator $container): void {
     $services->set(IntegrationMcpAllowlistController::class)
         ->public()
         ->args([service('integration.repository')])
+        ->tag('shopware.feature', ['flag' => 'MCP_SERVER'])
+        ->tag('controller.service_arguments');
+
+    $services->set(UserMcpAllowlistController::class)
+        ->public()
+        ->args([service('user.repository')])
         ->tag('shopware.feature', ['flag' => 'MCP_SERVER'])
         ->tag('controller.service_arguments');
 

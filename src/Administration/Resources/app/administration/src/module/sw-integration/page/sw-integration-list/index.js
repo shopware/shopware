@@ -17,6 +17,7 @@ export default {
         'integrationService',
         'repositoryFactory',
         'acl',
+        'feature',
     ],
 
     mixins: [

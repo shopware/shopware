@@ -61,6 +61,10 @@ async function createWrapper(privileges = [], integrations = null) {
                         return privileges.includes(identifier);
                     },
                 },
+
+                feature: {
+                    isActive: (flag) => flag === 'MCP_SERVER',
+                },
             },
 
             stubs: {

@@ -3,15 +3,25 @@
 namespace Shopware\Core\Framework\Mcp\AllowList;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
  *
- * Reads the per-integration MCP allowlist from the database for the current request.
+ * Reads the per-principal MCP allowlist from the database for the current request.
  * Returns null for a type when no restriction is configured (all capabilities accessible).
+ *
+ * Auth mode → allowlist resolution:
+ * - User access key (SWUA...) → user.mcp_allowlist via user_id lookup
+ * - Integration access key (SWIA...) → integration.mcp_allowlist
+ * - Integration + sw-app-user-id (Copilot) → intersect(integration, user)
+ * - Bearer JWT, password grant → user.mcp_allowlist via ATTRIBUTE_OAUTH_USER_ID
+ * - Bearer JWT, client_credentials → integration.mcp_allowlist via ATTRIBUTE_OAUTH_CLIENT_ID
+ * - Admin users (admin=true) → always unrestricted regardless of auth mode
  */
 #[Package('framework')]
 class McpAllowlistProvider
@@ -66,12 +76,40 @@ class McpAllowlistProvider
             return $this->unrestricted();
         }
 
-        $accessKey = $request->attributes->getString(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID);
-        if ($accessKey === '') {
-            return $this->unrestricted();
+        $clientId = $request->attributes->getString(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID);
+
+        if ($clientId !== '') {
+            try {
+                $origin = AccessKeyHelper::getOrigin($clientId);
+            } catch (\Throwable) {
+                // Unknown prefix (e.g. 'administration' for password-grant JWTs) — fall through to bearer JWT path.
+                $origin = '';
+            }
+
+            if ($origin === 'user') {
+                return $this->forUserAccessKey($clientId);
+            }
+
+            if ($origin === 'integration') {
+                $appUserId = $request->headers->get(PlatformRequest::HEADER_APP_USER_ID);
+                if ($appUserId !== null && Uuid::isValid($appUserId)) {
+                    return $this->intersect(
+                        $this->forAccessKey($clientId),
+                        $this->forUserId($appUserId),
+                    );
+                }
+
+                return $this->forAccessKey($clientId);
+            }
         }
 
-        return $this->forAccessKey($accessKey);
+        // Bearer JWT (password grant): ATTRIBUTE_OAUTH_CLIENT_ID = 'administration'
+        $userId = $request->attributes->getString(PlatformRequest::ATTRIBUTE_OAUTH_USER_ID);
+        if ($userId !== '' && Uuid::isValid($userId)) {
+            return $this->forUserId($userId);
+        }
+
+        return $this->unrestricted();
     }
 
     /**
@@ -107,6 +145,65 @@ class McpAllowlistProvider
             self::RESOURCES => $resources,
             self::PROMPTS => $prompts,
         ];
+    }
+
+    /**
+     * @return array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null}
+     */
+    public function forUserId(string $userId): array
+    {
+        $row = $this->connection->fetchAssociative(
+            'SELECT `mcp_allowlist`, `admin` FROM `user` WHERE `id` = :id AND `active` = 1',
+            ['id' => Uuid::fromHexToBytes($userId)],
+        );
+
+        // Admin users bypass ACL checks — mirror that for MCP allowlist.
+        if ($row === false || (bool) $row['admin']) {
+            return $this->unrestricted();
+        }
+
+        $json = $row['mcp_allowlist'];
+
+        if (!\is_string($json) || $json === '') {
+            return $this->unrestricted();
+        }
+
+        try {
+            $allowlist = json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
+        } catch (\JsonException) {
+            return $this->unrestricted();
+        }
+
+        if (!\is_array($allowlist)) {
+            return $this->unrestricted();
+        }
+
+        $tools = $this->extractStringList($allowlist, self::TOOLS);
+        $resources = $this->extractStringList($allowlist, self::RESOURCES);
+        $prompts = $this->extractStringList($allowlist, self::PROMPTS);
+
+        return [
+            self::TOOLS => $tools !== null ? $this->expandWithDependencies($tools) : null,
+            self::RESOURCES => $resources,
+            self::PROMPTS => $prompts,
+        ];
+    }
+
+    /**
+     * @return array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null}
+     */
+    private function forUserAccessKey(string $accessKey): array
+    {
+        $userId = $this->connection->fetchOne(
+            'SELECT `user_id` FROM `user_access_key` WHERE `access_key` = :key',
+            ['key' => $accessKey],
+        );
+
+        if (!\is_string($userId) || $userId === '') {
+            return $this->unrestricted();
+        }
+
+        return $this->forUserId(Uuid::fromBytesToHex($userId));
     }
 
     /**
@@ -160,5 +257,41 @@ class McpAllowlistProvider
         }
 
         return array_keys($expanded);
+    }
+
+    /**
+     * @param array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null} $a
+     * @param array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null} $b
+     *
+     * @return array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null}
+     */
+    private function intersect(array $a, array $b): array
+    {
+        return [
+            self::TOOLS => $this->intersectList($a[self::TOOLS], $b[self::TOOLS]),
+            self::RESOURCES => $this->intersectList($a[self::RESOURCES], $b[self::RESOURCES]),
+            self::PROMPTS => $this->intersectList($a[self::PROMPTS], $b[self::PROMPTS]),
+        ];
+    }
+
+    /**
+     * @param list<string>|null $a
+     * @param list<string>|null $b
+     *
+     * @return list<string>|null
+     */
+    private function intersectList(?array $a, ?array $b): ?array
+    {
+        if ($a === null && $b === null) {
+            return null;
+        }
+        if ($a === null) {
+            return $b;
+        }
+        if ($b === null) {
+            return $a;
+        }
+
+        return array_values(array_intersect($a, $b));
     }
 }

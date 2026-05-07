@@ -110,6 +110,7 @@ class DefinitionValidator
         'consent_state',
         'consent_log',
         'webhook_delivery',
+        'webhook_stream',
     ];
 
     private const IGNORED_ENTITY_PROPERTIES = [

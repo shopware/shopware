@@ -8,14 +8,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Service\RelatedWebhooks;
-use Shopware\Core\Framework\Webhook\Service\WebhookStateRepository;
+use Shopware\Core\Framework\Webhook\Service\WebhookHealthService;
 use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 
 /**
  * @internal
  */
-#[CoversClass(WebhookStateRepository::class)]
-class WebhookStateRepositoryTest extends TestCase
+#[CoversClass(WebhookHealthService::class)]
+class WebhookHealthServiceTest extends TestCase
 {
     public function testRecordTerminalFailureIsNoOpWhenWebhookNotFound(): void
     {
@@ -28,8 +28,8 @@ class WebhookStateRepositoryTest extends TestCase
         $relatedWebhooks->expects($this->never())
             ->method('updateRelated');
 
-        $repository = new WebhookStateRepository($connection, $relatedWebhooks);
-        $repository->recordFailure(Uuid::randomHex(), WebhookFailureStrategy::DisableOnThreshold);
+        $service = new WebhookHealthService($connection, $relatedWebhooks);
+        $service->recordFailure(Uuid::randomHex(), WebhookFailureStrategy::DisableOnThreshold);
     }
 
     public function testRecordTerminalFailureIsNoOpWhenWebhookInactive(): void
@@ -43,8 +43,8 @@ class WebhookStateRepositoryTest extends TestCase
         $relatedWebhooks->expects($this->never())
             ->method('updateRelated');
 
-        $repository = new WebhookStateRepository($connection, $relatedWebhooks);
-        $repository->recordFailure(Uuid::randomHex(), WebhookFailureStrategy::DisableOnThreshold);
+        $service = new WebhookHealthService($connection, $relatedWebhooks);
+        $service->recordFailure(Uuid::randomHex(), WebhookFailureStrategy::DisableOnThreshold);
     }
 
     public function testRecordTerminalFailureIncrementsBelowThreshold(): void
@@ -65,8 +65,8 @@ class WebhookStateRepositoryTest extends TestCase
                 static::isInstanceOf(Context::class)
             );
 
-        $repository = new WebhookStateRepository($connection, $relatedWebhooks);
-        $repository->recordFailure($webhookId, WebhookFailureStrategy::DisableOnThreshold);
+        $service = new WebhookHealthService($connection, $relatedWebhooks);
+        $service->recordFailure($webhookId, WebhookFailureStrategy::DisableOnThreshold);
     }
 
     public function testRecordTerminalFailureDeactivatesAtThresholdWithDisableStrategy(): void
@@ -87,8 +87,8 @@ class WebhookStateRepositoryTest extends TestCase
                 static::isInstanceOf(Context::class)
             );
 
-        $repository = new WebhookStateRepository($connection, $relatedWebhooks);
-        $repository->recordFailure($webhookId, WebhookFailureStrategy::DisableOnThreshold);
+        $service = new WebhookHealthService($connection, $relatedWebhooks);
+        $service->recordFailure($webhookId, WebhookFailureStrategy::DisableOnThreshold);
     }
 
     public function testRecordTerminalFailureKeepsActiveWithIgnoreStrategyAboveThreshold(): void
@@ -109,8 +109,8 @@ class WebhookStateRepositoryTest extends TestCase
                 static::isInstanceOf(Context::class)
             );
 
-        $repository = new WebhookStateRepository($connection, $relatedWebhooks);
-        $repository->recordFailure($webhookId, WebhookFailureStrategy::Ignore);
+        $service = new WebhookHealthService($connection, $relatedWebhooks);
+        $service->recordFailure($webhookId, WebhookFailureStrategy::Ignore);
     }
 
     public function testResetErrorCount(): void
@@ -128,7 +128,7 @@ class WebhookStateRepositoryTest extends TestCase
                 static::isInstanceOf(Context::class)
             );
 
-        $repository = new WebhookStateRepository($connection, $relatedWebhooks);
-        $repository->resetErrorCount($webhookId);
+        $service = new WebhookHealthService($connection, $relatedWebhooks);
+        $service->resetErrorCount($webhookId);
     }
 }

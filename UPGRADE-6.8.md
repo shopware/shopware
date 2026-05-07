@@ -4,6 +4,46 @@
 
 <details>
 
+## Webhook Messenger transport — explicit receiver configuration required
+
+Webhook delivery now uses a dedicated `webhook` Messenger transport. During the 6.7
+minor rollout, Shopware keeps a compatibility bridge that prepends `webhook` to legacy
+`messenger:consume async` commands when the receiver is missing. In v6.8 this bridge is
+removed; worker receiver lists must be explicit.
+
+Operators should configure the `webhook` transport explicitly before upgrading:
+
+- Add `webhook` before your existing `messenger:consume` receiver list. For the default queue set, use `bin/console messenger:consume webhook async low_priority`.
+  Put `webhook` first so due webhook retries do not wait behind generic async backlog.
+- If you configure `shopware.admin_worker.transports`, update the list from `["async", "low_priority"]` to `["webhook", "async", "low_priority"]`:
+  ```yaml
+  shopware:
+      admin_worker:
+          transports: ["webhook", "async", "low_priority"]
+  ```
+
+Shops that still run `messenger:consume async` / `messenger:consume async low_priority`, or configure `shopware.admin_worker.transports` without `webhook`,
+will stop consuming webhook deliveries after upgrading to v6.8.
+
+## Webhook delivery path under `admin_worker.enable_admin_worker=true` (default)
+
+The leased MySQL webhook receiver and the outbox-owned retry loop only run when webhooks
+flow through the Messenger `webhook` transport. With the default `admin_worker.enable_admin_worker=true`,
+`WebhookDeliveryService::process()` delivers first attempts **inline** (synchronously during the
+request that fires the event) and bypasses the MySQL receiver for those first attempts — the
+admin worker is the fallback for installs that don't run a dedicated `messenger:consume`
+process, so disabling the inline path there would mean webhooks are never delivered. Failed
+inline attempts are still written as `PENDING_RETRY`; the default admin-worker transport list
+now includes `webhook` so the browser worker can drain those retries.
+
+To exercise the partitioned, leased, retry-aware receiver path:
+
+1. Set `shopware.admin_worker.enable_admin_worker: false` in `config/packages/shopware.yaml`.
+2. Run a dedicated consume process: `bin/console messenger:consume webhook async low_priority`.
+
+Installs that stay on the default `admin_worker=true` keep inline first attempts on the request
+hot path, with outbox-backed retries drained by the admin worker's `webhook` transport. Stream
+leasing and FIFO claims apply to worker-backed delivery, not to inline first attempts.
 ### Minimum value constraints added to quantity fields in ProductPriceDefinition
 
 The fields `quantityStart` and `quantityEnd` of ProductPriceDefinition now require a minimum value of `1`.

@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Webhook\Transport;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository;
+use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
 use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 use Symfony\Component\Messenger\Transport\TransportFactoryInterface;
 use Symfony\Component\Messenger\Transport\TransportInterface;
@@ -17,8 +17,9 @@ use Symfony\Component\Messenger\Transport\TransportInterface;
 class WebhookTransportFactory implements TransportFactoryInterface
 {
     public function __construct(
-        private readonly OutboxEventRepository $outboxEventRepository,
+        private readonly WebhookOutboxStore $webhookOutboxStore,
         private readonly TransportInterface $asyncTransport,
+        private readonly MySQLWebhookReceiver $receiver,
     ) {
     }
 
@@ -27,7 +28,7 @@ class WebhookTransportFactory implements TransportFactoryInterface
      */
     public function createTransport(string $dsn, array $options, SerializerInterface $serializer): TransportInterface
     {
-        return new WebhookTransport($this->outboxEventRepository, $this->asyncTransport);
+        return new WebhookTransport($this->webhookOutboxStore, $this->asyncTransport, $this->receiver);
     }
 
     /**

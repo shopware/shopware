@@ -22,10 +22,7 @@ class Migration1775570251AddWebhookTransportTables extends MigrationStep
     {
         $this->createWebhookDeliveryTable($connection);
         $this->addWebhookEventLogColumns($connection);
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
+        $this->addWebhookStreamTable($connection);
     }
 
     private function createWebhookDeliveryTable(Connection $connection): void
@@ -68,5 +65,26 @@ class Migration1775570251AddWebhookTransportTables extends MigrationStep
                     ADD COLUMN `sequence` BIGINT UNSIGNED NULL
             ');
         }
+    }
+
+    private function addWebhookStreamTable(Connection $connection): void
+    {
+        if (TableHelper::tableExists($connection, 'webhook_stream')) {
+            return;
+        }
+
+        $connection->executeStatement('
+            CREATE TABLE `webhook_stream` (
+                `id`              BINARY(16) NOT NULL,
+                `partition_key`   BINARY(16) NOT NULL,
+                `locked_by`       VARCHAR(64) NULL,
+                `lock_expires_at` DATETIME(3) NULL,
+                `last_claimed_at` DATETIME(3) NULL,
+                `created_at`      DATETIME(3) NOT NULL,
+                PRIMARY KEY (`id`),
+                UNIQUE KEY `uniq.webhook_stream.partition_key` (`partition_key`),
+                KEY `idx.webhook_stream.claim` (`last_claimed_at`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        ');
     }
 }

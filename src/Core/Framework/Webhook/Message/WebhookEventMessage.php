@@ -99,4 +99,16 @@ class WebhookEventMessage
     {
         return $this->partitionKey ?? $this->appId ?? self::DEFAULT_PARTITION_KEY;
     }
+
+    /**
+     * Distinguishes new transport messages from legacy serialized messages.
+     *
+     * @deprecated tag:v6.9.0 - Will be removed when all messages in the queue have been processed that were serialized without an explicit partition key.
+     *
+     * @phpstan-ignore shopware.deprecatedMethod (called on every dispatch during the rollout window; deprecation notice would pollute logs)
+     */
+    public function isReworkEnvelope(): bool
+    {
+        return isset($this->partitionKey);
+    }
 }

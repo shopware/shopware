@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\Webhook\Outbox;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
+use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 
 /**
  * Data for inserting a new outbox entry (webhook_event_log + webhook_delivery).
@@ -20,5 +22,15 @@ final readonly class OutboxInsert
         public string $partitionKey,
         public string $serializedMessage,
     ) {
+    }
+
+    public static function fromMessage(WebhookEventMessage $message): self
+    {
+        return new self(
+            $message->getWebhookEventId(),
+            $message->getWebhookId(),
+            Hasher::hashBinary($message->getPartitionKey(), 'xxh128'),
+            serialize($message),
+        );
     }
 }

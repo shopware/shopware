@@ -16,7 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Event\PreWebhooksDispatchEvent;
@@ -25,8 +24,9 @@ use Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\DeliveryResponse;
-use Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository;
+use Shopware\Core\Framework\Webhook\Outbox\OutboxEntry;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxInsert;
+use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
 use Shopware\Core\Framework\Webhook\Webhook;
 use Shopware\Core\Profiling\Profiler;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -59,8 +59,8 @@ class WebhookManager implements ResetInterface
         private readonly string $shopUrl,
         private readonly string $shopwareVersion,
         private readonly bool $isAdminWorkerEnabled,
-        private readonly OutboxEventRepository $outboxEventRepository,
         private readonly WebhookDeliveryService $webhookDeliveryService,
+        private readonly WebhookOutboxStore $webhookOutboxStore,
     ) {
     }
 
@@ -191,6 +191,8 @@ class WebhookManager implements ResetInterface
         string $userLocale
     ): void {
         $requests = [];
+        /** @var array<string, OutboxEntry> $entries */
+        $entries = [];
 
         foreach ($webhooksForEvent as $webhook) {
             $message = $this->createWebhookMessage($webhook, $event, $languageId, $userLocale);
@@ -198,25 +200,14 @@ class WebhookManager implements ResetInterface
                 continue;
             }
 
-            $this->outboxEventRepository->ensureOutboxEntry(new OutboxInsert(
-                $message->getWebhookEventId(),
-                $message->getWebhookId(),
-                Hasher::hashBinary($message->getPartitionKey(), 'xxh128'),
-                serialize($message),
-            ));
-            $this->outboxEventRepository->markRunning($message->getWebhookEventId());
+            $this->webhookOutboxStore->recordOutboxEntry(OutboxInsert::fromMessage($message));
+            $entry = $this->webhookOutboxStore->markRunning($message->getWebhookEventId());
+            if ($entry === null) {
+                continue;
+            }
 
-            $requests[$message->getWebhookEventId()] = $this->appPayloadServiceHelper->createWebhookRequest(
-                $message->getPayload(),
-                $message->getUrl(),
-                $message->getShopwareVersion(),
-                WebhookClient::CONNECT_TIMEOUT,
-                WebhookClient::REQUEST_TIMEOUT,
-                $message->getSecret(),
-                $message->getLanguageId(),
-                $message->getUserLocale(),
-                $message->getWebhookHeaders(),
-            );
+            $requests[$message->getWebhookEventId()] = $this->webhookDeliveryService->buildRequest($message, $entry);
+            $entries[$message->getWebhookEventId()] = $entry;
         }
 
         $results = $this->webhookClient->sendBatch($requests);
@@ -224,12 +215,14 @@ class WebhookManager implements ResetInterface
         foreach ($results as $eventId => $result) {
             try {
                 $request = $requests[$eventId];
+                $entry = $entries[$eventId];
+
                 $response = DeliveryResponse::from($request, $result);
 
                 if ($result->successful()) {
-                    $this->outboxEventRepository->markSuccess($eventId, $response);
+                    $this->webhookOutboxStore->markSuccess($entry, $response);
                 } else {
-                    $this->outboxEventRepository->markFailed($eventId, $response);
+                    $this->webhookOutboxStore->markFailed($entry, $response);
                 }
             } catch (\Throwable) {
                 // Don't let one entry block the rest — failed entries stay in 'running'

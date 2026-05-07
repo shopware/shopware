@@ -5,20 +5,17 @@ namespace Shopware\Core\Framework\Webhook\Handler;
 use GuzzleHttp\Exception\BadResponseException;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
-use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\DeliveryResponse;
-use Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxInsert;
+use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
 use Shopware\Core\Framework\Webhook\Service\RelatedWebhooks;
 use Shopware\Core\Framework\Webhook\Service\WebhookClient;
 use Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService;
-use Shopware\Core\Framework\Webhook\Service\WebhookResult;
 use Shopware\Core\Framework\Webhook\WebhookException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -34,9 +31,8 @@ final readonly class WebhookEventMessageHandler
      */
     public function __construct(
         private WebhookClient $webhookClient,
-        private AppPayloadServiceHelper $appPayloadServiceHelper,
         private RelatedWebhooks $relatedWebhooks,
-        private OutboxEventRepository $outboxEventRepository,
+        private WebhookOutboxStore $webhookOutboxStore,
         private WebhookDeliveryService $webhookDeliveryService,
         private LoggerInterface $logger,
     ) {
@@ -44,19 +40,20 @@ final readonly class WebhookEventMessageHandler
 
     public function __invoke(WebhookEventMessage $message): void
     {
-        // Legacy pre-transport messages (partitionKey === null) were serialized before the
+        // Legacy pre-transport messages were serialized before the explicit partition key
         // transport existed, so they have no delivery row yet — create it silently. For new
         // messages a missing row means an unexpected dispatch path or a rollout window; repair
         // and log.
-        if (!$this->outboxEventRepository->hasDeliveryRow($message->getWebhookEventId())) {
-            $this->outboxEventRepository->ensureOutboxEntry(new OutboxInsert(
-                $message->getWebhookEventId(),
-                $message->getWebhookId(),
-                Hasher::hashBinary($message->getPartitionKey(), 'xxh128'),
-                serialize($message),
-            ));
+        // @deprecated tag:v6.8.0 — remove with the flag-OFF path.
+        if (!$this->webhookOutboxStore->hasDeliveryRow($message->getWebhookEventId())) {
+            $insert = OutboxInsert::fromMessage($message);
+            // recordOutboxEntry handles the case where the app was deleted (`testCanStillSendAfterWebhookIsDeleted`) case.
+            // backFillDelivery handles the legacy message case.
+            if ($this->webhookOutboxStore->recordOutboxEntry($insert) === null) {
+                $this->webhookOutboxStore->backfillDelivery($insert);
+            }
 
-            if ($message->partitionKey !== null) {
+            if ($message->isReworkEnvelope()) {
                 $this->logger->error('Expected an outbox entry for webhook event. Not an error if this is happening during a deployment rollout.', [
                     'webhookEventId' => $message->getWebhookEventId(),
                     'webhookId' => $message->getWebhookId(),
@@ -72,51 +69,29 @@ final readonly class WebhookEventMessageHandler
 
         $context = Context::createDefaultContext();
 
-        $request = $this->appPayloadServiceHelper->createWebhookRequest(
-            $message->getPayload(),
-            $message->getUrl(),
-            $message->getShopwareVersion(),
-            WebhookClient::CONNECT_TIMEOUT,
-            WebhookClient::REQUEST_TIMEOUT,
-            $message->getSecret(),
-            $message->getLanguageId(),
-            $message->getUserLocale(),
-            $message->getWebhookHeaders(),
-        );
-
-        $this->outboxEventRepository->markRunning($message->getWebhookEventId());
-
-        try {
-            $result = $this->webhookClient->send($request);
-        } catch (\Throwable $e) {
-            $response = DeliveryResponse::from($request, new WebhookResult(
-                body: [],
-                statusCode: null,
-                reasonPhrase: null,
-                headers: null,
-                errorMessage: $e->getMessage(),
-                exception: $e,
-            ));
-
-            $this->outboxEventRepository->resetForRetry($message->getWebhookEventId(), $response);
-
-            throw WebhookException::webhookFailedException($message->getWebhookId(), $e);
+        $entry = $this->webhookOutboxStore->markRunning($message->getWebhookEventId());
+        // Already transitioned, could be due to worker contention. Skip this delivery.
+        if ($entry === null) {
+            return;
         }
 
+        $request = $this->webhookDeliveryService->buildRequest($message, $entry);
+        $result = $this->webhookClient->send($request);
         $response = DeliveryResponse::from($request, $result);
 
         if ($result->successful()) {
-            $this->outboxEventRepository->markSuccess($message->getWebhookEventId(), $response);
-
-            try {
-                $this->relatedWebhooks->updateRelated($message->getWebhookId(), ['error_count' => 0], $context);
-            } catch (AppNotFoundException|WriteTypeIntendException) {
+            // a stale-success on a stolen lease must not reset error_count.
+            if ($this->webhookOutboxStore->markSuccess($entry, $response)) {
+                try {
+                    $this->relatedWebhooks->updateRelated($message->getWebhookId(), ['error_count' => 0], $context);
+                } catch (AppNotFoundException|WriteTypeIntendException) {
+                }
             }
 
             return;
         }
 
-        $this->outboxEventRepository->resetForRetry($message->getWebhookEventId(), $response);
+        $this->webhookOutboxStore->resetForRetry($entry, $response);
 
         $exception = $result->exception;
         if ($exception instanceof BadResponseException && $message->getAppId() !== null) {

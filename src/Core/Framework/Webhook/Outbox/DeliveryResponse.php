@@ -25,12 +25,15 @@ final readonly class DeliveryResponse
 
     public static function from(WebhookRequest $request, WebhookResult $result): self
     {
+        $requestContent = json_encode(['headers' => $request->headers, 'body' => $request->body]);
+        $responseContent = $result->hasResponse()
+            ? json_encode(['headers' => $result->headers, 'body' => $result->body])
+            : null;
+
         return new self(
-            requestContent: json_encode(['headers' => $request->headers, 'body' => $request->body], \JSON_THROW_ON_ERROR),
+            requestContent: $requestContent === false ? '' : $requestContent,
             processingTimeSeconds: $result->processingTimeSeconds,
-            responseContent: $result->hasResponse()
-                ? json_encode(['headers' => $result->headers, 'body' => $result->body], \JSON_THROW_ON_ERROR)
-                : null,
+            responseContent: $responseContent === false ? null : $responseContent,
             responseStatusCode: $result->statusCode,
             responseReasonPhrase: $result->reasonPhrase,
         );

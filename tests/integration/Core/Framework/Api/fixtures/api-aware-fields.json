@@ -1130,6 +1130,7 @@
     "customer.addresses",
     "customer.tags",
     "customer.tagIds",
+    "customer.requestedGroupId",
     "customer.accountType",
     "customer.createdById",
     "customer.updatedById",

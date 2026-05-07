@@ -3,7 +3,7 @@ const ApiService = Shopware.Classes.ApiService;
 /**
  * Gateway for the API end point "theme"
  *
- * @package discovery
+ * @sw-package discovery
  *
  * @class
  * @extends ApiService
@@ -112,4 +112,7 @@ class ThemeApiService extends ApiService {
     }
 }
 
+/**
+ * @deprecated tag:v6.8.0 - Will be @private
+ */
 export default ThemeApiService;

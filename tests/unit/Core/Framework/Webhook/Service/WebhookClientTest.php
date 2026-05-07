@@ -267,7 +267,7 @@ class WebhookClientTest extends TestCase
         static::assertNull($result->body);
     }
 
-    public function testSendSuccessRecordsDurationMs(): void
+    public function testSendSuccessRecordsProcessingTimeSeconds(): void
     {
         $mockHandler = new MockHandler([
             new Response(200, [], '{}'),
@@ -280,7 +280,7 @@ class WebhookClientTest extends TestCase
         static::assertGreaterThanOrEqual(0, $result->processingTimeSeconds);
     }
 
-    public function testSendFailureRecordsDurationMs(): void
+    public function testSendFailureRecordsProcessingTimeSeconds(): void
     {
         $mockHandler = new MockHandler([
             new ConnectException('Connection refused', new Request('POST', 'https://example.com')),
@@ -294,7 +294,7 @@ class WebhookClientTest extends TestCase
         static::assertGreaterThanOrEqual(0, $result->processingTimeSeconds);
     }
 
-    public function testSendBatchFulfilledRecordsDurationMs(): void
+    public function testSendBatchFulfilledRecordsProcessingTimeSeconds(): void
     {
         $mockHandler = new MockHandler([
             new Response(200, [], '{}'),
@@ -316,7 +316,7 @@ class WebhookClientTest extends TestCase
         }
     }
 
-    public function testSendBatchRejectedRecordsDurationMs(): void
+    public function testSendBatchRejectedRecordsProcessingTimeSeconds(): void
     {
         $mockHandler = new MockHandler([
             new ConnectException('Connection refused', new Request('POST', 'https://example.com/hook1')),

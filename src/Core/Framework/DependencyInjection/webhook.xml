@@ -48,7 +48,7 @@
             <argument type="service" id="Symfony\Component\Clock\ClockInterface"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Webhook\Service\WebhookStateRepository">
+        <service id="Shopware\Core\Framework\Webhook\Service\WebhookHealthService">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Service\RelatedWebhooks"/>
         </service>
@@ -139,7 +139,7 @@
             <argument type="service" id="Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Outbox\RetryDelayCalculator"/>
             <argument type="service" id="Symfony\Component\Messenger\MessageBusInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\Webhook\Service\WebhookStateRepository"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Service\WebhookHealthService"/>
             <argument type="service" id="logger"/>
             <argument>%shopware.admin_worker.enable_admin_worker%</argument>
             <argument>%shopware.webhook.failure_strategy%</argument>

@@ -28,7 +28,7 @@ use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
 use Shopware\Core\Framework\Webhook\Service\WebhookClient;
 use Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService;
 use Shopware\Core\Framework\Webhook\Service\WebhookRequest;
-use Shopware\Core\Framework\Webhook\Service\WebhookStateRepository;
+use Shopware\Core\Framework\Webhook\Service\WebhookHealthService;
 use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use Symfony\Component\Clock\MockClock;
@@ -54,7 +54,7 @@ class WebhookDeliveryServiceTest extends TestCase
 
     private CollectingMessageBus $bus;
 
-    private WebhookStateRepository&MockObject $webhookStateRepository;
+    private WebhookHealthService&MockObject $webhookHealthService;
 
     private LoggerInterface&MockObject $logger;
 
@@ -73,7 +73,7 @@ class WebhookDeliveryServiceTest extends TestCase
         $this->webhookOutboxStore = $this->createMock(WebhookOutboxStore::class);
         $this->retryDelayCalculator = new RetryDelayCalculator($this->clock);
         $this->bus = new CollectingMessageBus();
-        $this->webhookStateRepository = $this->createMock(WebhookStateRepository::class);
+        $this->webhookHealthService = $this->createMock(WebhookHealthService::class);
         $this->logger = $this->createMock(LoggerInterface::class);
     }
 
@@ -109,7 +109,7 @@ class WebhookDeliveryServiceTest extends TestCase
 
         $this->webhookOutboxStore->expects($this->once())->method('markSuccess')
             ->willReturn(true);
-        $this->webhookStateRepository->expects($this->once())->method('resetErrorCount');
+        $this->webhookHealthService->expects($this->once())->method('resetErrorCount');
 
         $service = $this->createService(isAdminWorkerEnabled: true);
         $service->process([$msg]);
@@ -154,7 +154,7 @@ class WebhookDeliveryServiceTest extends TestCase
         $this->webhookOutboxStore->expects($this->once())->method('markSuccess')
             ->with(static::isInstanceOf(OutboxEntry::class), static::anything())
             ->willReturn(true);
-        $this->webhookStateRepository->expects($this->once())->method('resetErrorCount')
+        $this->webhookHealthService->expects($this->once())->method('resetErrorCount')
             ->with($msg->getWebhookId());
         $this->webhookOutboxStore->expects($this->never())->method('markPendingRetry');
         $this->webhookOutboxStore->expects($this->never())->method('markFailed');
@@ -174,7 +174,7 @@ class WebhookDeliveryServiceTest extends TestCase
 
         $this->queueGuzzleResponse(new Response(500, [], '{"error":"fail"}'));
 
-        $this->webhookStateRepository->expects($this->never())->method('recordFailure');
+        $this->webhookHealthService->expects($this->never())->method('recordFailure');
         $this->webhookOutboxStore->expects($this->once())->method('markPendingRetry')
             ->with(static::isInstanceOf(OutboxEntry::class), static::isInstanceOf(\DateTimeImmutable::class), static::anything())
             ->willReturn(true);
@@ -199,9 +199,9 @@ class WebhookDeliveryServiceTest extends TestCase
             ->with(static::isInstanceOf(OutboxEntry::class), static::isInstanceOf(DeliveryResponse::class))
             ->willReturn(true);
         $this->webhookOutboxStore->expects($this->never())->method('markPendingRetry');
-        $this->webhookStateRepository->expects($this->once())->method('recordFailure')
+        $this->webhookHealthService->expects($this->once())->method('recordFailure')
             ->with($msg->getWebhookId(), WebhookFailureStrategy::DisableOnThreshold);
-        $this->webhookStateRepository->expects($this->never())->method('resetErrorCount');
+        $this->webhookHealthService->expects($this->never())->method('resetErrorCount');
 
         $service = $this->createService();
         $service->deliver($msg);
@@ -219,8 +219,8 @@ class WebhookDeliveryServiceTest extends TestCase
         $this->webhookOutboxStore->expects($this->never())->method('markSuccess');
         $this->webhookOutboxStore->expects($this->never())->method('markPendingRetry');
         $this->webhookOutboxStore->expects($this->never())->method('markFailed');
-        $this->webhookStateRepository->expects($this->never())->method('recordFailure');
-        $this->webhookStateRepository->expects($this->never())->method('resetErrorCount');
+        $this->webhookHealthService->expects($this->never())->method('recordFailure');
+        $this->webhookHealthService->expects($this->never())->method('resetErrorCount');
 
         $service = $this->createService();
         $service->deliver($msg);
@@ -240,8 +240,8 @@ class WebhookDeliveryServiceTest extends TestCase
         $this->webhookOutboxStore->expects($this->once())->method('markSuccess')
             ->with(static::isInstanceOf(OutboxEntry::class), static::anything())
             ->willReturn(false);
-        $this->webhookStateRepository->expects($this->never())->method('resetErrorCount');
-        $this->webhookStateRepository->expects($this->never())->method('recordFailure');
+        $this->webhookHealthService->expects($this->never())->method('resetErrorCount');
+        $this->webhookHealthService->expects($this->never())->method('recordFailure');
         $this->webhookOutboxStore->expects($this->never())->method('markPendingRetry');
         $this->webhookOutboxStore->expects($this->never())->method('markFailed');
 
@@ -283,8 +283,8 @@ class WebhookDeliveryServiceTest extends TestCase
 
         $this->logger->expects($this->never())->method('error');
 
-        $this->webhookStateRepository->expects($this->never())->method('recordFailure');
-        $this->webhookStateRepository->expects($this->once())->method('resetErrorCount')
+        $this->webhookHealthService->expects($this->never())->method('recordFailure');
+        $this->webhookHealthService->expects($this->once())->method('resetErrorCount')
             ->with($msg2->getWebhookId());
 
         $service = $this->createService(isAdminWorkerEnabled: true);
@@ -333,7 +333,7 @@ class WebhookDeliveryServiceTest extends TestCase
                 })
             );
 
-        $this->webhookStateRepository->expects($this->once())->method('resetErrorCount')
+        $this->webhookHealthService->expects($this->once())->method('resetErrorCount')
             ->with($msg2->getWebhookId());
 
         $service = $this->createService(isAdminWorkerEnabled: true);
@@ -431,7 +431,7 @@ class WebhookDeliveryServiceTest extends TestCase
             $this->webhookOutboxStore,
             $this->retryDelayCalculator,
             $this->bus,
-            $this->webhookStateRepository,
+            $this->webhookHealthService,
             $this->logger,
             $isAdminWorkerEnabled,
             $failureStrategy,

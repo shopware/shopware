@@ -36,7 +36,7 @@ class WebhookDeliveryService
         private readonly WebhookOutboxStore $webhookOutboxStore,
         private readonly RetryDelayCalculator $retryDelayCalculator,
         private readonly MessageBusInterface $bus,
-        private readonly WebhookStateRepository $webhookStateRepository,
+        private readonly WebhookHealthService $webhookHealthService,
         private readonly LoggerInterface $logger,
         private readonly bool $isAdminWorkerEnabled,
         string $failureStrategy = WebhookFailureStrategy::DisableOnThreshold->value,
@@ -185,7 +185,7 @@ class WebhookDeliveryService
         if ($result->successful()) {
             // a stale-success on a stolen lease must not reset error_count.
             if ($this->webhookOutboxStore->markSuccess($entry, $response)) {
-                $this->webhookStateRepository->resetErrorCount($webhookId);
+                $this->webhookHealthService->resetErrorCount($webhookId);
 
                 return;
             }
@@ -219,7 +219,7 @@ class WebhookDeliveryService
 
         // error_count counts failed deliveries, not failed attempts — only bump after retries are exhausted.
         if ($entry->executionCount > self::MAX_RETRIES) {
-            $this->webhookStateRepository->recordFailure($webhookId, $this->failureStrategy);
+            $this->webhookHealthService->recordFailure($webhookId, $this->failureStrategy);
         }
     }
 

@@ -9,12 +9,12 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 
 /**
- * Writes propagate to all related webhooks (same event name, URL, live-version config) via RelatedWebhooks.
+ * Owns webhook health. To be expanded in Phase 2 (#16565).
  *
  * @internal
  */
 #[Package('framework')]
-class WebhookStateRepository
+class WebhookHealthService
 {
     public function __construct(
         private readonly Connection $connection,

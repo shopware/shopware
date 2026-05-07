@@ -91,11 +91,6 @@ class WebhookManagerTest extends TestCase
         $this->appRepository = static::getContainer()->get('app.repository');
     }
 
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-    }
-
     public function testDoesNotDispatchBusinessEventIfAppIsInactive(): void
     {
         $appId = Uuid::randomHex();

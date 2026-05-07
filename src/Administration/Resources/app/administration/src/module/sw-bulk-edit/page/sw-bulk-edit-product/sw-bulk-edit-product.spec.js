@@ -477,6 +477,20 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         expect(wrapper.vm.$route.path).toBe('/index/null/0/save/confirm');
     });
 
+    it('should set active to false when root products are bulk deactivated', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.bulkEditProduct.active.isChanged = true;
+        wrapper.vm.onProcessData();
+
+        expect(wrapper.vm.bulkEditSelected).toContainEqual({
+            field: 'active',
+            type: 'overwrite',
+            value: false,
+        });
+    });
+
     it('should close confirm modal', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

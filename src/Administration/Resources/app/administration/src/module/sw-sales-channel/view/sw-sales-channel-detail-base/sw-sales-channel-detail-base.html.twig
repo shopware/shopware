@@ -837,6 +837,7 @@
         <sw-custom-field-set-renderer
             :entity="salesChannel"
             :sets="customFieldSets"
+            :disabled="!acl.can('sales_channel.editor')"
         />
     </mt-card>
     {% endblock %}

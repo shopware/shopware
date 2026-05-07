@@ -1,22 +1,25 @@
 {% block sw_settings_logging_entry_info_tab_items %}
+<template v-if="Shopware.Feature.isActive('V6_8_0_0')"></template>
 
-<sw-tabs-item
-    class="sw-settings-logging-mail-sent-info__tab-item"
-    :active="activeTab === 'html'"
-    @click="activeTab = 'html'"
->
-    {{ $t('sw-settings-logging.mailInfo.tabHTML') }}
-</sw-tabs-item>
+<template v-else>
+    <sw-tabs-item
+        class="sw-settings-logging-mail-sent-info__tab-item"
+        :active="activeTab === 'html'"
+        @click="activeTab = 'html'"
+    >
+        {{ $t('sw-settings-logging.mailInfo.tabHTML') }}
+    </sw-tabs-item>
 
-<sw-tabs-item
-    class="sw-settings-logging-mail-sent-info__tab-item"
-    :active="activeTab === 'plain'"
-    @click="activeTab = 'plain'"
->
-    {{ $t('sw-settings-logging.mailInfo.tabPlain') }}
-</sw-tabs-item>
+    <sw-tabs-item
+        class="sw-settings-logging-mail-sent-info__tab-item"
+        :active="activeTab === 'plain'"
+        @click="activeTab = 'plain'"
+    >
+        {{ $t('sw-settings-logging.mailInfo.tabPlain') }}
+    </sw-tabs-item>
 
-{% parent() %}
+    {% parent() %}
+</template>
 {% endblock %}
 
 {% block sw_settings_logging_entry_info_content %}
@@ -47,6 +50,47 @@
         {% endblock %}
 
         {% block sw_settings_logging_mail_sent_content_mailbody_plain %}
+        <div
+            v-if="activeTab === 'plain'"
+            class="sw-settings-logging-mail-sent-info__mail-content"
+        >
+            {{ logEntry.context.additionalData.contents['text/plain'] }}
+        </div>
+        {% endblock %}
+    </div>
+    {% endblock %}
+</template>
+
+{% endblock %}
+
+{% block sw_settings_logging_entry_info_content_major %}
+
+{% parent() %}
+
+<template v-if="activeTab === 'html' || activeTab === 'plain'">
+    {% block sw_settings_logging_mail_sent_content_recipients_major %}
+    <div class="sw-settings-logging-mail-sent-info__recipients">
+        {% block sw_settings_logging_mail_sent_content_recipients_title_major %}
+        <span>{{ $t('sw-settings-logging.mailInfo.recipientsTitle') }}: {{ recipientString }}</span>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_settings_logging_mail_sent_content_mailbody_major %}
+    <div>
+        {% block sw_settings_logging_mail_sent_content_mailbody_title_major %}
+        <span>{{ $t('sw-settings-logging.mailInfo.contentsTitle') }}:</span>
+        {% endblock %}
+
+        {% block sw_settings_logging_mail_sent_content_mailbody_html_major %}
+        <div
+            v-if="activeTab === 'html'"
+            class="sw-settings-logging-mail-sent-info__mail-content"
+            v-html="logEntry.context.additionalData.contents['text/html']"
+        ></div>
+        {% endblock %}
+
+        {% block sw_settings_logging_mail_sent_content_mailbody_plain_major %}
         <div
             v-if="activeTab === 'plain'"
             class="sw-settings-logging-mail-sent-info__mail-content"

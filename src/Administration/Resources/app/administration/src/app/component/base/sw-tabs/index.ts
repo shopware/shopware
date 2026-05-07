@@ -7,6 +7,7 @@ import template from './sw-tabs.html.twig';
  * @private
  * @status ready
  * @description Wrapper component for sw-tabs and mt-tabs. Autoswitches between the two components.
+ * @major-deprecated tag:v6.8.0 - Use mt-tabs with the items property instead.
  */
 export default Shopware.Component.wrapComponentConfig({
     template,

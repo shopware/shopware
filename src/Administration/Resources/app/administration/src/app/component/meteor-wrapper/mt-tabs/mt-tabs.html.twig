@@ -3,5 +3,6 @@
     v-bind="$attrs"
     ref="mtTabsOriginal"
     :items="mergedItems"
+    @new-item-active="$emit('new-item-active', $event)"
 />
 {% endblock %}

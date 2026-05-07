@@ -4,12 +4,13 @@ import { mount } from '@vue/test-utils';
  * @sw-package inventory
  */
 
-async function createWrapper() {
+async function createWrapper(props = {}) {
     return mount(
         await wrapTestComponent('sw-settings-tag-detail-modal', {
             sync: true,
         }),
         {
+            props,
             global: {
                 renderStubDefaultSlot: true,
                 provide: {
@@ -39,6 +40,10 @@ async function createWrapper() {
                         sync: true,
                     }),
                     'sw-tabs-item': true,
+                    'mt-tabs': {
+                        props: ['items', 'defaultItem'],
+                        template: '<mt-tabs-stub :items="items" :default-item="defaultItem" />',
+                    },
                     'sw-text-field': true,
                     'sw-settings-tag-detail-assignments': true,
                     'sw-tabs-deprecated': true,
@@ -49,6 +54,57 @@ async function createWrapper() {
 }
 
 describe('module/sw-settings-tag/component/sw-settings-tag-detail-modal', () => {
+    beforeEach(() => {
+        global.activeFeatureFlags = [''];
+    });
+
+    it('should render legacy tabs when major tabs migration is inactive', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.findComponent({ name: 'sw-tabs__wrapped' }).exists()).toBe(true);
+        expect(wrapper.find('mt-tabs-stub').exists()).toBe(false);
+    });
+
+    it('should render mt-tabs with tag detail tab items when major tabs migration is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
+
+        const mtTabs = wrapper.getComponent('mt-tabs-stub');
+
+        expect(mtTabs.props('items')).toStrictEqual([
+            {
+                label: 'sw-settings-tag.detail.generalTab',
+                name: 'general',
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-settings-tag.detail.assignmentsTab',
+                name: 'assignments',
+                onClick: expect.any(Function),
+            },
+        ]);
+        expect(mtTabs.props('defaultItem')).toBe('general');
+        expect(wrapper.findComponent({ name: 'sw-tabs__wrapped' }).exists()).toBe(false);
+    });
+
+    it('should render mt-tabs with assignments as default item when opened for assignments', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper({
+            property: 'products',
+            entity: 'product',
+        });
+        await wrapper.vm.$nextTick();
+
+        const mtTabs = wrapper.getComponent('mt-tabs-stub');
+
+        expect(mtTabs.props('defaultItem')).toBe('assignments');
+        expect(wrapper.findComponent({ name: 'sw-tabs__wrapped' }).exists()).toBe(false);
+    });
+
     it('should set tag, to be added and to be deleted on create', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();

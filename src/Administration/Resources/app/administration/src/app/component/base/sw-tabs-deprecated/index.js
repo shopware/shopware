@@ -12,6 +12,7 @@ const dom = Shopware.Utils.dom;
  * @private
  * @description Renders tabs. Each item references a route or emits a custom event.
  * @status ready
+ * @major-deprecated tag:v6.8.0 - Use mt-tabs with the items property instead.
  * @example-type static
  * @component-example
  * <sw-tabs>

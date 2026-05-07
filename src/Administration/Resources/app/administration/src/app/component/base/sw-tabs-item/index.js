@@ -10,6 +10,7 @@ const types = Shopware.Utils.types;
  * @private
  * @description Renders a tab item.
  * @status ready
+ * @major-deprecated tag:v6.8.0 - Use mt-tabs with the items property instead.
  * @example-type static
  * @component-example
  * <sw-tabs>

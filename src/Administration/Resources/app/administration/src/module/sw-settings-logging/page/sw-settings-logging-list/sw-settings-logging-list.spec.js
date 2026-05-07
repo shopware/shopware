@@ -13,6 +13,10 @@ const logEntryMock = {
     context: {
         additionalData: {
             recipients: [],
+            contents: {
+                'text/html': '<p>HTML</p>',
+                'text/plain': 'Plain',
+            },
         },
     },
 };
@@ -37,6 +41,10 @@ async function createWrapper() {
                 'sw-tabs': await wrapTestComponent('sw-tabs', {
                     sync: true,
                 }),
+                'mt-tabs': {
+                    props: ['items', 'defaultItem'],
+                    template: '<mt-tabs-stub :items="items" :default-item="defaultItem" />',
+                },
                 'sw-tabs-deprecated': {
                     template: '<div><slot /></div>',
                 },
@@ -55,7 +63,38 @@ async function createWrapper() {
     });
 }
 
+async function createEntryInfoWrapper() {
+    return mount(await wrapTestComponent('sw-settings-logging-entry-info', { sync: true }), {
+        props: {
+            logEntry: {
+                ...logEntryMock,
+                message: 'test'.repeat(10),
+            },
+        },
+        global: {
+            stubs: {
+                'sw-modal': {
+                    template: '<div><slot></slot><slot name="modal-footer"></slot></div>',
+                },
+                'mt-tabs': {
+                    props: ['items', 'defaultItem'],
+                    template: '<mt-tabs-stub :items="items" :default-item="defaultItem" />',
+                },
+                'sw-tabs': await wrapTestComponent('sw-tabs', {
+                    sync: true,
+                }),
+                'sw-tabs-item': true,
+                'mt-textarea': true,
+            },
+        },
+    });
+}
+
 describe('src/module/sw-settings-logging/page/sw-settings-logging-list', () => {
+    beforeEach(() => {
+        global.activeFeatureFlags = [''];
+    });
+
     it('should load default modal component', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -85,5 +124,70 @@ describe('src/module/sw-settings-logging/page/sw-settings-logging-list', () => {
 
         expect(wrapper.find('.sw-settings-logging-list__custom-content').exists()).toBe(true);
         expect(wrapper.find('.sw-settings-logging-mail-sent-info__tab-item').exists()).toBe(true);
+    });
+
+    it('should render mt-tabs with mail log tab items when major tabs migration is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.setData({
+            displayedLog: {
+                ...logEntryMock,
+                message: 'mail.sent',
+                context: {
+                    additionalData: {
+                        recipients: [],
+                        contents: {
+                            'text/html': '<p>HTML</p>',
+                            'text/plain': 'Plain',
+                        },
+                    },
+                },
+            },
+        });
+        await flushPromises();
+
+        const mtTabs = wrapper.getComponent('mt-tabs-stub');
+
+        expect(mtTabs.props('items')).toStrictEqual([
+            {
+                label: 'sw-settings-logging.mailInfo.tabHTML',
+                name: 'html',
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-settings-logging.mailInfo.tabPlain',
+                name: 'plain',
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-settings-logging.entryInfo.tabRaw',
+                name: 'raw',
+                onClick: expect.any(Function),
+            },
+        ]);
+        expect(mtTabs.props('defaultItem')).toBe('html');
+        expect(wrapper.find('.sw-settings-logging-mail-sent-info__tab-item').exists()).toBe(false);
+    });
+
+    it('should render mt-tabs with default log entry tab items when major tabs migration is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createEntryInfoWrapper();
+        await flushPromises();
+
+        const mtTabs = wrapper.getComponent('mt-tabs-stub');
+
+        expect(mtTabs.props('items')).toStrictEqual([
+            {
+                label: 'sw-settings-logging.entryInfo.tabRaw',
+                name: 'raw',
+                onClick: expect.any(Function),
+            },
+        ]);
+        expect(mtTabs.props('defaultItem')).toBe('raw');
+        expect(wrapper.find('sw-tabs-stub').exists()).toBe(false);
     });
 });

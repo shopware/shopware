@@ -22,27 +22,45 @@
 
     <template #content>
         <sw-card-view>
-            <sw-tabs
-                position-identifier="sw-settings-usage-data"
-                default-item="general"
-            >
-                <sw-tabs-item
-                    name="general"
-                    :route="{ name: 'sw.settings.usage.data.index.general' }"
-                >
-                    {{ $t('sw-settings-usage-data-general.tabHeadline') }}
-                </sw-tabs-item>
+            <template v-if="Shopware.Feature.isActive('V6_8_0_0')">
+                <mt-tabs
+                    :items="tabItems"
+                    default-item="general"
+                    position-identifier="sw-settings-usage-data"
+                />
 
-                <template #content>
-                    <router-view
-                        v-slot="{ Component }"
+                <router-view
+                    v-slot="{ Component }"
+                >
+                    <component
+                        :is="Component"
+                    />
+                </router-view>
+            </template>
+
+            <template v-else>
+                <sw-tabs
+                    position-identifier="sw-settings-usage-data"
+                    default-item="general"
+                >
+                    <sw-tabs-item
+                        name="general"
+                        :route="{ name: 'sw.settings.usage.data.index.general' }"
                     >
-                        <component
-                            :is="Component"
-                        />
-                    </router-view>
-                </template>
-            </sw-tabs>
+                        {{ $t('sw-settings-usage-data-general.tabHeadline') }}
+                    </sw-tabs-item>
+
+                    <template #content>
+                        <router-view
+                            v-slot="{ Component }"
+                        >
+                            <component
+                                :is="Component"
+                            />
+                        </router-view>
+                    </template>
+                </sw-tabs>
+            </template>
         </sw-card-view>
     </template>
 </sw-page>

@@ -24,8 +24,24 @@ export default {
     },
 
     computed: {
+        Shopware() {
+            return Shopware;
+        },
+
         displayString() {
             return this.logEntry.context ? JSON.stringify(this.logEntry.context, null, 2) : '';
+        },
+
+        tabItems() {
+            return [
+                {
+                    label: this.$t('sw-settings-logging.entryInfo.tabRaw'),
+                    name: 'raw',
+                    onClick: () => {
+                        this.activeTab = 'raw';
+                    },
+                },
+            ];
         },
     },
 

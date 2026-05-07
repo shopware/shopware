@@ -4,11 +4,23 @@
 
 import { mount } from '@vue/test-utils';
 
-async function createWrapper() {
+async function createWrapper(props = {}, attrs = {}) {
     return mount(await wrapTestComponent('mt-tabs', { sync: true }), {
+        attrs,
+        global: {
+            stubs: {
+                'mt-tabs-original': {
+                    name: 'mt-tabs-original',
+                    props: ['items'],
+                    emits: ['new-item-active'],
+                    template: '<div />',
+                },
+            },
+        },
         props: {
             items: [],
             positionIdentifier: 'jest-test-component',
+            ...props,
         },
     });
 }
@@ -34,6 +46,76 @@ describe('src/app/component/meteor-wrapper/mt-tabs', () => {
             { label: 'Tab 1', name: 'tab1' },
             { label: 'Tab 2', name: 'tab2' },
         ]);
+    });
+
+    it('should keep core items on the wrapper and pass them to the final component', async () => {
+        const items = [{ label: 'General', name: 'general' }];
+
+        const wrapper = await createWrapper({
+            positionIdentifier: 'example-tabs',
+            items,
+        });
+
+        expect(wrapper.props('items')).toEqual([{ label: 'General', name: 'general' }]);
+        expect(wrapper.findComponent({ name: 'mt-tabs-original' }).props('items')).toEqual([
+            { label: 'General', name: 'general' },
+        ]);
+    });
+
+    it('should pass core items before extension items to the final component', async () => {
+        Shopware.Store.get('tabs').tabItems['example-tabs'] = [
+            { label: 'Extension', componentSectionId: 'extension' },
+        ];
+
+        const wrapper = await createWrapper({
+            positionIdentifier: 'example-tabs',
+            items: [{ label: 'General', name: 'general' }],
+        });
+
+        expect(wrapper.findComponent({ name: 'mt-tabs-original' }).props('items')).toEqual([
+            { label: 'General', name: 'general' },
+            { label: 'Extension', name: 'extension', onClick: expect.any(Function) },
+        ]);
+    });
+
+    it('should forward new item active events from the final component', async () => {
+        const wrapper = await createWrapper({
+            positionIdentifier: 'example-tabs',
+            items: [{ label: 'General', name: 'general' }],
+        });
+
+        wrapper.findComponent({ name: 'mt-tabs-original' }).vm.$emit('new-item-active', {
+            label: 'General',
+            name: 'general',
+        });
+
+        expect(wrapper.emitted('new-item-active')).toEqual([
+            [{ label: 'General', name: 'general' }],
+        ]);
+    });
+
+    it('should call parent new item active listeners once when forwarding the event', async () => {
+        const onNewItemActive = jest.fn();
+        const wrapper = await createWrapper(
+            {
+                positionIdentifier: 'example-tabs',
+                items: [{ label: 'General', name: 'general' }],
+            },
+            {
+                onNewItemActive,
+            },
+        );
+
+        wrapper.findComponent({ name: 'mt-tabs-original' }).vm.$emit('new-item-active', {
+            label: 'General',
+            name: 'general',
+        });
+
+        expect(onNewItemActive).toHaveBeenCalledTimes(1);
+        expect(onNewItemActive).toHaveBeenCalledWith({
+            label: 'General',
+            name: 'general',
+        });
     });
 
     it('should pass the merged items from the props and extension store to the final component', async () => {

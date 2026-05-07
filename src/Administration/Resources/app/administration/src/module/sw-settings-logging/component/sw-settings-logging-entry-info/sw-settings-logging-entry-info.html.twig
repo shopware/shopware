@@ -5,29 +5,48 @@
 >
 
     {% block sw_settings_logging_entry_info_tabs %}
-    <sw-tabs position-identifier="sw-settings-logging-entry-info">
+    <template v-if="Shopware.Feature.isActive('V6_8_0_0')">
+        <mt-tabs
+            :items="tabItems"
+            :default-item="activeTab"
+            position-identifier="sw-settings-logging-entry-info"
+        />
 
-        {% block sw_settings_logging_entry_info_tab_items %}
-        <sw-tabs-item
-            :active="activeTab === 'raw'"
-            @click="activeTab = 'raw'"
-        >
-            {{ $t('sw-settings-logging.entryInfo.tabRaw') }}
-        </sw-tabs-item>
+        {% block sw_settings_logging_entry_info_content_major %}
+        {% block sw_settings_logging_entry_info_raw_content_major %}
+        <mt-textarea
+            v-if="activeTab === 'raw'"
+            :model-value="displayString"
+        />
         {% endblock %}
+        {% endblock %}
+    </template>
 
-        <template #content>
-            {% block sw_settings_logging_entry_info_content %}
-            {% block sw_settings_logging_entry_info_raw_content %}
-            <mt-textarea
-                v-if="activeTab === 'raw'"
-                :model-value="displayString"
-            />
-            {% endblock %}
-            {% endblock %}
-        </template>
+    <template v-else>
+        <sw-tabs position-identifier="sw-settings-logging-entry-info">
 
-    </sw-tabs>
+            {% block sw_settings_logging_entry_info_tab_items %}
+            <sw-tabs-item
+                :active="activeTab === 'raw'"
+                @click="activeTab = 'raw'"
+            >
+                {{ $t('sw-settings-logging.entryInfo.tabRaw') }}
+            </sw-tabs-item>
+            {% endblock %}
+
+            <template #content>
+                {% block sw_settings_logging_entry_info_content %}
+                {% block sw_settings_logging_entry_info_raw_content %}
+                <mt-textarea
+                    v-if="activeTab === 'raw'"
+                    :model-value="displayString"
+                />
+                {% endblock %}
+                {% endblock %}
+            </template>
+
+        </sw-tabs>
+    </template>
     {% endblock %}
 
     {% block sw_settings_logging_entry_info_footer %}

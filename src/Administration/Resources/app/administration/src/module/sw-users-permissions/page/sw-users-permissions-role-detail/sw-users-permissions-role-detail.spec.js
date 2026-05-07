@@ -61,6 +61,10 @@ async function createWrapper(
                     'sw-verify-user-modal': true,
                     'sw-tabs': true,
                     'sw-tabs-item': true,
+                    'mt-tabs': {
+                        props: ['items'],
+                        template: '<mt-tabs-stub :items="items" />',
+                    },
                     'router-view': true,
                     'sw-skeleton': true,
                     'sw-loader': true,
@@ -113,6 +117,44 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
     beforeEach(async () => {
         privilegesService = new PrivilegesService();
+        global.activeFeatureFlags = [''];
+    });
+
+    it('should render legacy sw-tabs when major tabs migration is inactive', async () => {
+        wrapper = await createWrapper();
+
+        expect(wrapper.find('sw-tabs-stub').exists()).toBe(true);
+        expect(wrapper.find('mt-tabs-stub').exists()).toBe(false);
+    });
+
+    it('should render mt-tabs with role detail tab items when major tabs migration is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        wrapper = await createWrapper();
+
+        const mtTabs = wrapper.getComponent('mt-tabs-stub');
+
+        expect(mtTabs.props('items')).toStrictEqual([
+            {
+                label: 'sw-users-permissions.roles.tabs.general',
+                name: 'general',
+                route: {
+                    name: 'sw.users.permissions.role.detail.general',
+                    params: { id: '12345789' },
+                },
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-users-permissions.roles.tabs.detailed',
+                name: 'detailed-privileges',
+                route: {
+                    name: 'sw.users.permissions.role.detail.detailed-privileges',
+                    params: { id: '12345789' },
+                },
+                onClick: expect.any(Function),
+            },
+        ]);
+        expect(wrapper.find('sw-tabs-stub').exists()).toBe(false);
     });
 
     it('should not contain any privileges', async () => {

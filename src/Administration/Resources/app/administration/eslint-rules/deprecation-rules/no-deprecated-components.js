@@ -1,8 +1,3 @@
-const fs = require('fs');
-const path = require('path');
-
-/* eslint-disable max-len */
-
 /**
  * @sw-package framework
  *
@@ -11,6 +6,72 @@ const path = require('path');
  *
  * @type {import('eslint').Rule.RuleModule}
  */
+function getDirectiveName(attribute) {
+    return attribute.key?.name?.name ?? attribute.key?.name;
+}
+
+function getDirectiveExpression(node, directiveName) {
+    const attribute = node?.startTag?.attributes?.find((candidate) => {
+        return getDirectiveName(candidate) === directiveName;
+    });
+
+    return attribute?.value?.expression;
+}
+
+function isMajorFeatureFlagCall(expression) {
+    return expression?.type === 'CallExpression' &&
+        expression.callee?.type === 'MemberExpression' &&
+        expression.callee.property?.name === 'isActive' &&
+        expression.callee.object?.type === 'MemberExpression' &&
+        expression.callee.object.property?.name === 'Feature' &&
+        expression.callee.object.object?.name === 'Shopware' &&
+        expression.arguments?.[0]?.value === 'V6_8_0_0';
+}
+
+function isPositiveMajorFeatureFlagExpression(expression) {
+    return isMajorFeatureFlagCall(expression);
+}
+
+function isNegatedMajorFeatureFlagExpression(expression) {
+    return expression?.type === 'UnaryExpression' &&
+        expression.operator === '!' &&
+        isMajorFeatureFlagCall(expression.argument);
+}
+
+function isInactiveMajorCompatibilityBranch(node) {
+    let currentNode = node.parent;
+
+    while (currentNode) {
+        const elseIfExpression = getDirectiveExpression(currentNode, 'else-if');
+
+        if (isNegatedMajorFeatureFlagExpression(elseIfExpression)) {
+            return true;
+        }
+
+        const hasElse = currentNode.startTag?.attributes?.some((attribute) => {
+            return getDirectiveName(attribute) === 'else';
+        });
+
+        if (hasElse) {
+            const siblings = currentNode.parent?.children ?? [];
+            const currentIndex = siblings.indexOf(currentNode);
+            const previousElement = siblings.slice(0, currentIndex).reverse().find((sibling) => {
+                return sibling.type === 'VElement';
+            });
+
+            const previousIfExpression = getDirectiveExpression(previousElement, 'if');
+
+            if (isPositiveMajorFeatureFlagExpression(previousIfExpression)) {
+                return true;
+            }
+        }
+
+        currentNode = currentNode.parent;
+    }
+
+    return false;
+}
+
 module.exports = {
     meta: {
         type: 'problem',
@@ -53,11 +114,9 @@ module.exports = {
                         'sw-external-link',
                         'sw-url-field',
                         'sw-loader',
-                        'sw-tabs',
                         'sw-datepicker',
                         'sw-skeleton-bar',
                         'sw-email-field',
-                        'sw-tabs',
                         'sw-password-field',
                         'sw-progress-bar',
                         'sw-switch-field',
@@ -95,6 +154,21 @@ module.exports = {
                             after: 'mt-floating-ui'
                         },
                     ].filter(conversion => activatedComponents.includes(conversion.before));
+
+                    const deprecatedTabComponents = ['sw-tabs', 'sw-tabs-item'];
+
+                    if (deprecatedTabComponents.includes(node.name)) {
+                        if (isInactiveMajorCompatibilityBranch(node)) {
+                            return;
+                        }
+
+                        context.report({
+                            loc: node.loc,
+                            message: `"${node.name}" is deprecated. Please use "mt-tabs" with the "items" property instead.`,
+                        });
+
+                        return;
+                    }
 
                     // Handle deprecated components
                     conversionMap.forEach(conversion => {
@@ -154,11 +228,9 @@ module.exports = {
                         'sw-external-link',
                         'sw-url-field',
                         'sw-loader',
-                        'sw-tabs',
                         'sw-datepicker',
                         'sw-skeleton-bar',
                         'sw-email-field',
-                        'sw-tabs',
                         'sw-password-field',
                         'sw-progress-bar'
                     ].filter(component => activatedComponents.includes(component));
@@ -226,8 +298,6 @@ module.exports = {
                             message: `"${swDatagridName}" is deprecated. Please use "mt-data-table" instead.`,
                             *fix(fixer) {
                                 if (!enableFix) return;
-
-                                const isSelfClosing = node.startTag.selfClosing;
 
                                 // Get the range of the start tag
                                 const startTagRange = [node.startTag.range[0], swDatagridName.length + node.startTag.range[0] + 1];

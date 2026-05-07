@@ -2,7 +2,7 @@
  * @sw-package discovery
  */
 
-// eslint-disable-next-line import/no-unresolved
+ 
 import body from './body.json.twig?raw';
 
 Shopware.Service('exportTemplateService').registerProductExportTemplate({

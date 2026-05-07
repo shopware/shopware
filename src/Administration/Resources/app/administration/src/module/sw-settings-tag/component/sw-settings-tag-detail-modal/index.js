@@ -80,6 +80,29 @@ export default {
             return Shopware.EntityDefinition.get('tag');
         },
 
+        Shopware() {
+            return Shopware;
+        },
+
+        tabItems() {
+            return [
+                {
+                    label: this.$t('sw-settings-tag.detail.generalTab'),
+                    name: 'general',
+                    onClick: () => {
+                        this.initialTab = 'general';
+                    },
+                },
+                {
+                    label: this.$t('sw-settings-tag.detail.assignmentsTab'),
+                    name: 'assignments',
+                    onClick: () => {
+                        this.initialTab = 'assignments';
+                    },
+                },
+            ];
+        },
+
         ...mapPropertyErrors('tag', ['name']),
 
         title() {

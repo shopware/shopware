@@ -46,6 +46,10 @@ export default {
     },
 
     computed: {
+        Shopware() {
+            return Shopware;
+        },
+
         tooltipSave() {
             const systemKey = this.$device.getSystemKey();
 
@@ -72,6 +76,41 @@ export default {
 
         roleId() {
             return this.$route.params.id?.toLowerCase();
+        },
+
+        tabItems() {
+            const id = this.$route.params.id;
+
+            return [
+                {
+                    label: this.$t('sw-users-permissions.roles.tabs.general'),
+                    name: 'general',
+                    route: {
+                        name: 'sw.users.permissions.role.detail.general',
+                        params: { id },
+                    },
+                    onClick: () => {
+                        this.$router.push({
+                            name: 'sw.users.permissions.role.detail.general',
+                            params: { id },
+                        });
+                    },
+                },
+                {
+                    label: this.$t('sw-users-permissions.roles.tabs.detailed'),
+                    name: 'detailed-privileges',
+                    route: {
+                        name: 'sw.users.permissions.role.detail.detailed-privileges',
+                        params: { id },
+                    },
+                    onClick: () => {
+                        this.$router.push({
+                            name: 'sw.users.permissions.role.detail.detailed-privileges',
+                            params: { id },
+                        });
+                    },
+                },
+            ];
         },
     },
 

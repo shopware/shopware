@@ -18,6 +18,8 @@ export default Shopware.Component.wrapComponentConfig({
         'mt-tabs-original': MtTabs,
     },
 
+    emits: ['new-item-active'],
+
     props: {
         positionIdentifier: {
             type: String,

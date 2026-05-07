@@ -1,5 +1,3 @@
-import { MtFloatingUi } from "@shopware-ag/meteor-component-library";
-
 const RuleTester = require('eslint').RuleTester
 const rule = require('./no-deprecated-components');
 
@@ -64,6 +62,24 @@ tester.run('no-deprecated-components', rule, {
             <template>
                 <mt-tabs />
             </template>`
+        },
+        {
+            name: '"sw-tabs" usage is allowed in inactive major compatibility branch',
+            filename: 'test.html.twig',
+            code: `
+<template>
+    <template v-if="Shopware.Feature.isActive('V6_8_0_0')">
+        <mt-tabs :items="items" />
+    </template>
+
+    <template v-else>
+        <sw-tabs>
+            <sw-tabs-item name="general">
+                General
+            </sw-tabs-item>
+        </sw-tabs>
+    </template>
+</template>`,
         },
         {
             name: '"mt-checkbox" usage is allowed',
@@ -497,13 +513,8 @@ tester.run('no-deprecated-components', rule, {
 <template>
     <sw-tabs />
 </template>`,
-            output: `
-<template>
-    <!-- TODO Codemod: Converted from sw-tabs - please check if everything works correctly -->
-    <mt-tabs />
-</template>`,
             errors: [{
-                message: '"sw-tabs" is deprecated. Please use "mt-tabs" instead.',
+                message: '"sw-tabs" is deprecated. Please use "mt-tabs" with the "items" property instead.',
             }]
         },
         {
@@ -517,8 +528,117 @@ tester.run('no-deprecated-components', rule, {
     <sw-tabs />
 </template>`,
             errors: [{
-                message: '"sw-tabs" is deprecated. Please use "mt-tabs" instead.',
+                message: '"sw-tabs" is deprecated. Please use "mt-tabs" with the "items" property instead.',
             }]
+        },
+        {
+            name: '"sw-tabs" usage is not allowed outside inactive major compatibility branch',
+            filename: 'test.html.twig',
+            options: [{ fix: false }],
+            code: `
+<template>
+    <sw-tabs>
+        <sw-tabs-item name="general">
+            General
+        </sw-tabs-item>
+    </sw-tabs>
+</template>`,
+            errors: [
+                { message: '"sw-tabs" is deprecated. Please use "mt-tabs" with the "items" property instead.' },
+                { message: '"sw-tabs-item" is deprecated. Please use "mt-tabs" with the "items" property instead.' },
+            ],
+        },
+        {
+            name: '"sw-tabs" usage is not allowed in active major compatibility else branch',
+            filename: 'test.html.twig',
+            options: [{ fix: false }],
+            code: `
+<template>
+    <template v-if="!Shopware.Feature.isActive('V6_8_0_0')">
+        <mt-tabs :items="items" />
+    </template>
+
+    <template v-else>
+        <sw-tabs>
+            <sw-tabs-item name="general">
+                General
+            </sw-tabs-item>
+        </sw-tabs>
+    </template>
+</template>`,
+            errors: [
+                { message: '"sw-tabs" is deprecated. Please use "mt-tabs" with the "items" property instead.' },
+                { message: '"sw-tabs-item" is deprecated. Please use "mt-tabs" with the "items" property instead.' },
+            ],
+        },
+        {
+            name: '"sw-tabs" usage is not allowed in active major compatibility else-if with unrelated negation',
+            filename: 'test.html.twig',
+            options: [{ fix: false }],
+            code: `
+<template>
+    <template v-if="hasTabs">
+        <mt-tabs :items="items" />
+    </template>
+
+    <template v-else-if="hasTabs && !someOtherFlag && Shopware.Feature.isActive('V6_8_0_0')">
+        <sw-tabs>
+            <sw-tabs-item name="general">
+                General
+            </sw-tabs-item>
+        </sw-tabs>
+    </template>
+</template>`,
+            errors: [
+                { message: '"sw-tabs" is deprecated. Please use "mt-tabs" with the "items" property instead.' },
+                { message: '"sw-tabs-item" is deprecated. Please use "mt-tabs" with the "items" property instead.' },
+            ],
+        },
+        {
+            name: '"sw-tabs" usage is not allowed in mixed inactive major compatibility else-if',
+            filename: 'test.html.twig',
+            options: [{ fix: false }],
+            code: `
+<template>
+    <template v-if="hasTabs">
+        <mt-tabs :items="items" />
+    </template>
+
+    <template v-else-if="!Shopware.Feature.isActive('V6_8_0_0') || showLegacyTabs">
+        <sw-tabs>
+            <sw-tabs-item name="general">
+                General
+            </sw-tabs-item>
+        </sw-tabs>
+    </template>
+</template>`,
+            errors: [
+                { message: '"sw-tabs" is deprecated. Please use "mt-tabs" with the "items" property instead.' },
+                { message: '"sw-tabs-item" is deprecated. Please use "mt-tabs" with the "items" property instead.' },
+            ],
+        },
+        {
+            name: '"sw-tabs" usage is not allowed in mixed active major compatibility else branch',
+            filename: 'test.html.twig',
+            options: [{ fix: false }],
+            code: `
+<template>
+    <template v-if="Shopware.Feature.isActive('V6_8_0_0') && hasNewTabs">
+        <mt-tabs :items="items" />
+    </template>
+
+    <template v-else>
+        <sw-tabs>
+            <sw-tabs-item name="general">
+                General
+            </sw-tabs-item>
+        </sw-tabs>
+    </template>
+</template>`,
+            errors: [
+                { message: '"sw-tabs" is deprecated. Please use "mt-tabs" with the "items" property instead.' },
+                { message: '"sw-tabs-item" is deprecated. Please use "mt-tabs" with the "items" property instead.' },
+            ],
         },
         {
             name: '"sw-select-field" usage is not allowed',

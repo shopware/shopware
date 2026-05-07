@@ -9,7 +9,10 @@ async function createWrapper(additionalOptions = {}) {
         global: {
             stubs: {
                 'sw-tabs-deprecated': true,
-                'mt-tabs': true,
+                'mt-tabs': {
+                    props: ['items'],
+                    template: '<mt-tabs-stub :items="items" />',
+                },
             },
         },
         props: {},
@@ -27,11 +30,23 @@ describe('src/app/component/base/sw-tabs', () => {
         expect(wrapper.html()).not.toContain('mt-tabs');
     });
 
-    it('should render the mt-tabs when major feature flag is enabled', async () => {
+    it('should render the mt-tabs with passed items when major feature flag is enabled', async () => {
         global.activeFeatureFlags = ['V6_8_0_0'];
+        const items = [
+            {
+                label: 'General',
+                name: 'general',
+            },
+        ];
 
-        const wrapper = await createWrapper();
+        const wrapper = await createWrapper({
+            props: {
+                items,
+            },
+        });
 
-        expect(wrapper.html()).toContain('mt-tabs');
+        const mtTabs = wrapper.getComponent('mt-tabs-stub');
+
+        expect(mtTabs.props('items')).toStrictEqual(items);
     });
 });

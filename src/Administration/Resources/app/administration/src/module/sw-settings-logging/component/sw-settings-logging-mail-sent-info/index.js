@@ -10,6 +10,32 @@ export default {
     template,
 
     computed: {
+        tabItems() {
+            return [
+                {
+                    label: this.$t('sw-settings-logging.mailInfo.tabHTML'),
+                    name: 'html',
+                    onClick: () => {
+                        this.activeTab = 'html';
+                    },
+                },
+                {
+                    label: this.$t('sw-settings-logging.mailInfo.tabPlain'),
+                    name: 'plain',
+                    onClick: () => {
+                        this.activeTab = 'plain';
+                    },
+                },
+                {
+                    label: this.$t('sw-settings-logging.entryInfo.tabRaw'),
+                    name: 'raw',
+                    onClick: () => {
+                        this.activeTab = 'raw';
+                    },
+                },
+            ];
+        },
+
         recipientString() {
             let recipients = '';
             const addresses = Object.keys(this.logEntry.context.additionalData.recipients);

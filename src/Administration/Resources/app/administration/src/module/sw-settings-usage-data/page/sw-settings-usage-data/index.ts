@@ -9,4 +9,23 @@ export default Shopware.Component.wrapComponentConfig({
     name: 'sw-settings-usage-data',
 
     template,
+
+    computed: {
+        Shopware() {
+            return Shopware;
+        },
+
+        tabItems() {
+            return [
+                {
+                    label: this.$t('sw-settings-usage-data-general.tabHeadline'),
+                    name: 'general',
+                    route: { name: 'sw.settings.usage.data.index.general' },
+                    onClick: () => {
+                        void this.$router.push({ name: 'sw.settings.usage.data.index.general' });
+                    },
+                },
+            ];
+        },
+    },
 });

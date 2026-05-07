@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Checkout\DependencyInjection;
 
+use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileDefinition;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentNumberGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentDependencyResolver;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentEntityPersister;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
+use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -26,9 +28,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(NumberRangeValueGeneratorInterface::class),
         ]);
 
-    // $services->set(InvoiceDataProvider::class)
-    //    ->args([...])
-    //    ->tag('shopware.document_v2.provider');
+    $services->set(InvoiceDataProvider::class)
+        ->args([
+            service(DocumentConfigLoader::class),
+            service('validator'),
+        ])
+        ->tag('shopware.document_v2.provider');
 
     $services->set(DocumentDataProviderRegistry::class)
         ->args([

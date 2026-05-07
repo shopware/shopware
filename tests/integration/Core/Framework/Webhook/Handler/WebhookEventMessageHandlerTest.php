@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Webhook\Handler;
 
 use Doctrine\DBAL\Connection;
 use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -20,6 +22,7 @@ use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogEntity;
 use Shopware\Core\Framework\Webhook\Handler\WebhookEventMessageHandler;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
+use Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService;
 use Shopware\Core\Framework\Webhook\WebhookEntity;
 use Shopware\Core\Framework\Webhook\WebhookException;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
@@ -88,6 +91,8 @@ class WebhookEventMessageHandlerTest extends TestCase
             'serializedWebhookMessage' => serialize($webhookEventMessage),
         ]], Context::createDefaultContext());
 
+        $this->insertWebhookDelivery(static::getContainer()->get(Connection::class), $webhookEventId, $webhookId);
+
         $this->appendNewResponse(new Response(200));
 
         ($this->webhookEventMessageHandler)($webhookEventMessage);
@@ -115,18 +120,22 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
         static::assertSame($webhookEventLog->getDeliveryStatus(), WebhookEventLogDefinition::STATUS_SUCCESS);
-        static::assertEquals(
-            [
-                'headers' => [
-                    'Content-Type' => 'application/json',
-                    'sw-version' => '6.4',
-                    AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE => Defaults::LANGUAGE_SYSTEM,
-                    AuthMiddleware::SHOPWARE_USER_LANGUAGE => 'en-GB',
-                ],
-                'body' => $payload,
-            ],
-            $webhookEventLog->getRequestContent()
-        );
+        // Legacy envelopes (no partition key) get no rework headers — dispatch order isn't reliable.
+        static::assertFalse($request->hasHeader('X-Shopware-Event-Id'));
+        static::assertFalse($request->hasHeader('X-Shopware-Sequence'));
+        static::assertFalse($request->hasHeader('X-Shopware-Attempt'));
+
+        $requestContent = $webhookEventLog->getRequestContent();
+        static::assertIsArray($requestContent);
+        static::assertSame($payload, $requestContent['body']);
+        $headers = $requestContent['headers'] ?? [];
+        static::assertSame('application/json', $headers['Content-Type']);
+        static::assertSame('6.4', $headers['sw-version']);
+        static::assertSame(Defaults::LANGUAGE_SYSTEM, $headers[AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE]);
+        static::assertSame('en-GB', $headers[AuthMiddleware::SHOPWARE_USER_LANGUAGE]);
+        static::assertArrayNotHasKey('X-Shopware-Event-Id', $headers);
+        static::assertArrayNotHasKey('X-Shopware-Sequence', $headers);
+        static::assertArrayNotHasKey('X-Shopware-Attempt', $headers);
     }
 
     /**
@@ -179,6 +188,8 @@ class WebhookEventMessageHandlerTest extends TestCase
             'url' => 'https://test.com',
             'serializedWebhookMessage' => serialize($webhookEventMessage),
         ]], Context::createDefaultContext());
+
+        $this->insertWebhookDelivery(static::getContainer()->get(Connection::class), $webhookEventId, $webhookId);
 
         $appRepository->delete([['id' => $appId]], Context::createDefaultContext());
 
@@ -328,18 +339,18 @@ class WebhookEventMessageHandlerTest extends TestCase
             'serializedWebhookMessage' => serialize($webhookEventMessage),
         ]], Context::createDefaultContext());
 
+        $this->insertWebhookDelivery(static::getContainer()->get(Connection::class), $webhookEventId, $webhookId);
+
         $this->appendNewResponse(new Response(500, [], '<h1>not json</h1>'));
 
-        $wasThrown = false;
-
+        $caught = null;
         try {
             ($this->webhookEventMessageHandler)($webhookEventMessage);
         } catch (WebhookException $e) {
-            $wasThrown = true;
-            static::assertSame(WebhookException::APP_WEBHOOK_FAILED, $e->getErrorCode());
+            $caught = $e;
         }
-
-        static::assertTrue($wasThrown);
+        static::assertInstanceOf(WebhookException::class, $caught);
+        static::assertSame(WebhookException::APP_WEBHOOK_FAILED, $caught->getErrorCode());
 
         $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->first();
 
@@ -555,23 +566,20 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $this->appendNewResponse(new Response(500, [], '{"error": "internal server error"}'));
 
-        $wasThrown = false;
-
+        $caught = null;
         try {
             ($this->webhookEventMessageHandler)($webhookEventMessage);
         } catch (WebhookException $e) {
-            $wasThrown = true;
-            static::assertSame(WebhookException::APP_WEBHOOK_FAILED, $e->getErrorCode());
+            $caught = $e;
         }
-
-        static::assertTrue($wasThrown);
+        static::assertInstanceOf(WebhookException::class, $caught);
+        static::assertSame(WebhookException::APP_WEBHOOK_FAILED, $caught->getErrorCode());
 
         // After failure: verify status is reset to QUEUED (for Messenger retry)
         $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->first();
         static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
         static::assertSame(WebhookEventLogDefinition::STATUS_QUEUED, $webhookEventLog->getDeliveryStatus());
 
-        // Verify the failed response data is still persisted for debugging
         static::assertSame(500, $webhookEventLog->getResponseStatusCode());
         static::assertNotNull($webhookEventLog->getProcessingTime());
         static::assertGreaterThanOrEqual(0, $webhookEventLog->getProcessingTime());
@@ -594,6 +602,104 @@ class WebhookEventMessageHandlerTest extends TestCase
             ['id' => Uuid::fromHexToBytes($webhookEventId)]
         );
         static::assertSame(WebhookEventLogDefinition::STATUS_QUEUED, $deliveryStatus, 'webhook_delivery row should be preserved with QUEUED status after failure');
+    }
+
+    public function testFailurePathWithUnserializableResponseResetsToQueued(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $appId = Uuid::randomHex();
+        $this->createAppWithWebhook($appId, $webhookId);
+
+        $webhookEventLogRepository = static::getContainer()->get('webhook_event_log.repository');
+        $webhookEventId = Uuid::randomHex();
+        $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId);
+
+        $webhookEventLogRepository->create([[
+            'id' => $webhookEventId,
+            'appName' => 'SwagApp',
+            'deliveryStatus' => WebhookEventLogDefinition::STATUS_QUEUED,
+            'webhookName' => 'hook1',
+            'eventName' => 'order',
+            'appVersion' => '0.0.1',
+            'url' => 'https://test.com',
+            'serializedWebhookMessage' => serialize($webhookEventMessage),
+        ]], Context::createDefaultContext());
+
+        $connection = static::getContainer()->get(Connection::class);
+        $this->insertWebhookDelivery($connection, $webhookEventId, $webhookId);
+
+        $this->appendNewResponse(new Response(500, [], pack('C*', 0xB1)));
+
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($webhookEventMessage): void {
+            $caught = null;
+            try {
+                ($this->webhookEventMessageHandler)($webhookEventMessage);
+                static::fail('Malformed failure response should still throw for Messenger retry.');
+            } catch (WebhookException $e) {
+                $caught = $e;
+            }
+
+            static::assertSame(1, $this->getRequestCount());
+            static::assertSame(WebhookException::APP_WEBHOOK_FAILED, $caught->getErrorCode());
+            static::assertInstanceOf(ServerException::class, $caught->getPrevious());
+        });
+
+        $eventLogStatus = $connection->fetchOne(
+            'SELECT delivery_status FROM webhook_event_log WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($webhookEventId)]
+        );
+        static::assertSame(WebhookEventLogDefinition::STATUS_QUEUED, $eventLogStatus);
+
+        $deliveryStatus = $connection->fetchOne(
+            'SELECT delivery_status FROM webhook_delivery WHERE webhook_event_log_id = :id',
+            ['id' => Uuid::fromHexToBytes($webhookEventId)]
+        );
+        static::assertSame(WebhookEventLogDefinition::STATUS_QUEUED, $deliveryStatus);
+    }
+
+    public function testSuccessPathWithUnserializableResponseMarksSuccessWithoutRetry(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $appId = Uuid::randomHex();
+        $this->createAppWithWebhook($appId, $webhookId);
+
+        $webhookEventLogRepository = static::getContainer()->get('webhook_event_log.repository');
+        $webhookEventId = Uuid::randomHex();
+        $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId);
+
+        $webhookEventLogRepository->create([[
+            'id' => $webhookEventId,
+            'appName' => 'SwagApp',
+            'deliveryStatus' => WebhookEventLogDefinition::STATUS_QUEUED,
+            'webhookName' => 'hook1',
+            'eventName' => 'order',
+            'appVersion' => '0.0.1',
+            'url' => 'https://test.com',
+            'serializedWebhookMessage' => serialize($webhookEventMessage),
+        ]], Context::createDefaultContext());
+
+        $connection = static::getContainer()->get(Connection::class);
+        $this->insertWebhookDelivery($connection, $webhookEventId, $webhookId);
+
+        $this->appendNewResponse(new Response(200, ['X-Bad-Audit-Header' => pack('C*', 0xB1)], '{"ok":true}'));
+
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($webhookEventMessage): void {
+            ($this->webhookEventMessageHandler)($webhookEventMessage);
+        });
+
+        static::assertSame(1, $this->getRequestCount());
+
+        $eventLogStatus = $connection->fetchOne(
+            'SELECT delivery_status FROM webhook_event_log WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($webhookEventId)]
+        );
+        static::assertSame(WebhookEventLogDefinition::STATUS_SUCCESS, $eventLogStatus);
+
+        $deliveryExists = $connection->fetchOne(
+            'SELECT 1 FROM webhook_delivery WHERE webhook_event_log_id = :id',
+            ['id' => Uuid::fromHexToBytes($webhookEventId)]
+        );
+        static::assertFalse($deliveryExists);
     }
 
     /**
@@ -653,17 +759,15 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $this->appendNewResponse(new ConnectException('Connection refused', new Request('POST', 'https://test.com')));
 
-        $wasThrown = false;
-
+        $caught = null;
         try {
             ($this->webhookEventMessageHandler)($webhookEventMessage);
         } catch (WebhookException $e) {
-            $wasThrown = true;
             // ConnectException has no response, so this falls through to webhookFailedException (not app variant)
-            static::assertSame(WebhookException::WEBHOOK_FAILED, $e->getErrorCode());
+            $caught = $e;
         }
-
-        static::assertTrue($wasThrown);
+        static::assertInstanceOf(WebhookException::class, $caught);
+        static::assertSame(WebhookException::WEBHOOK_FAILED, $caught->getErrorCode());
 
         // After network error: status should be reset to QUEUED
         $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->first();
@@ -755,6 +859,8 @@ class WebhookEventMessageHandlerTest extends TestCase
             'url' => 'https://test.com',
             'serializedWebhookMessage' => serialize($webhookEventMessage),
         ]], Context::createDefaultContext());
+
+        $this->insertWebhookDelivery($connection, $webhookEventId, $webhookId);
 
         $this->appendNewResponse(new Response(200, [], '{"ok": true}'));
 
@@ -891,6 +997,8 @@ class WebhookEventMessageHandlerTest extends TestCase
             'serializedWebhookMessage' => serialize($webhookEventMessage),
         ]], Context::createDefaultContext());
 
+        $this->insertWebhookDelivery(static::getContainer()->get(Connection::class), $webhookEventId, $webhookId);
+
         // Delete the app (and its webhook) before the handler runs
         $appRepository->delete([['id' => $appId]], Context::createDefaultContext());
 
@@ -905,6 +1013,345 @@ class WebhookEventMessageHandlerTest extends TestCase
         static::assertSame(WebhookEventLogDefinition::STATUS_SUCCESS, $webhookEventLog->getDeliveryStatus());
     }
 
+    public function testDeliveryFailureSchedulesPendingRetry(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $appId = Uuid::randomHex();
+        $this->createAppWithWebhook($appId, $webhookId);
+
+        $webhookEventLogRepository = static::getContainer()->get('webhook_event_log.repository');
+        $webhookEventId = Uuid::randomHex();
+        $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId, partitionKey: $appId);
+
+        $webhookEventLogRepository->create([[
+            'id' => $webhookEventId,
+            'appName' => 'SwagApp',
+            'deliveryStatus' => WebhookEventLogDefinition::STATUS_QUEUED,
+            'webhookName' => 'hook1',
+            'eventName' => 'order',
+            'appVersion' => '0.0.1',
+            'url' => 'https://example.com/hook',
+            'serializedWebhookMessage' => serialize($webhookEventMessage),
+        ]], Context::createDefaultContext());
+
+        $connection = static::getContainer()->get(Connection::class);
+        $this->insertWebhookDelivery($connection, $webhookEventId, $webhookId);
+
+        $this->appendNewResponse(new Response(500, [], '{"error": "internal server error"}'));
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($webhookEventMessage, $connection, $webhookEventId, $webhookEventLogRepository): void {
+            ($this->webhookEventMessageHandler)($webhookEventMessage);
+
+            $delivery = $connection->fetchAssociative(
+                'SELECT delivery_status, next_retry_at FROM webhook_delivery WHERE webhook_event_log_id = :id',
+                ['id' => Uuid::fromHexToBytes($webhookEventId)]
+            );
+            static::assertIsArray($delivery);
+            static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $delivery['delivery_status']);
+            static::assertNotNull($delivery['next_retry_at'], 'next_retry_at must be set for pending_retry');
+
+            $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->first();
+            static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
+            static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $webhookEventLog->getDeliveryStatus());
+        });
+    }
+
+    public function testDeliveryMarksTerminalFailureAtMaxRetries(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $appId = Uuid::randomHex();
+        $this->createAppWithWebhook($appId, $webhookId);
+
+        $webhookEventLogRepository = static::getContainer()->get('webhook_event_log.repository');
+        $webhookEventId = Uuid::randomHex();
+        $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId, partitionKey: $appId);
+
+        $webhookEventLogRepository->create([[
+            'id' => $webhookEventId,
+            'appName' => 'SwagApp',
+            'deliveryStatus' => WebhookEventLogDefinition::STATUS_QUEUED,
+            'webhookName' => 'hook1',
+            'eventName' => 'order',
+            'appVersion' => '0.0.1',
+            'url' => 'https://example.com/hook',
+            'serializedWebhookMessage' => serialize($webhookEventMessage),
+        ]], Context::createDefaultContext());
+
+        $connection = static::getContainer()->get(Connection::class);
+        $this->insertWebhookDelivery($connection, $webhookEventId, $webhookId);
+
+        // Simulate that this delivery has already been attempted 5 times (markRunning will bump to 6, exceeding MAX_RETRIES)
+        $connection->executeStatement(
+            'UPDATE webhook_delivery SET execution_count = 5 WHERE webhook_event_log_id = :id',
+            ['id' => Uuid::fromHexToBytes($webhookEventId)]
+        );
+
+        $this->appendNewResponse(new Response(500, [], '{"error": "still failing"}'));
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($webhookEventMessage, $connection, $webhookEventId, $webhookEventLogRepository): void {
+            ($this->webhookEventMessageHandler)($webhookEventMessage);
+
+            $deliveryCount = (int) $connection->fetchOne(
+                'SELECT COUNT(*) FROM webhook_delivery WHERE webhook_event_log_id = :id',
+                ['id' => Uuid::fromHexToBytes($webhookEventId)]
+            );
+            static::assertSame(0, $deliveryCount, 'webhook_delivery row should be deleted after terminal failure');
+
+            $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->first();
+            static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
+            static::assertSame(WebhookEventLogDefinition::STATUS_FAILED, $webhookEventLog->getDeliveryStatus());
+        });
+    }
+
+    public function testDeliverySuccessResetsPerWebhookErrorCount(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $relatedWebhookId = Uuid::randomHex();
+        $appId = Uuid::randomHex();
+
+        $appRepository = static::getContainer()->get('app.repository');
+        $appRepository->create([[
+            'id' => $appId,
+            'name' => 'SwagApp',
+            'active' => true,
+            'path' => __DIR__ . '/Manifest/_fixtures/test',
+            'version' => '0.0.1',
+            'label' => 'test',
+            'appSecret' => 's3cr3t',
+            'integration' => [
+                'label' => 'test',
+                'accessKey' => 'api access key',
+                'secretAccessKey' => 'test',
+            ],
+            'aclRole' => [
+                'name' => 'SwagApp',
+            ],
+            'webhooks' => [
+                [
+                    'id' => $webhookId,
+                    'name' => 'hook1',
+                    'eventName' => 'order',
+                    'url' => 'https://example.com/hook',
+                    'errorCount' => 5,
+                ],
+            ],
+        ]], Context::createDefaultContext());
+
+        $connection = static::getContainer()->get(Connection::class);
+        $connection->insert('webhook', [
+            'id' => Uuid::fromHexToBytes($relatedWebhookId),
+            'name' => 'hook1-related',
+            'event_name' => 'order',
+            'url' => 'https://example.com/hook',
+            'error_count' => 7,
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $webhookEventLogRepository = static::getContainer()->get('webhook_event_log.repository');
+        $webhookEventId = Uuid::randomHex();
+        $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId, partitionKey: $appId);
+
+        $webhookEventLogRepository->create([[
+            'id' => $webhookEventId,
+            'appName' => 'SwagApp',
+            'deliveryStatus' => WebhookEventLogDefinition::STATUS_QUEUED,
+            'webhookName' => 'hook1',
+            'eventName' => 'order',
+            'appVersion' => '0.0.1',
+            'url' => 'https://example.com/hook',
+            'serializedWebhookMessage' => serialize($webhookEventMessage),
+        ]], Context::createDefaultContext());
+
+        $this->insertWebhookDelivery($connection, $webhookEventId, $webhookId);
+
+        $this->appendNewResponse(new Response(200, [], '{"ok": true}'));
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($webhookEventMessage, $connection, $webhookId, $relatedWebhookId): void {
+            ($this->webhookEventMessageHandler)($webhookEventMessage);
+
+            $errorCount = (int) $connection->fetchOne(
+                'SELECT error_count FROM webhook WHERE id = :id',
+                ['id' => Uuid::fromHexToBytes($webhookId)]
+            );
+            static::assertSame(0, $errorCount, 'Primary webhook error_count should be reset to 0');
+
+            // Related webhooks (same event+URL) also have their error_count reset — matches trunk behavior via RelatedWebhooks
+            $relatedErrorCount = (int) $connection->fetchOne(
+                'SELECT error_count FROM webhook WHERE id = :id',
+                ['id' => Uuid::fromHexToBytes($relatedWebhookId)]
+            );
+            static::assertSame(0, $relatedErrorCount, 'Related webhook error_count should also be reset (RelatedWebhooks behavior)');
+        });
+    }
+
+    public function testDeliveryFailureDoesNotThrow(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $appId = Uuid::randomHex();
+        $this->createAppWithWebhook($appId, $webhookId);
+
+        $webhookEventLogRepository = static::getContainer()->get('webhook_event_log.repository');
+        $webhookEventId = Uuid::randomHex();
+        $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId, partitionKey: $appId);
+
+        $webhookEventLogRepository->create([[
+            'id' => $webhookEventId,
+            'appName' => 'SwagApp',
+            'deliveryStatus' => WebhookEventLogDefinition::STATUS_QUEUED,
+            'webhookName' => 'hook1',
+            'eventName' => 'order',
+            'appVersion' => '0.0.1',
+            'url' => 'https://example.com/hook',
+            'serializedWebhookMessage' => serialize($webhookEventMessage),
+        ]], Context::createDefaultContext());
+
+        $connection = static::getContainer()->get(Connection::class);
+        $this->insertWebhookDelivery($connection, $webhookEventId, $webhookId);
+
+        $this->appendNewResponse(new ConnectException('Connection refused', new Request('POST', 'https://example.com/hook')));
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($webhookEventMessage, $webhookEventLogRepository, $webhookEventId): void {
+            ($this->webhookEventMessageHandler)($webhookEventMessage);
+
+            $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->first();
+            static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
+            static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $webhookEventLog->getDeliveryStatus());
+        });
+    }
+
+    public function testLegacyPathThrowsOnFailure(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $appId = Uuid::randomHex();
+        $this->createAppWithWebhook($appId, $webhookId);
+
+        $webhookEventLogRepository = static::getContainer()->get('webhook_event_log.repository');
+        $webhookEventId = Uuid::randomHex();
+        $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId);
+
+        $webhookEventLogRepository->create([[
+            'id' => $webhookEventId,
+            'appName' => 'SwagApp',
+            'deliveryStatus' => WebhookEventLogDefinition::STATUS_QUEUED,
+            'webhookName' => 'hook1',
+            'eventName' => 'order',
+            'appVersion' => '0.0.1',
+            'url' => 'https://test.com',
+            'serializedWebhookMessage' => serialize($webhookEventMessage),
+        ]], Context::createDefaultContext());
+
+        $connection = static::getContainer()->get(Connection::class);
+        $this->insertWebhookDelivery($connection, $webhookEventId, $webhookId);
+
+        $this->appendNewResponse(new Response(500, [], '{"error": "fail"}'));
+
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($webhookEventMessage): void {
+            $this->expectException(WebhookException::class);
+            ($this->webhookEventMessageHandler)($webhookEventMessage);
+        });
+    }
+
+    public function testLegacyMessageWithoutDeliveryRowStillDeliversHttpRequest(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $appId = Uuid::randomHex();
+        $this->createAppWithWebhook($appId, $webhookId);
+
+        $webhookEventLogRepository = static::getContainer()->get('webhook_event_log.repository');
+        $webhookEventId = Uuid::randomHex();
+        $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId);
+
+        $webhookEventLogRepository->create([[
+            'id' => $webhookEventId,
+            'appName' => 'SwagApp',
+            'deliveryStatus' => WebhookEventLogDefinition::STATUS_QUEUED,
+            'webhookName' => 'hook1',
+            'eventName' => 'order',
+            'appVersion' => '0.0.1',
+            'url' => 'https://test.com',
+            'serializedWebhookMessage' => serialize($webhookEventMessage),
+        ]], Context::createDefaultContext());
+
+        // No insertWebhookDelivery -- simulating a pre-outbox message in the queue.
+
+        $this->appendNewResponse(new Response(200));
+
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($webhookEventMessage, $webhookEventLogRepository, $webhookEventId): void {
+            ($this->webhookEventMessageHandler)($webhookEventMessage);
+
+            // Verify the HTTP request was actually sent
+            $request = $this->getLastRequest();
+            static::assertInstanceOf(RequestInterface::class, $request);
+
+            // Legacy envelopes (no partition key) get no rework headers — dispatch order isn't reliable.
+            static::assertFalse($request->hasHeader(WebhookDeliveryService::HEADER_SEQUENCE));
+            static::assertFalse($request->hasHeader(WebhookDeliveryService::HEADER_ATTEMPT));
+
+            $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->first();
+            static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
+            static::assertSame(WebhookEventLogDefinition::STATUS_SUCCESS, $webhookEventLog->getDeliveryStatus());
+        });
+    }
+
+    public function testLegacyMessageWithoutDeliveryRowDeliversHttp(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $appId = Uuid::randomHex();
+        $this->createAppWithWebhook($appId, $webhookId);
+
+        // No pre-created event_log or delivery row — recordOutboxEntry creates both as fallback.
+        $webhookEventId = Uuid::randomHex();
+        $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId);
+
+        $this->appendNewResponse(new Response(200));
+
+        $webhookEventLogRepository = static::getContainer()->get('webhook_event_log.repository');
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($webhookEventMessage, $webhookEventLogRepository, $webhookEventId): void {
+            ($this->webhookEventMessageHandler)($webhookEventMessage);
+
+            $request = $this->getLastRequest();
+            static::assertInstanceOf(RequestInterface::class, $request);
+
+            $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->first();
+            static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
+            static::assertSame(WebhookEventLogDefinition::STATUS_SUCCESS, $webhookEventLog->getDeliveryStatus());
+        });
+    }
+
+    public function testDeliveryCreatesRowWhenMissingAndDeliversHttp(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $appId = Uuid::randomHex();
+        $this->createAppWithWebhook($appId, $webhookId);
+
+        // No pre-created event_log or delivery row — recordOutboxEntry creates both as fallback.
+        $webhookEventId = Uuid::randomHex();
+        $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId, partitionKey: $appId);
+
+        $connection = static::getContainer()->get(Connection::class);
+        $this->appendNewResponse(new Response(200, [], '{"ok":true}'));
+
+        $webhookEventLogRepository = static::getContainer()->get('webhook_event_log.repository');
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($webhookEventMessage, $connection, $webhookEventId, $webhookEventLogRepository): void {
+            ($this->webhookEventMessageHandler)($webhookEventMessage);
+
+            $request = $this->getLastRequest();
+            static::assertInstanceOf(RequestInterface::class, $request);
+
+            $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->first();
+            static::assertInstanceOf(WebhookEventLogEntity::class, $webhookEventLog);
+            static::assertSame(WebhookEventLogDefinition::STATUS_SUCCESS, $webhookEventLog->getDeliveryStatus());
+
+            $deliveryCount = (int) $connection->fetchOne(
+                'SELECT COUNT(*) FROM webhook_delivery WHERE webhook_event_log_id = :id',
+                ['id' => Uuid::fromHexToBytes($webhookEventId)]
+            );
+            static::assertSame(0, $deliveryCount, 'webhook_delivery row should be deleted after successful delivery');
+        });
+    }
+
     /**
      * @param array<string, string> $webhookHeaders
      */
@@ -912,7 +1359,8 @@ class WebhookEventMessageHandlerTest extends TestCase
         string $webhookEventId,
         string $appId,
         string $webhookId,
-        array $webhookHeaders = []
+        array $webhookHeaders = [],
+        ?string $partitionKey = null,
     ): WebhookEventMessage {
         return new WebhookEventMessage(
             $webhookEventId,
@@ -924,7 +1372,8 @@ class WebhookEventMessageHandlerTest extends TestCase
             's3cr3t',
             Defaults::LANGUAGE_SYSTEM,
             'en-GB',
-            $webhookHeaders
+            $webhookHeaders,
+            $partitionKey,
         );
     }
 
@@ -937,5 +1386,35 @@ class WebhookEventMessageHandlerTest extends TestCase
             'delivery_status' => WebhookEventLogDefinition::STATUS_QUEUED,
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
+    }
+
+    private function createAppWithWebhook(string $appId, string $webhookId): void
+    {
+        $appRepository = static::getContainer()->get('app.repository');
+        $appRepository->create([[
+            'id' => $appId,
+            'name' => 'SwagApp',
+            'active' => true,
+            'path' => __DIR__ . '/Manifest/_fixtures/test',
+            'version' => '0.0.1',
+            'label' => 'test',
+            'appSecret' => 's3cr3t',
+            'integration' => [
+                'label' => 'test',
+                'accessKey' => 'api access key',
+                'secretAccessKey' => 'test',
+            ],
+            'aclRole' => [
+                'name' => 'SwagApp',
+            ],
+            'webhooks' => [
+                [
+                    'id' => $webhookId,
+                    'name' => 'hook1',
+                    'eventName' => 'order',
+                    'url' => 'https://test.com',
+                ],
+            ],
+        ]], Context::createDefaultContext());
     }
 }

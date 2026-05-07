@@ -43,6 +43,18 @@ class Migration1775570251AddWebhookTransportTablesTest extends TestCase
         static::assertTrue(TableHelper::tableExists($this->connection, 'webhook_delivery'));
     }
 
+    public function testMigrationCreatesWebhookStreamTable(): void
+    {
+        $this->rollback();
+
+        static::assertFalse(TableHelper::tableExists($this->connection, 'webhook_stream'));
+
+        $migration = new Migration1775570251AddWebhookTransportTables();
+        $migration->update($this->connection);
+
+        static::assertTrue(TableHelper::tableExists($this->connection, 'webhook_stream'));
+    }
+
     public function testMigrationAddsSequenceColumnToWebhookEventLog(): void
     {
         $this->rollback();
@@ -74,6 +86,21 @@ class Migration1775570251AddWebhookTransportTablesTest extends TestCase
         static::assertTrue(TableHelper::columnExists($this->connection, 'webhook_delivery', 'updated_at'));
     }
 
+    public function testWebhookStreamTableHasExpectedColumns(): void
+    {
+        $this->rollback();
+
+        $migration = new Migration1775570251AddWebhookTransportTables();
+        $migration->update($this->connection);
+
+        static::assertTrue(TableHelper::columnExists($this->connection, 'webhook_stream', 'id'));
+        static::assertTrue(TableHelper::columnExists($this->connection, 'webhook_stream', 'partition_key'));
+        static::assertTrue(TableHelper::columnExists($this->connection, 'webhook_stream', 'locked_by'));
+        static::assertTrue(TableHelper::columnExists($this->connection, 'webhook_stream', 'lock_expires_at'));
+        static::assertTrue(TableHelper::columnExists($this->connection, 'webhook_stream', 'last_claimed_at'));
+        static::assertTrue(TableHelper::columnExists($this->connection, 'webhook_stream', 'created_at'));
+    }
+
     public function testMigrationIsIdempotent(): void
     {
         $migration = new Migration1775570251AddWebhookTransportTables();
@@ -81,6 +108,7 @@ class Migration1775570251AddWebhookTransportTablesTest extends TestCase
         $migration->update($this->connection);
 
         static::assertTrue(TableHelper::tableExists($this->connection, 'webhook_delivery'));
+        static::assertTrue(TableHelper::tableExists($this->connection, 'webhook_stream'));
         static::assertTrue(TableHelper::columnExists($this->connection, 'webhook_event_log', 'sequence'));
     }
 
@@ -94,6 +122,7 @@ class Migration1775570251AddWebhookTransportTablesTest extends TestCase
 
     private function rollback(): void
     {
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `webhook_stream`');
         $this->connection->executeStatement('DROP TABLE IF EXISTS `webhook_delivery`');
 
         if (TableHelper::columnExists($this->connection, 'webhook_event_log', 'sequence')) {

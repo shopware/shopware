@@ -2,33 +2,32 @@
 
 namespace Shopware\Core\Framework\Webhook\Transport;
 
+use Doctrine\DBAL\Exception as DBALException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
-use Shopware\Core\Framework\Webhook\Outbox\OutboxEntry;
-use Shopware\Core\Framework\Webhook\Outbox\OutboxEventRepository;
+use Shopware\Core\Framework\Webhook\Outbox\OutboxInsert;
+use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
 use Shopware\Core\Framework\Webhook\WebhookException;
 use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\Exception\TransportException;
+use Symfony\Component\Messenger\Transport\Receiver\KeepaliveReceiverInterface;
 use Symfony\Component\Messenger\Transport\TransportInterface;
 
 /**
- * Dedicated Messenger transport for webhook delivery.
- *
- * Send path: persists the outbox entry (webhook_event_log + webhook_delivery),
- * then forwards to the configured async transport for worker consumption.
- *
- * Receive path (Path 2): stream-leased MySQLWebhookReceiver will replace the
- * async forwarding — the outbox becomes the queue itself and workers consume
- * directly from `messenger:consume webhook`.
+ * Persists webhook deliveries to the outbox. When `WEBHOOKS_REWORK` is active the outbox
+ * doubles as the queue and `MySQLWebhookReceiver` drives consumption; when inactive the
+ * envelope is additionally forwarded to the async transport for backward compatibility.
  *
  * @internal
  */
 #[Package('framework')]
-class WebhookTransport implements TransportInterface
+class WebhookTransport implements TransportInterface, KeepaliveReceiverInterface
 {
     public function __construct(
-        private readonly OutboxEventRepository $outboxEventRepository,
+        private readonly WebhookOutboxStore $webhookOutboxStore,
         private readonly TransportInterface $asyncTransport,
+        private readonly MySQLWebhookReceiver $receiver,
     ) {
     }
 
@@ -39,31 +38,52 @@ class WebhookTransport implements TransportInterface
             throw WebhookException::unsupportedMessage($message::class);
         }
 
-        $this->outboxEventRepository->ensureOutboxEntry(new OutboxEntry(
-            $message->getWebhookEventId(),
-            $message->getWebhookId(),
-            Hasher::hashBinary($message->getPartitionKey(), 'xxh128'),
-            serialize($message),
-        ));
+        try {
+            $this->webhookOutboxStore->recordOutboxEntry(OutboxInsert::fromMessage($message));
+        } catch (DBALException $e) {
+            /** @phpstan-ignore shopware.domainException (Symfony Messenger's worker contract requires TransportException for transport-layer failures.) */
+            throw new TransportException($e->getMessage(), 0, $e);
+        }
 
-        // Forward to the configured async transport for worker consumption. Later, we'll add stream leasing and only support FIFO queues.
-        return $this->asyncTransport->send($envelope);
+        if (!$this->outboxOwnsLifecycle()) {
+            return $this->asyncTransport->send($envelope);
+        }
+
+        return $envelope;
     }
 
-    /**
-     * @return list<Envelope>
-     */
     public function get(): iterable
     {
-        // Path 2: MySQLWebhookReceiver reads from webhook_delivery via stream leasing.
-        return [];
+        if (!$this->outboxOwnsLifecycle()) {
+            return [];
+        }
+
+        return $this->receiver->get();
     }
 
     public function ack(Envelope $envelope): void
     {
+        if ($this->outboxOwnsLifecycle()) {
+            $this->receiver->ack($envelope);
+        }
     }
 
     public function reject(Envelope $envelope): void
     {
+        if ($this->outboxOwnsLifecycle()) {
+            $this->receiver->reject($envelope);
+        }
+    }
+
+    public function keepalive(Envelope $envelope, ?int $seconds = null): void
+    {
+        if ($this->outboxOwnsLifecycle()) {
+            $this->receiver->keepalive($envelope, $seconds);
+        }
+    }
+
+    private function outboxOwnsLifecycle(): bool
+    {
+        return Feature::isActive('WEBHOOKS_REWORK');
     }
 }

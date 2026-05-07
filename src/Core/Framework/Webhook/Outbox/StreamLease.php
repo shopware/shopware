@@ -10,14 +10,13 @@ use Shopware\Core\Framework\Log\Package;
  * @codeCoverageIgnore
  */
 #[Package('framework')]
-final readonly class OutboxEntry
+final readonly class StreamLease
 {
     public function __construct(
-        public string $webhookEventId,
-        public int $sequence,
-        public int $executionCount,
-        public string $deliveryStatus,
-        public ?string $serializedWebhookMessage = null,
+        public string $partitionKey,
+        public string $workerId,
+        public \DateTimeImmutable $acquiredAt,
+        public \DateTimeImmutable $expiresAt,
     ) {
     }
 }

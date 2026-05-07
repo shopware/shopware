@@ -6,7 +6,6 @@ import Storage from 'src/helper/storage/storage.helper';
  * @package checkout
  */
 describe('WishlistPersistStoragePlugin tests', () => {
-    const flushPromises = () => new Promise(process.nextTick);
     const defaultHeaders = {
         'X-Requested-With': 'XMLHttpRequest',
         'Content-Type': 'application/json',
@@ -65,9 +64,7 @@ describe('WishlistPersistStoragePlugin tests', () => {
 
         global.fetch = jest.fn(() => Promise.resolve(response));
 
-        wishlistStoragePlugin.load();
-
-        await flushPromises();
+        await wishlistStoragePlugin.load();
 
         expect(global.fetch).toHaveBeenCalledWith('/wishlist/list', {
             headers: defaultHeaders,
@@ -82,9 +79,7 @@ describe('WishlistPersistStoragePlugin tests', () => {
 
         global.fetch = jest.fn(() => Promise.resolve(createJsonResponse(products)));
 
-        wishlistStoragePlugin.load();
-
-        await flushPromises();
+        await wishlistStoragePlugin.load();
 
         expect(global.fetch).toHaveBeenCalledWith('/wishlist/list', {
             headers: defaultHeaders,
@@ -98,9 +93,7 @@ describe('WishlistPersistStoragePlugin tests', () => {
 
         global.fetch = jest.fn(() => Promise.resolve(createJsonResponse({ success: true })));
 
-        wishlistStoragePlugin.add('product-1', { path: '/wishlist/add/product-1' });
-
-        await flushPromises();
+        await wishlistStoragePlugin.add('product-1', { path: '/wishlist/add/product-1' });
 
         expect(global.fetch).toHaveBeenCalledWith('/wishlist/add/product-1', {
             method: 'POST',
@@ -116,9 +109,7 @@ describe('WishlistPersistStoragePlugin tests', () => {
 
         global.fetch = jest.fn(() => Promise.resolve(createJsonResponse({ success: false })));
 
-        wishlistStoragePlugin.add('product-1', { path: '/wishlist/add/product-1' });
-
-        await flushPromises();
+        await wishlistStoragePlugin.add('product-1', { path: '/wishlist/add/product-1' });
 
         expect(warnSpy).toHaveBeenCalledWith('unable to add product to wishlist');
         expect(addSpy).not.toHaveBeenCalled();
@@ -131,9 +122,7 @@ describe('WishlistPersistStoragePlugin tests', () => {
 
         global.fetch = jest.fn(() => Promise.resolve(response));
 
-        wishlistStoragePlugin.add('product-1', { path: '/wishlist/add/product-1' });
-
-        await flushPromises();
+        await wishlistStoragePlugin.add('product-1', { path: '/wishlist/add/product-1' });
 
         expect(response.json).not.toHaveBeenCalled();
         expect(addSpy).not.toHaveBeenCalled();
@@ -145,9 +134,7 @@ describe('WishlistPersistStoragePlugin tests', () => {
 
         global.fetch = jest.fn(() => Promise.resolve(createJsonResponse({ success: true })));
 
-        wishlistStoragePlugin.remove('product-1', { path: '/wishlist/remove/product-1' });
-
-        await flushPromises();
+        await wishlistStoragePlugin.remove('product-1', { path: '/wishlist/remove/product-1' });
 
         expect(global.fetch).toHaveBeenCalledWith('/wishlist/remove/product-1', {
             method: 'POST',
@@ -164,9 +151,7 @@ describe('WishlistPersistStoragePlugin tests', () => {
 
         global.fetch = jest.fn(() => Promise.resolve(createJsonResponse({ success: false })));
 
-        wishlistStoragePlugin.remove('product-1', { path: '/wishlist/remove/product-1' });
-
-        await flushPromises();
+        await wishlistStoragePlugin.remove('product-1', { path: '/wishlist/remove/product-1' });
 
         expect(warnSpy).toHaveBeenCalledWith('unable to remove product to wishlist');
         expect(removeSpy).toHaveBeenCalledWith('product-1');
@@ -179,9 +164,7 @@ describe('WishlistPersistStoragePlugin tests', () => {
 
         global.fetch = jest.fn(() => Promise.resolve(createJsonResponse({})));
 
-        wishlistStoragePlugin.remove('product-1', { path: '/wishlist/remove/product-1' });
-
-        await flushPromises();
+        await wishlistStoragePlugin.remove('product-1', { path: '/wishlist/remove/product-1' });
 
         expect(removeSpy).not.toHaveBeenCalled();
         expect(wishlistStoragePlugin.has('product-1')).toBe(true);
@@ -194,21 +177,19 @@ describe('WishlistPersistStoragePlugin tests', () => {
 
         global.fetch = jest.fn(() => Promise.resolve(response));
 
-        wishlistStoragePlugin.remove('product-1', { path: '/wishlist/remove/product-1' });
-
-        await flushPromises();
+        await wishlistStoragePlugin.remove('product-1', { path: '/wishlist/remove/product-1' });
 
         expect(response.json).not.toHaveBeenCalled();
         expect(removeSpy).not.toHaveBeenCalled();
         expect(wishlistStoragePlugin.has('product-1')).toBe(true);
     });
 
-    test('merge only calls callback when anonymous wishlist storage is empty', () => {
+    test('merge only calls callback when anonymous wishlist storage is empty', async () => {
         const callback = jest.fn();
 
         global.fetch = jest.fn();
 
-        wishlistStoragePlugin._merge(callback);
+        await wishlistStoragePlugin._merge(callback);
 
         expect(global.fetch).not.toHaveBeenCalled();
         expect(callback).toHaveBeenCalledTimes(1);
@@ -233,12 +214,11 @@ describe('WishlistPersistStoragePlugin tests', () => {
             .mockResolvedValueOnce(createTextResponse('<div class="alert">Merged</div>'))
             .mockResolvedValueOnce(createTextResponse('<div class="product-box">Product</div>'));
 
-        wishlistStoragePlugin._merge(callback);
+        const mergePromise = wishlistStoragePlugin._merge(callback);
 
         expect(callback).toHaveBeenCalledTimes(1);
 
-        await flushPromises();
-        await flushPromises();
+        await mergePromise;
 
         expect(global.fetch).toHaveBeenNthCalledWith(1, '/wishlist/merge', {
             method: 'POST',
@@ -266,9 +246,7 @@ describe('WishlistPersistStoragePlugin tests', () => {
         Storage.setItem(storageKey, JSON.stringify(products));
         global.fetch = jest.fn(() => Promise.resolve(response));
 
-        wishlistStoragePlugin._merge(callback);
-
-        await flushPromises();
+        await wishlistStoragePlugin._merge(callback);
 
         expect(response.text).not.toHaveBeenCalled();
         expect(Storage.getItem(storageKey)).toBe(JSON.stringify(products));
@@ -277,12 +255,29 @@ describe('WishlistPersistStoragePlugin tests', () => {
         expect(callback).toHaveBeenCalledTimes(1);
     });
 
+    test('merge handles empty successful response as request error', async () => {
+        const products = { 'product-1': '2026-05-06T00:00:00.000Z' };
+        const callback = jest.fn();
+        const pageletSpy = jest.spyOn(wishlistStoragePlugin, '_pagelet');
+        const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+        Storage.setItem(storageKey, JSON.stringify(products));
+        global.fetch = jest.fn(() => Promise.resolve(createTextResponse('')));
+
+        await wishlistStoragePlugin._merge(callback);
+
+        expect(warnSpy).toHaveBeenCalledTimes(1);
+        expect(warnSpy.mock.calls[0][0]).toBeInstanceOf(Error);
+        expect(warnSpy.mock.calls[0][0].message).toBe('Unable to merge product wishlist from anonymous user');
+        expect(Storage.getItem(storageKey)).toBe(JSON.stringify(products));
+        expect(pageletSpy).not.toHaveBeenCalled();
+        expect(callback).toHaveBeenCalledTimes(1);
+    });
+
     test('pagelet replaces listing row content when request succeeds', async () => {
         global.fetch = jest.fn(() => Promise.resolve(createTextResponse('<div class="product-box">Product</div>')));
 
-        wishlistStoragePlugin._pagelet();
-
-        await flushPromises();
+        await wishlistStoragePlugin._pagelet();
 
         expect(global.fetch).toHaveBeenCalledWith('/wishlist/pagelet', {
             method: 'POST',
@@ -297,9 +292,7 @@ describe('WishlistPersistStoragePlugin tests', () => {
         document.querySelector('.cms-listing-row').innerHTML = '<div class="product-box">Existing</div>';
         global.fetch = jest.fn(() => Promise.resolve(response));
 
-        wishlistStoragePlugin._pagelet();
-
-        await flushPromises();
+        await wishlistStoragePlugin._pagelet();
 
         expect(response.text).not.toHaveBeenCalled();
         expect(document.querySelector('.cms-listing-row').innerHTML).toBe('<div class="product-box">Existing</div>');

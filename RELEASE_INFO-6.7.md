@@ -63,6 +63,9 @@ This helps developers and merchants validate the final rendered output more accu
 
 The HTML preview is now rendered in a sandboxed iframe instead of being injected directly into the Administration DOM.
 This keeps the preview close to the actual mail output while reducing the risk of script execution from rendered template content.
+### Custom fields respect read-only permissions in Administration detail views
+
+Custom fields on category, landing page, sales channel, customer address, and order address detail views are now disabled when the current user only has read permissions.
 
 ### Fixed "Last Quarter" timeframe returning the wrong year in `sw-date-filter`
 
@@ -79,6 +82,10 @@ The flyout now calculates a dynamic `max-height` from the remaining viewport spa
 The Administration now uses Meteor Component Library `4.28.6`.
 With this update, disabled Meteor switch fields in system configuration can now unlink inherited sales channel values.
 Previously, the switch field itself was disabled as expected, but its inheritance control was disabled as well, preventing merchants from overriding inherited values for that sales channel.
+
+### Administration sidebar off-canvas closes on mobile navigation
+
+The Administration sidebar off-canvas now closes reliably on very small viewports after selecting a navigation entry, clicking outside the sidebar, or changing routes.
 
 ### Fix theme manager inheritance for boolean fields
 

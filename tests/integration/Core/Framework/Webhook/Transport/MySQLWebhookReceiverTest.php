@@ -56,7 +56,7 @@ class MySQLWebhookReceiverTest extends TestCase
     public function testGetClaimsPartitionAndYieldsEnvelope(): void
     {
         $this->createWebhook('wh-1');
-        $this->outbox->ensureOutboxEntry($this->entryFor('evt-1', 'wh-1'));
+        $this->outbox->recordOutboxEntry($this->entryFor('evt-1', 'wh-1'));
 
         $envelopes = iterator_to_array($this->asGenerator($this->receiver->get()));
 
@@ -77,7 +77,7 @@ class MySQLWebhookReceiverTest extends TestCase
     public function testGetReleasesPartitionWhenFetchReturnsEmpty(): void
     {
         $this->createWebhook('wh-1');
-        $this->outbox->ensureOutboxEntry($this->entryFor('evt-1', 'wh-1'));
+        $this->outbox->recordOutboxEntry($this->entryFor('evt-1', 'wh-1'));
         $entry = $this->outbox->markRunning($this->ids->get('evt-1'));
         static::assertNotNull($entry);
         $this->outbox->markSuccess($entry, null);
@@ -97,7 +97,7 @@ class MySQLWebhookReceiverTest extends TestCase
     {
         $this->createWebhook('wh-1');
         for ($i = 1; $i <= 3; ++$i) {
-            $this->outbox->ensureOutboxEntry($this->entryFor('evt-' . $i, 'wh-1'));
+            $this->outbox->recordOutboxEntry($this->entryFor('evt-' . $i, 'wh-1'));
         }
 
         $envelopes = iterator_to_array($this->asGenerator($this->receiver->get()));
@@ -124,9 +124,9 @@ class MySQLWebhookReceiverTest extends TestCase
     public function testResetsRunningRowsOnPartitionClaim(): void
     {
         $this->createWebhook('wh-1');
-        $this->outbox->ensureOutboxEntry($this->entryFor('evt-crashed', 'wh-1'));
+        $this->outbox->recordOutboxEntry($this->entryFor('evt-crashed', 'wh-1'));
         $this->outbox->markRunning($this->ids->get('evt-crashed'));
-        $this->outbox->ensureOutboxEntry($this->entryFor('evt-new', 'wh-1'));
+        $this->outbox->recordOutboxEntry($this->entryFor('evt-new', 'wh-1'));
 
         $staleAt = $this->clock->now()->modify(\sprintf('-%d seconds', MySQLWebhookReceiver::LEASE_SECONDS + 10));
         $this->connection->executeStatement(
@@ -163,7 +163,7 @@ class MySQLWebhookReceiverTest extends TestCase
     public function testTerminalOnlyStaleRunningDeliveryDoesNotMakePartitionClaimable(): void
     {
         $this->createWebhook('wh-1');
-        $this->outbox->ensureOutboxEntry($this->entryFor('evt-terminal', 'wh-1'));
+        $this->outbox->recordOutboxEntry($this->entryFor('evt-terminal', 'wh-1'));
 
         $entry = $this->outbox->markRunning($this->ids->get('evt-terminal'));
         static::assertNotNull($entry);
@@ -202,7 +202,7 @@ class MySQLWebhookReceiverTest extends TestCase
     public function testKeepaliveRenewsLease(): void
     {
         $this->createWebhook('wh-1');
-        $this->outbox->ensureOutboxEntry($this->entryFor('evt-1', 'wh-1'));
+        $this->outbox->recordOutboxEntry($this->entryFor('evt-1', 'wh-1'));
 
         $envelopes = iterator_to_array($this->asGenerator($this->receiver->get()));
         static::assertCount(1, $envelopes);
@@ -233,7 +233,7 @@ class MySQLWebhookReceiverTest extends TestCase
     public function testKeepaliveOnStolenLeaseDropsLeaseAndNextCallReclaims(): void
     {
         $this->createWebhook('wh-1');
-        $this->outbox->ensureOutboxEntry($this->entryFor('evt-1', 'wh-1'));
+        $this->outbox->recordOutboxEntry($this->entryFor('evt-1', 'wh-1'));
 
         $first = iterator_to_array($this->asGenerator($this->receiver->get()));
         static::assertCount(1, $first);
@@ -256,7 +256,7 @@ class MySQLWebhookReceiverTest extends TestCase
     public function testReleasesLeaseOnReset(): void
     {
         $this->createWebhook('wh-1');
-        $this->outbox->ensureOutboxEntry($this->entryFor('evt-1', 'wh-1'));
+        $this->outbox->recordOutboxEntry($this->entryFor('evt-1', 'wh-1'));
 
         iterator_to_array($this->asGenerator($this->receiver->get()));
 
@@ -282,7 +282,7 @@ class MySQLWebhookReceiverTest extends TestCase
     public function testRejectLeavesRowForCrashRecovery(): void
     {
         $this->createWebhook('wh-1');
-        $this->outbox->ensureOutboxEntry($this->entryFor('evt-1', 'wh-1'));
+        $this->outbox->recordOutboxEntry($this->entryFor('evt-1', 'wh-1'));
 
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->once())
@@ -341,7 +341,7 @@ class MySQLWebhookReceiverTest extends TestCase
     public function testKeepaliveDoesNotShrinkLeaseForSmallHint(): void
     {
         $this->createWebhook('wh-1');
-        $this->outbox->ensureOutboxEntry($this->entryFor('evt-1', 'wh-1'));
+        $this->outbox->recordOutboxEntry($this->entryFor('evt-1', 'wh-1'));
 
         $envelopes = iterator_to_array($this->asGenerator($this->receiver->get()));
         static::assertCount(1, $envelopes);
@@ -365,7 +365,7 @@ class MySQLWebhookReceiverTest extends TestCase
     public function testKeepaliveExtendsLeaseForLargeHint(): void
     {
         $this->createWebhook('wh-1');
-        $this->outbox->ensureOutboxEntry($this->entryFor('evt-1', 'wh-1'));
+        $this->outbox->recordOutboxEntry($this->entryFor('evt-1', 'wh-1'));
 
         $envelopes = iterator_to_array($this->asGenerator($this->receiver->get()));
         static::assertCount(1, $envelopes);
@@ -389,7 +389,7 @@ class MySQLWebhookReceiverTest extends TestCase
     public function testReusedLeaseStopsWhenOwnershipWasStolen(): void
     {
         $this->createWebhook('wh-1');
-        $this->outbox->ensureOutboxEntry($this->entryFor('evt-1', 'wh-1'));
+        $this->outbox->recordOutboxEntry($this->entryFor('evt-1', 'wh-1'));
 
         $first = iterator_to_array($this->asGenerator($this->receiver->get()));
         static::assertCount(1, $first);
@@ -404,7 +404,7 @@ class MySQLWebhookReceiverTest extends TestCase
             ]
         );
 
-        $this->outbox->ensureOutboxEntry($this->entryFor('evt-2', 'wh-1'));
+        $this->outbox->recordOutboxEntry($this->entryFor('evt-2', 'wh-1'));
 
         $second = iterator_to_array($this->asGenerator($this->receiver->get()));
         static::assertSame([], $second);
@@ -419,7 +419,7 @@ class MySQLWebhookReceiverTest extends TestCase
     {
         $this->createWebhook('wh-1');
         for ($i = 1; $i <= 3; ++$i) {
-            $this->outbox->ensureOutboxEntry($this->entryFor('evt-' . $i, 'wh-1'));
+            $this->outbox->recordOutboxEntry($this->entryFor('evt-' . $i, 'wh-1'));
         }
 
         $yielded = [];
@@ -443,7 +443,7 @@ class MySQLWebhookReceiverTest extends TestCase
         $this->createWebhook('wh-1');
         $total = MySQLWebhookReceiver::MAX_MESSAGES_PER_LEASE + 2;
         for ($i = 1; $i <= $total; ++$i) {
-            $this->outbox->ensureOutboxEntry($this->entryFor('evt-' . $i, 'wh-1'));
+            $this->outbox->recordOutboxEntry($this->entryFor('evt-' . $i, 'wh-1'));
         }
 
         $first = iterator_to_array($this->asGenerator($this->receiver->get()));
@@ -476,7 +476,7 @@ class MySQLWebhookReceiverTest extends TestCase
     public function testFetchEmptyAfterClaimReleasesPartition(): void
     {
         $this->createWebhook('wh-1');
-        $this->outbox->ensureOutboxEntry($this->entryFor('evt-1', 'wh-1'));
+        $this->outbox->recordOutboxEntry($this->entryFor('evt-1', 'wh-1'));
 
         $first = iterator_to_array($this->asGenerator($this->receiver->get()));
         static::assertCount(1, $first);

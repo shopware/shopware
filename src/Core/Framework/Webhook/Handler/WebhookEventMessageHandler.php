@@ -47,13 +47,13 @@ final readonly class WebhookEventMessageHandler
         // @deprecated tag:v6.8.0 — remove with the flag-OFF path.
         if (!$this->webhookOutboxStore->hasDeliveryRow($message->getWebhookEventId())) {
             $insert = OutboxInsert::fromMessage($message);
-            // ensureOutboxEntry handles the case where the app was deleted (`testCanStillSendAfterWebhookIsDeleted`) case.
+            // recordOutboxEntry handles the case where the app was deleted (`testCanStillSendAfterWebhookIsDeleted`) case.
             // backFillDelivery handles the legacy message case.
-            if ($this->webhookOutboxStore->ensureOutboxEntry($insert) === null) {
+            if ($this->webhookOutboxStore->recordOutboxEntry($insert) === null) {
                 $this->webhookOutboxStore->backfillDelivery($insert);
             }
 
-            if ($message->hasExplicitPartitionKey()) {
+            if ($message->isReworkEnvelope()) {
                 $this->logger->error('Expected an outbox entry for webhook event. Not an error if this is happening during a deployment rollout.', [
                     'webhookEventId' => $message->getWebhookEventId(),
                     'webhookId' => $message->getWebhookId(),

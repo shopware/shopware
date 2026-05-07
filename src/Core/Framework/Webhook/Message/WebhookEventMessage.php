@@ -107,7 +107,7 @@ class WebhookEventMessage
      *
      * @phpstan-ignore shopware.deprecatedMethod (called on every dispatch during the rollout window; deprecation notice would pollute logs)
      */
-    public function hasExplicitPartitionKey(): bool
+    public function isReworkEnvelope(): bool
     {
         return isset($this->partitionKey);
     }

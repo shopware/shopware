@@ -27,9 +27,9 @@ class WebhookOutboxStore
     ) {
     }
 
-    public function ensureOutboxEntry(OutboxInsert $insert): ?OutboxEntry
+    public function recordOutboxEntry(OutboxInsert $insert): ?OutboxEntry
     {
-        return $this->ensureOutboxEntryWithStatus($insert, WebhookEventLogDefinition::STATUS_QUEUED);
+        return $this->recordOutboxEntryWithStatus($insert, WebhookEventLogDefinition::STATUS_QUEUED);
     }
 
     /**
@@ -38,9 +38,9 @@ class WebhookOutboxStore
      * @deprecated tag:v6.8.0 - Only used for the inline admin-worker delivery path that existed before WEBHOOKS_REWORK.
      * To be removed when the admin_worker for webhooks becomes a transport concern.
      */
-    public function ensureRunningOutboxEntry(OutboxInsert $insert): ?OutboxEntry
+    public function recordInflightOutboxEntry(OutboxInsert $insert): ?OutboxEntry
     {
-        return $this->ensureOutboxEntryWithStatus($insert, WebhookEventLogDefinition::STATUS_RUNNING);
+        return $this->recordOutboxEntryWithStatus($insert, WebhookEventLogDefinition::STATUS_RUNNING);
     }
 
     /**
@@ -152,16 +152,6 @@ class WebhookOutboxStore
             'SELECT 1 FROM webhook_delivery WHERE webhook_event_log_id = :id',
             ['id' => Uuid::fromHexToBytes($eventLogId)]
         );
-    }
-
-    public function loadEventLogStatus(string $eventLogId): ?string
-    {
-        $value = $this->connection->fetchOne(
-            'SELECT delivery_status FROM webhook_event_log WHERE id = :id',
-            ['id' => Uuid::fromHexToBytes($eventLogId)]
-        );
-
-        return $value === false ? null : (string) $value;
     }
 
     /**
@@ -463,7 +453,7 @@ class WebhookOutboxStore
     /**
      * @param WebhookEventLogDefinition::STATUS_QUEUED|WebhookEventLogDefinition::STATUS_RUNNING $initialStatus
      */
-    private function ensureOutboxEntryWithStatus(OutboxInsert $insert, string $initialStatus): ?OutboxEntry
+    private function recordOutboxEntryWithStatus(OutboxInsert $insert, string $initialStatus): ?OutboxEntry
     {
         // an old message before the rework, would have only an event_log record. We need to handle that gracefully.
         return RetryableTransaction::retryable($this->connection, function () use ($insert, $initialStatus): ?OutboxEntry {

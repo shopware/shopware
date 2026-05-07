@@ -31,7 +31,7 @@ class WebhookTransportTest extends TestCase
 
         $stateService = $this->createMock(WebhookOutboxStore::class);
         $stateService->expects($this->once())
-            ->method('ensureOutboxEntry')
+            ->method('recordOutboxEntry')
             ->with(static::callback(function (OutboxInsert $entry) use ($message): bool {
                 return $entry->webhookEventId === $message->getWebhookEventId()
                     && $entry->webhookId === $message->getWebhookId();
@@ -54,7 +54,7 @@ class WebhookTransportTest extends TestCase
         $envelope = new Envelope($message);
 
         $stateService = $this->createMock(WebhookOutboxStore::class);
-        $stateService->expects($this->once())->method('ensureOutboxEntry');
+        $stateService->expects($this->once())->method('recordOutboxEntry');
 
         $asyncTransport = $this->createMock(TransportInterface::class);
         $asyncTransport->expects($this->never())->method('send');
@@ -168,7 +168,7 @@ class WebhookTransportTest extends TestCase
 
         $stateService = $this->createMock(WebhookOutboxStore::class);
         $stateService->expects($this->once())
-            ->method('ensureOutboxEntry')
+            ->method('recordOutboxEntry')
             ->with(static::callback(function (OutboxInsert $entry) use ($expectedPartitionKey): bool {
                 return $entry->partitionKey === $expectedPartitionKey;
             }));
@@ -191,7 +191,7 @@ class WebhookTransportTest extends TestCase
 
         $stateService = $this->createMock(WebhookOutboxStore::class);
         $stateService->expects($this->once())
-            ->method('ensureOutboxEntry')
+            ->method('recordOutboxEntry')
             ->with(static::callback(function (OutboxInsert $entry) use ($expectedSerialized): bool {
                 return $entry->serializedMessage === $expectedSerialized;
             }));

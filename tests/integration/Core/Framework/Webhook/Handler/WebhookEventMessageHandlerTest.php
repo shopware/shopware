@@ -1299,7 +1299,7 @@ class WebhookEventMessageHandlerTest extends TestCase
         $appId = Uuid::randomHex();
         $this->createAppWithWebhook($appId, $webhookId);
 
-        // No pre-created event_log or delivery row — ensureOutboxEntry creates both as fallback.
+        // No pre-created event_log or delivery row — recordOutboxEntry creates both as fallback.
         $webhookEventId = Uuid::randomHex();
         $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId);
 
@@ -1325,7 +1325,7 @@ class WebhookEventMessageHandlerTest extends TestCase
         $appId = Uuid::randomHex();
         $this->createAppWithWebhook($appId, $webhookId);
 
-        // No pre-created event_log or delivery row — ensureOutboxEntry creates both as fallback.
+        // No pre-created event_log or delivery row — recordOutboxEntry creates both as fallback.
         $webhookEventId = Uuid::randomHex();
         $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId, partitionKey: $appId);
 

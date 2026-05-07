@@ -40,7 +40,7 @@ class WebhookEventMessageTest extends TestCase
             new WebhookEventMessage('e1', [], 'app-1', 'wh-1', '6.7', 'https://example.com', null, 'l', 'en')
         );
 
-        static::assertFalse($msg->hasExplicitPartitionKey());
+        static::assertFalse($msg->isReworkEnvelope());
         static::assertSame('app-1', $msg->getPartitionKey());
     }
 

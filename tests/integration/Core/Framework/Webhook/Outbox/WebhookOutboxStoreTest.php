@@ -43,7 +43,7 @@ class WebhookOutboxStoreTest extends TestCase
     {
         $this->createWebhook('wh-1');
         $message = $this->createMessage('evt-1', 'wh-1');
-        $this->store->ensureOutboxEntry($this->toEntry($message));
+        $this->store->recordOutboxEntry($this->toEntry($message));
 
         // Attempt 1: QUEUED → RUNNING → fail → QUEUED (resetForRetry)
         $entry = $this->store->markRunning($this->ids->get('evt-1'));
@@ -157,7 +157,7 @@ class WebhookOutboxStoreTest extends TestCase
         $this->createWebhook('wh-1');
         $message = $this->createMessage('evt-1', 'wh-1');
         $entry = $this->toEntry($message);
-        $this->store->ensureOutboxEntry($entry);
+        $this->store->recordOutboxEntry($entry);
 
         $stored = $this->connection->fetchOne(
             'SELECT serialized_webhook_message FROM webhook_event_log WHERE id = :id',
@@ -174,10 +174,10 @@ class WebhookOutboxStoreTest extends TestCase
         $message = $this->createMessage('evt-1', 'wh-1');
         $insert = $this->toEntry($message);
 
-        $first = $this->store->ensureOutboxEntry($insert);
+        $first = $this->store->recordOutboxEntry($insert);
         static::assertInstanceOf(OutboxEntry::class, $first);
 
-        $second = $this->store->ensureOutboxEntry($insert);
+        $second = $this->store->recordOutboxEntry($insert);
         static::assertNull($second);
 
         $eventLogCount = (int) $this->connection->fetchOne(
@@ -205,7 +205,7 @@ class WebhookOutboxStoreTest extends TestCase
             serializedMessage: 'serialized-payload',
         );
 
-        static::assertNull($this->store->ensureOutboxEntry($insert));
+        static::assertNull($this->store->recordOutboxEntry($insert));
 
         $eventLogCount = (int) $this->connection->fetchOne(
             'SELECT COUNT(*) FROM webhook_event_log WHERE id = :id',
@@ -224,7 +224,7 @@ class WebhookOutboxStoreTest extends TestCase
     {
         $this->createWebhook('wh-1');
         $message = $this->createMessage('evt-1', 'wh-1');
-        $this->store->ensureOutboxEntry($this->toEntry($message));
+        $this->store->recordOutboxEntry($this->toEntry($message));
 
         $entry = $this->store->markRunning($this->ids->get('evt-1'));
         static::assertNotNull($entry);
@@ -247,7 +247,7 @@ class WebhookOutboxStoreTest extends TestCase
         // Test with a different retry time
         $this->createWebhook('wh-2');
         $message2 = $this->createMessage('evt-2', 'wh-2');
-        $this->store->ensureOutboxEntry($this->toEntry($message2));
+        $this->store->recordOutboxEntry($this->toEntry($message2));
         $entry2 = $this->store->markRunning($this->ids->get('evt-2'));
         static::assertNotNull($entry2);
 
@@ -267,7 +267,7 @@ class WebhookOutboxStoreTest extends TestCase
     {
         $this->createWebhook('wh-1');
         $message = $this->createMessage('evt-1', 'wh-1');
-        $this->store->ensureOutboxEntry($this->toEntry($message));
+        $this->store->recordOutboxEntry($this->toEntry($message));
 
         $entry = $this->store->markRunning($this->ids->get('evt-1'));
         static::assertNotNull($entry);
@@ -297,7 +297,7 @@ class WebhookOutboxStoreTest extends TestCase
     {
         $this->createWebhook('wh-1');
         $message = $this->createMessage('evt-1', 'wh-1');
-        $this->store->ensureOutboxEntry($this->toEntry($message));
+        $this->store->recordOutboxEntry($this->toEntry($message));
 
         $info = $this->store->markRunning($this->ids->get('evt-1'));
 
@@ -310,7 +310,7 @@ class WebhookOutboxStoreTest extends TestCase
     {
         $this->createWebhook('wh-1');
         $message = $this->createMessage('evt-1', 'wh-1');
-        $this->store->ensureOutboxEntry($this->toEntry($message));
+        $this->store->recordOutboxEntry($this->toEntry($message));
 
         // Transition to RUNNING then to SUCCESS (delivery row deleted, event_log = SUCCESS)
         $entry = $this->store->markRunning($this->ids->get('evt-1'));
@@ -324,7 +324,7 @@ class WebhookOutboxStoreTest extends TestCase
     {
         $this->createWebhook('wh-1');
         $message = $this->createMessage('evt-1', 'wh-1');
-        $this->store->ensureOutboxEntry($this->toEntry($message));
+        $this->store->recordOutboxEntry($this->toEntry($message));
 
         $first = $this->store->markRunning($this->ids->get('evt-1'));
         static::assertInstanceOf(OutboxEntry::class, $first);
@@ -344,7 +344,7 @@ class WebhookOutboxStoreTest extends TestCase
     {
         $this->createWebhook('wh-1');
         $message = $this->createMessage('evt-1', 'wh-1');
-        $this->store->ensureOutboxEntry($this->toEntry($message));
+        $this->store->recordOutboxEntry($this->toEntry($message));
 
         // First attempt: QUEUED → RUNNING → PENDING_RETRY
         $entry = $this->store->markRunning($this->ids->get('evt-1'));
@@ -381,7 +381,7 @@ class WebhookOutboxStoreTest extends TestCase
     {
         $this->createWebhook('wh-1');
         $message = $this->createMessage('evt-1', 'wh-1');
-        $this->store->ensureOutboxEntry($this->toEntry($message));
+        $this->store->recordOutboxEntry($this->toEntry($message));
 
         $entry = $this->store->markRunning($this->ids->get('evt-1'));
         static::assertInstanceOf(OutboxEntry::class, $entry);
@@ -445,7 +445,7 @@ class WebhookOutboxStoreTest extends TestCase
     {
         $this->createWebhook('wh-1');
         $message = $this->createMessage('evt-1', 'wh-1');
-        $this->store->ensureOutboxEntry($this->toEntry($message));
+        $this->store->recordOutboxEntry($this->toEntry($message));
 
         static::assertNotNull($this->store->markRunning($this->ids->get('evt-1')));
 
@@ -458,7 +458,7 @@ class WebhookOutboxStoreTest extends TestCase
     {
         $this->createWebhook('wh-1');
         $message = $this->createMessage('evt-1', 'wh-1');
-        $this->store->ensureOutboxEntry($this->toEntry($message));
+        $this->store->recordOutboxEntry($this->toEntry($message));
 
         $entry = $this->store->markRunning($this->ids->get('evt-1'));
         static::assertNotNull($entry);
@@ -473,7 +473,7 @@ class WebhookOutboxStoreTest extends TestCase
     {
         $this->createWebhook('wh-1');
         $message = $this->createMessage('evt-1', 'wh-1');
-        $this->store->ensureOutboxEntry($this->toEntry($message));
+        $this->store->recordOutboxEntry($this->toEntry($message));
 
         static::assertTrue($this->store->markFailedAfterRetryExhaustedIfIdle($this->ids->get('evt-1')));
         $this->assertEventLogStatus('evt-1', WebhookEventLogDefinition::STATUS_FAILED);
@@ -484,7 +484,7 @@ class WebhookOutboxStoreTest extends TestCase
     {
         $this->createWebhook('wh-1');
         $message = $this->createMessage('evt-1', 'wh-1');
-        $this->store->ensureOutboxEntry($this->toEntry($message));
+        $this->store->recordOutboxEntry($this->toEntry($message));
 
         $entry = $this->store->markRunning($this->ids->get('evt-1'));
         static::assertNotNull($entry);
@@ -499,7 +499,7 @@ class WebhookOutboxStoreTest extends TestCase
     {
         $this->createWebhook('wh-1');
         $message = $this->createMessage('evt-1', 'wh-1');
-        $this->store->ensureOutboxEntry($this->toEntry($message));
+        $this->store->recordOutboxEntry($this->toEntry($message));
 
         $entry = $this->store->markRunning($this->ids->get('evt-1'));
         static::assertNotNull($entry);
@@ -531,7 +531,7 @@ class WebhookOutboxStoreTest extends TestCase
     {
         $this->createWebhook('wh-1');
         $message = $this->createMessage('evt-1', 'wh-1');
-        $this->store->ensureOutboxEntry($this->toEntry($message));
+        $this->store->recordOutboxEntry($this->toEntry($message));
 
         $entry = $this->store->markRunning($this->ids->get('evt-1'));
         static::assertNotNull($entry);
@@ -565,7 +565,7 @@ class WebhookOutboxStoreTest extends TestCase
     {
         $this->createWebhook('wh-1');
         $message = $this->createMessage('evt-1', 'wh-1');
-        $this->store->ensureOutboxEntry($this->toEntry($message));
+        $this->store->recordOutboxEntry($this->toEntry($message));
 
         $partitionKey = Hasher::hashBinary($message->getPartitionKey(), 'xxh128');
         $entries = $this->store->fetchDue($partitionKey, [WebhookEventLogDefinition::STATUS_QUEUED], 1);
@@ -581,7 +581,7 @@ class WebhookOutboxStoreTest extends TestCase
     {
         $this->createWebhook('wh-1');
         $message = $this->createMessage('evt-1', 'wh-1');
-        $this->store->ensureOutboxEntry($this->toEntry($message));
+        $this->store->recordOutboxEntry($this->toEntry($message));
 
         $partitionKey = Hasher::hashBinary($message->getPartitionKey(), 'xxh128');
         $entries = $this->store->fetchDue($partitionKey, [WebhookEventLogDefinition::STATUS_QUEUED], 1);
@@ -630,8 +630,8 @@ class WebhookOutboxStoreTest extends TestCase
 
         $dueMessage = $this->createMessage('evt-due', 'wh-1');
         $skippedMessage = $this->createMessage('evt-skipped', 'wh-1');
-        $this->store->ensureOutboxEntry($this->toEntry($dueMessage));
-        $this->store->ensureOutboxEntry($this->toEntry($skippedMessage));
+        $this->store->recordOutboxEntry($this->toEntry($dueMessage));
+        $this->store->recordOutboxEntry($this->toEntry($skippedMessage));
 
         $setupSkipped($this->connection, $this->ids->getBytes('evt-skipped'));
 
@@ -650,7 +650,7 @@ class WebhookOutboxStoreTest extends TestCase
     {
         $this->createWebhook('wh-1');
         $message = $this->createMessage('evt-1', 'wh-1');
-        $this->store->ensureOutboxEntry($this->toEntry($message));
+        $this->store->recordOutboxEntry($this->toEntry($message));
 
         $entry = $this->store->markRunning($this->ids->get('evt-1'));
         static::assertInstanceOf(OutboxEntry::class, $entry);
@@ -693,7 +693,7 @@ class WebhookOutboxStoreTest extends TestCase
     {
         $this->createWebhook('wh-1');
         $message = $this->createMessage('evt-1', 'wh-1');
-        $this->store->ensureOutboxEntry($this->toEntry($message));
+        $this->store->recordOutboxEntry($this->toEntry($message));
 
         $firstAttempt = $this->store->markRunning($this->ids->get('evt-1'));
         static::assertInstanceOf(OutboxEntry::class, $firstAttempt);

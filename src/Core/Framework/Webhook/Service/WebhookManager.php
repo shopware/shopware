@@ -200,7 +200,7 @@ class WebhookManager implements ResetInterface
                 continue;
             }
 
-            $this->webhookOutboxStore->ensureOutboxEntry(OutboxInsert::fromMessage($message));
+            $this->webhookOutboxStore->recordOutboxEntry(OutboxInsert::fromMessage($message));
             $entry = $this->webhookOutboxStore->markRunning($message->getWebhookEventId());
             if ($entry === null) {
                 continue;

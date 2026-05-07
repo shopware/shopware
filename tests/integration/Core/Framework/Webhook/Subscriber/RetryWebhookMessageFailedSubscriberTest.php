@@ -773,7 +773,7 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
 
     private function createOutboxEntry(WebhookEventMessage $message, string $webhookId): void
     {
-        $this->webhookOutboxStore->ensureOutboxEntry(new OutboxInsert(
+        $this->webhookOutboxStore->recordOutboxEntry(new OutboxInsert(
             $message->getWebhookEventId(),
             $webhookId,
             Hasher::hashBinary($message->getPartitionKey(), 'xxh128'),

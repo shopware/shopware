@@ -84,7 +84,7 @@ class WebhookDeliveryServiceTest extends TestCase
         $msg1 = $this->createMessage();
         $msg2 = $this->createMessage();
 
-        $this->webhookOutboxStore->expects($this->never())->method('ensureOutboxEntry');
+        $this->webhookOutboxStore->expects($this->never())->method('recordOutboxEntry');
 
         $service->process([$msg1, $msg2]);
 
@@ -100,7 +100,7 @@ class WebhookDeliveryServiceTest extends TestCase
         $webhookRequest = $this->createWebhookRequest();
 
         $this->appPayloadServiceHelper->method('createWebhookRequest')->willReturn($webhookRequest);
-        $this->webhookOutboxStore->expects($this->once())->method('ensureRunningOutboxEntry')
+        $this->webhookOutboxStore->expects($this->once())->method('recordInflightOutboxEntry')
             ->with(static::isInstanceOf(OutboxInsert::class))
             ->willReturn(new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 1, deliveryStatus: 'running'));
         $this->webhookOutboxStore->expects($this->never())->method('markRunning');
@@ -123,7 +123,7 @@ class WebhookDeliveryServiceTest extends TestCase
         $webhookRequest = $this->createWebhookRequest();
 
         $this->appPayloadServiceHelper->method('createWebhookRequest')->willReturn($webhookRequest);
-        $this->webhookOutboxStore->expects($this->once())->method('ensureRunningOutboxEntry')
+        $this->webhookOutboxStore->expects($this->once())->method('recordInflightOutboxEntry')
             ->with(static::isInstanceOf(OutboxInsert::class))
             ->willReturn(new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 1, deliveryStatus: 'running'));
         $this->webhookOutboxStore->expects($this->never())->method('markRunning');
@@ -260,7 +260,7 @@ class WebhookDeliveryServiceTest extends TestCase
         $this->appPayloadServiceHelper->method('createWebhookRequest')
             ->willReturnOnConsecutiveCalls($webhookRequest1, $webhookRequest2);
 
-        $this->webhookOutboxStore->method('ensureRunningOutboxEntry')
+        $this->webhookOutboxStore->method('recordInflightOutboxEntry')
             ->willReturnOnConsecutiveCalls(
                 new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 2, deliveryStatus: 'running'),
                 new OutboxEntry(webhookEventId: 'stub', sequence: 2, executionCount: 1, deliveryStatus: 'running'),
@@ -299,7 +299,7 @@ class WebhookDeliveryServiceTest extends TestCase
         $this->appPayloadServiceHelper->method('createWebhookRequest')
             ->willReturnOnConsecutiveCalls($this->createWebhookRequest(), $this->createWebhookRequest());
 
-        $this->webhookOutboxStore->method('ensureRunningOutboxEntry')
+        $this->webhookOutboxStore->method('recordInflightOutboxEntry')
             ->willReturnOnConsecutiveCalls(
                 new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 1, deliveryStatus: 'running'),
                 new OutboxEntry(webhookEventId: 'stub', sequence: 2, executionCount: 1, deliveryStatus: 'running'),

@@ -58,7 +58,7 @@ class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $markedFailed = $message->hasExplicitPartitionKey()
+        $markedFailed = $message->isReworkEnvelope()
             ? $this->webhookOutboxStore->markFailedAfterRetryExhaustedIfIdle($message->getWebhookEventId())
             : $this->webhookOutboxStore->markLegacyFailedAfterRetryExhausted($message->getWebhookEventId());
 

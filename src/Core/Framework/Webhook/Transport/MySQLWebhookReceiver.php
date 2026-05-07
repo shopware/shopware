@@ -135,11 +135,8 @@ class MySQLWebhookReceiver implements ReceiverInterface, KeepaliveReceiverInterf
             return;
         }
 
-        // Honour Symfony's minimum-duration contract without shrinking the lease.
-        // The common case (5s SIGALRM vs a healthy 240s lease) becomes a no-op — skipping
-        // the DB round-trip for the ~47 same-value UPDATEs that would otherwise fire per
-        // lease lifetime. Null falls back to LEASE_SECONDS.
-        // This will not make the receiver run forever, as it operates under messages budget.
+        // Symfony polls keepalive every ~5s while our lease is 240s — skip the UPDATE when
+        // remaining lease time already covers the requested minimum.
         $remaining = $this->currentLease->expiresAt->getTimestamp() - $this->clock->now()->getTimestamp();
         $desired = $seconds ?? self::LEASE_SECONDS;
         if ($desired <= $remaining) {

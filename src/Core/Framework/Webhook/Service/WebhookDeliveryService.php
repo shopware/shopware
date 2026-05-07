@@ -66,6 +66,12 @@ class WebhookDeliveryService
         try {
             $entry = $this->webhookOutboxStore->markRunning($message->getWebhookEventId());
             if ($entry === null) {
+                // Under StreamLease, this should be rare — signals lease loss or crash-recovery re-claim.
+                $this->logger->warning('Skipping webhook delivery: lease lost for event {eventId}', [
+                    'eventId' => $message->getWebhookEventId(),
+                    'webhookId' => $message->getWebhookId(),
+                ]);
+
                 return;
             }
 
@@ -97,7 +103,7 @@ class WebhookDeliveryService
         );
         // Rework-only headers: legacy envelopes have no reliable dispatch-order sequence,
         // so we omit them entirely.
-        if ($message->hasExplicitPartitionKey()) {
+        if ($message->isReworkEnvelope()) {
             $headers[self::HEADER_EVENT_ID] = $message->getWebhookEventId();
             $headers[self::HEADER_SEQUENCE] = (string) $entry->sequence;
             $headers[self::HEADER_ATTEMPT] = (string) max(0, $entry->executionCount - 1);
@@ -137,7 +143,7 @@ class WebhookDeliveryService
         // Write RUNNING directly so the async receiver can't re-claim the row mid-flight;
         // a concurrent inline caller hits the event_log and gets null here.
         foreach ($messages as $batchIndex => $message) {
-            $entry = $this->webhookOutboxStore->ensureRunningOutboxEntry(OutboxInsert::fromMessage($message));
+            $entry = $this->webhookOutboxStore->recordInflightOutboxEntry(OutboxInsert::fromMessage($message));
             if ($entry === null) {
                 continue;
             }
@@ -180,7 +186,16 @@ class WebhookDeliveryService
             // a stale-success on a stolen lease must not reset error_count.
             if ($this->webhookOutboxStore->markSuccess($entry, $response)) {
                 $this->webhookStateRepository->resetErrorCount($webhookId);
+
+                return;
             }
+
+            $this->logger->warning('Lease lost after successful webhook delivery for event {eventId}', [
+                'eventId' => $entry->webhookEventId,
+                'webhookId' => $webhookId,
+                'sequence' => $entry->sequence,
+                'executionCount' => $entry->executionCount,
+            ]);
 
             return;
         }
@@ -190,8 +205,20 @@ class WebhookDeliveryService
 
     private function handleFailure(string $webhookId, OutboxEntry $entry, ?DeliveryResponse $response): void
     {
+        $persisted = $this->persistFailureOutcome($entry, $response);
+        if (!$persisted) {
+            $this->logger->warning('Lease lost while recording webhook failure for event {eventId}', [
+                'eventId' => $entry->webhookEventId,
+                'webhookId' => $webhookId,
+                'sequence' => $entry->sequence,
+                'executionCount' => $entry->executionCount,
+            ]);
+
+            return;
+        }
+
         // error_count counts failed deliveries, not failed attempts — only bump after retries are exhausted.
-        if ($this->persistFailureOutcome($entry, $response) && $entry->executionCount > self::MAX_RETRIES) {
+        if ($entry->executionCount > self::MAX_RETRIES) {
             $this->webhookStateRepository->recordFailure($webhookId, $this->failureStrategy);
         }
     }

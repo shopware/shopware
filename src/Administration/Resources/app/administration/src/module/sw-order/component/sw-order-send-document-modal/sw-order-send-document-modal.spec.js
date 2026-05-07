@@ -337,7 +337,7 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
             },
             mockOrder.salesChannelId,
             true,
-            false,
+            true,
             {
                 ...Shopware.Context.api,
                 languageId: mockOrder.languageId,

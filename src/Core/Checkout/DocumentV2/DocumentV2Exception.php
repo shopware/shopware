@@ -118,7 +118,8 @@ class DocumentV2Exception extends HttpException
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::CIRCULAR_DEPENDENCY_CYCLE,
-            'Circular render dependency cycled for document generation. Remaining formats with circular dependency: {{ remaining }}.',
+            'Circular render dependency cycled for document generation. '
+                . 'Remaining formats with circular dependency: {{ remaining }}.',
             ['remaining' => implode(', ', $remaining)],
         );
     }

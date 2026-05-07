@@ -11,6 +11,8 @@ use Shopware\Core\Framework\Telemetry\Metrics\Subscriber\TelemetryFlushListener;
 use Shopware\Core\Framework\Telemetry\Metrics\Transport\TransportCollection;
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Messenger\Event\WorkerRunningEvent;
+use Symfony\Component\Messenger\Worker;
 
 /**
  * @internal
@@ -25,8 +27,34 @@ class TelemetryFlushListenerTest extends TestCase
 
         static::assertArrayHasKey(KernelEvents::TERMINATE, $events);
         static::assertArrayHasKey(ConsoleEvents::TERMINATE, $events);
+        static::assertArrayHasKey(WorkerRunningEvent::class, $events);
         static::assertSame('flush', $events[KernelEvents::TERMINATE]);
         static::assertSame('flush', $events[ConsoleEvents::TERMINATE]);
+        static::assertSame('flushIfStale', $events[WorkerRunningEvent::class]);
+    }
+
+    public function testFlushIfStaleSkipsFlushWithinInterval(): void
+    {
+        $transport = $this->createMock(MetricTransportInterface::class);
+        $transport->expects($this->never())->method('flush');
+
+        $collection = $this->createMock(TransportCollection::class);
+        $collection->expects($this->never())->method('getIterator');
+
+        $listener = new TelemetryFlushListener($collection, $this->createMock(LoggerInterface::class), 60);
+        $listener->flushIfStale($this->createWorkerRunningEvent());
+    }
+
+    public function testFlushIfStaleFlushesAfterInterval(): void
+    {
+        $transport = $this->createMock(MetricTransportInterface::class);
+        $transport->expects($this->once())->method('flush');
+
+        $collection = $this->createTransportCollectionMock([$transport]);
+
+        // interval=0 => stale on first call
+        $listener = new TelemetryFlushListener($collection, $this->createMock(LoggerInterface::class), 0);
+        $listener->flushIfStale($this->createWorkerRunningEvent());
     }
 
     public function testFlushIsCalledOnAllTransports(): void
@@ -63,6 +91,11 @@ class TelemetryFlushListenerTest extends TestCase
 
         $listener = new TelemetryFlushListener($collection, $logger);
         $listener->flush();
+    }
+
+    private function createWorkerRunningEvent(): WorkerRunningEvent
+    {
+        return new WorkerRunningEvent($this->createMock(Worker::class), false);
     }
 
     /**

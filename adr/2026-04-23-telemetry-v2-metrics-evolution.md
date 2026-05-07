@@ -49,9 +49,22 @@ Push transports can batch emissions and send on flush. Pull transports can write
 storage. Transports that don't need lifecycle management implement `flush()` as a no-op.
 
 For long-running workers (Symfony Messenger), `kernel.terminate` and `console.terminate` do not fire
-per message — flush happens when the worker process exits. If the need emerges to flush worker metrics
-more often, it can be implemented in the listener (e.g. listening on worker events), as transports
-already support `flush()`. This is outside the current scope.
+per message — without an additional trigger, metrics emitted inside a worker would sit in transport
+buffers until the worker process exits (could be hours). Most pressingly, this affects
+`CollectSlowMetricsTaskHandler`: scheduled tasks are dispatched as Messenger messages, so the slow
+collector emissions land in a worker context and would not reach the backend on the cadence the
+collector implies.
+
+To address this, `TelemetryFlushListener` also subscribes to `WorkerRunningEvent` and calls
+`flush()` at most once every N seconds (default 60s). The listener tracks `lastFlushAt` per process
+and short-circuits cheaply on every other tick. The default is overridable via the constructor
+argument for tests or per-environment tuning, but is not exposed as a top-level config
+key — flush cadence is a transport-implementation concern, not something operators routinely tune.
+
+`WorkerRunningEvent` fires per worker loop iteration (after each handled message and during idle
+polls), so the throttle bounds flushes to roughly `interval` seconds regardless of message
+throughput. `kernel.terminate` and `console.terminate` continue to fire at process shutdown,
+guaranteeing a final flush.
 
 **Considered alternative — no `flush()`, transports manage their own lifecycle:**
   - OTel SDK manages its own flush via `register_shutdown_function` internally.
@@ -234,7 +247,12 @@ interface SlowMetricCollectorInterface
 }
 ```
 
-The task runs at a configurable interval (`shopware.telemetry.collection_interval`, default 60 seconds).
+The task uses Shopware's standard scheduled-task scheduling — `CollectSlowMetricsTask::getDefaultInterval()`
+returns 300 seconds (5 minutes). The interval can be tuned per environment through the existing
+`scheduled_task` administration just like any other scheduled task; we deliberately do not introduce
+a parallel config key. Owning a separate interval would duplicate state with the `scheduled_task` table
+and conflict with the scheduler's `nextExecutionTime` bookkeeping.
+
 Each collector is wrapped in try/catch — one failure does not prevent others from running.
 Collected metrics are emitted via `Meter`, so both push and pull transports receive them through the
 standard `emit()` path.
@@ -256,7 +274,7 @@ Plugins needing a different frequency register their own Shopware scheduled task
   - Fresh data at scrape time for pull transports.
   - But slow collectors risk Prometheus scrape timeouts.
   - The scheduled task gives predictable load and timeout-safe scrapes at the cost of staleness
-    up to the collection interval — acceptable for business or information metrics.
+    up to the task interval — acceptable for business or information metrics.
 
 ## Reiterated decisions:
 
@@ -347,7 +365,8 @@ and `RetryableTransaction` (static code that cannot receive DI). Until those cal
 - **Operators**:
   - Use `shopware.telemetry.metrics.enabled: true/false` to enable/disable globally
     (additional kill-switch alongside `TELEMETRY_METRICS` feature flag, which will be removed with feature stabilization).
-  - Tune `shopware.telemetry.collection_interval` for slow metric freshness vs. load.
+  - Tune the `telemetry.collect_slow_metrics` scheduled task interval (default 5 minutes) via the standard scheduled-task
+    administration to trade slow-metric freshness against load.
   - Override per-label `policy` or `allowed_values` via config merge.
   - Cardinality control for open label sets MUST be done at infrastructure level (OTel Collector processors, Prometheus relabeling).
 - **Migration**:
@@ -358,7 +377,7 @@ and `RetryableTransaction` (static code that cannot receive DI). Until those cal
     visible at the call site — only in the YAML config. This is a readability trade-off for a
     smaller, more flexible interface.
   - Subscriber registration cannot be toggled at runtime without a container rebuild, so this is a deployment-time decision.
-  - The scheduled task for slow metrics introduces data staleness up to the collection interval, which should be
+  - The scheduled task for slow metrics introduces data staleness up to the task interval, which should be
     acceptable for the type of metrics it serves (business aggregations, info metrics).
   - `MeterProvider` remains a static service locator. Necessary until static callers are refactored.
   - No storage on the abstraction level complicates optimization for the cases when the same metric (say counter) 

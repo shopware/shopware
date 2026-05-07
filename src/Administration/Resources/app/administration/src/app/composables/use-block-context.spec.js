@@ -4,8 +4,17 @@
 
 describe('use-block-context', () => {
     let useBlockContext;
+    let legacyIf;
+    let legacyElseIf;
+    let legacyElse;
+
     beforeEach(async () => {
         useBlockContext = (await import('./use-block-context')).default;
+
+        const blockContext = useBlockContext();
+        legacyIf = blockContext.legacyIf;
+        legacyElseIf = blockContext.legacyElseIf;
+        legacyElse = blockContext.legacyElse;
     });
 
     afterEach(() => {
@@ -116,5 +125,22 @@ describe('use-block-context', () => {
                 testSlot3,
             ],
         });
+    });
+
+    it('evaluates legacy if / else-if / else chains', () => {
+        expect(legacyIf('test', false)).toBe(false);
+        expect(legacyElseIf('test', true)).toBe(true);
+        expect(legacyElse('test')).toBe(false);
+    });
+
+    it('renders legacy else when no previous condition matched', () => {
+        expect(legacyIf('test', false)).toBe(false);
+        expect(legacyElseIf('test', false)).toBe(false);
+        expect(legacyElse('test')).toBe(true);
+    });
+
+    it('does not render orphaned legacy else branches', () => {
+        expect(legacyElseIf('test', true)).toBe(false);
+        expect(legacyElse('test')).toBe(false);
     });
 });

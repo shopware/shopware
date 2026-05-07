@@ -834,6 +834,18 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             expect(rootComponent.config.globalProperties.$tc).toBeDefined();
             expect(rootComponent.config.globalProperties.$store).toBeDefined();
             expect(rootComponent.config.globalProperties.$dataScope).toBeDefined();
+            expect(rootComponent.config.globalProperties.$swLegacyBlockIf).toBeDefined();
+            expect(rootComponent.config.globalProperties.$swLegacyBlockElseIf).toBeDefined();
+            expect(rootComponent.config.globalProperties.$swLegacyBlockElse).toBeDefined();
+        });
+
+        it('should scope legacy block helpers by component instance', () => {
+            const vmOne = { $: { uid: 1 } };
+            const vmTwo = { $: { uid: 2 } };
+
+            expect(rootComponent.config.globalProperties.$swLegacyBlockIf.call(vmOne, 'test-block', false)).toBe(false);
+            expect(rootComponent.config.globalProperties.$swLegacyBlockElse.call(vmTwo, 'test-block')).toBe(false);
+            expect(rootComponent.config.globalProperties.$swLegacyBlockElse.call(vmOne, 'test-block')).toBe(true);
         });
 
         it('should initialize the directives correctly', async () => {

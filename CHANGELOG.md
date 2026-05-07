@@ -1,6 +1,24 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.6.10.17
+*  [#16183 - StateMachineRegistry->transition is not protected against race conditions](https://github.com/shopware/shopware/issues/16183)
+*  [#14376 - Cart gets cleared](https://github.com/shopware/shopware/issues/14376)
+*  [#15769 - Tax rate of shipping wrong when product is free due to promotion](https://github.com/shopware/shopware/issues/15769)
+*  [#16232 - RegisterRoute - Providing custom salutation for shipping address is ignored since fix for #13716](https://github.com/shopware/shopware/issues/16232)
+*  [#9642 - SeoResolver sorting does not consider deleted SEO URL](https://github.com/shopware/shopware/issues/9642)
+*  [#16382 - fix: rounded corners on sw-modals-renderer (backport: 6.6.x)](https://github.com/shopware/shopware/pull/16382)
+*  [#16246 - Duplicate API alias 'product_collection'](https://github.com/shopware/shopware/issues/16246)
+*  [#6797 - “Go back to variant overview” link missing if SEO is saved](https://github.com/shopware/shopware/issues/6797)
+*  [#16350 - fix: add missing refresh index product.indexer 6.6 (backport: 6.6.x)](https://github.com/shopware/shopware/pull/16350)
+*  [#15231 - Wrong text snippet in order-history](https://github.com/shopware/shopware/issues/15231)
+*  [#12922 - Entity select field Times Out with Large Product Sets in Promotion Custom Field](https://github.com/shopware/shopware/issues/12922)
+*  [#7170 - Fix empty price custom fields triggering change detection on product edit](./changelog/release-6-6-10-17/2026-04-21-fix-price-custom-fields-empty-validation.md)
+*  [#8491 - Deactivated field puchaseprice, in certain cases.](https://github.com/shopware/shopware/issues/8491)
+*  [#15584 - Migration1768545320RevocationRequestCmsForm causes duplicate entry if de-DE or en-GB is missing](https://github.com/shopware/shopware/issues/15584)
+*  [#16545 - Rounding issue in price calculation - References PR #14368](https://github.com/shopware/shopware/issues/16545)
+*  [#8246 - store-api/seo-url endpoint should also return isCanonical false](https://github.com/shopware/shopware/issues/8246)
+
 ## 6.6.10.16
 *  [#11435 - Buybox CMS element references non-existent association](https://github.com/shopware/shopware/issues/11435)
 *  [#15984 - Translated CMS Slot Overrides](https://github.com/shopware/shopware/issues/15984)

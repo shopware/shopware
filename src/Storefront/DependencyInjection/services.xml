@@ -182,6 +182,10 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Storefront\Framework\Routing\ProductListingPageOutOfRangeSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Storefront\Framework\Routing\TemplateDataSubscriber">
             <argument type="service" id="Shopware\Core\Content\Seo\HreflangLoaderInterface"/>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>

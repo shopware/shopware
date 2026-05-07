@@ -128,7 +128,10 @@ class DocumentDependencyResolverTest extends TestCase
                     [DocumentFormat::HTML->value]
                 ),
             ],
-            'exception' => DocumentV2Exception::rendererNotFound(DocumentFormat::HTML->value, DocumentType::INVOICE->value),
+            'exception' => DocumentV2Exception::rendererNotFound(
+                DocumentFormat::HTML->value,
+                DocumentType::INVOICE->value,
+            ),
         ];
 
         yield 'circular dependency between formats' => [

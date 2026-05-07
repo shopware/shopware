@@ -234,6 +234,77 @@ class ProductExportGeneratorTest extends TestCase
         static::assertSame([], $result->getErrors());
     }
 
+    public function testGenerateEncodesUnescapedSpacesInJsonlRowUrls(): void
+    {
+        $productExport = $this->getProductExportEntity();
+        $productExport->setEncoding(ProductExportEntity::ENCODING_UTF8);
+        $productExport->setFileFormat(ProductExportEntity::FILE_FORMAT_JSONL);
+        $productExport->setBodyTemplate('{{ product.id }}');
+        $productExport->setIncludeVariants(false);
+
+        $context = $this->createSalesChannelContext();
+        $product = $this->createProduct('product-id');
+
+        $this->contextPersister->expects($this->once())->method('save');
+        $this->salesChannelContextService->expects($this->once())->method('get')->willReturn($context);
+        $this->languageLocaleProvider->expects($this->once())->method('getLocaleForLanguageId')->with('languageId')->willReturn('en-GB');
+        $this->translator->expects($this->once())->method('injectSettings');
+        $this->translator->expects($this->once())->method('resetInjection');
+        $this->productStreamBuilder->expects($this->once())->method('buildFilters')->with('productStreamId', $context->getContext())->willReturn([]);
+
+        $twigVariableParser = $this->createMock(TwigVariableParser::class);
+        $twigVariableParser->expects($this->once())->method('parse')->with('{{ product.id }}')->willReturn([]);
+        $this->parserFactory->expects($this->once())->method('getParser')->willReturn($twigVariableParser);
+
+        $this->productRepository->expects($this->exactly(2))
+            ->method('searchIds')
+            ->willReturnCallback(static function (Criteria $criteria, SalesChannelContext $salesChannelContext) use ($context): IdSearchResult {
+                static::assertSame($context, $salesChannelContext);
+
+                return IdSearchResult::fromIds(['product-id'], $criteria, $context->getContext());
+            });
+
+        $this->productRepository->expects($this->exactly(2))
+            ->method('search')
+            ->willReturnOnConsecutiveCalls(
+                $this->createProductSearchResult($product, $context),
+                $this->createEmptyProductSearchResult($context)
+            );
+
+        // Body contains an http URL with a literal space (e.g. media filename "Nice Burger.jpg")
+        // and a non-URL string value with spaces that must remain untouched.
+        $this->productExportRender->expects($this->once())
+            ->method('renderBody')
+            ->willReturn('{"image_url":"https:\/\/example.com\/media\/Nice Burger.jpg","title":"Nice Burger"}');
+        $this->productExportRender->expects($this->never())->method('renderHeader');
+        $this->productExportRender->expects($this->never())->method('renderFooter');
+
+        $expectedNormalized = "{\"image_url\":\"https://example.com/media/Nice%20Burger.jpg\",\"title\":\"Nice Burger\"}\n";
+
+        $this->seoUrlPlaceholderHandler->expects($this->once())
+            ->method('replace')
+            ->with($expectedNormalized, '', $context)
+            ->willReturnArgument(0);
+
+        $this->productExportValidator = $this->createMock(ProductExportValidatorInterface::class);
+        $this->productExportValidator->expects($this->once())
+            ->method('validate')
+            ->with($productExport, $expectedNormalized)
+            ->willReturn([]);
+
+        $this->connection->expects($this->once())
+            ->method('delete')
+            ->with('sales_channel_api_context', static::arrayHasKey('token'));
+
+        $generator = $this->createGenerator();
+        $result = $generator->generate($productExport, new ExportBehavior(false, false, false, false, false));
+
+        static::assertNotNull($result);
+        static::assertSame($expectedNormalized, $result->getContent());
+        static::assertSame(1, $result->getTotal());
+        static::assertSame([], $result->getErrors());
+    }
+
     public function testGenerateThrowsExceptionForInvalidJsonlRow(): void
     {
         $productExport = $this->getProductExportEntity();

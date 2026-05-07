@@ -722,10 +722,10 @@ class InfoControllerTest extends TestCase
     public function testContentSystemEntityTypes(): void
     {
         $client = $this->getBrowser();
-        $client->request('GET', '/api/_info/content-system-entity-types.json');
+        $client->request(Request::METHOD_GET, '/api/_info/content-system-entity-types.json');
 
         $response = $client->getResponse();
-        static::assertSame(200, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
         $content = $response->getContent();
         static::assertIsString($content);

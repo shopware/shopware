@@ -97,6 +97,59 @@ class ProductListingRouteTest extends TestCase
         static::assertSame('product', $response['elements'][0]['apiAlias']);
     }
 
+    public function testReturnsHttpNotFoundWhenRequestedPageExceedsLastPage(): void
+    {
+        $this->createData();
+
+        $this->browser->request(
+            'POST',
+            '/store-api/product-listing/' . $this->ids->get('category') . '?p=99'
+        );
+
+        $response = $this->browser->getResponse();
+
+        static::assertSame(404, $response->getStatusCode());
+
+        $payload = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertArrayHasKey('errors', $payload);
+        static::assertSame('PRODUCT__LISTING_PAGE_OUT_OF_RANGE', $payload['errors'][0]['code']);
+    }
+
+    public function testReturnsHttpOkWhenRequestedPageEqualsLastPage(): void
+    {
+        $this->createData(); // 6 products
+
+        // limit=2 → lastPage = ceil(6/2) = 3. p=3 must succeed.
+        $this->browser->request(
+            'POST',
+            '/store-api/product-listing/' . $this->ids->get('category') . '?p=3&limit=2'
+        );
+
+        $response = $this->browser->getResponse();
+        static::assertSame(200, $response->getStatusCode());
+
+        $payload = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame('product_listing', $payload['apiAlias']);
+        static::assertSame(3, $payload['page']);
+    }
+
+    public function testReturnsHttpOkOnFirstPageEvenWhenOnlyOnePageOfResults(): void
+    {
+        $this->createData(); // 6 products, default limit 24 → lastPage = 1
+
+        $this->browser->request(
+            'POST',
+            '/store-api/product-listing/' . $this->ids->get('category') . '?p=1'
+        );
+
+        $response = $this->browser->getResponse();
+        static::assertSame(200, $response->getStatusCode());
+
+        $payload = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame('product_listing', $payload['apiAlias']);
+        static::assertCount(6, $payload['elements']);
+    }
+
     public function testLoadProductsUsingDynamicGroupWithEmptyProductStreamId(): void
     {
         $this->createData('product_stream');

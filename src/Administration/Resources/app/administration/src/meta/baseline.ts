@@ -329,7 +329,6 @@ const missingTests = [
     'src/module/sw-cms/elements/video/preview/index.ts',
     'src/module/sw-cms/elements/vimeo-video/preview/index.js',
     'src/module/sw-cms/elements/youtube-video/preview/index.js',
-    'src/module/sw-customer/component/sw-customer-address-form-options/index.js',
     'src/module/sw-customer/constant/sw-customer.constant.js',
     'src/module/sw-customer/default-search-configuration.js',
     'src/module/sw-customer/index.js',

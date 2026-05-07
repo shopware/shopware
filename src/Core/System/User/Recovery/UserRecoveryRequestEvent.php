@@ -50,8 +50,8 @@ class UserRecoveryRequestEvent extends Event implements UserAware, MailAware, Sc
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->add('userRecovery', new EntityType(UserRecoveryDefinition::class))
-            ->add('resetUrl', new ScalarValueType('string'))
+            ->add(UserAware::USER_RECOVERY, new EntityType(UserRecoveryDefinition::class))
+            ->add(FlowMailVariables::RESET_URL, new ScalarValueType('string'))
         ;
     }
 

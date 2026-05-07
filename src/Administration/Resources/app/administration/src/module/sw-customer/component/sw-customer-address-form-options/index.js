@@ -26,6 +26,12 @@ export default {
             type: Array,
             required: true,
         },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     data() {

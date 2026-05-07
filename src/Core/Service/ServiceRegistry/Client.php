@@ -51,7 +51,11 @@ class Client implements ResetInterface
      */
     public function fetchServiceZip(string $zipUrl): \Generator
     {
-        $response = $this->client->request('GET', $zipUrl, [
+        $client = $this->client->withOptions([
+            'max_duration' => 10,
+        ]);
+
+        $response = $client->request('GET', $zipUrl, [
             'headers' => [
                 'Accept' => 'application/zip',
             ],
@@ -63,7 +67,7 @@ class Client implements ResetInterface
             throw ServiceException::requestFailed($response);
         }
 
-        foreach ($this->client->stream($response) as $chunk) {
+        foreach ($client->stream($response) as $chunk) {
             yield $chunk;
         }
     }

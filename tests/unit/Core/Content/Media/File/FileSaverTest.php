@@ -23,6 +23,8 @@ use Shopware\Core\Content\Media\Message\GenerateThumbnailsMessage;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
+use Shopware\Core\Content\Media\Upload\MediaFileCleanupService;
+use Shopware\Core\Content\Media\Upload\MediaFileExtensionValidator;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -71,15 +73,13 @@ class FileSaverTest extends TestCase
             $this->mediaRepository,
             $this->filesystemPublic,
             $filesystemPrivate,
-            $thumbnailService,
             $metadataLoader,
             $typeDetector,
-            $this->messageBus,
             $eventDispatcher,
             $this->locationBuilder,
             $this->mediaPathStrategy,
-            ['png'],
-            ['png']
+            new MediaFileCleanupService($this->filesystemPublic, $filesystemPrivate, $thumbnailService, $this->messageBus, false),
+            new MediaFileExtensionValidator($eventDispatcher, ['png'], ['png']),
         );
     }
 
@@ -202,16 +202,14 @@ class FileSaverTest extends TestCase
             $this->mediaRepository,
             $this->createMock(FilesystemOperator::class),
             $this->createMock(FilesystemOperator::class),
-            $this->createMock(ThumbnailService::class),
             $this->createMock(MetadataLoader::class),
             $this->createMock(TypeDetector::class),
-            $this->messageBus,
             $this->createMock(EventDispatcherInterface::class),
             $this->createMock(SqlMediaLocationBuilder::class),
             $this->createMock(AbstractMediaPathStrategy::class),
-            ['png'],
-            ['png'],
-            true
+            $this->createMock(MediaFileCleanupService::class),
+            $this->createMock(MediaFileExtensionValidator::class),
+            true,
         );
 
         $media = new MediaEntity();
@@ -433,16 +431,14 @@ class FileSaverTest extends TestCase
             $this->mediaRepository,
             $this->createMock(FilesystemOperator::class),
             $this->createMock(FilesystemOperator::class),
-            $this->createMock(ThumbnailService::class),
             $this->createMock(MetadataLoader::class),
             $this->createMock(TypeDetector::class),
-            $this->messageBus,
             $this->createMock(EventDispatcherInterface::class),
             $locationBuilder,
             $mediaPathStrategy,
-            ['png'],
-            ['png'],
-            true
+            $this->createMock(MediaFileCleanupService::class),
+            $this->createMock(MediaFileExtensionValidator::class),
+            true,
         );
 
         $mediaId = Uuid::randomHex();

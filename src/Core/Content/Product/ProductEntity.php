@@ -73,9 +73,6 @@ class ProductEntity extends Entity implements \Stringable
 
     protected int $stock;
 
-    /**
-     * @deprecated tag:v6.8.0 - Will be removed. Use stock instead.
-     */
     protected ?int $availableStock = null;
 
     protected bool $available;
@@ -1019,29 +1016,13 @@ class ProductEntity extends Entity implements \Stringable
         $this->variation = $variation;
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - Will be removed. Use getStock instead.
-     */
     public function getAvailableStock(): ?int
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.8.0.0',
-            Feature::deprecatedMethodMessage(self::class, 'getAvailableStock', 'v6.8.0.0', 'getStock')
-        );
-
         return $this->availableStock;
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - Will be removed. Use setStock instead.
-     */
     public function setAvailableStock(int $availableStock): void
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.8.0.0',
-            Feature::deprecatedMethodMessage(self::class, 'setAvailableStock', 'v6.8.0.0', 'setStock')
-        );
-
         $this->availableStock = $availableStock;
     }
 

@@ -188,6 +188,8 @@ If only one, the "primary", order delivery and order transaction is displayed an
 There is now an easy way to make use of this by using the `primaryOrderDelivery` and `primaryOrderTransaction` properties.
 All existing orders will be updated with a migration so that they also have the primary values.
 From now on, the `OrderTransactionStatusRule::match` will always use the `primaryOrderTransaction` instead of the most recently successful transaction.
+Starting with 6.8, integrations and API users that write orders through the Admin API, Sync API, or DAL must set `primaryOrderDeliveryId` and `primaryOrderTransactionId` when they write deliveries or transactions.
+Otherwise, the delivery address, delivery state, or payment state will be missing for those orders in the Administration.
 
 ### Use `primaryOrderDelivery`
 
@@ -195,7 +197,7 @@ Get the first order delivery with `order.primaryOrderDelivery` so you should rep
 
 ### Use `primaryOrderTransaction`
 
-Get the latest order transaction with `order.primaryOrderDelivery` so you should replace methods like `order.transactions.last()` or `order.transactions[length - 1]`.
+Get the latest order transaction with `order.primaryOrderTransaction` so you should replace methods like `order.transactions.last()` or `order.transactions[length - 1]`.
 
 ## Removal of helper methods in `\Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper`
 

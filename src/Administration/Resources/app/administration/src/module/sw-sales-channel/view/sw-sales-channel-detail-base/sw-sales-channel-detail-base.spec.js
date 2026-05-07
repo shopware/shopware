@@ -47,7 +47,11 @@ async function createWrapper(options = {}) {
                 'sw-agentic-commerce-tracking-config': true,
                 'sw-category-tree-field': true,
                 'mt-select': true,
-                'sw-custom-field-set-renderer': true,
+                'sw-custom-field-set-renderer': {
+                    name: 'sw-custom-field-set-renderer',
+                    props: ['disabled'],
+                    template: '<div class="sw-custom-field-set-renderer"></div>',
+                },
                 'sw-form-field-renderer': true,
                 'mt-banner': true,
                 'sw-sales-channel-measurement': true,
@@ -198,6 +202,21 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         const field = wrapper.get('mt-number-field-stub[label="sw-sales-channel.detail.navigationCategoryDepth"]');
 
         expect(field.attributes().disabled).toBeUndefined();
+    });
+
+    it('should disable the custom field renderer without sales channel edit permissions', async () => {
+        global.activeAclRoles = ['sales_channel.viewer'];
+
+        const wrapper = await createWrapper({
+            props: {
+                salesChannel: {
+                    typeId: STOREFRONT_SALES_CHANNEL_TYPE_ID,
+                },
+                customFieldSets: [{}],
+            },
+        });
+
+        expect(wrapper.getComponent('.sw-custom-field-set-renderer').props('disabled')).toBe(true);
     });
 
     it('should have the service category id field disabled', async () => {

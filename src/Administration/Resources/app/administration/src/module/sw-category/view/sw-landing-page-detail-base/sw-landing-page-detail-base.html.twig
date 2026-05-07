@@ -141,6 +141,7 @@
         <sw-custom-field-set-renderer
             :entity="landingPage"
             :sets="customFieldSetsArray"
+            :disabled="!acl.can('landing_page.editor')"
         />
     </mt-card>
     {% endblock %}

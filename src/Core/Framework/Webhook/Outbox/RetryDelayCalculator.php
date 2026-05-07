@@ -14,7 +14,7 @@ class RetryDelayCalculator
     /**
      * @var list<int>
      */
-    public const RETRY_DELAYS = [5, 30, 300, 1800, 14400];
+    public const RETRY_DELAYS_IN_SECONDS = [5, 30, 300, 1800, 14400];
 
     public function __construct(
         private readonly ClockInterface $clock,
@@ -23,8 +23,8 @@ class RetryDelayCalculator
 
     public function computeNextRetryAt(int $executionCount): \DateTimeImmutable
     {
-        $delayIndex = min(max($executionCount - 1, 0), \count(self::RETRY_DELAYS) - 1);
-        $delaySeconds = self::RETRY_DELAYS[$delayIndex];
+        $delayIndex = min(max($executionCount - 1, 0), \count(self::RETRY_DELAYS_IN_SECONDS) - 1);
+        $delaySeconds = self::RETRY_DELAYS_IN_SECONDS[$delayIndex];
 
         return $this->clock->now()->modify(\sprintf('+%s seconds', $delaySeconds));
     }

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
@@ -79,7 +80,9 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
         $rows = $this->documentConfigRepository->search($criteria, $context)->getEntities();
 
         $globalRow = $rows->filterByProperty('global', true)->first();
-        $salesChannelRow = $rows->filterByProperty('global', false)->first();
+        $salesChannelRow = $rows
+            ->filter(static fn (DocumentBaseConfigEntity $row): bool => ((int) $row->getSalesChannels()?->count()) > 0)
+            ->first();
 
         $legacyConfig = $this->mergeJsonConfig($globalRow, $salesChannelRow);
         $documentConfig = $this->buildDocumentConfig($globalRow, $salesChannelRow, $documentType);
@@ -103,18 +106,18 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
     ): DocumentConfig {
         $pageSize = $salesChannelRow?->getPageSize() ?? $globalRow?->getPageSize() ?? '';
         $pageOrientation = $salesChannelRow?->getPageOrientation() ?? $globalRow?->getPageOrientation() ?? '';
-        $itemsPerPage = $salesChannelRow?->getItemsPerPage() ?? $globalRow?->getItemsPerPage();
+        $itemsPerPage = $salesChannelRow?->getItemsPerPage() ?? $globalRow?->getItemsPerPage() ?? 0;
 
         $this->ensureRequiredValues(DocumentConfig::class, $documentType, [
             'pageSize' => $pageSize,
             'pageOrientation' => $pageOrientation,
-            'itemsPerPage' => $itemsPerPage,
+            'itemsPerPage' => $itemsPerPage > 0 ? $itemsPerPage : null,
         ]);
 
         return new DocumentConfig(
             pageSize: $pageSize,
             pageOrientation: $pageOrientation,
-            itemsPerPage: (int) $itemsPerPage,
+            itemsPerPage: $itemsPerPage,
             filenamePrefix: $salesChannelRow?->getFilenamePrefix() ?? $globalRow?->getFilenamePrefix(),
             filenameSuffix: $salesChannelRow?->getFilenameSuffix() ?? $globalRow?->getFilenameSuffix(),
             logo: $salesChannelRow?->getLogo() ?? $globalRow?->getLogo(),
@@ -182,15 +185,17 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
      */
     private function mergeJsonConfig(?DocumentBaseConfigEntity $globalRow, ?DocumentBaseConfigEntity $salesChannelRow): array
     {
-        $merged = $globalRow?->getConfig() ?? [];
+        return Feature::silent('v6.8.0.0', static function () use ($globalRow, $salesChannelRow): array {
+            $merged = $globalRow?->getConfig() ?? [];
 
-        foreach ($salesChannelRow?->getConfig() ?? [] as $key => $value) {
-            if ($value !== null) {
-                $merged[$key] = $value;
+            foreach ($salesChannelRow?->getConfig() ?? [] as $key => $value) {
+                if ($value !== null) {
+                    $merged[$key] = $value;
+                }
             }
-        }
 
-        return $merged;
+            return $merged;
+        });
     }
 
     /**

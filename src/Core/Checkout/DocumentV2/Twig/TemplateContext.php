@@ -2,7 +2,10 @@
 
 namespace Shopware\Core\Checkout\DocumentV2\Twig;
 
+use Shopware\Core\Checkout\DocumentV2\Config\CompanyInfo;
+use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfig;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
+use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
 use Shopware\Core\Framework\Log\Package;
 
@@ -22,6 +25,14 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  *
  * @implements \ArrayAccess<string, mixed>
+ *
+ * @mixin DocumentConfig
+ * @mixin CompanyInfo
+ * @mixin InvoiceRenderData
+ *
+ * @property mixed $fileType
+ * @property mixed $getAddressParts
+ * @property mixed $displayAdditionalNoteDelivery
  */
 #[Package('after-sales')]
 final readonly class TemplateContext implements \ArrayAccess

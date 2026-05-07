@@ -16,7 +16,7 @@ class Migration1778072247AddDocumentBaseConfigTypedColumns extends MigrationStep
 {
     use AddColumnTrait;
 
-    private const TYPES_COLUMNS = [
+    final public const TYPES_COLUMNS = [
         'page_size' => 'VARCHAR(32)',
         'page_orientation' => 'VARCHAR(32)',
         'items_per_page' => 'INT UNSIGNED',
@@ -82,15 +82,41 @@ class Migration1778072247AddDocumentBaseConfigTypedColumns extends MigrationStep
 
     private function backfillBooleanColumns(Connection $connection): void
     {
+        // JSON_TYPE = 'BOOLEAN' guard keeps re-runs idempotent: if the JSON path is missing,
+        // preserve whatever the column already holds instead of clobbering it to NULL.
         $connection->executeStatement(<<<'SQL'
             UPDATE `document_base_config`
             SET
-                `display_header`          = (JSON_EXTRACT(`config`, '$.displayHeader')         = TRUE),
-                `display_footer`          = (JSON_EXTRACT(`config`, '$.displayFooter')         = TRUE),
-                `display_page_count`      = (JSON_EXTRACT(`config`, '$.displayPageCount')      = TRUE),
-                `display_company_address` = (JSON_EXTRACT(`config`, '$.displayCompanyAddress') = TRUE),
-                `display_return_address`  = (JSON_EXTRACT(`config`, '$.displayReturnAddress')  = TRUE),
-                `display_customer_vat_id` = (JSON_EXTRACT(`config`, '$.displayCustomerVatId')  = TRUE)
+                `display_header` = CASE
+                    WHEN JSON_TYPE(JSON_EXTRACT(`config`, '$.displayHeader')) = 'BOOLEAN'
+                        THEN (JSON_EXTRACT(`config`, '$.displayHeader') = TRUE)
+                    ELSE `display_header`
+                END,
+                `display_footer` = CASE
+                    WHEN JSON_TYPE(JSON_EXTRACT(`config`, '$.displayFooter')) = 'BOOLEAN'
+                        THEN (JSON_EXTRACT(`config`, '$.displayFooter') = TRUE)
+                    ELSE `display_footer`
+                END,
+                `display_page_count` = CASE
+                    WHEN JSON_TYPE(JSON_EXTRACT(`config`, '$.displayPageCount')) = 'BOOLEAN'
+                        THEN (JSON_EXTRACT(`config`, '$.displayPageCount') = TRUE)
+                    ELSE `display_page_count`
+                END,
+                `display_company_address` = CASE
+                    WHEN JSON_TYPE(JSON_EXTRACT(`config`, '$.displayCompanyAddress')) = 'BOOLEAN'
+                        THEN (JSON_EXTRACT(`config`, '$.displayCompanyAddress') = TRUE)
+                    ELSE `display_company_address`
+                END,
+                `display_return_address` = CASE
+                    WHEN JSON_TYPE(JSON_EXTRACT(`config`, '$.displayReturnAddress')) = 'BOOLEAN'
+                        THEN (JSON_EXTRACT(`config`, '$.displayReturnAddress') = TRUE)
+                    ELSE `display_return_address`
+                END,
+                `display_customer_vat_id` = CASE
+                    WHEN JSON_TYPE(JSON_EXTRACT(`config`, '$.displayCustomerVatId')) = 'BOOLEAN'
+                        THEN (JSON_EXTRACT(`config`, '$.displayCustomerVatId') = TRUE)
+                    ELSE `display_customer_vat_id`
+                END
             WHERE `config` IS NOT NULL
         SQL);
     }

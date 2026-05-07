@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
-use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
+use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfigLoader;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
@@ -22,6 +22,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
@@ -39,6 +40,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[CoversClass(InvoiceDataProvider::class)]
 class InvoiceDataProviderTest extends TestCase
 {
+    private const COMPANY_COUNTRY_ID = '0190a3f5cafa70f5b6e7e5b8f0c0c0c0';
+
     public function testGetDocumentTypes(): void
     {
         $provider = $this->createProvider();
@@ -117,13 +120,15 @@ class InvoiceDataProviderTest extends TestCase
             '12345',
         );
 
-        $result = $provider->provideRenderingData($order, $request, Context::createDefaultContext());
-        $configData = $result->configuration->jsonSerialize();
+        $result = Feature::silent(
+            'v6.8.0.0',
+            static fn () => $provider->provideRenderingData($order, $request, Context::createDefaultContext()),
+        );
 
-        static::assertNotNull($configData['documentDate']);
-        static::assertSame('12345', $configData['documentNumber']);
-        static::assertSame('12345', $configData['custom']['invoiceNumber']);
-        static::assertSame($expectedIntraCommunityDelivery, $configData['intraCommunityDelivery']);
+        static::assertNotSame('', $result->documentDate);
+        static::assertSame('12345', $result->documentNumber);
+        static::assertSame('12345', $result->custom['invoiceNumber']);
+        static::assertSame($expectedIntraCommunityDelivery, $result->intraCommunityDelivery);
     }
 
     public static function provideRenderingData(): iterable
@@ -251,21 +256,21 @@ class InvoiceDataProviderTest extends TestCase
         array $config = [],
         ?ValidatorInterface $validator = null
     ): InvoiceDataProvider {
+        $companyCountry = new CountryEntity();
+        $companyCountry->setUniqueIdentifier(self::COMPANY_COUNTRY_ID);
+        $companyCountry->setId(self::COMPANY_COUNTRY_ID);
+
         /** @var StaticEntityRepository<CountryCollection> $countryRepository */
         $countryRepository = new StaticEntityRepository(
-            [],
+            [new CountryCollection([$companyCountry])],
             new CountryDefinition(),
         );
 
-        $baseConfig = new DocumentBaseConfigEntity();
-        $baseConfig->setUniqueIdentifier(Uuid::randomHex());
-        $baseConfig->setId(Uuid::randomHex());
-        $baseConfig->setGlobal(true);
-        $baseConfig->setConfig($config);
-
         /** @var StaticEntityRepository<DocumentBaseConfigCollection> $documentConfigRepository */
         $documentConfigRepository = new StaticEntityRepository(
-            [new DocumentBaseConfigCollection([$baseConfig])],
+            [new DocumentBaseConfigCollection([
+                $this->buildBaseConfig($config),
+            ])],
             new DocumentBaseConfigDefinition(),
         );
 
@@ -278,6 +283,33 @@ class InvoiceDataProviderTest extends TestCase
             $configLoader,
             $validator ?? $this->createMock(ValidatorInterface::class),
         );
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    private function buildBaseConfig(array $config): DocumentBaseConfigEntity
+    {
+        $entity = new DocumentBaseConfigEntity();
+        $entity->setUniqueIdentifier(Uuid::randomHex());
+        $entity->setId(Uuid::randomHex());
+        $entity->setGlobal(true);
+        $entity->setPageSize('A4');
+        $entity->setPageOrientation('portrait');
+        $entity->setItemsPerPage(10);
+
+        Feature::silent('v6.8.0.0', static function () use ($entity, $config): void {
+            $entity->setConfig([
+                'companyName' => 'Example',
+                'companyStreet' => 'Example Street 1',
+                'companyZipcode' => '12345',
+                'companyCity' => 'Example City',
+                'companyCountryId' => self::COMPANY_COUNTRY_ID,
+                ...$config,
+            ]);
+        });
+
+        return $entity;
     }
 
     private function validatorWithViolations(int $count): ValidatorInterface

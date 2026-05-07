@@ -90,6 +90,94 @@
                 }
             }
         },
+        "\/_action\/user\/{userId}\/mcp-allowlist": {
+            "post": {
+                "tags": [
+                    "MCP",
+                    "Experimental"
+                ],
+                "summary": "Save MCP allowlist for a user",
+                "description": "Saves the per-user MCP allowlist covering tools, resources, and prompts. Pass `null` as the top-level value to allow all capabilities unrestricted. Pass an object with `tools`, `resources`, and `prompts` keys where each key is either `null` (unrestricted for that type) or a list of allowed names/URIs (empty array = deny all of that type). Requires `users_and_permissions.editor` privilege. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "saveMcpAllowlistUser",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The user UUID.",
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "security": [
+                    {"oAuth": ["write"]}
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["allowlist"],
+                                "properties": {
+                                    "allowlist": {
+                                        "oneOf": [
+                                            {
+                                                "type": "object",
+                                                "description": "Per-type allowlist. Each key is null (unrestricted) or a list of allowed names/URIs.",
+                                                "properties": {
+                                                    "tools": {
+                                                        "oneOf": [
+                                                            {"type": "array", "items": {"type": "string"}, "description": "List of allowed tool names. Empty array = no tools allowed."},
+                                                            {"type": "null", "description": "Null = all tools allowed."}
+                                                        ]
+                                                    },
+                                                    "resources": {
+                                                        "oneOf": [
+                                                            {"type": "array", "items": {"type": "string"}, "description": "List of allowed resource URIs. Empty array = no resources allowed."},
+                                                            {"type": "null", "description": "Null = all resources allowed."}
+                                                        ]
+                                                    },
+                                                    "prompts": {
+                                                        "oneOf": [
+                                                            {"type": "array", "items": {"type": "string"}, "description": "List of allowed prompt names. Empty array = no prompts allowed."},
+                                                            {"type": "null", "description": "Null = all prompts allowed."}
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                "type": "null",
+                                                "description": "Null = all capabilities unrestricted."
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Allowlist saved successfully."
+                    },
+                    "400": {
+                        "description": "Bad request — missing or invalid `allowlist` field."
+                    },
+                    "401": {
+                        "description": "Unauthorized — missing or invalid credentials."
+                    },
+                    "403": {
+                        "description": "Forbidden — caller lacks `users_and_permissions.editor` privilege."
+                    },
+                    "404": {
+                        "description": "User not found."
+                    }
+                }
+            }
+        },
         "\/_action\/mcp\/tools": {
             "get": {
                 "tags": [

@@ -125,7 +125,7 @@ class MailApiService extends ApiService {
         templateData = {},
         salesChannelId = null,
         includeHeaderFooter = false,
-        strictRendering = false,
+        strictRendering = true,
         additionalHeaders = {},
     ) {
         const apiRoute = `/_action/${this.getApiBasePath()}/preview`;

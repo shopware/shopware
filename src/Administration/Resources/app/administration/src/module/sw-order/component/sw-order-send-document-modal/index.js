@@ -127,9 +127,9 @@ export default {
         async createdComponent() {
             this.recipient = this.order.orderCustomer.email;
 
-            await this.setEmailTemplateAccordingToDocumentType();
-
             this.loadTheLinksForA11y();
+
+            await this.setEmailTemplateAccordingToDocumentType();
         },
 
         async setEmailTemplateAccordingToDocumentType() {
@@ -195,7 +195,7 @@ export default {
                     },
                     this.order.salesChannelId,
                     true,
-                    false,
+                    true,
                     apiContext,
                 )
                 .then((preview) => {

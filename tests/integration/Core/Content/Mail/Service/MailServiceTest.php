@@ -10,6 +10,7 @@ use Shopware\Core\Content\Mail\Service\AbstractMailSender;
 use Shopware\Core\Content\Mail\Service\MailFactory;
 use Shopware\Core\Content\Mail\Service\MailService;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
+use Shopware\Core\Content\MailTemplate\Service\MailTemplateContentBuilder;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -69,7 +70,8 @@ class MailServiceTest extends TestCase
             static::getContainer()->get(SystemConfigService::class),
             static::getContainer()->get('event_dispatcher'),
             $this->createMock(LoggerInterface::class),
-            $this->createMock(LanguageLocaleCodeProvider::class)
+            $this->createMock(LanguageLocaleCodeProvider::class),
+            static::getContainer()->get(MailTemplateContentBuilder::class)
         );
         $data = [
             'senderName' => 'Foo & Bar',
@@ -144,7 +146,8 @@ class MailServiceTest extends TestCase
             $systemConfig,
             $this->createMock(EventDispatcher::class),
             $this->createMock(LoggerInterface::class),
-            $languageLocaleProvider
+            $languageLocaleProvider,
+            static::getContainer()->get(MailTemplateContentBuilder::class)
         );
 
         $salesChannel = $this->createSalesChannel();
@@ -197,7 +200,8 @@ class MailServiceTest extends TestCase
             static::getContainer()->get(SystemConfigService::class),
             $eventDispatcher,
             $this->createMock(LoggerInterface::class),
-            $this->createMock(LanguageLocaleCodeProvider::class)
+            $this->createMock(LanguageLocaleCodeProvider::class),
+            static::getContainer()->get(MailTemplateContentBuilder::class)
         );
 
         $salesChannel = $this->createSalesChannel();
@@ -237,7 +241,8 @@ class MailServiceTest extends TestCase
             static::getContainer()->get(SystemConfigService::class),
             $this->createMock(EventDispatcher::class),
             $this->createMock(LoggerInterface::class),
-            $this->createMock(LanguageLocaleCodeProvider::class)
+            $this->createMock(LanguageLocaleCodeProvider::class),
+            static::getContainer()->get(MailTemplateContentBuilder::class)
         );
 
         $salesChannel = $this->createSalesChannel();
@@ -296,7 +301,8 @@ class MailServiceTest extends TestCase
             static::getContainer()->get(SystemConfigService::class),
             $this->createMock(EventDispatcher::class),
             $this->createMock(LoggerInterface::class),
-            $this->createMock(LanguageLocaleCodeProvider::class)
+            $this->createMock(LanguageLocaleCodeProvider::class),
+            static::getContainer()->get(MailTemplateContentBuilder::class)
         );
 
         $salesChannel = $this->createSalesChannel();

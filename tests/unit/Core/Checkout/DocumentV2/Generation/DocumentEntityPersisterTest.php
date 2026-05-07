@@ -41,14 +41,17 @@ class DocumentEntityPersisterTest extends TestCase
 
     private RenderInput $renderInput;
 
+    private Context $context;
+
     protected function setUp(): void
     {
+        $this->context = Context::createDefaultContext();
+
         $this->generationRequest = new DocumentGenerationRequest(
             Uuid::randomHex(),
             Uuid::randomHex(),
             self::DOCUMENT_TYPE,
             [self::FORMAT],
-            Context::createDefaultContext(),
             '12345',
         );
 
@@ -71,6 +74,7 @@ class DocumentEntityPersisterTest extends TestCase
             $this->generationRequest,
             $this->renderInput,
             [self::FORMAT => $fileId],
+            $this->context,
         );
 
         static::assertInstanceOf(DocumentEntity::class, $document);
@@ -84,8 +88,11 @@ class DocumentEntityPersisterTest extends TestCase
     }
 
     #[DataProvider('persistExceptionProvider')]
-    public function testPersistThrowsException(?callable $documentSearch, string $documentTypeId, DocumentV2Exception $exception): void
-    {
+    public function testPersistThrowsException(
+        ?callable $documentSearch,
+        string $documentTypeId,
+        DocumentV2Exception $exception,
+    ): void {
         [$persister] = $this->createPersister($documentTypeId, $documentSearch);
 
         static::expectExceptionObject($exception);
@@ -94,16 +101,25 @@ class DocumentEntityPersisterTest extends TestCase
             $this->generationRequest,
             $this->renderInput,
             [self::FORMAT => Uuid::randomHex()],
+            $this->context,
         );
     }
 
     /**
-     * @return iterable<string, array{documentSearch: ?callable, documentTypeId: string, exception: DocumentV2Exception}>
+     * @return iterable<string, array{
+     *     documentSearch: ?callable,
+     *     documentTypeId: string,
+     *     exception: DocumentV2Exception,
+     * }>
      */
     public static function persistExceptionProvider(): iterable
     {
         yield 'document not persisted' => [
-            'documentSearch' => static function (Criteria $criteria, Context $context, StaticEntityRepository $repository): DocumentCollection {
+            'documentSearch' => static function (
+                Criteria $criteria,
+                Context $context,
+                StaticEntityRepository $repository,
+            ): DocumentCollection {
                 static::assertCount(1, $repository->creates);
                 static::assertCount(1, $criteria->getIds());
 
@@ -133,20 +149,32 @@ class DocumentEntityPersisterTest extends TestCase
             $this->generationRequest,
             $this->renderInput,
             [self::FORMAT => Uuid::randomHex()],
+            $this->context,
         );
     }
 
     /**
      * @param list<string> $existingDocumentIds
      *
-     * @return array{0: DocumentEntityPersister, 1: StaticEntityRepository<DocumentCollection>, 2: StaticEntityRepository<DocumentFileCollection>}
+     * @return array{
+     *     0: DocumentEntityPersister,
+     *     1: StaticEntityRepository<DocumentCollection>,
+     *     2: StaticEntityRepository<DocumentFileCollection>,
+     * }
      */
-    private function createPersister(string $documentTypeId, ?callable $documentSearch = null, array $existingDocumentIds = []): array
-    {
+    private function createPersister(
+        string $documentTypeId,
+        ?callable $documentSearch = null,
+        array $existingDocumentIds = [],
+    ): array {
         /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             $existingDocumentIds,
-            $documentSearch ?? static function (Criteria $criteria, Context $context, StaticEntityRepository $repository): DocumentCollection {
+            $documentSearch ?? static function (
+                Criteria $criteria,
+                Context $context,
+                StaticEntityRepository $repository,
+            ): DocumentCollection {
                 static::assertCount(1, $repository->creates);
                 static::assertCount(1, $criteria->getIds());
 

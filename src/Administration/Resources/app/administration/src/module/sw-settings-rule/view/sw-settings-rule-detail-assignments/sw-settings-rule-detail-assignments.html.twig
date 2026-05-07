@@ -60,21 +60,23 @@
                 :compact-mode="false"
                 @delete-items="(event) => onDeleteItems(entity, event)"
             >
-                <template #link-column="{ item, column, renderColumn }">
+                <template #link-column="{ item, columnIndex, column, renderColumn }">
                     <router-link
-                        v-if="column.routerLink"
-                        :to="getRouterLink(entity, item)"
+                        v-if="hasRoute(item, column)"
+                        :to="getRouterLink(item, entity.detailRoute, column)"
                     >
                         <sw-product-variant-info
-                            v-if="item.variation"
+                            v-if="item.variation && columnIndex === 0"
                             :variations="item.variation"
                         >
                             {{ renderColumn(item, column) }}
                         </sw-product-variant-info>
-                        <span v-if="!item.variation">
+
+                        <span v-else>
                             {{ renderColumn(item, column) }}
                         </span>
                     </router-link>
+
                     <span v-else>
                         <sw-product-variant-info
                             v-if="item.variation"
@@ -82,15 +84,17 @@
                         >
                             {{ renderColumn(item, column) }}
                         </sw-product-variant-info>
+
                         <span v-else>
                             {{ renderColumn(item, column) }}
                         </span>
                     </span>
                 </template>
-                <template #actions="{ item }">
+
+                <template #actions="{ item, column }">
                     {% block sw_settings_rule_detail_assignments_entity_listing_actions %}
                     {% block sw_settings_rule_detail_assignments_entity_listing_view_action %}
-                    <sw-context-menu-item :router-link="getRouterLink(entity, item)">
+                    <sw-context-menu-item :router-link="getRouterLink(item, entity.detailRoute, column)">
                         {{ $t('global.default.view') }}
                     </sw-context-menu-item>
                     {% endblock %}
@@ -153,7 +157,6 @@
 
         {% block sw_settings_rule_detail_assignments_delete_modal_footer %}
         <template #modal-footer>
-
             {% block sw_settings_rule_detail_assignments_delete_modal_cancel %}
             <mt-button
                 class="sw-settings-rule-detail-assignments__delete-modal-cancel-button"

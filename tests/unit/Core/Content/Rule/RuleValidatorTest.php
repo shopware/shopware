@@ -102,45 +102,45 @@ class RuleValidatorTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{array<string, mixed>, list<string>}>
+     * @return iterable<string, array{payload: array<string, mixed>, expectedViolationPointers: list<string>}>
      */
     public static function updateConditionValueProvider(): iterable
     {
         yield 'uses explicit null as empty value' => [
-            [
+            'payload' => [
                 'type' => AlwaysValidRule::RULE_NAME,
                 'value' => null,
             ],
-            [],
+            'expectedViolationPointers' => [],
         ];
 
         yield 'uses explicit JSON value' => [
-            [
+            'payload' => [
                 'type' => CustomerGroupRule::RULE_NAME,
                 'value' => json_encode([
                     'customerGroupIds' => [Uuid::randomHex()],
                     'operator' => CustomerGroupRule::OPERATOR_EQ,
                 ], \JSON_THROW_ON_ERROR),
             ],
-            [],
+            'expectedViolationPointers' => [],
         ];
 
         yield 'uses stored value when update payload has no value key' => [
-            [
+            'payload' => [
                 'type' => AlwaysValidRule::RULE_NAME,
             ],
-            [
+            'expectedViolationPointers' => [
                 '/0/value/customerGroupIds',
                 '/0/value/operator',
             ],
         ];
 
         yield 'validates explicit null as empty value for required rule fields' => [
-            [
+            'payload' => [
                 'type' => CustomerGroupRule::RULE_NAME,
                 'value' => null,
             ],
-            [
+            'expectedViolationPointers' => [
                 '/0/value/customerGroupIds',
                 '/0/value/operator',
             ],

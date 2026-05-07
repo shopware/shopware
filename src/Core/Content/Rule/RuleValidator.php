@@ -190,10 +190,9 @@ class RuleValidator implements EventSubscriberInterface
     {
         $value = $condition !== null ? $condition->getValue() : [];
         if (\array_key_exists('value', $payload)) {
-            $value =
-                $payload['value'] !== null ?
-                json_decode((string) $payload['value'], true, 512, \JSON_THROW_ON_ERROR) :
-                [];
+            $value = $payload['value'] !== null
+                ? json_decode((string) $payload['value'], true, 512, \JSON_THROW_ON_ERROR)
+                : [];
         }
 
         return $value ?? [];

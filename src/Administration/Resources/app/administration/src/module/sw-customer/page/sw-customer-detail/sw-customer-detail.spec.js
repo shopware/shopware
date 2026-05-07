@@ -4,7 +4,7 @@ import { mount } from '@vue/test-utils';
  * @sw-package checkout
  */
 
-async function createWrapper(privileges = [], editMode = false) {
+async function createWrapper(privileges = [], editMode = false, { route, routerPush } = {}) {
     return mount(
         await wrapTestComponent('sw-customer-detail', {
             sync: true,
@@ -35,6 +35,30 @@ async function createWrapper(privileges = [], editMode = false) {
                         template: '<div><slot name="content"></slot></div>',
                     },
                     'sw-tabs-item': true,
+                    'mt-tabs': {
+                        template: '<div class="mt-tabs-stub"></div>',
+                        props: {
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: false,
+                                default: null,
+                            },
+                            defaultItem: {
+                                type: String,
+                                required: false,
+                                default: null,
+                            },
+                            routeTabs: {
+                                type: Boolean,
+                                required: false,
+                                default: false,
+                            },
+                        },
+                    },
                     'router-view': true,
                     'sw-customer-card': {
                         template: '<div></div>',
@@ -46,13 +70,17 @@ async function createWrapper(privileges = [], editMode = false) {
                     'sw-loader': true,
                 },
                 mocks: {
-                    $route: {
-                        name: 'sw.cusomter.detail',
+                    $route: route ?? {
+                        name: 'sw.customer.detail.base',
+                        params: { id: 'cusotmerId' },
                         query: {
                             edit: editMode,
                             page: 1,
                             limit: 25,
                         },
+                    },
+                    $router: {
+                        push: routerPush ?? jest.fn(),
                     },
                 },
                 provide: {
@@ -111,6 +139,8 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
     });
 
     beforeEach(async () => {
+        global.activeFeatureFlags = [];
+
         wrapper = await createWrapper();
     });
 
@@ -220,5 +250,48 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
         await flushPromises();
 
         expect(wrapper.vm.customer.salutationId).toBe('1');
+    });
+
+    it('should render route-backed Meteor tabs when the feature is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const routerPush = jest.fn();
+        const wrapperWithMeteorTabs = await createWrapper([], true, {
+            routerPush,
+            route: {
+                name: 'sw.customer.detail.base',
+                params: { id: 'cusotmerId' },
+                query: { edit: true },
+            },
+        });
+
+        const tabs = wrapperWithMeteorTabs.getComponent('.mt-tabs-stub');
+        const items = tabs.props('items');
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-customer-detail-tabs');
+        expect(tabs.props('defaultItem')).toBe('sw.customer.detail.base');
+        expect(tabs.props('routeTabs')).toBe(true);
+        expect(items).toEqual([
+            expect.objectContaining({
+                label: 'sw-customer.detail.tabGeneral',
+                name: 'sw.customer.detail.base',
+            }),
+            expect.objectContaining({
+                label: 'sw-customer.detail.tabAddresses',
+                name: 'sw.customer.detail.addresses',
+            }),
+            expect.objectContaining({
+                label: 'sw-customer.detailBase.labelOrderCard',
+                name: 'sw.customer.detail.order',
+            }),
+        ]);
+
+        items[1].onClick();
+
+        expect(routerPush).toHaveBeenCalledWith({
+            name: 'sw.customer.detail.addresses',
+            params: { id: 'cusotmerId' },
+            query: { edit: true },
+        });
     });
 });

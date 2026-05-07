@@ -110,10 +110,16 @@ export default {
             tabWaitsAttempts: 0,
             refreshVisibleSets: false,
             translatedInheritanceLoadKey: null,
+            activeTab: null,
+            activeTabIsExtension: false,
         };
     },
 
     computed: {
+        useMeteorTabs() {
+            return Shopware.Feature.isActive('V6_8_0_0');
+        },
+
         hasParent() {
             return this.hasExplicitParentEntity || this.usesTranslatedInheritance;
         },
@@ -133,6 +139,35 @@ export default {
 
         visibleCustomFieldSets() {
             return this.sortSets(this.sets);
+        },
+
+        customFieldSetTabItems() {
+            return this.visibleCustomFieldSets.map((set) => {
+                return {
+                    label: this.getTabLabel(set),
+                    name: set.id,
+                };
+            });
+        },
+
+        currentActiveTab() {
+            const firstVisibleSetId = this.visibleCustomFieldSets[0]?.id ?? null;
+
+            if (this.activeTabIsExtension) {
+                return null;
+            }
+
+            if (!this.activeTab) {
+                return firstVisibleSetId;
+            }
+
+            const activeSetExists = this.visibleCustomFieldSets.some((set) => set.id === this.activeTab);
+
+            return activeSetExists ? this.activeTab : firstVisibleSetId;
+        },
+
+        activeTabItemName() {
+            return this.activeTabIsExtension ? this.activeTab : this.currentActiveTab;
         },
 
         customFieldSetRepository() {
@@ -564,7 +599,35 @@ export default {
                 });
         },
 
+        setActiveTab(setId) {
+            const activeSetExists = this.visibleCustomFieldSets.some((set) => set.id === setId);
+
+            if (!activeSetExists) {
+                return;
+            }
+
+            this.activeTabIsExtension = false;
+            this.activeTab = setId;
+            this.loadCustomFieldSet(setId);
+        },
+
+        setActiveExtensionTab(tabId) {
+            this.activeTabIsExtension = true;
+            this.activeTab = tabId;
+        },
+
         resetTabs() {
+            if (this.visibleCustomFieldSets.length <= 0) {
+                return;
+            }
+
+            if (this.useMeteorTabs) {
+                this.activeTabIsExtension = false;
+                this.setActiveTab(this.visibleCustomFieldSets[0].id);
+
+                return;
+            }
+
             if (this.visibleCustomFieldSets.length > 0 && this.$refs.tabComponent) {
                 // Reset state of tab component if custom field selection changes
                 this.$refs.tabComponent.mountedComponent();
@@ -593,7 +656,9 @@ export default {
         },
 
         onChangeCustomFieldSets(value, updateFn) {
-            if (!this.$refs.tabComponent && (this.visibleCustomFieldSets.length > 0 || value)) {
+            if (this.useMeteorTabs) {
+                this.resetTabs();
+            } else if (!this.$refs.tabComponent && (this.visibleCustomFieldSets.length > 0 || value)) {
                 // when rendered initially we wait for the tabcomponent to load so we can activate the first item
                 this.waitForTabComponent();
             } else {

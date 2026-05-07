@@ -30,6 +30,15 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
             'sw-tabs': await wrapTestComponent('sw-tabs'),
             'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
             'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+            'mt-tabs': {
+                name: 'mt-tabs',
+                props: [
+                    'items',
+                    'defaultItem',
+                ],
+                emits: ['new-item-active'],
+                template: '<div class="mt-tabs-stub"></div>',
+            },
             'sw-ignore-class': true,
             'sw-iframe-renderer': {
                 template: '<div></div>',
@@ -43,6 +52,7 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
     });
 
     beforeEach(async () => {
+        global.activeFeatureFlags = [''];
         Shopware.Store.get('extensionComponentSections').identifier = {};
     });
 
@@ -132,6 +142,53 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
         await tabItems.at(1).trigger('click');
 
         // Check tab content
+        const activeIframe = wrapper.findComponent(stubs['sw-iframe-renderer']);
+        expect(activeIframe.vm.$attrs['location-id']).toBe('tab-2');
+    });
+
+    it('should render mt-tabs when the major feature flag is enabled', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        Shopware.Store.get('extensionComponentSections').addSection({
+            component: 'card',
+            positionId: 'test-position',
+            props: {
+                title: 'test-card',
+                subtitle: 'test-card-description',
+                tabs: [
+                    {
+                        name: 'tab-1',
+                        label: 'Tab 1',
+                        locationId: 'tab-1',
+                    },
+                    {
+                        name: 'tab-2',
+                        label: 'Tab 2',
+                        locationId: 'tab-2',
+                    },
+                ],
+            },
+        });
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const tabs = wrapper.getComponent('.mt-tabs-stub');
+
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'Tab 1',
+                name: 'tab-1',
+            },
+            {
+                label: 'Tab 2',
+                name: 'tab-2',
+            },
+        ]);
+        expect(tabs.props('defaultItem')).toBe('tab-1');
+
+        await tabs.vm.$emit('new-item-active', 'tab-2');
+
         const activeIframe = wrapper.findComponent(stubs['sw-iframe-renderer']);
         expect(activeIframe.vm.$attrs['location-id']).toBe('tab-2');
     });

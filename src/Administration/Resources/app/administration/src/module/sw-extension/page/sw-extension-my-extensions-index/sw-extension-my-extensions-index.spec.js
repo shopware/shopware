@@ -4,7 +4,7 @@
 
 import { mount } from '@vue/test-utils';
 
-async function createWrapper() {
+async function createWrapper({ routerPush = jest.fn() } = {}) {
     const wrapper = mount(
         await wrapTestComponent('sw-extension-my-extensions-index', {
             sync: true,
@@ -28,10 +28,16 @@ async function createWrapper() {
                 },
                 mocks: {
                     $route: {
+                        name: 'sw.extension.my-extensions.listing.app',
+                        params: {},
                         query: {
                             term: '',
                             limit: 5,
                         },
+                    },
+                    $router: {
+                        push: routerPush,
+                        replace: jest.fn(),
                     },
                 },
             },
@@ -94,5 +100,30 @@ describe('module/sw-extension/page/sw-extension-my-extensions-index', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.find('.sw-extension-file-upload').exists()).toBe(false);
+    });
+
+    it('should pass route tab items to sw-meteor-page', async () => {
+        const routerPush = jest.fn();
+        const wrapper = await createWrapper({ routerPush });
+        const page = wrapper.getComponent('.sw-extension-store-purchased');
+        const items = page.props('tabItems');
+
+        expect(items.map((item) => item.name)).toEqual([
+            'sw.extension.my-extensions.listing.app',
+            'sw.extension.my-extensions.listing.theme',
+            'sw.extension.my-extensions.recommendation',
+            'sw.extension.my-extensions.account',
+        ]);
+
+        items[1].onClick();
+
+        expect(routerPush).toHaveBeenCalledWith({
+            name: 'sw.extension.my-extensions.listing.theme',
+            query: {
+                term: undefined,
+                limit: 5,
+                page: 1,
+            },
+        });
     });
 });

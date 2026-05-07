@@ -5,7 +5,7 @@ import { nextTick } from 'vue';
  * @sw-package checkout
  */
 
-async function createWrapper(order = {}) {
+async function createWrapper(order = {}, { route, routerPush } = {}) {
     const repositoryFactoryMock = {
         search: () => Promise.resolve([]),
         hasChanges: () => false,
@@ -18,7 +18,8 @@ async function createWrapper(order = {}) {
     return mount(await wrapTestComponent('sw-order-detail', { sync: true }), {
         global: {
             mocks: {
-                $route: {
+                $route: route ?? {
+                    name: 'sw.order.detail.general',
                     params: {
                         id: 'order123',
                     },
@@ -41,6 +42,9 @@ async function createWrapper(order = {}) {
                             },
                         },
                     },
+                },
+                $router: {
+                    push: routerPush ?? jest.fn(),
                 },
             },
             stubs: {
@@ -66,6 +70,30 @@ async function createWrapper(order = {}) {
                 'router-view': true,
                 'sw-tabs': true,
                 'sw-tabs-item': true,
+                'mt-tabs': {
+                    template: '<div class="mt-tabs-stub"></div>',
+                    props: {
+                        items: {
+                            type: Array,
+                            required: true,
+                        },
+                        positionIdentifier: {
+                            type: String,
+                            required: false,
+                            default: null,
+                        },
+                        defaultItem: {
+                            type: String,
+                            required: false,
+                            default: null,
+                        },
+                        routeTabs: {
+                            type: Boolean,
+                            required: false,
+                            default: false,
+                        },
+                    },
+                },
                 'sw-language-switch': true,
                 'sw-order-leave-page-modal': true,
                 'sw-order-save-changes-beforehand-modal': true,
@@ -87,6 +115,10 @@ async function createWrapper(order = {}) {
 
 describe('src/module/sw-order/page/sw-order-detail', () => {
     let wrapper;
+
+    beforeEach(() => {
+        global.activeFeatureFlags = [];
+    });
 
     it('should remove version id when beforeunload event is triggered', async () => {
         wrapper = await createWrapper();
@@ -121,6 +153,68 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         await nextTick();
 
         expect(wrapper.find('.sw-order-detail__manual-order-label').exists()).toBeTruthy();
+    });
+
+    it('should render route-backed Meteor tabs when the feature is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const routerPush = jest.fn();
+
+        wrapper = await createWrapper(
+            {},
+            {
+                routerPush,
+                route: {
+                    name: 'sw.order.detail.documents',
+                    params: {
+                        id: 'order123',
+                    },
+                    meta: {
+                        $module: {
+                            routes: {
+                                detail: {
+                                    children: [
+                                        { name: 'sw.order.detail.general' },
+                                        { name: 'sw.order.detail.details' },
+                                        { name: 'sw.order.detail.documents' },
+                                    ],
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        );
+        await wrapper.setData({ hasOrderDeepEdit: true });
+
+        const tabs = wrapper.getComponent('.mt-tabs-stub');
+        const items = tabs.props('items');
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-order-detail');
+        expect(tabs.props('defaultItem')).toBe('sw.order.detail.documents');
+        expect(tabs.props('routeTabs')).toBe(true);
+        expect(items).toEqual([
+            expect.objectContaining({
+                label: 'sw-order.detail.tabGeneral',
+                name: 'sw.order.detail.general',
+            }),
+            expect.objectContaining({
+                label: 'sw-order.detail.tabDetails',
+                name: 'sw.order.detail.details',
+            }),
+            expect.objectContaining({
+                label: 'sw-order.detail.tabDocuments',
+                name: 'sw.order.detail.documents',
+                badge: 'warning',
+            }),
+        ]);
+
+        items[1].onClick();
+
+        expect(routerPush).toHaveBeenCalledWith({
+            name: 'sw.order.detail.details',
+            params: { id: 'order123' },
+        });
     });
 
     it('should created a new version when component was created', async () => {

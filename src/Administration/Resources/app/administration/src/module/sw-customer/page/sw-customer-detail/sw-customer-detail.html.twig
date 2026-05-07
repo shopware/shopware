@@ -123,7 +123,17 @@
             {% endblock %}
 
             {% block sw_customer_detail_content_tabs %}
+            <mt-tabs
+                v-if="useMeteorTabs"
+                class="sw-customer-detail-page__tabs"
+                position-identifier="sw-customer-detail-tabs"
+                :items="tabItems"
+                :default-item="activeTab"
+                route-tabs
+            />
+
             <sw-tabs
+                v-else
                 class="sw-customer-detail-page__tabs"
                 position-identifier="sw-customer-detail-tabs"
             >

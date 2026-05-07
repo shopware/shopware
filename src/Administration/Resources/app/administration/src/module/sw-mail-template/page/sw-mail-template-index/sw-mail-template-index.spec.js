@@ -4,7 +4,7 @@
 
 import { mount } from '@vue/test-utils';
 
-const createWrapper = async () => {
+const createWrapper = async ({ route, routerPush } = {}) => {
     return mount(
         await wrapTestComponent('sw-mail-template-index', {
             sync: true,
@@ -16,10 +16,16 @@ const createWrapper = async () => {
                 },
                 mocks: {
                     $route: {
+                        name: route?.name ?? 'sw.mail.template.index.templates',
+                        params: route?.params ?? {},
                         query: {
                             page: 1,
                             limit: 25,
+                            ...(route?.query ?? {}),
                         },
+                    },
+                    $router: {
+                        push: routerPush ?? jest.fn(),
                     },
                 },
                 stubs: {
@@ -47,6 +53,28 @@ const createWrapper = async () => {
                     'sw-mail-header-footer-list': true,
                     'sw-tabs': true,
                     'sw-tabs-item': true,
+                    'mt-tabs': {
+                        name: 'mt-tabs',
+                        props: {
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                default: null,
+                            },
+                            defaultItem: {
+                                type: String,
+                                default: '',
+                            },
+                            routeTabs: {
+                                type: Boolean,
+                                default: false,
+                            },
+                        },
+                        template: '<div class="mt-tabs-stub"></div>',
+                    },
                     'router-view': true,
                     'sw-button-group': {
                         template: `
@@ -60,6 +88,10 @@ const createWrapper = async () => {
 };
 
 describe('modules/sw-mail-template/page/sw-mail-template-index', () => {
+    beforeEach(() => {
+        global.activeFeatureFlags = [];
+    });
+
     it('should not allow to create', async () => {
         const wrapper = await createWrapper();
 
@@ -110,7 +142,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-index', () => {
      */
     describe('with v6.8.0.0 feature flag', () => {
         beforeEach(() => {
-            global.activeFeatureFlags = ['v6.8.0.0'];
+            global.activeFeatureFlags = ['V6_8_0_0'];
         });
 
         afterEach(() => {
@@ -120,10 +152,35 @@ describe('modules/sw-mail-template/page/sw-mail-template-index', () => {
         it('should render tabs with router-view instead of lists', async () => {
             const wrapper = await createWrapper();
 
-            expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(true);
+            expect(wrapper.find('.mt-tabs-stub').exists()).toBe(true);
             expect(wrapper.findComponent({ name: 'router-view' }).exists()).toBe(true);
             expect(wrapper.findComponent({ name: 'sw-mail-template-list' }).exists()).toBe(false);
             expect(wrapper.findComponent({ name: 'sw-mail-header-footer-list' }).exists()).toBe(false);
+        });
+
+        it('should render route-backed mt-tabs', async () => {
+            const routerPush = jest.fn();
+            const wrapper = await createWrapper({ routerPush });
+
+            const tabs = wrapper.getComponent('.mt-tabs-stub');
+            expect(tabs.props('positionIdentifier')).toBe('sw-mail-template-index');
+            expect(tabs.props('defaultItem')).toBe('sw.mail.template.index.templates');
+            expect(tabs.props('routeTabs')).toBe(true);
+
+            const items = tabs.props('items');
+            expect(items).toEqual([
+                expect.objectContaining({
+                    label: 'sw-mail-template.list.tabMailTemplates',
+                    name: 'sw.mail.template.index.templates',
+                }),
+                expect.objectContaining({
+                    label: 'sw-mail-template.list.tabHeaderFooter',
+                    name: 'sw.mail.template.index.header_footer',
+                }),
+            ]);
+
+            items[1].onClick();
+            expect(routerPush).toHaveBeenCalledWith({ name: 'sw.mail.template.index.header_footer' });
         });
     });
 });

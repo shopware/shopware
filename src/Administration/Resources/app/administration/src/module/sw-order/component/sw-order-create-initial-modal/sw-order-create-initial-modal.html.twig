@@ -9,6 +9,7 @@
     <template #default>
         {% block sw_order_create_modal_tabs %}
         <sw-tabs
+            v-if="!useMeteorTabs"
             class="sw-order-create-initial-modal__tabs"
             default-item="customer"
             position-identifier="sw-order-create-initial-modal"
@@ -87,6 +88,55 @@
                 {% endblock %}
             </template>
         </sw-tabs>
+
+        <template v-else>
+            {% block sw_order_create_modal_meteor_tabs %}
+            <mt-tabs
+                class="sw-order-create-initial-modal__tabs"
+                position-identifier="sw-order-create-initial-modal"
+                :items="tabItems"
+                :default-item="activeTab"
+                @new-item-active="setActiveTab"
+                @extension-item-active="setActiveTab"
+            />
+            {% endblock %}
+
+            {% block sw_order_create_modal_meteor_tabs_content %}
+            <div class="sw-order-create-initial-modal__content">
+                {% block sw_order_create_modal_meteor_tabs_content_customer %}
+                <div v-show="activeTab === 'customer'">
+                    <sw-order-customer-grid />
+                </div>
+                {% endblock %}
+
+                {% block sw_order_create_modal_meteor_tabs_content_products %}
+                <sw-order-line-items-grid-sales-channel
+                    v-show="activeTab === 'products'"
+                    :is-loading="isProductGridLoading"
+                    :sales-channel-id="salesChannelId"
+                    :cart="cart"
+                    :currency="currency"
+                    :is-customer-active="isCustomerActive"
+                    @on-save-item="onSaveItem"
+                    @on-remove-items="onRemoveItems"
+                />
+                {% endblock %}
+
+                {% block sw_order_create_modal_meteor_tabs_content_options %}
+                <sw-order-create-options
+                    v-show="activeTab === 'options'"
+                    :disabled="!customer || undefined"
+                    :disabled-auto-promotion="disabledAutoPromotion"
+                    :promotion-codes="promotionCodes"
+                    :context="context"
+                    @promotions-change="updatePromotion"
+                    @auto-promotion-toggle="updateAutoPromotionToggle"
+                    @shipping-cost-change="updateShippingCost"
+                />
+                {% endblock %}
+            </div>
+            {% endblock %}
+        </template>
         {% endblock %}
     </template>
 

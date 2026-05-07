@@ -27,6 +27,29 @@ async function createWrapper() {
                 'sw-modal': await wrapTestComponent('sw-modal'),
                 'sw-tabs': true,
                 'sw-tabs-item': true,
+                'mt-tabs': {
+                    name: 'mt-tabs',
+                    props: {
+                        items: {
+                            type: Array,
+                            required: true,
+                        },
+                        positionIdentifier: {
+                            type: String,
+                            default: null,
+                        },
+                        defaultItem: {
+                            type: String,
+                            default: '',
+                        },
+                        vertical: {
+                            type: Boolean,
+                            default: false,
+                        },
+                    },
+                    emits: ['new-item-active'],
+                    template: '<div class="mt-tabs-stub"></div>',
+                },
                 'sw-product-variants-delivery-order': true,
                 'sw-product-variants-delivery-media': true,
                 'sw-product-variants-delivery-listing': true,
@@ -38,6 +61,28 @@ async function createWrapper() {
 }
 
 describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-delivery', () => {
+    beforeEach(() => {
+        global.activeFeatureFlags = [];
+    });
+
+    it('should render vertical mt-tabs when the major feature flag is enabled', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+        const wrapper = await createWrapper();
+
+        const tabs = wrapper.getComponent('.mt-tabs-stub');
+        expect(tabs.props('positionIdentifier')).toBe('sw-product-modal-delivery');
+        expect(tabs.props('defaultItem')).toBe('order');
+        expect(tabs.props('vertical')).toBe(true);
+        expect(tabs.props('items')).toEqual([
+            expect.objectContaining({ label: 'sw-product.variations.deliveryModal.order', name: 'order' }),
+            expect.objectContaining({ label: 'sw-product.variations.deliveryModal.media', name: 'media' }),
+            expect.objectContaining({ label: 'sw-product.variations.deliveryModal.listing', name: 'listing' }),
+        ]);
+
+        await tabs.vm.$emit('new-item-active', 'media');
+        expect(wrapper.vm.activeTab).toBe('media');
+    });
+
     it('should have an disabled save button', async () => {
         global.activeAclRoles = [];
         const wrapper = await createWrapper();

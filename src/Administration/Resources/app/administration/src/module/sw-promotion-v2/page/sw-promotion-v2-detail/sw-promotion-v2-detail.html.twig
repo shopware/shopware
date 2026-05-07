@@ -63,8 +63,17 @@
             {% endblock %}
 
             {% block sw_promotion_v2_detail_content_tabs %}
+            <mt-tabs
+                v-if="!isCreateMode && useMeteorTabs"
+                class="sw-promotion-v2-detail-page__tabs"
+                position-identifier="sw-promotion-detail"
+                :items="tabItems"
+                :default-item="activeTab"
+                route-tabs
+            />
+
             <sw-tabs
-                v-if="!isCreateMode"
+                v-else-if="!isCreateMode"
                 class="sw-promotion-v2-detail-page__tabs"
                 position-identifier="sw-promotion-detail"
             >

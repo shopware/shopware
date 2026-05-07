@@ -55,6 +55,61 @@ export default {
             return this.type === 'custom_entity';
         },
 
+        useMeteorTabs() {
+            return Shopware.Feature.isActive('V6_8_0_0');
+        },
+
+        activeTab() {
+            const itemNames = this.tabItems.map((tabItem) => tabItem.name);
+
+            if (itemNames.includes(this.$route.name)) {
+                return this.$route.name;
+            }
+
+            return itemNames[0] ?? 'sw.category.detail.base';
+        },
+
+        tabItems() {
+            const items = [
+                this.createTabItem(
+                    'sw-category.view.general',
+                    { name: 'sw.category.detail.base' },
+                    {
+                        hasError: this.swCategoryViewError,
+                    },
+                ),
+            ];
+
+            if (this.isPage && !this.isCustomEntity) {
+                items.push(this.createTabItem('sw-category.view.products', { name: 'sw.category.detail.products' }));
+            }
+
+            if (this.isCustomEntity) {
+                items.push(this.createTabItem('sw-category.view.customEntity', { name: 'sw.category.detail.customEntity' }));
+            }
+
+            if (this.cmsPage || this.isPage) {
+                items.push(this.createTabItem('sw-category.view.cms', { name: 'sw.category.detail.cms' }));
+            }
+
+            if (this.isPage) {
+                items.push(this.createTabItem('sw-category.view.seo', { name: 'sw.category.detail.seo' }));
+            }
+
+            return items;
+        },
+
         ...mapPageErrors(errorConfig),
+    },
+
+    methods: {
+        createTabItem(label, route, additionalProperties = {}) {
+            return {
+                label: this.$t(label),
+                name: route.name,
+                onClick: () => this.$router.push(route),
+                ...additionalProperties,
+            };
+        },
     },
 };

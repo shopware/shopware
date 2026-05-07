@@ -129,6 +129,39 @@ export default {
             return this.isOrderEditing && this.$route.name === 'sw.order.detail.documents';
         },
 
+        useMeteorTabs() {
+            return Shopware.Feature.isActive('V6_8_0_0');
+        },
+
+        activeTab() {
+            return this.$route.name ?? 'sw.order.detail.general';
+        },
+
+        tabItems() {
+            const generalRoute = this.getOrderTabRoute('sw.order.detail.general');
+            const detailsRoute = this.getOrderTabRoute('sw.order.detail.details');
+            const documentsRoute = this.getOrderTabRoute('sw.order.detail.documents');
+
+            return [
+                {
+                    label: this.$t('sw-order.detail.tabGeneral'),
+                    name: generalRoute.name,
+                    onClick: () => this.$router.push(generalRoute),
+                },
+                {
+                    label: this.$t('sw-order.detail.tabDetails'),
+                    name: detailsRoute.name,
+                    onClick: () => this.$router.push(detailsRoute),
+                },
+                {
+                    label: this.$t('sw-order.detail.tabDocuments'),
+                    name: documentsRoute.name,
+                    badge: this.isOrderEditing ? 'warning' : undefined,
+                    onClick: () => this.$router.push(documentsRoute),
+                },
+            ];
+        },
+
         isOrderEditing() {
             return this.orderChanges || this.hasOrderDeepEdit || this.orderAddressIds?.length > 0;
         },
@@ -263,6 +296,13 @@ export default {
                     false,
                 ]);
             });
+        },
+
+        getOrderTabRoute(name) {
+            return {
+                name,
+                params: { id: this.$route.params.id },
+            };
         },
 
         async beforeDestroyComponent() {

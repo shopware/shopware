@@ -100,7 +100,28 @@ async function createWrapper() {
                     'router-link': true,
                     'router-view': true,
                     'sw-skeleton': true,
-                    'mt-tabs': true,
+                    'mt-tabs': {
+                        name: 'mt-tabs',
+                        props: {
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                default: null,
+                            },
+                            defaultItem: {
+                                type: String,
+                                default: '',
+                            },
+                            routeTabs: {
+                                type: Boolean,
+                                default: false,
+                            },
+                        },
+                        template: '<div class="mt-tabs-stub"></div>',
+                    },
                     'sw-extension-component-section': true,
                 },
             },
@@ -112,6 +133,37 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
     beforeEach(async () => {
         Shopware.Application.view.deleteReactive = () => {};
         global.activeAclRoles = [];
+        global.activeFeatureFlags = [];
+    });
+
+    it('should render route-backed mt-tabs when the major feature flag is enabled', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper();
+        const routerPush = jest.spyOn(wrapper.vm.$router, 'push').mockResolvedValue();
+        wrapper.vm.getProductSearchConfigs = jest.fn();
+        await wrapper.vm.$nextTick();
+
+        const tabs = wrapper.getComponent('.mt-tabs-stub');
+        expect(tabs.props('positionIdentifier')).toBe('sw-settings-search-header');
+        expect(tabs.props('defaultItem')).toBe('sw.settings.search.index.general');
+        expect(tabs.props('routeTabs')).toBe(true);
+
+        const items = tabs.props('items');
+        expect(items).toEqual([
+            expect.objectContaining({
+                label: 'sw-settings-search.page.generalTab',
+                name: 'sw.settings.search.index.general',
+            }),
+            expect.objectContaining({
+                label: 'sw-settings-search.page.liveSearchTab',
+                name: 'sw.settings.search.index.liveSearch',
+            }),
+        ]);
+
+        items[0].onClick();
+        expect(wrapper.vm.getProductSearchConfigs).toHaveBeenCalledTimes(1);
+        expect(routerPush).toHaveBeenCalledWith({ name: 'sw.settings.search.index.general' });
     });
 
     it('should not able to save product search config without editor privilege', async () => {

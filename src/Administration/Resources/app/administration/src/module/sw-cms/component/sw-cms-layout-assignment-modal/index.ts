@@ -57,6 +57,8 @@ export default Shopware.Component.wrapComponentConfig({
             hasLandingPagesWithAssignedLayouts: false,
             previousProducts: [] as Entity<'product'>[],
             previousProductIds: [] as string[],
+            activeTab: 'categories',
+            activeTabIsExtension: false,
             categoryIndex: 1,
             isCategoriesLoading: false,
         };
@@ -143,6 +145,61 @@ export default Shopware.Component.wrapComponentConfig({
             return this.page.type === 'product_detail';
         },
 
+        useMeteorTabs() {
+            return Shopware.Feature.isActive('V6_8_0_0');
+        },
+
+        tabItems() {
+            const items: Array<{ label: string; name: string; disabled?: boolean }> = [];
+
+            if (this.page.type === 'page' || this.page.type === 'landingpage') {
+                items.push({
+                    label: this.$t('sw-cms.components.cmsLayoutAssignmentModal.tabCategories'),
+                    name: 'categories',
+                });
+            }
+
+            if (this.page.type === 'page') {
+                items.push({
+                    label: this.$t('sw-cms.components.cmsLayoutAssignmentModal.tabShopPages'),
+                    name: 'shop_pages',
+                    disabled: !this.acl.can('system.system_config'),
+                });
+            }
+
+            if (this.page.type === 'landingpage') {
+                items.push({
+                    label: this.$t('sw-cms.components.cmsLayoutAssignmentModal.tabLandingPages'),
+                    name: 'landing_pages',
+                    disabled: !this.acl.can('system.system_config'),
+                });
+            }
+
+            return items;
+        },
+
+        currentActiveTab() {
+            if (this.activeTabIsExtension) {
+                return null;
+            }
+
+            if (this.tabItems.length <= 0) {
+                return this.activeTab;
+            }
+
+            const activeTabExists = this.tabItems.some((item) => item.name === this.activeTab);
+
+            return activeTabExists ? this.activeTab : this.tabItems[0]?.name;
+        },
+
+        activeTabItemName() {
+            return this.activeTabIsExtension ? this.activeTab : this.currentActiveTab;
+        },
+
+        hasActiveExtensionTab() {
+            return this.useMeteorTabs && this.activeTabIsExtension;
+        },
+
         assetFilter() {
             return Shopware.Filter.getByName('asset');
         },
@@ -172,6 +229,16 @@ export default Shopware.Component.wrapComponentConfig({
 
         onModalClose(saveAfterClose = false) {
             this.$emit('modal-close', saveAfterClose);
+        },
+
+        setActiveTab(tabName: string) {
+            this.activeTabIsExtension = false;
+            this.activeTab = tabName;
+        },
+
+        setActiveExtensionTab(tabName: string) {
+            this.activeTabIsExtension = true;
+            this.activeTab = tabName;
         },
 
         saveShopPages() {

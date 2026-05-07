@@ -51,7 +51,37 @@
 
     <template #content>
         <sw-card-view>
+            <template v-if="useMeteorTabs">
+                <mt-tabs
+                    class="sw-flow-list__tab"
+                    position-identifier="sw-flow-listing"
+                    :items="tabItems"
+                    :default-item="activeTab"
+                    :small="false"
+                    route-tabs
+                />
+
+                <template v-if="isLoading">
+                    <sw-skeleton />
+                    <sw-skeleton />
+                </template>
+
+                <template v-else>
+                    <router-view
+                        v-slot="{ Component }"
+                    >
+                        <component
+                            :is="Component"
+                            :is-loading="isLoading"
+                            :search-term="term"
+                            @on-update-total="onUpdateTotalFlow"
+                        />
+                    </router-view>
+                </template>
+            </template>
+
             <sw-tabs
+                v-else
                 class="sw-flow-list__tab"
                 position-identifier="sw-flow-listing"
                 :small="false"

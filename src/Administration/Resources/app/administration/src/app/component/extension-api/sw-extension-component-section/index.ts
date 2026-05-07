@@ -1,4 +1,5 @@
 import type { ComponentSectionEntry } from 'src/app/store/extension-component-sections.store';
+import type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/MtTabs';
 import template from './sw-extension-component-section.html.twig';
 
 /**
@@ -50,6 +51,10 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
+        useMeteorTabs(): boolean {
+            return Shopware.Feature.isActive('V6_8_0_0');
+        },
+
         componentSections(): ComponentSectionEntry[] {
             const sections = Shopware.Store.get('extensionComponentSections').identifier[this.positionIdentifier] ?? [];
             if (sections.length && this.deprecated) {
@@ -80,6 +85,19 @@ export default Shopware.Component.wrapComponentConfig({
     methods: {
         setActiveTab(name: string) {
             this.activeTabName = name;
+        },
+
+        getTabItems(componentSection: ComponentSectionEntry): TabItem[] {
+            if (!('tabs' in componentSection.props)) {
+                return [];
+            }
+
+            return (componentSection.props.tabs ?? []).map((tab) => {
+                return {
+                    label: this.$t(tab.label ?? ''),
+                    name: tab.name,
+                };
+            });
         },
 
         getActiveTab(componentSection: ComponentSectionEntry) {

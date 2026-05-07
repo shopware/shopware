@@ -3,7 +3,7 @@ import { mount } from '@vue/test-utils';
 /**
  * @sw-package after-sales
  */
-async function createWrapper(privileges = []) {
+async function createWrapper(privileges = [], { routeName = 'sw.flow.index.flows', routerPush = jest.fn() } = {}) {
     return mount(
         await wrapTestComponent('sw-flow-index', {
             sync: true,
@@ -12,10 +12,14 @@ async function createWrapper(privileges = []) {
             global: {
                 mocks: {
                     $route: {
+                        name: routeName,
                         query: {
                             page: 1,
                             limit: 25,
                         },
+                    },
+                    $router: {
+                        push: routerPush,
                     },
                 },
                 stubs: {
@@ -35,9 +39,41 @@ async function createWrapper(privileges = []) {
             `,
                     },
                     'sw-search-bar': true,
-                    'sw-card-view': true,
+                    'sw-card-view': {
+                        template: '<div class="sw-card-view"><slot></slot></div>',
+                    },
                     'sw-tabs': true,
                     'sw-tabs-item': true,
+                    'mt-tabs': {
+                        name: 'mt-tabs',
+                        template: '<div class="mt-tabs-stub"></div>',
+                        props: {
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: false,
+                                default: null,
+                            },
+                            defaultItem: {
+                                type: String,
+                                required: false,
+                                default: null,
+                            },
+                            small: {
+                                type: Boolean,
+                                required: false,
+                                default: true,
+                            },
+                            routeTabs: {
+                                type: Boolean,
+                                required: false,
+                                default: false,
+                            },
+                        },
+                    },
                     'sw-skeleton': true,
                     'router-view': true,
                     'sw-extension-teaser-popover': true,
@@ -83,6 +119,10 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-flow/page/sw-flow-index', () => {
+    beforeEach(() => {
+        global.activeFeatureFlags = [];
+    });
+
     it('should be able to create a flow', async () => {
         const wrapper = await createWrapper([
             'flow.creator',
@@ -105,5 +145,31 @@ describe('module/sw-flow/page/sw-flow-index', () => {
         await flushPromises();
 
         expect(wrapper.find('.sw-page__smart-bar-amount').text()).toBe('(20)');
+    });
+
+    it('should render flow listing route tabs with mt-tabs', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const routerPush = jest.fn();
+        const wrapper = await createWrapper([], {
+            routeName: 'sw.flow.index.templates',
+            routerPush,
+        });
+
+        const tabs = wrapper.findComponent({ name: 'mt-tabs' });
+        const items = tabs.props('items');
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-flow-listing');
+        expect(tabs.props('defaultItem')).toBe('sw.flow.index.templates');
+        expect(tabs.props('small')).toBe(false);
+        expect(tabs.props('routeTabs')).toBe(true);
+        expect(items.map((item) => item.name)).toEqual([
+            'sw.flow.index.flows',
+            'sw.flow.index.templates',
+        ]);
+
+        items[0].onClick();
+
+        expect(routerPush).toHaveBeenCalledWith({ name: 'sw.flow.index.flows' });
     });
 });

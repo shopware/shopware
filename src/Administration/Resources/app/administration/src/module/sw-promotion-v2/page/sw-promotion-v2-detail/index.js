@@ -74,6 +74,42 @@ export default {
             return this.$route.name === 'sw.promotion.v2.create.base';
         },
 
+        useMeteorTabs() {
+            return Shopware.Feature.isActive('V6_8_0_0');
+        },
+
+        activeTab() {
+            return this.$route.name ?? 'sw.promotion.v2.detail.base';
+        },
+
+        tabItems() {
+            const baseRoute = this.getPromotionTabRoute('sw.promotion.v2.detail.base');
+            const conditionsRoute = this.getPromotionTabRoute('sw.promotion.v2.detail.conditions');
+            const discountsRoute = this.getPromotionTabRoute('sw.promotion.v2.detail.discounts');
+
+            return [
+                {
+                    label: this.$t('sw-promotion-v2.detail.tabs.tabGeneral'),
+                    name: baseRoute.name,
+                    hasError: this.swPromotionV2DetailBaseError,
+                    disabled: !this.promotionId,
+                    onClick: () => this.$router.push(baseRoute),
+                },
+                {
+                    label: this.$t('sw-promotion-v2.detail.tabs.tabConditions'),
+                    name: conditionsRoute.name,
+                    disabled: !this.promotionId,
+                    onClick: () => this.$router.push(conditionsRoute),
+                },
+                {
+                    label: this.$t('sw-promotion-v2.detail.tabs.tabDiscounts'),
+                    name: discountsRoute.name,
+                    disabled: !this.promotionId,
+                    onClick: () => this.$router.push(discountsRoute),
+                },
+            ];
+        },
+
         promotionCriteria() {
             const criteria = new Criteria(1, 1)
                 .addAssociation('discounts.promotionDiscountPrices')
@@ -161,6 +197,13 @@ export default {
             ];
 
             this.loadEntityData();
+        },
+
+        getPromotionTabRoute(name) {
+            return {
+                name,
+                params: { id: this.$route.params.id },
+            };
         },
 
         loadEntityData() {

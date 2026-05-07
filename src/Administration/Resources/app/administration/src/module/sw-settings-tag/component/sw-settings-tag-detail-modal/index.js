@@ -72,6 +72,23 @@ export default {
     },
 
     computed: {
+        useMeteorTabs() {
+            return Shopware.Feature.isActive('V6_8_0_0');
+        },
+
+        tabItems() {
+            return [
+                {
+                    label: this.$t('sw-settings-tag.detail.generalTab'),
+                    name: 'general',
+                },
+                {
+                    label: this.$t('sw-settings-tag.detail.assignmentsTab'),
+                    name: 'assignments',
+                },
+            ];
+        },
+
         tagRepository() {
             return this.repositoryFactory.create('tag');
         },
@@ -145,6 +162,10 @@ export default {
     },
 
     methods: {
+        setActiveTab(tabName) {
+            this.initialTab = tabName;
+        },
+
         createdComponent() {
             if (this.editedTag) {
                 this.tag = Object.assign(this.tagRepository.create(), this.editedTag);

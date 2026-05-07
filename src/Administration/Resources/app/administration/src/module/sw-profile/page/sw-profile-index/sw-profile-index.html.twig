@@ -32,6 +32,7 @@
         <sw-card-view>
             {% block sw_profile_index_tabs %}
             <sw-tabs
+                v-if="!useMeteorTabs"
                 position-identifier="sw-profile-index"
             >
                 {% block sw_profile_index_tabs_item_general %}
@@ -59,6 +60,14 @@
                     {{ $t('sw-profile.tabPrivacyPreferences.title') }}
                 </sw-tabs-item>
             </sw-tabs>
+
+            <mt-tabs
+                v-else
+                position-identifier="sw-profile-index"
+                :items="tabItems"
+                :default-item="activeTab"
+                route-tabs
+            />
             {% endblock %}
 
             {% block sw_profile_index_router_view %}

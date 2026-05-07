@@ -61,10 +61,44 @@ async function createWrapper(privileges = []) {
                 'mt-card': {
                     template: `
                     <div class="mt-card">
+                        <slot name="tabs"></slot>
                         <slot name="grid"></slot>
                         <slot></slot>
                     </div>
                 `,
+                },
+                'mt-tabs': {
+                    template: '<div class="mt-tabs-stub"></div>',
+                    props: {
+                        items: {
+                            type: Array,
+                            required: true,
+                        },
+                        positionIdentifier: {
+                            type: String,
+                            required: false,
+                            default: null,
+                        },
+                        defaultItem: {
+                            type: String,
+                            required: false,
+                            default: null,
+                        },
+                        renderExtensionContent: {
+                            type: Boolean,
+                            required: false,
+                            default: true,
+                        },
+                        small: {
+                            type: Boolean,
+                            required: false,
+                            default: true,
+                        },
+                    },
+                    emits: [
+                        'new-item-active',
+                        'extension-item-active',
+                    ],
                 },
                 'sw-data-grid': {
                     props: ['dataSource'],
@@ -86,6 +120,10 @@ async function createWrapper(privileges = []) {
                 'sw-product-modal-variant-generation': true,
                 'sw-product-modal-delivery': true,
                 'sw-product-add-properties-modal': true,
+                'sw-extension-component-section': {
+                    template: '<div class="sw-extension-component-section-stub"></div>',
+                    props: ['positionIdentifier'],
+                },
             },
         },
     });
@@ -196,6 +234,55 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
             store.creationStates = 'is-physical';
         }
         store.creationType = 'physical';
+    });
+
+    beforeEach(() => {
+        global.activeFeatureFlags = [];
+    });
+
+    it('should render meteor tabs when the feature flag is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper();
+        await wrapper.setData({
+            isLoading: false,
+            propertiesAvailable: true,
+            variantListHasContent: true,
+        });
+
+        const tabs = wrapper.getComponent('.mt-tabs-stub');
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-variant-card-tabs');
+        expect(tabs.props('defaultItem')).toBe('all');
+        expect(tabs.props('renderExtensionContent')).toBe(false);
+        expect(tabs.props('small')).toBe(false);
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'sw-product.variations.variationCard.tabs.allProducts',
+                name: 'all',
+            },
+            {
+                label: 'sw-product.variations.variationCard.tabs.physicalProducts',
+                name: 'physical',
+            },
+            {
+                label: 'sw-product.variations.variationCard.tabs.digitalProducts',
+                name: 'digital',
+            },
+        ]);
+
+        await tabs.vm.$emit('new-item-active', 'digital');
+
+        expect(wrapper.vm.activeTab).toBe('digital');
+
+        await tabs.vm.$emit('extension-item-active', 'extension-tab');
+
+        expect(wrapper.vm.activeTab).toBe('extension-tab');
+        expect(wrapper.vm.hasActiveExtensionTab).toBe(true);
+        expect(wrapper.getComponent('.sw-extension-component-section-stub').props('positionIdentifier')).toBe(
+            'extension-tab',
+        );
+        expect(wrapper.find('sw-product-variants-overview-stub').exists()).toBe(false);
     });
 
     it('should display a customized empty state if there are neither variants nor properties', async () => {

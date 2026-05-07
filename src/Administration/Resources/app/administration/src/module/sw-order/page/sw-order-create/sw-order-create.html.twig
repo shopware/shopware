@@ -57,8 +57,17 @@
         {% block sw_order_create_content_view %}
         <sw-card-view>
             {% block sw_order_create_content_tabs %}
+            <mt-tabs
+                v-if="!showInitialModal && useMeteorTabs"
+                class="sw-order-create__tabs"
+                position-identifier="sw-order-create"
+                :items="tabItems"
+                :default-item="activeTab"
+                route-tabs
+            />
+
             <sw-tabs
-                v-if="!showInitialModal"
+                v-else-if="!showInitialModal"
                 class="sw-order-create__tabs"
                 position-identifier="sw-order-create"
             >

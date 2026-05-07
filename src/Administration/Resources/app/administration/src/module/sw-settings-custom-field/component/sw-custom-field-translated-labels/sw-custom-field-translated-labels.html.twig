@@ -21,6 +21,41 @@
     {% endblock %}
 
     {% block sw_custom_field_translated_labels_translated %}
+    <template v-else-if="useMeteorTabs">
+        {% block sw_custom_field_translated_labels_meteor_tabs %}
+        <mt-tabs
+            variant="minimal"
+            position-identifier="sw-custom-field-translated-labels"
+            class="sw-custom-field-translated-labels__tabs"
+            :items="tabItems"
+            :default-item="activeTabItemName"
+            @new-item-active="setActiveTab"
+            @extension-item-active="setActiveExtensionTab"
+        />
+        {% endblock %}
+
+        {% block sw_custom_field_translated_labels_meteor_content %}
+        <template
+            v-for="locale in locales"
+            :key="locale"
+        >
+            <div v-if="currentActiveTab === locale">
+                {% block sw_custom_field_translated_labels_meteor_content_field %}
+                <mt-text-field
+                    v-for="(label, name) in propertyNames"
+                    :key="getInlineSnippet(name)"
+                    v-model="config[name][locale]"
+                    class="sw-custom-field-translated-labels__translated-content-field"
+                    :disabled="disabled"
+                    :label="getLabel(label, locale)"
+                    @update:model-value="onInput($event, name, locale)"
+                />
+                {% endblock %}
+            </div>
+        </template>
+        {% endblock %}
+    </template>
+
     <sw-tabs
         v-else
         variant="minimal"

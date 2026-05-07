@@ -83,6 +83,14 @@ export default {
             },
         },
 
+        useMeteorTabs() {
+            return Shopware.Feature.isActive('V6_8_0_0');
+        },
+
+        activeTab() {
+            return this.$route.name ?? this.generalRoute.name;
+        },
+
         defaultCriteria() {
             const criteria = new Criteria(1, 25);
             criteria
@@ -129,6 +137,27 @@ export default {
                 params: { id: this.customerId },
                 query: { edit: this.editMode },
             };
+        },
+
+        tabItems() {
+            return [
+                {
+                    label: this.$t('sw-customer.detail.tabGeneral'),
+                    name: this.generalRoute.name,
+                    hasError: this.swCustomerDetailBaseError,
+                    onClick: () => this.$router.push(this.generalRoute),
+                },
+                {
+                    label: this.$t('sw-customer.detail.tabAddresses'),
+                    name: this.addressesRoute.name,
+                    onClick: () => this.$router.push(this.addressesRoute),
+                },
+                {
+                    label: this.$t('sw-customer.detailBase.labelOrderCard'),
+                    name: this.ordersRoute.name,
+                    onClick: () => this.$router.push(this.ordersRoute),
+                },
+            ];
         },
 
         emailHasChanged() {

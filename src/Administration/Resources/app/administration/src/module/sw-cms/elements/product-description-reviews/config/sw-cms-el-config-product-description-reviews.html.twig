@@ -2,6 +2,7 @@
 <div class="sw-cms-el-config-product-description-reviews-rating">
     {% block sw_cms_element_product_description_reviews_config_tabs %}
     <sw-tabs
+        v-if="!useMeteorTabs"
         position-identifier="sw-cms-element-product-description-reviews"
         class="sw-cms-el-config-product-description-reviews__tabs"
         default-item="content"
@@ -117,6 +118,106 @@
             {% endblock %}
         </template>
     </sw-tabs>
+
+    <template v-else>
+        {% block sw_cms_element_product_description_reviews_config_meteor_tabs %}
+        <mt-tabs
+            position-identifier="sw-cms-element-product-description-reviews"
+            class="sw-cms-el-config-product-description-reviews__tabs"
+            :items="tabItems"
+            :default-item="activeTab"
+            @new-item-active="setActiveTab"
+            @extension-item-active="setActiveTab"
+        />
+        {% endblock %}
+
+        {% block sw_cms_element_product_description_reviews_config_meteor_content %}
+        <sw-container
+            v-if="activeTab === 'content'"
+            class="sw-cms-el-config-product-description-reviews-config__tab-content"
+            :columns="'minmax(300px, 1fr)'"
+        >
+            {% block sw_cms_element_product_description_reviews_meteor_warning %}
+            <mt-banner
+                v-if="isProductPage"
+                class="sw-cms-el-config-buy-box__warning"
+                variant="info"
+            >
+                {{ $t('sw-cms.elements.productDescriptionReviews.infoText.descriptionAndReviewsElement') }}
+            </mt-banner>
+            {% endblock %}
+
+            {% block sw_cms_element_product_description_reviews_config_meteor_product_select %}
+            <sw-cms-inherit-wrapper
+                v-if="!isProductPage"
+                field="product"
+                :element="element"
+                :label="$t('sw-cms.elements.productBox.config.label.selection')"
+            >
+                <template #default="{ isInherited }">
+                    <sw-entity-single-select
+                        ref="cmsProductSelection"
+                        v-model:value="element.config.product.value"
+                        entity="product"
+                        :placeholder="$t('sw-cms.elements.productBox.config.placeholder.selection')"
+                        :criteria="productCriteria"
+                        :context="productSelectContext"
+                        :disabled="isInherited"
+                        show-clearable-button
+                        @update:value="onProductChange"
+                    >
+                       {% block sw_entity_single_select_variant_selected_item_meteor %}
+                        <template #selection-label-property="{ item }">
+                            <sw-product-variant-info :variations="item.variation">
+                                {{ item.translated.name || item.name }}
+                            </sw-product-variant-info>
+                        </template>
+                       {% endblock %}
+
+                       {% block sw_entity_single_select_variant_result_item_meteor %}
+                        <template #result-item="{ item, index }">
+                            <sw-select-result v-bind="{ item, index }">
+                                   {% block sw_entity_single_select_base_results_list_result_label_meteor %}
+                                <span class="sw-select-result__result-item-text">
+                                    <sw-product-variant-info :variations="item.variation">
+                                        {{ item.translated.name || item.name }}
+                                    </sw-product-variant-info>
+                                </span>
+                                   {% endblock %}
+                            </sw-select-result>
+                        </template>
+                       {% endblock %}
+                    </sw-entity-single-select>
+                </template>
+            </sw-cms-inherit-wrapper>
+            {% endblock %}
+        </sw-container>
+        {% endblock %}
+
+        {% block sw_cms_el_product_description_rating_config_meteor_options %}
+        <sw-container
+            v-if="activeTab === 'options'"
+            class="sw-cms-el-config-text__tab-options"
+        >
+            {% block sw_cms_el_product_description_rating_config_meteor_options_alignment %}
+            <sw-cms-inherit-wrapper
+                field="alignment"
+                :element="element"
+                :label="$t('sw-cms.elements.general.config.label.alignment')"
+            >
+                <template #default="{ isInherited }">
+                    <mt-select
+                        v-model="element.config.alignment.value"
+                        :placeholder="$t('sw-cms.elements.general.config.label.alignment')"
+                        :options="alignmentOptions"
+                        :disabled="isInherited"
+                    />
+                </template>
+            </sw-cms-inherit-wrapper>
+            {% endblock %}
+        </sw-container>
+        {% endblock %}
+    </template>
     {% endblock %}
 </div>
 {% endblock %}

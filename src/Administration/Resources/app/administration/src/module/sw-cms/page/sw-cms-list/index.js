@@ -41,6 +41,7 @@ export default {
             associationLimit: 25,
             term: '',
             currentPageType: null,
+            activeTab: 'all',
             showMediaModal: false,
             currentPage: null,
             showRenameModal: false,
@@ -99,6 +100,32 @@ export default {
                 },
                 [sortByAllPagesOption],
             );
+        },
+
+        useMeteorTabs() {
+            return Shopware.Feature.isActive('V6_8_0_0');
+        },
+
+        tabItems() {
+            return this.sortPageTypes.map((pageType) => {
+                return {
+                    label: pageType.name,
+                    name: pageType.value || 'all',
+                    disabled: pageType.disabled,
+                };
+            });
+        },
+
+        activeTabItemName() {
+            if (this.hasActiveExtensionTab) {
+                return this.activeTab;
+            }
+
+            return this.currentPageType ?? 'all';
+        },
+
+        hasActiveExtensionTab() {
+            return this.useMeteorTabs && !!this.activeTab && !this.tabItems.some((item) => item.name === this.activeTab);
         },
 
         listCriteria() {
@@ -399,6 +426,15 @@ export default {
             }
 
             this.resetList();
+        },
+
+        setActiveTab(tabName) {
+            this.activeTab = tabName;
+            this.onSortPageType(tabName === 'all' ? '' : tabName);
+        },
+
+        setActiveExtensionTab(tabName) {
+            this.activeTab = tabName;
         },
 
         onPageChange({ page, limit }) {

@@ -23,6 +23,26 @@ async function createWrapper(
                 'sw-tabs': await wrapTestComponent('sw-tabs'),
                 'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                 'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+                'mt-tabs': {
+                    props: {
+                        items: {
+                            type: Array,
+                            required: true,
+                        },
+                        positionIdentifier: {
+                            type: String,
+                            required: false,
+                            default: '',
+                        },
+                        defaultItem: {
+                            type: String,
+                            required: false,
+                            default: '',
+                        },
+                    },
+                    emits: ['new-item-active'],
+                    template: '<div class="mt-tabs-stub"></div>',
+                },
                 'sw-customer-address-form': true,
                 'sw-customer-base-form': true,
                 'sw-extension-component-section': true,
@@ -115,6 +135,8 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
     let wrapper;
 
     beforeEach(async () => {
+        global.activeFeatureFlags = [];
+
         wrapper = await createWrapper();
     });
 
@@ -133,6 +155,40 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
 
         expect(customerBaseForm.exists()).toBeFalsy();
         expect(customerAddressForm.exists()).toBeTruthy();
+    });
+
+    it('should render Meteor tabs with tab items when the feature is active', async () => {
+        await wrapper.unmount();
+
+        global.activeFeatureFlags = ['V6_8_0_0'];
+        wrapper = await createWrapper();
+
+        const mtTabs = wrapper.getComponent('.mt-tabs-stub');
+
+        expect(mtTabs.props('positionIdentifier')).toBe('sw-order-new-customer-modal');
+        expect(mtTabs.props('defaultItem')).toBe('details');
+        expect(mtTabs.props('items')).toEqual([
+            expect.objectContaining({
+                label: 'sw-order.newCustomerModal.labelDetails',
+                name: 'details',
+                hasError: false,
+            }),
+            expect.objectContaining({
+                label: 'sw-order.createBase.detailsBody.labelBillingAddress',
+                name: 'billingAddress',
+                hasError: false,
+            }),
+            expect.objectContaining({
+                label: 'sw-order.createBase.detailsBody.labelShippingAddress',
+                name: 'shippingAddress',
+                hasError: false,
+            }),
+        ]);
+
+        mtTabs.vm.$emit('new-item-active', 'billingAddress');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.activeTab).toBe('billingAddress');
     });
 
     it('should override context when the sales channel does not exist language compared to the API language', async () => {

@@ -51,6 +51,29 @@ async function createWrapper(activeTab = 'content', sliderItems = []) {
                         template: '<div><slot></slot><slot name="content" v-bind="{ active }"></slot></div>',
                     },
                     'sw-tabs-item': true,
+                    'mt-tabs': {
+                        name: 'mt-tabs',
+                        props: {
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: true,
+                            },
+                            defaultItem: {
+                                type: String,
+                                required: false,
+                                default: null,
+                            },
+                        },
+                        emits: [
+                            'new-item-active',
+                            'extension-item-active',
+                        ],
+                        template: '<div class="mt-tabs-stub"></div>',
+                    },
                     'sw-select-field': {
                         template:
                             '<select class="sw-select-field" :value="value" @change="$emit(\'change\', $event.target.value)"><slot></slot></select>',
@@ -183,6 +206,43 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
     beforeAll(async () => {
         await setupCmsEnvironment();
         await import('src/module/sw-cms/elements/image-slider');
+    });
+
+    beforeEach(() => {
+        global.activeFeatureFlags = [];
+    });
+
+    it('should render Meteor tabs when the feature flag is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper('content');
+        const tabs = wrapper.getComponent('.mt-tabs-stub');
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-cms-element-config-image-slider');
+        expect(tabs.props('defaultItem')).toBe('content');
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'sw-cms.elements.general.config.tab.content',
+                name: 'content',
+            },
+            {
+                label: 'sw-cms.elements.general.config.tab.settings',
+                name: 'settings',
+            },
+        ]);
+
+        await tabs.vm.$emit('new-item-active', 'settings');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.activeTab).toBe('settings');
+        expect(wrapper.find('.sw-cms-el-config-image-slider__tab-settings').exists()).toBe(true);
+
+        await tabs.vm.$emit('extension-item-active', 'extension-tab');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.activeTab).toBe('extension-tab');
+        expect(wrapper.find('.sw-cms-el-config-image-slider__tab-content').exists()).toBe(false);
+        expect(wrapper.find('.sw-cms-el-config-image-slider__tab-settings').exists()).toBe(false);
     });
 
     it('should keep minHeight value when changing display mode', async () => {

@@ -53,6 +53,12 @@ export default {
             required: false,
             default: null,
         },
+
+        tabItems: {
+            type: Array,
+            required: false,
+            default: () => [],
+        },
     },
 
     data() {
@@ -63,7 +69,11 @@ export default {
 
     computed: {
         hasTabs() {
-            return !!this.$slots.tabs;
+            return this.useMeteorTabs || !!this.$slots.tabs;
+        },
+
+        useMeteorTabs() {
+            return Shopware.Feature.isActive('V6_8_0_0') && this.tabItems.length > 0;
         },
 
         hasToolbar() {
@@ -71,11 +81,15 @@ export default {
         },
 
         hasContent() {
-            return !!this.$slots.default || !!this.$slots.grid;
+            return !!this.$slots.default || !!this.$slots.grid || this.hasActiveExtensionTab;
         },
 
         hasDefaultSlot() {
             return !!this.$slots.default;
+        },
+
+        hasActiveExtensionTab() {
+            return this.useMeteorTabs && !!this.activeTab && !this.tabItems.some((item) => item.name === this.activeTab);
         },
 
         hasHeader() {
@@ -108,6 +122,10 @@ export default {
 
         setActiveTab(name) {
             this.activeTab = name;
+        },
+
+        setActiveTabItem(tabItem) {
+            this.setActiveTab(typeof tabItem === 'string' ? tabItem : tabItem?.name);
         },
     },
 };

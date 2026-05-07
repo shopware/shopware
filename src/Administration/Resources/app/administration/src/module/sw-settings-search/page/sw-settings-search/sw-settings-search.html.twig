@@ -44,7 +44,18 @@
     <template #content>
         <sw-card-view>
             {% block sw_settings_search_tabs_header %}
-            <sw-tabs position-identifier="sw-settings-search-header">
+            <mt-tabs
+                v-if="useMeteorTabs"
+                position-identifier="sw-settings-search-header"
+                :items="tabItems"
+                :default-item="activeTab"
+                route-tabs
+            />
+
+            <sw-tabs
+                v-else
+                position-identifier="sw-settings-search-header"
+            >
                 {% block sw_setting_search_tabs_general %}
                 <sw-tabs-item
                     v-bind="$props"

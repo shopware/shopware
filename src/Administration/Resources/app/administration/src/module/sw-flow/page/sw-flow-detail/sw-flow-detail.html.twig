@@ -42,7 +42,18 @@
 
         <sw-card-view :class="{'sw-flow-detail__template': isTemplate }">
             {% block sw_flow_tabs_header %}
-            <sw-tabs position-identifier="sw-flow-detail">
+            <mt-tabs
+                v-if="useMeteorTabs"
+                position-identifier="sw-flow-detail"
+                :items="tabItems"
+                :default-item="activeTab"
+                route-tabs
+            />
+
+            <sw-tabs
+                v-else
+                position-identifier="sw-flow-detail"
+            >
                 {% block sw_flow_tabs_header_general %}
                 <sw-tabs-item
                     class="sw-flow-detail__tab-general"

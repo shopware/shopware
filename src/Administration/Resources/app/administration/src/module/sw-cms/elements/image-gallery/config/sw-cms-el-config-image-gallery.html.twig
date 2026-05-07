@@ -2,6 +2,7 @@
 <div class="sw-cms-el-config-image-gallery">
     {% block sw_cms_element_image_gallery_config_tabs %}
     <sw-tabs
+        v-if="!useMeteorTabs"
         position-identifier="sw-cms-element-config-image-gallery"
         class="sw-cms-el-config-image-gallery__tabs"
         default-item="content"
@@ -334,6 +335,275 @@
             {% endblock %}
         </template>
     </sw-tabs>
+
+    <template v-else>
+        {% block sw_cms_element_image_gallery_config_meteor_tabs %}
+        <mt-tabs
+            position-identifier="sw-cms-element-config-image-gallery"
+            class="sw-cms-el-config-image-gallery__tabs"
+            :items="tabItems"
+            :default-item="activeTab"
+            @new-item-active="setActiveTab"
+            @extension-item-active="setActiveTab"
+        />
+        {% endblock %}
+
+        {% block sw_cms_element_image_gallery_config_meteor_content %}
+        <sw-container
+            v-if="activeTab === 'content'"
+            class="sw-cms-el-config-image-gallery__tab-content"
+        >
+            <sw-cms-inherit-wrapper
+                field="sliderItems"
+                :element="element"
+                :label="$t('sw-cms.elements.imageGallery.label')"
+                @inheritance:restore="initGalleryItems"
+            >
+                <template #default="{ isInherited }">
+                    <sw-cms-mapping-field
+                        v-model:config="element.config.sliderItems"
+                        entity="product_media"
+                        value-types="entity"
+                        :disabled="isInherited"
+                    >
+                        <sw-media-list-selection-v2
+                            :entity-media-items="mediaItems"
+                            :entity="entity"
+                            :upload-tag="uploadTag"
+                            :default-folder-name="defaultFolderName"
+                            :disabled="isInherited"
+                            @upload-finish="onImageUpload"
+                            @item-remove="onItemRemove"
+                            @open-sidebar="onOpenMediaModal"
+                            @item-sort="onItemSort"
+                        />
+
+                        <template #preview="{ demoValue }">
+                            <div
+                                v-if="demoValue && demoValue.length"
+                                ref="demoMediaGrid"
+                                class="sw-cms-el-config-image-gallery__mapping-preview"
+                                :style="gridAutoRows"
+                            >
+                                <div
+                                    v-for="demo in demoValue"
+                                    :key="demo.id"
+                                    class="sw-cms-el-config-image-gallery__preview-image"
+                                >
+                                    <img
+                                        :src="demo.media.url"
+                                        alt=""
+                                    >
+                                </div>
+                            </div>
+
+                            <mt-banner
+                                v-else
+                                class="sw-cms-el-config-image__preview-info"
+                                variant="info"
+                            >
+                                {{ $t('sw-cms.detail.label.mappingEmptyPreview') }}
+                            </mt-banner>
+                        </template>
+                    </sw-cms-mapping-field>
+                </template>
+            </sw-cms-inherit-wrapper>
+
+            <sw-upload-listener
+                :upload-tag="uploadTag"
+                auto-upload
+                @media-upload-finish="onImageUpload"
+            />
+
+            <sw-media-modal-v2
+                v-if="mediaModalIsOpen"
+                variant="full"
+                :caption="$t('sw-cms.elements.general.config.caption.mediaUpload')"
+                :entity-context="cmsPageState.entityName"
+                :initial-folder-id="cmsPageState.defaultMediaFolderId"
+                @media-upload-remove-image="onItemRemove"
+                @media-modal-selection-change="onMediaSelectionChange"
+                @modal-close="onCloseMediaModal"
+            />
+        </sw-container>
+        {% endblock %}
+
+        {% block sw_cms_element_image_gallery_config_meteor_settings %}
+        <sw-container
+            v-if="activeTab === 'settings'"
+            class="sw-cms-el-config-image-gallery__tab-settings"
+        >
+            <div class="sw-cms-el-config-image-gallery__settings-options">
+                <div class="sw-cms-el-config-image-gallery__setting-option">
+                    <sw-cms-inherit-wrapper
+                        field="displayMode"
+                        :element="element"
+                        :label="$t('sw-cms.elements.general.config.label.displayMode')"
+                    >
+                        <template #default="{ isInherited}">
+                            <mt-select
+                                v-model="element.config.displayMode.value"
+                                class="sw-cms-el-config-image-gallery__setting-display-mode"
+                                :help-text="$t('sw-cms.elements.imageGallery.config.helpText.displayMode')"
+                                :options="displayModeValueOptions"
+                                :disabled="isInherited"
+                                @update:model-value="onChangeDisplayMode"
+                            />
+                        </template>
+                    </sw-cms-inherit-wrapper>
+
+                    <sw-cms-inherit-wrapper
+                        field="minHeight"
+                        :element="element"
+                        :label="$t('sw-cms.elements.image.config.label.minHeight')"
+                    >
+                        <template #default="{ isInherited }">
+                            <mt-text-field
+                                v-model="element.config.minHeight.value"
+                                :placeholder="$t('sw-cms.elements.image.config.placeholder.enterMinHeight')"
+                                :help-text="$t('sw-cms.elements.image.config.helpText.minHeight')"
+                                :disabled="isInherited || !['cover', 'contain'].includes(element.config.displayMode.value)"
+                                @update:model-value="onChangeMinHeight"
+                            />
+                        </template>
+                    </sw-cms-inherit-wrapper>
+
+                    <mt-select
+                        v-model="element.config.verticalAlign.value"
+                        :label="$t('sw-cms.elements.general.config.label.verticalAlign')"
+                        :placeholder="$t('sw-cms.elements.general.config.label.verticalAlign')"
+                        :disabled="['cover', 'contain'].includes(element.config.displayMode.value)"
+                        :options="verticalAlignValueOptions"
+                    />
+                </div>
+
+                <div class="sw-cms-el-config-image-gallery__setting-navigations sw-cms-el-config-image-gallery__setting-option">
+                    <div class="sw-cms-el-config-image-gallery__settings-navigation">
+                        <sw-cms-inherit-wrapper
+                            field="navigationArrows"
+                            :element="element"
+                            :label="$t('sw-cms.elements.imageSlider.config.label.navigationArrows')"
+                        >
+                            <template #default="{ isInherited }">
+                                <mt-select
+                                    v-model="element.config.navigationArrows.value"
+                                    :options="navigationArrowsValueOptions"
+                                    :disabled="isInherited"
+                                    @update:model-value="emitUpdateEl"
+                                />
+                            </template>
+                        </sw-cms-inherit-wrapper>
+                    </div>
+
+                    <div class="sw-cms-el-config-image-gallery__settings-navigation">
+                        <sw-cms-inherit-wrapper
+                            field="navigationDots"
+                            :element="element"
+                            :label="$t('sw-cms.elements.imageSlider.config.label.navigationDots')"
+                        >
+                            <template #default="{ isInherited }">
+                                <mt-select
+                                    v-model="element.config.navigationDots.value"
+                                    :options="navigationDotsValueOptions"
+                                    :disabled="isInherited"
+                                    @update:model-value="emitUpdateEl"
+                                />
+                            </template>
+                        </sw-cms-inherit-wrapper>
+                    </div>
+
+                    <div class="sw-cms-el-config-image-gallery__settings-navigation">
+                        <sw-cms-inherit-wrapper
+                            field="galleryPosition"
+                            :element="element"
+                            :label="$t('sw-cms.elements.imageGallery.config.label.navigationPreview')"
+                        >
+                            <template #default="{ isInherited }">
+                                <mt-select
+                                    v-model="element.config.galleryPosition.value"
+                                    :options="galleryPositionValueOptions"
+                                    :disabled="isInherited"
+                                    @update:model-value="emitUpdateEl"
+                                />
+                            </template>
+                        </sw-cms-inherit-wrapper>
+                    </div>
+                </div>
+
+                <div class="sw-cms-el-config-image-gallery__settings-options-toggles">
+                    <sw-cms-inherit-wrapper
+                        field="zoom"
+                        :element="element"
+                    >
+                        <template #default="{ isInherited }">
+                            <mt-switch
+                                v-model="element.config.zoom.value"
+                                :label="$t('sw-cms.elements.imageGallery.config.label.zoom')"
+                                :disabled="isInherited"
+                            />
+                        </template>
+                    </sw-cms-inherit-wrapper>
+
+                    <sw-cms-inherit-wrapper
+                        field="fullScreen"
+                        :element="element"
+                    >
+                        <template #default="{ isInherited }">
+                            <mt-switch
+                                v-model="element.config.fullScreen.value"
+                                :label="$t('sw-cms.elements.imageGallery.config.label.fullscreen')"
+                                :disabled="isInherited"
+                            />
+                        </template>
+                    </sw-cms-inherit-wrapper>
+
+                    <sw-cms-inherit-wrapper
+                        field="keepAspectRatioOnZoom"
+                        :element="element"
+                    >
+                        <template #default="{ isInherited }">
+                            <mt-switch
+                                v-model="element.config.keepAspectRatioOnZoom.value"
+                                :label="$t('sw-cms.elements.imageGallery.config.label.keepAspectRatioOnZoom')"
+                                :disabled="isInherited"
+                            />
+                        </template>
+                    </sw-cms-inherit-wrapper>
+
+                    <sw-cms-inherit-wrapper
+                        field="magnifierOverGallery"
+                        :element="element"
+                    >
+                        <template #default="{ isInherited }">
+                            <mt-switch
+                                v-model="element.config.magnifierOverGallery.value"
+                                :label="$t('sw-cms.elements.imageGallery.config.label.magnifierOverGallery')"
+                                :help-text="$t('sw-cms.elements.imageGallery.config.label.magnifierOverGalleryHelpText')"
+                                :disabled="isInherited"
+                            />
+                        </template>
+                    </sw-cms-inherit-wrapper>
+
+                    <sw-cms-inherit-wrapper
+                        field="useFetchPriorityOnFirstItem"
+                        :element="element"
+                    >
+                        <template #default="{ isInherited }">
+                            <mt-switch
+                                class="sw-cms-el-config-image-gallery__settings-use-fetch-priority-on-first-item"
+                                :model-value="element.config.useFetchPriorityOnFirstItem.value"
+                                :label="$t('sw-cms.elements.image.config.label.useFetchPriorityOnFirstItem')"
+                                :help-text="$t('sw-cms.elements.image.config.helpText.useFetchPriorityOnFirstItem')"
+                                :disabled="isInherited"
+                                @update:model-value="onChangeUseFetchPriorityOnFirstItem"
+                            />
+                        </template>
+                    </sw-cms-inherit-wrapper>
+                </div>
+            </div>
+        </sw-container>
+        {% endblock %}
+    </template>
     {% endblock %}
 </div>
 {% endblock %}

@@ -42,6 +42,29 @@ async function createWrapper() {
                     'sw-text-field': true,
                     'sw-settings-tag-detail-assignments': true,
                     'sw-tabs-deprecated': true,
+                    'mt-tabs': {
+                        name: 'mt-tabs',
+                        props: {
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                default: null,
+                            },
+                            defaultItem: {
+                                type: String,
+                                default: '',
+                            },
+                            small: {
+                                type: Boolean,
+                                default: true,
+                            },
+                        },
+                        emits: ['new-item-active'],
+                        template: '<div class="mt-tabs-stub"></div>',
+                    },
                 },
             },
         },
@@ -49,6 +72,28 @@ async function createWrapper() {
 }
 
 describe('module/sw-settings-tag/component/sw-settings-tag-detail-modal', () => {
+    beforeEach(() => {
+        global.activeFeatureFlags = [];
+    });
+
+    it('should render mt-tabs when the major feature flag is enabled', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
+
+        const tabs = wrapper.getComponent('.mt-tabs-stub');
+        expect(tabs.props('positionIdentifier')).toBe('sw-settings-tag-detail-modal');
+        expect(tabs.props('defaultItem')).toBe('general');
+        expect(tabs.props('items')).toEqual([
+            expect.objectContaining({ label: 'sw-settings-tag.detail.generalTab', name: 'general' }),
+            expect.objectContaining({ label: 'sw-settings-tag.detail.assignmentsTab', name: 'assignments' }),
+        ]);
+
+        await tabs.vm.$emit('new-item-active', 'assignments');
+        expect(wrapper.vm.initialTab).toBe('assignments');
+    });
+
     it('should set tag, to be added and to be deleted on create', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();

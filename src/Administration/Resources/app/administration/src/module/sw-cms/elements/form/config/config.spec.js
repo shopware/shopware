@@ -36,6 +36,29 @@ async function createWrapper() {
                         'activeTab',
                     ],
                 },
+                'mt-tabs': {
+                    name: 'mt-tabs',
+                    props: {
+                        items: {
+                            type: Array,
+                            required: true,
+                        },
+                        positionIdentifier: {
+                            type: String,
+                            required: true,
+                        },
+                        defaultItem: {
+                            type: String,
+                            required: false,
+                            default: null,
+                        },
+                    },
+                    emits: [
+                        'new-item-active',
+                        'extension-item-active',
+                    ],
+                    template: '<div class="mt-tabs-stub"></div>',
+                },
                 'sw-container': {
                     template: '<div class="sw-container"><slot></slot></div>',
                 },
@@ -96,6 +119,12 @@ async function createWrapper() {
                     type: {
                         value: 'contact',
                     },
+                    title: {
+                        value: '',
+                    },
+                    confirmationText: {
+                        value: '',
+                    },
                 },
             },
         },
@@ -106,6 +135,10 @@ describe('module/sw-cms/elements/form/config/sw-cms-el-config-form', () => {
     beforeAll(async () => {
         await setupCmsEnvironment();
         await import('src/module/sw-cms/elements/form');
+    });
+
+    beforeEach(() => {
+        global.activeFeatureFlags = [];
     });
 
     afterEach(() => {
@@ -119,6 +152,49 @@ describe('module/sw-cms/elements/form/config/sw-cms-el-config-form', () => {
         expect(wrapper.vm.element.config.mailReceiver.value).toEqual([
             'doNotReply@localhost',
         ]);
+    });
+
+    it('should render Meteor tabs and reset hidden options tab', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper();
+        const tabs = wrapper.getComponent('.mt-tabs-stub');
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-cms-element-config-form');
+        expect(tabs.props('defaultItem')).toBe('content');
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'sw-cms.elements.general.config.tab.content',
+                name: 'content',
+            },
+            {
+                label: 'sw-cms.elements.general.config.tab.settings',
+                name: 'options',
+            },
+        ]);
+
+        await tabs.vm.$emit('new-item-active', 'options');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.activeTab).toBe('options');
+        expect(wrapper.find('.sw-tagged-field').exists()).toBe(true);
+
+        wrapper.vm.element.config.type.value = 'newsletter';
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.activeTab).toBe('content');
+        expect(wrapper.vm.tabItems).toEqual([
+            {
+                label: 'sw-cms.elements.general.config.tab.content',
+                name: 'content',
+            },
+        ]);
+
+        await tabs.vm.$emit('extension-item-active', 'extension-tab');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.activeTab).toBe('extension-tab');
+        expect(wrapper.find('.sw-container').exists()).toBe(false);
     });
 
     it('should keep email addresses at the end that do pass the check', async () => {

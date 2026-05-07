@@ -326,6 +326,71 @@ export default {
             };
         },
 
+        useMeteorTabs() {
+            return Shopware.Feature.isActive('V6_8_0_0');
+        },
+
+        activeTab() {
+            const tabItemNames = this.tabItems.map((tabItem) => tabItem.name);
+
+            if (tabItemNames.includes(this.$route.name)) {
+                return this.$route.name;
+            }
+
+            return tabItemNames[0] ?? 'sw.product.detail.base';
+        },
+
+        tabItems() {
+            const baseItem = this.createTabItem(
+                'sw-product.detail.tabGeneral',
+                this.getProductTabRoute('sw.product.detail.base'),
+                { hasError: this.swProductDetailBaseError },
+            );
+            const specificationItem = this.createTabItem(
+                'sw-product.detail.tabSpecifications',
+                this.getProductTabRoute('sw.product.detail.specifications'),
+            );
+
+            if (!this.showModeSetting) {
+                return [
+                    baseItem,
+                    specificationItem,
+                ];
+            }
+
+            const advancedItems = [
+                this.createTabItem(
+                    'sw-product.detail.tabAdvancedPrices',
+                    this.getProductTabRoute('sw.product.detail.prices'),
+                ),
+                this.createTabItem('sw-product.detail.tabSeo', this.getProductTabRoute('sw.product.detail.seo')),
+                this.createTabItem(
+                    'sw-product.detail.tabCrossSelling',
+                    this.getProductTabRoute('sw.product.detail.crossSelling'),
+                    { hasError: this.swProductDetailCrossSellingError },
+                ),
+                this.createTabItem('sw-product.detail.tabReviews', this.getProductTabRoute('sw.product.detail.reviews')),
+            ];
+
+            if (!this.isChild) {
+                advancedItems.splice(
+                    1,
+                    0,
+                    this.createTabItem(
+                        'sw-product.detail.tabVariation',
+                        this.getProductTabRoute('sw.product.detail.variants'),
+                    ),
+                    this.createTabItem('sw-product.detail.tabLayout', this.getProductTabRoute('sw.product.detail.layout')),
+                );
+            }
+
+            return [
+                baseItem,
+                specificationItem,
+                ...advancedItems,
+            ];
+        },
+
         /**
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
@@ -501,6 +566,24 @@ export default {
     },
 
     methods: {
+        getProductTabRoute(name) {
+            return {
+                name,
+                params: {
+                    id: this.$route.params.id,
+                },
+            };
+        },
+
+        createTabItem(label, route, additionalProperties = {}) {
+            return {
+                label: this.$t(label),
+                name: route.name,
+                onClick: () => this.$router.push(route),
+                ...additionalProperties,
+            };
+        },
+
         async createdComponent() {
             Shopware.ExtensionAPI.publishData({
                 id: 'sw-product-detail__product',

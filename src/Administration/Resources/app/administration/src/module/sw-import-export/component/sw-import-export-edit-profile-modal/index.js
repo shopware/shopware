@@ -47,6 +47,7 @@ export default {
 
     data() {
         return {
+            activeTab: 'general',
             duplicateMappings: [],
             systemRequiredFields: {},
             missingRequiredFields: [],
@@ -89,9 +90,45 @@ export default {
         profileRepository() {
             return this.repositoryFactory.create('import_export_profile');
         },
+
+        useMeteorTabs() {
+            return Shopware.Feature.isActive('V6_8_0_0');
+        },
+
+        tabItems() {
+            const items = [
+                {
+                    label: this.$t('sw-import-export.profile.generalTab'),
+                    name: 'general',
+                },
+                {
+                    label: this.$t('sw-import-export.profile.mappingsTab'),
+                    name: 'mappings',
+                },
+            ];
+
+            if (this.showAdvancedTab) {
+                items.push({
+                    label: this.$t('sw-import-export.profile.advancedTab'),
+                    name: 'advanced',
+                });
+            }
+
+            return items;
+        },
+
+        showAdvancedTab() {
+            return this.profile.type !== 'export' && this.profile.config.updateEntities !== false;
+        },
     },
 
     watch: {
+        showAdvancedTab(value) {
+            if (!value && this.activeTab === 'advanced') {
+                this.activeTab = 'general';
+            }
+        },
+
         'profile.sourceEntity': {
             handler(value) {
                 if (value) {
@@ -119,6 +156,10 @@ export default {
 
         updateMapping(newProfile) {
             this.profile.mapping = newProfile;
+        },
+
+        setActiveTab(tabName) {
+            this.activeTab = tabName;
         },
 
         getParentProfileSelected() {

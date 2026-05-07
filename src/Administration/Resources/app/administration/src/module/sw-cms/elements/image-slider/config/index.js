@@ -25,6 +25,7 @@ export default {
 
     data() {
         return {
+            activeTab: 'content',
             mediaModalIsOpen: false,
             initialFolderId: null,
             entity: this.element,
@@ -34,6 +35,23 @@ export default {
     },
 
     computed: {
+        useMeteorTabs() {
+            return Shopware.Feature.isActive('V6_8_0_0');
+        },
+
+        tabItems() {
+            return [
+                {
+                    label: this.$t('sw-cms.elements.general.config.tab.content'),
+                    name: 'content',
+                },
+                {
+                    label: this.$t('sw-cms.elements.general.config.tab.settings'),
+                    name: 'settings',
+                },
+            ];
+        },
+
         uploadTag() {
             return `cms-element-media-config-${this.element.id}`;
         },
@@ -135,6 +153,10 @@ export default {
     },
 
     methods: {
+        setActiveTab(tabName) {
+            this.activeTab = tabName;
+        },
+
         async createdComponent() {
             this.initElementConfig('image-slider');
 

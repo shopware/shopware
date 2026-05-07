@@ -16,8 +16,26 @@ async function createWrapper(customConfig = {}) {
                 'sw-tabs': await wrapTestComponent('sw-tabs'),
                 'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                 'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
-                'mt-tabs': true,
-                'sw-extension-component-section': true,
+                'mt-tabs': {
+                    name: 'mt-tabs',
+                    props: [
+                        'items',
+                        'defaultItem',
+                        'positionIdentifier',
+                        'small',
+                        'renderExtensionContent',
+                    ],
+                    emits: [
+                        'new-item-active',
+                        'extension-item-active',
+                    ],
+                    template: '<div class="mt-tabs-stub"></div>',
+                },
+                'sw-extension-component-section': {
+                    name: 'sw-extension-component-section',
+                    props: ['positionIdentifier'],
+                    template: '<div class="sw-extension-component-section-stub"></div>',
+                },
                 'router-link': true,
             },
             provide: {},
@@ -27,6 +45,10 @@ async function createWrapper(customConfig = {}) {
 }
 
 describe('src/app/component/meteor/sw-meteor-card', () => {
+    beforeEach(() => {
+        global.activeFeatureFlags = [''];
+    });
+
     it('should render the content of the default slot', async () => {
         const wrapper = await createWrapper({
             slots: {
@@ -139,6 +161,67 @@ describe('src/app/component/meteor/sw-meteor-card', () => {
 
         const actionsSlot = wrapper.find('.sw-meteor-card__header-action');
         expect(actionsSlot.text()).toBe('I am in the action slot');
+    });
+
+    it('should render mt-tabs from tabItems when the major feature flag is enabled', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const tabItems = [
+            {
+                label: 'Tab 1',
+                name: 'tab1',
+            },
+            {
+                label: 'Tab 2',
+                name: 'tab2',
+            },
+        ];
+
+        const wrapper = await createWrapper({
+            props: {
+                defaultTab: 'tab1',
+                tabItems,
+            },
+            slots: {
+                default: '<p>Content</p>',
+            },
+        });
+
+        const tabs = wrapper.getComponent('.mt-tabs-stub');
+
+        expect(tabs.props('items')).toEqual(tabItems);
+        expect(tabs.props('defaultItem')).toBe('tab1');
+        expect(tabs.props('positionIdentifier')).toBe('sw-meteor-card');
+        expect(tabs.props('renderExtensionContent')).toBe(false);
+
+        await tabs.vm.$emit('new-item-active', 'tab2');
+
+        expect(wrapper.vm.activeTab).toBe('tab2');
+
+        await tabs.vm.$emit('extension-item-active', 'extension-tab');
+
+        expect(wrapper.vm.activeTab).toBe('extension-tab');
+        expect(wrapper.find('.sw-extension-component-section-stub').exists()).toBe(true);
+        expect(wrapper.getComponent('.sw-extension-component-section-stub').props('positionIdentifier')).toBe(
+            'extension-tab',
+        );
+        expect(wrapper.find('.sw-meteor-card__content-wrapper').text()).not.toContain('Content');
+    });
+
+    it('should not render tabItems while the major feature flag is inactive', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                tabItems: [
+                    {
+                        label: 'Tab 1',
+                        name: 'tab1',
+                    },
+                ],
+            },
+        });
+
+        expect(wrapper.find('.mt-tabs-stub').exists()).toBe(false);
+        expect(wrapper.find('.sw-tabs__content').exists()).toBe(false);
     });
 
     it('should render the tabs', async () => {

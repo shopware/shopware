@@ -94,7 +94,19 @@ async function createWrapper(props, options = {}) {
                     'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated'),
                     'sw-button-process': true,
                     'sw-media-collapse': true,
-                    'mt-tabs': true,
+                    'mt-tabs': {
+                        name: 'mt-tabs',
+                        props: [
+                            'items',
+                            'defaultItem',
+                            'positionIdentifier',
+                        ],
+                        emits: [
+                            'new-item-active',
+                            'extension-item-active',
+                        ],
+                        template: '<div class="mt-tabs-stub"></div>',
+                    },
                     'sw-extension-component-section': true,
                     'router-link': true,
                     'sw-help-text': true,
@@ -386,6 +398,10 @@ async function withTranslatedLanguageContext(
 describe('src/app/component/form/sw-custom-field-set-renderer', () => {
     /** @type Wrapper */
     let wrapper;
+
+    beforeEach(() => {
+        global.activeFeatureFlags = [''];
+    });
 
     const configuredFields = [
         {
@@ -1750,6 +1766,94 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
 
         expect(wrapper.find('.sw-tab--name-custom_sports').text()).toContain('Sports');
         expect(wrapper.find('.sw-tab--name-custom_clothing').text()).toContain('Clothing');
+    });
+
+    it('should render mt-tabs and switch content when the major feature flag is enabled', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        wrapper = await createWrapper({
+            entity: {},
+            parentEntity: {},
+            sets: [
+                {
+                    id: uuid.get('custom_sports'),
+                    name: 'custom_sports',
+                    position: 1,
+                    config: { label: { 'en-GB': 'Sports' } },
+                    customFields: [],
+                },
+                {
+                    id: uuid.get('custom_clothing'),
+                    name: 'custom_clothing',
+                    position: 2,
+                    config: { label: { 'en-GB': 'Clothing' } },
+                    customFields: [],
+                },
+            ],
+        });
+
+        await flushPromises();
+
+        const tabs = wrapper.getComponent('.mt-tabs-stub');
+
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'Sports',
+                name: uuid.get('custom_sports'),
+            },
+            {
+                label: 'Clothing',
+                name: uuid.get('custom_clothing'),
+            },
+        ]);
+        expect(tabs.props('defaultItem')).toBe(uuid.get('custom_sports'));
+        expect(tabs.props('positionIdentifier')).toBe('sw-custom-field-set-renderer');
+
+        const tabContentSports = wrapper.find('.sw-custom-field-set-renderer-tab-content__custom_sports');
+        const tabContentClothing = wrapper.find('.sw-custom-field-set-renderer-tab-content__custom_clothing');
+
+        expect(tabContentSports.element.style.display).not.toBe('none');
+        expect(tabContentClothing.element.style.display).toBe('none');
+
+        await tabs.vm.$emit('new-item-active', uuid.get('custom_clothing'));
+        await flushPromises();
+
+        expect(tabContentSports.element.style.display).toBe('none');
+        expect(tabContentClothing.element.style.display).not.toBe('none');
+    });
+
+    it('should ignore unknown mt-tabs item ids when the major feature flag is enabled', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        wrapper = await createWrapper({
+            entity: {},
+            parentEntity: {},
+            sets: [
+                {
+                    id: uuid.get('custom_sports'),
+                    name: 'custom_sports',
+                    position: 1,
+                    config: { label: { 'en-GB': 'Sports' } },
+                    customFields: [],
+                },
+            ],
+        });
+
+        await flushPromises();
+
+        const loadCustomFieldSetSpy = jest.spyOn(wrapper.vm, 'loadCustomFieldSet');
+        const tabs = wrapper.getComponent('.mt-tabs-stub');
+
+        await tabs.vm.$emit('new-item-active', 'extension-tab-id');
+
+        expect(wrapper.vm.currentActiveTab).toBe(uuid.get('custom_sports'));
+        expect(loadCustomFieldSetSpy).not.toHaveBeenCalled();
+
+        await tabs.vm.$emit('extension-item-active', 'extension-tab-id');
+
+        expect(wrapper.vm.currentActiveTab).toBeNull();
+        expect(wrapper.vm.activeTabItemName).toBe('extension-tab-id');
+        expect(loadCustomFieldSetSpy).not.toHaveBeenCalled();
     });
 
     it('should contain the right fields for each tab', async () => {

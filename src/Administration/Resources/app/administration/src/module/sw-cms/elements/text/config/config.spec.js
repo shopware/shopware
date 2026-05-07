@@ -30,6 +30,25 @@ async function createWrapper(additionalStubs = {}) {
                     sync: true,
                 }),
                 'sw-cms-mapping-field': await wrapTestComponent('sw-cms-mapping-field', { sync: true }),
+                'mt-tabs': {
+                    name: 'mt-tabs',
+                    props: {
+                        items: {
+                            type: Array,
+                            required: true,
+                        },
+                        positionIdentifier: {
+                            type: String,
+                            default: null,
+                        },
+                        defaultItem: {
+                            type: String,
+                            default: '',
+                        },
+                    },
+                    emits: ['new-item-active'],
+                    template: '<div class="mt-tabs-stub"></div>',
+                },
                 'sw-text-editor': {
                     props: ['value'],
                     emits: [
@@ -63,6 +82,9 @@ async function createWrapper(additionalStubs = {}) {
                     content: {
                         value: '',
                     },
+                    verticalAlign: {
+                        value: null,
+                    },
                 },
             },
         },
@@ -72,6 +94,27 @@ async function createWrapper(additionalStubs = {}) {
 describe('src/module/sw-cms/elements/text/config', () => {
     beforeAll(async () => {
         await setupCmsEnvironment();
+    });
+
+    beforeEach(() => {
+        global.activeFeatureFlags = [];
+    });
+
+    it('should render mt-tabs when the major feature flag is enabled', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper();
+
+        const tabs = wrapper.getComponent('.mt-tabs-stub');
+        expect(tabs.props('positionIdentifier')).toBe('sw-cms-element-config-text');
+        expect(tabs.props('defaultItem')).toBe('content');
+        expect(tabs.props('items')).toEqual([
+            expect.objectContaining({ label: 'sw-cms.elements.general.config.tab.content', name: 'content' }),
+            expect.objectContaining({ label: 'sw-cms.elements.general.config.tab.settings', name: 'settings' }),
+        ]);
+
+        await tabs.vm.$emit('new-item-active', 'settings');
+        expect(wrapper.vm.activeTab).toBe('settings');
     });
 
     it('should emits element-update when trigger @input event', async () => {

@@ -13,6 +13,10 @@ const logEntryMock = {
     context: {
         additionalData: {
             recipients: [],
+            contents: {
+                'text/html': '<p>HTML</p>',
+                'text/plain': 'Plain',
+            },
         },
     },
 };
@@ -40,6 +44,30 @@ async function createWrapper() {
                 'sw-tabs-deprecated': {
                     template: '<div><slot /></div>',
                 },
+                'mt-tabs': {
+                    name: 'mt-tabs',
+                    template: '<div class="mt-tabs-stub"></div>',
+                    props: {
+                        items: {
+                            type: Array,
+                            required: true,
+                        },
+                        positionIdentifier: {
+                            type: String,
+                            required: false,
+                            default: null,
+                        },
+                        defaultItem: {
+                            type: String,
+                            required: false,
+                            default: null,
+                        },
+                    },
+                    emits: [
+                        'new-item-active',
+                        'extension-item-active',
+                    ],
+                },
                 'sw-extension-component-section': await wrapTestComponent('sw-extension-component-section', { sync: true }),
                 'sw-textarea-field': true,
                 'sw-time-ago': true,
@@ -56,6 +84,10 @@ async function createWrapper() {
 }
 
 describe('src/module/sw-settings-logging/page/sw-settings-logging-list', () => {
+    beforeEach(() => {
+        global.activeFeatureFlags = [];
+    });
+
     it('should load default modal component', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -85,5 +117,37 @@ describe('src/module/sw-settings-logging/page/sw-settings-logging-list', () => {
 
         expect(wrapper.find('.sw-settings-logging-list__custom-content').exists()).toBe(true);
         expect(wrapper.find('.sw-settings-logging-mail-sent-info__tab-item').exists()).toBe(true);
+    });
+
+    it('should render mail sent info with Meteor tabs', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.setData({
+            displayedLog: {
+                ...logEntryMock,
+                message: 'mail.sent',
+            },
+        });
+        await flushPromises();
+
+        const tabs = wrapper.getComponent('.mt-tabs-stub');
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-settings-logging-entry-info');
+        expect(tabs.props('defaultItem')).toBe('html');
+        expect(tabs.props('items').map((item) => item.name)).toEqual([
+            'html',
+            'plain',
+            'raw',
+        ]);
+
+        await tabs.vm.$emit('new-item-active', 'plain');
+
+        expect(wrapper.find('.sw-settings-logging-mail-sent-info__mail-content').text()).toBe('Plain');
+
+        await tabs.vm.$emit('new-item-active', 'raw');
+
+        expect(wrapper.findComponent({ name: 'mt-textarea' }).exists()).toBe(true);
     });
 });

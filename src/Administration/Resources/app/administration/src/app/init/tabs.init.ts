@@ -43,7 +43,7 @@ export default function initializeTabs(): void {
             // Check if route contains componentSectionId from the tabs in the path
             const matchingTabRoute = tabRoutes.find((tabRoute) => {
                 // Check if the route contains the tabRoute
-                return to.fullPath.endsWith(tabRoute);
+                return to.path.endsWith(tabRoute);
             });
 
             if (!matchingTabRoute) {
@@ -51,12 +51,12 @@ export default function initializeTabs(): void {
             }
 
             // Check if the route is already registered
-            if (router.hasRoute(to.fullPath)) {
+            if (router.hasRoute(to.path)) {
                 return;
             }
 
             // Get the parent route
-            const parentPath = to.fullPath.replace(matchingTabRoute, '');
+            const parentPath = to.path.replace(matchingTabRoute, '');
             const parentRoute = router.resolve(parentPath);
 
             // Get the new route name based on parent route name
@@ -96,7 +96,11 @@ export default function initializeTabs(): void {
             router.addRoute(parentRoute.name ?? '', newRoute);
 
             // Reload current route after adding the new route
-            return { path: to.fullPath };
+            return {
+                path: to.path,
+                query: to.query,
+                hash: to.hash,
+            };
         });
     });
 }

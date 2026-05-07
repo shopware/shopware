@@ -52,6 +52,31 @@ async function createWrapper() {
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
                     'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                     'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+                    'mt-tabs': {
+                        props: {
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: false,
+                                default: '',
+                            },
+                            defaultItem: {
+                                type: String,
+                                required: false,
+                                default: '',
+                            },
+                            small: {
+                                type: Boolean,
+                                required: false,
+                                default: true,
+                            },
+                        },
+                        emits: ['new-item-active'],
+                        template: '<div class="mt-tabs-stub"></div>',
+                    },
                     'sw-container': await wrapTestComponent('sw-container'),
                     'sw-multi-select': await wrapTestComponent('sw-multi-select'),
                     'sw-textarea-field': await wrapTestComponent('sw-textarea-field'),
@@ -88,6 +113,10 @@ async function createWrapper() {
 }
 
 describe('module/sw-flow/component/sw-flow-rule-modal', () => {
+    beforeEach(() => {
+        global.activeFeatureFlags = [];
+    });
+
     it('should show element correctly', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -137,5 +166,33 @@ describe('module/sw-flow/component/sw-flow-rule-modal', () => {
         expect(wrapper.vm.showProductStateConditionWarning).toBe(true);
         expect(banner.exists()).toBe(true);
         expect(banner.attributes('variant')).toBe('attention');
+    });
+
+    it('should render Meteor tabs when the feature is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const mtTabs = wrapper.getComponent('.mt-tabs-stub');
+
+        expect(mtTabs.props('positionIdentifier')).toBe('sw-flow-rule-modal');
+        expect(mtTabs.props('defaultItem')).toBe('detail');
+        expect(mtTabs.props('small')).toBe(false);
+        expect(mtTabs.props('items')).toEqual([
+            expect.objectContaining({
+                label: 'sw-flow.modals.rule.tabDetail',
+                name: 'detail',
+            }),
+            expect.objectContaining({
+                label: 'sw-flow.modals.rule.tabRule',
+                name: 'rule',
+            }),
+        ]);
+
+        mtTabs.vm.$emit('new-item-active', 'rule');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.activeTab).toBe('rule');
     });
 });

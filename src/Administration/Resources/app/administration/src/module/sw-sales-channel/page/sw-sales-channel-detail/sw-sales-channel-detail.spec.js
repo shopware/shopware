@@ -29,7 +29,12 @@ async function createWrapper(optionsOrLegacyArg = { id: '1a2b3c4d' }) {
           ? optionsOrLegacyArg
           : { routeParams: optionsOrLegacyArg };
 
-    const { routeParams = { id: '1a2b3c4d' }, salesChannelResponse = {} } = normalizedOptions;
+    const {
+        routeParams = { id: '1a2b3c4d' },
+        routeName = 'sw.sales.channel.detail.base',
+        routerPush = jest.fn(),
+        salesChannelResponse = {},
+    } = normalizedOptions;
 
     mockGet.mockResolvedValue({
         ...defaultSalesChannelResponse,
@@ -72,6 +77,30 @@ async function createWrapper(optionsOrLegacyArg = { id: '1a2b3c4d' }) {
                         'disabled',
                     ],
                 },
+                'mt-tabs': {
+                    template: '<div class="mt-tabs-stub"></div>',
+                    props: {
+                        items: {
+                            type: Array,
+                            required: true,
+                        },
+                        positionIdentifier: {
+                            type: String,
+                            required: false,
+                            default: null,
+                        },
+                        defaultItem: {
+                            type: String,
+                            required: false,
+                            default: null,
+                        },
+                        routeTabs: {
+                            type: Boolean,
+                            required: false,
+                            default: false,
+                        },
+                    },
+                },
                 'router-view': true,
                 'sw-skeleton': true,
             },
@@ -97,7 +126,10 @@ async function createWrapper(optionsOrLegacyArg = { id: '1a2b3c4d' }) {
             mocks: {
                 $route: {
                     params: routeParams,
-                    name: '',
+                    name: routeName,
+                },
+                $router: {
+                    push: routerPush,
                 },
             },
         },
@@ -107,6 +139,7 @@ async function createWrapper(optionsOrLegacyArg = { id: '1a2b3c4d' }) {
 describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
     beforeEach(() => {
         global.activeAclRoles = [];
+        global.activeFeatureFlags = [];
         mockSave.mockClear();
         mockGet.mockClear();
         mockGetSystemConfig.mockClear();
@@ -254,6 +287,77 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
 
         expect(wrapper.text()).toContain('sw-sales-channel.detail.productExport.tabInsights');
         expect(wrapper.text()).not.toContain('sw-sales-channel.detail.tabAnalytics');
+    });
+
+    it('should render route-backed Meteor tabs when the feature is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const routerPush = jest.fn();
+        const wrapper = await createWrapper({
+            routeParams: {
+                id: '1a2b3c4d',
+            },
+            routeName: 'sw.sales.channel.detail.productExportInsights',
+            routerPush,
+            salesChannelResponse: {
+                typeId: Shopware.Defaults.agenticCommerceTypeId,
+            },
+        });
+
+        await flushPromises();
+
+        const tabs = wrapper.getComponent('.mt-tabs-stub');
+        const items = tabs.props('items');
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-sales-channel-detail');
+        expect(tabs.props('defaultItem')).toBe('sw.sales.channel.detail.productExportInsights');
+        expect(tabs.props('routeTabs')).toBe(true);
+        expect(items).toEqual([
+            expect.objectContaining({
+                label: 'sw-sales-channel.detail.tabBase',
+                name: 'sw.sales.channel.detail.base',
+            }),
+            expect.objectContaining({
+                label: 'sw-sales-channel.detail.productExport.tabInsights',
+                name: 'sw.sales.channel.detail.productExportInsights',
+            }),
+            expect.objectContaining({
+                label: 'sw-sales-channel.detail.agenticCommerce.tabIntegration',
+                name: 'sw.sales.channel.detail.agenticCommerceIntegration',
+            }),
+            expect.objectContaining({
+                label: 'sw-sales-channel.detail.tabProductComparison',
+                name: 'sw.sales.channel.detail.productComparison',
+            }),
+        ]);
+
+        items[2].onClick();
+
+        expect(routerPush).toHaveBeenCalledWith({
+            name: 'sw.sales.channel.detail.agenticCommerceIntegration',
+            params: { id: '1a2b3c4d' },
+        });
+    });
+
+    it('should fall back to the first Meteor tab when the current route tab is hidden', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper({
+            routeName: 'sw.sales.channel.detail.analytics',
+            salesChannelResponse: {
+                typeId: Shopware.Defaults.apiSalesChannelTypeId,
+            },
+        });
+
+        await flushPromises();
+
+        const tabs = wrapper.getComponent('.mt-tabs-stub');
+
+        expect(tabs.props('defaultItem')).toBe('sw.sales.channel.detail.base');
+        expect(tabs.props('items').map((item) => item.name)).toEqual([
+            'sw.sales.channel.detail.base',
+            'sw.sales.channel.detail.products',
+        ]);
     });
 
     it('shows storefront analytics tab for storefront channels and hides insights', async () => {

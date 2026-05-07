@@ -153,8 +153,18 @@
             </mt-banner>
 
             {% block sw_order_detail_content_tabs %}
+            <mt-tabs
+                v-if="showTabs && useMeteorTabs"
+                class="sw-order-detail__tabs"
+                :class="{ 'has-warning': showWarningTabStyle }"
+                position-identifier="sw-order-detail"
+                :items="tabItems"
+                :default-item="activeTab"
+                route-tabs
+            />
+
             <sw-tabs
-                v-if="showTabs"
+                v-else-if="showTabs"
                 class="sw-order-detail__tabs"
                 :class="{ 'has-warning': showWarningTabStyle }"
                 position-identifier="sw-order-detail"

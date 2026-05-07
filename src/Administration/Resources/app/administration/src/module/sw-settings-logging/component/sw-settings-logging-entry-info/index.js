@@ -27,9 +27,26 @@ export default {
         displayString() {
             return this.logEntry.context ? JSON.stringify(this.logEntry.context, null, 2) : '';
         },
+
+        useMeteorTabs() {
+            return Shopware.Feature.isActive('V6_8_0_0');
+        },
+
+        tabItems() {
+            return [
+                {
+                    label: this.$t('sw-settings-logging.entryInfo.tabRaw'),
+                    name: 'raw',
+                },
+            ];
+        },
     },
 
     methods: {
+        setActiveTab(tabName) {
+            this.activeTab = tabName;
+        },
+
         onClose() {
             this.$emit('close');
         },

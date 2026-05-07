@@ -44,6 +44,35 @@ async function createWrapper(
                     'sw-tabs': {
                         template: '<div><slot name="content"></slot></div>',
                     },
+                    'mt-tabs': {
+                        props: {
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: true,
+                            },
+                            defaultItem: {
+                                type: String,
+                                required: true,
+                            },
+                            vertical: {
+                                type: Boolean,
+                                default: false,
+                            },
+                            renderExtensionContent: {
+                                type: Boolean,
+                                default: true,
+                            },
+                        },
+                        emits: [
+                            'new-item-active',
+                            'extension-item-active',
+                        ],
+                        template: '<div class="mt-tabs-stub"></div>',
+                    },
                     'sw-select-field': true,
                     'sw-pagination': {
                         template: '<div></div>',
@@ -99,6 +128,10 @@ async function createWrapper(
                     'sw-search-bar': true,
                     'sw-language-switch': true,
                     'sw-tabs-item': true,
+                    'sw-extension-component-section': {
+                        props: ['positionIdentifier'],
+                        template: '<div class="sw-extension-component-section-stub"></div>',
+                    },
                     'sw-checkbox-field': true,
                     'sw-data-grid-column-boolean': true,
                     'sw-data-grid-inline-edit': true,
@@ -213,6 +246,10 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         });
     });
 
+    beforeEach(() => {
+        global.activeFeatureFlags = [];
+    });
+
     it('should show the right list of pageTypes for the filters', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -232,6 +269,51 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                 value: 'landingpage',
             },
         ]);
+    });
+
+    it('should render meteor tabs when the feature flag is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const tabs = wrapper.getComponent('.mt-tabs-stub');
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-cms-list-sidebar');
+        expect(tabs.props('defaultItem')).toBe('all');
+        expect(tabs.props('vertical')).toBe(true);
+        expect(tabs.props('renderExtensionContent')).toBe(false);
+        expect(tabs.props('items')).toStrictEqual([
+            {
+                label: 'sw-cms.sorting.labelSortByAllPages',
+                name: 'all',
+                disabled: undefined,
+            },
+            {
+                label: 'page',
+                name: 'page',
+                disabled: undefined,
+            },
+            {
+                label: 'landingpage',
+                name: 'landingpage',
+                disabled: undefined,
+            },
+        ]);
+
+        await tabs.vm.$emit('new-item-active', 'page');
+
+        expect(wrapper.vm.activeTab).toBe('page');
+        expect(wrapper.vm.currentPageType).toBe('page');
+
+        await tabs.vm.$emit('extension-item-active', 'extension-tab');
+
+        expect(wrapper.vm.activeTab).toBe('extension-tab');
+        expect(wrapper.vm.hasActiveExtensionTab).toBe(true);
+        expect(wrapper.getComponent('.sw-extension-component-section-stub').props('positionIdentifier')).toBe(
+            'extension-tab',
+        );
+        expect(wrapper.find('.sw-cms-list__listing').exists()).toBe(false);
     });
 
     it('should show the correct context menu item for default layouts', async () => {

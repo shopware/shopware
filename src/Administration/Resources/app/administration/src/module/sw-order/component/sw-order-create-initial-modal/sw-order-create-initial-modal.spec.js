@@ -41,6 +41,26 @@ async function createWrapper() {
             template: '<div class="sw-tabs"><slot></slot><slot name="content" v-bind="{ active }"></slot></div>',
         },
         'sw-tabs-item': true,
+        'mt-tabs': {
+            props: {
+                items: {
+                    type: Array,
+                    required: true,
+                },
+                positionIdentifier: {
+                    type: String,
+                    required: false,
+                    default: '',
+                },
+                defaultItem: {
+                    type: String,
+                    required: false,
+                    default: '',
+                },
+            },
+            emits: ['new-item-active'],
+            template: '<div class="mt-tabs-stub"></div>',
+        },
         'sw-order-customer-grid': true,
         'sw-order-line-items-grid-sales-channel': true,
         'sw-order-create-options': true,
@@ -88,6 +108,10 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
                 updateContext: () => Promise.resolve({}),
             };
         });
+    });
+
+    beforeEach(() => {
+        global.activeFeatureFlags = [];
     });
 
     afterEach(() => {
@@ -153,6 +177,41 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
         );
 
         expect(wrapper.find('sw-order-create-options-stub').exists()).toBeTruthy();
+    });
+
+    it('should render Meteor tabs when the feature is active', async () => {
+        Shopware.Store.get('swOrder').setCustomer({
+            id: '1234',
+        });
+
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper();
+        const mtTabs = wrapper.getComponent('.mt-tabs-stub');
+
+        expect(mtTabs.props('positionIdentifier')).toBe('sw-order-create-initial-modal');
+        expect(mtTabs.props('defaultItem')).toBe('customer');
+        expect(mtTabs.props('items')).toEqual([
+            expect.objectContaining({
+                label: 'sw-order.initialModal.tabCustomer',
+                name: 'customer',
+            }),
+            expect.objectContaining({
+                label: 'sw-order.initialModal.tabProducts',
+                name: 'products',
+                disabled: false,
+            }),
+            expect.objectContaining({
+                label: 'sw-order.initialModal.tabOptions',
+                name: 'options',
+                disabled: false,
+            }),
+        ]);
+
+        mtTabs.vm.$emit('new-item-active', 'products');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.activeTab).toBe('products');
     });
 
     it('should emit modal-close when click cancel button', async () => {

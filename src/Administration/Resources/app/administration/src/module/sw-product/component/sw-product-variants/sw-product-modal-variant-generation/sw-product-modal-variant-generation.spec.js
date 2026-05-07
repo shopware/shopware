@@ -180,6 +180,34 @@ async function createWrapper() {
             },
             global: {
                 stubs: {
+                    'mt-tabs': {
+                        template: '<div class="mt-tabs-stub"></div>',
+                        props: {
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: false,
+                                default: null,
+                            },
+                            defaultItem: {
+                                type: String,
+                                required: false,
+                                default: null,
+                            },
+                            vertical: {
+                                type: Boolean,
+                                required: false,
+                                default: false,
+                            },
+                        },
+                        emits: [
+                            'new-item-active',
+                            'extension-item-active',
+                        ],
+                    },
                     'sw-tabs': true,
                     'sw-tabs-item': true,
                     'sw-modal': await wrapTestComponent('sw-modal', {
@@ -243,6 +271,48 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 },
             };
         });
+    });
+
+    beforeEach(() => {
+        global.activeFeatureFlags = [];
+    });
+
+    it('should render meteor tabs when the feature flag is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper();
+        const tabs = wrapper.getComponent('.mt-tabs-stub');
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-product-modal-variant-generation');
+        expect(tabs.props('defaultItem')).toBe('options');
+        expect(tabs.props('vertical')).toBe(true);
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'sw-product.variations.configuratorModal.selectOptions',
+                name: 'options',
+            },
+        ]);
+
+        await wrapper.setData({ variantsNumber: 1 });
+
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'sw-product.variations.configuratorModal.selectOptions',
+                name: 'options',
+            },
+            {
+                label: 'sw-product.variations.configuratorModal.priceSurcharges',
+                name: 'prices',
+            },
+            {
+                label: 'sw-product.variations.configuratorModal.defineRestrictions',
+                name: 'restrictions',
+            },
+        ]);
+
+        await tabs.vm.$emit('new-item-active', 'prices');
+
+        expect(wrapper.vm.activeTab).toBe('prices');
     });
 
     it('should remove file for all variants', async () => {

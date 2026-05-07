@@ -1,4 +1,5 @@
 import type { RouteLocationNamedRaw } from 'vue-router';
+import type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/MtTabs';
 import type { ModuleManifest } from 'src/core/factory/module.factory';
 import template from './sw-meteor-page.html.twig';
 import './sw-meteor-page.scss';
@@ -34,6 +35,12 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: null,
         },
+
+        tabItems: {
+            type: Array as PropType<TabItem[]>,
+            required: false,
+            default: () => [],
+        },
     },
 
     data(): ComponentData {
@@ -59,7 +66,21 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         hasTabs(): boolean {
-            return typeof this.$slots['page-tabs'] !== 'undefined';
+            return this.useMeteorTabs || typeof this.$slots['page-tabs'] !== 'undefined';
+        },
+
+        useMeteorTabs(): boolean {
+            return Shopware.Feature.isActive('V6_8_0_0') && this.tabItems.length > 0;
+        },
+
+        activeTab(): string {
+            const itemNames = this.tabItems.map((item) => item.name);
+
+            if (itemNames.includes(String(this.$route.name))) {
+                return String(this.$route.name);
+            }
+
+            return itemNames[0] ?? '';
         },
 
         pageColor(): string {

@@ -15,7 +15,15 @@
             v-if="componentSection.props?.tabs"
             #tabs
         >
+            <mt-tabs
+                v-if="useMeteorTabs"
+                :items="getTabItems(componentSection)"
+                :default-item="getActiveTab(componentSection)?.name"
+                @new-item-active="setActiveTab"
+            />
+
             <sw-tabs
+                v-else
                 position-identifier=""
                 @new-item-active="setActiveTab($event.name)"
             >

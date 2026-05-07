@@ -13,7 +13,19 @@
             v-if="!isLoading && propertiesAvailable"
             #tabs
         >
+            <mt-tabs
+                v-if="useMeteorTabs"
+                position-identifier="sw-variant-card-tabs"
+                :small="false"
+                :items="tabItems"
+                :default-item="activeTab"
+                :render-extension-content="false"
+                @new-item-active="setActiveTab"
+                @extension-item-active="setActiveTab"
+            />
+
             <sw-tabs
+                v-else
                 position-identifier="sw-variant-card-tabs"
                 :small="false"
                 :default-item="defaultTab"
@@ -71,9 +83,14 @@
         </mt-empty-state>
         {% endblock %}
 
+        <sw-extension-component-section
+            v-if="hasActiveExtensionTab"
+            :position-identifier="activeTab"
+        />
+
         {% block sw_product_detail_variants_sw_card_generated_variants_overview %}
         <sw-product-variants-overview
-            v-if="product.id"
+            v-if="product.id && !hasActiveExtensionTab"
             v-show="variantListHasContent && !isLoading"
             ref="generatedVariants"
             :product-states="currentProductStates"
@@ -89,7 +106,7 @@
 
         {% block sw_product_detail_variants_sw_card_empty_state_variant %}
         <mt-empty-state
-            v-if="!isLoading && propertiesAvailable && variants.length === 0"
+            v-if="!isLoading && propertiesAvailable && variants.length === 0 && !hasActiveExtensionTab"
             :icon="$route.meta.$module.icon"
             :headline="$t('sw-product.variations.emptyStateTitle')"
             :description="$t('sw-product.variations.emptyStateDescription')"

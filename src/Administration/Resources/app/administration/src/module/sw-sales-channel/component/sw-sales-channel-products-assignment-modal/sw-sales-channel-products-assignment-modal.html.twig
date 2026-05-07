@@ -8,6 +8,7 @@
     <template #default>
         {% block sw_sales_channel_products_assignment_modal_tabs %}
         <sw-tabs
+            v-if="!useMeteorTabs"
             class="sw-sales-channel-products-assignment-modal__tabs"
             position-identifier="sw-sales-channel-products-assignment-modal"
             default-item="singleProducts"
@@ -83,6 +84,58 @@
                 </div>
             </template>
         </sw-tabs>
+
+        <template v-else>
+            {% block sw_sales_channel_products_assignment_modal_meteor_tabs %}
+            <mt-tabs
+                class="sw-sales-channel-products-assignment-modal__tabs"
+                position-identifier="sw-sales-channel-products-assignment-modal"
+                :items="tabItems"
+                :default-item="activeTab"
+                @new-item-active="setActiveTab"
+                @extension-item-active="setActiveTab"
+            />
+            {% endblock %}
+
+            {% block sw_sales_channel_products_assignment_modal_meteor_tab_content %}
+            <div
+                class="sw-sales-channel-products-assignment-modal__content"
+                :height="tabContentHeight"
+            >
+                {% block sw_sales_channel_products_assignment_modal_meteor_tab_content_single_products %}
+                <sw-sales-channel-products-assignment-single-products
+                    ref="product"
+                    v-hide="activeTab === 'singleProducts'"
+                    :sales-channel="salesChannel"
+                    :container-style="productContainerStyle"
+                    @selection-change="onChangeSelection"
+                />
+                {% endblock %}
+
+                {% block sw_sales_channel_products_assignment_modal_meteor_tab_content_categories %}
+                <sw-sales-channel-product-assignment-categories
+                    ref="category"
+                    v-hide="activeTab === 'categories'"
+                    :sales-channel="salesChannel"
+                    :container-style="categoryContainerStyle"
+                    @selection-change="onChangeSelection"
+                    @product-loading="setProductLoading"
+                />
+                {% endblock %}
+
+                {% block sw_sales_channel_products_assignment_modal_meteor_tab_content_dynamic_product_groups %}
+                <sw-sales-channel-products-assignment-dynamic-product-groups
+                    ref="productGroup"
+                    v-hide="activeTab === 'dynamicProductGroups'"
+                    :sales-channel="salesChannel"
+                    :container-style="productGroupContainerStyle"
+                    @selection-change="onChangeSelection"
+                    @product-loading="setProductLoading"
+                />
+                {% endblock %}
+            </div>
+            {% endblock %}
+        </template>
         {% endblock %}
     </template>
 

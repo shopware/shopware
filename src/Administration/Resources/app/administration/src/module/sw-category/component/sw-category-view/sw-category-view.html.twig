@@ -25,8 +25,17 @@
     {% endblock %}
 
     {% block sw_category_view_tabs %}
+    <mt-tabs
+        v-if="!isLoading && useMeteorTabs"
+        position-identifier="sw-category-view"
+        class="sw-category-detail-page__tabs"
+        :items="tabItems"
+        :default-item="activeTab"
+        route-tabs
+    />
+
     <sw-tabs
-        v-if="!isLoading"
+        v-else-if="!isLoading"
         position-identifier="sw-category-view"
         class="sw-category-detail-page__tabs"
     >

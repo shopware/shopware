@@ -61,7 +61,18 @@
             {% endblock %}
 
             {% block sw_settings_country_tabs_header %}
-            <sw-tabs position-identifier="sw-settings-country-detail-header">
+            <mt-tabs
+                v-if="useMeteorTabs"
+                position-identifier="sw-settings-country-detail-header"
+                :items="tabItems"
+                :default-item="activeTab"
+                route-tabs
+            />
+
+            <sw-tabs
+                v-else
+                position-identifier="sw-settings-country-detail-header"
+            >
                 {% block sw_setting_country_tabs_setting %}
                 <sw-tabs-item
                     v-bind="$props"

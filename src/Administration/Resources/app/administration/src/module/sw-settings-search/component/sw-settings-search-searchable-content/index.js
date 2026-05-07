@@ -252,6 +252,23 @@ export default {
         storefrontEsEnable() {
             return Context.app.storefrontEsEnable ?? false;
         },
+
+        useMeteorTabs() {
+            return Shopware.Feature.isActive('V6_8_0_0');
+        },
+
+        tabItems() {
+            return [
+                {
+                    label: this.$t('sw-settings-search.generalTab.labelGeneralTab'),
+                    name: this.tabNames.generalTab,
+                },
+                {
+                    label: this.$t('sw-settings-search.generalTab.labelCustomFieldsTab'),
+                    name: this.tabNames.customTab,
+                },
+            ];
+        },
     },
 
     watch: {
@@ -326,6 +343,10 @@ export default {
         onChangeTab(tabContent) {
             this.defaultTab = tabContent;
             this.loadData();
+        },
+
+        setActiveExtensionTab(tabContent) {
+            this.defaultTab = tabContent;
         },
 
         loadData() {

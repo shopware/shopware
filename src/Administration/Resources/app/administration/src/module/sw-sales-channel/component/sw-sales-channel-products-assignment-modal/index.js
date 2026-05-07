@@ -64,6 +64,7 @@ export default {
                 display: 'grid',
                 placeItems: 'stretch',
             },
+            activeTab: 'singleProducts',
         };
     },
 
@@ -81,6 +82,27 @@ export default {
                 ],
                 'id',
             );
+        },
+
+        useMeteorTabs() {
+            return Shopware.Feature.isActive('V6_8_0_0');
+        },
+
+        tabItems() {
+            return [
+                {
+                    label: this.$t('sw-sales-channel.detail.productAssignmentModal.singleProducts'),
+                    name: 'singleProducts',
+                },
+                {
+                    label: this.$t('sw-sales-channel.detail.productAssignmentModal.categories.title'),
+                    name: 'categories',
+                },
+                {
+                    label: this.$t('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.title'),
+                    name: 'dynamicProductGroups',
+                },
+            ];
         },
     },
 
@@ -138,6 +160,10 @@ export default {
 
         setProductLoading(isProductLoading) {
             this.isProductLoading = isProductLoading;
+        },
+
+        setActiveTab(tabName) {
+            this.activeTab = tabName;
         },
     },
 };

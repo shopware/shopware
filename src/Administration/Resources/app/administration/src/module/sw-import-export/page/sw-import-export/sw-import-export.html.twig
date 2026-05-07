@@ -3,7 +3,18 @@
     <template #content>
         <sw-card-view>
             {% block sw_import_export_tabs %}
-            <sw-tabs position-identifier="sw-import-export">
+            <mt-tabs
+                v-if="useMeteorTabs"
+                position-identifier="sw-import-export"
+                :items="tabItems"
+                :default-item="activeTab"
+                route-tabs
+            />
+
+            <sw-tabs
+                v-else
+                position-identifier="sw-import-export"
+            >
                 {% block sw_import_export_tabs_import %}
                 <sw-tabs-item :route="{ name: 'sw.import.export.index.import' }">
                     {{ $t('sw-import-export.page.importTab') }}

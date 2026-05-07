@@ -39,6 +39,27 @@ export default {
     },
 
     computed: {
+        useMeteorTabs() {
+            return Shopware.Feature.isActive('V6_8_0_0');
+        },
+
+        tabItems() {
+            return [
+                {
+                    label: this.$t('sw-product.variations.deliveryModal.order'),
+                    name: 'order',
+                },
+                {
+                    label: this.$t('sw-product.variations.deliveryModal.media'),
+                    name: 'media',
+                },
+                {
+                    label: this.$t('sw-product.variations.deliveryModal.listing'),
+                    name: 'listing',
+                },
+            ];
+        },
+
         productRepository() {
             return this.repositoryFactory.create('product');
         },
@@ -72,6 +93,10 @@ export default {
 
         cancelDeliveryConfiguration() {
             this.$emit('configuration-close');
+        },
+
+        setActiveTab(tabName) {
+            this.activeTab = tabName;
         },
 
         handleExpandedListing(product) {

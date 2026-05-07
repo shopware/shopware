@@ -11,8 +11,17 @@
     {% endblock %}
 
     {% block sw_landing_page_view_tabs %}
+    <mt-tabs
+        v-if="!isLoading && useMeteorTabs"
+        class="sw-customer-detail-page__tabs"
+        position-identifier="sw-landing-page-view"
+        :items="tabItems"
+        :default-item="activeTab"
+        route-tabs
+    />
+
     <sw-tabs
-        v-if="!isLoading"
+        v-else-if="!isLoading"
         class="sw-customer-detail-page__tabs"
         position-identifier="sw-landing-page-view"
     >

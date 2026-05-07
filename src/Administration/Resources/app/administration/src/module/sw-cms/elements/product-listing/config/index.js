@@ -24,6 +24,7 @@ export default {
 
     data() {
         return {
+            activeTab: 'content',
             productSortings: new EntityCollection('/product-sorting', 'product_sorting', Shopware.Context.api),
             defaultSorting: {},
             filters: [],
@@ -36,6 +37,27 @@ export default {
     },
 
     computed: {
+        useMeteorTabs() {
+            return Shopware.Feature.isActive('V6_8_0_0');
+        },
+
+        tabItems() {
+            return [
+                {
+                    label: this.$t('sw-cms.elements.general.config.tab.content'),
+                    name: 'content',
+                },
+                {
+                    label: this.$t('sw-cms.elements.productListing.config.tab.sorting'),
+                    name: 'sorting',
+                },
+                {
+                    label: this.$t('sw-cms.elements.productListing.config.tab.filter'),
+                    name: 'filter',
+                },
+            ];
+        },
+
         showSortingGrid() {
             return this.element.config.useCustomSorting.value;
         },
@@ -257,6 +279,10 @@ export default {
     },
 
     methods: {
+        setActiveTab(tabName) {
+            this.activeTab = tabName;
+        },
+
         createdComponent() {
             this.initElementConfig('product-listing');
 

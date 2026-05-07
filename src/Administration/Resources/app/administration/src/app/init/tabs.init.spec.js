@@ -184,6 +184,31 @@ describe('src/app/init/tabs.init', () => {
         );
     });
 
+    it('should create correct route entry for tab item when route gets opened with query parameters', async () => {
+        // add tab
+        await ui.tabs('route-position-example-id').addTabItem({
+            label: 'My tab item with route',
+            componentSectionId: 'route-example-component-section-id',
+        });
+
+        // initialize view
+        await Shopware.Application._resolveViewInitialized();
+
+        // Visit the route and expect that the interceptor redirects the route
+        await routerMock.push('/sw/category/index/eXaMpLeId/route-example-component-section-id?edit=true');
+
+        // Check if route was created correctly
+        expect(routerMock.resolve('/sw/category/index/eXaMpLeId/route-example-component-section-id').matched[1]).toEqual(
+            expect.objectContaining({
+                name: 'sw.category.index.route-example-component-section-id',
+                path: '/sw/category/index/:id?/route-example-component-section-id',
+            }),
+        );
+        expect(routerMock.currentRoute.value.query).toEqual({
+            edit: 'true',
+        });
+    });
+
     it('should add the correct meta data to the route (dynamic)', async () => {
         // add tab
         await ui.tabs('route-position-example-id').addTabItem({

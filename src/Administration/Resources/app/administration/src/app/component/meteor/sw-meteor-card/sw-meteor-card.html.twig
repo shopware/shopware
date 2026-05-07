@@ -53,12 +53,23 @@
         {% endblock %}
 
         {% block sw_meteor_card_tabs %}
+        <mt-tabs
+            v-if="hasTabs && useMeteorTabs"
+            position-identifier="sw-meteor-card"
+            :items="tabItems"
+            :small="false"
+            :default-item="defaultTab"
+            :render-extension-content="false"
+            @new-item-active="setActiveTab"
+            @extension-item-active="setActiveTab"
+        />
+
         <sw-tabs
-            v-if="hasTabs"
+            v-else-if="hasTabs"
             position-identifier="sw-meteor-card"
             :small="false"
             :default-item="defaultTab"
-            @new-item-active="setActiveTab($event.name)"
+            @new-item-active="setActiveTabItem"
         >
             <slot
                 name="tabs"
@@ -76,18 +87,26 @@
     >
         {% block sw_meteor_card_content_wrapper %}
         <div
-            v-if="hasDefaultSlot"
+            v-if="hasDefaultSlot || hasActiveExtensionTab"
             class="sw-meteor-card__content-wrapper"
         >
             {% block sw_meteor_card_default_inner %}
-            <slot v-bind="{ activeTab }">
+            <slot
+                v-if="!hasActiveExtensionTab"
+                v-bind="{ activeTab }"
+            >
                 {% block sw_meteor_card_slot_default %}{% endblock %}
             </slot>
+            <sw-extension-component-section
+                v-else
+                :position-identifier="activeTab"
+            />
             {% endblock %}
         </div>
         {% endblock %}
 
         <slot
+            v-if="!hasActiveExtensionTab"
             name="grid"
             :title="title"
         >

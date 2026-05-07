@@ -120,6 +120,34 @@ async function createWrapper(layoutType = 'product_list', systemConfigApiService
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
                     'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                     'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+                    'mt-tabs': {
+                        name: 'mt-tabs',
+                        props: {
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: true,
+                            },
+                            defaultItem: {
+                                type: String,
+                                required: false,
+                                default: null,
+                            },
+                            renderExtensionContent: {
+                                type: Boolean,
+                                required: false,
+                                default: true,
+                            },
+                        },
+                        emits: [
+                            'new-item-active',
+                            'extension-item-active',
+                        ],
+                        template: '<div class="mt-tabs-stub"></div>',
+                    },
                     'sw-category-tree-field': {
                         template: `
                         <div class="sw-category-tree-field-stub">
@@ -159,7 +187,10 @@ async function createWrapper(layoutType = 'product_list', systemConfigApiService
                     'sw-label': true,
                     transition: false,
                     'router-link': true,
-                    'sw-extension-component-section': true,
+                    'sw-extension-component-section': {
+                        props: ['positionIdentifier'],
+                        template: '<div class="sw-extension-component-section-stub"></div>',
+                    },
                     'sw-product-variant-info': true,
                     'sw-help-text': true,
                     'sw-inherit-wrapper': true,
@@ -211,6 +242,7 @@ async function createWrapper(layoutType = 'product_list', systemConfigApiService
 
 describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     beforeEach(() => {
+        global.activeFeatureFlags = [];
         global.activeAclRoles = [];
     });
 
@@ -234,6 +266,79 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         expect(
             wrapper.find('.sw-cms-layout-assignment-modal__tab-shop-pages').classes('sw-tabs-item--is-disabled'),
         ).toBeTruthy();
+    });
+
+    it('should render Meteor tabs for shop page assignments', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+        global.activeAclRoles = ['system.system_config'];
+
+        const wrapper = await createWrapper('page');
+        const tabs = wrapper.getComponent('.mt-tabs-stub');
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-cms-layout-assignment-modal');
+        expect(tabs.props('defaultItem')).toBe('categories');
+        expect(tabs.props('renderExtensionContent')).toBe(false);
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'sw-cms.components.cmsLayoutAssignmentModal.tabCategories',
+                name: 'categories',
+            },
+            {
+                label: 'sw-cms.components.cmsLayoutAssignmentModal.tabShopPages',
+                name: 'shop_pages',
+                disabled: false,
+            },
+        ]);
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__category-select').exists()).toBe(true);
+
+        await tabs.vm.$emit('new-item-active', 'shop_pages');
+        await flushPromises();
+
+        expect(wrapper.vm.activeTab).toBe('shop_pages');
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__sales-channel-select').exists()).toBe(true);
+
+        await tabs.vm.$emit('extension-item-active', 'extension-tab');
+        await flushPromises();
+
+        expect(wrapper.vm.activeTab).toBe('extension-tab');
+        expect(wrapper.vm.hasActiveExtensionTab).toBe(true);
+        expect(wrapper.getComponent('.sw-extension-component-section-stub').props('positionIdentifier')).toBe(
+            'extension-tab',
+        );
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__category-select').exists()).toBe(false);
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__sales-channel-select').exists()).toBe(false);
+    });
+
+    it('should keep restricted Meteor shop page tab disabled without system config permission', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper('page');
+        const tabs = wrapper.getComponent('.mt-tabs-stub');
+
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'sw-cms.components.cmsLayoutAssignmentModal.tabCategories',
+                name: 'categories',
+            },
+            {
+                label: 'sw-cms.components.cmsLayoutAssignmentModal.tabShopPages',
+                name: 'shop_pages',
+                disabled: true,
+            },
+        ]);
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__category-select').exists()).toBe(true);
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__sales-channel-select').exists()).toBe(false);
+    });
+
+    it('should keep category content for Meteor layouts without visible core tabs', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper();
+        const tabs = wrapper.getComponent('.mt-tabs-stub');
+
+        expect(tabs.props('items')).toEqual([]);
+        expect(tabs.props('defaultItem')).toBe('categories');
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__category-select').exists()).toBe(true);
     });
 
     it('should not render tabs when type is not shop page', async () => {

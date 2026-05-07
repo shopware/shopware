@@ -7,7 +7,7 @@ import 'src/app/component/meteor/sw-meteor-page';
 import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';
 
-async function createWrapper(slotsData = {}) {
+async function createWrapper(slotsData = {}, customConfig = {}) {
     return mount(await wrapTestComponent('sw-meteor-page', { sync: true }), {
         global: {
             stubs: {
@@ -25,13 +25,44 @@ async function createWrapper(slotsData = {}) {
                 'router-link': {
                     template: '<div class="router-link"><slot></slot></div>',
                 },
-                'mt-tabs': true,
+                'mt-tabs': {
+                    name: 'mt-tabs',
+                    props: {
+                        items: {
+                            type: Array,
+                            required: true,
+                        },
+                        defaultItem: {
+                            type: String,
+                            required: false,
+                            default: null,
+                        },
+                        positionIdentifier: {
+                            type: String,
+                            required: false,
+                            default: null,
+                        },
+                        small: {
+                            type: Boolean,
+                            required: false,
+                            default: true,
+                        },
+                        routeTabs: {
+                            type: Boolean,
+                            required: false,
+                            default: false,
+                        },
+                    },
+                    emits: ['new-item-active'],
+                    template: '<div class="mt-tabs-stub"></div>',
+                },
                 'sw-extension-component-section': true,
                 'sw-app-topbar-button': true,
                 'sw-app-topbar-sidebar': true,
             },
             mocks: {
                 $route: {
+                    name: customConfig.routeName,
                     meta: {
                         $module: {
                             icon: 'regular-plug',
@@ -54,6 +85,7 @@ async function createWrapper(slotsData = {}) {
             fromLink: {
                 name: 'path.to.from.link',
             },
+            ...(customConfig.props ?? {}),
         },
     });
 }
@@ -76,6 +108,10 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
                 );
             },
         });
+    });
+
+    beforeEach(() => {
+        global.activeFeatureFlags = [''];
     });
 
     it('should be in full width', async () => {
@@ -194,6 +230,63 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
         expect(routerLinksStubs.at(0).text()).toBe('Tab 1');
         expect(routerLinksStubs.at(1).text()).toBe('Tab 2');
         expect(routerLinksStubs.at(2).text()).toBe('Tab 3');
+    });
+
+    it('should render mt-tabs with tab items when the major feature flag is enabled', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const tabItems = [
+            {
+                label: 'Tab 1',
+                name: 'tab.one',
+            },
+            {
+                label: 'Tab 2',
+                name: 'tab.two',
+            },
+        ];
+
+        const wrapper = await createWrapper(
+            {},
+            {
+                props: {
+                    tabItems,
+                },
+                routeName: 'tab.two',
+            },
+        );
+        await flushPromises();
+
+        const tabs = wrapper.getComponent('.mt-tabs-stub');
+
+        expect(tabs.props('items')).toEqual(tabItems);
+        expect(tabs.props('positionIdentifier')).toBe('sw-meteor-page');
+        expect(tabs.props('defaultItem')).toBe('tab.two');
+        expect(tabs.props('routeTabs')).toBe(true);
+
+        await tabs.vm.$emit('new-item-active', 'tab.two');
+
+        expect(wrapper.emitted('new-item-active')).toEqual([['tab.two']]);
+    });
+
+    it('should not render tabItems while the major feature flag is inactive', async () => {
+        const wrapper = await createWrapper(
+            {},
+            {
+                props: {
+                    tabItems: [
+                        {
+                            label: 'Tab 1',
+                            name: 'tab.one',
+                        },
+                    ],
+                },
+            },
+        );
+        await flushPromises();
+
+        expect(wrapper.find('.mt-tabs-stub').exists()).toBe(false);
+        expect(wrapper.find('.sw-tabs__content').exists()).toBe(false);
     });
 
     it('should not render the tabs when slot is empty', async () => {

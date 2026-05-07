@@ -41,7 +41,31 @@ async function createWrapper() {
                     'mt-number-field': true,
                     'sw-media-add-thumbnail-form': true,
                     'sw-loader': true,
-                    'mt-tabs': true,
+                    'mt-tabs': {
+                        props: {
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: false,
+                                default: '',
+                            },
+                            defaultItem: {
+                                type: String,
+                                required: false,
+                                default: '',
+                            },
+                            small: {
+                                type: Boolean,
+                                required: false,
+                                default: true,
+                            },
+                        },
+                        emits: ['new-item-active'],
+                        template: '<div class="mt-tabs-stub"></div>',
+                    },
                     'sw-tabs-deprecated': true,
                 },
                 provide: {
@@ -87,6 +111,8 @@ describe('src/app/asyncComponent/media/sw-media-modal-folder-settings', () => {
     let wrapper;
 
     beforeEach(async () => {
+        global.activeFeatureFlags = [];
+
         wrapper = await createWrapper();
     });
 
@@ -226,5 +252,36 @@ describe('src/app/asyncComponent/media/sw-media-modal-folder-settings', () => {
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
             message: 'global.sw-media-modal-folder-settings.notification.error.messageThumbnailSizeExisted',
         });
+    });
+
+    it('should render Meteor tabs when the feature is active', async () => {
+        await wrapper.unmount();
+
+        global.activeFeatureFlags = ['V6_8_0_0'];
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const mtTabs = wrapper.getComponent('.mt-tabs-stub');
+
+        expect(mtTabs.props('positionIdentifier')).toBe('sw-media-modal-folder-settings');
+        expect(mtTabs.props('defaultItem')).toBe('settings');
+        expect(mtTabs.props('small')).toBe(false);
+        expect(mtTabs.props('items')).toEqual([
+            expect.objectContaining({
+                label: 'global.sw-media-modal-folder-settings.labelSettings',
+                name: 'settings',
+                hasError: false,
+            }),
+            expect.objectContaining({
+                label: 'global.sw-media-modal-folder-settings.labelThumbnails',
+                name: 'thumbnails',
+            }),
+        ]);
+
+        mtTabs.vm.$emit('new-item-active', 'thumbnails');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.activeTab).toBe('thumbnails');
+        expect(wrapper.vm.modalClass).toBe('');
     });
 });

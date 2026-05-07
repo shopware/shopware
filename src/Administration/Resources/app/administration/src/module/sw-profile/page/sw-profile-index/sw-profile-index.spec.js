@@ -10,6 +10,7 @@ async function createWrapper(
     isSso = { isSso: false },
     saveFunction = () => Promise.resolve({}),
     loginService = { loginByUsername: () => Promise.resolve({}), logout: () => {} },
+    customConfig = {},
 ) {
     return mount(await wrapTestComponent('sw-profile-index', { sync: true }), {
         global: {
@@ -36,9 +37,40 @@ async function createWrapper(
                 'sw-language-info': true,
                 'sw-tabs': true,
                 'sw-tabs-item': true,
+                'mt-tabs': {
+                    name: 'mt-tabs',
+                    props: {
+                        items: {
+                            type: Array,
+                            required: true,
+                        },
+                        positionIdentifier: {
+                            type: String,
+                            default: null,
+                        },
+                        defaultItem: {
+                            type: String,
+                            default: '',
+                        },
+                        routeTabs: {
+                            type: Boolean,
+                            default: false,
+                        },
+                    },
+                    template: '<div class="mt-tabs-stub"></div>',
+                },
                 'sw-skeleton': true,
                 'sw-verify-user-modal': true,
                 'sw-media-modal-v2': true,
+            },
+            mocks: {
+                $route: customConfig.route ?? {
+                    name: 'sw.profile.index.general',
+                    params: {},
+                },
+                $router: {
+                    push: customConfig.routerPush ?? jest.fn(),
+                },
             },
             provide: {
                 acl: {
@@ -129,6 +161,48 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
                 setLocaleWithId: jest.fn(),
             };
         });
+    });
+
+    beforeEach(() => {
+        global.activeFeatureFlags = [];
+    });
+
+    it('should render route-backed mt-tabs when the major feature flag is enabled', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+        const routerPush = jest.fn();
+
+        const wrapper = await createWrapper([], { isSso: false }, () => Promise.resolve({}), undefined, {
+            routerPush,
+            route: {
+                name: 'sw.profile.index.general',
+                params: {},
+            },
+        });
+        await flushPromises();
+
+        const tabs = wrapper.getComponent('.mt-tabs-stub');
+        expect(tabs.props('positionIdentifier')).toBe('sw-profile-index');
+        expect(tabs.props('defaultItem')).toBe('sw.profile.index.general');
+        expect(tabs.props('routeTabs')).toBe(true);
+
+        const items = tabs.props('items');
+        expect(items).toEqual([
+            expect.objectContaining({
+                label: 'sw-profile.tabGeneral.title',
+                name: 'sw.profile.index.general',
+            }),
+            expect.objectContaining({
+                label: 'sw-profile.tabSearchPreferences.title',
+                name: 'sw.profile.index.searchPreferences',
+            }),
+            expect.objectContaining({
+                label: 'sw-profile.tabPrivacyPreferences.title',
+                name: 'sw.profile.index.privacyPreferences',
+            }),
+        ]);
+
+        items[1].onClick();
+        expect(routerPush).toHaveBeenCalledWith({ name: 'sw.profile.index.searchPreferences' });
     });
 
     it('should not be able to save own user', async () => {

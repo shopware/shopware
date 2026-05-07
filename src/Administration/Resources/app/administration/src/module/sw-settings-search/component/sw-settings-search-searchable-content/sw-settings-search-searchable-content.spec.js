@@ -40,6 +40,29 @@ async function createWrapper(privileges = []) {
                     },
                     'sw-tabs': true,
                     'sw-tabs-item': true,
+                    'mt-tabs': {
+                        props: {
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: false,
+                                default: '',
+                            },
+                            defaultItem: {
+                                type: String,
+                                required: false,
+                                default: '',
+                            },
+                        },
+                        emits: [
+                            'new-item-active',
+                            'extension-item-active',
+                        ],
+                        template: '<div class="mt-tabs-stub"></div>',
+                    },
                     'sw-settings-search-example-modal': await wrapTestComponent('sw-settings-search-example-modal'),
                     'sw-modal': {
                         template: '<div class="sw-modal"><slot></slot></div>',
@@ -54,6 +77,10 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-search/component/sw-settings-search-searchable-content', () => {
+    beforeEach(() => {
+        global.activeFeatureFlags = [];
+    });
+
     it('Should be show example modal when the link was clicked', async () => {
         const wrapper = await createWrapper([
             'product_search_config.viewer',
@@ -101,5 +128,40 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.storefrontEsEnable).toBeTruthy();
+    });
+
+    it('should render Meteor tabs when the feature is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper();
+        wrapper.vm.loadData = jest.fn();
+
+        const mtTabs = wrapper.getComponent('.mt-tabs-stub');
+
+        expect(mtTabs.props('positionIdentifier')).toBe('sw-settings-search-searchable-content');
+        expect(mtTabs.props('defaultItem')).toBe('general');
+        expect(mtTabs.props('items')).toEqual([
+            expect.objectContaining({
+                label: 'sw-settings-search.generalTab.labelGeneralTab',
+                name: 'general',
+            }),
+            expect.objectContaining({
+                label: 'sw-settings-search.generalTab.labelCustomFieldsTab',
+                name: 'customfields',
+            }),
+        ]);
+
+        mtTabs.vm.$emit('new-item-active', 'customfields');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.defaultTab).toBe('customfields');
+        expect(wrapper.vm.loadData).toHaveBeenCalled();
+
+        wrapper.vm.loadData.mockClear();
+        mtTabs.vm.$emit('extension-item-active', 'extension-tab');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.defaultTab).toBe('extension-tab');
+        expect(wrapper.vm.loadData).not.toHaveBeenCalled();
     });
 });

@@ -5,7 +5,59 @@
     @modal-close="onClose"
 >
     {% block sw_order_address_modal_content %}
+    <template v-if="useMeteorTabs">
+        {% block sw_order_address_modal_meteor_tabs %}
+        <mt-tabs
+            class="sw-order-address-modal"
+            position-identifier="sw-order-address-modal"
+            :items="tabItems"
+            :default-item="activeTab"
+            @new-item-active="setActiveTab"
+            @extension-item-active="setActiveTab"
+        />
+        {% endblock %}
+
+        {% block sw_order_address_modal_meteor_tabs_content %}
+        <div v-if="activeTab === 'edit'">
+            {% block sw_order_address_modal_meteor_tabs_content_edit_address %}
+            <sw-customer-address-form
+                :address="address"
+                :customer="orderCustomer"
+                :countries="countries"
+                :disabled="!acl.can('order.editor')"
+            />
+            <sw-custom-field-set-renderer
+                :entity="address"
+                variant="tabs"
+                :sets="addressCustomFieldSets"
+                :disabled="!acl.can('order.editor')"
+            />
+            {% endblock %}
+        </div>
+        <div v-if="activeTab === 'addresses'">
+            {% block sw_order_address_modal_meteor_tabs_content_select_address %}
+            <mt-button
+                v-for="address in availableAddresses"
+                :key="address.id"
+                block
+                :class="addressButtonClasses(address.id)"
+                variant="secondary"
+                data-analytics-id="sw-order-address-modal.select-existing-address"
+                @click="onExistingAddressSelected(address)"
+            >
+                {{ address.company }} <br>
+                {{ salutationFilter(address) }}<br>
+                {{ address.street }} <br>
+                {{ address.zipcode }} {{ address.city }}<br>
+                {{ placeholder(address.country, 'name') }}<br>
+            </mt-button>
+            {% endblock %}
+        </div>
+        {% endblock %}
+    </template>
+
     <sw-tabs
+        v-else
         class="sw-order-address-modal"
         position-identifier="sw-order-address-modal"
         default-item="edit"

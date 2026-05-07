@@ -30,6 +30,7 @@ async function createWrapper(
     },
     isSso = { isSso: false },
     roleSaveFunction = jest.fn(() => Promise.resolve()),
+    customConfig = {},
 ) {
     privilegeMappingEntries.forEach((mappingEntry) => privilegesService.addPrivilegeMappingEntry(mappingEntry));
 
@@ -61,12 +62,37 @@ async function createWrapper(
                     'sw-verify-user-modal': true,
                     'sw-tabs': true,
                     'sw-tabs-item': true,
+                    'mt-tabs': {
+                        name: 'mt-tabs',
+                        props: {
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                default: null,
+                            },
+                            defaultItem: {
+                                type: String,
+                                default: '',
+                            },
+                            routeTabs: {
+                                type: Boolean,
+                                default: false,
+                            },
+                        },
+                        template: '<div class="mt-tabs-stub"></div>',
+                    },
                     'router-view': true,
                     'sw-skeleton': true,
                     'sw-loader': true,
                 },
                 mocks: {
-                    $route: $route,
+                    $route: customConfig.route ?? $route,
+                    $router: {
+                        push: customConfig.routerPush ?? jest.fn(),
+                    },
                 },
                 provide: {
                     acl: {
@@ -113,6 +139,50 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
     beforeEach(async () => {
         privilegesService = new PrivilegesService();
+        global.activeFeatureFlags = [];
+    });
+
+    it('should render route-backed mt-tabs when the major feature flag is enabled', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+        const routerPush = jest.fn();
+
+        wrapper = await createWrapper(
+            {},
+            { isNew: false },
+            { isSso: false },
+            jest.fn(() => Promise.resolve()),
+            {
+                routerPush,
+                route: {
+                    name: 'sw.users.permissions.role.detail.general',
+                    params: { id: '12345789' },
+                },
+            },
+        );
+        await flushPromises();
+
+        const tabs = wrapper.getComponent('.mt-tabs-stub');
+        expect(tabs.props('positionIdentifier')).toBe('sw-users-permissions-role-detail-content');
+        expect(tabs.props('defaultItem')).toBe('sw.users.permissions.role.detail.general');
+        expect(tabs.props('routeTabs')).toBe(true);
+
+        const items = tabs.props('items');
+        expect(items).toEqual([
+            expect.objectContaining({
+                label: 'sw-users-permissions.roles.tabs.general',
+                name: 'sw.users.permissions.role.detail.general',
+            }),
+            expect.objectContaining({
+                label: 'sw-users-permissions.roles.tabs.detailed',
+                name: 'sw.users.permissions.role.detail.detailed-privileges',
+            }),
+        ]);
+
+        items[1].onClick();
+        expect(routerPush).toHaveBeenCalledWith({
+            name: 'sw.users.permissions.role.detail.detailed-privileges',
+            params: { id: '12345789' },
+        });
     });
 
     it('should not contain any privileges', async () => {

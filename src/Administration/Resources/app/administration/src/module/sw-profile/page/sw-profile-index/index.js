@@ -58,6 +58,40 @@ export default {
     },
 
     computed: {
+        useMeteorTabs() {
+            return Shopware.Feature.isActive('V6_8_0_0');
+        },
+
+        activeTab() {
+            return this.tabItems.find((item) => item.name === this.$route.name)?.name ?? this.tabItems[0]?.name;
+        },
+
+        tabItems() {
+            return [
+                {
+                    label: this.$t('sw-profile.tabGeneral.title'),
+                    name: 'sw.profile.index.general',
+                    onClick: () => {
+                        void this.$router.push({ name: 'sw.profile.index.general' });
+                    },
+                },
+                {
+                    label: this.$t('sw-profile.tabSearchPreferences.title'),
+                    name: 'sw.profile.index.searchPreferences',
+                    onClick: () => {
+                        void this.$router.push({ name: 'sw.profile.index.searchPreferences' });
+                    },
+                },
+                {
+                    label: this.$t('sw-profile.tabPrivacyPreferences.title'),
+                    name: 'sw.profile.index.privacyPreferences',
+                    onClick: () => {
+                        void this.$router.push({ name: 'sw.profile.index.privacyPreferences' });
+                    },
+                },
+            ];
+        },
+
         minSearchTermLength() {
             return Store.get('swProfile').minSearchTermLength;
         },

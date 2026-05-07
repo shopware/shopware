@@ -2,6 +2,7 @@ import template from './sw-order-create-initial-modal.html.twig';
 import './sw-order-create-initial-modal.scss';
 
 import type { Cart, LineItem, SalesChannelContext, ContextSwitchParameters, CartDelivery } from '../../order.types';
+import type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/MtTabs';
 
 import { LineItemType } from '../../order.types';
 
@@ -32,6 +33,7 @@ export default Component.wrapComponentConfig({
         productItems: LineItem[];
         context: ContextSwitchParameters;
         shippingCosts: number | null;
+        activeTab: string;
     } {
         return {
             productItems: [],
@@ -40,6 +42,7 @@ export default Component.wrapComponentConfig({
             isProductGridLoading: false,
             disabledAutoPromotion: false,
             shippingCosts: null,
+            activeTab: 'customer',
             context: {
                 currencyId: '',
                 paymentMethodId: '',
@@ -87,6 +90,29 @@ export default Component.wrapComponentConfig({
 
         cartDelivery(): CartDelivery | null {
             return this.cart?.deliveries[0] as CartDelivery | null;
+        },
+
+        useMeteorTabs(): boolean {
+            return Shopware.Feature.isActive('V6_8_0_0');
+        },
+
+        tabItems(): TabItem[] {
+            return [
+                {
+                    label: this.$t('sw-order.initialModal.tabCustomer'),
+                    name: 'customer',
+                },
+                {
+                    label: this.$t('sw-order.initialModal.tabProducts'),
+                    name: 'products',
+                    disabled: !this.customer,
+                },
+                {
+                    label: this.$t('sw-order.initialModal.tabOptions'),
+                    name: 'options',
+                    disabled: !this.customer,
+                },
+            ];
         },
     },
 
@@ -194,6 +220,10 @@ export default Component.wrapComponentConfig({
 
         updateShippingCost(value: number): void {
             this.shippingCosts = value;
+        },
+
+        setActiveTab(tabName: string): void {
+            this.activeTab = tabName;
         },
 
         async updateOrderContext(): Promise<void> {

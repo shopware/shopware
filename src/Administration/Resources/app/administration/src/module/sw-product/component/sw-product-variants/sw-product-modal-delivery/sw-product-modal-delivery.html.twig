@@ -9,7 +9,18 @@
     {% block sw_product_modal_delivery_sidebar %}
     <div class="sw-product-modal-delivery__sidebar">
         {% block sw_product_modal_delivery_sidebar_tabs %}
+        <mt-tabs
+            v-if="useMeteorTabs"
+            vertical
+            position-identifier="sw-product-modal-delivery"
+            :items="tabItems"
+            :default-item="activeTab"
+            @new-item-active="setActiveTab"
+            @extension-item-active="setActiveTab"
+        />
+
         <sw-tabs
+            v-else
             is-vertical
             position-identifier="sw-product-modal-delivery"
         >

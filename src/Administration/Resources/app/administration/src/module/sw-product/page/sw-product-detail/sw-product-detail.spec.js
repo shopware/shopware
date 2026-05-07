@@ -63,15 +63,22 @@ describe('module/sw-product/page/sw-product-detail', () => {
             return Promise.resolve({ variation: [] });
         },
         productId = '1234',
+        {
+            route = {
+                name: 'sw.product.detail.base',
+                params: {
+                    id: productId,
+                },
+            },
+            routerPush = jest.fn(),
+        } = {},
     ) {
         return mount(await wrapTestComponent('sw-product-detail', { sync: true }), {
             global: {
                 mocks: {
-                    $route: {
-                        name: 'sw.product.detail.base',
-                        params: {
-                            id: productId,
-                        },
+                    $route: route,
+                    $router: {
+                        push: routerPush,
                     },
                 },
                 provide: {
@@ -159,6 +166,31 @@ describe('module/sw-product/page/sw-product-detail', () => {
                             'title',
                         ],
                     },
+                    'mt-tabs': {
+                        name: 'mt-tabs',
+                        template: '<div class="mt-tabs-stub"></div>',
+                        props: {
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: false,
+                                default: null,
+                            },
+                            defaultItem: {
+                                type: String,
+                                required: false,
+                                default: null,
+                            },
+                            routeTabs: {
+                                type: Boolean,
+                                required: false,
+                                default: false,
+                            },
+                        },
+                    },
                     'sw-inheritance-warning': true,
                     'router-link': true,
                     'sw-product-detail': await wrapTestComponent('sw-product-detail'),
@@ -185,6 +217,8 @@ describe('module/sw-product/page/sw-product-detail', () => {
     });
 
     beforeEach(async () => {
+        global.activeFeatureFlags = [];
+
         wrapper = await createWrapper();
 
         Shopware.Store.get('swProductDetail').setLengthUnit = jest.fn();
@@ -214,6 +248,58 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
         tabItemClassName.forEach((item) => {
             expect(wrapper.find(item).exists()).toBe(true);
+        });
+    });
+
+    it('should render product detail route tabs with mt-tabs', async () => {
+        await wrapper.unmount();
+
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const routerPush = jest.fn();
+
+        wrapper = await createWrapper(
+            () => Promise.resolve([]),
+            () => Promise.resolve({ variation: [] }),
+            'product-1',
+            {
+                route: {
+                    name: 'sw.product.detail.layout',
+                    params: {
+                        id: 'product-1',
+                    },
+                },
+                routerPush,
+            },
+        );
+
+        await wrapper.setProps({ productId: 'product-1' });
+        await flushPromises();
+
+        const tabs = wrapper.findComponent({ name: 'mt-tabs' });
+        const items = tabs.props('items');
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-product-detail');
+        expect(tabs.props('defaultItem')).toBe('sw.product.detail.layout');
+        expect(tabs.props('routeTabs')).toBe(true);
+        expect(items.map((item) => item.name)).toEqual([
+            'sw.product.detail.base',
+            'sw.product.detail.specifications',
+            'sw.product.detail.prices',
+            'sw.product.detail.variants',
+            'sw.product.detail.layout',
+            'sw.product.detail.seo',
+            'sw.product.detail.crossSelling',
+            'sw.product.detail.reviews',
+        ]);
+
+        items[6].onClick();
+
+        expect(routerPush).toHaveBeenCalledWith({
+            name: 'sw.product.detail.crossSelling',
+            params: {
+                id: 'product-1',
+            },
         });
     });
 

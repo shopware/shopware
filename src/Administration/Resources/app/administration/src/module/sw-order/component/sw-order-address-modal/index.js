@@ -62,10 +62,28 @@ export default {
             selectedAddressId: 0,
             isLoading: false,
             addressCustomFieldSets: [],
+            activeTab: 'edit',
         };
     },
 
     computed: {
+        useMeteorTabs() {
+            return Shopware.Feature.isActive('V6_8_0_0');
+        },
+
+        tabItems() {
+            return [
+                {
+                    label: this.$t('sw-order.addressSelection.headlineTabEditAddress'),
+                    name: 'edit',
+                },
+                {
+                    label: this.$t('sw-order.addressSelection.headlineTabSelectAddress'),
+                    name: 'addresses',
+                },
+            ];
+        },
+
         customerCriteria() {
             const criteria = new Criteria(1, 1);
             criteria.setIds([this.orderCustomer.customerId]);
@@ -133,6 +151,11 @@ export default {
 
         onNewActiveItem() {
             this.selectedAddressId = 0;
+        },
+
+        setActiveTab(tabName) {
+            this.activeTab = tabName;
+            this.onNewActiveItem();
         },
 
         addressButtonClasses(addressId) {

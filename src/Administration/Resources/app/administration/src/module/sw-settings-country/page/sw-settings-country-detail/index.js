@@ -65,6 +65,45 @@ export default {
     },
 
     computed: {
+        useMeteorTabs() {
+            return Shopware.Feature.isActive('V6_8_0_0');
+        },
+
+        activeTab() {
+            return this.tabItems.find((item) => item.name === this.$route.name)?.name ?? this.tabItems[0]?.name;
+        },
+
+        tabItems() {
+            const routeType = this.isNewCountry ? 'create' : 'detail';
+            const generalRoute = this.getCountryTabRoute(`sw.settings.country.${routeType}.general`);
+            const stateRoute = this.getCountryTabRoute(`sw.settings.country.${routeType}.state`);
+            const addressHandlingRoute = this.getCountryTabRoute(`sw.settings.country.${routeType}.address-handling`);
+
+            return [
+                {
+                    label: this.$t('sw-settings-country.page.generalTab'),
+                    name: generalRoute.name,
+                    onClick: () => {
+                        void this.$router.push(generalRoute);
+                    },
+                },
+                {
+                    label: this.$t('sw-settings-country.page.stateTab'),
+                    name: stateRoute.name,
+                    onClick: () => {
+                        void this.$router.push(stateRoute);
+                    },
+                },
+                {
+                    label: this.$t('sw-settings-country.page.addressHandlingTab'),
+                    name: addressHandlingRoute.name,
+                    onClick: () => {
+                        void this.$router.push(addressHandlingRoute);
+                    },
+                },
+            ];
+        },
+
         currentUserId() {
             return Shopware.Store.get('session').currentUser.id;
         },
@@ -131,6 +170,17 @@ export default {
     },
 
     methods: {
+        getCountryTabRoute(name) {
+            if (this.isNewCountry) {
+                return { name };
+            }
+
+            return {
+                name,
+                params: { id: this.$route.params.id },
+            };
+        },
+
         createdComponent() {
             if (!this.$route.params.id) {
                 return;

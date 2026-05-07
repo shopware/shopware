@@ -68,6 +68,35 @@ async function createWrapper(
                     'sw-select-base': true,
                     'sw-tabs': true,
                     'sw-tabs-item': true,
+                    'mt-tabs': {
+                        name: 'mt-tabs',
+                        template: '<div class="mt-tabs-stub"></div>',
+                        props: {
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: false,
+                                default: null,
+                            },
+                            defaultItem: {
+                                type: String,
+                                required: false,
+                                default: null,
+                            },
+                            small: {
+                                type: Boolean,
+                                required: false,
+                                default: true,
+                            },
+                        },
+                        emits: [
+                            'new-item-active',
+                            'extension-item-active',
+                        ],
+                    },
                     'sw-button': await wrapTestComponent('sw-button'),
                     'sw-modal': await wrapTestComponent('sw-modal'),
                     'sw-import-export-edit-profile-general': true,
@@ -105,6 +134,10 @@ async function createWrapper(
 }
 
 describe('module/sw-import-export/components/sw-import-export-edit-profile-modal', () => {
+    beforeEach(() => {
+        global.activeFeatureFlags = [];
+    });
+
     it('should save profile successful', async () => {
         const wrapper = await createWrapper();
 
@@ -202,6 +235,59 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         // create and update should be true from the mockProfile inside the component
         expect(wrapper.vm.profile.config.createEntities).toBeTruthy();
         expect(wrapper.vm.profile.config.updateEntities).toBeTruthy();
+    });
+
+    it('should render Meteor tabs with filtered advanced tab', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+        const wrapper = await createWrapper();
+        const tabs = wrapper.getComponent('.mt-tabs-stub');
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-import-export-edit-profile-modal');
+        expect(tabs.props('small')).toBe(false);
+        expect(tabs.props('defaultItem')).toBe('general');
+        expect(tabs.props('items').map((item) => item.name)).toEqual([
+            'general',
+            'mappings',
+            'advanced',
+        ]);
+
+        await tabs.vm.$emit('new-item-active', 'mappings');
+
+        expect(wrapper.vm.activeTab).toBe('mappings');
+        expect(wrapper.findComponent({ name: 'sw-import-export-edit-profile-modal-mapping' }).exists()).toBe(true);
+
+        await tabs.vm.$emit('extension-item-active', 'extension-tab');
+
+        expect(wrapper.vm.activeTab).toBe('extension-tab');
+        expect(wrapper.findComponent({ name: 'sw-import-export-edit-profile-general' }).exists()).toBe(false);
+        expect(wrapper.findComponent({ name: 'sw-import-export-edit-profile-modal-mapping' }).exists()).toBe(false);
+    });
+
+    it('should reset active Meteor tab when the advanced tab disappears', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+        const wrapper = await createWrapper();
+
+        wrapper.vm.setActiveTab('advanced');
+        await wrapper.setProps({
+            profile: {
+                ...mockProfile,
+                config: {
+                    ...mockProfile.config,
+                    updateEntities: false,
+                },
+            },
+        });
+
+        expect(wrapper.vm.activeTab).toBe('general');
+        expect(
+            wrapper
+                .getComponent('.mt-tabs-stub')
+                .props('items')
+                .map((item) => item.name),
+        ).toEqual([
+            'general',
+            'mappings',
+        ]);
     });
 
     it('should open violations modal if duplicate is found and clear if modal is closed', async () => {

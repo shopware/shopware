@@ -1,5 +1,98 @@
 {% block sw_cms_el_config_form %}
+<template v-if="useMeteorTabs">
+    {% block sw_cms_el_config_form_meteor_tabs %}
+    <mt-tabs
+        position-identifier="sw-cms-element-config-form"
+        class="sw-cms-el-config-form__tabs"
+        :items="tabItems"
+        :default-item="activeTab"
+        @new-item-active="setActiveTab"
+        @extension-item-active="setActiveTab"
+    />
+    {% endblock %}
+
+    {% block sw_cms_el_form_config_meteor_content %}
+    <sw-container
+        v-if="activeTab === 'content'"
+        class="sw-cms-el-config-form__tab-content"
+    >
+
+        {% block sw_cms_el_form_config_meteor_content_form_type %}
+        <sw-cms-inherit-wrapper
+            field="type"
+            :element="element"
+            :label="$t('sw-cms.elements.form.config.label.type')"
+        >
+            <template #default="{ isInherited }">
+                <mt-select
+                    v-model="element.config.type.value"
+                    :options="formTypeOptions"
+                    :disabled="isInherited"
+                />
+            </template>
+        </sw-cms-inherit-wrapper>
+        {% endblock %}
+
+        {% block sw_cms_el_form_config_meteor_content_form_title %}
+        <sw-cms-inherit-wrapper
+            field="title"
+            :element="element"
+            :label="$t('sw-cms.elements.form.config.label.title')"
+        >
+            <template #default="{ isInherited }">
+                <mt-text-field
+                    v-model="element.config.title.value"
+                    :disabled="isInherited"
+                />
+            </template>
+        </sw-cms-inherit-wrapper>
+        {% endblock %}
+
+        {% block sw_cms_el_form_config_meteor_content_form_confirmation_text %}
+        <sw-cms-inherit-wrapper
+            v-if="requireConfigTab"
+            field="confirmationText"
+            :element="element"
+            :label="$t('sw-cms.elements.form.config.label.confirmationText')"
+        >
+            <template #default="{ isInherited }">
+                <mt-textarea
+                    v-model="element.config.confirmationText.value"
+                    :disabled="isInherited"
+                />
+            </template>
+        </sw-cms-inherit-wrapper>
+        {% endblock %}
+    </sw-container>
+    {% endblock %}
+
+    {% block sw_cms_el_form_config_meteor_options %}
+    <sw-container
+        v-else-if="activeTab === 'options' && requireConfigTab"
+        class="sw-cms-el-config-form__tab-options"
+    >
+        <sw-cms-inherit-wrapper
+            field="mailReceiver"
+            :element="element"
+            :label="$t('sw-cms.elements.form.config.label.receiverEmail')"
+        >
+            <template #default="{ isInherited }">
+                <sw-tagged-field
+                    v-model:value="element.config.mailReceiver.value"
+                    :class="getLastMailClass"
+                    name="mailReceiver"
+                    placeholder="john@doe.com"
+                    :disabled="isInherited"
+                    @update:value="updateMailReceiver"
+                />
+            </template>
+        </sw-cms-inherit-wrapper>
+    </sw-container>
+    {% endblock %}
+</template>
+
 <sw-tabs
+    v-else
     position-identifier="sw-cms-element-config-form"
     class="sw-cms-el-config-form__tabs"
     default-item="content"

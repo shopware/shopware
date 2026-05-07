@@ -36,6 +36,7 @@ export default {
             isLoading: false,
             customerNumberPreview: '',
             defaultSalutationId: null,
+            activeTab: 'details',
         };
     },
 
@@ -154,6 +155,30 @@ export default {
 
             return criteria;
         },
+
+        useMeteorTabs() {
+            return Shopware.Feature.isActive('V6_8_0_0');
+        },
+
+        tabItems() {
+            return [
+                {
+                    label: this.$t('sw-order.newCustomerModal.labelDetails'),
+                    name: 'details',
+                    hasError: !!this.swOrderNewCustomerDetailError,
+                },
+                {
+                    label: this.$t('sw-order.createBase.detailsBody.labelBillingAddress'),
+                    name: 'billingAddress',
+                    hasError: !!this.swOrderNewCustomerAddressError,
+                },
+                {
+                    label: this.$t('sw-order.createBase.detailsBody.labelShippingAddress'),
+                    name: 'shippingAddress',
+                    hasError: !this.isSameBilling && !!this.swOrderNewCustomerAddressError,
+                },
+            ];
+        },
     },
 
     watch: {
@@ -271,6 +296,10 @@ export default {
 
         onClose() {
             this.$emit('close');
+        },
+
+        setActiveTab(tabName) {
+            this.activeTab = tabName;
         },
 
         createErrorMessageForCompanyField() {

@@ -25,6 +25,18 @@ async function createWrapper(customCmsElementConfig) {
                             value: 'de8de156da134dabac24257f81ff282f',
                             source: 'static',
                         },
+                        boxLayout: {
+                            value: 'standard',
+                        },
+                        displayMode: {
+                            value: 'standard',
+                        },
+                        elMinWidth: {
+                            value: null,
+                        },
+                        speed: {
+                            value: null,
+                        },
                         ...customCmsElementConfig,
                     },
                     data: {},
@@ -34,6 +46,29 @@ async function createWrapper(customCmsElementConfig) {
             global: {
                 renderStubDefaultSlot: true,
                 stubs: {
+                    'mt-tabs': {
+                        template: '<div class="mt-tabs-stub"></div>',
+                        props: {
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: false,
+                                default: null,
+                            },
+                            defaultItem: {
+                                type: String,
+                                required: false,
+                                default: null,
+                            },
+                        },
+                        emits: [
+                            'new-item-active',
+                            'extension-item-active',
+                        ],
+                    },
                     'sw-tabs': {
                         template: '<div class="sw-tabs"><slot></slot><slot name="content" active="content"></slot></div>',
                     },
@@ -78,6 +113,7 @@ describe('module/sw-cms/elements/cross-selling/config', () => {
     });
 
     beforeEach(() => {
+        global.activeFeatureFlags = [];
         Shopware.Store.get('cmsPage').resetCmsPageState();
     });
 
@@ -116,5 +152,29 @@ describe('module/sw-cms/elements/cross-selling/config', () => {
 
         expect(wrapper.vm.element.config.product.value).toBe(productMock.id);
         expect(wrapper.vm.element.data.product).toMatchObject(productMock);
+    });
+
+    it('should render meteor tabs when the feature flag is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper();
+        const tabs = wrapper.getComponent('.mt-tabs-stub');
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-cms-element-cross-selling');
+        expect(tabs.props('defaultItem')).toBe('content');
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'sw-cms.elements.general.config.tab.content',
+                name: 'content',
+            },
+            {
+                label: 'sw-cms.elements.general.config.tab.options',
+                name: 'options',
+            },
+        ]);
+
+        await tabs.vm.$emit('new-item-active', 'options');
+
+        expect(wrapper.vm.activeTab).toBe('options');
     });
 });

@@ -22,6 +22,7 @@ export default {
 
     data() {
         return {
+            activeTab: 'content',
             productCollection: null,
             productStream: null,
             showProductStreamPreview: false,
@@ -34,6 +35,23 @@ export default {
     },
 
     computed: {
+        useMeteorTabs() {
+            return Shopware.Feature.isActive('V6_8_0_0');
+        },
+
+        tabItems() {
+            return [
+                {
+                    label: this.$t('sw-cms.elements.general.config.tab.content'),
+                    name: 'content',
+                },
+                {
+                    label: this.$t('sw-cms.elements.general.config.tab.settings'),
+                    name: 'settings',
+                },
+            ];
+        },
+
         productRepository() {
             return this.repositoryFactory.create('product');
         },
@@ -165,6 +183,10 @@ export default {
     },
 
     methods: {
+        setActiveTab(tabName) {
+            this.activeTab = tabName;
+        },
+
         createdComponent() {
             this.initElementConfig('product-slider');
 

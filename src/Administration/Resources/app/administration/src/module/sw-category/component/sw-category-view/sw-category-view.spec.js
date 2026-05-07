@@ -6,7 +6,7 @@ import { mount } from '@vue/test-utils';
 
 const categoryIdMock = 'CATEGORY_MOCK_ID';
 
-async function createWrapper(categoryType) {
+async function createWrapper(categoryType, { routeName = 'sw.category.detail.base', routerPush = jest.fn() } = {}) {
     Shopware.Store.get('swCategoryDetail').$reset();
     Shopware.Store.get('swCategoryDetail').category = {
         id: categoryIdMock,
@@ -41,12 +41,43 @@ async function createWrapper(categoryType) {
                         'title',
                     ],
                 },
+                'mt-tabs': {
+                    name: 'mt-tabs',
+                    template: '<div class="mt-tabs-stub"></div>',
+                    props: {
+                        items: {
+                            type: Array,
+                            required: true,
+                        },
+                        positionIdentifier: {
+                            type: String,
+                            required: false,
+                            default: null,
+                        },
+                        defaultItem: {
+                            type: String,
+                            required: false,
+                            default: null,
+                        },
+                        routeTabs: {
+                            type: Boolean,
+                            required: false,
+                            default: false,
+                        },
+                    },
+                },
                 'router-view': {
                     template: '<div class="router-view"></div>',
                     props: ['isLoading'],
                 },
             },
             mocks: {
+                $route: {
+                    name: routeName,
+                },
+                $router: {
+                    push: routerPush,
+                },
                 placeholder: (entity, field, fallbackSnippet) => {
                     return {
                         entity,
@@ -65,6 +96,10 @@ async function createWrapper(categoryType) {
 }
 
 describe('src/module/sw-category/component/sw-category-view', () => {
+    beforeEach(() => {
+        global.activeFeatureFlags = [];
+    });
+
     it('should display static snippets and position-identifiers', async () => {
         const wrapper = await createWrapper();
 
@@ -198,5 +233,68 @@ describe('src/module/sw-category/component/sw-category-view', () => {
 
         const seoTab = wrapper.getComponent('.sw-category-detail__tab-seo');
         checkSeoTab(seoTab);
+    });
+
+    it('should render Meteor tab items for the `page` category type', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+        const routerPush = jest.fn();
+        const wrapper = await createWrapper('page', {
+            routeName: 'sw.category.detail.cms',
+            routerPush,
+        });
+
+        const tabs = wrapper.getComponent('.mt-tabs-stub');
+        const items = tabs.props('items');
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-category-view');
+        expect(tabs.props('defaultItem')).toBe('sw.category.detail.cms');
+        expect(tabs.props('routeTabs')).toBe(true);
+        expect(items.map((item) => item.name)).toEqual([
+            'sw.category.detail.base',
+            'sw.category.detail.products',
+            'sw.category.detail.cms',
+            'sw.category.detail.seo',
+        ]);
+        expect(items.map((item) => item.label)).toEqual([
+            'sw-category.view.general',
+            'sw-category.view.products',
+            'sw-category.view.cms',
+            'sw-category.view.seo',
+        ]);
+
+        items[1].onClick();
+
+        expect(routerPush).toHaveBeenCalledWith({ name: 'sw.category.detail.products' });
+    });
+
+    it('should filter Meteor tab items for the `folder` category type', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+        const wrapper = await createWrapper('folder', {
+            routeName: 'sw.category.detail.products',
+        });
+
+        const tabs = wrapper.getComponent('.mt-tabs-stub');
+
+        expect(tabs.props('defaultItem')).toBe('sw.category.detail.base');
+        expect(tabs.props('items').map((item) => item.name)).toEqual([
+            'sw.category.detail.base',
+        ]);
+    });
+
+    it('should filter Meteor tab items for the `custom_entity` category type', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+        const wrapper = await createWrapper('custom_entity');
+
+        expect(
+            wrapper
+                .getComponent('.mt-tabs-stub')
+                .props('items')
+                .map((item) => item.name),
+        ).toEqual([
+            'sw.category.detail.base',
+            'sw.category.detail.customEntity',
+            'sw.category.detail.cms',
+            'sw.category.detail.seo',
+        ]);
     });
 });

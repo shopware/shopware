@@ -16,7 +16,35 @@ export default {
         Mixin.getByName('cms-element'),
     ],
 
+    data() {
+        return {
+            activeTab: 'content',
+        };
+    },
+
     computed: {
+        useMeteorTabs() {
+            return Shopware.Feature.isActive('V6_8_0_0');
+        },
+
+        tabItems() {
+            const items = [
+                {
+                    label: this.$t('sw-cms.elements.general.config.tab.content'),
+                    name: 'content',
+                },
+            ];
+
+            if (this.requireConfigTab) {
+                items.push({
+                    label: this.$t('sw-cms.elements.general.config.tab.settings'),
+                    name: 'options',
+                });
+            }
+
+            return items;
+        },
+
         getLastMailClass() {
             if (this.element.config.mailReceiver.value.length === 1) {
                 return 'is--last';
@@ -57,6 +85,14 @@ export default {
         },
     },
 
+    watch: {
+        requireConfigTab(value) {
+            if (!value && this.activeTab === 'options') {
+                this.activeTab = 'content';
+            }
+        },
+    },
+
     created() {
         this.createdComponent();
         this.setShopMail();
@@ -65,6 +101,10 @@ export default {
     methods: {
         createdComponent() {
             this.initElementConfig('form');
+        },
+
+        setActiveTab(tabName) {
+            this.activeTab = tabName;
         },
 
         async getShopMail() {

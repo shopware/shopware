@@ -12,19 +12,22 @@ const routes = [
     },
     {
         name: 'sw.settings.country.detail',
-        path: '/sw/settings/country/detail/the-id',
+        path: '/sw/settings/country/detail/:id',
         children: [
             {
                 name: 'sw.settings.country.detail.general',
-                path: '/sw/settings/country/detail/the-id/general',
+                path: 'general',
+                component: {},
             },
             {
                 name: 'sw.settings.country.detail.state',
-                path: '/sw/settings/country/detail/the-id/state',
+                path: 'state',
+                component: {},
             },
             {
                 name: 'sw.settings.country.detail.address-handling',
-                path: '/sw/settings/country/detail/the-id/address-handling',
+                path: 'address-handling',
+                component: {},
             },
         ],
     },
@@ -38,6 +41,8 @@ async function createWrapper(privileges = []) {
         history: createWebHistory(),
         routes: routes,
     });
+    await router.push({ name: 'sw.settings.country.detail.general', params: { id: 'the-id' } });
+    await router.isReady();
 
     return mount(
         await wrapTestComponent('sw-settings-country-detail', {
@@ -161,7 +166,28 @@ async function createWrapper(privileges = []) {
                     'sw-settings-country-sidebar': true,
                     'sw-error-summary': true,
                     'sw-custom-field-set-renderer': true,
-                    'mt-tabs': true,
+                    'mt-tabs': {
+                        name: 'mt-tabs',
+                        props: {
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                default: null,
+                            },
+                            defaultItem: {
+                                type: String,
+                                default: '',
+                            },
+                            routeTabs: {
+                                type: Boolean,
+                                default: false,
+                            },
+                        },
+                        template: '<div class="mt-tabs-stub"></div>',
+                    },
                     'sw-extension-component-section': true,
                 },
             },
@@ -172,6 +198,48 @@ async function createWrapper(privileges = []) {
 describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
     beforeAll(() => {
         Shopware.Store.get('session').setCurrentUser({});
+    });
+
+    beforeEach(() => {
+        global.activeFeatureFlags = [];
+    });
+
+    it('should render route-backed mt-tabs when the major feature flag is enabled', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper([
+            'country.editor',
+        ]);
+        await flushPromises();
+
+        const routerPush = jest.spyOn(wrapper.vm.$router, 'push').mockResolvedValue();
+        const tabs = wrapper.getComponent('.mt-tabs-stub');
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-settings-country-detail-header');
+        expect(tabs.props('defaultItem')).toBe('sw.settings.country.detail.general');
+        expect(tabs.props('routeTabs')).toBe(true);
+
+        const items = tabs.props('items');
+        expect(items).toEqual([
+            expect.objectContaining({
+                label: 'sw-settings-country.page.generalTab',
+                name: 'sw.settings.country.detail.general',
+            }),
+            expect.objectContaining({
+                label: 'sw-settings-country.page.stateTab',
+                name: 'sw.settings.country.detail.state',
+            }),
+            expect.objectContaining({
+                label: 'sw-settings-country.page.addressHandlingTab',
+                name: 'sw.settings.country.detail.address-handling',
+            }),
+        ]);
+
+        items[1].onClick();
+        expect(routerPush).toHaveBeenCalledWith({
+            name: 'sw.settings.country.detail.state',
+            params: { id: 'the-id' },
+        });
     });
 
     it('should be render tab', async () => {

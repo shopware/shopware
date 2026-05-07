@@ -19,7 +19,30 @@ export default {
         Mixin.getByName('cms-element'),
     ],
 
+    data() {
+        return {
+            activeTab: 'content',
+        };
+    },
+
     computed: {
+        useMeteorTabs() {
+            return Shopware.Feature.isActive('V6_8_0_0');
+        },
+
+        tabItems() {
+            return [
+                {
+                    label: this.$t('sw-cms.elements.general.config.tab.content'),
+                    name: 'content',
+                },
+                {
+                    label: this.$t('sw-cms.elements.general.config.tab.options'),
+                    name: 'options',
+                },
+            ];
+        },
+
         productRepository() {
             return this.repositoryFactory.create('product');
         },
@@ -75,6 +98,10 @@ export default {
     },
 
     methods: {
+        setActiveTab(tabName) {
+            this.activeTab = tabName;
+        },
+
         createdComponent() {
             this.initElementConfig('buy-box');
         },

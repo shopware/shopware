@@ -218,4 +218,26 @@
             }
         }
     }
+
+    & .sw-meteor-card__header > .mt-tabs {
+        padding: 0 32px;
+        box-shadow: none;
+
+        @media screen and (max-width: 960px) {
+            padding: 0 15px;
+        }
+
+        .mt-tabs__item {
+            padding: 19px 0 15px;
+            margin-right: 14px;
+
+            @media screen and (max-width: 960px) {
+                padding: 15px 0 10px;
+            }
+
+            &:last-of-type {
+                margin-right: 0;
+            }
+        }
+    }
 }

@@ -5,6 +5,7 @@ import type {
     AdminUiDefinition,
 } from 'src/app/service/custom-entity-definition.service';
 import type Repository from 'src/core/data/repository.data';
+import type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/MtTabs';
 
 import template from './sw-generic-custom-entity-detail.html.twig';
 import './sw-generic-custom-entity-detail.scss';
@@ -16,6 +17,8 @@ type GenericCustomEntityDetailData = {
     isSaveSuccessful: boolean;
     customEntityData: Entity<'generic_custom_entity'> | null;
     customEntityDataInstances?: EntityCollection<'generic_custom_entity'>;
+    activeTab: string | null;
+    activeTabIsExtension: boolean;
 };
 
 /**
@@ -42,6 +45,8 @@ export default Shopware.Component.wrapComponentConfig({
             isSaveSuccessful: false,
             customEntityData: null,
             customEntityDataInstances: undefined,
+            activeTab: null,
+            activeTabIsExtension: false,
         };
     },
 
@@ -86,6 +91,53 @@ export default Shopware.Component.wrapComponentConfig({
             return this.customEntityDataDefinition?.flags['admin-ui']?.detail?.tabs ?? [];
         },
 
+        useMeteorTabs(): boolean {
+            return Shopware.Feature.isActive('V6_8_0_0');
+        },
+
+        isCmsAware(): boolean {
+            return !!this.customEntityDataDefinition?.flags?.['cms-aware'];
+        },
+
+        tabItems(): TabItem[] {
+            const items = this.detailTabs.map((tab) => ({
+                label: this.getLabel('tabs', tab.name),
+                name: tab.name,
+            }));
+
+            if (!this.isCmsAware) {
+                return items;
+            }
+
+            return [
+                ...items,
+                {
+                    label: this.$t('sw-custom-entity.detail.tabs.layout'),
+                    name: 'cms-aware-tab-layout',
+                },
+                {
+                    label: this.$t('sw-custom-entity.detail.tabs.seo'),
+                    name: 'cms-aware-tab-seo',
+                },
+            ];
+        },
+
+        currentActiveTab(): string | null {
+            if (this.activeTabIsExtension) {
+                return null;
+            }
+
+            if (this.activeTab && this.tabItems.some((tabItem) => tabItem.name === this.activeTab)) {
+                return this.activeTab;
+            }
+
+            return this.mainTabName ?? this.tabItems[0]?.name ?? null;
+        },
+
+        activeTabItemName(): string | null {
+            return this.activeTabIsExtension ? this.activeTab : this.currentActiveTab;
+        },
+
         mainTabName(): string | undefined {
             return this.detailTabs?.[0]?.name;
         },
@@ -100,6 +152,16 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
+        setActiveTab(tabName: string): void {
+            this.activeTabIsExtension = false;
+            this.activeTab = tabName;
+        },
+
+        setActiveExtensionTab(tabName: string): void {
+            this.activeTabIsExtension = true;
+            this.activeTab = tabName;
+        },
+
         createdComponent(): void {
             this.initializeCustomEntity();
         },

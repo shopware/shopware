@@ -37,7 +37,43 @@ export default {
         },
     },
 
+    data() {
+        return {
+            activeTab: null,
+            activeTabIsExtension: false,
+        };
+    },
+
     computed: {
+        useMeteorTabs() {
+            return Shopware.Feature.isActive('V6_8_0_0');
+        },
+
+        tabItems() {
+            return this.locales.map((locale) => {
+                return {
+                    label: this.$t(`locale.${locale}`),
+                    name: locale,
+                };
+            });
+        },
+
+        currentActiveTab() {
+            if (this.activeTabIsExtension) {
+                return null;
+            }
+
+            if (this.activeTab && this.locales.includes(this.activeTab)) {
+                return this.activeTab;
+            }
+
+            return this.locales.includes(this.fallbackLocale) ? this.fallbackLocale : this.locales[0];
+        },
+
+        activeTabItemName() {
+            return this.activeTabIsExtension ? this.activeTab : this.currentActiveTab;
+        },
+
         fallbackLocale() {
             return this.$root.$i18n.fallbackLocale.value;
         },
@@ -81,6 +117,16 @@ export default {
             if (input === '') {
                 this.config[propertyName][locale] = null;
             }
+        },
+
+        setActiveTab(tabName) {
+            this.activeTabIsExtension = false;
+            this.activeTab = tabName;
+        },
+
+        setActiveExtensionTab(tabName) {
+            this.activeTabIsExtension = true;
+            this.activeTab = tabName;
         },
     },
 };

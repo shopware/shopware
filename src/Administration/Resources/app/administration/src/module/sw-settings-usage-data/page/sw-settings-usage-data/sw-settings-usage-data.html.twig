@@ -22,7 +22,16 @@
 
     <template #content>
         <sw-card-view>
+            <mt-tabs
+                v-if="useMeteorTabs"
+                position-identifier="sw-settings-usage-data"
+                :items="tabItems"
+                :default-item="activeTab"
+                route-tabs
+            />
+
             <sw-tabs
+                v-else
                 position-identifier="sw-settings-usage-data"
                 default-item="general"
             >

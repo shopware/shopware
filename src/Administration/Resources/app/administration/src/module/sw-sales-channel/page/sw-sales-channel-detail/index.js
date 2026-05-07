@@ -163,6 +163,76 @@ export default {
             return this.acl.can('sales_channel.editor');
         },
 
+        useMeteorTabs() {
+            return Shopware.Feature.isActive('V6_8_0_0');
+        },
+
+        activeTab() {
+            const itemNames = this.tabItems.map((tabItem) => tabItem.name);
+
+            if (itemNames.includes(this.$route.name)) {
+                return this.$route.name;
+            }
+
+            return itemNames[0] ?? 'sw.sales.channel.detail.base';
+        },
+
+        tabItems() {
+            const items = [
+                this.createTabItem(
+                    'sw-sales-channel.detail.tabBase',
+                    this.getSalesChannelTabRoute('sw.sales.channel.detail.base'),
+                ),
+            ];
+
+            if (this.isAgenticCommerce && !this.isLoading) {
+                items.push(
+                    this.createTabItem(
+                        'sw-sales-channel.detail.productExport.tabInsights',
+                        this.getSalesChannelTabRoute('sw.sales.channel.detail.productExportInsights'),
+                    ),
+                );
+            }
+
+            if (this.isHeadless || this.isStorefront) {
+                items.push(
+                    this.createTabItem(
+                        'sw-sales-channel.detail.tabProducts',
+                        this.getSalesChannelTabRoute('sw.sales.channel.detail.products'),
+                    ),
+                );
+            }
+
+            if (this.isAgenticCommerce && !this.isLoading) {
+                items.push(
+                    this.createTabItem(
+                        'sw-sales-channel.detail.agenticCommerce.tabIntegration',
+                        this.getSalesChannelTabRoute('sw.sales.channel.detail.agenticCommerceIntegration'),
+                    ),
+                );
+            }
+
+            if (this.isProductExportChannel && !this.isLoading) {
+                items.push(
+                    this.createTabItem(
+                        'sw-sales-channel.detail.tabProductComparison',
+                        this.getSalesChannelTabRoute('sw.sales.channel.detail.productComparison'),
+                    ),
+                );
+            }
+
+            if (this.isStorefront) {
+                items.push(
+                    this.createTabItem(
+                        'sw-sales-channel.detail.tabAnalytics',
+                        this.getSalesChannelTabRoute('sw.sales.channel.detail.analytics'),
+                    ),
+                );
+            }
+
+            return items;
+        },
+
         defaultAgenticCommerceExportConfig() {
             return [
                 {
@@ -194,6 +264,21 @@ export default {
             });
             this.loadEntityData();
             this.loadProductExportTemplates();
+        },
+
+        getSalesChannelTabRoute(name) {
+            return {
+                name,
+                params: { id: this.$route.params.id },
+            };
+        },
+
+        createTabItem(label, route) {
+            return {
+                label: this.$t(label),
+                name: route.name,
+                onClick: () => this.$router.push(route),
+            };
         },
 
         loadEntityData() {

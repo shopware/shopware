@@ -51,7 +51,17 @@
             {% endblock %}
 
             {% block sw_sales_channel_detail_content_tabs %}
+            <mt-tabs
+                v-if="useMeteorTabs"
+                class="sw-sales-channel-detail-__tabs"
+                position-identifier="sw-sales-channel-detail"
+                :items="tabItems"
+                :default-item="activeTab"
+                route-tabs
+            />
+
             <sw-tabs
+                v-else
                 class="sw-sales-channel-detail-__tabs"
                 position-identifier="sw-sales-channel-detail"
             >

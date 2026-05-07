@@ -17,6 +17,29 @@ async function createWrapper() {
         {
             global: {
                 stubs: {
+                    'mt-tabs': {
+                        template: '<div class="mt-tabs-stub"></div>',
+                        props: {
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: false,
+                                default: null,
+                            },
+                            defaultItem: {
+                                type: String,
+                                required: false,
+                                default: null,
+                            },
+                        },
+                        emits: [
+                            'new-item-active',
+                            'extension-item-active',
+                        ],
+                    },
                     'sw-tabs': {
                         template: '<div class="sw-tabs"><slot></slot><slot name="content" active="content"></slot></div>',
                     },
@@ -107,6 +130,7 @@ describe('src/module/sw-cms/elements/product-description-reviews/config', () => 
     });
 
     beforeEach(() => {
+        global.activeFeatureFlags = [];
         Shopware.Store.get('cmsPage').$reset();
     });
 
@@ -131,5 +155,29 @@ describe('src/module/sw-cms/elements/product-description-reviews/config', () => 
 
         expect(productSelector.exists()).toBeFalsy();
         expect(alert.exists()).toBeTruthy();
+    });
+
+    it('should render meteor tabs when the feature flag is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper();
+        const tabs = wrapper.getComponent('.mt-tabs-stub');
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-cms-element-product-description-reviews');
+        expect(tabs.props('defaultItem')).toBe('content');
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'sw-cms.elements.general.config.tab.content',
+                name: 'content',
+            },
+            {
+                label: 'sw-cms.elements.general.config.tab.options',
+                name: 'options',
+            },
+        ]);
+
+        await tabs.vm.$emit('new-item-active', 'options');
+
+        expect(wrapper.vm.activeTab).toBe('options');
     });
 });

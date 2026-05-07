@@ -207,6 +207,30 @@ async function createWrapper(props = defaultProps, provide = {}) {
                 'sw-tabs': await wrapTestComponent('sw-tabs'),
                 'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                 'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+                'mt-tabs': {
+                    template: '<div class="mt-tabs-stub"></div>',
+                    props: {
+                        items: {
+                            type: Array,
+                            required: true,
+                        },
+                        positionIdentifier: {
+                            type: String,
+                            required: false,
+                            default: null,
+                        },
+                        defaultItem: {
+                            type: String,
+                            required: false,
+                            default: null,
+                        },
+                        routeTabs: {
+                            type: Boolean,
+                            required: false,
+                            default: false,
+                        },
+                    },
+                },
                 'sw-language-switch': await wrapTestComponent('sw-language-switch'),
                 'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
                 'sw-select-base': await wrapTestComponent('sw-select-base'),
@@ -296,6 +320,10 @@ async function createWrapper(props = defaultProps, provide = {}) {
 }
 
 describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
+    beforeEach(() => {
+        global.activeFeatureFlags = [];
+    });
+
     afterEach(() => {
         jest.clearAllMocks();
     });
@@ -403,6 +431,38 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
 
         expect(wrapper.find('.sw-settings-rule-detail__tab-item-general').exists()).toBe(true);
         expect(wrapper.find('.sw-settings-rule-detail__tab-item-assignments').exists()).toBe(true);
+    });
+
+    it('should render route-backed Meteor tabs when the feature is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const tabs = wrapper.getComponent('.mt-tabs-stub');
+        const items = tabs.props('items');
+        const routerPush = jest.spyOn(wrapper.vm.$router, 'push');
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-settings-rule-detail');
+        expect(tabs.props('defaultItem')).toBe('sw.settings.rule.detail.base');
+        expect(tabs.props('routeTabs')).toBe(true);
+        expect(items).toEqual([
+            expect.objectContaining({
+                label: 'sw-settings-rule.detail.tabGeneral',
+                name: 'sw.settings.rule.detail.base',
+            }),
+            expect.objectContaining({
+                label: 'sw-settings-rule.detail.tabAssignments',
+                name: 'sw.settings.rule.detail.assignments',
+            }),
+        ]);
+
+        items[1].onClick();
+
+        expect(routerPush).toHaveBeenCalledWith({
+            name: 'sw.settings.rule.detail.assignments',
+            params: { id: 'uuid1' },
+        });
     });
 
     it.each([

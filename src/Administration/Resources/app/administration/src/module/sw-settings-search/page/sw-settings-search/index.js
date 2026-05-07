@@ -47,6 +47,34 @@ export default {
     },
 
     computed: {
+        useMeteorTabs() {
+            return Shopware.Feature.isActive('V6_8_0_0');
+        },
+
+        activeTab() {
+            return this.tabItems.find((item) => item.name === this.$route.name)?.name ?? this.tabItems[0]?.name;
+        },
+
+        tabItems() {
+            return [
+                {
+                    label: this.$t('sw-settings-search.page.generalTab'),
+                    name: 'sw.settings.search.index.general',
+                    onClick: () => {
+                        this.onTabChange();
+                        void this.$router.push({ name: 'sw.settings.search.index.general' });
+                    },
+                },
+                {
+                    label: this.$t('sw-settings-search.page.liveSearchTab'),
+                    name: 'sw.settings.search.index.liveSearch',
+                    onClick: () => {
+                        void this.$router.push({ name: 'sw.settings.search.index.liveSearch' });
+                    },
+                },
+            ];
+        },
+
         productSearchRepository() {
             return this.repositoryFactory.create('product_search_config');
         },

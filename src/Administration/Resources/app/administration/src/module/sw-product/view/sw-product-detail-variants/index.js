@@ -110,6 +110,31 @@ export default {
             );
             return groupIds.map((id) => groupMap.get(id)).filter(Boolean);
         },
+
+        useMeteorTabs() {
+            return Shopware.Feature.isActive('V6_8_0_0');
+        },
+
+        tabItems() {
+            return [
+                {
+                    label: this.$t('sw-product.variations.variationCard.tabs.allProducts'),
+                    name: 'all',
+                },
+                {
+                    label: this.$t('sw-product.variations.variationCard.tabs.physicalProducts'),
+                    name: 'physical',
+                },
+                {
+                    label: this.$t('sw-product.variations.variationCard.tabs.digitalProducts'),
+                    name: 'digital',
+                },
+            ];
+        },
+
+        hasActiveExtensionTab() {
+            return this.useMeteorTabs && !!this.activeTab && !this.tabItems.some((item) => item.name === this.activeTab);
+        },
     },
 
     watch: {

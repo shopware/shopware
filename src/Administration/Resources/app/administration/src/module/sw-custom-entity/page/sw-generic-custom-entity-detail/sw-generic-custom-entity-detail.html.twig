@@ -29,8 +29,87 @@
 
     <template #content>
         <sw-card-view>
+            <template v-if="detailTabs && useMeteorTabs">
+                {% block sw_generic_custom_entity_detail_meteor_tabs %}
+                <mt-tabs
+                    class="sw-generic-custom-entity-detail__tabs"
+                    position-identifier="sw-generic-custom-entity-detail-tabs"
+                    :items="tabItems"
+                    :default-item="activeTabItemName"
+                    :small="false"
+                    @new-item-active="setActiveTab"
+                    @extension-item-active="setActiveExtensionTab"
+                />
+                {% endblock %}
+
+                {% block sw_generic_custom_entity_detail_meteor_content %}
+                <template
+                    v-for="tab in detailTabs"
+                    :key="`tab-${tab.name}`"
+                >
+                    <div
+                        v-if="currentActiveTab === tab.name"
+                        class="sw-generic-custom-entity-detail__tab"
+                    >
+                        <mt-card
+                            v-for="card in tab.cards"
+                            :key="`card-${card.name}`"
+                            class="sw-generic-custom-entity-detail__card"
+                            position-identifier="`sw-generic-custom-entity-detail-tab-${card.name}`"
+                            :title="getLabel('cards', card.name)"
+                        >
+                            <template v-if="!isLoading">
+                                <sw-custom-entity-input-field
+                                    v-for="field in card.fields"
+                                    :key="field.ref"
+                                    v-model:value="customEntityData[field.ref]"
+                                    class="sw-generic-custom-entity-detail__field"
+                                    :type="getType(field.ref)"
+                                    :label="getLabel('fields', field.ref)"
+                                    :placeholder="getPlaceholder('fields', field.ref)"
+                                    :help-text="getHelpText('fields', field.ref)"
+                                />
+                            </template>
+                        </mt-card>
+                    </div>
+                </template>
+
+                <sw-generic-cms-page-assignment
+                    v-if="currentActiveTab === 'cms-aware-tab-layout'"
+                    :cms-page-id="customEntityData?.swCmsPageId"
+                    :slot-overrides="customEntityData?.swSlotConfig"
+                    class="sw-generic-custom-entity-detail__tab sw-generic-custom-entity-detail__tab-cms-aware"
+                    @update:cms-page-id="updateCmsPageId"
+                    @update:slot-overrides="updateCmsSlotOverwrites"
+                    @create-layout="onCreateLayout"
+                />
+
+                <template
+                    v-else-if="currentActiveTab === 'cms-aware-tab-seo'"
+                >
+                    <sw-generic-seo-general-card
+                        :seo-meta-title="customEntityData?.swSeoMetaTitle"
+                        :seo-meta-description="customEntityData?.swSeoMetaDescription"
+                        :seo-url="customEntityData?.swSeoUrl"
+                        @update:seo-meta-title="updateSeoMetaTitle"
+                        @update:seo-meta-description="updateSeoMetaDescription"
+                        @update:seo-url="updateSeoUrl"
+                    />
+
+                    <sw-generic-social-media-card
+                        :og-title="customEntityData?.swOgTitle"
+                        :og-description="customEntityData?.swOgDescription"
+                        :og-image-id="customEntityData?.swOgImageId"
+                        @update:og-title="updateOgTitle"
+                        @update:og-description="updateOgDescription"
+                        @update:og-image-id="updateOgImageId"
+                    />
+                </template>
+                {% endblock %}
+            </template>
+
             <sw-tabs
-                v-if="detailTabs"
+                v-else-if="detailTabs"
                 class="sw-generic-custom-entity-detail__tabs"
                 position-identifier="sw-generic-custom-entity-detail-tabs"
                 :default-item="mainTabName"

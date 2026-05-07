@@ -52,7 +52,16 @@
         {% block sw_users_permissions_role_detail_content_card_view %}
         <sw-card-view>
             {% block sw_users_permissions_role_detail_content_card_view_tabs %}
+            <mt-tabs
+                v-if="useMeteorTabs"
+                position-identifier="sw-users-permissions-role-detail-content"
+                :items="tabItems"
+                :default-item="activeTab"
+                route-tabs
+            />
+
             <sw-tabs
+                v-else
                 default-item="general"
                 position-identifier="sw-users-permissions-role-detail-content"
             >

@@ -45,7 +45,21 @@
                 {% block sw_cms_list_sidebar %}
                 <div class="sw-cms-list__sidebar">
                     {% block sw_cms_list_sidebar_tabs %}
+                    <mt-tabs
+                        v-if="useMeteorTabs"
+                        vertical
+                        small
+                        position-identifier="sw-cms-list-sidebar"
+                        class="sw-cms-list__type-nav"
+                        :items="tabItems"
+                        :default-item="activeTabItemName"
+                        :render-extension-content="false"
+                        @new-item-active="setActiveTab"
+                        @extension-item-active="setActiveExtensionTab"
+                    />
+
                     <sw-tabs
+                        v-else
                         is-vertical
                         small
                         position-identifier="sw-cms-list-sidebar"
@@ -65,8 +79,16 @@
                 </div>
                 {% endblock %}
 
+                <sw-extension-component-section
+                    v-if="hasActiveExtensionTab"
+                    :position-identifier="activeTab"
+                />
+
                 {% block sw_cms_list_listing %}
-                <div class="sw-cms-list__listing">
+                <div
+                    v-if="!hasActiveExtensionTab"
+                    class="sw-cms-list__listing"
+                >
 
                     {% block sw_cms_list_listing_actions %}
                     <div class="sw-cms-list__actions">

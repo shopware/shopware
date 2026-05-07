@@ -18,7 +18,30 @@ export default {
         Mixin.getByName('cms-element'),
     ],
 
+    data() {
+        return {
+            activeTab: 'content',
+        };
+    },
+
     computed: {
+        useMeteorTabs() {
+            return Shopware.Feature.isActive('V6_8_0_0');
+        },
+
+        tabItems() {
+            return [
+                {
+                    label: this.$t('sw-cms.elements.general.config.tab.content'),
+                    name: 'content',
+                },
+                {
+                    label: this.$t('sw-cms.elements.general.config.tab.settings'),
+                    name: 'settings',
+                },
+            ];
+        },
+
         availableDataMappings() {
             let mappings = [];
 
@@ -91,6 +114,10 @@ export default {
 
         onInput(content) {
             this.emitChanges(content);
+        },
+
+        setActiveTab(tabName) {
+            this.activeTab = tabName;
         },
 
         emitChanges(content) {

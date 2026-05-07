@@ -190,6 +190,27 @@ export default {
             });
         },
 
+        useMeteorTabs() {
+            return Shopware.Feature.isActive('V6_8_0_0');
+        },
+
+        activeTab() {
+            const tabItemNames = this.tabItems.map((tabItem) => tabItem.name);
+
+            if (tabItemNames.includes(this.$route.name)) {
+                return this.$route.name;
+            }
+
+            return tabItemNames[0] ?? 'sw.flow.create.general';
+        },
+
+        tabItems() {
+            return [
+                this.createTabItem('sw-flow.page.tabGeneral', this.routeDetailTab('general')),
+                this.createTabItem('sw-flow.page.tabFlow', this.routeDetailTab('flow')),
+            ];
+        },
+
         ...mapState(
             () => Store.get('swFlow'),
             [
@@ -307,6 +328,14 @@ export default {
             }
 
             return { name: `sw.flow.detail.${tabName}` };
+        },
+
+        createTabItem(label, route) {
+            return {
+                label: this.$t(label),
+                name: route.name,
+                onClick: () => this.$router.push(route),
+            };
         },
 
         createNewFlow() {

@@ -27,6 +27,25 @@ async function createWrapper() {
                     props: ['disabled'],
                     template: '<div class="sw-custom-field-set-renderer"></div>',
                 },
+                'mt-tabs': {
+                    name: 'mt-tabs',
+                    props: {
+                        items: {
+                            type: Array,
+                            required: true,
+                        },
+                        positionIdentifier: {
+                            type: String,
+                            default: null,
+                        },
+                        defaultItem: {
+                            type: String,
+                            default: '',
+                        },
+                    },
+                    emits: ['new-item-active'],
+                    template: '<div class="mt-tabs-stub"></div>',
+                },
             },
             provide: {
                 repositoryFactory: {
@@ -58,8 +77,28 @@ describe('src/module/sw-order/component/sw-order-address-modal', () => {
     let wrapper;
 
     beforeEach(async () => {
+        global.activeFeatureFlags = [];
         global.activeAclRoles = [];
         wrapper = await createWrapper();
+    });
+
+    it('should render mt-tabs when the major feature flag is enabled', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+        wrapper = await createWrapper();
+
+        const tabs = wrapper.getComponent('.mt-tabs-stub');
+        expect(tabs.props('positionIdentifier')).toBe('sw-order-address-modal');
+        expect(tabs.props('defaultItem')).toBe('edit');
+        expect(tabs.props('items')).toEqual([
+            expect.objectContaining({ label: 'sw-order.addressSelection.headlineTabEditAddress', name: 'edit' }),
+            expect.objectContaining({ label: 'sw-order.addressSelection.headlineTabSelectAddress', name: 'addresses' }),
+        ]);
+
+        await wrapper.setData({ selectedAddressId: 'address-id' });
+        await tabs.vm.$emit('new-item-active', 'addresses');
+
+        expect(wrapper.vm.activeTab).toBe('addresses');
+        expect(wrapper.vm.selectedAddressId).toBe(0);
     });
 
     it('should get customer information on creation', async () => {

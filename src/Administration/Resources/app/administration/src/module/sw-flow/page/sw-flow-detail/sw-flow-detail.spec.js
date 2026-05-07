@@ -119,7 +119,15 @@ const businessEventServiceMock = {
     getBusinessEvents: () => Promise.resolve(mockBusinessEvents),
 };
 
-async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess = true, param = {}, customProvides = {}) {
+async function createWrapper(
+    query = {},
+    config = {},
+    flowId = null,
+    saveSuccess = true,
+    param = {},
+    customProvides = {},
+    { routeName = undefined, routerPush = jest.fn() } = {},
+) {
     const wrapper = mount(
         await wrapTestComponent('sw-flow-detail', {
             sync: true,
@@ -191,7 +199,10 @@ async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess
                     ...customProvides,
                 },
                 mocks: {
-                    $route: { params: param, query: query },
+                    $route: { name: routeName, params: param, query: query },
+                    $router: {
+                        push: routerPush,
+                    },
                 },
                 stubs: {
                     'sw-page': {
@@ -223,6 +234,31 @@ async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess
                         </div>
                     `,
                     },
+                    'mt-tabs': {
+                        name: 'mt-tabs',
+                        template: '<div class="mt-tabs-stub"></div>',
+                        props: {
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: false,
+                                default: null,
+                            },
+                            defaultItem: {
+                                type: String,
+                                required: false,
+                                default: null,
+                            },
+                            routeTabs: {
+                                type: Boolean,
+                                required: false,
+                                default: false,
+                            },
+                        },
+                    },
                     'sw-card-view': {
                         template: `
                         <div class="sw-card-view">
@@ -251,6 +287,10 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
         Shopware.Service().register('businessEventService', () => {
             return businessEventServiceMock;
         });
+    });
+
+    beforeEach(() => {
+        global.activeFeatureFlags = [];
     });
 
     it('should not be able to save a flow', async () => {
@@ -427,6 +467,49 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
         expect(tabs.flow.vm.route).toStrictEqual({
             name: 'sw.flow.create.flow',
         });
+    });
+
+    it('should render flow detail route tabs with mt-tabs', async () => {
+        global.activeAclRoles = ['flow.editor'];
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const routerPush = jest.fn();
+        const wrapper = await createWrapper(
+            {},
+            {
+                eventName: 'checkout.customer',
+                sequences: [
+                    {
+                        id: 'sequence-id',
+                        config: {},
+                    },
+                ],
+            },
+            null,
+            true,
+            {},
+            {},
+            {
+                routeName: 'sw.flow.create.flow',
+                routerPush,
+            },
+        );
+        await flushPromises();
+
+        const tabs = wrapper.findComponent({ name: 'mt-tabs' });
+        const items = tabs.props('items');
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-flow-detail');
+        expect(tabs.props('defaultItem')).toBe('sw.flow.create.flow');
+        expect(tabs.props('routeTabs')).toBe(true);
+        expect(items.map((item) => item.name)).toEqual([
+            'sw.flow.create.general',
+            'sw.flow.create.flow',
+        ]);
+
+        items[0].onClick();
+
+        expect(routerPush).toHaveBeenCalledWith({ name: 'sw.flow.create.general' });
     });
 
     it('should be able to create flow from flow template', async () => {

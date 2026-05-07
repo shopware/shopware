@@ -1,7 +1,21 @@
 {% block mt_tabs %}
 <mt-tabs-original
-    v-bind="$attrs"
+    v-bind="forwardedAttrs"
     ref="mtTabsOriginal"
     :items="mergedItems"
+    :default-item="effectiveActiveItemName"
+    @new-item-active="onNewItemActive"
 />
+
+<template v-if="!routeTabs && renderExtensionContent">
+    <template
+        v-for="tabExtension in tabExtensions"
+        :key="tabExtension.componentSectionId"
+    >
+        <sw-extension-component-section
+            v-if="tabExtension.componentSectionId === activeItemName"
+            :position-identifier="tabExtension.componentSectionId"
+        />
+    </template>
+</template>
 {% endblock %}

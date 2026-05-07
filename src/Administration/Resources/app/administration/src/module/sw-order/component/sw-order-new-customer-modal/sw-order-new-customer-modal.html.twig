@@ -5,6 +5,7 @@
 >
     {% block sw_order_new_customer_modal_tabs %}
     <sw-tabs
+        v-if="!useMeteorTabs"
         class="sw-order-new-customer-modal"
         position-identifier="sw-order-new-customer-modal"
         default-item="details"
@@ -95,6 +96,70 @@
             {% endblock %}
         </template>
     </sw-tabs>
+
+    <template v-else>
+        {% block sw_order_new_customer_modal_meteor_tabs %}
+        <mt-tabs
+            class="sw-order-new-customer-modal"
+            position-identifier="sw-order-new-customer-modal"
+            :items="tabItems"
+            :default-item="activeTab"
+            @new-item-active="setActiveTab"
+            @extension-item-active="setActiveTab"
+        />
+        {% endblock %}
+
+        {% block sw_order_new_customer_modal_meteor_content_details %}
+        <div v-if="activeTab === 'details'">
+            {% block sw_order_new_customer_modal_meteor_content_details_guest %}
+            <mt-switch
+                v-model="customer.guest"
+                remove-top-margin
+                :label="$t('sw-order.newCustomerModal.labelGuest')"
+            />
+            {% endblock %}
+
+            {% block sw_order_new_customer_modal_meteor_content_details_form %}
+            <sw-customer-base-form
+                :is-loading="isLoading"
+                :customer="customer"
+                @sales-channel-change="onChangeSalesChannel"
+            />
+            {% endblock %}
+        </div>
+        {% endblock %}
+
+        {% block sw_order_new_customer_modal_meteor_content_shipping %}
+        <div v-if="activeTab === 'shippingAddress'">
+            {% block sw_order_new_customer_modal_meteor_content_shipping_same_billing %}
+            <mt-switch
+                v-model="isSameBilling"
+                remove-top-margin
+                :label="$t('sw-customer.addressForm.labelSameBillingAddress')"
+            />
+            {% endblock %}
+
+            {% block sw_order_new_customer_modal_meteor_content_shipping_form %}
+            <sw-customer-address-form
+                :customer="customer"
+                :disabled="isSameBilling"
+                :address="shippingAddress"
+            />
+            {% endblock %}
+        </div>
+        {% endblock %}
+
+        {% block sw_order_new_customer_modal_meteor_content_billing %}
+        <div v-if="activeTab === 'billingAddress'">
+            {% block sw_order_new_customer_modal_meteor_content_billing_form %}
+            <sw-customer-address-form
+                :customer="customer"
+                :address="billingAddress"
+            />
+            {% endblock %}
+        </div>
+        {% endblock %}
+    </template>
     {% endblock %}
 
     {% block sw_order_new_customer_modal_actions %}

@@ -104,8 +104,17 @@
         {% endblock %}
         <sw-card-view>
             {% block sw_settings_rule_detail_tabs %}
+            <mt-tabs
+                v-if="rule && !rule.isNew() && useMeteorTabs"
+                class="sw-settings-rule-detail__tabs"
+                position-identifier="sw-settings-rule-detail"
+                :items="meteorTabItems"
+                :default-item="activeTab"
+                route-tabs
+            />
+
             <sw-tabs
-                v-if="rule && !rule.isNew()"
+                v-else-if="rule && !rule.isNew()"
                 class="sw-settings-rule-detail__tabs"
                 position-identifier="sw-settings-rule-detail"
             >

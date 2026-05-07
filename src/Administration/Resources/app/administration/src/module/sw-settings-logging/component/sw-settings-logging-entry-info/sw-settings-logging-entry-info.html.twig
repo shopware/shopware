@@ -5,7 +5,19 @@
 >
 
     {% block sw_settings_logging_entry_info_tabs %}
-    <sw-tabs position-identifier="sw-settings-logging-entry-info">
+    <mt-tabs
+        v-if="useMeteorTabs"
+        position-identifier="sw-settings-logging-entry-info"
+        :items="tabItems"
+        :default-item="activeTab"
+        @new-item-active="setActiveTab"
+        @extension-item-active="setActiveTab"
+    />
+
+    <sw-tabs
+        v-else
+        position-identifier="sw-settings-logging-entry-info"
+    >
 
         {% block sw_settings_logging_entry_info_tab_items %}
         <sw-tabs-item
@@ -16,18 +28,16 @@
         </sw-tabs-item>
         {% endblock %}
 
-        <template #content>
-            {% block sw_settings_logging_entry_info_content %}
-            {% block sw_settings_logging_entry_info_raw_content %}
-            <mt-textarea
-                v-if="activeTab === 'raw'"
-                :model-value="displayString"
-            />
-            {% endblock %}
-            {% endblock %}
-        </template>
-
     </sw-tabs>
+    {% endblock %}
+
+    {% block sw_settings_logging_entry_info_content %}
+    {% block sw_settings_logging_entry_info_raw_content %}
+    <mt-textarea
+        v-if="activeTab === 'raw'"
+        :model-value="displayString"
+    />
+    {% endblock %}
     {% endblock %}
 
     {% block sw_settings_logging_entry_info_footer %}

@@ -128,6 +128,14 @@ export default {
             };
         },
 
+        useMeteorTabs() {
+            return Shopware.Feature.isActive('V6_8_0_0');
+        },
+
+        activeTab() {
+            return this.$route.name ?? 'sw.settings.rule.detail.base';
+        },
+
         tabItems() {
             const id = this.ruleId || this.$route?.params?.id;
 
@@ -149,6 +157,17 @@ export default {
                     cssClassSuffix: 'assignments',
                 },
             ];
+        },
+
+        meteorTabItems() {
+            return this.tabItems.map((tab) => {
+                return {
+                    label: tab.title,
+                    name: tab.route.name,
+                    hasError: this.tabHasError(tab),
+                    onClick: () => this.$router.push(tab.route),
+                };
+            });
         },
 
         conditionTreeFlat() {

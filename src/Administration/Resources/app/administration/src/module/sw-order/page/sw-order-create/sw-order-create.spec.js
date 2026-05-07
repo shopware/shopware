@@ -26,7 +26,7 @@ describe('src/module/sw-order/page/sw-order-create', () => {
     let wrapper;
     let stubs;
 
-    async function createWrapper() {
+    async function createWrapper({ routeName = 'sw.order.create.general', routerPush = jest.fn() } = {}) {
         return mount(await wrapTestComponent('sw-order-create', { sync: true }), {
             global: {
                 stubs,
@@ -48,6 +48,7 @@ describe('src/module/sw-order/page/sw-order-create', () => {
                 },
                 mocks: {
                     $route: {
+                        name: routeName,
                         meta: {
                             $module: {
                                 routes: {
@@ -60,6 +61,9 @@ describe('src/module/sw-order/page/sw-order-create', () => {
                                 },
                             },
                         },
+                    },
+                    $router: {
+                        push: routerPush,
                     },
                 },
             },
@@ -82,6 +86,31 @@ describe('src/module/sw-order/page/sw-order-create', () => {
             }),
             'sw-tabs': await wrapTestComponent('sw-tabs', { sync: true }),
             'sw-tabs-item': true,
+            'mt-tabs': {
+                name: 'mt-tabs',
+                template: '<div class="mt-tabs-stub"></div>',
+                props: {
+                    items: {
+                        type: Array,
+                        required: true,
+                    },
+                    positionIdentifier: {
+                        type: String,
+                        required: false,
+                        default: null,
+                    },
+                    defaultItem: {
+                        type: String,
+                        required: false,
+                        default: null,
+                    },
+                    routeTabs: {
+                        type: Boolean,
+                        required: false,
+                        default: false,
+                    },
+                },
+            },
             'sw-page': await wrapTestComponent('sw-page', { sync: true }),
             'sw-button-process': await wrapTestComponent('sw-button-process', {
                 sync: true,
@@ -107,6 +136,8 @@ describe('src/module/sw-order/page/sw-order-create', () => {
     });
 
     beforeEach(async () => {
+        global.activeFeatureFlags = [];
+
         wrapper = await createWrapper();
 
         Shopware.Store.unregister('swOrder');
@@ -165,6 +196,33 @@ describe('src/module/sw-order/page/sw-order-create', () => {
         expect(wrapper.vm.showRemindPaymentModal).toBe(true);
         const modal = wrapper.find('.sw-modal');
         expect(modal.isVisible()).toBe(true);
+    });
+
+    it('should render order create route tabs with mt-tabs', async () => {
+        await wrapper.unmount();
+
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const routerPush = jest.fn();
+        wrapper = await createWrapper({
+            routeName: 'sw.order.create.details',
+            routerPush,
+        });
+
+        const tabs = wrapper.findComponent({ name: 'mt-tabs' });
+        const items = tabs.props('items');
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-order-create');
+        expect(tabs.props('defaultItem')).toBe('sw.order.create.details');
+        expect(tabs.props('routeTabs')).toBe(true);
+        expect(items.map((item) => item.name)).toEqual([
+            'sw.order.create.general',
+            'sw.order.create.details',
+        ]);
+
+        items[0].onClick();
+
+        expect(routerPush).toHaveBeenCalledWith({ name: 'sw.order.create.general' });
     });
 
     it('should be able to close remind payment modal', async () => {

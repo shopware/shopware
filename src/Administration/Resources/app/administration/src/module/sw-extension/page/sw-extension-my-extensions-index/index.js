@@ -31,9 +31,36 @@ export default {
         extensionManagementDisabled() {
             return Shopware.Store.get('context').app.config.settings?.disableExtensionManagement;
         },
+
+        tabItems() {
+            return [
+                this.createTabItem('sw-extension.my-extensions.tabs.app', {
+                    name: 'sw.extension.my-extensions.listing.app',
+                    query: this.queryParams,
+                }),
+                this.createTabItem('sw-extension.my-extensions.tabs.theme', {
+                    name: 'sw.extension.my-extensions.listing.theme',
+                    query: this.queryParams,
+                }),
+                this.createTabItem('sw-extension.my-extensions.tabs.recommendation', {
+                    name: 'sw.extension.my-extensions.recommendation',
+                }),
+                this.createTabItem('sw-extension.my-extensions.tabs.shopwareAccount', {
+                    name: 'sw.extension.my-extensions.account',
+                }),
+            ];
+        },
     },
 
     methods: {
+        createTabItem(label, route) {
+            return {
+                label: this.$t(label),
+                name: route.name,
+                onClick: () => this.$router.push(route),
+            };
+        },
+
         onSearch(term) {
             this.searchValue = term;
         },

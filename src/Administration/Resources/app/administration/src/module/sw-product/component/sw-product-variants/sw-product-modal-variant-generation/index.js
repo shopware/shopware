@@ -76,6 +76,34 @@ export default {
     },
 
     computed: {
+        useMeteorTabs() {
+            return Shopware.Feature.isActive('V6_8_0_0');
+        },
+
+        tabItems() {
+            const items = [
+                {
+                    label: this.$t('sw-product.variations.configuratorModal.selectOptions'),
+                    name: 'options',
+                },
+            ];
+
+            if (this.variantsNumber) {
+                items.push(
+                    {
+                        label: this.$t('sw-product.variations.configuratorModal.priceSurcharges'),
+                        name: 'prices',
+                    },
+                    {
+                        label: this.$t('sw-product.variations.configuratorModal.defineRestrictions'),
+                        name: 'restrictions',
+                    },
+                );
+            }
+
+            return items;
+        },
+
         currencies() {
             return Shopware.Store.get('swProductDetail').currencies;
         },
@@ -146,6 +174,14 @@ export default {
 
             this.addOriginalConfiguratorSettings();
         },
+
+        variantsNumber() {
+            if (this.variantsNumber || this.activeTab === 'options') {
+                return;
+            }
+
+            this.activeTab = 'options';
+        },
     },
 
     created() {
@@ -157,6 +193,10 @@ export default {
     },
 
     methods: {
+        setActiveTab(tabName) {
+            this.activeTab = tabName;
+        },
+
         createdComponent() {
             this.mediaService.getDefaultFolderId('product_download').then((folderId) => {
                 this.productDownloadFolderId = folderId;

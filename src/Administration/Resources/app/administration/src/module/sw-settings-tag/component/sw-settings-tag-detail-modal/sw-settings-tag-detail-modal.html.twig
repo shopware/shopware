@@ -8,7 +8,55 @@
     @modal-close="$emit('close')"
 >
     {% block sw_settings_tag_detail_modal_tabs %}
+    <template v-if="useMeteorTabs">
+        {% block sw_settings_tag_detail_modal_meteor_tabs %}
+        <mt-tabs
+            position-identifier="sw-settings-tag-detail-modal"
+            :small="false"
+            :items="tabItems"
+            :default-item="initialTab"
+            @new-item-active="setActiveTab"
+            @extension-item-active="setActiveTab"
+        />
+        {% endblock %}
+
+        {% block sw_settings_tag_detail_modal_meteor_tabs_content %}
+        <template v-if="initialTab === 'general'">
+            {% block sw_settings_tag_detail_modal_meteor_tabs_general_tab %}
+            <p class="sw-settings-tag-detail-modal__tag-name">
+                <mt-text-field
+                    id="sw-field--tag-name"
+                    v-model="tag.name"
+                    name="sw-field--tag-name"
+                    :label="$t('sw-settings-tag.list.columnName')"
+                    :placeholder="$t('sw-settings-tag.list.placeholderTagName')"
+                    :error="tagNameError"
+                    maxlength="255"
+                    required
+                />
+            </p>
+            {% endblock %}
+        </template>
+
+        <template v-if="initialTab === 'assignments'">
+            {% block sw_settings_tag_detail_modal_meteor_tabs_assignments_tab %}
+            <sw-settings-tag-detail-assignments
+                :tag="tag"
+                :initial-counts="computedCounts"
+                :to-be-added="assignmentsToBeAdded"
+                :to-be-deleted="assignmentsToBeDeleted"
+                :property="property"
+                :entity="entity"
+                @add-assignment="addAssignment"
+                @remove-assignment="removeAssignment"
+            />
+            {% endblock %}
+        </template>
+        {% endblock %}
+    </template>
+
     <sw-tabs
+        v-else
         position-identifier="sw-settings-tag-detail-modal"
         :small="false"
         :default-item="initialTab"

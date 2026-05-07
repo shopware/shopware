@@ -69,6 +69,29 @@ async function createWrapper(activeTab = 'sorting') {
                     'sw-pagination': true,
                     'sw-container': true,
                     'sw-tabs-item': true,
+                    'mt-tabs': {
+                        name: 'mt-tabs',
+                        props: {
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: true,
+                            },
+                            defaultItem: {
+                                type: String,
+                                required: false,
+                                default: null,
+                            },
+                        },
+                        emits: [
+                            'new-item-active',
+                            'extension-item-active',
+                        ],
+                        template: '<div class="mt-tabs-stub"></div>',
+                    },
 
                     'sw-tabs': {
                         data() {
@@ -126,6 +149,9 @@ async function createWrapper(activeTab = 'sorting') {
                         boxLayout: {
                             value: {},
                         },
+                        boxHeadlineLevel: {
+                            value: null,
+                        },
                         defaultSorting: {
                             value: {},
                         },
@@ -159,12 +185,53 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         });
     });
 
+    beforeEach(() => {
+        global.activeFeatureFlags = [];
+    });
+
     it('should contain tab items content, sorting and filter', async () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.find('sw-tabs-item-stub[name="content"]').exists()).toBeTruthy();
         expect(wrapper.find('sw-tabs-item-stub[name="sorting"]').exists()).toBeTruthy();
         expect(wrapper.find('sw-tabs-item-stub[name="filter"]').exists()).toBeTruthy();
+    });
+
+    it('should render Meteor tabs when the feature flag is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper();
+        const tabs = wrapper.getComponent('.mt-tabs-stub');
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-cms-element-config-product-listing');
+        expect(tabs.props('defaultItem')).toBe('content');
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'sw-cms.elements.general.config.tab.content',
+                name: 'content',
+            },
+            {
+                label: 'sw-cms.elements.productListing.config.tab.sorting',
+                name: 'sorting',
+            },
+            {
+                label: 'sw-cms.elements.productListing.config.tab.filter',
+                name: 'filter',
+            },
+        ]);
+
+        await tabs.vm.$emit('new-item-active', 'sorting');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.activeTab).toBe('sorting');
+        expect(wrapper.find('.sw-cms-element-config-product-listing__sorting-default-select').exists()).toBe(true);
+
+        await tabs.vm.$emit('extension-item-active', 'extension-tab');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.activeTab).toBe('extension-tab');
+        expect(wrapper.find('.sw-cms-el-config-product-listing__content-info').exists()).toBe(false);
+        expect(wrapper.find('.sw-cms-element-config-product-listing__sorting-default-select').exists()).toBe(false);
     });
 
     it('should contain content for sorting when defaultSorting is deactivated', async () => {

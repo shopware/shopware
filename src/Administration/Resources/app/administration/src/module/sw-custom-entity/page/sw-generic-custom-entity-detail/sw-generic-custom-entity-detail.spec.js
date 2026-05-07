@@ -141,6 +141,35 @@ async function createWrapper({ activeTab = 'main', routeId = null, entityName = 
                 'sw-tabs-item': {
                     template: '<div class="sw-tabs-item"><slot></slot></div>',
                 },
+                'mt-tabs': {
+                    name: 'mt-tabs',
+                    template: '<div class="mt-tabs-stub"></div>',
+                    props: {
+                        items: {
+                            type: Array,
+                            required: true,
+                        },
+                        positionIdentifier: {
+                            type: String,
+                            required: false,
+                            default: null,
+                        },
+                        defaultItem: {
+                            type: String,
+                            required: false,
+                            default: null,
+                        },
+                        small: {
+                            type: Boolean,
+                            required: false,
+                            default: true,
+                        },
+                    },
+                    emits: [
+                        'new-item-active',
+                        'extension-item-active',
+                    ],
+                },
                 'sw-button-process': {
                     template: '<div class="sw-button-process" @click="$emit(`click`)"></div>',
                 },
@@ -262,6 +291,10 @@ const numberOfElementsDataProvider = [
  * @sw-package framework
  */
 describe('module/sw-custom-entity/page/sw-generic-custom-entity-detail', () => {
+    beforeEach(() => {
+        global.activeFeatureFlags = [];
+    });
+
     it('should render the correct number of tabs, tab-items and activeTabs with correct labels', async () => {
         const wrapper = await createWrapper();
 
@@ -273,6 +306,52 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-detail', () => {
         expect(tabItems.at(2).text()).toBe('sw-custom-entity.detail.tabs.layout');
         expect(tabItems.at(3).text()).toBe('sw-custom-entity.detail.tabs.seo');
         expect(wrapper.findAll('.sw-generic-custom-entity-detail__tab')).toHaveLength(1);
+    });
+
+    it('should render custom entity detail tabs with mt-tabs', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper({ routeId: testEntityData.id });
+        await flushPromises();
+
+        const tabs = wrapper.findComponent({ name: 'mt-tabs' });
+        const items = tabs.props('items');
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-generic-custom-entity-detail-tabs');
+        expect(tabs.props('defaultItem')).toBe('main');
+        expect(tabs.props('small')).toBe(false);
+        expect(items).toEqual([
+            {
+                label: 'custom_test_entity.tabs.main',
+                name: 'main',
+            },
+            {
+                label: 'custom_test_entity.tabs.secondary',
+                name: 'secondary',
+            },
+            {
+                label: 'sw-custom-entity.detail.tabs.layout',
+                name: 'cms-aware-tab-layout',
+            },
+            {
+                label: 'sw-custom-entity.detail.tabs.seo',
+                name: 'cms-aware-tab-seo',
+            },
+        ]);
+        expect(wrapper.findAll('.sw-generic-custom-entity-detail__card')).toHaveLength(2);
+
+        tabs.vm.$emit('new-item-active', 'secondary');
+        await flushPromises();
+
+        expect(wrapper.vm.currentActiveTab).toBe('secondary');
+        expect(wrapper.findAll('.sw-generic-custom-entity-detail__card')).toHaveLength(1);
+
+        tabs.vm.$emit('extension-item-active', 'extension-tab');
+        await flushPromises();
+
+        expect(wrapper.vm.currentActiveTab).toBeNull();
+        expect(wrapper.vm.activeTabItemName).toBe('extension-tab');
+        expect(wrapper.findAll('.sw-generic-custom-entity-detail__tab')).toHaveLength(0);
     });
 
     numberOfElementsDataProvider.forEach((data) => {

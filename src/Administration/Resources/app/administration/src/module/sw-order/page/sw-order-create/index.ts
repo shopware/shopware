@@ -1,4 +1,5 @@
 import type Repository from 'src/core/data/repository.data';
+import type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/MtTabs';
 import type { Cart, PromotionCodeTag } from '../../order.types';
 import '../../store/order.store';
 import template from './sw-order-create.html.twig';
@@ -95,6 +96,21 @@ export default Shopware.Component.wrapComponentConfig({
         showInitialModal(): boolean {
             return this.$route.name === 'sw.order.create.initial';
         },
+
+        useMeteorTabs(): boolean {
+            return Shopware.Feature.isActive('V6_8_0_0');
+        },
+
+        activeTab(): string {
+            return this.$route.name ?? 'sw.order.create.general';
+        },
+
+        tabItems(): TabItem[] {
+            return [
+                this.createTabItem('sw-order.detail.tabGeneral', { name: 'sw.order.create.general' }),
+                this.createTabItem('sw-order.detail.tabDetails', { name: 'sw.order.create.details' }),
+            ];
+        },
     },
 
     created(): void {
@@ -107,6 +123,16 @@ export default Shopware.Component.wrapComponentConfig({
             if (!Store.get('context').isSystemDefaultLanguage) {
                 Store.get('context').resetLanguageToDefault();
             }
+        },
+
+        createTabItem(label: string, route: { name: string }): TabItem {
+            return {
+                label: this.$t(label),
+                name: route.name,
+                onClick: () => {
+                    void this.$router.push(route);
+                },
+            };
         },
 
         redirectToOrderList(): void {

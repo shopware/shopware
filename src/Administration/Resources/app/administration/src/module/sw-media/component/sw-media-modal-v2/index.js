@@ -80,6 +80,7 @@ export default {
             term: '',
             id: Utils.createId(),
             selectedMediaItem: {},
+            activeTab: this.defaultTab,
         };
     },
 
@@ -104,6 +105,24 @@ export default {
 
         uploadTag() {
             return `sw-media-modal-v2--${this.id}`;
+        },
+
+        useMeteorTabs() {
+            return Shopware.Feature.isActive('V6_8_0_0');
+        },
+
+        tabItems() {
+            return [
+                {
+                    label: this.$t('sw-media.sw-media-modal-v2.labelTabItemLibrary'),
+                    name: this.tabNameLibrary,
+                    disabled: this.hasUploads,
+                },
+                {
+                    label: this.$t('sw-media.sw-media-modal-v2.labelTabItemUpload'),
+                    name: this.tabNameUpload,
+                },
+            ];
         },
     },
 
@@ -187,6 +206,14 @@ export default {
 
             this.$emit('media-modal-selection-change', selectedMedia);
             this.onEmitModalClosed();
+        },
+
+        setActiveTab(tabName) {
+            if (tabName === this.tabNameUpload) {
+                this.resetSelection();
+            }
+
+            this.activeTab = tabName;
         },
 
         /*

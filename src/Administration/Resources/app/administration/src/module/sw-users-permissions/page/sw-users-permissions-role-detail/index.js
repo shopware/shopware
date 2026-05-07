@@ -46,6 +46,39 @@ export default {
     },
 
     computed: {
+        useMeteorTabs() {
+            return Shopware.Feature.isActive('V6_8_0_0');
+        },
+
+        activeTab() {
+            return this.tabItems.find((item) => item.name === this.$route.name)?.name ?? this.tabItems[0]?.name;
+        },
+
+        tabItems() {
+            return [
+                {
+                    label: this.$t('sw-users-permissions.roles.tabs.general'),
+                    name: 'sw.users.permissions.role.detail.general',
+                    onClick: () => {
+                        void this.$router.push({
+                            name: 'sw.users.permissions.role.detail.general',
+                            params: { id: this.$route.params.id },
+                        });
+                    },
+                },
+                {
+                    label: this.$t('sw-users-permissions.roles.tabs.detailed'),
+                    name: 'sw.users.permissions.role.detail.detailed-privileges',
+                    onClick: () => {
+                        void this.$router.push({
+                            name: 'sw.users.permissions.role.detail.detailed-privileges',
+                            params: { id: this.$route.params.id },
+                        });
+                    },
+                },
+            ];
+        },
+
         tooltipSave() {
             const systemKey = this.$device.getSystemKey();
 

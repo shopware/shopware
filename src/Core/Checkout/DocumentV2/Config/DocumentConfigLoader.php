@@ -9,7 +9,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
@@ -29,7 +28,7 @@ use Symfony\Contracts\Service\ResetInterface;
 final class DocumentConfigLoader implements EventSubscriberInterface, ResetInterface
 {
     /**
-     * @var array<string, array<string, array<string, DocumentConfigBundle>>>
+     * @var array<string, array<string, DocumentConfigBundle>>
      */
     private array $bundles = [];
 
@@ -64,8 +63,7 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
 
     public function load(string $documentType, string $salesChannelId, Context $context): DocumentConfigBundle
     {
-        $versionId = $context->getVersionId();
-        $cached = $this->bundles[$documentType][$versionId][$salesChannelId] ?? null;
+        $cached = $this->bundles[$documentType][$salesChannelId] ?? null;
 
         if ($cached !== null) {
             return $cached;
@@ -93,9 +91,9 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
             legacyConfig: $legacyConfig,
         );
 
-        $this->bundles[$documentType][$versionId] ??= [];
+        $this->bundles[$documentType] ??= [];
 
-        return $this->bundles[$documentType][$versionId][$salesChannelId] = $bundle;
+        return $this->bundles[$documentType][$salesChannelId] = $bundle;
     }
 
     private function buildDocumentConfig(
@@ -164,18 +162,18 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
             companyZipcode: (string) $required['companyZipcode'],
             companyCity: (string) $required['companyCity'],
             companyCountry: $companyCountry,
-            companyEmail: $this->stringOrNull($legacyConfig['companyEmail'] ?? null),
-            companyPhone: $this->stringOrNull($legacyConfig['companyPhone'] ?? null),
-            companyUrl: $this->stringOrNull($legacyConfig['companyUrl'] ?? null),
-            executiveDirector: $this->stringOrNull($legacyConfig['executiveDirector'] ?? null),
-            taxNumber: $this->stringOrNull($legacyConfig['taxNumber'] ?? null),
-            taxOffice: $this->stringOrNull($legacyConfig['taxOffice'] ?? null),
-            vatId: $this->stringOrNull($legacyConfig['vatId'] ?? null),
-            bankName: $this->stringOrNull($legacyConfig['bankName'] ?? null),
-            bankIban: $this->stringOrNull($legacyConfig['bankIban'] ?? null),
-            bankBic: $this->stringOrNull($legacyConfig['bankBic'] ?? null),
-            placeOfJurisdiction: $this->stringOrNull($legacyConfig['placeOfJurisdiction'] ?? null),
-            placeOfFulfillment: $this->stringOrNull($legacyConfig['placeOfFulfillment'] ?? null),
+            companyEmail: $legacyConfig['companyEmail'] ?? null,
+            companyPhone: $legacyConfig['companyPhone'] ?? null,
+            companyUrl: $legacyConfig['companyUrl'] ?? null,
+            executiveDirector: $legacyConfig['executiveDirector'] ?? null,
+            taxNumber: $legacyConfig['taxNumber'] ?? null,
+            taxOffice: $legacyConfig['taxOffice'] ?? null,
+            vatId: $legacyConfig['vatId'] ?? null,
+            bankName: $legacyConfig['bankName'] ?? null,
+            bankIban: $legacyConfig['bankIban'] ?? null,
+            bankBic: $legacyConfig['bankBic'] ?? null,
+            placeOfJurisdiction: $legacyConfig['placeOfJurisdiction'] ?? null,
+            placeOfFulfillment: $legacyConfig['placeOfFulfillment'] ?? null,
         );
     }
 
@@ -184,20 +182,15 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
      */
     private function mergeJsonConfig(?DocumentBaseConfigEntity $globalRow, ?DocumentBaseConfigEntity $salesChannelRow): array
     {
-        // The `config` JSON column is deprecated in v6.7 and `getConfig()` triggers a deprecation
-        // notice. During the v6.7 → v6.8 transition the loader still needs the JSON for fields
-        // (company info, plugin extensions) not yet promoted to typed columns, so silence here.
-        return Feature::silent('v6.8.0.0', static function () use ($globalRow, $salesChannelRow): array {
-            $merged = $globalRow?->getConfig() ?? [];
+        $merged = $globalRow?->getConfig() ?? [];
 
-            foreach ($salesChannelRow?->getConfig() ?? [] as $key => $value) {
-                if ($value !== null) {
-                    $merged[$key] = $value;
-                }
+        foreach ($salesChannelRow?->getConfig() ?? [] as $key => $value) {
+            if ($value !== null) {
+                $merged[$key] = $value;
             }
+        }
 
-            return $merged;
-        });
+        return $merged;
     }
 
     /**
@@ -216,10 +209,5 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
                 $field
             );
         }
-    }
-
-    private function stringOrNull(mixed $value): ?string
-    {
-        return \is_string($value) && $value !== '' ? $value : null;
     }
 }

@@ -103,6 +103,7 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
             (bool) ($bundle->legacyConfig['displayPrices'] ?? false),
             $bundle->legacyConfig['deliveryCountries'] ?? [],
             $bundle->legacyConfig,
+            ['invoiceNumber' => $documentNumber],
         );
     }
 

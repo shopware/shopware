@@ -18,8 +18,9 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * Renders the HTML representation of a document via {@see DocumentTemplateRenderer}.
  *
- * The provider's {@see InvoiceRenderData} is cloned before applying format-specific overrides
- * (`fileType`, `itemsPerPage`) so renderers running after this one see the original configuration.
+ * Wraps the provider's {@see InvoiceRenderData} in a {@see TemplateContext} together with
+ * format-specific overrides (`fileType`, `itemsPerPage`) so the underlying render data stays
+ * untouched for any renderer running after this one.
  *
  * @internal
  */
@@ -73,7 +74,7 @@ final readonly class HtmlRenderer extends AbstractDocumentRenderer
         return new RenderResult(
             self::FORMAT->value,
             $content,
-            ($renderData->config->filenamePrefix ?? '') . $renderData->documentNumber . ($renderData->config->filenameSuffix ?? ''),
+            $renderData->config->buildFileName($renderData->documentNumber),
             self::FORMAT->fileExtension(),
             self::FORMAT->mimeType(),
         );

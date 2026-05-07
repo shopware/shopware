@@ -38,9 +38,6 @@ final readonly class TemplateContext implements \ArrayAccess
         AbstractRenderData $data,
         array $overrides = [],
     ) {
-        // Build a single flat lookup map at construction time. Twig templates resolve
-        // `config.*` for every line item × every field; recomputing get_object_vars
-        // per access turns into hot O(n) work on long invoices.
         $properties = $data->legacyConfig;
 
         foreach ([$data->company, $data->config, $data] as $source) {

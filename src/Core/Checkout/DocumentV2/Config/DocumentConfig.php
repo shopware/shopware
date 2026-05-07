@@ -28,4 +28,9 @@ final readonly class DocumentConfig
         public bool $displayCustomerVatId = false,
     ) {
     }
+
+    public function buildFileName(string $documentNumber): string
+    {
+        return ($this->filenamePrefix ?? '') . $documentNumber . ($this->filenameSuffix ?? '');
+    }
 }

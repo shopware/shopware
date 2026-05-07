@@ -20,8 +20,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * Active until the JSON column is dropped in v6.8.
  *
  * @internal
- *
- * @deprecated tag:v6.8.0 - will be removed
  */
 #[Package('after-sales')]
 class DocumentBaseConfigSyncSubscriber implements EventSubscriberInterface

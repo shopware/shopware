@@ -16,13 +16,9 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class InvoiceRenderData extends AbstractRenderData
 {
     /**
-     * @var array<string, mixed>
-     */
-    public array $custom;
-
-    /**
      * @param list<string> $deliveryCountries
      * @param array<string, mixed> $legacyConfig
+     * @param array<string, mixed> $custom
      */
     public function __construct(
         DocumentConfig $config,
@@ -37,9 +33,8 @@ final readonly class InvoiceRenderData extends AbstractRenderData
         public bool $displayPrices,
         public array $deliveryCountries,
         array $legacyConfig = [],
+        public array $custom = [],
     ) {
-        $this->custom = ['invoiceNumber' => $documentNumber];
-
         parent::__construct($config, $company, $legacyConfig);
     }
 }

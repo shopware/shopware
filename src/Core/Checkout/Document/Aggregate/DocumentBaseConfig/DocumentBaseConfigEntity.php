@@ -8,6 +8,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('after-sales')]
@@ -31,9 +32,56 @@ class DocumentBaseConfigEntity extends Entity
     protected ?string $logoId = null;
 
     /**
+     * @deprecated tag:v6.8.0 - Will be removed. Use the individual fields instead.
+     *
      * @var array<string, string|bool|array<int, string>>|null
      */
     protected ?array $config = null;
+
+    /**
+     * @internal
+     */
+    protected ?string $pageSize = null;
+
+    /**
+     * @internal
+     */
+    protected ?string $pageOrientation = null;
+
+    /**
+     * @internal
+     */
+    protected ?int $itemsPerPage = null;
+
+    /**
+     * @internal
+     */
+    protected ?bool $displayHeader = null;
+
+    /**
+     * @internal
+     */
+    protected ?bool $displayFooter = null;
+
+    /**
+     * @internal
+     */
+    protected ?bool $displayPageCount = null;
+
+    /**
+     * @internal
+     */
+    protected ?bool $displayCompanyAddress = null;
+
+    /**
+     * @internal
+     */
+    protected ?bool $displayReturnAddress = null;
+
+    /**
+     * @internal
+     */
+    protected ?bool $displayCustomerVatId = null;
 
     protected ?DocumentBaseConfigSalesChannelCollection $salesChannels = null;
 
@@ -122,18 +170,32 @@ class DocumentBaseConfigEntity extends Entity
     }
 
     /**
+     * @deprecated tag:v6.8.0 - Will be removed. Use the individual fields instead.
+     *
      * @return array<string, string|bool|array<int, string>>|null
      */
     public function getConfig(): ?array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         return $this->config;
     }
 
     /**
+     * @deprecated tag:v6.8.0 - Will be removed. Use the individual fields instead.
+     *
      * @param array<string, string|bool|array<int, string>>|null $config
      */
     public function setConfig(?array $config): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         $this->config = $config;
     }
 
@@ -155,5 +217,149 @@ class DocumentBaseConfigEntity extends Entity
     public function setFilenameSuffix(?string $filenameSuffix): void
     {
         $this->filenameSuffix = $filenameSuffix;
+    }
+
+    /**
+     * @internal
+     */
+    public function getPageSize(): ?string
+    {
+        return $this->pageSize;
+    }
+
+    /**
+     * @internal
+     */
+    public function setPageSize(?string $pageSize): void
+    {
+        $this->pageSize = $pageSize;
+    }
+
+    /**
+     * @internal
+     */
+    public function getPageOrientation(): ?string
+    {
+        return $this->pageOrientation;
+    }
+
+    /**
+     * @internal
+     */
+    public function setPageOrientation(?string $pageOrientation): void
+    {
+        $this->pageOrientation = $pageOrientation;
+    }
+
+    /**
+     * @internal
+     */
+    public function getItemsPerPage(): ?int
+    {
+        return $this->itemsPerPage;
+    }
+
+    /**
+     * @internal
+     */
+    public function setItemsPerPage(?int $itemsPerPage): void
+    {
+        $this->itemsPerPage = $itemsPerPage;
+    }
+
+    /**
+     * @internal
+     */
+    public function getDisplayHeader(): ?bool
+    {
+        return $this->displayHeader;
+    }
+
+    /**
+     * @internal
+     */
+    public function setDisplayHeader(?bool $displayHeader): void
+    {
+        $this->displayHeader = $displayHeader;
+    }
+
+    /**
+     * @internal
+     */
+    public function getDisplayFooter(): ?bool
+    {
+        return $this->displayFooter;
+    }
+
+    /**
+     * @internal
+     */
+    public function setDisplayFooter(?bool $displayFooter): void
+    {
+        $this->displayFooter = $displayFooter;
+    }
+
+    /**
+     * @internal
+     */
+    public function getDisplayPageCount(): ?bool
+    {
+        return $this->displayPageCount;
+    }
+
+    /**
+     * @internal
+     */
+    public function setDisplayPageCount(?bool $displayPageCount): void
+    {
+        $this->displayPageCount = $displayPageCount;
+    }
+
+    /**
+     * @internal
+     */
+    public function getDisplayCompanyAddress(): ?bool
+    {
+        return $this->displayCompanyAddress;
+    }
+
+    /**
+     * @internal
+     */
+    public function setDisplayCompanyAddress(?bool $displayCompanyAddress): void
+    {
+        $this->displayCompanyAddress = $displayCompanyAddress;
+    }
+
+    /**
+     * @internal
+     */
+    public function getDisplayReturnAddress(): ?bool
+    {
+        return $this->displayReturnAddress;
+    }
+
+    /**
+     * @internal
+     */
+    public function setDisplayReturnAddress(?bool $displayReturnAddress): void
+    {
+        $this->displayReturnAddress = $displayReturnAddress;
+    }
+
+    /**
+     * @internal
+     */
+    public function getDisplayCustomerVatId(): ?bool
+    {
+        return $this->displayCustomerVatId;
+    }
+
+    /**
+     * @internal
+     */
+    public function setDisplayCustomerVatId(?bool $displayCustomerVatId): void
+    {
+        $this->displayCustomerVatId = $displayCustomerVatId;
     }
 }

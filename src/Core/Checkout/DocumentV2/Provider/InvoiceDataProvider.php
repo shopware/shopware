@@ -4,8 +4,7 @@ namespace Shopware\Core\Checkout\DocumentV2\Provider;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
-use Shopware\Core\Checkout\Document\DocumentConfiguration;
-use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
+use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfigLoader;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
@@ -75,36 +74,41 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
         DocumentGenerationRequest $generationRequest,
         Context $context,
     ): InvoiceRenderData {
-        $config = clone $this->documentConfigLoader->load(
+        $bundle = $this->documentConfigLoader->load(
             $generationRequest->documentType,
             $order->getSalesChannelId(),
             $context,
         );
 
+        $displayAdditionalNoteDelivery = (bool) ($bundle->legacyConfig['displayAdditionalNoteDelivery'] ?? false);
+
         $isIntraCommunityDelivery = $this->isIntraCommunityDelivery(
-            $config,
+            $displayAdditionalNoteDelivery,
             $order,
         );
 
         $documentDate = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $documentNumber = $generationRequest->documentNumber ?? '';
 
-        $config->merge([
-            'documentDate' => $documentDate,
-            'documentNumber' => $generationRequest->documentNumber,
-            'intraCommunityDelivery' => $isIntraCommunityDelivery,
-            'custom' => [
-                'invoiceNumber' => $generationRequest->documentNumber,
-            ],
-        ]);
-
-        return new InvoiceRenderData($config);
+        return new InvoiceRenderData(
+            $bundle->config,
+            $bundle->company,
+            $documentDate,
+            $documentNumber,
+            $generationRequest->documentComment,
+            $isIntraCommunityDelivery,
+            (bool) ($bundle->legacyConfig['displayDivergentDeliveryAddress'] ?? false),
+            (bool) ($bundle->legacyConfig['displayLineItems'] ?? false),
+            (bool) ($bundle->legacyConfig['displayLineItemPosition'] ?? false),
+            (bool) ($bundle->legacyConfig['displayPrices'] ?? false),
+            $bundle->legacyConfig['deliveryCountries'] ?? [],
+            $bundle->legacyConfig,
+        );
     }
 
-    private function isIntraCommunityDelivery(DocumentConfiguration $config, OrderEntity $order): bool
+    private function isIntraCommunityDelivery(bool $displayAdditionalNoteDelivery, OrderEntity $order): bool
     {
-        $deliveryNote = $config->jsonSerialize()['displayAdditionalNoteDelivery'] ?? false;
-
-        if ($deliveryNote === false) {
+        if ($displayAdditionalNoteDelivery === false) {
             return false;
         }
 

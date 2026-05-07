@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\DocumentV2\Struct\RenderResult;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
 use Shopware\Core\Checkout\DocumentV2\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\DocumentV2\Twig\PaginationCounter;
+use Shopware\Core\Checkout\DocumentV2\Twig\TemplateContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
@@ -51,10 +52,10 @@ final readonly class HtmlRenderer extends AbstractDocumentRenderer
             InvoiceRenderData::class
         );
 
-        $configuration = clone $renderData->configuration;
-        $configuration->merge([
+        $configuration = new TemplateContext($renderData, [
             'fileType' => self::FORMAT->fileExtension(),
             'itemsPerPage' => 1000,
+            'getAddressParts' => $renderData->company->getAddressParts(),
         ]);
 
         $template = DocumentType::from($input->documentType)->templatePath();
@@ -72,7 +73,7 @@ final readonly class HtmlRenderer extends AbstractDocumentRenderer
         return new RenderResult(
             self::FORMAT->value,
             $content,
-            $configuration->buildName(),
+            ($renderData->config->filenamePrefix ?? '') . $renderData->documentNumber . ($renderData->config->filenameSuffix ?? ''),
             self::FORMAT->fileExtension(),
             self::FORMAT->mimeType(),
         );

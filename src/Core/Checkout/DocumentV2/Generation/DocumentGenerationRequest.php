@@ -28,6 +28,7 @@ final readonly class DocumentGenerationRequest
         DocumentType|string $documentType,
         array $requestedFormats,
         public ?string $documentNumber = null,
+        public ?string $documentComment = null,
     ) {
         $this->documentType = $documentType instanceof DocumentType ? $documentType->value : $documentType;
         $this->requestedFormats = array_map(
@@ -44,6 +45,7 @@ final readonly class DocumentGenerationRequest
             $this->documentType,
             $this->requestedFormats,
             $documentNumber,
+            $this->documentComment,
         );
     }
 }

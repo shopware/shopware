@@ -17,11 +17,6 @@ export type FormFieldDefinition = {
 
 type FormFieldComponentNameOptions = {
     resolveType?: boolean;
-    noTypeFallback?: boolean;
-};
-
-type FormFieldComponentFromTypeOptions = {
-    noFallback?: boolean;
 };
 
 /**
@@ -60,18 +55,16 @@ export const formFieldTypeComponentMap: Record<string, string> = {
  * @sw-package framework
  * @private
  */
-export function getFormFieldComponentFromType(type?: string | null, options: FormFieldComponentFromTypeOptions = {}) {
-    const componentName = formFieldTypeComponentMap[type ?? ''];
-
-    if (componentName) {
-        return componentName;
-    }
-
-    if (options.noFallback === true) {
+export function getFormFieldComponentFromType(type?: string | null) {
+    if (!type) {
         return null;
     }
 
-    return 'mt-text-field';
+    if (!(type in formFieldTypeComponentMap)) {
+        return null;
+    }
+
+    return formFieldTypeComponentMap[type];
 }
 
 /**
@@ -102,14 +95,14 @@ export function getFormFieldComponentName(
 
     // Legacy sw-field is only a placeholder; resolve it through the configured type to get the rendered component.
     if (componentName === 'sw-field') {
-        return getFormFieldComponentFromType(getConfiguredType(field), { noFallback: options.noTypeFallback });
+        return getFormFieldComponentFromType(getConfiguredType(field));
     }
 
     if (componentName || options.resolveType === false) {
         return componentName;
     }
 
-    return getFormFieldComponentFromType(field?.type, { noFallback: options.noTypeFallback });
+    return getFormFieldComponentFromType(field?.type);
 }
 
 /**
@@ -119,7 +112,7 @@ export function getFormFieldComponentName(
 export function isSupported(
     field: FormFieldDefinition | null,
     componentNames: string[],
-    options: FormFieldComponentNameOptions = { resolveType: true, noTypeFallback: false },
+    options: FormFieldComponentNameOptions = { resolveType: true },
 ) {
     const componentName = getFormFieldComponentName(field, options);
 

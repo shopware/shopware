@@ -628,34 +628,6 @@ Removed the constants `Shopware\Core\Content\MailTemplate\MAIL_TEMPLATE_SALES_CH
 ## Removed component-level form inheritance helper wrappers
 
 The following Administration component methods and computed properties were deprecated in Shopware 6.7 and are removed in Shopware 6.8.
-They only forwarded to shared utility functions and should be replaced with direct `Shopware.Utils` calls.
-
-Use these replacements:
-
-```diff
-- this.supportsMapInheritance(field)
-+ Shopware.Utils.supportsMapInheritance(field)
-
-- this.hasMapInheritanceSupport(field)
-+ Shopware.Utils.supportsMapInheritance(field)
-
-- this.isMeteorComponent(field)
-+ Shopware.Utils.isMeteorComponent(field)
-
-- this.isFieldHandlingInheritanceItself(field)
-+ Shopware.Utils.isFieldHandlingInheritanceItself(field)
-
-- this.isFieldHandlingLabelAndHelpText(field)
-+ Shopware.Utils.isFieldHandlingLabelAndHelpText(field)
-
-- this.componentsWithMapInheritanceSupport
-+ Shopware.Utils.componentNamesSupportingMapInheritance
-
-- this.getComponentFromType(type)
-+ Shopware.Utils.getFormFieldComponentFromType(type)
-```
-
-Affected compatibility wrappers:
 
 * `sw-custom-field-set-renderer`
   * `componentsWithMapInheritanceSupport`

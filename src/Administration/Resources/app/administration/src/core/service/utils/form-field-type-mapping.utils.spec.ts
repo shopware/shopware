@@ -17,13 +17,8 @@ describe('src/core/service/utils/form-field-type-mapping.utils', () => {
         expect(getFormFieldComponentFromType('text-editor')).toBe('sw-text-editor');
     });
 
-    it('falls back to mt-text-field for unknown form field types', () => {
-        expect(getFormFieldComponentFromType('unknown')).toBe('mt-text-field');
-    });
-
-    it('returns null for unknown form field types without fallback', () => {
-        expect(getFormFieldComponentFromType('text', { noFallback: true })).toBe('mt-text-field');
-        expect(getFormFieldComponentFromType('unknown', { noFallback: true })).toBeNull();
+    it('returns null for unknown form field types', () => {
+        expect(getFormFieldComponentFromType('unknown')).toBeNull();
     });
 
     it('resolves top-level explicit component name', () => {
@@ -108,8 +103,8 @@ describe('src/core/service/utils/form-field-type-mapping.utils', () => {
         expect(getFormFieldComponentName({ type: 'bool' })).toBe('mt-switch');
     });
 
-    it('can skip resolving the unknown type fallback', () => {
-        expect(getFormFieldComponentName({ type: 'unknown' }, { noTypeFallback: true })).toBeNull();
+    it('returns null for unknown field types', () => {
+        expect(getFormFieldComponentName({ type: 'unknown' })).toBeNull();
     });
 
     it('can skip resolving the outer type fallback', () => {
@@ -130,14 +125,9 @@ describe('src/core/service/utils/form-field-type-mapping.utils', () => {
         expect(isSupported({ type: 'text' }, ['mt-switch'])).toBe(false);
     });
 
-    it('detects supported resolved component names with type fallback by default', () => {
+    it('detects supported resolved component names', () => {
         expect(isSupported({ type: 'text-editor' }, ['sw-text-editor'])).toBe(true);
-        expect(isSupported({ type: 'unknown' }, ['mt-text-field'])).toBe(true);
-    });
-
-    it('can skip resolving the unknown type fallback for support checks', () => {
-        expect(isSupported({ type: 'text-editor' }, ['sw-text-editor'], { noTypeFallback: true })).toBe(true);
-        expect(isSupported({ type: 'unknown' }, ['mt-text-field'], { noTypeFallback: true })).toBe(false);
+        expect(isSupported({ type: 'unknown' }, ['mt-text-field'])).toBe(false);
     });
 
     it('can skip resolving the outer type fallback for support checks', () => {

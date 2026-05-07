@@ -4,7 +4,6 @@
 import ErrorResolverSystemConfig from 'src/core/data/error-resolver.system-config.data';
 import { deepCloneWithEntity } from 'src/core/service/extension-api-data.service';
 import { supportsMapInheritance } from 'src/core/service/utils/field-inheritance.utils';
-import { isMeteorComponent } from 'src/core/service/utils/meteor-component.utils';
 import { isFieldHandlingLabelAndHelpText } from 'src/core/service/utils/field-label.utils';
 import template from './sw-system-config.html.twig';
 import './sw-system-config.scss';
@@ -83,7 +82,7 @@ export default {
         },
 
         /**
-         * @deprecated tag:v6.8.0 - Will be removed, use `Shopware.Utils.supportsMapInheritance` to test for map inheritance support instead.
+         * @deprecated tag:v6.8.0 - Will be removed without replacement.
          */
         typesWithMapInheritanceSupport() {
             return [
@@ -204,10 +203,16 @@ export default {
         },
 
         /**
-         * @deprecated tag:v6.8.0 - Will be removed, use `Shopware.Utils.supportsMapInheritance` instead.
+         * @deprecated tag:v6.8.0 - Will be removed without replacement.
          */
         hasMapInheritanceSupport(element) {
-            return supportsMapInheritance(element);
+            const componentName = element.config ? element.config.componentName : undefined;
+
+            if (componentName === 'sw-snippet-field') {
+                return true;
+            }
+
+            return this.typesWithMapInheritanceSupport.includes(element.type);
         },
 
         getElementBind(element, mapInheritance) {
@@ -318,10 +323,35 @@ export default {
         },
 
         /**
-         * @deprecated tag:v6.8.0 - Will be removed, use `Shopware.Utils.isMeteorComponent` instead.
+         * @deprecated tag:v6.8.0 - Will be removed without replacement.
          */
         isMeteorComponent(element) {
-            return isMeteorComponent(element);
+            const componentName = element.config ? element.config.componentName : undefined;
+
+            // Special case for sw-text-editor, because we still support the legacy one
+            const componentsWithMeteorSupport = [
+                'sw-text-editor',
+            ];
+
+            const typesWithMeteorSupport = [
+                'bool',
+                'switch',
+                'text',
+                'textarea',
+                'url',
+                'checkbox',
+                'colorpicker',
+                'password',
+                'date',
+                'datetime',
+                'time',
+                'single-select',
+                'multi-select',
+                'float',
+                'int',
+            ];
+
+            return typesWithMeteorSupport.includes(element.type) || componentsWithMeteorSupport.includes(componentName);
         },
 
         getMeteorElementBind(element, mapInheritance) {

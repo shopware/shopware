@@ -2,10 +2,7 @@ import { computed } from 'vue';
 
 import { mapInheritanceSlotPropsToMeteorProps } from 'src/core/service/utils/meteor-inheritance.utils';
 import { isMeteorComponent } from 'src/core/service/utils/meteor-component.utils';
-import {
-    componentNamesSupportingMapInheritance,
-    supportsMapInheritance,
-} from 'src/core/service/utils/field-inheritance.utils';
+import { supportsMapInheritance } from 'src/core/service/utils/field-inheritance.utils';
 import { isFieldHandlingLabelAndHelpText } from 'src/core/service/utils/field-label.utils';
 import template from './sw-custom-field-set-renderer.html.twig';
 import './sw-custom-field-set-renderer.scss';
@@ -159,10 +156,31 @@ export default {
         },
 
         /**
-         * @deprecated tag:v6.8.0 - Will be removed, use `Shopware.Utils.componentNamesSupportingMapInheritance` instead.
+         * @deprecated tag:v6.8.0 - Will be removed without replacement.
          */
         componentsWithMapInheritanceSupport() {
-            return componentNamesSupportingMapInheritance;
+            return [
+                'sw-text-field',
+                'sw-textarea-field',
+                'sw-select-field',
+                'sw-checkbox-field',
+                'sw-switch-field',
+                'mt-switch',
+                'sw-number-field',
+                'sw-datepicker',
+                'sw-email-field',
+                'mt-email-field',
+                'sw-url-field',
+                'sw-password-field',
+                'sw-radio-field',
+                'sw-colorpicker',
+                'mt-colorpicker',
+                'sw-compact-colorpicker',
+                'sw-price-field',
+                'sw-tagged-field',
+                // for backwards compatibility with old custom fields
+                'sw-field',
+            ];
         },
 
         translatedInheritanceSourceLanguageId() {
@@ -430,17 +448,26 @@ export default {
         },
 
         /**
-         * @deprecated tag:v6.8.0 - Will be removed, use `Shopware.Utils.supportsMapInheritance` instead.
+         * @deprecated tag:v6.8.0 - Will be removed without replacement.
          */
         supportsMapInheritance(customField) {
-            return supportsMapInheritance(customField);
+            const componentName = customField.config.componentName;
+
+            return this.componentsWithMapInheritanceSupport.includes(componentName);
         },
 
         /**
-         * @deprecated tag:v6.8.0 - Will be removed, use `Shopware.Utils.isMeteorComponent` instead.
+         * @deprecated tag:v6.8.0 - Will be removed without replacement.
          */
         isMeteorComponent(customField) {
-            return isMeteorComponent(customField);
+            return [
+                'bool',
+                'text',
+                'number',
+                'float',
+                'int',
+                'datetime',
+            ].includes(customField.type);
         },
 
         getBind(customField, props) {

@@ -776,14 +776,14 @@ export default {
         },
 
         /**
-         * @deprecated tag:v6.8.0 - Will be removed, use `Shopware.Utils.isFieldHandlingInheritanceItself` instead.
+         * @deprecated tag:v6.8.0 - Will be removed without replacement.
          */
         isFieldHandlingInheritanceItself(field) {
             return isFieldHandlingInheritanceItself(field);
         },
 
         /**
-         * @deprecated tag:v6.8.0 - Will be removed, use `Shopware.Utils.isFieldHandlingLabelAndHelpText` instead.
+         * @deprecated tag:v6.8.0 - Will be removed without replacement.
          */
         isFieldHandlingLabelAndHelpText(field) {
             return isFieldHandlingLabelAndHelpText(field);

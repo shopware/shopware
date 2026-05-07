@@ -38,5 +38,5 @@ export const meteorComponentNames = [
  * @private
  */
 export function isMeteorComponent(field: FormFieldDefinition | null) {
-    return isSupported(field, meteorComponentNames, { noTypeFallback: true });
+    return isSupported(field, meteorComponentNames);
 }

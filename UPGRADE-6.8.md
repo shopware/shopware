@@ -37,6 +37,39 @@ To partly comply with old behaviour, primary deliveries are ordered first and pr
 
 <details>
 
+## Mail payload custom data must use `extensions`
+
+When calling `/api/_action/mail-template/send`, arbitrary unknown top-level payload keys are no longer forwarded to the mail service in Shopware 6.8.
+Use the dedicated `extensions` field for custom mail payload data instead.
+
+Before:
+
+```json
+{
+  "recipients": {
+    "test@example.com": "Test"
+  },
+  "subject": "Subject",
+  "myPluginFlag": true
+}
+```
+
+After:
+
+```json
+{
+  "recipients": {
+    "test@example.com": "Test"
+  },
+  "subject": "Subject",
+  "extensions": {
+    "myPluginFlag": true
+  }
+}
+```
+
+If your plugin, app, or integration relied on reading custom top-level keys from the mail payload in `MailBeforeValidateEvent`, `MailBeforeSentEvent`, or deeper mail-service extensions, migrate those reads to `extensions`.
+
 ## Changed returned status code for `/store-api/document/download/` when no documents are found
 
 The Store API route `/store-api/document/download` returns now a standard Shopware domain exception with status code `404` and the code `DOCUMENT_FILETYPE_UNAVAILABLE` when the document has no generated document with the requested mime type, instead of returning a `204` status code.
@@ -1040,6 +1073,16 @@ As part of this update, the following administration component parts have been d
 
 * `src/module/sw-settings-document/page/sw-settings-document-list`
   * computed `countryRepository` was deprecated without replacement
+
+## Mail template preview component changes
+
+The mail template preview modal was extracted into its own Administration component: `sw-mail-template-preview-modal`.
+
+If you extend the legacy preview footer blocks in `sw-mail-template-detail`, migrate those customizations to the new component.
+The following legacy blocks are removed in Shopware 6.8:
+
+- `sw_mail_template_detail_preview_modal_footer`
+- `sw_mail_template_detail_preview_modal_footer_cancel`
   * computed `documentTypeRepository` was deprecated without replacement
   * computed `documentBaseConfigSalesChannelRepository` was deprecated without replacement
   * property `selectedType` was deprecated without replacement

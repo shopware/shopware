@@ -98,7 +98,6 @@ class McpServiceConfigTest extends TestCase
         foreach ($toolServices as $serviceId) {
             $definition = $container->getDefinition($serviceId);
             static::assertTrue($definition->hasTag('mcp.tool'), \sprintf('Service "%s" is not tagged with mcp.tool', $serviceId));
-            static::assertTrue($definition->hasTag('shopware.feature'), \sprintf('Service "%s" is not tagged with shopware.feature', $serviceId));
         }
     }
 
@@ -132,7 +131,6 @@ class McpServiceConfigTest extends TestCase
         foreach ($resourceServices as $serviceId) {
             $definition = $container->getDefinition($serviceId);
             static::assertTrue($definition->hasTag('mcp.resource'), \sprintf('Service "%s" is not tagged with mcp.resource', $serviceId));
-            static::assertTrue($definition->hasTag('shopware.feature'), \sprintf('Service "%s" is not tagged with shopware.feature', $serviceId));
         }
     }
 

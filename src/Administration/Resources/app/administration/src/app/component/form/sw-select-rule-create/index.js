@@ -125,7 +125,7 @@ export default {
 
     methods: {
         onSaveRule(ruleId, rule) {
-            if (this.rules) {
+            if (this.rules && rule) {
                 const collection = EntityCollection.fromCollection(this.rules);
 
                 if (!collection.has(ruleId)) {

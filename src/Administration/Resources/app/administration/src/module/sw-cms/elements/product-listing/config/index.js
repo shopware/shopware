@@ -185,17 +185,17 @@ export default {
                 {
                     id: 1,
                     value: 'standard',
-                    label: this.$tc('sw-cms.elements.productBox.config.label.layoutTypeStandard'),
+                    label: this.$t('sw-cms.elements.productBox.config.label.layoutTypeStandard'),
                 },
                 {
                     id: 2,
                     value: 'image',
-                    label: this.$tc('sw-cms.elements.productBox.config.label.layoutTypeImage'),
+                    label: this.$t('sw-cms.elements.productBox.config.label.layoutTypeImage'),
                 },
                 {
                     id: 3,
                     value: 'minimal',
-                    label: this.$tc('sw-cms.elements.productBox.config.label.layoutTypeMinimal'),
+                    label: this.$t('sw-cms.elements.productBox.config.label.layoutTypeMinimal'),
                 },
             ];
         },
@@ -205,32 +205,32 @@ export default {
                 {
                     id: 1,
                     value: null,
-                    label: this.$tc('sw-cms.elements.productBox.config.label.headlineLevelEmptyOption'),
+                    label: this.$t('sw-cms.elements.productBox.config.label.headlineLevelEmptyOption'),
                 },
                 {
                     id: 2,
                     value: 2,
-                    label: this.$tc('sw-cms.elements.productBox.config.label.headlineLevelDefaultOption'),
+                    label: this.$t('sw-cms.elements.productBox.config.label.headlineLevelDefaultOption'),
                 },
                 {
                     id: 3,
                     value: 3,
-                    label: this.$tc('sw-cms.elements.productBox.config.label.headlineLevelOption', { level: 3 }),
+                    label: this.$t('sw-cms.elements.productBox.config.label.headlineLevelOption', { level: 3 }),
                 },
                 {
                     id: 4,
                     value: 4,
-                    label: this.$tc('sw-cms.elements.productBox.config.label.headlineLevelOption', { level: 4 }),
+                    label: this.$t('sw-cms.elements.productBox.config.label.headlineLevelOption', { level: 4 }),
                 },
                 {
                     id: 5,
                     value: 5,
-                    label: this.$tc('sw-cms.elements.productBox.config.label.headlineLevelOption', { level: 5 }),
+                    label: this.$t('sw-cms.elements.productBox.config.label.headlineLevelOption', { level: 5 }),
                 },
                 {
                     id: 6,
                     value: 6,
-                    label: this.$tc('sw-cms.elements.productBox.config.label.headlineLevelOption', { level: 6 }),
+                    label: this.$t('sw-cms.elements.productBox.config.label.headlineLevelOption', { level: 6 }),
                 },
             ];
         },

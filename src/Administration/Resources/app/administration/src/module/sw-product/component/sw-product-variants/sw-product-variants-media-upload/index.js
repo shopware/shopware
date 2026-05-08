@@ -145,7 +145,7 @@ export default {
             media.forEach((item) => {
                 this.addMedia(item).catch(({ fileName }) => {
                     this.createNotificationError({
-                        message: this.$tc('sw-product.mediaForm.errorMediaItemDuplicated', { fileName }, 0),
+                        message: this.$t('sw-product.mediaForm.errorMediaItemDuplicated', { fileName }, 0),
                     });
                 });
             });

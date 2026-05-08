@@ -29,7 +29,7 @@ export default class CrossSellingPlugin extends Plugin {
 
         const slider = correspondingContent.querySelector(this.options.productSliderSelector);
 
-        if (slider === false) {
+        if (slider === null) {
             return;
         }
 

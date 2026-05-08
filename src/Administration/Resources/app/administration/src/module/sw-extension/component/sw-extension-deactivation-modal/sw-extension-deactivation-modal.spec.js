@@ -8,7 +8,7 @@ async function createWrapper(propsData = {}) {
         {
             global: {
                 mocks: {
-                    $tc: (path, values) => {
+                    $t: (path, values) => {
                         if (values) {
                             return path + Object.values(values);
                         }

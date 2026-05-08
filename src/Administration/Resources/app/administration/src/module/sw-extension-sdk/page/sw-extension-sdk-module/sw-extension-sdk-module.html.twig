@@ -10,7 +10,7 @@
     >
         {% block sw_extension_sdk_module_header %}
         <template v-if="!isLoading">
-            <h2>{{ $tc(module.heading ?? '') }}</h2>
+            <h2>{{ $t(module.heading ?? '') }}</h2>
         </template>
         {% endblock %}
     </template>
@@ -43,7 +43,7 @@
             size="default"
             @click="button.onClickCallback"
         >
-            {{ $tc(button.label ?? '') }}
+            {{ $t(button.label ?? '') }}
         </mt-button>
     </template>
     {% endblock %}
@@ -53,6 +53,7 @@
         {% block sw_extension_sdk_module_content_iframe_renderer %}
         <sw-iframe-renderer
             v-if="!isLoading"
+            :key="module.locationId"
             ref="iframeRenderer"
             :src="module.baseUrl"
             :location-id="module.locationId"

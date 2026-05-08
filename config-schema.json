@@ -75,6 +75,9 @@
                 "cart": {
                     "$ref": "#/definitions/cart"
                 },
+                "order": {
+                    "$ref": "#/definitions/order"
+                },
                 "number_range": {
                     "$ref": "#/definitions/number_range"
                 },
@@ -812,6 +815,25 @@
             },
             "title": "Cart"
         },
+        "order": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "deep_link": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "expire_days": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 30,
+                            "description": "Specifies the number of days an order can be accessed via the deep link."
+                        }
+                    }
+                }
+            },
+            "title": "Order"
+        },
         "number_range": {
             "type": "object",
             "additionalProperties": false,
@@ -1399,6 +1421,25 @@
                         },
                         "pattern": {
                             "type": "string"
+                        }
+                    }
+                },
+                "presigned_upload": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "description": "Configure presigned S3 uploads for direct browser-to-storage media uploads, bypassing the server.",
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean",
+                            "default": false,
+                            "description": "Enable presigned upload support. Requires an S3-compatible filesystem adapter."
+                        },
+                        "expiration_minutes": {
+                            "type": "integer",
+                            "default": 5,
+                            "minimum": 1,
+                            "maximum": 10080,
+                            "description": "Time in minutes before the presigned upload URL expires. Bounded by the AWS S3 presigned URL maximum of 7 days (10080 minutes)."
                         }
                     }
                 }

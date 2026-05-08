@@ -79,6 +79,10 @@ export default {
             this.$emit('grid-detail-open', detailType);
         },
 
+        isAgenticCommerceSalesChannelType(salesChannelTypeId) {
+            return salesChannelTypeId === Defaults.agenticCommerceTypeId;
+        },
+
         isProductComparisonSalesChannelType(salesChannelTypeId) {
             return salesChannelTypeId === Defaults.productComparisonTypeId;
         },

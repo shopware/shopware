@@ -52,7 +52,7 @@ async function createWrapper(extension) {
     return mount(await wrapTestComponent('sw-extension-card-bought', { sync: true }), {
         global: {
             mocks: {
-                $tc: (v1, v2, v3) =>
+                $t: (v1, v2, v3) =>
                     v1 || v2
                         ? v1
                         : JSON.stringify([

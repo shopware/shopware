@@ -8,6 +8,7 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutCollection;
 use Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignableDefinition;
+use Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignmentEntity;
 use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\EntityLayoutContextFactory;
 use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\EntityLayoutResolver;
 use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\LayoutResolutionResult;
@@ -100,7 +101,7 @@ class EntityLayoutContextFactoryTest extends TestCase
         $placeholders = PlaceholderValues::from(['productId' => $entityId]);
 
         $this->layoutResolver->method('resolve')
-            ->willReturn(new LayoutResolutionResult(static::createStub(\Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignmentEntity::class), $placeholders));
+            ->willReturn(new LayoutResolutionResult(static::createStub(AbstractContentLayoutAssignmentEntity::class), $placeholders));
 
         $definition = $this->createDefinitionMock('/product/', 'product', 'productId', '{productId}');
         $definition->method('getPageDataRequirements')->willReturn([]);

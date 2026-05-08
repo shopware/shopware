@@ -38,4 +38,34 @@ class ParameterTest extends TestCase
         static::assertCount(3, $result->toArray('en-GB'));
         static::assertSame($expected, $result->toArray('en-GB'));
     }
+
+    public function testFromXmlKeepsJsonLikeStringValue(): void
+    {
+        $jsonString = <<<EOD
+{
+  "street": "{{ order.addresses[0].street }}",
+  "additional_one": "{{ order.addresses[0].additionalAddressLine1 }}",
+  "additional_two": "{{ order.addresses[0].additionalAddressLine2 }}",
+  "city": "{{ order.addresses[0].city }}",
+  "zipcode": "{{ order.addresses[0].zipcode }}"
+}
+EOD;
+        $document = new \DOMDocument();
+        $parameter = $document->createElement('parameter');
+        $parameter->setAttribute('type', 'string');
+        $parameter->setAttribute('name', 'payload');
+        $parameter->setAttribute('value', $jsonString);
+
+        $result = Parameter::fromXml($parameter);
+
+        static::assertSame($jsonString, $result->getValue());
+        static::assertSame(
+            [
+                'type' => 'string',
+                'name' => 'payload',
+                'value' => $jsonString,
+            ],
+            $result->toArray('en-GB')
+        );
+    }
 }

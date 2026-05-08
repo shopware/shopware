@@ -307,11 +307,11 @@ class EntityRepositoryTest extends TestCase
 
         $queue->execute();
 
-        $found = static::getContainer()
+        $foundIds = static::getContainer()
             ->get('order.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
-        $found = !empty($found->getIds());
+        $found = $foundIds->getIds() !== [];
 
         static::assertSame($match, $found);
     }
@@ -429,7 +429,7 @@ class EntityRepositoryTest extends TestCase
 
         $event = $repository->create(
             [
-                ['id' => $id, 'name' => 'Test', 'territory' => 'test', 'code' => 'test' . $id],
+                ['id' => $id, 'name' => 'Test', 'territory' => 'test', 'code' => 'de-DE-' . $id],
             ],
             $context
         );
@@ -495,7 +495,7 @@ class EntityRepositoryTest extends TestCase
 
         $repository->create(
             [
-                ['id' => $id, 'name' => 'Test', 'territory' => 'test', 'code' => 'test' . $id],
+                ['id' => $id, 'name' => 'Test', 'territory' => 'test', 'code' => 'de-DE-' . $id],
             ],
             $context
         );
@@ -511,7 +511,7 @@ class EntityRepositoryTest extends TestCase
 
         $repository->create(
             [
-                ['id' => $id, 'name' => 'Test', 'territory' => 'test', 'code' => 'test' . $id],
+                ['id' => $id, 'name' => 'Test', 'territory' => 'test', 'code' => 'de-DE-' . $id],
             ],
             $context
         );
@@ -546,7 +546,7 @@ class EntityRepositoryTest extends TestCase
 
         $repository->create(
             [
-                ['id' => $id, 'name' => 'Test', 'territory' => 'test', 'code' => 'test' . $id],
+                ['id' => $id, 'name' => 'Test', 'territory' => 'test', 'code' => 'de-DE-' . $id],
             ],
             $context
         );

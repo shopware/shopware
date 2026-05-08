@@ -53,6 +53,18 @@ export default {
             required: false,
             default: null,
         },
+
+        cardTabs: {
+            type: Array,
+            required: false,
+            default: () => [],
+        },
+
+        cardTabsPositionIdentifier: {
+            type: String,
+            required: false,
+            default: 'sw-meteor-card',
+        },
     },
 
     data() {
@@ -62,8 +74,24 @@ export default {
     },
 
     computed: {
+        Shopware() {
+            return Shopware;
+        },
+
         hasTabs() {
+            if (Shopware.Feature.isActive('V6_8_0_0')) {
+                return this.cardTabs.length > 0 || !!this.$slots.tabs;
+            }
+
             return !!this.$slots.tabs;
+        },
+
+        hasLegacyTabSlot() {
+            return !!this.$slots.tabs;
+        },
+
+        activeTabIsExtensionTab() {
+            return !!this.activeTab && !this.cardTabs.some((tab) => tab.name === this.activeTab);
         },
 
         hasToolbar() {
@@ -106,8 +134,8 @@ export default {
             this.setActiveTab(this.defaultTab);
         },
 
-        setActiveTab(name) {
-            this.activeTab = name;
+        setActiveTab(activeItem) {
+            this.activeTab = activeItem && typeof activeItem === 'object' ? activeItem.name : activeItem;
         },
     },
 };

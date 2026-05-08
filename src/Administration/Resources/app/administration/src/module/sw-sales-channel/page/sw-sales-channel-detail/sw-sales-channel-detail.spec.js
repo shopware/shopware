@@ -72,6 +72,15 @@ async function createWrapper(optionsOrLegacyArg = { id: '1a2b3c4d' }) {
                         'disabled',
                     ],
                 },
+                'mt-tabs': {
+                    props: [
+                        'items',
+                        'defaultItem',
+                        'positionIdentifier',
+                    ],
+                    template:
+                        '<mt-tabs-stub :items="items" :default-item="defaultItem" :position-identifier="positionIdentifier" />',
+                },
                 'router-view': true,
                 'sw-skeleton': true,
             },
@@ -97,7 +106,10 @@ async function createWrapper(optionsOrLegacyArg = { id: '1a2b3c4d' }) {
             mocks: {
                 $route: {
                     params: routeParams,
-                    name: '',
+                    name: normalizedOptions.routeName ?? '',
+                },
+                $router: {
+                    push: jest.fn(),
                 },
             },
         },
@@ -106,6 +118,7 @@ async function createWrapper(optionsOrLegacyArg = { id: '1a2b3c4d' }) {
 
 describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
     beforeEach(() => {
+        global.activeFeatureFlags = [''];
         global.activeAclRoles = [];
         mockSave.mockClear();
         mockGet.mockClear();
@@ -135,6 +148,86 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         const saveButton = wrapper.getComponent('.sw-sales-channel-detail__save-action');
 
         expect(saveButton.props('disabled')).toBe(false);
+    });
+
+    it('renders legacy tabs when the major feature flag is inactive', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.find('.sw-tabs').exists()).toBe(true);
+        expect(wrapper.find('mt-tabs-stub').exists()).toBe(false);
+    });
+
+    it('renders route-backed meteor tabs when the major feature flag is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper({
+            routeName: 'sw.sales.channel.detail.products',
+            routeParams: {
+                id: '1a2b3c4d',
+            },
+            salesChannelResponse: {
+                typeId: Shopware.Defaults.storefrontSalesChannelTypeId,
+            },
+        });
+        await flushPromises();
+
+        const mtTabs = wrapper.getComponent('mt-tabs-stub');
+
+        expect(mtTabs.props('items')).toStrictEqual([
+            {
+                label: 'sw-sales-channel.detail.tabBase',
+                name: 'base',
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-sales-channel.detail.tabProducts',
+                name: 'products',
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-sales-channel.detail.tabAnalytics',
+                name: 'analytics',
+                onClick: expect.any(Function),
+            },
+        ]);
+        expect(mtTabs.props('defaultItem')).toBe('products');
+        expect(mtTabs.props('positionIdentifier')).toBe('sw-sales-channel-detail');
+        expect(wrapper.find('.sw-tabs').exists()).toBe(false);
+    });
+
+    it('navigates to the selected meteor route tab', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper({
+            routeName: 'sw.sales.channel.detail.base',
+            routeParams: {
+                id: '1a2b3c4d',
+            },
+            salesChannelResponse: {
+                typeId: Shopware.Defaults.agenticCommerceTypeId,
+            },
+        });
+        await flushPromises();
+
+        const mtTabs = wrapper.getComponent('mt-tabs-stub');
+
+        mtTabs.props('items')[1].onClick();
+        expect(wrapper.vm.$router.push).toHaveBeenCalledWith({
+            name: 'sw.sales.channel.detail.productExportInsights',
+            params: { id: '1a2b3c4d' },
+        });
+
+        mtTabs.props('items')[2].onClick();
+        expect(wrapper.vm.$router.push).toHaveBeenCalledWith({
+            name: 'sw.sales.channel.detail.agenticCommerceIntegration',
+            params: { id: '1a2b3c4d' },
+        });
+
+        mtTabs.props('items')[3].onClick();
+        expect(wrapper.vm.$router.push).toHaveBeenCalledWith({
+            name: 'sw.sales.channel.detail.productComparison',
+            params: { id: '1a2b3c4d' },
+        });
     });
 
     it('should remove analytics association on save when analyticsId is empty', async () => {

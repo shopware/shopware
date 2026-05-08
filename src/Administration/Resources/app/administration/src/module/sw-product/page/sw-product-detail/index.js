@@ -91,6 +91,10 @@ export default {
     },
 
     computed: {
+        Shopware() {
+            return Shopware;
+        },
+
         product() {
             return Shopware.Store.get('swProductDetail').product;
         },
@@ -171,6 +175,150 @@ export default {
 
         productRepository() {
             return this.repositoryFactory.create('product');
+        },
+
+        productDetailBaseRoute() {
+            return { name: 'sw.product.detail.base', params: { id: this.$route.params.id } };
+        },
+
+        productDetailSpecificationsRoute() {
+            return { name: 'sw.product.detail.specifications', params: { id: this.$route.params.id } };
+        },
+
+        productDetailPricesRoute() {
+            return { name: 'sw.product.detail.prices', params: { id: this.$route.params.id } };
+        },
+
+        productDetailVariantsRoute() {
+            return { name: 'sw.product.detail.variants', params: { id: this.$route.params.id } };
+        },
+
+        productDetailLayoutRoute() {
+            return { name: 'sw.product.detail.layout', params: { id: this.$route.params.id } };
+        },
+
+        productDetailSeoRoute() {
+            return { name: 'sw.product.detail.seo', params: { id: this.$route.params.id } };
+        },
+
+        productDetailCrossSellingRoute() {
+            return { name: 'sw.product.detail.crossSelling', params: { id: this.$route.params.id } };
+        },
+
+        productDetailReviewsRoute() {
+            return { name: 'sw.product.detail.reviews', params: { id: this.$route.params.id } };
+        },
+
+        defaultTabItem() {
+            const routeName = this.$route.name;
+
+            if (routeName === 'sw.product.detail.specifications') {
+                return 'specifications';
+            }
+
+            if (routeName === 'sw.product.detail.prices') {
+                return 'prices';
+            }
+
+            if (routeName === 'sw.product.detail.variants') {
+                return 'variants';
+            }
+
+            if (routeName === 'sw.product.detail.layout') {
+                return 'layout';
+            }
+
+            if (routeName === 'sw.product.detail.seo') {
+                return 'seo';
+            }
+
+            if (routeName === 'sw.product.detail.crossSelling') {
+                return 'crossSelling';
+            }
+
+            if (routeName === 'sw.product.detail.reviews') {
+                return 'reviews';
+            }
+
+            return 'base';
+        },
+
+        tabItems() {
+            const items = [
+                {
+                    label: this.$t('sw-product.detail.tabGeneral'),
+                    name: 'base',
+                    hasError: !!this.swProductDetailBaseError,
+                    onClick: () => {
+                        this.$router.push(this.productDetailBaseRoute);
+                    },
+                },
+                {
+                    label: this.$t('sw-product.detail.tabSpecifications'),
+                    name: 'specifications',
+                    onClick: () => {
+                        this.$router.push(this.productDetailSpecificationsRoute);
+                    },
+                },
+            ];
+
+            if (!this.showModeSetting) {
+                return items;
+            }
+
+            items.push({
+                label: this.$t('sw-product.detail.tabAdvancedPrices'),
+                name: 'prices',
+                onClick: () => {
+                    this.$router.push(this.productDetailPricesRoute);
+                },
+            });
+
+            if (!this.isChild) {
+                items.push(
+                    {
+                        label: this.$t('sw-product.detail.tabVariation'),
+                        name: 'variants',
+                        onClick: () => {
+                            this.$router.push(this.productDetailVariantsRoute);
+                        },
+                    },
+                    {
+                        label: this.$t('sw-product.detail.tabLayout'),
+                        name: 'layout',
+                        onClick: () => {
+                            this.$router.push(this.productDetailLayoutRoute);
+                        },
+                    },
+                );
+            }
+
+            items.push(
+                {
+                    label: this.$t('sw-product.detail.tabSeo'),
+                    name: 'seo',
+                    onClick: () => {
+                        this.$router.push(this.productDetailSeoRoute);
+                    },
+                },
+                {
+                    label: this.$t('sw-product.detail.tabCrossSelling'),
+                    name: 'crossSelling',
+                    hasError: !!this.swProductDetailCrossSellingError,
+                    onClick: () => {
+                        this.$router.push(this.productDetailCrossSellingRoute);
+                    },
+                },
+                {
+                    label: this.$t('sw-product.detail.tabReviews'),
+                    name: 'reviews',
+                    onClick: () => {
+                        this.$router.push(this.productDetailReviewsRoute);
+                    },
+                },
+            );
+
+            return items;
         },
 
         propertyRepository() {

@@ -35,6 +35,10 @@ export default {
     },
 
     computed: {
+        Shopware() {
+            return Shopware;
+        },
+
         product() {
             return Shopware.Store.get('swProductDetail').product;
         },
@@ -83,6 +87,32 @@ export default {
 
         assetFilter() {
             return Shopware.Filter.getByName('asset');
+        },
+
+        tabItems() {
+            return [
+                {
+                    label: this.$t('sw-product.variations.variationCard.tabs.allProducts'),
+                    name: 'all',
+                    onClick: () => {
+                        this.setActiveTab('all');
+                    },
+                },
+                {
+                    label: this.$t('sw-product.variations.variationCard.tabs.physicalProducts'),
+                    name: 'physical',
+                    onClick: () => {
+                        this.setActiveTab('physical');
+                    },
+                },
+                {
+                    label: this.$t('sw-product.variations.variationCard.tabs.digitalProducts'),
+                    name: 'digital',
+                    onClick: () => {
+                        this.setActiveTab('digital');
+                    },
+                },
+            ];
         },
 
         groupCriteria() {
@@ -146,7 +176,7 @@ export default {
         },
 
         setActiveTab(tabName) {
-            this.activeTab = tabName;
+            this.activeTab = tabName?.name ?? tabName;
         },
 
         loadData() {

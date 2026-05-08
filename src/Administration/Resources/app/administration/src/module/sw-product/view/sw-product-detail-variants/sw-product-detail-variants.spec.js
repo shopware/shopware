@@ -61,6 +61,7 @@ async function createWrapper(privileges = []) {
                 'mt-card': {
                     template: `
                     <div class="mt-card">
+                        <slot name="tabs"></slot>
                         <slot name="grid"></slot>
                         <slot></slot>
                     </div>
@@ -81,8 +82,21 @@ async function createWrapper(privileges = []) {
                 'sw-modal': true,
                 'sw-skeleton': true,
                 'sw-product-variants-overview': true,
-                'sw-tabs': true,
+                'sw-tabs': {
+                    name: 'sw-tabs',
+                    template: '<div class="sw-tabs"><slot /></div>',
+                },
                 'sw-tabs-item': true,
+                'mt-tabs': {
+                    name: 'mt-tabs',
+                    props: [
+                        'items',
+                        'defaultItem',
+                        'positionIdentifier',
+                    ],
+                    template:
+                        '<mt-tabs-stub :items="items" :default-item="defaultItem" :position-identifier="positionIdentifier" @new-item-active="$emit(\'new-item-active\', $event)" />',
+                },
                 'sw-product-modal-variant-generation': true,
                 'sw-product-modal-delivery': true,
                 'sw-product-add-properties-modal': true,
@@ -196,6 +210,72 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
             store.creationStates = 'is-physical';
         }
         store.creationType = 'physical';
+    });
+
+    afterEach(() => {
+        global.activeFeatureFlags = [];
+    });
+
+    it('renders legacy tabs when the major migration is inactive', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setData({
+            isLoading: false,
+            propertiesAvailable: true,
+        });
+
+        expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(true);
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+    });
+
+    it('renders mt-tabs with variant filter items when the major migration is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper();
+
+        await wrapper.setData({
+            isLoading: false,
+            propertiesAvailable: true,
+            activeTab: 'physical',
+        });
+
+        const mtTabs = wrapper.getComponent('mt-tabs-stub');
+
+        expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
+        expect(mtTabs.props('positionIdentifier')).toBe('sw-variant-card-tabs');
+        expect(mtTabs.props('defaultItem')).toBe('physical');
+        expect(mtTabs.props('items')).toStrictEqual([
+            {
+                label: 'sw-product.variations.variationCard.tabs.allProducts',
+                name: 'all',
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-product.variations.variationCard.tabs.physicalProducts',
+                name: 'physical',
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-product.variations.variationCard.tabs.digitalProducts',
+                name: 'digital',
+                onClick: expect.any(Function),
+            },
+        ]);
+    });
+
+    it('normalizes mt-tabs active item payloads for variant filters', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper();
+
+        await wrapper.setData({
+            isLoading: false,
+            propertiesAvailable: true,
+        });
+
+        wrapper.getComponent('mt-tabs-stub').vm.$emit('new-item-active', { name: 'digital' });
+
+        expect(wrapper.vm.activeTab).toBe('digital');
     });
 
     it('should display a customized empty state if there are neither variants nor properties', async () => {

@@ -50,6 +50,10 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
+        Shopware() {
+            return Shopware;
+        },
+
         componentSections(): ComponentSectionEntry[] {
             const sections = Shopware.Store.get('extensionComponentSections').identifier[this.positionIdentifier] ?? [];
             if (sections.length && this.deprecated) {
@@ -78,8 +82,21 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
-        setActiveTab(name: string) {
-            this.activeTabName = name;
+        setActiveTab(activeItem: string | { name: string }) {
+            this.activeTabName = typeof activeItem === 'object' ? activeItem.name : activeItem;
+        },
+
+        getComponentSectionTabItems(componentSection: ComponentSectionEntry) {
+            if (!('tabs' in componentSection.props)) {
+                return [];
+            }
+
+            return componentSection.props.tabs?.map((tab) => {
+                return {
+                    label: this.$t(tab.label ?? ''),
+                    name: tab.name,
+                };
+            }) ?? [];
         },
 
         getActiveTab(componentSection: ComponentSectionEntry) {

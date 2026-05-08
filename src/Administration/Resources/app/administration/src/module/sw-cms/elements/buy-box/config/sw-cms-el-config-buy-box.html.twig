@@ -2,119 +2,222 @@
 <div class="sw-cms-el-config-buy-box">
 
     {% block sw_cms_element_buy_box_config_tabs %}
-    <sw-tabs
-        position-identifier="sw-cms-element-config-buy-box"
-        class="sw-cms-el-config-buy-box__tabs"
-        default-item="content"
-    >
-        <template #default="{ active }">
+    <template v-if="Shopware.Feature.isActive('V6_8_0_0')">
+        {% block sw_cms_element_buy_box_config_tabs_v680 %}
+        <mt-tabs
+            position-identifier="sw-cms-element-config-buy-box"
+            class="sw-cms-el-config-buy-box__tabs"
+            :items="tabItems"
+            :default-item="activeTab"
+            :route-extension-tabs="false"
+            @new-item-active="onNewTabActive"
+        />
+        {% endblock %}
 
-            {% block sw_cms_element_buy_box_config_tab_content %}
-            <sw-tabs-item
-                name="content"
-                :title="$t('sw-cms.elements.general.config.tab.content')"
-                :active-tab="active"
-            >
-                {{ $t('sw-cms.elements.general.config.tab.content') }}
-            </sw-tabs-item>
-            {% endblock %}
-
-            {% block sw_cms_element_buy_box_config_tab_option %}
-            <sw-tabs-item
-                name="options"
-                :title="$t('sw-cms.elements.general.config.tab.options')"
-                :active-tab="active"
-            >
-                {{ $t('sw-cms.elements.general.config.tab.options') }}
-            </sw-tabs-item>
-            {% endblock %}
-        </template>
-
-        <template #content="{ active }">
-            <div
-                v-if="active === 'content'"
-                class="sw-cms-el-config-buy-box__tab-content"
-            >
+        <div
+            v-if="activeTab === 'content'"
+            class="sw-cms-el-config-buy-box__tab-content"
+        >
                 {% block sw_cms_element_buy_box_config_content_warning %}
-                <mt-banner
-                    v-if="isProductPage"
-                    class="sw-cms-el-config-buy-box__warning"
-                    variant="info"
-                >
-                    {{ $t('sw-cms.elements.buyBox.infoText.tooltipSettingDisabled') }}
-                </mt-banner>
+            <mt-banner
+                v-if="isProductPage"
+                class="sw-cms-el-config-buy-box__warning"
+                variant="info"
+            >
+                {{ $t('sw-cms.elements.buyBox.infoText.tooltipSettingDisabled') }}
+            </mt-banner>
                 {% endblock %}
 
                 {% block sw_cms_element_buy_box_config_product_select %}
-                <sw-cms-inherit-wrapper
-                    v-if="!isProductPage"
-                    field="product"
-                    :element="element"
-                    :label="$t('sw-cms.elements.buyBox.config.label.selection')"
-                >
-                    <template #default="{ isInherited }">
-                        <sw-entity-single-select
-                            ref="cmsProductSelection"
-                            v-model:value="element.config.product.value"
-                            entity="product"
-                            :placeholder="$t('sw-cms.elements.buyBox.config.placeholder.selection')"
-                            :criteria="productCriteria"
-                            :context="productSelectContext"
-                            show-clearable-button
-                            :disabled="isInherited"
-                            @update:value="onProductChange"
-                        >
+            <sw-cms-inherit-wrapper
+                v-if="!isProductPage"
+                field="product"
+                :element="element"
+                :label="$t('sw-cms.elements.buyBox.config.label.selection')"
+            >
+                <template #default="{ isInherited }">
+                    <sw-entity-single-select
+                        ref="cmsProductSelection"
+                        v-model:value="element.config.product.value"
+                        entity="product"
+                        :placeholder="$t('sw-cms.elements.buyBox.config.placeholder.selection')"
+                        :criteria="productCriteria"
+                        :context="productSelectContext"
+                        show-clearable-button
+                        :disabled="isInherited"
+                        @update:value="onProductChange"
+                    >
                             {% block sw_cms_element_buy_box_config_product_variant_label %}
-                            <template #selection-label-property="{ item }">
-                                <sw-product-variant-info :variations="item.variation">
-                                    {{ item.translated.name || item.name }}
-                                </sw-product-variant-info>
-                            </template>
+                        <template #selection-label-property="{ item }">
+                            <sw-product-variant-info :variations="item.variation">
+                                {{ item.translated.name || item.name }}
+                            </sw-product-variant-info>
+                        </template>
                             {% endblock %}
 
                             {% block sw_cms_element_buy_box_config_product_select_result_item %}
-                            <template #result-item="{ item, index }">
-                                <sw-select-result v-bind="{ item, index }">
+                        <template #result-item="{ item, index }">
+                            <sw-select-result v-bind="{ item, index }">
                                         {% block sw_entity_single_select_base_results_list_result_label %}
-                                    <span class="sw-select-result__result-item-text">
-                                        <sw-product-variant-info :variations="item.variation">
-                                            {{ item.translated.name || item.name }}
-                                        </sw-product-variant-info>
-                                    </span>
+                                <span class="sw-select-result__result-item-text">
+                                    <sw-product-variant-info :variations="item.variation">
+                                        {{ item.translated.name || item.name }}
+                                    </sw-product-variant-info>
+                                </span>
                                         {% endblock %}
-                                </sw-select-result>
-                            </template>
+                            </sw-select-result>
+                        </template>
                             {% endblock %}
-                        </sw-entity-single-select>
-                    </template>
-                </sw-cms-inherit-wrapper>
+                    </sw-entity-single-select>
+                </template>
+            </sw-cms-inherit-wrapper>
                 {% endblock %}
-            </div>
+        </div>
 
-            <div
-                v-if="active === 'options'"
-                class="sw-cms-el-config-buy-box__tab-options"
-            >
+        <div
+            v-if="activeTab === 'options'"
+            class="sw-cms-el-config-buy-box__tab-options"
+        >
                 {% block sw_cms_element_buy_box_config_options %}
-                <sw-cms-inherit-wrapper
-                    field="alignment"
-                    :element="element"
-                    :label="$t('sw-cms.elements.general.config.label.alignment')"
-                >
-                    <template #default="{ isInherited }">
-                        <mt-select
-                            v-model="element.config.alignment.value"
-                            class="sw-cms-el-config-buy-box__alignment"
-                            :placeholder="$t('sw-cms.elements.general.config.label.alignment')"
-                            :options="alignmentOptions"
-                            :disabled="isInherited"
-                        />
-                    </template>
-                </sw-cms-inherit-wrapper>
+            <sw-cms-inherit-wrapper
+                field="alignment"
+                :element="element"
+                :label="$t('sw-cms.elements.general.config.label.alignment')"
+            >
+                <template #default="{ isInherited }">
+                    <mt-select
+                        v-model="element.config.alignment.value"
+                        class="sw-cms-el-config-buy-box__alignment"
+                        :placeholder="$t('sw-cms.elements.general.config.label.alignment')"
+                        :options="alignmentOptions"
+                        :disabled="isInherited"
+                    />
+                </template>
+            </sw-cms-inherit-wrapper>
                 {% endblock %}
-            </div>
-        </template>
-    </sw-tabs>
+        </div>
+
+        <sw-extension-component-section
+            v-if="activeTabIsExtensionTab"
+            :position-identifier="activeTab"
+        />
+    </template>
+
+    <template v-else>
+        <sw-tabs
+            position-identifier="sw-cms-element-config-buy-box"
+            class="sw-cms-el-config-buy-box__tabs"
+            default-item="content"
+        >
+            <template #default="{ active }">
+
+            {% block sw_cms_element_buy_box_config_tab_content %}
+                <sw-tabs-item
+                    name="content"
+                    :title="$t('sw-cms.elements.general.config.tab.content')"
+                    :active-tab="active"
+                >
+                    {{ $t('sw-cms.elements.general.config.tab.content') }}
+                </sw-tabs-item>
+            {% endblock %}
+
+            {% block sw_cms_element_buy_box_config_tab_option %}
+                <sw-tabs-item
+                    name="options"
+                    :title="$t('sw-cms.elements.general.config.tab.options')"
+                    :active-tab="active"
+                >
+                    {{ $t('sw-cms.elements.general.config.tab.options') }}
+                </sw-tabs-item>
+            {% endblock %}
+            </template>
+
+            <template #content="{ active }">
+                <div
+                    v-if="active === 'content'"
+                    class="sw-cms-el-config-buy-box__tab-content"
+                >
+                {% block sw_cms_element_buy_box_config_content_warning %}
+                    <mt-banner
+                        v-if="isProductPage"
+                        class="sw-cms-el-config-buy-box__warning"
+                        variant="info"
+                    >
+                        {{ $t('sw-cms.elements.buyBox.infoText.tooltipSettingDisabled') }}
+                    </mt-banner>
+                {% endblock %}
+
+                {% block sw_cms_element_buy_box_config_product_select %}
+                    <sw-cms-inherit-wrapper
+                        v-if="!isProductPage"
+                        field="product"
+                        :element="element"
+                        :label="$t('sw-cms.elements.buyBox.config.label.selection')"
+                    >
+                        <template #default="{ isInherited }">
+                            <sw-entity-single-select
+                                ref="cmsProductSelection"
+                                v-model:value="element.config.product.value"
+                                entity="product"
+                                :placeholder="$t('sw-cms.elements.buyBox.config.placeholder.selection')"
+                                :criteria="productCriteria"
+                                :context="productSelectContext"
+                                show-clearable-button
+                                :disabled="isInherited"
+                                @update:value="onProductChange"
+                            >
+                            {% block sw_cms_element_buy_box_config_product_variant_label %}
+                                <template #selection-label-property="{ item }">
+                                    <sw-product-variant-info :variations="item.variation">
+                                        {{ item.translated.name || item.name }}
+                                    </sw-product-variant-info>
+                                </template>
+                            {% endblock %}
+
+                            {% block sw_cms_element_buy_box_config_product_select_result_item %}
+                                <template #result-item="{ item, index }">
+                                    <sw-select-result v-bind="{ item, index }">
+                                        {% block sw_entity_single_select_base_results_list_result_label %}
+                                        <span class="sw-select-result__result-item-text">
+                                            <sw-product-variant-info :variations="item.variation">
+                                                {{ item.translated.name || item.name }}
+                                            </sw-product-variant-info>
+                                        </span>
+                                        {% endblock %}
+                                    </sw-select-result>
+                                </template>
+                            {% endblock %}
+                            </sw-entity-single-select>
+                        </template>
+                    </sw-cms-inherit-wrapper>
+                {% endblock %}
+                </div>
+
+                <div
+                    v-if="active === 'options'"
+                    class="sw-cms-el-config-buy-box__tab-options"
+                >
+                {% block sw_cms_element_buy_box_config_options %}
+                    <sw-cms-inherit-wrapper
+                        field="alignment"
+                        :element="element"
+                        :label="$t('sw-cms.elements.general.config.label.alignment')"
+                    >
+                        <template #default="{ isInherited }">
+                            <mt-select
+                                v-model="element.config.alignment.value"
+                                class="sw-cms-el-config-buy-box__alignment"
+                                :placeholder="$t('sw-cms.elements.general.config.label.alignment')"
+                                :options="alignmentOptions"
+                                :disabled="isInherited"
+                            />
+                        </template>
+                    </sw-cms-inherit-wrapper>
+                {% endblock %}
+                </div>
+            </template>
+        </sw-tabs>
+    </template>
     {% endblock %}
 </div>
 {% endblock %}

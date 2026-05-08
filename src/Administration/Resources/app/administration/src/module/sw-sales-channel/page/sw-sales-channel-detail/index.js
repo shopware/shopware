@@ -163,6 +163,140 @@ export default {
             return this.acl.can('sales_channel.editor');
         },
 
+        Shopware() {
+            return Shopware;
+        },
+
+        baseRoute() {
+            return {
+                name: 'sw.sales.channel.detail.base',
+                params: { id: this.$route.params.id },
+            };
+        },
+
+        productExportInsightsRoute() {
+            return {
+                name: 'sw.sales.channel.detail.productExportInsights',
+                params: { id: this.$route.params.id },
+            };
+        },
+
+        productsRoute() {
+            return {
+                name: 'sw.sales.channel.detail.products',
+                params: { id: this.$route.params.id },
+            };
+        },
+
+        agenticCommerceIntegrationRoute() {
+            return {
+                name: 'sw.sales.channel.detail.agenticCommerceIntegration',
+                params: { id: this.$route.params.id },
+            };
+        },
+
+        productComparisonRoute() {
+            return {
+                name: 'sw.sales.channel.detail.productComparison',
+                params: { id: this.$route.params.id },
+            };
+        },
+
+        analyticsRoute() {
+            return {
+                name: 'sw.sales.channel.detail.analytics',
+                params: { id: this.$route.params.id },
+            };
+        },
+
+        defaultTabItem() {
+            if (this.$route.name === 'sw.sales.channel.detail.productExportInsights') {
+                return 'productExportInsights';
+            }
+
+            if (this.$route.name === 'sw.sales.channel.detail.products') {
+                return 'products';
+            }
+
+            if (this.$route.name === 'sw.sales.channel.detail.agenticCommerceIntegration') {
+                return 'agenticCommerceIntegration';
+            }
+
+            if (this.$route.name === 'sw.sales.channel.detail.productComparison') {
+                return 'productComparison';
+            }
+
+            if (this.$route.name === 'sw.sales.channel.detail.analytics') {
+                return 'analytics';
+            }
+
+            return 'base';
+        },
+
+        tabItems() {
+            const items = [
+                {
+                    label: this.$t('sw-sales-channel.detail.tabBase'),
+                    name: 'base',
+                    onClick: () => {
+                        this.$router.push(this.baseRoute);
+                    },
+                },
+            ];
+
+            if (this.isAgenticCommerce && !this.isLoading) {
+                items.push({
+                    label: this.$t('sw-sales-channel.detail.productExport.tabInsights'),
+                    name: 'productExportInsights',
+                    onClick: () => {
+                        this.$router.push(this.productExportInsightsRoute);
+                    },
+                });
+            }
+
+            if (this.isHeadless || this.isStorefront) {
+                items.push({
+                    label: this.$t('sw-sales-channel.detail.tabProducts'),
+                    name: 'products',
+                    onClick: () => {
+                        this.$router.push(this.productsRoute);
+                    },
+                });
+            }
+
+            if (this.isAgenticCommerce && !this.isLoading) {
+                items.push({
+                    label: this.$t('sw-sales-channel.detail.agenticCommerce.tabIntegration'),
+                    name: 'agenticCommerceIntegration',
+                    onClick: () => {
+                        this.$router.push(this.agenticCommerceIntegrationRoute);
+                    },
+                });
+            }
+
+            if (this.isProductExportChannel && !this.isLoading) {
+                items.push({
+                    label: this.$t('sw-sales-channel.detail.tabProductComparison'),
+                    name: 'productComparison',
+                    onClick: () => {
+                        this.$router.push(this.productComparisonRoute);
+                    },
+                });
+            }
+
+            if (this.isStorefront) {
+                items.push({
+                    label: this.$t('sw-sales-channel.detail.tabAnalytics'),
+                    name: 'analytics',
+                    onClick: () => {
+                        this.$router.push(this.analyticsRoute);
+                    },
+                });
+            }
+
+            return items;
+        },
+
         defaultAgenticCommerceExportConfig() {
             return [
                 {

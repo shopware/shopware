@@ -17,6 +17,30 @@ export default {
     ],
 
     computed: {
+        Shopware() {
+            return Shopware;
+        },
+
+        tabItems() {
+            const items = [
+                { label: this.$t('sw-cms.elements.general.config.tab.content'), name: 'content' },
+            ];
+
+            if (this.requireConfigTab) {
+                items.push({ label: this.$t('sw-cms.elements.general.config.tab.settings'), name: 'options' });
+            }
+
+            return items;
+        },
+
+        tabPositionIdentifier() {
+            return 'sw-cms-element-config-form';
+        },
+
+        activeTabIsExtensionTab() {
+            return this.isRegisteredExtensionTab(this.activeTab);
+        },
+
         getLastMailClass() {
             if (this.element.config.mailReceiver.value.length === 1) {
                 return 'is--last';
@@ -62,9 +86,39 @@ export default {
         this.setShopMail();
     },
 
+    data() {
+        return {
+            activeTab: 'content',
+        };
+    },
+
     methods: {
         createdComponent() {
             this.initElementConfig('form');
+        },
+
+        onNewTabActive(activeItem) {
+            const activeTabName = typeof activeItem === 'string' ? activeItem : activeItem?.name;
+
+            if (!activeTabName) {
+                return;
+            }
+
+            if (!this.isCoreTab(activeTabName) && !this.isRegisteredExtensionTab(activeTabName)) {
+                return;
+            }
+
+            this.activeTab = activeTabName;
+        },
+
+        isCoreTab(tabName) {
+            return this.tabItems.some((tab) => tab.name === tabName);
+        },
+
+        isRegisteredExtensionTab(tabName) {
+            return (Shopware.Store.get('tabs').tabItems[this.tabPositionIdentifier] ?? []).some((tab) => {
+                return tab.componentSectionId === tabName;
+            });
         },
 
         async getShopMail() {

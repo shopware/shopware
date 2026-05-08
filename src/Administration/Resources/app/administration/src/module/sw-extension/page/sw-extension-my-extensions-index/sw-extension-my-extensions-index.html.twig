@@ -2,6 +2,9 @@
 <sw-meteor-page
     class="sw-extension-store-purchased"
     hide-icon
+    :page-tabs="Shopware.Feature.isActive('V6_8_0_0') ? tabItems : []"
+    :page-tabs-default-item="defaultTabItem"
+    page-tabs-position-identifier="sw-extension-my-extensions-index"
 >
     {% block sw_extension_my_extensions_index_smart_bar_header %}
     <template #smart-bar-header>
@@ -22,7 +25,15 @@
     {% endblock %}
 
     {% block sw_extension_my_extensions_index_smart_bar_tabs %}
-    <template #page-tabs>
+    <template
+        v-if="Shopware.Feature.isActive('V6_8_0_0')"
+        #page-tabs
+    ></template>
+
+    <template
+        v-else
+        #page-tabs
+    >
         {% block sw_extension_my_extensions_index_smart_bar_tabs_app %}
         <sw-tabs-item :route="{ name: 'sw.extension.my-extensions.listing.app', query: queryParams }">
             {{ $t('sw-extension.my-extensions.tabs.app') }}
@@ -64,4 +75,3 @@
     {% endblock %}
 </sw-meteor-page>
 {% endblock %}
-

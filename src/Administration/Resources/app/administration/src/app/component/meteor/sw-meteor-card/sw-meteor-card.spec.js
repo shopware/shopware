@@ -16,8 +16,16 @@ async function createWrapper(customConfig = {}) {
                 'sw-tabs': await wrapTestComponent('sw-tabs'),
                 'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                 'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
-                'mt-tabs': true,
-                'sw-extension-component-section': true,
+                'mt-tabs': {
+                    name: 'mt-tabs',
+                    props: ['defaultItem', 'items', 'positionIdentifier', 'routeExtensionTabs'],
+                    template: '<div class="mt-tabs" @click="$emit(\'new-item-active\', { name: \'extension-tab\' })"></div>',
+                },
+                'sw-extension-component-section': {
+                    name: 'sw-extension-component-section',
+                    props: ['positionIdentifier'],
+                    template: '<div class="sw-extension-component-section"></div>',
+                },
                 'router-link': true,
             },
             provide: {},
@@ -27,6 +35,25 @@ async function createWrapper(customConfig = {}) {
 }
 
 describe('src/app/component/meteor/sw-meteor-card', () => {
+    beforeAll(() => {
+        global.allowedErrors.push({
+            method: 'warn',
+            msgCheck: (msg) => {
+                if (typeof msg !== 'string') {
+                    return false;
+                }
+
+                return msg.includes(
+                    'Slot "tabs" invoked outside of the render function: this will not track dependencies used in the slot. Invoke the slot function inside the render function instead',
+                );
+            },
+        });
+    });
+
+    beforeEach(() => {
+        global.activeFeatureFlags = [];
+    });
+
     it('should render the content of the default slot', async () => {
         const wrapper = await createWrapper({
             slots: {
@@ -181,6 +208,129 @@ describe('src/app/component/meteor/sw-meteor-card', () => {
         const tabItems = wrapper.findAll('.sw-tabs-item');
         expect(tabItems.at(0).text()).toBe('Tab 1');
         expect(tabItems.at(1).text()).toBe('Tab 2');
+    });
+
+    it('should keep rendering legacy tab slots when the major migration is inactive', async () => {
+        const wrapper = await createWrapper({
+            slots: {
+                tabs: `
+<sw-tabs-item name="tab1">Tab 1</sw-tabs-item>
+<sw-tabs-item name="tab2">Tab 2</sw-tabs-item>
+                `,
+            },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+        expect(wrapper.findAll('.sw-tabs-item')).toHaveLength(2);
+    });
+
+    it('should render mt-tabs from card tab items when the major migration is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const cardTabs = [
+            { label: 'Tab 1', name: 'tab1' },
+            { label: 'Tab 2', name: 'tab2' },
+        ];
+
+        const wrapper = await createWrapper({
+            props: {
+                defaultTab: 'tab1',
+                cardTabs,
+            },
+        });
+
+        await flushPromises();
+
+        const mtTabs = wrapper.findComponent({ name: 'mt-tabs' });
+        expect(mtTabs.exists()).toBe(true);
+        expect(mtTabs.props('items')).toEqual(cardTabs);
+        expect(mtTabs.props('defaultItem')).toBe('tab1');
+        expect(mtTabs.props('positionIdentifier')).toBe('sw-meteor-card');
+        expect(mtTabs.props('routeExtensionTabs')).toBe(false);
+        expect(wrapper.find('.sw-tabs__content').exists()).toBe(false);
+    });
+
+    it('should render mt-tabs only when the major migration is active with card tab items and legacy tab slots', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper({
+            props: {
+                defaultTab: 'tab1',
+                cardTabs: [{ label: 'Tab 1', name: 'tab1' }],
+            },
+            slots: {
+                tabs: '<sw-tabs-item name="legacy-tab">Legacy tab</sw-tabs-item>',
+            },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(true);
+        expect(wrapper.find('.sw-tabs__content').exists()).toBe(false);
+        expect(wrapper.find('.sw-tabs-item').exists()).toBe(false);
+    });
+
+    it('should keep rendering legacy tab slots when the major migration is active without card tab items', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper({
+            slots: {
+                tabs: '<sw-tabs-item name="tab1">Tab 1</sw-tabs-item>',
+            },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+        expect(wrapper.find('.sw-tabs__content').exists()).toBe(true);
+        expect(wrapper.find('.sw-tabs-item').text()).toBe('Tab 1');
+    });
+
+    it('should normalize active mt-tabs items when changing the active tab', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper({
+            props: {
+                defaultTab: 'tab1',
+                cardTabs: [
+                    { label: 'Tab 1', name: 'tab1' },
+                    { label: 'Tab 2', name: 'tab2' },
+                ],
+            },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.vm.activeTab).toBe('tab1');
+
+        wrapper.vm.setActiveTab({ name: 'tab2' });
+
+        expect(wrapper.vm.activeTab).toBe('tab2');
+    });
+
+    it('should render extension component section when an extension mt-tabs item becomes active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper({
+            props: {
+                defaultTab: 'tab1',
+                cardTabs: [{ label: 'Tab 1', name: 'tab1' }],
+            },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.findComponent({ name: 'sw-extension-component-section' }).exists()).toBe(false);
+
+        await wrapper.findComponent({ name: 'mt-tabs' }).trigger('click');
+        await flushPromises();
+
+        expect(wrapper.vm.activeTab).toBe('extension-tab');
+        expect(wrapper.findComponent({ name: 'sw-extension-component-section' }).props('positionIdentifier')).toBe(
+            'extension-tab',
+        );
     });
 
     it('should render tabs and change content', async () => {

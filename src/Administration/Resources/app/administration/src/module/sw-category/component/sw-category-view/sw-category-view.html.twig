@@ -25,64 +25,77 @@
     {% endblock %}
 
     {% block sw_category_view_tabs %}
-    <sw-tabs
-        v-if="!isLoading"
-        position-identifier="sw-category-view"
-        class="sw-category-detail-page__tabs"
-    >
-        {% block sw_category_view_tabs_general %}
-        <sw-tabs-item
-            class="sw-category-detail__tab-base"
-            :route="{ name: 'sw.category.detail.base' }"
-            :title="$t('sw-category.view.general')"
-            :has-error="swCategoryViewError"
+    <template v-if="Shopware.Feature.isActive('V6_8_0_0')">
+        {% block sw_category_view_tabs_major %}
+        <mt-tabs
+            v-if="!isLoading"
+            position-identifier="sw-category-view"
+            class="sw-category-detail-page__tabs"
+            :items="tabItems"
+        />
+        {% endblock %}
+    </template>
+
+    <template v-else>
+        <sw-tabs
+            v-if="!isLoading"
+            position-identifier="sw-category-view"
+            class="sw-category-detail-page__tabs"
         >
-            {{ $t('sw-category.view.general') }}
-        </sw-tabs-item>
+        {% block sw_category_view_tabs_general %}
+            <sw-tabs-item
+                class="sw-category-detail__tab-base"
+                :route="{ name: 'sw.category.detail.base' }"
+                :title="$t('sw-category.view.general')"
+                :has-error="swCategoryViewError"
+            >
+                {{ $t('sw-category.view.general') }}
+            </sw-tabs-item>
         {% endblock %}
 
         {% block sw_category_view_tabs_products %}
-        <sw-tabs-item
-            v-show="isPage && !isCustomEntity"
-            class="sw-category-detail__tab-products"
-            :route="{ name: 'sw.category.detail.products' }"
-            :title="$t('sw-category.view.products')"
-        >
-            {{ $t('sw-category.view.products') }}
-        </sw-tabs-item>
+            <sw-tabs-item
+                v-show="isPage && !isCustomEntity"
+                class="sw-category-detail__tab-products"
+                :route="{ name: 'sw.category.detail.products' }"
+                :title="$t('sw-category.view.products')"
+            >
+                {{ $t('sw-category.view.products') }}
+            </sw-tabs-item>
         {% endblock %}
 
-        <sw-tabs-item
-            v-show="isCustomEntity"
-            class="sw-category-detail__tab-custom-entity"
-            :route="{ name: 'sw.category.detail.customEntity' }"
-            :title="$t('sw-category.view.customEntity')"
-        >
-            {{ $t('sw-category.view.customEntity') }}
-        </sw-tabs-item>
+            <sw-tabs-item
+                v-show="isCustomEntity"
+                class="sw-category-detail__tab-custom-entity"
+                :route="{ name: 'sw.category.detail.customEntity' }"
+                :title="$t('sw-category.view.customEntity')"
+            >
+                {{ $t('sw-category.view.customEntity') }}
+            </sw-tabs-item>
 
         {% block sw_category_view_tabs_cms %}
-        <sw-tabs-item
-            v-show="cmsPage || isPage"
-            class="sw-category-detail__tab-cms"
-            :route="{ name: 'sw.category.detail.cms' }"
-            :title="$t('sw-category.view.cms')"
-        >
-            {{ $t('sw-category.view.cms') }}
-        </sw-tabs-item>
+            <sw-tabs-item
+                v-show="cmsPage || isPage"
+                class="sw-category-detail__tab-cms"
+                :route="{ name: 'sw.category.detail.cms' }"
+                :title="$t('sw-category.view.cms')"
+            >
+                {{ $t('sw-category.view.cms') }}
+            </sw-tabs-item>
         {% endblock %}
 
         {% block sw_category_view_tabs_seo %}
-        <sw-tabs-item
-            v-show="isPage"
-            class="sw-category-detail__tab-seo"
-            :route="{ name: 'sw.category.detail.seo' }"
-            :title="$t('sw-category.view.seo')"
-        >
-            {{ $t('sw-category.view.seo') }}
-        </sw-tabs-item>
+            <sw-tabs-item
+                v-show="isPage"
+                class="sw-category-detail__tab-seo"
+                :route="{ name: 'sw.category.detail.seo' }"
+                :title="$t('sw-category.view.seo')"
+            >
+                {{ $t('sw-category.view.seo') }}
+            </sw-tabs-item>
         {% endblock %}
-    </sw-tabs>
+        </sw-tabs>
+    </template>
     {% endblock %}
 
     {% block sw_category_view_content %}

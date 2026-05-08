@@ -73,6 +73,9 @@ describe('module/sw-product/page/sw-product-detail', () => {
                             id: productId,
                         },
                     },
+                    $router: {
+                        push: jest.fn(),
+                    },
                 },
                 provide: {
                     numberRangeService: {
@@ -159,6 +162,15 @@ describe('module/sw-product/page/sw-product-detail', () => {
                             'title',
                         ],
                     },
+                    'mt-tabs': {
+                        props: [
+                            'items',
+                            'defaultItem',
+                            'positionIdentifier',
+                        ],
+                        template:
+                            '<mt-tabs-stub :items="items" :default-item="defaultItem" :position-identifier="positionIdentifier" />',
+                    },
                     'sw-inheritance-warning': true,
                     'router-link': true,
                     'sw-product-detail': await wrapTestComponent('sw-product-detail'),
@@ -192,9 +204,99 @@ describe('module/sw-product/page/sw-product-detail', () => {
     });
 
     afterEach(() => {
+        global.activeFeatureFlags = [];
+
         if (wrapper) {
             wrapper.unmount();
         }
+    });
+
+    it('renders legacy tabs when the major migration is inactive', async () => {
+        await wrapper.setProps({
+            productId: '1234',
+        });
+
+        expect(wrapper.find('.sw-tabs').exists()).toBe(true);
+        expect(wrapper.find('mt-tabs-stub').exists()).toBe(false);
+    });
+
+    it('renders route-backed mt-tabs when the major migration is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+        wrapper.unmount();
+        wrapper = await createWrapper();
+        Shopware.Store.get('swProductDetail').advancedModeSetting = advancedModeSettings;
+        await wrapper.setProps({
+            productId: '1234',
+        });
+        await nextTick();
+
+        const mtTabs = wrapper.getComponent('mt-tabs-stub');
+
+        expect(wrapper.find('.sw-tabs').exists()).toBe(false);
+        expect(mtTabs.props('positionIdentifier')).toBe('sw-product-detail');
+        expect(mtTabs.props('defaultItem')).toBe('base');
+        expect(mtTabs.props('items')).toStrictEqual([
+            {
+                label: 'sw-product.detail.tabGeneral',
+                name: 'base',
+                hasError: false,
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-product.detail.tabSpecifications',
+                name: 'specifications',
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-product.detail.tabAdvancedPrices',
+                name: 'prices',
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-product.detail.tabVariation',
+                name: 'variants',
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-product.detail.tabLayout',
+                name: 'layout',
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-product.detail.tabSeo',
+                name: 'seo',
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-product.detail.tabCrossSelling',
+                name: 'crossSelling',
+                hasError: false,
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-product.detail.tabReviews',
+                name: 'reviews',
+                onClick: expect.any(Function),
+            },
+        ]);
+    });
+
+    it('navigates to the selected product detail mt-tabs route', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+        wrapper.unmount();
+        wrapper = await createWrapper();
+        Shopware.Store.get('swProductDetail').advancedModeSetting = advancedModeSettings;
+        await wrapper.setProps({
+            productId: '1234',
+        });
+        await nextTick();
+
+        wrapper.getComponent('mt-tabs-stub').props('items')[3].onClick();
+
+        expect(wrapper.vm.$router.push).toHaveBeenCalledWith({
+            name: 'sw.product.detail.variants',
+            params: { id: '1234' },
+        });
     });
 
     it('should show item tabs', async () => {

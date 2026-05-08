@@ -110,10 +110,15 @@ export default {
             tabWaitsAttempts: 0,
             refreshVisibleSets: false,
             translatedInheritanceLoadKey: null,
+            activeCustomFieldSetId: null,
         };
     },
 
     computed: {
+        Shopware() {
+            return Shopware;
+        },
+
         hasParent() {
             return this.hasExplicitParentEntity || this.usesTranslatedInheritance;
         },
@@ -133,6 +138,23 @@ export default {
 
         visibleCustomFieldSets() {
             return this.sortSets(this.sets);
+        },
+
+        customFieldSetTabItems() {
+            return Array.from(this.visibleCustomFieldSets).map((set) => {
+                return {
+                    label: this.getTabLabel(set),
+                    name: set.id,
+                };
+            });
+        },
+
+        defaultCustomFieldSetTab() {
+            return this.visibleCustomFieldSets[0]?.id ?? null;
+        },
+
+        currentCustomFieldSetTab() {
+            return this.activeCustomFieldSetId ?? this.defaultCustomFieldSetTab;
         },
 
         customFieldSetRepository() {
@@ -406,7 +428,7 @@ export default {
             let returnValue;
 
             this.sets.some((set) =>
-                set.customFields.some((customField) => {
+                set.customFields?.some((customField) => {
                     const isMatching = customField.name === customFieldName;
 
                     if (isMatching) {
@@ -526,6 +548,10 @@ export default {
             return criteria;
         },
 
+        getCustomFieldSetById(setId) {
+            return this.sets.get ? this.sets.get(setId) : this.sets.find((set) => set.id === setId);
+        },
+
         loadCustomFieldSet(setId) {
             if (this.loadingFields.includes(setId)) {
                 // as we might triggered multiple times with the same item, we store the loading set in a heap cache
@@ -533,7 +559,11 @@ export default {
             }
 
             // failsave dealing with sets (should be an entityCollection, but in reality might be just an array)
-            const set = this.sets.get ? this.sets.get(setId) : this.sets.find((s) => s.id === setId);
+            const set = this.getCustomFieldSetById(setId);
+
+            if (!set) {
+                return;
+            }
 
             if (set.customFields && set.customFields.length > 0) {
                 // already loaded, so do nothing
@@ -564,7 +594,25 @@ export default {
                 });
         },
 
+        onNewCustomFieldSetTabActive(activeItem) {
+            const setId = typeof activeItem === 'object' ? activeItem.name : activeItem;
+
+            if (!this.getCustomFieldSetById(setId)) {
+                this.activeCustomFieldSetId = setId;
+                return;
+            }
+
+            this.activeCustomFieldSetId = setId;
+            this.loadCustomFieldSet(setId);
+        },
+
         resetTabs() {
+            if (Shopware.Feature.isActive('V6_8_0_0')) {
+                this.activeCustomFieldSetId = this.defaultCustomFieldSetTab;
+                this.loadCustomFieldSet(this.defaultCustomFieldSetTab);
+                return;
+            }
+
             if (this.visibleCustomFieldSets.length > 0 && this.$refs.tabComponent) {
                 // Reset state of tab component if custom field selection changes
                 this.$refs.tabComponent.mountedComponent();

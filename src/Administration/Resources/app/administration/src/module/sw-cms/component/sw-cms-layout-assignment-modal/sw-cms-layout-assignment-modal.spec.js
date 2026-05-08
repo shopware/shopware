@@ -120,6 +120,11 @@ async function createWrapper(layoutType = 'product_list', systemConfigApiService
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
                     'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                     'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+                    'mt-tabs': {
+                        name: 'mt-tabs',
+                        props: ['items', 'defaultItem', 'positionIdentifier', 'routeExtensionTabs'],
+                        template: '<mt-tabs-stub :items="items" :default-item="defaultItem" :position-identifier="positionIdentifier" :route-extension-tabs="routeExtensionTabs" @new-item-active="$emit(\'new-item-active\', $event)" />',
+                    },
                     'sw-category-tree-field': {
                         template: `
                         <div class="sw-category-tree-field-stub">
@@ -159,7 +164,11 @@ async function createWrapper(layoutType = 'product_list', systemConfigApiService
                     'sw-label': true,
                     transition: false,
                     'router-link': true,
-                    'sw-extension-component-section': true,
+                    'sw-extension-component-section': {
+                        name: 'sw-extension-component-section',
+                        props: ['positionIdentifier'],
+                        template: '<div class="sw-extension-component-section"></div>',
+                    },
                     'sw-product-variant-info': true,
                     'sw-help-text': true,
                     'sw-inherit-wrapper': true,
@@ -212,6 +221,7 @@ async function createWrapper(layoutType = 'product_list', systemConfigApiService
 describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     beforeEach(() => {
         global.activeAclRoles = [];
+        global.activeFeatureFlags = [];
     });
 
     it('should render category selection', async () => {
@@ -226,6 +236,207 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
         expect(wrapper.find('.sw-cms-layout-assignment-modal__tabs').exists()).toBeTruthy();
         expect(wrapper.find('.sw-cms-layout-assignment-modal__tab-categories').exists()).toBeTruthy();
         expect(wrapper.find('.sw-cms-layout-assignment-modal__tab-shop-pages').exists()).toBeTruthy();
+    });
+
+    it('renders legacy tabs when V6_8_0_0 is inactive', async () => {
+        const wrapper = await createWrapper('page');
+
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__tabs').exists()).toBe(true);
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+    });
+
+    it('renders mt-tabs assignment items when V6_8_0_0 is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper('page');
+
+        const mtTabs = wrapper.findComponent({ name: 'mt-tabs' });
+
+        expect(mtTabs.exists()).toBe(true);
+        expect(mtTabs.props('positionIdentifier')).toBe('sw-cms-layout-assignment-modal');
+        expect(mtTabs.props('routeExtensionTabs')).toBe(false);
+        expect(mtTabs.props('defaultItem')).toBe('categories');
+        expect(mtTabs.props('items')).toEqual([
+            {
+                label: 'sw-cms.components.cmsLayoutAssignmentModal.tabCategories',
+                name: 'categories',
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-cms.components.cmsLayoutAssignmentModal.tabShopPages',
+                name: 'shop_pages',
+                disabled: true,
+                onClick: expect.any(Function),
+            },
+        ]);
+        expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
+    });
+
+    it('does not activate disabled shop pages tab from mt-tabs events', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper('page');
+        const mtTabs = wrapper.findComponent({ name: 'mt-tabs' });
+
+        await mtTabs.vm.$emit('new-item-active', 'shop_pages');
+
+        expect(wrapper.vm.activeAssignmentTab).toBe('categories');
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__shop-page-select').exists()).toBe(false);
+    });
+
+    it('does not activate disabled landing pages tab from mt-tabs events', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper('landingpage');
+        const mtTabs = wrapper.findComponent({ name: 'mt-tabs' });
+
+        await mtTabs.vm.$emit('new-item-active', { name: 'landing_pages' });
+
+        expect(wrapper.vm.activeAssignmentTab).toBe('categories');
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__landing-page-select').exists()).toBe(false);
+    });
+
+    it('activates enabled assignment tabs from mt-tabs string and object payloads', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+        global.activeAclRoles = ['system.system_config'];
+
+        const wrapper = await createWrapper('page');
+        const mtTabs = wrapper.findComponent({ name: 'mt-tabs' });
+
+        await mtTabs.vm.$emit('new-item-active', 'shop_pages');
+        expect(wrapper.vm.activeAssignmentTab).toBe('shop_pages');
+
+        await mtTabs.vm.$emit('new-item-active', { name: 'categories' });
+        expect(wrapper.vm.activeAssignmentTab).toBe('categories');
+    });
+
+    it('activates enabled landing pages tab from mt-tabs events', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+        global.activeAclRoles = ['system.system_config'];
+
+        const wrapper = await createWrapper('landingpage');
+        const mtTabs = wrapper.findComponent({ name: 'mt-tabs' });
+
+        await mtTabs.vm.$emit('new-item-active', { name: 'landing_pages' });
+
+        expect(wrapper.vm.activeAssignmentTab).toBe('landing_pages');
+    });
+
+    it('renders local extension tab content when an extension assignment tab is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+        Shopware.Store.get('tabs').tabItems['sw-cms-layout-assignment-modal'] = [
+            { label: 'Extension', componentSectionId: 'extension-tab' },
+        ];
+
+        const wrapper = await createWrapper('page');
+        const mtTabs = wrapper.findComponent({ name: 'mt-tabs' });
+
+        await mtTabs.vm.$emit('new-item-active', { name: 'extension-tab' });
+
+        expect(wrapper.findComponent({ name: 'sw-extension-component-section' }).props('positionIdentifier')).toBe(
+            'extension-tab',
+        );
+    });
+
+    it('keeps the previous assignment tab active when mt-tabs emits an unknown tab id', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+        global.activeAclRoles = ['system.system_config'];
+
+        const wrapper = await createWrapper('page');
+        const mtTabs = wrapper.findComponent({ name: 'mt-tabs' });
+
+        await mtTabs.vm.$emit('new-item-active', 'shop_pages');
+        await mtTabs.vm.$emit('new-item-active', 'unknown-tab');
+
+        expect(wrapper.vm.activeAssignmentTab).toBe('shop_pages');
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__sales-channel-select').exists()).toBe(true);
+    });
+
+    it('keeps registered extension assignment tabs active when mt-tabs later emits an unknown tab id', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+        Shopware.Store.get('tabs').tabItems['sw-cms-layout-assignment-modal'] = [
+            { label: 'Extension', componentSectionId: 'extension-tab' },
+        ];
+
+        const wrapper = await createWrapper('page');
+        const mtTabs = wrapper.findComponent({ name: 'mt-tabs' });
+
+        await mtTabs.vm.$emit('new-item-active', { name: 'extension-tab' });
+        await mtTabs.vm.$emit('new-item-active', 'unknown-tab');
+
+        expect(wrapper.vm.activeAssignmentTab).toBe('extension-tab');
+        expect(wrapper.findComponent({ name: 'sw-extension-component-section' }).props('positionIdentifier')).toBe(
+            'extension-tab',
+        );
+    });
+
+    it('renders only extension content for product detail pages when an extension assignment tab is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+        Shopware.Store.get('tabs').tabItems['sw-cms-layout-assignment-modal'] = [
+            { label: 'Extension', componentSectionId: 'extension-tab' },
+        ];
+
+        const wrapper = await createWrapper('product_detail');
+        const mtTabs = wrapper.findComponent({ name: 'mt-tabs' });
+
+        await mtTabs.vm.$emit('new-item-active', { name: 'extension-tab' });
+
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__product-select').exists()).toBe(false);
+        expect(wrapper.findComponent({ name: 'sw-extension-component-section' }).props('positionIdentifier')).toBe(
+            'extension-tab',
+        );
+    });
+
+    it('keeps product assignment reachable when product detail pages have extension tabs', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+        Shopware.Store.get('tabs').tabItems['sw-cms-layout-assignment-modal'] = [
+            { label: 'Extension', componentSectionId: 'extension-tab' },
+        ];
+
+        const wrapper = await createWrapper('product_detail');
+        const mtTabs = wrapper.findComponent({ name: 'mt-tabs' });
+
+        expect(mtTabs.props('defaultItem')).toBe('product_assignment');
+        expect(mtTabs.props('items')).toEqual([
+            {
+                label: 'sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentLabel',
+                name: 'product_assignment',
+                onClick: expect.any(Function),
+            },
+        ]);
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__product-select').exists()).toBe(true);
+
+        await mtTabs.vm.$emit('new-item-active', { name: 'extension-tab' });
+
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__product-select').exists()).toBe(false);
+        expect(wrapper.findComponent({ name: 'sw-extension-component-section' }).props('positionIdentifier')).toBe(
+            'extension-tab',
+        );
+
+        await mtTabs.vm.$emit('new-item-active', { name: 'product_assignment' });
+
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__product-select').exists()).toBe(true);
+        expect(wrapper.findComponent({ name: 'sw-extension-component-section' }).exists()).toBe(false);
+    });
+
+    it('does not render extension tab content for the default tab when no core tabs exist', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper('product_list');
+
+        expect(wrapper.vm.assignmentTabItems).toEqual([]);
+        expect(wrapper.vm.activeAssignmentTab).toBe('categories');
+        expect(wrapper.findComponent({ name: 'sw-extension-component-section' }).exists()).toBe(false);
+    });
+
+    it('keeps an accessible permission warning for disabled mt-tabs items', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper('page');
+
+        expect(wrapper.find('.sw-cms-layout-assignment-modal__tab-permission-warning').text()).toBe(
+            'sw-privileges.tooltip.warning',
+        );
     });
 
     it('should disable shop pages tab with missing system config permission', async () => {

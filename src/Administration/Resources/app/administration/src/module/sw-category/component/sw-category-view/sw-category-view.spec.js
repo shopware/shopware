@@ -32,6 +32,7 @@ async function createWrapper(categoryType) {
                     props: ['entityDescription'],
                 },
                 'sw-tabs': {
+                    name: 'sw-tabs',
                     template: '<div class="sw-tabs"><slot /></div>',
                 },
                 'sw-tabs-item': {
@@ -40,6 +41,11 @@ async function createWrapper(categoryType) {
                         'route',
                         'title',
                     ],
+                },
+                'mt-tabs': {
+                    name: 'mt-tabs',
+                    props: ['items', 'positionIdentifier'],
+                    template: '<div />',
                 },
                 'router-view': {
                     template: '<div class="router-view"></div>',
@@ -65,6 +71,10 @@ async function createWrapper(categoryType) {
 }
 
 describe('src/module/sw-category/component/sw-category-view', () => {
+    afterEach(() => {
+        global.activeFeatureFlags = [];
+    });
+
     it('should display static snippets and position-identifiers', async () => {
         const wrapper = await createWrapper();
 
@@ -82,6 +92,43 @@ describe('src/module/sw-category/component/sw-category-view', () => {
         expect(wrapper.get('.swag-category-view__column-info-content').text()).toBe('sw-category.view.columnInfo');
 
         expect(wrapper.get('.sw-category-detail-page__tabs').attributes('position-identifier')).toBe('sw-category-view');
+    });
+
+    it('should render mt-tabs with category items when the major migration is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper('page');
+        const mtTabs = wrapper.findComponent({ name: 'mt-tabs' });
+
+        expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
+        expect(mtTabs.props('positionIdentifier')).toBe('sw-category-view');
+        expect(mtTabs.props('items')).toEqual([
+            {
+                label: 'sw-category.view.general',
+                name: 'general',
+                route: { name: 'sw.category.detail.base' },
+                hasError: false,
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-category.view.products',
+                name: 'products',
+                route: { name: 'sw.category.detail.products' },
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-category.view.cms',
+                name: 'cms',
+                route: { name: 'sw.category.detail.cms' },
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-category.view.seo',
+                name: 'seo',
+                route: { name: 'sw.category.detail.seo' },
+                onClick: expect.any(Function),
+            },
+        ]);
     });
 
     function checkGeneralTab(generalTab) {

@@ -131,6 +131,49 @@ export default {
             };
         },
 
+        Shopware() {
+            return Shopware;
+        },
+
+        defaultTabItem() {
+            if (this.$route.name === 'sw.customer.detail.addresses') {
+                return 'addresses';
+            }
+
+            if (this.$route.name === 'sw.customer.detail.order') {
+                return 'order';
+            }
+
+            return 'general';
+        },
+
+        tabItems() {
+            return [
+                {
+                    label: this.$t('sw-customer.detail.tabGeneral'),
+                    name: 'general',
+                    hasError: this.swCustomerDetailBaseError,
+                    onClick: () => {
+                        this.$router.push(this.generalRoute);
+                    },
+                },
+                {
+                    label: this.$t('sw-customer.detail.tabAddresses'),
+                    name: 'addresses',
+                    onClick: () => {
+                        this.$router.push(this.addressesRoute);
+                    },
+                },
+                {
+                    label: this.$t('sw-customer.detailBase.labelOrderCard'),
+                    name: 'order',
+                    onClick: () => {
+                        this.$router.push(this.ordersRoute);
+                    },
+                },
+            ];
+        },
+
         emailHasChanged() {
             const origin = this.customer.getOrigin();
             if (this.customer.isNew() || !origin.email) {

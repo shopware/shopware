@@ -35,12 +35,18 @@ async function createWrapper() {
             template: '<div class="sw-container"><slot></slot></div>',
         },
         'sw-tabs': {
+            name: 'sw-tabs',
             data() {
                 return { active: 'customer' };
             },
             template: '<div class="sw-tabs"><slot></slot><slot name="content" v-bind="{ active }"></slot></div>',
         },
         'sw-tabs-item': true,
+        'mt-tabs': {
+            name: 'mt-tabs',
+            props: ['items', 'defaultItem', 'positionIdentifier'],
+            template: '<div />',
+        },
         'sw-order-customer-grid': true,
         'sw-order-line-items-grid-sales-channel': true,
         'sw-order-create-options': true,
@@ -91,11 +97,50 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
     });
 
     afterEach(() => {
+        global.activeFeatureFlags = [];
+
         Shopware.Store.get('swOrder').setCart({
             token: null,
             lineItems: [],
             deliveries: [],
         });
+    });
+
+    it('should render legacy sw-tabs when the major migration is inactive', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(true);
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+    });
+
+    it('should render mt-tabs with modal items when the major migration is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper();
+        const mtTabs = wrapper.findComponent({ name: 'mt-tabs' });
+
+        expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
+        expect(mtTabs.props('positionIdentifier')).toBe('sw-order-create-initial-modal');
+        expect(mtTabs.props('defaultItem')).toBe('customer');
+        expect(mtTabs.props('items')).toEqual([
+            {
+                label: 'sw-order.initialModal.tabCustomer',
+                name: 'customer',
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-order.initialModal.tabProducts',
+                name: 'products',
+                disabled: true,
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-order.initialModal.tabOptions',
+                name: 'options',
+                disabled: true,
+                onClick: expect.any(Function),
+            },
+        ]);
     });
 
     it('should disabled other tabs if customer is not selected', async () => {

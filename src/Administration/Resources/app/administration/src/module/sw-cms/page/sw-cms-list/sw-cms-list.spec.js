@@ -42,7 +42,13 @@ async function createWrapper(
                         template: '<div><slot></slot></div>',
                     },
                     'sw-tabs': {
-                        template: '<div><slot name="content"></slot></div>',
+                        name: 'sw-tabs',
+                        template: '<div class="sw-tabs-stub" v-bind="$attrs"><slot></slot><slot name="content"></slot></div>',
+                    },
+                    'mt-tabs': {
+                        name: 'mt-tabs',
+                        props: ['items', 'defaultItem', 'positionIdentifier', 'vertical', 'routeExtensionTabs'],
+                        template: '<mt-tabs-stub :items="items" :default-item="defaultItem" :position-identifier="positionIdentifier" :vertical="vertical" :route-extension-tabs="routeExtensionTabs" @new-item-active="$emit(\'new-item-active\', $event)" />',
                     },
                     'sw-select-field': true,
                     'sw-pagination': {
@@ -104,6 +110,11 @@ async function createWrapper(
                     'sw-data-grid-inline-edit': true,
                     'sw-provide': true,
                     'sw-time-ago': true,
+                    'sw-extension-component-section': {
+                        name: 'sw-extension-component-section',
+                        props: ['positionIdentifier'],
+                        template: '<div class="sw-extension-component-section"></div>',
+                    },
                 },
                 mocks: {
                     $route: {
@@ -213,6 +224,10 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         });
     });
 
+    beforeEach(() => {
+        global.activeFeatureFlags = [];
+    });
+
     it('should show the right list of pageTypes for the filters', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -232,6 +247,123 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                 value: 'landingpage',
             },
         ]);
+    });
+
+    it('renders legacy tabs when V6_8_0_0 is inactive', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-cms-list__type-nav').exists()).toBe(true);
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+    });
+
+    it('renders mt-tabs page type filter items when V6_8_0_0 is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const mtTabs = wrapper.findComponent({ name: 'mt-tabs' });
+
+        expect(mtTabs.exists()).toBe(true);
+        expect(mtTabs.props('positionIdentifier')).toBe('sw-cms-list-sidebar');
+        expect(mtTabs.props('vertical')).toBe(true);
+        expect(mtTabs.props('routeExtensionTabs')).toBe(false);
+        expect(mtTabs.props('defaultItem')).toBe('');
+        expect(mtTabs.props('items')).toEqual([
+            {
+                label: 'sw-cms.sorting.labelSortByAllPages',
+                name: '',
+            },
+            {
+                label: 'page',
+                name: 'page',
+            },
+            {
+                label: 'landingpage',
+                name: 'landingpage',
+            },
+        ]);
+    });
+
+    it('filters by page type when an mt-tabs item becomes active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.findComponent({ name: 'mt-tabs' }).vm.$emit('new-item-active', { name: 'page' });
+
+        expect(wrapper.vm.currentPageType).toBe('page');
+    });
+
+    it('does not duplicate page type filtering for the mt-tabs event and item click order', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const onSortPageTypeSpy = jest.spyOn(wrapper.vm, 'onSortPageType');
+        const pageItem = wrapper.findComponent({ name: 'mt-tabs' }).props('items')[1];
+
+        await wrapper.findComponent({ name: 'mt-tabs' }).vm.$emit('new-item-active', { name: 'page' });
+        pageItem.onClick?.();
+
+        expect(onSortPageTypeSpy).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.currentPageType).toBe('page');
+    });
+
+    it('clears page type filter when the all pages mt-tabs item becomes active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.onSortPageType('page');
+        expect(wrapper.vm.currentPageType).toBe('page');
+
+        wrapper.vm.onSidebarTabActive({ name: '' });
+
+        expect(wrapper.vm.currentPageType).toBeNull();
+        expect(wrapper.vm.activeSidebarTab).toBe('');
+        expect(wrapper.vm.listCriteria.filters).toEqual([]);
+    });
+
+    it('renders local extension tab content when an extension sidebar tab is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+        Shopware.Store.get('tabs').tabItems['sw-cms-list-sidebar'] = [
+            { label: 'Extension', componentSectionId: 'extension-tab' },
+        ];
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const mtTabs = wrapper.findComponent({ name: 'mt-tabs' });
+        await mtTabs.vm.$emit('new-item-active', { name: 'extension-tab' });
+
+        expect(wrapper.findComponent({ name: 'sw-extension-component-section' }).props('positionIdentifier')).toBe(
+            'extension-tab',
+        );
+        expect(wrapper.vm.currentPageType).toBeNull();
+    });
+
+    it('keeps current sidebar tab state when an unknown sidebar tab id becomes active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.findComponent({ name: 'mt-tabs' }).vm.$emit('new-item-active', { name: 'page' });
+
+        expect(wrapper.vm.currentPageType).toBe('page');
+        expect(wrapper.vm.activeSidebarTab).toBe('page');
+
+        await wrapper.findComponent({ name: 'mt-tabs' }).vm.$emit('new-item-active', { name: 'stale-extension-tab' });
+
+        expect(wrapper.vm.currentPageType).toBe('page');
+        expect(wrapper.vm.activeSidebarTab).toBe('page');
+        expect(wrapper.vm.activeSidebarTabIsExtensionTab).toBe(false);
+        expect(wrapper.findComponent({ name: 'sw-extension-component-section' }).exists()).toBe(false);
     });
 
     it('should show the correct context menu item for default layouts', async () => {

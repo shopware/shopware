@@ -78,6 +78,124 @@ describe('src/app/component/meteor-wrapper/mt-tabs', () => {
         ]);
     });
 
+    it('should activate extension items without route navigation when route extension tabs are disabled', async () => {
+        const routerPush = jest.fn();
+
+        Shopware.Store.get('tabs').tabItems['example-tabs'] = [
+            { label: 'Extension', componentSectionId: 'extension' },
+        ];
+
+        const wrapper = await mount(await wrapTestComponent('mt-tabs', { sync: true }), {
+            global: {
+                mocks: {
+                    $router: {
+                        push: routerPush,
+                    },
+                },
+                stubs: {
+                    'mt-tabs-original': {
+                        name: 'mt-tabs-original',
+                        props: ['items'],
+                        emits: ['new-item-active'],
+                        template: '<div />',
+                    },
+                },
+            },
+            props: {
+                items: [{ label: 'General', name: 'general' }],
+                positionIdentifier: 'example-tabs',
+                routeExtensionTabs: false,
+            },
+        });
+
+        const extensionItem = wrapper.findComponent({ name: 'mt-tabs-original' }).props('items').at(1);
+        extensionItem.onClick();
+
+        expect(routerPush).not.toHaveBeenCalled();
+        expect(wrapper.emitted('new-item-active')).toEqual([[{ label: 'Extension', name: 'extension' }]]);
+    });
+
+    it('should not emit duplicate extension events when the original component already emitted the active item', async () => {
+        const routerPush = jest.fn();
+
+        Shopware.Store.get('tabs').tabItems['example-tabs'] = [
+            { label: 'Extension', componentSectionId: 'extension' },
+        ];
+
+        const wrapper = await mount(await wrapTestComponent('mt-tabs', { sync: true }), {
+            global: {
+                mocks: {
+                    $router: {
+                        push: routerPush,
+                    },
+                },
+                stubs: {
+                    'mt-tabs-original': {
+                        name: 'mt-tabs-original',
+                        props: ['items'],
+                        emits: ['new-item-active'],
+                        template: '<div />',
+                    },
+                },
+            },
+            props: {
+                items: [{ label: 'General', name: 'general' }],
+                positionIdentifier: 'example-tabs',
+                routeExtensionTabs: false,
+            },
+        });
+
+        const extensionItem = wrapper.findComponent({ name: 'mt-tabs-original' }).props('items').at(1);
+
+        wrapper.findComponent({ name: 'mt-tabs-original' }).vm.$emit('new-item-active', {
+            label: 'Extension',
+            name: 'extension',
+        });
+        extensionItem.onClick();
+
+        expect(routerPush).not.toHaveBeenCalled();
+        expect(wrapper.emitted('new-item-active')).toEqual([[{ label: 'Extension', name: 'extension' }]]);
+    });
+
+    it('should not emit duplicate extension events when the original component emitted the active item name', async () => {
+        const routerPush = jest.fn();
+
+        Shopware.Store.get('tabs').tabItems['example-tabs'] = [
+            { label: 'Extension', componentSectionId: 'extension' },
+        ];
+
+        const wrapper = await mount(await wrapTestComponent('mt-tabs', { sync: true }), {
+            global: {
+                mocks: {
+                    $router: {
+                        push: routerPush,
+                    },
+                },
+                stubs: {
+                    'mt-tabs-original': {
+                        name: 'mt-tabs-original',
+                        props: ['items'],
+                        emits: ['new-item-active'],
+                        template: '<div />',
+                    },
+                },
+            },
+            props: {
+                items: [{ label: 'General', name: 'general' }],
+                positionIdentifier: 'example-tabs',
+                routeExtensionTabs: false,
+            },
+        });
+
+        const extensionItem = wrapper.findComponent({ name: 'mt-tabs-original' }).props('items').at(1);
+
+        wrapper.findComponent({ name: 'mt-tabs-original' }).vm.$emit('new-item-active', 'extension');
+        extensionItem.onClick();
+
+        expect(routerPush).not.toHaveBeenCalled();
+        expect(wrapper.emitted('new-item-active')).toEqual([['extension']]);
+    });
+
     it('should forward new item active events from the final component', async () => {
         const wrapper = await createWrapper({
             positionIdentifier: 'example-tabs',

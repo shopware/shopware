@@ -45,22 +45,45 @@
                 {% block sw_cms_list_sidebar %}
                 <div class="sw-cms-list__sidebar">
                     {% block sw_cms_list_sidebar_tabs %}
-                    <sw-tabs
-                        is-vertical
-                        small
-                        position-identifier="sw-cms-list-sidebar"
-                        class="sw-cms-list__type-nav"
-                    >
-                        <sw-tabs-item
-                            v-for="pageType in sortPageTypes"
-                            :key="pageType.name"
-                            :disabled="pageType.disabled || undefined"
-                            :active="pageType.active"
-                            @click="onSortPageType(pageType.value)"
+                    <template v-if="Shopware.Feature.isActive('V6_8_0_0')">
+                        {% block sw_cms_list_sidebar_tabs_major %}
+                        <mt-tabs
+                            position-identifier="sw-cms-list-sidebar"
+                            class="sw-cms-list__type-nav"
+                            :items="cmsPageTypeTabItems"
+                            :default-item="currentPageTypeTab"
+                            :vertical="true"
+                            :route-extension-tabs="false"
+                            @new-item-active="onSidebarTabActive"
+                        />
+                        {% endblock %}
+
+                        {% block sw_cms_list_sidebar_tabs_extension_content_major %}
+                        <sw-extension-component-section
+                            v-if="activeSidebarTabIsExtensionTab"
+                            :position-identifier="activeSidebarTab"
+                        />
+                        {% endblock %}
+                    </template>
+
+                    <template v-else>
+                        <sw-tabs
+                            is-vertical
+                            small
+                            position-identifier="sw-cms-list-sidebar"
+                            class="sw-cms-list__type-nav"
                         >
-                            {{ pageType.name }}
-                        </sw-tabs-item>
-                    </sw-tabs>
+                            <sw-tabs-item
+                                v-for="pageType in sortPageTypes"
+                                :key="pageType.name"
+                                :disabled="pageType.disabled || undefined"
+                                :active="pageType.active"
+                                @click="onSortPageType(pageType.value)"
+                            >
+                                {{ pageType.name }}
+                            </sw-tabs-item>
+                        </sw-tabs>
+                    </template>
                     {% endblock %}
                 </div>
                 {% endblock %}

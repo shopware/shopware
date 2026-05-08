@@ -20,6 +20,25 @@ export default {
     ],
 
     computed: {
+        Shopware() {
+            return Shopware;
+        },
+
+        tabItems() {
+            return [
+                { label: this.$t('sw-cms.elements.general.config.tab.content'), name: 'content' },
+                { label: this.$t('sw-cms.elements.general.config.tab.options'), name: 'options' },
+            ];
+        },
+
+        tabPositionIdentifier() {
+            return 'sw-cms-element-config-buy-box';
+        },
+
+        activeTabIsExtensionTab() {
+            return this.isRegisteredExtensionTab(this.activeTab);
+        },
+
         productRepository() {
             return this.repositoryFactory.create('product');
         },
@@ -74,9 +93,39 @@ export default {
         this.createdComponent();
     },
 
+    data() {
+        return {
+            activeTab: 'content',
+        };
+    },
+
     methods: {
         createdComponent() {
             this.initElementConfig('buy-box');
+        },
+
+        onNewTabActive(activeItem) {
+            const activeTabName = typeof activeItem === 'string' ? activeItem : activeItem?.name;
+
+            if (!activeTabName) {
+                return;
+            }
+
+            if (!this.isCoreTab(activeTabName) && !this.isRegisteredExtensionTab(activeTabName)) {
+                return;
+            }
+
+            this.activeTab = activeTabName;
+        },
+
+        isCoreTab(tabName) {
+            return this.tabItems.some((tab) => tab.name === tabName);
+        },
+
+        isRegisteredExtensionTab(tabName) {
+            return (Shopware.Store.get('tabs').tabItems[this.tabPositionIdentifier] ?? []).some((tab) => {
+                return tab.componentSectionId === tabName;
+            });
         },
 
         async onProductChange(productId) {

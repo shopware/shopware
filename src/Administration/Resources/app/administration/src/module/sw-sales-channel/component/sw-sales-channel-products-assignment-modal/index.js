@@ -51,6 +51,7 @@ export default {
             categoryProducts: [],
             groupProducts: [],
             isProductLoading: false,
+            activeTab: 'singleProducts',
             tabContentHeight: '600px',
             productContainerStyle: {
                 display: 'grid',
@@ -68,6 +69,36 @@ export default {
     },
 
     computed: {
+        Shopware() {
+            return Shopware;
+        },
+
+        tabItems() {
+            return [
+                {
+                    label: this.$t('sw-sales-channel.detail.productAssignmentModal.singleProducts'),
+                    name: 'singleProducts',
+                    onClick: () => {
+                        this.onNewActiveItem('singleProducts');
+                    },
+                },
+                {
+                    label: this.$t('sw-sales-channel.detail.productAssignmentModal.categories.title'),
+                    name: 'categories',
+                    onClick: () => {
+                        this.onNewActiveItem('categories');
+                    },
+                },
+                {
+                    label: this.$t('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.title'),
+                    name: 'dynamicProductGroups',
+                    onClick: () => {
+                        this.onNewActiveItem('dynamicProductGroups');
+                    },
+                },
+            ];
+        },
+
         productCount() {
             return this.products.length;
         },
@@ -130,6 +161,10 @@ export default {
 
         onCloseModal() {
             this.$emit('modal-close');
+        },
+
+        onNewActiveItem(activeTab) {
+            this.activeTab = activeTab?.name ?? activeTab;
         },
 
         onAddProducts() {

@@ -9,31 +9,45 @@
     {% block sw_product_modal_delivery_sidebar %}
     <div class="sw-product-modal-delivery__sidebar">
         {% block sw_product_modal_delivery_sidebar_tabs %}
-        <sw-tabs
-            is-vertical
-            position-identifier="sw-product-modal-delivery"
-        >
-            {% block sw_product_modal_delivery_sidebar_tabs_items %}
-            <sw-tabs-item
-                :active="activeTab == 'order'"
-                @click="activeTab = 'order'"
-            >
-                {{ $t('sw-product.variations.deliveryModal.order') }}
-            </sw-tabs-item>
-            <sw-tabs-item
-                :active="activeTab == 'media'"
-                @click="activeTab = 'media'"
-            >
-                {{ $t('sw-product.variations.deliveryModal.media') }}
-            </sw-tabs-item>
-            <sw-tabs-item
-                :active="activeTab == 'listing'"
-                @click="activeTab = 'listing'"
-            >
-                {{ $t('sw-product.variations.deliveryModal.listing') }}
-            </sw-tabs-item>
+        <template v-if="Shopware.Feature.isActive('V6_8_0_0')">
+            {% block sw_product_modal_delivery_sidebar_tabs_major %}
+            <mt-tabs
+                position-identifier="sw-product-modal-delivery"
+                :items="tabItems"
+                :default-item="activeTab"
+                vertical
+                @new-item-active="setActiveTab"
+            />
             {% endblock %}
-        </sw-tabs>
+        </template>
+
+        <template v-else>
+            <sw-tabs
+                is-vertical
+                position-identifier="sw-product-modal-delivery"
+            >
+            {% block sw_product_modal_delivery_sidebar_tabs_items %}
+                <sw-tabs-item
+                    :active="activeTab == 'order'"
+                    @click="activeTab = 'order'"
+                >
+                    {{ $t('sw-product.variations.deliveryModal.order') }}
+                </sw-tabs-item>
+                <sw-tabs-item
+                    :active="activeTab == 'media'"
+                    @click="activeTab = 'media'"
+                >
+                    {{ $t('sw-product.variations.deliveryModal.media') }}
+                </sw-tabs-item>
+                <sw-tabs-item
+                    :active="activeTab == 'listing'"
+                    @click="activeTab = 'listing'"
+                >
+                    {{ $t('sw-product.variations.deliveryModal.listing') }}
+                </sw-tabs-item>
+            {% endblock %}
+            </sw-tabs>
+        </template>
         {% endblock %}
 
         {% block sw_product_modal_delivery_sidebar_descriptions %}

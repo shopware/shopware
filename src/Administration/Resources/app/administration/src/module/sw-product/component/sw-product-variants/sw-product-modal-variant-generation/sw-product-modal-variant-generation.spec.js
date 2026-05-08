@@ -180,8 +180,35 @@ async function createWrapper() {
             },
             global: {
                 stubs: {
-                    'sw-tabs': true,
+                    'sw-tabs': {
+                        name: 'sw-tabs',
+                        template: '<div class="sw-tabs"><slot /></div>',
+                    },
                     'sw-tabs-item': true,
+                    'mt-tabs': {
+                        name: 'mt-tabs',
+                        props: {
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            defaultItem: {
+                                type: String,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: true,
+                            },
+                            vertical: {
+                                type: Boolean,
+                                required: false,
+                                default: false,
+                            },
+                        },
+                        template:
+                            '<mt-tabs-stub :items="items" :default-item="defaultItem" :position-identifier="positionIdentifier" :vertical="vertical" @new-item-active="$emit(\'new-item-active\', $event)" />',
+                    },
                     'sw-modal': await wrapTestComponent('sw-modal', {
                         sync: true,
                     }),
@@ -243,6 +270,59 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 },
             };
         });
+    });
+
+    afterEach(() => {
+        global.activeFeatureFlags = [];
+    });
+
+    it('renders legacy tabs when the major migration is inactive', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(true);
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+    });
+
+    it('renders mt-tabs with variant generation items when the major migration is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper();
+
+        await wrapper.setData({ variantsNumber: 1 });
+
+        const mtTabs = wrapper.getComponent('mt-tabs-stub');
+
+        expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
+        expect(mtTabs.props('positionIdentifier')).toBe('sw-product-modal-variant-generation');
+        expect(mtTabs.props('vertical')).toBe(true);
+        expect(mtTabs.props('defaultItem')).toBe('options');
+        expect(mtTabs.props('items')).toStrictEqual([
+            {
+                label: 'sw-product.variations.configuratorModal.selectOptions',
+                name: 'options',
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-product.variations.configuratorModal.priceSurcharges',
+                name: 'prices',
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-product.variations.configuratorModal.defineRestrictions',
+                name: 'restrictions',
+                onClick: expect.any(Function),
+            },
+        ]);
+    });
+
+    it('normalizes mt-tabs active item payloads for variant generation tabs', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper();
+
+        wrapper.getComponent('mt-tabs-stub').vm.$emit('new-item-active', { name: 'prices' });
+
+        expect(wrapper.vm.activeTab).toBe('prices');
     });
 
     it('should remove file for all variants', async () => {

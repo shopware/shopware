@@ -15,19 +15,32 @@
             v-if="componentSection.props?.tabs"
             #tabs
         >
-            <sw-tabs
-                position-identifier=""
-                @new-item-active="setActiveTab($event.name)"
-            >
-                <sw-tabs-item
-                    v-for="tab in componentSection.props.tabs"
-                    :key="tab.name"
-                    :active-tab="getActiveTab(componentSection)?.name"
-                    :name="tab.name"
+            <template v-if="Shopware.Feature.isActive('V6_8_0_0')">
+                {% block sw_extension_component_section_card_tabs_major %}
+                <mt-tabs
+                    position-identifier=""
+                    :default-item="getActiveTab(componentSection)?.name"
+                    :items="getComponentSectionTabItems(componentSection)"
+                    @new-item-active="setActiveTab"
+                />
+                {% endblock %}
+            </template>
+
+            <template v-else>
+                <sw-tabs
+                    position-identifier=""
+                    @new-item-active="setActiveTab($event.name)"
                 >
-                    {{ $t(tab.label ?? '') }}
-                </sw-tabs-item>
-            </sw-tabs>
+                    <sw-tabs-item
+                        v-for="tab in componentSection.props.tabs"
+                        :key="tab.name"
+                        :active-tab="getActiveTab(componentSection)?.name"
+                        :name="tab.name"
+                    >
+                        {{ $t(tab.label ?? '') }}
+                    </sw-tabs-item>
+                </sw-tabs>
+            </template>
         </template>
 
         <sw-iframe-renderer

@@ -29,6 +29,10 @@ export default {
     },
 
     computed: {
+        Shopware() {
+            return Shopware;
+        },
+
         /**
          * Returns the search type based on active tab/route.
          */
@@ -38,6 +42,35 @@ export default {
             }
 
             return 'mail_template';
+        },
+
+        tabItems() {
+            return [
+                {
+                    label: this.$t('sw-mail-template.list.tabMailTemplates'),
+                    name: 'templates',
+                    route: { name: 'sw.mail.template.index.templates' },
+                    onClick: () => {
+                        this.$router.push({ name: 'sw.mail.template.index.templates' });
+                    },
+                },
+                {
+                    label: this.$t('sw-mail-template.list.tabHeaderFooter'),
+                    name: 'header-footer',
+                    route: { name: 'sw.mail.template.index.header_footer' },
+                    onClick: () => {
+                        this.$router.push({ name: 'sw.mail.template.index.header_footer' });
+                    },
+                },
+            ];
+        },
+
+        defaultTabItem() {
+            if (this.$route.name === 'sw.mail.template.index.header_footer') {
+                return 'header-footer';
+            }
+
+            return 'templates';
         },
     },
 

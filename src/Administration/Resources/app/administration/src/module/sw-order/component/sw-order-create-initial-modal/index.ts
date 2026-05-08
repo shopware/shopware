@@ -30,12 +30,14 @@ export default Component.wrapComponentConfig({
         disabledAutoPromotion: boolean;
         promotionCodes: string[];
         productItems: LineItem[];
+        activeTab: string;
         context: ContextSwitchParameters;
         shippingCosts: number | null;
     } {
         return {
             productItems: [],
             promotionCodes: [],
+            activeTab: 'customer',
             isLoading: false,
             isProductGridLoading: false,
             disabledAutoPromotion: false,
@@ -52,6 +54,42 @@ export default Component.wrapComponentConfig({
     },
 
     computed: {
+        Shopware(): typeof Shopware {
+            return Shopware;
+        },
+
+        tabItems(): Array<{ label: string; name: string; disabled?: boolean; onClick: () => void }> {
+            return [
+                {
+                    label: this.$t('sw-order.initialModal.tabCustomer'),
+                    name: 'customer',
+                    onClick: () => {
+                        this.activeTab = 'customer';
+                    },
+                },
+                {
+                    label: this.$t('sw-order.initialModal.tabProducts'),
+                    name: 'products',
+                    disabled: !this.customer,
+                    onClick: () => {
+                        if (this.customer) {
+                            this.activeTab = 'products';
+                        }
+                    },
+                },
+                {
+                    label: this.$t('sw-order.initialModal.tabOptions'),
+                    name: 'options',
+                    disabled: !this.customer,
+                    onClick: () => {
+                        if (this.customer) {
+                            this.activeTab = 'options';
+                        }
+                    },
+                },
+            ];
+        },
+
         salesChannelId(): string {
             return this.customer?.salesChannelId ?? '';
         },

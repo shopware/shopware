@@ -30,9 +30,18 @@ async function createWrapper(activeTab = 'singleProducts') {
                         data() {
                             return { active: activeTab };
                         },
-                        template: '<div><slot></slot><slot name="content" v-bind="{ active }"></slot></div>',
+                        template: '<div class="sw-tabs"><slot></slot><slot name="content" v-bind="{ active }"></slot></div>',
                     },
                     'sw-tabs-item': true,
+                    'mt-tabs': {
+                        props: [
+                            'items',
+                            'defaultItem',
+                            'positionIdentifier',
+                        ],
+                        template:
+                            '<mt-tabs-stub :items="items" :default-item="defaultItem" :position-identifier="positionIdentifier" @new-item-active="$emit(\'new-item-active\', $event)" />',
+                    },
                     'sw-loader': true,
                     'router-link': true,
                 },
@@ -49,6 +58,71 @@ async function createWrapper(activeTab = 'singleProducts') {
 }
 
 describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-modal', () => {
+    beforeEach(() => {
+        global.activeFeatureFlags = [''];
+    });
+
+    it('renders legacy tabs when the major feature flag is inactive', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.find('.sw-tabs').exists()).toBe(true);
+        expect(wrapper.find('mt-tabs-stub').exists()).toBe(false);
+    });
+
+    it('renders meteor tabs when the major feature flag is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper();
+        const mtTabs = wrapper.getComponent('mt-tabs-stub');
+
+        expect(mtTabs.props('items')).toStrictEqual([
+            {
+                label: 'sw-sales-channel.detail.productAssignmentModal.singleProducts',
+                name: 'singleProducts',
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-sales-channel.detail.productAssignmentModal.categories.title',
+                name: 'categories',
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.title',
+                name: 'dynamicProductGroups',
+                onClick: expect.any(Function),
+            },
+        ]);
+        expect(mtTabs.props('defaultItem')).toBe('singleProducts');
+        expect(mtTabs.props('positionIdentifier')).toBe('sw-sales-channel-products-assignment-modal');
+        expect(wrapper.find('.sw-tabs').exists()).toBe(false);
+    });
+
+    it('switches meteor tab content when a tab item is clicked', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper();
+
+        wrapper.getComponent('mt-tabs-stub').props('items')[1].onClick();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.activeTab).toBe('categories');
+        expect(wrapper.find('sw-sales-channel-products-assignment-single-products-stub').exists()).toBe(true);
+        expect(wrapper.find('sw-sales-channel-product-assignment-categories-stub').exists()).toBe(true);
+    });
+
+    it('normalizes meteor active item event payloads and keeps tab content mounted', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper();
+
+        await wrapper.getComponent('mt-tabs-stub').vm.$emit('new-item-active', { name: 'categories' });
+
+        expect(wrapper.vm.activeTab).toBe('categories');
+        expect(wrapper.find('sw-sales-channel-products-assignment-single-products-stub').exists()).toBe(true);
+        expect(wrapper.find('sw-sales-channel-product-assignment-categories-stub').exists()).toBe(true);
+        expect(wrapper.find('sw-sales-channel-products-assignment-dynamic-product-groups-stub').exists()).toBe(true);
+    });
+
     it('should emit modal close event', async () => {
         const wrapper = await createWrapper();
 

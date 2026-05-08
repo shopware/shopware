@@ -77,6 +77,10 @@ export default {
     },
 
     computed: {
+        Shopware() {
+            return Shopware;
+        },
+
         order: () => Store.get('swOrderDetail').order,
 
         versionContext: () => Store.get('swOrderDetail').versionContext,
@@ -127,6 +131,50 @@ export default {
 
         showWarningTabStyle() {
             return this.isOrderEditing && this.$route.name === 'sw.order.detail.documents';
+        },
+
+        defaultTabItem() {
+            if (this.$route.name === 'sw.order.detail.details') {
+                return 'details';
+            }
+
+            if (this.$route.name === 'sw.order.detail.documents') {
+                return 'documents';
+            }
+
+            return 'general';
+        },
+
+        tabItems() {
+            const routeParams = { id: this.$route.params.id };
+            const generalRoute = { name: 'sw.order.detail.general', params: routeParams };
+            const detailsRoute = { name: 'sw.order.detail.details', params: routeParams };
+            const documentsRoute = { name: 'sw.order.detail.documents', params: routeParams };
+
+            return [
+                {
+                    label: this.$t('sw-order.detail.tabGeneral'),
+                    name: 'general',
+                    onClick: () => {
+                        this.$router.push(generalRoute);
+                    },
+                },
+                {
+                    label: this.$t('sw-order.detail.tabDetails'),
+                    name: 'details',
+                    onClick: () => {
+                        this.$router.push(detailsRoute);
+                    },
+                },
+                {
+                    label: this.$t('sw-order.detail.tabDocuments'),
+                    name: 'documents',
+                    badge: this.isOrderEditing ? 'warning' : undefined,
+                    onClick: () => {
+                        this.$router.push(documentsRoute);
+                    },
+                },
+            ];
         },
 
         isOrderEditing() {

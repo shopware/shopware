@@ -76,6 +76,10 @@ export default {
     },
 
     computed: {
+        Shopware() {
+            return Shopware;
+        },
+
         currencies() {
             return Shopware.Store.get('swProductDetail').currencies;
         },
@@ -130,6 +134,40 @@ export default {
                 return item.downloads.length === 0 && item.type === 'digital';
             });
         },
+
+        tabItems() {
+            const items = [
+                {
+                    label: this.$t('sw-product.variations.configuratorModal.selectOptions'),
+                    name: 'options',
+                    onClick: () => {
+                        this.setActiveTab('options');
+                    },
+                },
+            ];
+
+            if (!this.variantsNumber) {
+                return items;
+            }
+
+            return [
+                ...items,
+                {
+                    label: this.$t('sw-product.variations.configuratorModal.priceSurcharges'),
+                    name: 'prices',
+                    onClick: () => {
+                        this.setActiveTab('prices');
+                    },
+                },
+                {
+                    label: this.$t('sw-product.variations.configuratorModal.defineRestrictions'),
+                    name: 'restrictions',
+                    onClick: () => {
+                        this.setActiveTab('restrictions');
+                    },
+                },
+            ];
+        },
     },
 
     watch: {
@@ -170,6 +208,10 @@ export default {
             this.variantsGenerator.on('progress-max', this.onProgressMaxHandler);
 
             this.variantsGenerator.on('progress-actual', this.onProgressActualHandler);
+        },
+
+        setActiveTab(tabName) {
+            this.activeTab = tabName?.name ?? tabName;
         },
 
         beforeUnmountComponent() {

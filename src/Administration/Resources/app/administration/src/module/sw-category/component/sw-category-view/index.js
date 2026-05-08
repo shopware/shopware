@@ -31,6 +31,56 @@ export default {
     },
 
     computed: {
+        Shopware() {
+            return Shopware;
+        },
+
+        tabItems() {
+            return [
+                {
+                    label: this.$t('sw-category.view.general'),
+                    name: 'general',
+                    route: { name: 'sw.category.detail.base' },
+                    hasError: !!this.swCategoryViewError,
+                    onClick: () => {
+                        this.$router.push({ name: 'sw.category.detail.base' });
+                    },
+                },
+                this.isPage && !this.isCustomEntity ? {
+                    label: this.$t('sw-category.view.products'),
+                    name: 'products',
+                    route: { name: 'sw.category.detail.products' },
+                    onClick: () => {
+                        this.$router.push({ name: 'sw.category.detail.products' });
+                    },
+                } : null,
+                this.isCustomEntity ? {
+                    label: this.$t('sw-category.view.customEntity'),
+                    name: 'custom-entity',
+                    route: { name: 'sw.category.detail.customEntity' },
+                    onClick: () => {
+                        this.$router.push({ name: 'sw.category.detail.customEntity' });
+                    },
+                } : null,
+                this.cmsPage || this.isPage ? {
+                    label: this.$t('sw-category.view.cms'),
+                    name: 'cms',
+                    route: { name: 'sw.category.detail.cms' },
+                    onClick: () => {
+                        this.$router.push({ name: 'sw.category.detail.cms' });
+                    },
+                } : null,
+                this.isPage ? {
+                    label: this.$t('sw-category.view.seo'),
+                    name: 'seo',
+                    route: { name: 'sw.category.detail.seo' },
+                    onClick: () => {
+                        this.$router.push({ name: 'sw.category.detail.seo' });
+                    },
+                } : null,
+            ].filter(Boolean);
+        },
+
         category() {
             return Shopware.Store.get('swCategoryDetail').category;
         },

@@ -4,7 +4,7 @@ import { mount } from '@vue/test-utils';
  * @sw-package checkout
  */
 
-async function createWrapper(privileges = [], editMode = false) {
+async function createWrapper(privileges = [], editMode = false, routeName = 'sw.customer.detail.base') {
     return mount(
         await wrapTestComponent('sw-customer-detail', {
             sync: true,
@@ -31,10 +31,16 @@ async function createWrapper(privileges = [], editMode = false) {
                     'sw-container': true,
                     'sw-field': true,
                     'sw-language-info': true,
-                    'sw-tabs': {
-                        template: '<div><slot name="content"></slot></div>',
-                    },
+                    'sw-tabs': true,
                     'sw-tabs-item': true,
+                    'mt-tabs': {
+                        props: [
+                            'items',
+                            'defaultItem',
+                            'positionIdentifier',
+                        ],
+                        template: '<mt-tabs-stub :items="items" :default-item="defaultItem" :position-identifier="positionIdentifier" />',
+                    },
                     'router-view': true,
                     'sw-customer-card': {
                         template: '<div></div>',
@@ -47,7 +53,10 @@ async function createWrapper(privileges = [], editMode = false) {
                 },
                 mocks: {
                     $route: {
-                        name: 'sw.cusomter.detail',
+                        name: routeName,
+                        params: {
+                            id: 'customerId',
+                        },
                         query: {
                             edit: editMode,
                             page: 1,
@@ -97,7 +106,7 @@ async function createWrapper(privileges = [], editMode = false) {
             },
 
             props: {
-                customerId: 'cusotmerId',
+                customerId: 'customerId',
             },
         },
     );
@@ -111,7 +120,63 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
     });
 
     beforeEach(async () => {
+        global.activeFeatureFlags = [''];
         wrapper = await createWrapper();
+    });
+
+    it('should render legacy tabs when the major feature flag is inactive', async () => {
+        expect(wrapper.find('sw-tabs-stub').exists()).toBe(true);
+        expect(wrapper.find('mt-tabs-stub').exists()).toBe(false);
+    });
+
+    it('should render meteor route tabs when the major feature flag is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+        const activeWrapper = await createWrapper([], false, 'sw.customer.detail.addresses');
+
+        const mtTabs = activeWrapper.getComponent('mt-tabs-stub');
+
+        expect(mtTabs.props('items')).toStrictEqual([
+            {
+                label: 'sw-customer.detail.tabGeneral',
+                name: 'general',
+                hasError: activeWrapper.vm.swCustomerDetailBaseError,
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-customer.detail.tabAddresses',
+                name: 'addresses',
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-customer.detailBase.labelOrderCard',
+                name: 'order',
+                onClick: expect.any(Function),
+            },
+        ]);
+        expect(mtTabs.props('defaultItem')).toBe('addresses');
+        expect(mtTabs.props('positionIdentifier')).toBe('sw-customer-detail-tabs');
+        expect(activeWrapper.find('sw-tabs-stub').exists()).toBe(false);
+
+        mtTabs.props('items')[0].onClick();
+        expect(activeWrapper.vm.$router.push).toHaveBeenCalledWith({
+            name: 'sw.customer.detail.base',
+            params: { id: 'customerId' },
+            query: { edit: false },
+        });
+
+        mtTabs.props('items')[1].onClick();
+        expect(activeWrapper.vm.$router.push).toHaveBeenCalledWith({
+            name: 'sw.customer.detail.addresses',
+            params: { id: 'customerId' },
+            query: { edit: false },
+        });
+
+        mtTabs.props('items')[2].onClick();
+        expect(activeWrapper.vm.$router.push).toHaveBeenCalledWith({
+            name: 'sw.customer.detail.order',
+            params: { id: 'customerId' },
+            query: { edit: false },
+        });
     });
 
     it("should keep the customer's account type as private even when the company field is set", async () => {

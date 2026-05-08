@@ -47,6 +47,11 @@ const createWrapper = async () => {
                     'sw-mail-header-footer-list': true,
                     'sw-tabs': true,
                     'sw-tabs-item': true,
+                    'mt-tabs': {
+                        name: 'mt-tabs',
+                        props: ['items', 'defaultItem', 'positionIdentifier'],
+                        template: '<div />',
+                    },
                     'router-view': true,
                     'sw-button-group': {
                         template: `
@@ -110,17 +115,33 @@ describe('modules/sw-mail-template/page/sw-mail-template-index', () => {
      */
     describe('with v6.8.0.0 feature flag', () => {
         beforeEach(() => {
-            global.activeFeatureFlags = ['v6.8.0.0'];
+            global.activeFeatureFlags = ['V6_8_0_0'];
         });
 
         afterEach(() => {
             global.activeFeatureFlags = [];
         });
 
-        it('should render tabs with router-view instead of lists', async () => {
+        it('should render mt-tabs with router-view instead of lists', async () => {
             const wrapper = await createWrapper();
+            const mtTabs = wrapper.findComponent({ name: 'mt-tabs' });
 
-            expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(true);
+            expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
+            expect(mtTabs.props('positionIdentifier')).toBe('sw-mail-template-index');
+            expect(mtTabs.props('items')).toEqual([
+                {
+                    label: 'sw-mail-template.list.tabMailTemplates',
+                    name: 'templates',
+                    route: { name: 'sw.mail.template.index.templates' },
+                    onClick: expect.any(Function),
+                },
+                {
+                    label: 'sw-mail-template.list.tabHeaderFooter',
+                    name: 'header-footer',
+                    route: { name: 'sw.mail.template.index.header_footer' },
+                    onClick: expect.any(Function),
+                },
+            ]);
             expect(wrapper.findComponent({ name: 'router-view' }).exists()).toBe(true);
             expect(wrapper.findComponent({ name: 'sw-mail-template-list' }).exists()).toBe(false);
             expect(wrapper.findComponent({ name: 'sw-mail-header-footer-list' }).exists()).toBe(false);

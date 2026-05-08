@@ -59,10 +59,15 @@ export default Shopware.Component.wrapComponentConfig({
             previousProductIds: [] as string[],
             categoryIndex: 1,
             isCategoriesLoading: false,
+            activeAssignmentTab: 'categories',
         };
     },
 
     computed: {
+        Shopware() {
+            return Shopware;
+        },
+
         systemConfigDomain() {
             return 'core.basicInformation';
         },
@@ -150,6 +155,74 @@ export default Shopware.Component.wrapComponentConfig({
         categoryRepository() {
             return this.repositoryFactory.create('category');
         },
+
+        isShopPagesTabDisabled() {
+            return !this.acl.can('system.system_config');
+        },
+
+        isLandingPagesTabDisabled() {
+            return !this.acl.can('system.system_config');
+        },
+
+        defaultAssignmentTab() {
+            return this.isProductDetailPage ? 'product_assignment' : 'categories';
+        },
+
+        assignmentTabItems() {
+            const items = [];
+
+            if (this.page.type === 'page' || this.page.type === 'landingpage') {
+                items.push({
+                    label: this.$t('sw-cms.components.cmsLayoutAssignmentModal.tabCategories'),
+                    name: 'categories',
+                    onClick: () => {
+                        this.activeAssignmentTab = 'categories';
+                    },
+                });
+            }
+
+            if (this.page.type === 'page') {
+                items.push({
+                    label: this.$t('sw-cms.components.cmsLayoutAssignmentModal.tabShopPages'),
+                    name: 'shop_pages',
+                    disabled: this.isShopPagesTabDisabled,
+                    onClick: () => {
+                        if (!this.isShopPagesTabDisabled) {
+                            this.activeAssignmentTab = 'shop_pages';
+                        }
+                    },
+                });
+            }
+
+            if (this.page.type === 'landingpage') {
+                items.push({
+                    label: this.$t('sw-cms.components.cmsLayoutAssignmentModal.tabLandingPages'),
+                    name: 'landing_pages',
+                    disabled: this.isLandingPagesTabDisabled,
+                    onClick: () => {
+                        if (!this.isLandingPagesTabDisabled) {
+                            this.activeAssignmentTab = 'landing_pages';
+                        }
+                    },
+                });
+            }
+
+            if (this.isProductDetailPage) {
+                items.push({
+                    label: this.$t('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentLabel'),
+                    name: 'product_assignment',
+                    onClick: () => {
+                        this.activeAssignmentTab = 'product_assignment';
+                    },
+                });
+            }
+
+            return items;
+        },
+
+        activeAssignmentTabIsExtensionTab() {
+            return this.isRegisteredExtensionAssignmentTab(this.activeAssignmentTab);
+        },
     },
 
     created() {
@@ -158,6 +231,8 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         createdComponent() {
+            this.activeAssignmentTab = this.defaultAssignmentTab;
+
             this.previousCategories = [...this.page.categories!];
             this.previousCategoryIds = this.page.categories!.getIds();
 
@@ -474,6 +549,32 @@ export default Shopware.Component.wrapComponentConfig({
 
         onInputSalesChannelSelect() {
             void this.loadSystemConfig();
+        },
+
+        onNewAssignmentTabActive(activeItem: string | { name?: string }) {
+            const activeTabName = typeof activeItem === 'string' ? activeItem : activeItem?.name;
+
+            if (!activeTabName) {
+                return;
+            }
+
+            const activeTab = this.assignmentTabItems.find((tab) => tab.name === activeTabName);
+
+            if (activeTab?.disabled) {
+                return;
+            }
+
+            if (!activeTab && !this.isRegisteredExtensionAssignmentTab(activeTabName)) {
+                return;
+            }
+
+            this.activeAssignmentTab = activeTabName;
+        },
+
+        isRegisteredExtensionAssignmentTab(tabName: string) {
+            return (Shopware.Store.get('tabs').tabItems['sw-cms-layout-assignment-modal'] ?? []).some((tab) => {
+                return tab.componentSectionId === tabName;
+            });
         },
 
         async onExtraCategories() {

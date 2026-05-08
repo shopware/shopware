@@ -59,6 +59,7 @@ export default {
             defaultProductId: '',
             newDefaultLayout: undefined,
             maxVisibleAssignedPages: 3,
+            activeSidebarTab: '',
         };
     },
 
@@ -69,6 +70,10 @@ export default {
     },
 
     computed: {
+        Shopware() {
+            return Shopware;
+        },
+
         pageRepository() {
             return this.repositoryFactory.create('cms_page');
         },
@@ -99,6 +104,26 @@ export default {
                 },
                 [sortByAllPagesOption],
             );
+        },
+
+        cmsPageTypeTabItems() {
+            return this.sortPageTypes.map((pageType) => {
+                return {
+                    label: pageType.name,
+                    name: pageType.value,
+                    disabled: pageType.disabled,
+                };
+            });
+        },
+
+        currentPageTypeTab() {
+            return this.activeSidebarTab;
+        },
+
+        activeSidebarTabIsExtensionTab() {
+            return (Shopware.Store.get('tabs').tabItems['sw-cms-list-sidebar'] ?? []).some((tab) => {
+                return tab.componentSectionId === this.activeSidebarTab;
+            });
         },
 
         listCriteria() {
@@ -392,6 +417,8 @@ export default {
         },
 
         onSortPageType(value = null) {
+            this.activeSidebarTab = value ?? '';
+
             if (!value.length || value.length <= 0) {
                 this.currentPageType = null;
             } else {
@@ -399,6 +426,29 @@ export default {
             }
 
             this.resetList();
+        },
+
+        onSidebarTabActive(activeItem) {
+            const activeTabName = typeof activeItem === 'string' ? activeItem : activeItem?.name;
+
+            if (activeTabName === null || activeTabName === undefined) {
+                return;
+            }
+
+            if (this.sortPageTypes.some((pageType) => pageType.value === activeTabName)) {
+                this.onSortPageType(activeTabName);
+                return;
+            }
+
+            const activeTabIsRegisteredExtension = (Shopware.Store.get('tabs').tabItems['sw-cms-list-sidebar'] ?? []).some((tab) => {
+                return tab.componentSectionId === activeTabName;
+            });
+
+            if (!activeTabIsRegisteredExtension) {
+                return;
+            }
+
+            this.activeSidebarTab = activeTabName;
         },
 
         onPageChange({ page, limit }) {

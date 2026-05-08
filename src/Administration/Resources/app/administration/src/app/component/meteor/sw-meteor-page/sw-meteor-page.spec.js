@@ -7,7 +7,7 @@ import 'src/app/component/meteor/sw-meteor-page';
 import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';
 
-async function createWrapper(slotsData = {}) {
+async function createWrapper(slotsData = {}, props = {}) {
     return mount(await wrapTestComponent('sw-meteor-page', { sync: true }), {
         global: {
             stubs: {
@@ -25,7 +25,11 @@ async function createWrapper(slotsData = {}) {
                 'router-link': {
                     template: '<div class="router-link"><slot></slot></div>',
                 },
-                'mt-tabs': true,
+                'mt-tabs': {
+                    name: 'mt-tabs',
+                    props: ['defaultItem', 'items', 'positionIdentifier'],
+                    template: '<div class="mt-tabs" @click="$emit(\'new-item-active\', \'new-tab\')"></div>',
+                },
                 'sw-extension-component-section': true,
                 'sw-app-topbar-button': true,
                 'sw-app-topbar-sidebar': true,
@@ -54,6 +58,7 @@ async function createWrapper(slotsData = {}) {
             fromLink: {
                 name: 'path.to.from.link',
             },
+            ...props,
         },
     });
 }
@@ -196,12 +201,53 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
         expect(routerLinksStubs.at(2).text()).toBe('Tab 3');
     });
 
+    it('should render the legacy page-tabs slot when the major migration is active and pageTabs are empty', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper({
+            'page-tabs': `
+<sw-tabs-item :route="{ name: 'tab.one' }">
+    Tab 1
+</sw-tabs-item>
+            `,
+        });
+
+        await flushPromises();
+
+        expect(wrapper.find('.sw-tabs__content').exists()).toBe(true);
+        expect(wrapper.find('.router-link').text()).toBe('Tab 1');
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+    });
+
+    it('should forward new-item-active events from active major mt-tabs', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper({}, {
+            pageTabs: [{ label: 'Tab 1', name: 'tab-one' }],
+        });
+
+        await flushPromises();
+        await wrapper.findComponent({ name: 'mt-tabs' }).trigger('click');
+
+        expect(wrapper.emitted('new-item-active')).toEqual([['new-tab']]);
+    });
+
     it('should not render the tabs when slot is empty', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
         const tabsContent = wrapper.find('.sw-tabs__content');
         expect(tabsContent.exists()).toBe(false);
+    });
+
+    it('should not render an empty tab area with inactive major migration and pageTabs only', async () => {
+        const wrapper = await createWrapper({}, {
+            pageTabs: [{ label: 'Tab 1', name: 'tab-one' }],
+        });
+
+        await flushPromises();
+
+        expect(wrapper.find('.sw-meteor-page__smart-bar-tabs').exists()).toBe(false);
     });
 
     it('should render the content', async () => {

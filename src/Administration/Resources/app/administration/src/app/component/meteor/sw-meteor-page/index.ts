@@ -1,5 +1,6 @@
 import type { RouteLocationNamedRaw } from 'vue-router';
 import type { ModuleManifest } from 'src/core/factory/module.factory';
+import type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/MtTabs';
 import template from './sw-meteor-page.html.twig';
 import './sw-meteor-page.scss';
 
@@ -34,6 +35,24 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: null,
         },
+
+        pageTabs: {
+            type: Array as PropType<TabItem[]>,
+            required: false,
+            default: () => [],
+        },
+
+        pageTabsDefaultItem: {
+            type: String,
+            required: false,
+            default: null,
+        },
+
+        pageTabsPositionIdentifier: {
+            type: String,
+            required: false,
+            default: 'sw-meteor-page',
+        },
     },
 
     data(): ComponentData {
@@ -44,6 +63,10 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
+        Shopware() {
+            return Shopware;
+        },
+
         pageClasses(): object {
             return {
                 'sw-meteor-page--full-width': this.fullWidth,
@@ -59,6 +82,10 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         hasTabs(): boolean {
+            if (Shopware.Feature.isActive('V6_8_0_0')) {
+                return this.pageTabs.length > 0 || typeof this.$slots['page-tabs'] !== 'undefined';
+            }
+
             return typeof this.$slots['page-tabs'] !== 'undefined';
         },
 

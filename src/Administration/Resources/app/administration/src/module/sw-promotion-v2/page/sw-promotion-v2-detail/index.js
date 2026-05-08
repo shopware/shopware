@@ -74,6 +74,58 @@ export default {
             return this.$route.name === 'sw.promotion.v2.create.base';
         },
 
+        Shopware() {
+            return Shopware;
+        },
+
+        defaultTabItem() {
+            if (this.$route.name === 'sw.promotion.v2.detail.conditions') {
+                return 'conditions';
+            }
+
+            if (this.$route.name === 'sw.promotion.v2.detail.discounts') {
+                return 'discounts';
+            }
+
+            return 'general';
+        },
+
+        tabItems() {
+            const routeParams = { id: this.$route.params.id };
+            const disabled = !this.promotionId;
+            const generalRoute = { name: 'sw.promotion.v2.detail.base', params: routeParams };
+            const conditionsRoute = { name: 'sw.promotion.v2.detail.conditions', params: routeParams };
+            const discountsRoute = { name: 'sw.promotion.v2.detail.discounts', params: routeParams };
+
+            return [
+                {
+                    label: this.$t('sw-promotion-v2.detail.tabs.tabGeneral'),
+                    name: 'general',
+                    hasError: this.swPromotionV2DetailBaseError,
+                    disabled,
+                    onClick: () => {
+                        this.$router.push(generalRoute);
+                    },
+                },
+                {
+                    label: this.$t('sw-promotion-v2.detail.tabs.tabConditions'),
+                    name: 'conditions',
+                    disabled,
+                    onClick: () => {
+                        this.$router.push(conditionsRoute);
+                    },
+                },
+                {
+                    label: this.$t('sw-promotion-v2.detail.tabs.tabDiscounts'),
+                    name: 'discounts',
+                    disabled,
+                    onClick: () => {
+                        this.$router.push(discountsRoute);
+                    },
+                },
+            ];
+        },
+
         promotionCriteria() {
             const criteria = new Criteria(1, 1)
                 .addAssociation('discounts.promotionDiscountPrices')

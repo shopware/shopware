@@ -46,6 +46,10 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
+        Shopware() {
+            return Shopware;
+        },
+
         customer(): Entity<'customer'> | null {
             return Store.get('swOrder').customer;
         },
@@ -94,6 +98,36 @@ export default Shopware.Component.wrapComponentConfig({
 
         showInitialModal(): boolean {
             return this.$route.name === 'sw.order.create.initial';
+        },
+
+        defaultTabItem(): string {
+            if (this.$route.name === 'sw.order.create.details') {
+                return 'details';
+            }
+
+            return 'general';
+        },
+
+        tabItems() {
+            const generalRoute = { name: 'sw.order.create.general' };
+            const detailsRoute = { name: 'sw.order.create.details' };
+
+            return [
+                {
+                    label: this.$t('sw-order.detail.tabGeneral'),
+                    name: 'general',
+                    onClick: () => {
+                        void this.$router.push(generalRoute);
+                    },
+                },
+                {
+                    label: this.$t('sw-order.detail.tabDetails'),
+                    name: 'details',
+                    onClick: () => {
+                        void this.$router.push(detailsRoute);
+                    },
+                },
+            ];
         },
     },
 

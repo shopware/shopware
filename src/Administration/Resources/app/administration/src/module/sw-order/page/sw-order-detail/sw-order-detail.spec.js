@@ -5,7 +5,7 @@ import { nextTick } from 'vue';
  * @sw-package checkout
  */
 
-async function createWrapper(order = {}) {
+async function createWrapper(order = {}, routeName = 'sw.order.detail.general') {
     const repositoryFactoryMock = {
         search: () => Promise.resolve([]),
         hasChanges: () => false,
@@ -19,6 +19,7 @@ async function createWrapper(order = {}) {
         global: {
             mocks: {
                 $route: {
+                    name: routeName,
                     params: {
                         id: 'order123',
                     },
@@ -41,6 +42,9 @@ async function createWrapper(order = {}) {
                             },
                         },
                     },
+                },
+                $router: {
+                    push: jest.fn(),
                 },
             },
             stubs: {
@@ -66,6 +70,14 @@ async function createWrapper(order = {}) {
                 'router-view': true,
                 'sw-tabs': true,
                 'sw-tabs-item': true,
+                'mt-tabs': {
+                    props: [
+                        'items',
+                        'defaultItem',
+                        'positionIdentifier',
+                    ],
+                    template: '<mt-tabs-stub :items="items" :default-item="defaultItem" :position-identifier="positionIdentifier" />',
+                },
                 'sw-language-switch': true,
                 'sw-order-leave-page-modal': true,
                 'sw-order-save-changes-beforehand-modal': true,
@@ -87,6 +99,79 @@ async function createWrapper(order = {}) {
 
 describe('src/module/sw-order/page/sw-order-detail', () => {
     let wrapper;
+
+    beforeEach(() => {
+        global.activeFeatureFlags = [''];
+    });
+
+    it('should render legacy tabs when the major feature flag is inactive', async () => {
+        wrapper = await createWrapper();
+
+        expect(wrapper.find('sw-tabs-stub').exists()).toBe(true);
+        expect(wrapper.find('mt-tabs-stub').exists()).toBe(false);
+    });
+
+    it('should render meteor route tabs when the major feature flag is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+        wrapper = await createWrapper({}, 'sw.order.detail.documents');
+
+        const mtTabs = wrapper.getComponent('mt-tabs-stub');
+
+        expect(mtTabs.props('items')).toStrictEqual([
+            {
+                label: 'sw-order.detail.tabGeneral',
+                name: 'general',
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-order.detail.tabDetails',
+                name: 'details',
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-order.detail.tabDocuments',
+                name: 'documents',
+                badge: undefined,
+                onClick: expect.any(Function),
+            },
+        ]);
+        expect(mtTabs.props('defaultItem')).toBe('documents');
+        expect(mtTabs.props('positionIdentifier')).toBe('sw-order-detail');
+        expect(wrapper.find('sw-tabs-stub').exists()).toBe(false);
+
+        mtTabs.props('items')[0].onClick();
+        expect(wrapper.vm.$router.push).toHaveBeenCalledWith({
+            name: 'sw.order.detail.general',
+            params: { id: 'order123' },
+        });
+
+        mtTabs.props('items')[1].onClick();
+        expect(wrapper.vm.$router.push).toHaveBeenCalledWith({
+            name: 'sw.order.detail.details',
+            params: { id: 'order123' },
+        });
+
+        mtTabs.props('items')[2].onClick();
+        expect(wrapper.vm.$router.push).toHaveBeenCalledWith({
+            name: 'sw.order.detail.documents',
+            params: { id: 'order123' },
+        });
+    });
+
+    it('should represent document tab warning state in meteor tabs when the order is editing', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+        wrapper = await createWrapper({}, 'sw.order.detail.documents');
+
+        await wrapper.setData({ hasOrderDeepEdit: true });
+
+        const documentTab = wrapper.getComponent('mt-tabs-stub').props('items')[2];
+
+        expect(documentTab).toEqual(expect.objectContaining({
+            name: 'documents',
+            badge: 'warning',
+        }));
+        expect(documentTab).not.toHaveProperty('hasError');
+    });
 
     it('should remove version id when beforeunload event is triggered', async () => {
         wrapper = await createWrapper();

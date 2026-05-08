@@ -32,10 +32,31 @@ export default {
             propertiesPage: 1,
             propertiesLimit: 6,
             propertiesTotal: 0,
+            activeTab: 'content',
         };
     },
 
     computed: {
+        Shopware() {
+            return Shopware;
+        },
+
+        tabItems() {
+            return [
+                { label: this.$t('sw-cms.elements.general.config.tab.content'), name: 'content' },
+                { label: this.$t('sw-cms.elements.productListing.config.tab.sorting'), name: 'sorting' },
+                { label: this.$t('sw-cms.elements.productListing.config.tab.filter'), name: 'filter' },
+            ];
+        },
+
+        tabPositionIdentifier() {
+            return 'sw-cms-element-config-product-listing';
+        },
+
+        activeTabIsExtensionTab() {
+            return this.isRegisteredExtensionTab(this.activeTab);
+        },
+
         showSortingGrid() {
             return this.element.config.useCustomSorting.value;
         },
@@ -264,6 +285,30 @@ export default {
             this.initDefaultSorting();
             this.unpackFilters();
             this.loadFilterableProperties();
+        },
+
+        onNewTabActive(activeItem) {
+            const activeTabName = typeof activeItem === 'string' ? activeItem : activeItem?.name;
+
+            if (!activeTabName) {
+                return;
+            }
+
+            if (!this.isCoreTab(activeTabName) && !this.isRegisteredExtensionTab(activeTabName)) {
+                return;
+            }
+
+            this.activeTab = activeTabName;
+        },
+
+        isCoreTab(tabName) {
+            return this.tabItems.some((tab) => tab.name === tabName);
+        },
+
+        isRegisteredExtensionTab(tabName) {
+            return (Shopware.Store.get('tabs').tabItems[this.tabPositionIdentifier] ?? []).some((tab) => {
+                return tab.componentSectionId === tabName;
+            });
         },
 
         onUpdateProductSortings() {

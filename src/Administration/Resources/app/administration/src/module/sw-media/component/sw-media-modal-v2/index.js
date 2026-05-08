@@ -75,6 +75,7 @@ export default {
             selection: [],
             uploads: [],
             folderId: this.initialFolderId,
+            activeTab: this.defaultTab,
             currentFolder: null,
             compact: false,
             term: '',
@@ -84,6 +85,10 @@ export default {
     },
 
     computed: {
+        Shopware() {
+            return Shopware;
+        },
+
         mediaRepository() {
             return this.repositoryFactory.create('media');
         },
@@ -100,6 +105,29 @@ export default {
 
         hasUploads() {
             return this.uploads.length > 0;
+        },
+
+        tabItems() {
+            return [
+                {
+                    label: this.$t('sw-media.sw-media-modal-v2.labelTabItemLibrary'),
+                    name: this.tabNameLibrary,
+                    disabled: this.hasUploads,
+                    onClick: () => {
+                        if (!this.hasUploads) {
+                            this.activeTab = this.tabNameLibrary;
+                        }
+                    },
+                },
+                {
+                    label: this.$t('sw-media.sw-media-modal-v2.labelTabItemUpload'),
+                    name: this.tabNameUpload,
+                    onClick: () => {
+                        this.activeTab = this.tabNameUpload;
+                        this.resetSelection();
+                    },
+                },
+            ];
         },
 
         uploadTag() {

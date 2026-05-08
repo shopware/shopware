@@ -94,8 +94,16 @@ async function createWrapper(props, options = {}) {
                     'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated'),
                     'sw-button-process': true,
                     'sw-media-collapse': true,
-                    'mt-tabs': true,
-                    'sw-extension-component-section': true,
+                    'mt-tabs': {
+                        name: 'mt-tabs',
+                        props: ['defaultItem', 'items', 'positionIdentifier', 'routeExtensionTabs'],
+                        template: '<div class="mt-tabs" @click="$emit(\'new-item-active\', { name: \'set2\' })"></div>',
+                    },
+                    'sw-extension-component-section': {
+                        name: 'sw-extension-component-section',
+                        props: ['positionIdentifier'],
+                        template: '<div class="sw-extension-component-section"></div>',
+                    },
                     'router-link': true,
                     'sw-help-text': true,
                     'sw-field-copyable': true,
@@ -280,6 +288,67 @@ async function createWrapper(props, options = {}) {
     );
 }
 
+function createCustomFieldTabProps() {
+    return {
+        entity: {
+            customFields: {
+                field1: null,
+                field2: null,
+            },
+            customFieldSetSelectionActive: null,
+            getEntityName: () => 'product',
+        },
+        sets: createEntityCollection([
+            {
+                id: 'set1',
+                name: 'set1',
+                position: 1,
+                config: {
+                    label: {
+                        'en-GB': 'Set 1 Label',
+                    },
+                },
+                customFields: [
+                    {
+                        name: 'field1',
+                        type: 'text',
+                        config: {
+                            label: 'field1Label',
+                        },
+                    },
+                ],
+            },
+            {
+                id: 'set2',
+                name: 'set2',
+                position: 2,
+                config: {
+                    label: {
+                        'en-GB': 'Set 2 Label',
+                    },
+                },
+                customFields: [
+                    {
+                        name: 'field2',
+                        type: 'text',
+                        config: {
+                            label: 'field2Label',
+                        },
+                    },
+                ],
+            },
+        ]),
+        showCustomFieldSetSelection: true,
+    };
+}
+
+function createCustomFieldTabPropsWithUnloadedDefaultSet() {
+    const props = createCustomFieldTabProps();
+    delete props.sets[0].customFields;
+
+    return props;
+}
+
 function createProductRepositoryOptions(productRepositoryGet) {
     return {
         repositoryFactoryCreate: (entity) => {
@@ -384,6 +453,10 @@ async function withTranslatedLanguageContext(
 }
 
 describe('src/app/component/form/sw-custom-field-set-renderer', () => {
+    beforeEach(() => {
+        global.activeFeatureFlags = [];
+    });
+
     /** @type Wrapper */
     let wrapper;
 
@@ -1391,6 +1464,114 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
         const tabs = wrapper.findAll('.sw-tabs__content .sw-tabs-item');
         expect(tabs).toHaveLength(2);
+    });
+
+    it('should keep rendering legacy custom field set tabs when the major migration is inactive', async () => {
+        wrapper = await createWrapper(createCustomFieldTabProps());
+
+        await flushPromises();
+
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+        expect(wrapper.findAll('.sw-tabs__content .sw-tabs-item')).toHaveLength(2);
+    });
+
+    it('should render custom field set mt-tabs items when the major migration is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        wrapper = await createWrapper(createCustomFieldTabProps());
+
+        await flushPromises();
+
+        const mtTabs = wrapper.findComponent({ name: 'mt-tabs' });
+        expect(mtTabs.exists()).toBe(true);
+        expect(mtTabs.props('items')).toEqual([
+            { label: 'Set 1 Label', name: 'set1' },
+            { label: 'Set 2 Label', name: 'set2' },
+        ]);
+        expect(mtTabs.props('defaultItem')).toBe('set1');
+        expect(mtTabs.props('positionIdentifier')).toBe('sw-custom-field-set-renderer');
+        expect(mtTabs.props('routeExtensionTabs')).toBe(false);
+        expect(wrapper.findAll('.sw-tabs-item')).toHaveLength(0);
+    });
+
+    it('should keep the matching custom field set pane active when mt-tabs changes', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        wrapper = await createWrapper(createCustomFieldTabProps());
+
+        await flushPromises();
+
+        expect(wrapper.find('.sw-custom-field-set-renderer-tab-content__set1').attributes('style') ?? '').toBe('');
+        expect(wrapper.find('.sw-custom-field-set-renderer-tab-content__set2').attributes('style')).toBe('display: none;');
+
+        await wrapper.findComponent({ name: 'mt-tabs' }).trigger('click');
+        await flushPromises();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.currentCustomFieldSetTab).toBe('set2');
+        expect(wrapper.find('.sw-custom-field-set-renderer-tab-content__set1').attributes('style')).toBe('display: none;');
+        expect(wrapper.find('.sw-custom-field-set-renderer-tab-content__set2').attributes('style') ?? '').toBe('');
+    });
+
+    it('should load the default custom field set when the major migration is active and the default set is unloaded', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const repositoryGet = jest.fn(() => {
+            return Promise.resolve({
+                id: 'set1',
+                customFields: [],
+            });
+        });
+
+        wrapper = await createWrapper(createCustomFieldTabPropsWithUnloadedDefaultSet(), {
+            repositoryFactoryCreate: (entity) => {
+                if (entity !== 'custom_field_set') {
+                    return null;
+                }
+
+                return {
+                    get: repositoryGet,
+                    search: jest.fn(),
+                };
+            },
+        });
+
+        await flushPromises();
+
+        expect(repositoryGet).toHaveBeenCalledWith('set1', Shopware.Context.api, expect.any(Object));
+    });
+
+    it.each([
+        'extension-tab',
+        { name: 'extension-tab' },
+    ])('should render extension component section for extension mt-tabs item payload %#', async (activeItem) => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const repositoryGet = jest.fn();
+
+        wrapper = await createWrapper(createCustomFieldTabProps(), {
+            repositoryFactoryCreate: (entity) => {
+                if (entity !== 'custom_field_set') {
+                    return null;
+                }
+
+                return {
+                    get: repositoryGet,
+                    search: jest.fn(),
+                };
+            },
+        });
+
+        await flushPromises();
+
+        expect(() => wrapper.vm.onNewCustomFieldSetTabActive(activeItem)).not.toThrow();
+        expect(repositoryGet).not.toHaveBeenCalledWith('extension-tab', expect.anything(), expect.anything());
+        await flushPromises();
+
+        expect(wrapper.vm.currentCustomFieldSetTab).toBe('extension-tab');
+        expect(wrapper.findComponent({ name: 'sw-extension-component-section' }).props('positionIdentifier')).toBe(
+            'extension-tab',
+        );
     });
 
     it('should not filter custom field sets when entity has no customFieldSets column', async () => {

@@ -11,39 +11,53 @@
     {% endblock %}
 
     {% block sw_landing_page_view_tabs %}
-    <sw-tabs
-        v-if="!isLoading"
-        class="sw-customer-detail-page__tabs"
-        position-identifier="sw-landing-page-view"
-    >
+    <template v-if="Shopware.Feature.isActive('V6_8_0_0')">
+        {% block sw_landing_page_view_tabs_major %}
+        <mt-tabs
+            v-if="!isLoading"
+            class="sw-customer-detail-page__tabs"
+            :default-item="defaultTabItem"
+            position-identifier="sw-landing-page-view"
+            :items="tabItems"
+        />
+        {% endblock %}
+    </template>
+
+    <template v-else>
+        <sw-tabs
+            v-if="!isLoading"
+            class="sw-customer-detail-page__tabs"
+            position-identifier="sw-landing-page-view"
+        >
 
         {% block sw_landing_page_view_tabs_general %}
-        <sw-tabs-item
-            class="sw-category-detail__tab-base"
-            :route="{ name: 'sw.category.landingPageDetail.base' }"
-            :title="$t('sw-landing-page.view.general')"
-        >
-            {{ $t('sw-landing-page.view.general') }}
-        </sw-tabs-item>
+            <sw-tabs-item
+                class="sw-category-detail__tab-base"
+                :route="{ name: 'sw.category.landingPageDetail.base' }"
+                :title="$t('sw-landing-page.view.general')"
+            >
+                {{ $t('sw-landing-page.view.general') }}
+            </sw-tabs-item>
         {% endblock %}
 
         {% block sw_landing_page_view_tabs_cms %}
-        <sw-tabs-item
-            v-tooltip="{
-                message: $t('sw-privileges.tooltip.warning'),
-                disabled: acl.can('landing_page.editor'),
-                showOnDisabledElements: true
-            }"
-            :disabled="!acl.can('landing_page.editor')"
-            class="sw-landing-page-detail__tab-cms"
-            :route="{ name: 'sw.category.landingPageDetail.cms' }"
-            :title="$t('sw-landing-page.view.cms')"
-        >
-            {{ $t('sw-landing-page.view.cms') }}
-        </sw-tabs-item>
+            <sw-tabs-item
+                v-tooltip="{
+                    message: $t('sw-privileges.tooltip.warning'),
+                    disabled: acl.can('landing_page.editor'),
+                    showOnDisabledElements: true
+                }"
+                :disabled="!acl.can('landing_page.editor')"
+                class="sw-landing-page-detail__tab-cms"
+                :route="{ name: 'sw.category.landingPageDetail.cms' }"
+                :title="$t('sw-landing-page.view.cms')"
+            >
+                {{ $t('sw-landing-page.view.cms') }}
+            </sw-tabs-item>
         {% endblock %}
 
-    </sw-tabs>
+        </sw-tabs>
+    </template>
     {% endblock %}
 
     {% block sw_landing_page_view_content %}

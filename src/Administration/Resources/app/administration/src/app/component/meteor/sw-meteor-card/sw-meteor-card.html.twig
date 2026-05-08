@@ -53,18 +53,51 @@
         {% endblock %}
 
         {% block sw_meteor_card_tabs %}
-        <sw-tabs
-            v-if="hasTabs"
-            position-identifier="sw-meteor-card"
-            :small="false"
-            :default-item="defaultTab"
-            @new-item-active="setActiveTab($event.name)"
-        >
-            <slot
-                name="tabs"
-                v-bind="{ activeTab }"
-            ></slot>
-        </sw-tabs>
+        <template v-if="Shopware.Feature.isActive('V6_8_0_0')">
+            {% block sw_meteor_card_tabs_major %}
+            <mt-tabs
+                v-if="cardTabs.length"
+                :default-item="defaultTab"
+                :items="cardTabs"
+                :position-identifier="cardTabsPositionIdentifier"
+                :route-extension-tabs="false"
+                @new-item-active="setActiveTab"
+            />
+
+            <sw-tabs-deprecated
+                v-if="!cardTabs.length && hasLegacyTabSlot"
+                position-identifier="sw-meteor-card"
+                :small="false"
+                :default-item="defaultTab"
+                @new-item-active="setActiveTab($event.name)"
+            >
+                <slot
+                    name="tabs"
+                    v-bind="{ activeTab }"
+                ></slot>
+            </sw-tabs-deprecated>
+
+            <sw-extension-component-section
+                v-if="cardTabs.length && activeTabIsExtensionTab"
+                :position-identifier="activeTab"
+            />
+            {% endblock %}
+        </template>
+
+        <template v-else>
+            <sw-tabs
+                v-if="hasTabs"
+                position-identifier="sw-meteor-card"
+                :small="false"
+                :default-item="defaultTab"
+                @new-item-active="setActiveTab($event.name)"
+            >
+                <slot
+                    name="tabs"
+                    v-bind="{ activeTab }"
+                ></slot>
+            </sw-tabs>
+        </template>
         {% endblock %}
     </div>
     {% endblock %}

@@ -26,6 +26,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Field\ElementSlotsFieldSerializ
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
@@ -145,7 +146,7 @@ class ContentElementFieldSerializerTest extends TestCase
 
         $this->expectExceptionObject(
             ContentSystemException::invalidFieldType(
-                \Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware::class,
+                StorageAware::class,
                 TranslatedField::class
             )
         );

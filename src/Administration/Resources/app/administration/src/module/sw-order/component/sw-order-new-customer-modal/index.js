@@ -36,10 +36,44 @@ export default {
             isLoading: false,
             customerNumberPreview: '',
             defaultSalutationId: null,
+            activeTab: 'details',
         };
     },
 
     computed: {
+        Shopware() {
+            return Shopware;
+        },
+
+        tabItems() {
+            return [
+                {
+                    label: this.$t('sw-order.newCustomerModal.labelDetails'),
+                    name: 'details',
+                    hasError: !!this.swOrderNewCustomerDetailError,
+                    onClick: () => {
+                        this.activeTab = 'details';
+                    },
+                },
+                {
+                    label: this.$t('sw-order.createBase.detailsBody.labelBillingAddress'),
+                    name: 'billingAddress',
+                    hasError: !!this.swOrderNewCustomerAddressError,
+                    onClick: () => {
+                        this.activeTab = 'billingAddress';
+                    },
+                },
+                {
+                    label: this.$t('sw-order.createBase.detailsBody.labelShippingAddress'),
+                    name: 'shippingAddress',
+                    hasError: !this.isSameBilling && !!this.swOrderNewCustomerAddressError,
+                    onClick: () => {
+                        this.activeTab = 'shippingAddress';
+                    },
+                },
+            ];
+        },
+
         ...mapPageErrors({
             'sw.order.new.customer.detail': {
                 customer: [

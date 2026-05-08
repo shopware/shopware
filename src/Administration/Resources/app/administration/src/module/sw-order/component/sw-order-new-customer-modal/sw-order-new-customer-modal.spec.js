@@ -25,6 +25,14 @@ async function createWrapper(
                 'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
                 'sw-customer-address-form': true,
                 'sw-customer-base-form': true,
+                'mt-tabs': {
+                    props: [
+                        'items',
+                        'defaultItem',
+                        'positionIdentifier',
+                    ],
+                    template: '<mt-tabs-stub :items="items" :default-item="defaultItem" :position-identifier="positionIdentifier" />',
+                },
                 'sw-extension-component-section': true,
                 'router-link': true,
                 'sw-loader': true,
@@ -115,7 +123,60 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
     let wrapper;
 
     beforeEach(async () => {
+        global.activeFeatureFlags = [''];
         wrapper = await createWrapper();
+    });
+
+    it('should render legacy tabs when the major feature flag is inactive', async () => {
+        await flushPromises();
+
+        expect(wrapper.findComponent({ name: 'sw-tabs-deprecated__wrapped' }).exists()).toBe(true);
+        expect(wrapper.find('mt-tabs-stub').exists()).toBe(false);
+    });
+
+    it('should render meteor tabs when the major feature flag is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const mtTabs = wrapper.getComponent('mt-tabs-stub');
+
+        expect(mtTabs.props('items')).toStrictEqual([
+            {
+                label: 'sw-order.newCustomerModal.labelDetails',
+                name: 'details',
+                hasError: false,
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-order.createBase.detailsBody.labelBillingAddress',
+                name: 'billingAddress',
+                hasError: false,
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-order.createBase.detailsBody.labelShippingAddress',
+                name: 'shippingAddress',
+                hasError: false,
+                onClick: expect.any(Function),
+            },
+        ]);
+        expect(mtTabs.props('defaultItem')).toBe('details');
+        expect(mtTabs.props('positionIdentifier')).toBe('sw-order-new-customer-modal');
+        expect(wrapper.findComponent({ name: 'sw-tabs-deprecated__wrapped' }).exists()).toBe(false);
+    });
+
+    it('should switch active content in the meteor tabs branch', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.getComponent('mt-tabs-stub').props('items')[1].onClick();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.activeTab).toBe('billingAddress');
+        expect(wrapper.find('sw-customer-base-form-stub').exists()).toBe(false);
+        expect(wrapper.find('sw-customer-address-form-stub').exists()).toBe(true);
     });
 
     it('should navigate tab correctly', async () => {

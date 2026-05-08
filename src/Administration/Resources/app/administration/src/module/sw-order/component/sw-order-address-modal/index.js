@@ -59,10 +59,34 @@ export default {
             selectedAddressId: 0,
             isLoading: false,
             addressCustomFieldSets: [],
+            activeTab: 'edit',
         };
     },
 
     computed: {
+        Shopware() {
+            return Shopware;
+        },
+
+        tabItems() {
+            return [
+                {
+                    label: this.$t('sw-order.addressSelection.headlineTabEditAddress'),
+                    name: 'edit',
+                    onClick: () => {
+                        this.onNewActiveItem('edit');
+                    },
+                },
+                {
+                    label: this.$t('sw-order.addressSelection.headlineTabSelectAddress'),
+                    name: 'addresses',
+                    onClick: () => {
+                        this.onNewActiveItem('addresses');
+                    },
+                },
+            ];
+        },
+
         customerCriteria() {
             const criteria = new Criteria(1, 1);
             criteria.setIds([this.orderCustomer.customerId]);
@@ -128,7 +152,8 @@ export default {
                 });
         },
 
-        onNewActiveItem() {
+        onNewActiveItem(activeItem) {
+            this.activeTab = activeItem?.name ?? activeItem ?? this.activeTab;
             this.selectedAddressId = 0;
         },
 

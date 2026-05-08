@@ -10,6 +10,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
+ * Adds the active Agentic Commerce provider's context to the product export render body event.
+ *
  * @internal
  */
 #[Package('discovery')]

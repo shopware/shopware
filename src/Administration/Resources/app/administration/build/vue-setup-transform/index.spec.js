@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 
+const { STATEMENT_TYPES } = require('@babel/types');
 const { transformShopwareSetupSfc } = require('./index');
 
 /**
@@ -24,6 +25,64 @@ function transformOrFail(source, filename) {
 }
 
 describe('build/vue-setup-transform', () => {
+    it('keeps known statements aligned with Babel statements', () => {
+        const reviewedStatementTypes = [
+            'BlockStatement',
+            'BreakStatement',
+            'ClassDeclaration',
+            'ContinueStatement',
+            'DebuggerStatement',
+            'DeclareClass',
+            'DeclareExportAllDeclaration',
+            'DeclareExportDeclaration',
+            'DeclareFunction',
+            'DeclareInterface',
+            'DeclareModule',
+            'DeclareModuleExports',
+            'DeclareOpaqueType',
+            'DeclareTypeAlias',
+            'DeclareVariable',
+            'DoWhileStatement',
+            'EmptyStatement',
+            'EnumDeclaration',
+            'ExportAllDeclaration',
+            'ExportDefaultDeclaration',
+            'ExportNamedDeclaration',
+            'ExpressionStatement',
+            'ForInStatement',
+            'ForOfStatement',
+            'ForStatement',
+            'FunctionDeclaration',
+            'IfStatement',
+            'ImportDeclaration',
+            'InterfaceDeclaration',
+            'LabeledStatement',
+            'OpaqueType',
+            'ReturnStatement',
+            'SwitchStatement',
+            'TSDeclareFunction',
+            'TSEnumDeclaration',
+            'TSExportAssignment',
+            'TSImportEqualsDeclaration',
+            'TSInterfaceDeclaration',
+            'TSModuleDeclaration',
+            'TSNamespaceExportDeclaration',
+            'TSTypeAliasDeclaration',
+            'ThrowStatement',
+            'TryStatement',
+            'TypeAlias',
+            'VariableDeclaration',
+            'WhileStatement',
+            'WithStatement',
+        ];
+
+        expect(
+            [
+                ...STATEMENT_TYPES,
+            ].sort(),
+        ).toEqual(reviewedStatementTypes.sort());
+    });
+
     it('transforms base Shopware setup blocks with auto-private state and explicit public state', () => {
         const source = `<template><div>{{ count }}{{ foo2 }}</div></template>
 <script setup lang="ts" sw-component="sw-my-component">
@@ -159,6 +218,29 @@ const count = 1;
         expect(result).toContain("__swCreateScriptSetupExtendableComponent()('sw-my-component'");
     });
 
+    it('preserves script setup attributes that do not belong to the Shopware transform', () => {
+        const source = `<script setup lang="ts" sw-component="sw-my-component" generic="TValue" future-flag>
+const count = 1;
+</script>`;
+
+        const result = transformOrFail(source, 'passthrough-attributes.vue').code;
+
+        expect(result).toContain('<script setup lang="ts" generic="TValue" future-flag>');
+        expect(result).not.toContain('sw-component=');
+    });
+
+    it('preserves override script attributes that do not belong to the Shopware transform', () => {
+        const source = `<script setup lang="ts" sw-override="sw-my-component" future-flag>
+const count = 1;
+</script>`;
+
+        const result = transformOrFail(source, 'override-passthrough-attributes.vue').code;
+
+        expect(result).toContain('<script lang="ts" future-flag>');
+        expect(result).not.toContain('sw-override=');
+        expect(result).not.toContain('<script setup');
+    });
+
     it.each([
         [
             'defineProps()',
@@ -217,6 +299,36 @@ const count = 1;
         );
     });
 
+    it('rejects TypeScript declare declarations because they are not runtime state', () => {
+        const source = `<script setup lang="ts" sw-component="sw-my-component">
+declare const count: number;
+</script>`;
+
+        expect(() => transformShopwareSetupSfc(source, 'declare.vue')).toThrow(
+            'TypeScript declare declarations are not runtime Shopware setup bindings.',
+        );
+    });
+
+    it('rejects ES module exports like native script setup', () => {
+        const source = `<script setup sw-component="sw-my-component">
+export const count = 1;
+</script>`;
+
+        expect(() => transformShopwareSetupSfc(source, 'export.vue')).toThrow(
+            '<script setup> cannot contain ES module exports.',
+        );
+    });
+
+    it('rejects destructured runtime declarations instead of returning each binding like Vue', () => {
+        const source = `<script setup sw-component="sw-my-component">
+const { count } = useThing();
+</script>`;
+
+        expect(() => transformShopwareSetupSfc(source, 'destructure.vue')).toThrow(
+            'Shopware setup only supports top-level runtime declarations with identifier bindings in v1.',
+        );
+    });
+
     it('rejects bound mode attributes', () => {
         const source = `<script setup :sw-component="componentName">
 const count = 1;
@@ -254,7 +366,7 @@ const count = 1;
 </script>`;
 
         expect(() => transformShopwareSetupSfc(source, 'two-scripts.vue')).toThrow(
-            'A Shopware setup block cannot be combined with another <script> block in v1.',
+            'A Shopware setup block cannot be combined with another <script> block',
         );
     });
 

@@ -12,6 +12,7 @@ const { ShopwareSetupTransformError } = require('./transform-error');
  * @typedef {object} AttributeNameResult
  * @property {string} name
  * @property {number} nameStart
+ * @property {number} nameEnd
  *
  * @typedef {object} AttributeValueResult
  * @property {string} value
@@ -115,13 +116,19 @@ class AttributeParser {
      * @param {AttributeNameResult} nameResult
      */
     addBooleanAttribute(nameResult) {
-        const { name, nameStart } = nameResult;
+        const { name, nameStart, nameEnd } = nameResult;
+        const start = nameStart;
+        const end = nameEnd;
+
         this.attributes.push({
             name,
             value: true,
             quoted: false,
             hasValue: false,
             index: this.tagStart + nameStart,
+            start,
+            end,
+            source: this.source.slice(start, end),
         });
     }
 
@@ -134,6 +141,8 @@ class AttributeParser {
     addAttribute(nameResult, valueResult) {
         const { name, nameStart } = nameResult;
         const { value, quoted } = valueResult;
+        const start = nameStart;
+        const end = valueResult.end;
 
         this.attributes.push({
             name,
@@ -141,6 +150,9 @@ class AttributeParser {
             quoted,
             hasValue: true,
             index: this.tagStart + nameStart,
+            start,
+            end,
+            source: this.source.slice(start, end),
         });
     }
 
@@ -179,7 +191,11 @@ class AttributeParser {
             throw new ShopwareSetupTransformError('Malformed Vue SFC attribute.', this.tagStart + this.index);
         }
 
-        return { name, nameStart };
+        return {
+            name,
+            nameStart,
+            nameEnd: this.index,
+        };
     }
 
     /**

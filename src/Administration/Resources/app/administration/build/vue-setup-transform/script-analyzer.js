@@ -189,6 +189,7 @@ function walk(node, visitor, ancestors = []) {
 
 /**
  * Rejects syntax that would require native `<script setup>` semantics we do not emulate.
+ * Meaning: Unsupported Vue macros, top-level await, and ES module exports.
  *
  * @param {BabelFile} ast
  * @param {number} scriptOffset
@@ -197,6 +198,9 @@ function walk(node, visitor, ancestors = []) {
  */
 function assertNoUnsupportedSyntax(ast, scriptOffset, topLevelPublicCalls) {
     walk(ast.program, (node, ancestors) => {
+        // Reject unsupported Vue macros:
+        //  Vue only treats these calls as compiler macros in supported top-level setup positions.
+        //  Shopware setup rejects every occurrence in v1 so nested calls cannot silently become missing runtime imports after lowering.
         if (
             node.type === 'CallExpression' &&
             node.callee.type === 'Identifier' &&
@@ -208,6 +212,9 @@ function assertNoUnsupportedSyntax(ast, scriptOffset, topLevelPublicCalls) {
             );
         }
 
+        // Reject top level await:
+        //  Vue rewrites top-level await into async setup() with context preservation.
+        //  Shopware setup keeps the current synchronous base/override callback contract, so top-level await cannot be supported at the moment.
         if (node.type === 'AwaitExpression') {
             const isInsideFunction = ancestors.some(isFunctionNode);
 
@@ -219,6 +226,7 @@ function assertNoUnsupportedSyntax(ast, scriptOffset, topLevelPublicCalls) {
             }
         }
 
+        // Same difference as AwaitExpression: Vue can make setup async, but the Shopware override pipeline is sync.
         if (node.type === 'ForOfStatement' && node.await) {
             const isInsideFunction = ancestors.some(isFunctionNode);
 
@@ -230,6 +238,7 @@ function assertNoUnsupportedSyntax(ast, scriptOffset, topLevelPublicCalls) {
             }
         }
 
+        // Ensure swDefinePublic() is only called at top level
         if (
             node.type === 'CallExpression' &&
             node.callee.type === 'Identifier' &&
@@ -238,6 +247,20 @@ function assertNoUnsupportedSyntax(ast, scriptOffset, topLevelPublicCalls) {
         ) {
             throw new ShopwareSetupTransformError(
                 'swDefinePublic() must be called once at the top level of a base Shopware setup block.',
+                scriptOffset + getNodeRange(node, scriptOffset).start,
+            );
+        }
+
+        // Reject ES module exports:
+        //  Same as Vue: native <script setup> rejects runtime ES module exports because setup bindings are exposed
+        //  through the generated setup return, not through module exports.
+        if (
+            node.type === 'ExportNamedDeclaration' ||
+            node.type === 'ExportAllDeclaration' ||
+            node.type === 'ExportDefaultDeclaration'
+        ) {
+            throw new ShopwareSetupTransformError(
+                '<script setup> cannot contain ES module exports.',
                 scriptOffset + getNodeRange(node, scriptOffset).start,
             );
         }
@@ -270,6 +293,8 @@ function collectImportBindings(importNode, importedBindings) {
  */
 function assertIdentifierPattern(idNode, scriptOffset) {
     if (idNode.type !== 'Identifier') {
+        // Vue supports object/array patterns and returns every extracted binding. Shopware setup is stricter in v1
+        // because public/private override metadata needs stable local binding names before lowering.
         throw new ShopwareSetupTransformError(
             'Shopware setup only supports top-level runtime declarations with identifier bindings in v1.',
             scriptOffset + getNodeRange(idNode, scriptOffset).start,
@@ -289,6 +314,8 @@ function assertIdentifierPattern(idNode, scriptOffset) {
  */
 function addRuntimeBinding(runtimeBindings, runtimeBindingNames, name, node, scriptOffset) {
     if (runtimeBindingNames.has(name)) {
+        // Vue mostly relies on JavaScript parser scope errors here. Shopware also rejects duplicate collected names
+        // explicitly because aliases such as var/function combinations can otherwise overwrite returned state.
         throw new ShopwareSetupTransformError(
             `Duplicate top-level Shopware setup binding "${name}".`,
             scriptOffset + getNodeRange(node, scriptOffset).start,
@@ -343,6 +370,8 @@ function isRuntimeInputAlias(declaration, mode) {
 function collectRuntimeBinding(statement, runtimeBindings, runtimeBindingNames, scriptOffset, mode) {
     if (statement.type === 'VariableDeclaration') {
         if (statement.declare) {
+            // Vue preserves/hoists TypeScript declare declarations and does not return them from setup. Shopware setup
+            // rejects them because this transform only models runtime bindings that can enter public/private state.
             throw new ShopwareSetupTransformError(
                 'TypeScript declare declarations are not runtime Shopware setup bindings.',
                 scriptOffset + getNodeRange(statement, scriptOffset).start,
@@ -376,48 +405,6 @@ function collectRuntimeBinding(statement, runtimeBindings, runtimeBindingNames, 
     if (statement.type === 'TSEnumDeclaration') {
         addRuntimeBinding(runtimeBindings, runtimeBindingNames, statement.id.name, statement.id, scriptOffset);
     }
-}
-
-/**
- * Keeps top-level handling explicit so new syntax fails loudly until reviewed.
- *
- * @param {Statement} statement
- * @param {number} scriptOffset
- * @returns {void}
- */
-function assertAllowedTopLevelStatement(statement, scriptOffset) {
-    const allowedStatements = new Set([
-        'ImportDeclaration',
-        'VariableDeclaration',
-        'FunctionDeclaration',
-        'ClassDeclaration',
-        'TSEnumDeclaration',
-        'TSTypeAliasDeclaration',
-        'TSInterfaceDeclaration',
-        'TSModuleDeclaration',
-        'ExpressionStatement',
-        'IfStatement',
-        'ForStatement',
-        'ForInStatement',
-        'ForOfStatement',
-        'WhileStatement',
-        'DoWhileStatement',
-        'SwitchStatement',
-        'TryStatement',
-        'BlockStatement',
-        'EmptyStatement',
-        'LabeledStatement',
-        'ThrowStatement',
-    ]);
-
-    if (allowedStatements.has(statement.type)) {
-        return;
-    }
-
-    throw new ShopwareSetupTransformError(
-        `Unsupported top-level Shopware setup statement "${statement.type}".`,
-        scriptOffset + getNodeRange(statement, scriptOffset).start,
-    );
 }
 
 /**
@@ -480,7 +467,7 @@ function assertSingleArgument(callNode, scriptOffset) {
  * @param {number} scriptOffset
  * @returns {PublicEntry[]}
  */
-function analyzePublicMarker(statement, scriptOffset) {
+function extractPublicMarker(statement, scriptOffset) {
     const callNode = statement.expression;
     const publicObject = assertSingleArgument(callNode, scriptOffset);
     const seenKeys = new Set();
@@ -574,7 +561,7 @@ function removeRanges(script, ranges) {
  * @param {number} scriptOffset
  * @returns {void}
  */
-function assertReservedHelperNames(bindings, mode, scriptOffset) {
+function assertReservedMacroNames(bindings, mode, scriptOffset) {
     const helpers = mode === 'base' ? BASE_HELPERS : OVERRIDE_HELPERS;
 
     bindings.forEach((binding) => {
@@ -617,17 +604,18 @@ function assertPublicEntries(publicEntries, runtimeBindingNames, importedBinding
 }
 
 /**
- * Detects the only supported public marker location: a top-level expression statement.
+ * Detects a compiler-style macro represented by one expression statement.
  *
  * @param {Statement} statement
+ * @param {string} macroName
  * @returns {statement is ExpressionStatement & { expression: CallExpression }}
  */
-function isTopLevelPublicMarker(statement) {
+function isStatementCompilerMacro(statement, macroName) {
     return (
         statement.type === 'ExpressionStatement' &&
         statement.expression.type === 'CallExpression' &&
         statement.expression.callee.type === 'Identifier' &&
-        statement.expression.callee.name === 'swDefinePublic'
+        statement.expression.callee.name === macroName
     );
 }
 
@@ -651,15 +639,13 @@ function analyzeShopwareSetupScript(script, options) {
     const topLevelPublicCalls = new Set();
 
     ast.program.body.forEach((statement) => {
-        assertAllowedTopLevelStatement(statement, scriptOffset);
-
         if (statement.type === 'ImportDeclaration') {
             imports.push(statement);
             collectImportBindings(statement, importedBindings);
             return;
         }
 
-        if (isTopLevelPublicMarker(statement)) {
+        if (isStatementCompilerMacro(statement, 'swDefinePublic')) {
             publicMarkerStatements.push(statement);
             topLevelPublicCalls.add(statement.expression);
             return;
@@ -685,7 +671,7 @@ function analyzeShopwareSetupScript(script, options) {
     }
 
     const publicEntries =
-        publicMarkerStatements.length > 0 ? analyzePublicMarker(publicMarkerStatements[0], scriptOffset) : [];
+        publicMarkerStatements.length > 0 ? extractPublicMarker(publicMarkerStatements[0], scriptOffset) : [];
 
     assertPublicEntries(publicEntries, runtimeBindingNames, importedBindings, scriptOffset);
 
@@ -694,7 +680,7 @@ function analyzeShopwareSetupScript(script, options) {
         node: imports.find((importNode) => importNode.specifiers.some((specifier) => specifier.local?.name === name)),
     }));
 
-    assertReservedHelperNames(
+    assertReservedMacroNames(
         [
             ...runtimeBindings,
             ...importedBindingsAsObjects,

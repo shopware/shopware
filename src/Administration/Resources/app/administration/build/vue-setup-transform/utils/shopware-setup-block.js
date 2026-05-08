@@ -96,7 +96,7 @@ function normalizeShopwareSetupBlock(block) {
     if (!block.attributes.hasShopwareSetupModeAttribute()) {
         return null;
     }
-    
+
     const componentName = assertStaticModeAttribute(block, 'sw-component');
     const overrideName = assertStaticModeAttribute(block, 'sw-override');
 

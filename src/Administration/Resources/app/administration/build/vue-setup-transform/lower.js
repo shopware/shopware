@@ -112,7 +112,7 @@ function getTakenNames(analysis) {
  * @param {PublicEntry[]} publicEntries
  * @returns {Map<string, PublicEntry>}
  */
-function getPublicEntryByLocalName(publicEntries) {
+function createPublicEntryByLocalNameMap(publicEntries) {
     const publicEntryByLocalName = new Map();
 
     publicEntries.forEach((entry) => {
@@ -226,12 +226,11 @@ function buildBaseScript(block, analysis) {
     const takenNames = getTakenNames(analysis);
     const createHelperName = makeUniqueName('__swCreateScriptSetupExtendableComponent', takenNames);
     const setupBindingsName = makeUniqueName('__shopwareSetupBindings', takenNames);
-    const publicEntryByLocalName = getPublicEntryByLocalName(analysis.publicEntries);
+    const publicEntryByLocalName = createPublicEntryByLocalNameMap(analysis.publicEntries);
     const destructureEntries = analysis.runtimeBindings.map((binding) => {
         return formatDestructureEntry(binding.name, publicEntryByLocalName.get(binding.name));
     });
     const helperImport = `import { createScriptSetupExtendableComponent as ${createHelperName} } from '${RUNTIME_IMPORT}';`;
-    const langAttribute = block.lang ? ` lang="${block.lang}"` : '';
     const body = [
         `const useSwProps = () => ${setupBindingsName}.props;`,
         `const useSwContext = () => ${setupBindingsName}.context;`,
@@ -242,7 +241,7 @@ function buildBaseScript(block, analysis) {
     ].join('\n');
 
     return [
-        `<script setup${langAttribute}>`,
+        `<script${block.passthroughAttributesSource}>`,
         buildImports(analysis.imports, helperImport),
         '',
         'const {',
@@ -268,7 +267,11 @@ function buildOverrideScript(block, analysis) {
     const propsName = makeUniqueName('__swProps', takenNames);
     const contextName = makeUniqueName('__swContext', takenNames);
     const helperImport = `import { overrideComponentSetup as ${overrideHelperName} } from '${RUNTIME_IMPORT}';`;
-    const langAttribute = block.lang ? ` lang="${block.lang}"` : '';
+    const passthroughAttributesSource = block.attributes.toSourceWithout([
+        'setup',
+        'sw-component',
+        'sw-override',
+    ]);
     const body = [
         `const useSwPreviousState = () => ${previousStateName};`,
         `const useSwProps = () => ${propsName};`,
@@ -280,7 +283,7 @@ function buildOverrideScript(block, analysis) {
     ].join('\n');
 
     return [
-        `<script${langAttribute}>`,
+        `<script${passthroughAttributesSource}>`,
         buildImports(analysis.imports, helperImport),
         '',
         `${overrideHelperName}()('${escapeSingleQuoted(block.componentName)}', (${previousStateName}, ${propsName}, ${contextName}) => {`,

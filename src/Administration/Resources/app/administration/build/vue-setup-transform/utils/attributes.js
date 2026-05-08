@@ -9,6 +9,9 @@
  * @property {boolean} quoted
  * @property {boolean} hasValue
  * @property {number} index
+ * @property {number} start
+ * @property {number} end
+ * @property {string} source
  */
 
 class Attributes {
@@ -38,6 +41,22 @@ class Attributes {
      */
     getAll() {
         return this.attributes;
+    }
+
+    /**
+     * Rebuilds an opening tag attribute string while removing transform-only attributes.
+     *
+     * @param {string[]} removedAttributeNames
+     * @returns {string}
+     */
+    toSourceWithout(removedAttributeNames) {
+        const keptAttributes = this.attributes.filter((attribute) => !removedAttributeNames.includes(attribute.name));
+
+        if (keptAttributes.length === 0) {
+            return '';
+        }
+
+        return ` ${keptAttributes.map((attribute) => attribute.source).join(' ')}`;
     }
 
     /**

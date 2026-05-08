@@ -16,6 +16,7 @@ const { ShopwareSetupTransformError } = require('./transform-error');
  * @property {number} contentStart
  * @property {string} content
  * @property {Attributes} attributes
+ * @property {string} passthroughAttributesSource
  */
 
 /**
@@ -87,6 +88,10 @@ function toScriptBlock(source, descriptorBlock, type) {
     const contentStart = descriptorBlock.loc.start.offset;
     const start = findScriptStart(source, contentStart);
     const end = source.indexOf('>', descriptorBlock.loc.end.offset) + 1;
+    const attributes = AttributeParser.parse(
+        source.slice(start + '<script'.length, contentStart - 1),
+        start + '<script'.length,
+    );
 
     return {
         type,
@@ -94,10 +99,11 @@ function toScriptBlock(source, descriptorBlock, type) {
         end,
         contentStart,
         content: descriptorBlock.content,
-        attributes: AttributeParser.parse(
-            source.slice(start + '<script'.length, contentStart - 1),
-            start + '<script'.length,
-        ),
+        attributes,
+        passthroughAttributesSource: attributes.toSourceWithout([
+            'sw-component',
+            'sw-override',
+        ]),
     };
 }
 

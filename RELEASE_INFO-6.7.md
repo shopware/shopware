@@ -54,6 +54,20 @@ Extensions that use the registry automatically benefit from the lock; direct SQL
 The `RegisterScheduleTaskMessage` class and the accompanying message handler `RegisterScheduledTaskHandler` is deprecated and will be removed in Shopware 6.8.0.0, as the message wasn't dispatched anymore.
 If you dispatched that message manually, you should call the `TaskScheduler::registerTask()` method directly instead.
 
+### Standardized CLI JSON output flag
+
+CLI commands now consistently use `--format json` to request JSON output. The previously used `--json` and `--output json` options are deprecated and will be removed in Shopware 6.8.0.0.
+
+Affected commands:
+
+- `bin/console user:list --json` → `bin/console user:list --format json`
+- `bin/console app:list --json` → `bin/console app:list --format json`
+- `bin/console plugin:list --json` → `bin/console plugin:list --format json`
+- `bin/console dal:validate --json` → `bin/console dal:validate --format json`
+- `bin/console sales-channel:list --output json` → `bin/console sales-channel:list --format json`
+
+`system:config:get` and `system:check` already use `--format` and are unchanged. The `--json` option of `system:config:set` controls input value parsing (not output formatting) and is unaffected.
+
 ## Administration
 
 ### Mail template preview is now sales-channel-aware and uses isolated HTML rendering

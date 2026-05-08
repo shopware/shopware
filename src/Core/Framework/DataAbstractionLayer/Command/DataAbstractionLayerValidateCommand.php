@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -21,6 +22,10 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 #[Package('framework')]
 class DataAbstractionLayerValidateCommand extends Command
 {
+    private const FORMAT_TABLE = 'table';
+    private const FORMAT_JSON = 'json';
+    private const ALLOWED_FORMATS = [self::FORMAT_TABLE, self::FORMAT_JSON];
+
     /**
      * @internal
      */
@@ -33,10 +38,19 @@ class DataAbstractionLayerValidateCommand extends Command
     {
         parent::configure();
         $this->addOption(
+            'format',
+            null,
+            InputOption::VALUE_REQUIRED,
+            'Output format. Available options: "table", "json"',
+            self::FORMAT_TABLE,
+            self::ALLOWED_FORMATS
+        );
+        /** @deprecated tag:v6.8.0 - Use `--format json` instead */
+        $this->addOption(
             'json',
             null,
             InputOption::VALUE_NONE,
-            'Output as JSON'
+            '[DEPRECATED] Use `--format json` instead.'
         );
         $this->addOption(
             'namespaces',
@@ -48,9 +62,15 @@ class DataAbstractionLayerValidateCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $asJson = $input->getOption('json');
-        $namespaces = $input->getOption('namespaces') ?? [];
         $io = new ShopwareStyle($input, $output);
+
+        $format = $this->resolveFormat($input, $io);
+        if ($format === null) {
+            return self::INVALID;
+        }
+
+        $asJson = $format === self::FORMAT_JSON;
+        $namespaces = $input->getOption('namespaces') ?? [];
         if (!$asJson) {
             $io->title('Data Abstraction Layer Validation');
         }
@@ -85,6 +105,27 @@ class DataAbstractionLayerValidateCommand extends Command
         }
 
         return $hasErrors ? Command::FAILURE : Command::SUCCESS;
+    }
+
+    private function resolveFormat(InputInterface $input, ShopwareStyle $io): ?string
+    {
+        $format = $input->getOption('format');
+        if (!\in_array($format, self::ALLOWED_FORMATS, true)) {
+            $io->error(\sprintf('Invalid format "%s". Allowed formats: %s', (string) $format, implode(', ', self::ALLOWED_FORMATS)));
+
+            return null;
+        }
+
+        if ($input->getOption('json')) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                'The "--json" option of the "dal:validate" command is deprecated and will be removed in v6.8.0. Use "--format json" instead.'
+            );
+
+            return self::FORMAT_JSON;
+        }
+
+        return $format;
     }
 
     /**

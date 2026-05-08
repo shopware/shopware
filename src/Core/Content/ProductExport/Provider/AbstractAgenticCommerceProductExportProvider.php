@@ -48,8 +48,8 @@ abstract class AbstractAgenticCommerceProductExportProvider
     }
 
     /**
-     * Return provider-specific render context fields. The base class adds common fields (name, referralCode,
-     * affiliateCode, campaignCode) automatically.
+     * Return provider-specific render context fields. The base class adds common Agentic Commerce fields
+     * (name, referralCode, affiliateCode, campaignCode) automatically.
      *
      * @return array<string, mixed>
      */

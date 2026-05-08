@@ -5,8 +5,6 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Cms\Xml;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Cms\Xml\Block;
-use Shopware\Core\Framework\App\Cms\Xml\DefaultConfig;
-use Shopware\Core\Framework\App\Cms\Xml\Slot;
 
 /**
  * @internal
@@ -28,8 +26,8 @@ class BlockTest extends TestCase
             $block->getLabel()
         );
         static::assertCount(2, $block->getSlots());
-        static::assertInstanceOf(Slot::class, $block->getSlots()[0]);
-        static::assertInstanceOf(DefaultConfig::class, $block->getDefaultConfig());
+        static::assertSame('left', $block->getSlots()[0]->getName());
+        static::assertSame('10px', $block->getDefaultConfig()->getMarginTop());
     }
 
     public function testToArray(): void

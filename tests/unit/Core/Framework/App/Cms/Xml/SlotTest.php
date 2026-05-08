@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Cms\Xml;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\Cms\Xml\Config;
 use Shopware\Core\Framework\App\Cms\Xml\Slot;
 
 /**
@@ -20,7 +19,6 @@ class SlotTest extends TestCase
         static::assertSame('main', $slot->getName());
         static::assertSame('image', $slot->getType());
         static::assertSame(3, $slot->getPosition());
-        static::assertInstanceOf(Config::class, $slot->getConfig());
         static::assertSame(
             [
                 'displayMode' => [

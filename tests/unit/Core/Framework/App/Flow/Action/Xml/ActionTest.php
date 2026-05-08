@@ -5,10 +5,6 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Flow\Action\Xml;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Flow\Action\Xml\Action;
-use Shopware\Core\Framework\App\Flow\Action\Xml\Config;
-use Shopware\Core\Framework\App\Flow\Action\Xml\Headers;
-use Shopware\Core\Framework\App\Flow\Action\Xml\Metadata;
-use Shopware\Core\Framework\App\Flow\Action\Xml\Parameters;
 
 /**
  * @internal
@@ -19,11 +15,6 @@ class ActionTest extends TestCase
     public function testFromXml(): void
     {
         $action = self::createAction();
-
-        static::assertInstanceOf(Metadata::class, $action->getMeta());
-        static::assertInstanceOf(Headers::class, $action->getHeaders());
-        static::assertInstanceOf(Parameters::class, $action->getParameters());
-        static::assertInstanceOf(Config::class, $action->getConfig());
 
         static::assertSame('mail.send', $action->getMeta()->getName());
         static::assertCount(1, $action->getHeaders()->getParameters());

@@ -7,6 +7,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Command\Lifecycle\PluginInstallCommand;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
@@ -37,12 +38,32 @@ class PluginInstallCommandTest extends TestCase
 
     private MockObject&CacheClearer $cacheClearer;
 
+    private PluginCollection $plugins;
+
+    private CommandTester $commandTester;
+
     protected function setUp(): void
     {
         $this->filesystem = new Filesystem();
         $this->projectDir = Path::join(sys_get_temp_dir(), Uuid::randomHex());
         $this->pluginLifecycleService = $this->createMock(PluginLifecycleService::class);
         $this->cacheClearer = $this->createMock(CacheClearer::class);
+        $this->plugins = new PluginCollection();
+
+        /** @var StaticEntityRepository<PluginCollection> $pluginRepository */
+        $pluginRepository = new StaticEntityRepository([
+            fn (Criteria $criteria, Context $context): PluginCollection => $this->plugins,
+        ]);
+
+        $command = new PluginInstallCommand(
+            $this->pluginLifecycleService,
+            $pluginRepository,
+            $this->cacheClearer,
+            $this->projectDir
+        );
+        $command->setHelperSet(new HelperSet());
+
+        $this->commandTester = new CommandTester($command);
     }
 
     protected function tearDown(): void
@@ -55,6 +76,7 @@ class PluginInstallCommandTest extends TestCase
         $dependentPlugin = $this->createPlugin('DependentPlugin', 'swag/dependent-plugin', ['swag/base-plugin']);
         $independentPlugin = $this->createPlugin('IndependentPlugin', 'swag/independent-plugin');
         $basePlugin = $this->createPlugin('BasePlugin', 'swag/base-plugin');
+        $this->plugins->fill([$dependentPlugin, $independentPlugin, $basePlugin]);
 
         $installedPlugins = [];
         $installContext = $this->createMock(InstallContext::class);
@@ -69,9 +91,7 @@ class PluginInstallCommandTest extends TestCase
                 return $installContext;
             });
 
-        $tester = $this->createCommandTester($dependentPlugin, $independentPlugin, $basePlugin);
-
-        static::assertSame(Command::SUCCESS, $tester->execute([
+        static::assertSame(Command::SUCCESS, $this->commandTester->execute([
             'plugins' => ['DependentPlugin', 'IndependentPlugin', 'BasePlugin'],
         ], ['interactive' => false]));
 
@@ -80,33 +100,31 @@ class PluginInstallCommandTest extends TestCase
 
     public function testInstallFailsWhenPluginComposerJsonIsMissingDuringRequirementSorting(): void
     {
-        $plugin = $this->createPluginEntity('MissingComposerPlugin', 'swag/missing-composer-plugin');
+        $missingPlugin = $this->createPluginEntity('MissingComposerPlugin', 'swag/missing-composer-plugin');
         $existingPlugin = $this->createPlugin('ExistingComposerPlugin', 'swag/existing-composer-plugin');
+        $this->plugins->fill([$missingPlugin, $existingPlugin]);
 
         $this->pluginLifecycleService->expects($this->never())->method('installPlugin');
-
-        $tester = $this->createCommandTester($plugin, $existingPlugin);
 
         $this->expectException(PluginException::class);
         $this->expectExceptionMessage(\sprintf('Plugin "MissingComposerPlugin" has no composer.json at "%s".', Path::join($this->projectDir, 'custom/plugins/MissingComposerPlugin/composer.json')));
 
-        $tester->execute(['plugins' => ['MissingComposerPlugin', 'ExistingComposerPlugin']], ['interactive' => false]);
+        $this->commandTester->execute(['plugins' => ['MissingComposerPlugin', 'ExistingComposerPlugin']], ['interactive' => false]);
     }
 
     public function testInstallSkipsAlreadyInstalledPlugin(): void
     {
         $plugin = $this->createPlugin('InstalledPlugin', 'swag/installed-plugin');
         $plugin->setInstalledAt(new \DateTimeImmutable());
+        $this->plugins->add($plugin);
 
         $this->pluginLifecycleService->expects($this->never())->method('installPlugin');
         $this->pluginLifecycleService->expects($this->never())->method('activatePlugin');
 
-        $tester = $this->createCommandTester($plugin);
-
-        static::assertSame(Command::SUCCESS, $tester->execute([
+        static::assertSame(Command::SUCCESS, $this->commandTester->execute([
             'plugins' => ['InstalledPlugin'],
         ], ['interactive' => false]));
-        static::assertStringContainsString('Plugin "InstalledPlugin" is already installed. Skipping.', $tester->getDisplay());
+        static::assertStringContainsString('Plugin "InstalledPlugin" is already installed. Skipping.', $this->commandTester->getDisplay());
     }
 
     public function testInstallActivatesAlreadyInstalledInactivePlugin(): void
@@ -114,6 +132,7 @@ class PluginInstallCommandTest extends TestCase
         $plugin = $this->createPlugin('InstalledPlugin', 'swag/installed-plugin');
         $plugin->setInstalledAt(new \DateTimeImmutable());
         $plugin->setActive(false);
+        $this->plugins->add($plugin);
 
         $this->pluginLifecycleService->expects($this->never())->method('installPlugin');
         $this->pluginLifecycleService
@@ -122,18 +141,17 @@ class PluginInstallCommandTest extends TestCase
             ->with($plugin, static::isInstanceOf(Context::class))
             ->willReturn($this->createMock(ActivateContext::class));
 
-        $tester = $this->createCommandTester($plugin);
-
-        static::assertSame(Command::SUCCESS, $tester->execute([
+        static::assertSame(Command::SUCCESS, $this->commandTester->execute([
             'plugins' => ['InstalledPlugin'],
             '--activate' => true,
         ], ['interactive' => false]));
-        static::assertStringContainsString('Plugin "InstalledPlugin" is already installed. Activating.', $tester->getDisplay());
+        static::assertStringContainsString('Plugin "InstalledPlugin" is already installed. Activating.', $this->commandTester->getDisplay());
     }
 
     public function testInstallWithActivateInstallsAndActivatesWithoutRequirementValidation(): void
     {
         $plugin = $this->createPlugin('NewPlugin', 'swag/new-plugin');
+        $this->plugins->add($plugin);
 
         $this->pluginLifecycleService
             ->expects($this->once())
@@ -150,19 +168,18 @@ class PluginInstallCommandTest extends TestCase
             ->with($plugin, static::isInstanceOf(Context::class), false, false)
             ->willReturn($this->createMock(ActivateContext::class));
 
-        $tester = $this->createCommandTester($plugin);
-
-        static::assertSame(Command::SUCCESS, $tester->execute([
+        static::assertSame(Command::SUCCESS, $this->commandTester->execute([
             'plugins' => ['NewPlugin'],
             '--activate' => true,
         ], ['interactive' => false]));
-        static::assertStringContainsString('Plugin "NewPlugin" has been installed and activated successfully.', $tester->getDisplay());
+        static::assertStringContainsString('Plugin "NewPlugin" has been installed and activated successfully.', $this->commandTester->getDisplay());
     }
 
     public function testInstallWithReinstallUninstallsBeforeInstalling(): void
     {
         $plugin = $this->createPlugin('ReinstallPlugin', 'swag/reinstall-plugin');
         $plugin->setInstalledAt(new \DateTimeImmutable());
+        $this->plugins->add($plugin);
 
         $calls = [];
 
@@ -187,9 +204,7 @@ class PluginInstallCommandTest extends TestCase
                 return $this->createMock(InstallContext::class);
             });
 
-        $tester = $this->createCommandTester($plugin);
-
-        static::assertSame(Command::SUCCESS, $tester->execute([
+        static::assertSame(Command::SUCCESS, $this->commandTester->execute([
             'plugins' => ['ReinstallPlugin'],
             '--reinstall' => true,
         ], ['interactive' => false]));
@@ -199,6 +214,7 @@ class PluginInstallCommandTest extends TestCase
     public function testInstallPassesSkipAssetBuildStateToLifecycleService(): void
     {
         $plugin = $this->createPlugin('SkipAssetBuildPlugin', 'swag/skip-asset-build-plugin');
+        $this->plugins->add($plugin);
 
         $this->pluginLifecycleService
             ->expects($this->once())
@@ -210,28 +226,10 @@ class PluginInstallCommandTest extends TestCase
                 return $this->createMock(InstallContext::class);
             });
 
-        $tester = $this->createCommandTester($plugin);
-
-        static::assertSame(Command::SUCCESS, $tester->execute([
+        static::assertSame(Command::SUCCESS, $this->commandTester->execute([
             'plugins' => ['SkipAssetBuildPlugin'],
             '--skip-asset-build' => true,
         ], ['interactive' => false]));
-    }
-
-    private function createCommandTester(PluginEntity ...$plugins): CommandTester
-    {
-        /** @var StaticEntityRepository<PluginCollection> $pluginRepository */
-        $pluginRepository = new StaticEntityRepository([new PluginCollection($plugins)]);
-
-        $command = new PluginInstallCommand(
-            $this->pluginLifecycleService,
-            $pluginRepository,
-            $this->cacheClearer,
-            $this->projectDir
-        );
-        $command->setHelperSet(new HelperSet());
-
-        return new CommandTester($command);
     }
 
     /**

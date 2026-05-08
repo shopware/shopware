@@ -4,6 +4,25 @@
 
 ## API
 
+### Mail template preview and send routes support richer rendering context
+
+The mail template Admin API now exposes dedicated preview and send routes:
+
+- `/api/_action/mail-template/simulate`
+- `/api/_action/mail-template/preview`
+- `/api/_action/mail-template/get-data-and-send`
+- `/api/_action/mail-template/available-variables`
+
+The preview routes support sales-channel-aware rendering.
+`/api/_action/mail-template/preview` accepts `salesChannelId`, `includeHeaderFooter`, and `strictRendering`, and `/api/_action/mail-template/simulate` accepts `salesChannelId` and `strictRendering`.
+This allows Administration extensions and custom tooling to preview the final mail output, including sales-channel-specific headers and footers, against the same rendering context used for sending.
+
+`/api/_action/mail-template/get-data-and-send` lets callers resolve a persisted mail template together with entity-based template data before sending.
+`/api/_action/mail-template/available-variables` exposes the variable tree for a business event so extensions can build mail-template editing and preview tooling without hardcoding the available data shape.
+
+The `/api/_action/mail-template/send` payload now also has a first-class `extensions` bag for custom mail data.
+Arbitrary unknown top-level keys are still forwarded for backwards compatibility in 6.7, but they are deprecated and will stop being forwarded in Shopware 6.8.
+
 ## Core
 
 ### Backward compatible invalid locales
@@ -37,6 +56,13 @@ If you dispatched that message manually, you should call the `TaskScheduler::reg
 
 ## Administration
 
+### Mail template preview is now sales-channel-aware and uses isolated HTML rendering
+
+The mail template detail page can now preview mails with the selected sales channel and its configured mail header and footer.
+This helps developers and merchants validate the final rendered output more accurately, especially for document mails and installations with channel-specific branding.
+
+The HTML preview is now rendered in a sandboxed iframe instead of being injected directly into the Administration DOM.
+This keeps the preview close to the actual mail output while reducing the risk of script execution from rendered template content.
 ### Custom fields respect read-only permissions in Administration detail views
 
 Custom fields on category, landing page, sales channel, customer address, and order address detail views are now disabled when the current user only has read permissions.
@@ -798,6 +824,28 @@ Previously, the clearable button was always hidden by default (`showClearableBut
 **Migration:** If you relied on the previous behavior where the clearable button was hidden by default, explicitly set `:show-clearable-button="false"` on your select components.
 
 ## Storefront
+
+### Form validation now supports the native HTML `pattern` attribute
+
+The form validation helper (`FormValidation`) now automatically validates input fields with the native HTML `pattern` attribute. This allows you to specify regex patterns for input validation without additional JavaScript code.
+
+**Example usage:**
+```html
+<input
+    type="text"
+    name="zipCode"
+    pattern="[0-9]{5}"
+    data-validation="required,pattern"
+/>
+```
+
+The pattern validator will:
+- Automatically activate when a `pattern` attribute is present on an input field
+- Validate the input value against the specified regex pattern
+- Show the appropriate error message if validation fails
+- Skip validation for empty values (use the `required` validator to check for emptiness)
+
+**Note:** The pattern attribute is now automatically included in the validation rules when present, similar to how the `required` attribute works. You can explicitly add it to `data-validation` for clarity, but it's not required.
 
 ### Selling and packaging information in the product detail page
 

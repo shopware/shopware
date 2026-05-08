@@ -1,6 +1,6 @@
 {% block sw_product_settings_mode %}
 <sw-context-button
-    v-tooltip="{ message: $tc('sw-product.general.tooltipModeSettings') }"
+    v-tooltip="{ message: $t('sw-product.general.tooltipModeSettings') }"
     class="sw-product-settings-mode"
     :menu-width="300"
     :auto-close="false"
@@ -11,13 +11,13 @@
             class="sw-product-settings-mode__trigger"
             size="x-small"
             square
-            :aria-label="$tc('sw-product.general.tooltipModeSettings')"
+            :aria-label="$t('sw-product.general.tooltipModeSettings')"
             variant="secondary"
         >
             {% block sw_product_settings_mode_trigger_icon %}
             <mt-icon
                 name="regular-bars-s"
-                size="16px"
+                size="var(--scale-size-16)"
             />
             {% endblock %}
         </mt-button>
@@ -32,7 +32,7 @@
         <mt-switch
             :checked="advancedMode.enabled"
             class="sw-product-settings-mode__advanced-mode"
-            :label="$tc(advancedMode.label)"
+            :label="$t(advancedMode.label)"
             @change="advancedMode.enabled = $event"
             @update:value="onChangeSetting"
         />
@@ -60,7 +60,7 @@
             <mt-checkbox
                 v-model:checked="item.enabled"
                 :disabled="!advancedMode.enabled"
-                :label="$tc(item.label)"
+                :label="$t(item.label)"
                 @update:checked="onChangeSettingItem"
             />
             {% endblock %}

@@ -1,6 +1,6 @@
 {% block sw_tax_rule_card %}
 <mt-card
-    :title="$tc('sw-settings-tax.taxRuleCard.cardTitle')"
+    :title="$t('sw-settings-tax.taxRuleCard.cardTitle')"
     class="sw-tax-rule-card"
     position-identifier="sw-tax-rule"
     :class="taxRuleCardClasses"
@@ -16,14 +16,14 @@
             >
                 {% block sw_tax_rule_card_header_filter %}
                 <sw-card-filter
-                    :placeholder="$tc('sw-settings-tax.taxRuleCard.searchBarPlaceholder')"
+                    :placeholder="$t('sw-settings-tax.taxRuleCard.searchBarPlaceholder')"
                     @sw-card-filter-term-change="onSearchTermChange"
                 >
                     <template #filter>
                         {% block sw_tax_rule_card_header_create_rule_button %}
                         <mt-button
                             v-tooltip.bottom="{
-                                message: $tc('sw-privileges.tooltip.warning'),
+                                message: $t('sw-privileges.tooltip.warning'),
                                 disabled: acl.can('tax.editor'),
                                 showOnDisabledElements: true
                             }"
@@ -35,7 +35,7 @@
                         >
 
                             {% block sw_tax_rule_card_header_create_document_button_label %}
-                            {{ $tc('sw-settings-tax.taxRuleCard.labelCreateNew') }}
+                            {{ $t('sw-settings-tax.taxRuleCard.labelCreateNew') }}
                             {% endblock %}
 
                         </mt-button>
@@ -72,7 +72,7 @@
                         >
                             <template #suffix>
                                 <span>
-                                    <span v-html="$sanitize($tc('sw-settings-tax.general.taxRateSymbol'))"></span>
+                                    <span v-html="$sanitize($t('sw-settings-tax.general.taxRateSymbol'))"></span>
                                 </span>
                             </template>
                         </mt-number-field>
@@ -110,7 +110,7 @@
                         :disabled="!acl.can('tax.editor') || undefined"
                         @click="showRuleModal(item)"
                     >
-                        {{ $tc('sw-settings-tax.list.contextMenuEdit') }}
+                        {{ $t('sw-settings-tax.list.contextMenuEdit') }}
                     </sw-context-menu-item>
                     {% endblock %}
 
@@ -121,7 +121,7 @@
                         :disabled="!acl.can('tax.editor') || undefined"
                         @click="onDelete(item.id)"
                     >
-                        {{ $tc('sw-settings-tax.list.contextMenuDelete') }}
+                        {{ $t('sw-settings-tax.list.contextMenuDelete') }}
                     </sw-context-menu-item>
                     {% endblock %}
                 </template>
@@ -132,13 +132,13 @@
                     {% block sw_settings_tax_list_delete_modal %}
                     <sw-modal
                         v-if="showDeleteModal === item.id"
-                        :title="$tc('global.default.warning')"
+                        :title="$t('global.default.warning')"
                         variant="small"
                         @modal-close="onCloseDeleteModal"
                     >
                         {% block sw_settings_tax_list_delete_modal_confirm_delete_text %}
                         <p class="sw-settings-tax-list__confirm-delete-text">
-                            {{ $tc('sw-settings-tax.taxRuleCard.textDeleteConfirm', { name: item.country.name, type: item.type.typeName }, 0) }}
+                            {{ $t('sw-settings-tax.taxRuleCard.textDeleteConfirm', { name: item.country.name, type: item.type.typeName }, 0) }}
                         </p>
                         {% endblock %}
 
@@ -150,7 +150,7 @@
                                 variant="secondary"
                                 @click="onCloseDeleteModal"
                             >
-                                {{ $tc('global.default.cancel') }}
+                                {{ $t('global.default.cancel') }}
                             </mt-button>
                             {% endblock %}
 
@@ -160,7 +160,7 @@
                                 size="small"
                                 @click="onConfirmDelete(item.id)"
                             >
-                                {{ $tc('sw-settings-tax.list.buttonDelete') }}
+                                {{ $t('sw-settings-tax.list.buttonDelete') }}
                             </mt-button>
                             {% endblock %}
                         </template>
@@ -207,10 +207,10 @@
             {% block sw_tax_rule_card_empty_state_label %}
             <div class="sw-settings-tax-rule-card__empty-state--label">
                 <p v-if="disabled">
-                    {{ $tc('sw-settings-tax.taxRuleCard.createStateDescription') }}
+                    {{ $t('sw-settings-tax.taxRuleCard.createStateDescription') }}
                 </p>
                 <p v-else>
-                    {{ $tc('sw-settings-tax.taxRuleCard.emptyStateDescription') }}
+                    {{ $t('sw-settings-tax.taxRuleCard.emptyStateDescription') }}
                 </p>
             </div>
             {% endblock %}
@@ -218,7 +218,7 @@
             {% block sw_tax_rule_card_empty_state_button %}
             <mt-button
                 v-tooltip.bottom="{
-                    message: $tc('sw-privileges.tooltip.warning'),
+                    message: $t('sw-privileges.tooltip.warning'),
                     disabled: acl.can('tax.editor'),
                     showOnDisabledElements: true
                 }"
@@ -229,7 +229,7 @@
                 variant="secondary"
                 @click="showModal = true"
             >
-                {{ $tc('sw-settings-tax.taxRuleCard.labelCreateNew') }}
+                {{ $t('sw-settings-tax.taxRuleCard.labelCreateNew') }}
             </mt-button>
             {% endblock %}
         </div>

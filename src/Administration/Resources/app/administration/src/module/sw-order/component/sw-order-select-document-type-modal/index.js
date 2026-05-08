@@ -182,7 +182,7 @@ export default {
         },
 
         addHelpTextToOption(option, documentType) {
-            option.helpText = this.$tc(`sw-order.components.selectDocumentTypeModal.helpText.${documentType.technicalName}`);
+            option.helpText = this.$t(`sw-order.components.selectDocumentTypeModal.helpText.${documentType.technicalName}`);
 
             return option;
         },

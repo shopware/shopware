@@ -132,9 +132,9 @@ class ProductBoxTypeDataResolverTest extends TestCase
 
         $product = new SalesChannelProductEntity();
         $product->setId('product123');
-        $product->setAvailableStock($availableStock);
         $product->setStock($availableStock);
         $product->setIsCloseout($closeout);
+        $product->setAvailableStock($availableStock);
 
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId($salesChannelId);

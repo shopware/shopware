@@ -348,6 +348,8 @@ export default {
                         allowAdd: true,
                         allowRemove: true,
                         changeLabel: this.$t('sw-bulk-edit.product.property.changeLabel'),
+                        emptyStateTitle: this.$t('sw-bulk-edit.product.property.titleEmptyState'),
+                        emptyStateDescription: this.$t('sw-bulk-edit.product.property.descriptionEmptyState'),
                         disabled: this.bulkEditProduct?.properties?.isInherited,
                         isAssociation: false,
                         showInheritanceSwitcher: false,
@@ -914,10 +916,11 @@ export default {
             ];
 
             Promise.all(promises).then(() => {
-                this.loadBulkEditData();
-
                 const product = this.isChild ? this.parentProduct : this.productRepository.create();
                 Shopware.Store.get('swProductDetail').product = product;
+
+                this.loadBulkEditData();
+                this.setDefaultBooleanProductValues();
                 this.definePricesBulkEdit();
 
                 if (this.isChild) {
@@ -987,7 +990,15 @@ export default {
         },
 
         loadBulkEditData() {
-            const bulkEditFormGroups = [
+            this.getBulkEditFormGroups().forEach((bulkEditForms) => {
+                bulkEditForms.forEach((bulkEditForm) => {
+                    this.defineBulkEditData(bulkEditForm.name);
+                });
+            });
+        },
+
+        getBulkEditFormGroups() {
+            return [
                 this.generalFormFields,
                 this.deliverabilityFormFields,
                 this.pricesFormFields,
@@ -1001,10 +1012,21 @@ export default {
                 this.sellingPackagingFields,
                 this.essentialCharacteristicsFormFields,
             ];
+        },
 
-            bulkEditFormGroups.forEach((bulkEditForms) => {
+        setDefaultBooleanProductValues() {
+            if (this.isChild) {
+                return;
+            }
+
+            this.getBulkEditFormGroups().forEach((bulkEditForms) => {
                 bulkEditForms.forEach((bulkEditForm) => {
-                    this.defineBulkEditData(bulkEditForm.name);
+                    if (bulkEditForm.type !== 'bool') {
+                        return;
+                    }
+
+                    this.product[bulkEditForm.name] ??= false;
+                    this.bulkEditProduct[bulkEditForm.name].value ??= false;
                 });
             });
         },

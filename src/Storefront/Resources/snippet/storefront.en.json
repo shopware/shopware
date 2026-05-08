@@ -129,6 +129,7 @@
     "CHECKOUT__UNKNOWN_PAYMENT_METHOD": "The selected payment method does not exist.",
     "productNotFound": "Product \"%number%\" not found.",
     "VIOLATION::TOO_SHORT_ERROR": "Input is too short.",
+    "VIOLATION::INVALID_PATTERN_ERROR": "The input does not match the required format.",
     "product-not-found": "The product could not be found.",
     "message-403-ajax": "Your session has expired. Please reload the page and try again.",
     "message-403": "Your session has expired. Please return to the last page and try again.",
@@ -844,7 +845,7 @@
           "false": "No"
         }
       },
-        "quantitySelect": {
+      "quantitySelect": {
         "legend": "Product Quantity: Enter the desired amount or use the buttons to increase or decrease the quantity.",
         "areaLiveText": "Quantity of %product% set to %quantity%.",
         "label": "Quantity",

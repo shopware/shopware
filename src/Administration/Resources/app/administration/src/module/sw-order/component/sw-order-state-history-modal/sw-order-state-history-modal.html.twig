@@ -1,6 +1,6 @@
 {% block sw_order_state_history_modal %}
 <sw-modal
-    :title="$tc('sw-order.stateHistoryModal.modalTitle')"
+    :title="$t('sw-order.stateHistoryModal.modalTitle')"
     :is-loading="isLoading"
     variant="large"
     @modal-close="onClose"
@@ -26,7 +26,7 @@
 
         {% block sw_order_state_history_modal_content_columns_entity %}
         <template #column-entity="{ item }">
-            {{ $tc('global.entities.' + item.entity) }} {{ enumerateTransaction(item) }}
+            {{ $t('global.entities.' + item.entity) }} {{ enumerateTransaction(item) }}
         </template>
         {% endblock %}
 
@@ -103,7 +103,7 @@
             data-analytics-id="sw-order-state-history-modal.close"
             @click="onClose"
         >
-            {{ $tc('global.default.close') }}
+            {{ $t('global.default.close') }}
         </mt-button>
         {% endblock %}
     </template>

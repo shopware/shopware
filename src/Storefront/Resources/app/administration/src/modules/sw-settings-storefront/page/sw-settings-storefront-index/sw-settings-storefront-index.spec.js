@@ -2,7 +2,9 @@
  * @sw-package framework
  */
 import { shallowMount } from '@vue/test-utils';
-import './index';
+import swSettingsStorefrontIndex from './index';
+
+Shopware.Component.register('sw-settings-storefront-index', swSettingsStorefrontIndex);
 
 describe('sw-settings-storefront-index', () => {
     async function createWrapper({ getValues = null, saveValues = null } = {}) {

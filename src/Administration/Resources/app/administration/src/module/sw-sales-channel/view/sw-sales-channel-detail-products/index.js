@@ -73,19 +73,19 @@ export default {
             return [
                 {
                     property: 'name',
-                    label: this.$tc('sw-sales-channel.detail.products.columnProductName'),
+                    label: this.$t('sw-sales-channel.detail.products.columnProductName'),
                     allowResize: true,
                     primary: true,
                 },
                 {
                     property: 'active',
-                    label: this.$tc('sw-sales-channel.detail.products.columnActive'),
+                    label: this.$t('sw-sales-channel.detail.products.columnActive'),
                     allowResize: true,
                     align: 'center',
                 },
                 {
                     property: 'productNumber',
-                    label: this.$tc('sw-sales-channel.detail.products.columnProductNumber'),
+                    label: this.$t('sw-sales-channel.detail.products.columnProductNumber'),
                     allowResize: true,
                 },
             ];

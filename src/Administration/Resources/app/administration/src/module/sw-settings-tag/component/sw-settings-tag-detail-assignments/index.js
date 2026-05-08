@@ -95,7 +95,7 @@ export default {
                 ]) => {
                     if (property.relation === 'many_to_many') {
                         assignmentAssociations.push({
-                            name: this.$tc(`sw-settings-tag.detail.assignments.${propertyName}`),
+                            name: this.$t(`sw-settings-tag.detail.assignments.${propertyName}`),
                             entity: property.entity,
                             assignment: propertyName,
                         });

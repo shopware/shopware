@@ -29,7 +29,7 @@
                 data-analytics-id="sw-order-address-selection.cancel"
                 @click="currentAddress = null"
             >
-                {{ $tc('global.default.cancel') }}
+                {{ $t('global.default.cancel') }}
             </mt-button>
             {% endblock %}
 
@@ -40,7 +40,7 @@
                 data-analytics-id="sw-order-address-selection.save-address"
                 @click="onSaveAddress"
             >
-                {{ $tc('global.default.apply') }}
+                {{ $t('global.default.apply') }}
             </mt-button>
             {% endblock %}
         </template>
@@ -55,7 +55,7 @@
         :options="addressOptions"
         value-property="id"
         :label="label"
-        :placeholder="$tc('sw-order.createBase.detailsBody.placeholderAddress')"
+        :placeholder="$t('sw-order.createBase.detailsBody.placeholderAddress')"
         :popover-classes="['sw-order-address-selection__popover']"
         :disabled="disabled"
         @update:value="onAddressChange"
@@ -69,7 +69,7 @@
                     @click="onCreateNewAddress"
                     @keydown.enter="onCreateNewAddress"
                 >
-                    {{ $tc('sw-order.createBase.detailsBody.buttonAddNewAddress') }}
+                    {{ $t('sw-order.createBase.detailsBody.buttonAddNewAddress') }}
                 </li>
             </ul>
         </template>
@@ -104,7 +104,7 @@
                         data-analytics-id="sw-order-address-selection.edit-address"
                         @click="onEditAddress(item.id)"
                     >
-                        {{ $tc('global.default.edit') }}
+                        {{ $t('global.default.edit') }}
                     </sw-context-menu-item>
                 </div>
             </sw-select-result>

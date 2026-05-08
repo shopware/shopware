@@ -1,23 +1,11 @@
 <?php declare(strict_types=1);
 
 use Composer\InstalledVersions;
-use Shopware\Core\Framework\Feature;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 /** @codeCoverageIgnore */
 return static function (ContainerConfigurator $container): void {
-    $flagActive = Feature::isActive('MCP_SERVER');
-    $bundleInstalled = InstalledVersions::isInstalled('symfony/mcp-bundle');
-
-    if ($flagActive && !$bundleInstalled) {
-        throw new RuntimeException(
-            'MCP_SERVER feature flag is active but symfony/mcp-bundle is not installed. '
-            . 'Run "composer install" to install all required dependencies, '
-            . 'or disable the flag by removing MCP_SERVER=1 from your .env file.'
-        );
-    }
-
-    if (!$flagActive || !$bundleInstalled) {
+    if (!InstalledVersions::isInstalled('symfony/mcp-bundle')) {
         return;
     }
 

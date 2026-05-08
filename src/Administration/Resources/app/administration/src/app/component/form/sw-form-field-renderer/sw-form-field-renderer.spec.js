@@ -52,6 +52,10 @@ describe('components/form/sw-form-field-renderer', () => {
         global.repositoryFactoryMock.showError = false;
     });
 
+    beforeEach(() => {
+        global.activeFeatureFlags = [];
+    });
+
     it('should show the value from the label slot', async () => {
         const wrapper = await createWrapper({
             slots: {
@@ -112,5 +116,35 @@ describe('components/form/sw-form-field-renderer', () => {
         );
 
         expect(wrapper.emitted('update:value')).toBeUndefined();
+    });
+
+    it('uses the deprecated component name behavior without the v6.8 feature flag', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                type: 'text-editor',
+                config: {},
+                value: 'data value',
+            },
+        });
+
+        expect(wrapper.vm.componentNameDeprecated).toBe('mt-text-field');
+        expect(wrapper.vm.componentNameNew).toBe('sw-text-editor');
+        expect(wrapper.vm.componentName).toBe('mt-text-field');
+    });
+
+    it('uses the new component name behavior with the v6.8 feature flag', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper({
+            props: {
+                type: 'text-editor',
+                config: {},
+                value: 'data value',
+            },
+        });
+
+        expect(wrapper.vm.componentNameDeprecated).toBe('mt-text-field');
+        expect(wrapper.vm.componentNameNew).toBe('sw-text-editor');
+        expect(wrapper.vm.componentName).toBe('sw-text-editor');
     });
 });

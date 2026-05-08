@@ -660,6 +660,23 @@ Removed the constants `Shopware\Core\Content\MailTemplate\MAIL_TEMPLATE_SALES_CH
 
 <details>
 
+## Removed component-level form inheritance helper wrappers
+
+The following Administration component methods and computed properties were deprecated in Shopware 6.7 and are removed in Shopware 6.8.
+
+* `sw-custom-field-set-renderer`
+  * `componentsWithMapInheritanceSupport`
+  * `supportsMapInheritance(customField)`
+  * `isMeteorComponent(customField)`
+* `sw-system-config`
+  * `hasMapInheritanceSupport(element)`
+  * `isMeteorComponent(element)`
+* `sw-theme-manager-detail`
+  * `isFieldHandlingInheritanceItself(field)`
+  * `isFieldHandlingLabelAndHelpText(field)`
+* `sw-form-field-renderer`
+  * `getComponentFromType(customType)`
+
 ## Migrating Options API overrides to the Composition API Extension System
 
 Starting with Shopware 6.7, core components are gradually being migrated from Options API to Composition API using `createExtendableSetup()`. When a component you override has been converted, a backward-compatibility shim keeps your existing `Shopware.Component.override()` call working — but logs a deprecation warning. In Shopware 6.8, all fully-migrated components will require the new `overrideComponentSetup()` API.

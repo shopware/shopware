@@ -92,6 +92,10 @@ The Administration sidebar off-canvas now closes reliably on very small viewport
 Switch and checkbox fields in theme configuration now render and handle inheritance consistently. Before they wouldn't have shown the inheritance switch.
 Also the checkbox field is now positionally aligned with the other components.
 
+### Deprecated component-level form inheritance helper wrappers
+
+Compatibility wrapper methods on `sw-custom-field-set-renderer`, `sw-system-config`, `sw-theme-manager-detail`, and `sw-form-field-renderer` are deprecated for removal in Shopware 6.8 without replacement.
+
 ## Storefront
 
 ## App System

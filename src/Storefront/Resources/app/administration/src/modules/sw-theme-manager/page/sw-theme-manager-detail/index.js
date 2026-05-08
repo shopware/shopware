@@ -3,7 +3,13 @@ import './sw-theme-manager-detail.scss';
 
 const { Mixin } = Shopware;
 const Criteria = Shopware.Data.Criteria;
-const { mapInheritanceSlotPropsToMeteorProps } = Shopware.Utils;
+const {
+    isFieldHandlingInheritanceItself,
+    isFieldHandlingLabelAndHelpText,
+    isMeteorComponent,
+    mapInheritanceSlotPropsToMeteorProps,
+    supportsMapInheritance,
+} = Shopware.Utils;
 const { getObjectDiff, cloneDeep, deepMergeObject } = Shopware.Utils.object;
 const { isArray } = Shopware.Utils.types;
 
@@ -701,7 +707,7 @@ export default {
         getBind(field, inheritance = null, inheritedValue = null) {
             const config = Object.assign({}, field);
 
-            if (!this.isFieldHandlingLabelAndHelpText(field)) {
+            if (!isFieldHandlingLabelAndHelpText(field)) {
                 config.label = undefined;
                 config.labelSnippetKey = undefined;
                 config.helpText = undefined;
@@ -723,16 +729,21 @@ export default {
                 delete config.custom;
             }
 
-            if (inheritance && this.isFieldHandlingLabelAndHelpText(field)) {
-                Object.assign(config, mapInheritanceSlotPropsToMeteorProps(inheritance, inheritedValue));
-                config.mapInheritance = inheritance;
+            if (inheritance) {
+                if (supportsMapInheritance(field)) {
+                    config.mapInheritance = inheritance;
+                }
+
+                if (isMeteorComponent(field)) {
+                    Object.assign(config, mapInheritanceSlotPropsToMeteorProps(inheritance, inheritedValue));
+                }
             }
 
             return { type: field.type, config };
         },
 
         getElementEventListeners(field, inheritance = null) {
-            if (!inheritance || !this.isFieldHandlingLabelAndHelpText(field)) {
+            if (!inheritance || !isFieldHandlingInheritanceItself(field)) {
                 return {};
             }
 
@@ -764,9 +775,18 @@ export default {
             return fallback;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement.
+         */
+        isFieldHandlingInheritanceItself(field) {
+            return isFieldHandlingInheritanceItself(field);
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement.
+         */
         isFieldHandlingLabelAndHelpText(field) {
-            return ['switch', 'checkbox'].includes(field.type) ||
-                    ['sw-switch-field', 'sw-checkbox-field'].includes(field.custom?.componentName);
+            return isFieldHandlingLabelAndHelpText(field);
         },
 
         /**
@@ -777,7 +797,7 @@ export default {
          * @returns {string}
          */
         getFieldLabel(field, fieldName) {
-            if (this.isFieldHandlingLabelAndHelpText(field)) {
+            if (isFieldHandlingLabelAndHelpText(field)) {
                 return null;
             }
 
@@ -797,7 +817,7 @@ export default {
          * @returns {string|null}
          */
         getHelpText(field) {
-            if (this.isFieldHandlingLabelAndHelpText(field)) {
+            if (isFieldHandlingLabelAndHelpText(field)) {
                 return null;
             }
 

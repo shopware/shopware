@@ -308,7 +308,6 @@ describe('sw-theme-manager-detail', () => {
             config: expect.objectContaining({
                 label: 'Switch',
                 helpText: 'Switch help',
-                mapInheritance: inheritance,
                 isInheritanceField: true,
                 isInherited: true,
                 inheritanceRemove: inheritance.removeInheritance,
@@ -316,6 +315,28 @@ describe('sw-theme-manager-detail', () => {
                 inheritedValue: false,
             }),
         });
+
+        expect(bind.config.mapInheritance).toBeUndefined();
+    });
+
+    it('passes map inheritance to theme config fields supporting map inheritance', async () => {
+        const wrapper = await createWrapper();
+        const inheritance = {
+            currentValue: [{ gross: 10, net: 10, linked: true }],
+            isInheritField: true,
+            isInherited: true,
+            removeInheritance: jest.fn(),
+            restoreInheritance: jest.fn(),
+        };
+
+        const bind = wrapper.vm.getBind({ type: 'price' }, inheritance, []);
+
+        expect(bind.config.mapInheritance).toBe(inheritance);
+        expect(bind.config).not.toHaveProperty('isInheritanceField');
+        expect(bind.config).not.toHaveProperty('isInherited');
+        expect(bind.config).not.toHaveProperty('inheritanceRemove');
+        expect(bind.config).not.toHaveProperty('inheritanceRestore');
+        expect(bind.config).not.toHaveProperty('inheritedValue');
     });
 
     it('attaches inheritance event listeners to fields handling inheritance themselves', async () => {
@@ -331,21 +352,6 @@ describe('sw-theme-manager-detail', () => {
             'inheritance-remove': inheritance.removeInheritance,
             'inheritance-restore': inheritance.restoreInheritance,
         });
-    });
-
-    it('does not pass inheritance bindings to non-meteor theme config fields', async () => {
-        const wrapper = await createWrapper();
-        const inheritance = {
-            currentValue: 'parent',
-            isInheritField: true,
-            isInherited: true,
-            removeInheritance: jest.fn(),
-            restoreInheritance: jest.fn(),
-        };
-
-        const textBind = wrapper.vm.getBind({ type: 'text' }, inheritance, 'parent');
-
-        expect(textBind.config.mapInheritance).toBeUndefined();
     });
 
     it('does not attach inheritance event listeners to regular theme config fields', async () => {

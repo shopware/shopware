@@ -3,6 +3,8 @@
  */
 import ErrorResolverSystemConfig from 'src/core/data/error-resolver.system-config.data';
 import { deepCloneWithEntity } from 'src/core/service/extension-api-data.service';
+import { supportsMapInheritance } from 'src/core/service/utils/field-inheritance.utils';
+import { isFieldHandlingLabelAndHelpText } from 'src/core/service/utils/field-label.utils';
 import template from './sw-system-config.html.twig';
 import './sw-system-config.scss';
 
@@ -79,6 +81,9 @@ export default {
             return this.currentSalesChannelId !== null;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement.
+         */
         typesWithMapInheritanceSupport() {
             return [
                 'text',
@@ -197,6 +202,9 @@ export default {
             this.readAll();
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement.
+         */
         hasMapInheritanceSupport(element) {
             const componentName = element.config ? element.config.componentName : undefined;
 
@@ -210,7 +218,7 @@ export default {
         getElementBind(element, mapInheritance) {
             const bind = object.deepCopyObject(element);
 
-            if (!this.hasMapInheritanceSupport(element)) {
+            if (!supportsMapInheritance(element)) {
                 delete bind.config.label;
                 delete bind.config.helpText;
             } else {
@@ -244,11 +252,7 @@ export default {
         },
 
         getInheritWrapperBind(element) {
-            if (this.hasMapInheritanceSupport(element)) {
-                return {};
-            }
-
-            if (this.isMeteorComponent(element)) {
+            if (isFieldHandlingLabelAndHelpText(element, { renderedByFormFieldRenderer: true })) {
                 return {};
             }
 
@@ -319,7 +323,7 @@ export default {
         },
 
         /**
-         * New methods for Meteor components
+         * @deprecated tag:v6.8.0 - Will be removed without replacement.
          */
         isMeteorComponent(element) {
             const componentName = element.config ? element.config.componentName : undefined;

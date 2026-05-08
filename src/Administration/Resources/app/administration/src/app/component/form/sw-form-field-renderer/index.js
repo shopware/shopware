@@ -1,4 +1,5 @@
 import template from './sw-form-field-renderer.html.twig';
+import { getFormFieldComponentName } from 'src/core/service/utils/form-field-type-mapping.utils';
 
 const { Mixin } = Shopware;
 const { types } = Shopware.Utils;
@@ -153,7 +154,10 @@ export default {
             return !!this.config;
         },
 
-        componentName() {
+        /**
+         * @private
+         */
+        componentNameDeprecated() {
             if (this.hasConfig) {
                 // Handle old "sw-field" component with custom type
                 if (this.config.componentName === 'sw-field') {
@@ -162,7 +166,27 @@ export default {
 
                 return this.config.componentName || this.getComponentFromType();
             }
+
             return this.getComponentFromType();
+        },
+
+        /**
+         * @private
+         */
+        componentNameNew() {
+            return (
+                getFormFieldComponentName({
+                    type: this.type,
+                    config: this.config,
+                }) ?? 'mt-text-field'
+            );
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will change it's behaviour slightly: type 'text-editor' will render 'sw-text-editor' instead of 'mt-text-field'
+         */
+        componentName() {
+            return Shopware.Feature.isActive('V6_8_0_0') ? this.componentNameNew : this.componentNameDeprecated;
         },
 
         swFieldType() {
@@ -318,6 +342,9 @@ export default {
             return translations;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement.
+         */
         getComponentFromType(customType = undefined) {
             const type = customType ?? this.type;
 

@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 
@@ -20,7 +21,7 @@ use Shopware\Core\Framework\Log\Package;
  * @codeCoverageIgnore
  */
 #[Package('after-sales')]
-abstract class AbstractDocumentDataProvider
+abstract readonly class AbstractDocumentDataProvider
 {
     /**
      * Unique key under which the provider result is stored in RenderInput.
@@ -48,6 +49,7 @@ abstract class AbstractDocumentDataProvider
      */
     abstract public function provideRenderingData(
         OrderEntity $order,
-        DocumentGenerationRequest $generationRequest
+        DocumentGenerationRequest $generationRequest,
+        Context $context,
     ): AbstractRenderData;
 }

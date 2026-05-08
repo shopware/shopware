@@ -178,10 +178,9 @@ return (new Config())
         ksort($matched);
 
         $context->warning(
-            'This Pull Request touches the <strong>Agentic Commerce</strong> feature'
-            . ' (a dedicated sales channel type and product export built on top of Shopware 6 product exports).<br/>'
+            'This Pull Request touches the <strong>Agentic Commerce Sales Channel</strong> feature.<br/>'
             . 'If you added or changed functionality here, please consider porting the change to the compatibility plugin'
-            . ' [SwagAgenticCommerce](https://github.com/shopware/SwagAgenticCommerce) so it is also available to merchants on older Shopware versions.<br/><br/>'
+            . ' SwagAgenticCommerce (https://github.com/shopware/SwagAgenticCommerce) so it is also available to merchants on older Shopware versions.<br/><br/>'
             . 'Affected files:<br/>'
             . implode('<br/>', array_keys($matched))
         );

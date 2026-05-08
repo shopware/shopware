@@ -3,11 +3,13 @@
 namespace Shopware\Core\Framework\Mcp\Controller;
 
 use Mcp\Server\Builder;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Mcp\McpCapabilityCatalog;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
@@ -24,8 +26,8 @@ class McpToolListController
      * @internal
      */
     public function __construct(
-        private readonly Builder $builder,
-        private readonly McpCapabilityCatalog $catalog,
+        private readonly ?Builder $builder,
+        private readonly ?McpCapabilityCatalog $catalog,
     ) {
     }
 
@@ -40,6 +42,10 @@ class McpToolListController
     )]
     public function list(): JsonResponse
     {
+        if (!Feature::isActive('MCP_SERVER') || $this->builder === null || $this->catalog === null) {
+            return new JsonResponse(null, Response::HTTP_NOT_FOUND);
+        }
+
         $this->builder->build();
 
         return new JsonResponse($this->catalog->enrichedTools());
@@ -56,6 +62,10 @@ class McpToolListController
     )]
     public function capabilities(): JsonResponse
     {
+        if (!Feature::isActive('MCP_SERVER') || $this->builder === null || $this->catalog === null) {
+            return new JsonResponse(null, Response::HTTP_NOT_FOUND);
+        }
+
         $this->builder->build();
 
         return new JsonResponse([

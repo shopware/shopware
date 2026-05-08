@@ -69,106 +69,91 @@ return static function (ContainerConfigurator $container): void {
     $services = $container->services();
 
     $services->set('shopware.mcp.discovery_cache', Psr16Cache::class)
-        ->args([service('cache.system')])
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+        ->args([service('cache.system')]);
 
     $services->set(McpContextProvider::class)
-        ->args([service('request_stack')])
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+        ->args([service('request_stack')]);
 
-    $services->set(McpAllowlistFilter::class)
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+    $services->set(McpAllowlistFilter::class);
 
     $services->set(McpAllowlistProvider::class)
         ->args([
             service('Doctrine\DBAL\Connection'),
             service('request_stack'),
             param('shopware.mcp.tool_dependencies'),
-        ])
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+        ]);
 
     $services->set(McpAuthenticationListener::class)
         ->args([
             service(ClientRepository::class),
             service(RateLimiter::class),
         ])
-        ->tag('kernel.event_subscriber')
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+        ->tag('kernel.event_subscriber');
 
     $services->set(McpExceptionListener::class)
-        ->tag('kernel.event_subscriber')
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+        ->tag('kernel.event_subscriber');
 
     $services->set(McpServerController::class)
         ->public()
         ->args([
-            service('mcp.server'),
-            service('mcp.psr_http_factory'),
-            service('mcp.http_foundation_factory'),
-            service('mcp.psr17_factory'),
-            service('mcp.psr17_factory'),
+            service('mcp.server')->nullOnInvalid(),
+            service('mcp.psr_http_factory')->nullOnInvalid(),
+            service('mcp.http_foundation_factory')->nullOnInvalid(),
+            service('mcp.psr17_factory')->nullOnInvalid(),
+            service('mcp.psr17_factory')->nullOnInvalid(),
             service(RateLimiter::class),
             service(McpAllowlistProvider::class),
             service('logger'),
             service(McpAllowlistFilter::class),
         ])
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER'])
         ->tag('controller.service_arguments')
         ->tag('monolog.logger', ['channel' => 'mcp']);
 
     $services->set(AppMcpPrivilegeProvider::class)
         ->args([service('Doctrine\DBAL\Connection'), service('logger')])
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER'])
         ->tag('monolog.logger', ['channel' => 'mcp']);
 
     $services->set(McpCapabilityCatalog::class)
         ->args([
-            service('mcp.registry'),
+            service('mcp.registry')->nullOnInvalid(),
             service(AppMcpPrivilegeProvider::class),
             param('shopware.mcp.tool_dependencies'),
             param('shopware.mcp.tool_privileges'),
-        ])
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+        ]);
 
     $services->set(McpToolListController::class)
         ->public()
         ->args([
-            service('mcp.server.builder'),
-            service(McpCapabilityCatalog::class),
+            service('mcp.server.builder')->nullOnInvalid(),
+            service(McpCapabilityCatalog::class)->nullOnInvalid(),
         ])
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER'])
         ->tag('controller.service_arguments');
 
     $services->set(IntegrationMcpAllowlistController::class)
         ->public()
         ->args([service('integration.repository')])
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER'])
         ->tag('controller.service_arguments');
 
     $services->set(UserMcpAllowlistController::class)
         ->public()
         ->args([service('user.repository')])
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER'])
         ->tag('controller.service_arguments');
 
     $services->set(DebugMcpCommand::class)
         ->args([
-            service('mcp.server.builder'),
-            service('mcp.registry'),
+            service('mcp.server.builder')->nullOnInvalid(),
+            service('mcp.registry')->nullOnInvalid(),
             service(McpAllowlistProvider::class),
             service(McpCapabilityCatalog::class),
         ])
-        ->tag('console.command')
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+        ->tag('console.command');
 
     $services->set(ToolResultCacheStorage::class)
-        ->args([service('Doctrine\DBAL\Connection')])
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+        ->args([service('Doctrine\DBAL\Connection')]);
 
     $services->set(McpSessionCleanupSubscriber::class)
         ->args([service(ToolResultCacheStorage::class)])
-        ->tag('kernel.event_subscriber')
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+        ->tag('kernel.event_subscriber');
 
     $services->instanceof(McpToolResponse::class)
         ->call('setToolResultCache', [service(ToolResultCacheStorage::class), service('request_stack'), service('logger')])
@@ -177,8 +162,7 @@ return static function (ContainerConfigurator $container): void {
     // Tools
     $services->set(EntitySchemaTool::class)
         ->args([service(DefinitionInstanceRegistry::class)])
-        ->tag('mcp.tool')
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+        ->tag('mcp.tool');
 
     $services->set(EntitySearchTool::class)
         ->args([
@@ -187,8 +171,7 @@ return static function (ContainerConfigurator $container): void {
             service(McpContextProvider::class),
             service(JsonEntityEncoder::class),
         ])
-        ->tag('mcp.tool')
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+        ->tag('mcp.tool');
 
     $services->set(EntityAggregateTool::class)
         ->args([
@@ -196,8 +179,7 @@ return static function (ContainerConfigurator $container): void {
             service('api.request_criteria_builder'),
             service(McpContextProvider::class),
         ])
-        ->tag('mcp.tool')
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+        ->tag('mcp.tool');
 
     $services->set(EntityReadTool::class)
         ->args([
@@ -206,16 +188,14 @@ return static function (ContainerConfigurator $container): void {
             service(McpContextProvider::class),
             service(JsonEntityEncoder::class),
         ])
-        ->tag('mcp.tool')
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+        ->tag('mcp.tool');
 
     $services->set(SystemConfigReadTool::class)
         ->args([
             service(SystemConfigService::class),
             service(McpContextProvider::class),
         ])
-        ->tag('mcp.tool')
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+        ->tag('mcp.tool');
 
     $services->set(EntityUpsertTool::class)
         ->args([
@@ -223,8 +203,7 @@ return static function (ContainerConfigurator $container): void {
             service(McpContextProvider::class),
             service('Doctrine\DBAL\Connection'),
         ])
-        ->tag('mcp.tool')
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+        ->tag('mcp.tool');
 
     $services->set(EntityDeleteTool::class)
         ->args([
@@ -232,16 +211,14 @@ return static function (ContainerConfigurator $container): void {
             service(McpContextProvider::class),
             service('Doctrine\DBAL\Connection'),
         ])
-        ->tag('mcp.tool')
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+        ->tag('mcp.tool');
 
     $services->set(SystemConfigWriteTool::class)
         ->args([
             service(SystemConfigService::class),
             service(McpContextProvider::class),
         ])
-        ->tag('mcp.tool')
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+        ->tag('mcp.tool');
 
     $services->set(OrderStateTool::class)
         ->args([
@@ -250,8 +227,7 @@ return static function (ContainerConfigurator $container): void {
             service(StateMachineRegistry::class),
             service('Doctrine\DBAL\Connection'),
         ])
-        ->tag('mcp.tool')
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+        ->tag('mcp.tool');
 
     $services->set(MediaUploadTool::class)
         ->args([
@@ -259,68 +235,57 @@ return static function (ContainerConfigurator $container): void {
             service(McpContextProvider::class),
             service(DefinitionInstanceRegistry::class),
         ])
-        ->tag('mcp.tool')
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+        ->tag('mcp.tool');
 
     // Prompt
     $services->set(ShopwareContextPrompt::class)
-        ->tag('mcp.prompt')
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+        ->tag('mcp.prompt');
 
     // Resources
     $services->set(EntityListResource::class)
         ->args([service(DefinitionInstanceRegistry::class)])
-        ->tag('mcp.resource')
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+        ->tag('mcp.resource');
 
     $services->set(BusinessEventsResource::class)
         ->args([
             service(BusinessEventCollector::class),
             service(McpContextProvider::class),
         ])
-        ->tag('mcp.resource')
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+        ->tag('mcp.resource');
 
     $services->set(FlowActionsResource::class)
         ->args([
             service(FlowActionCollector::class),
             service(McpContextProvider::class),
         ])
-        ->tag('mcp.resource')
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+        ->tag('mcp.resource');
 
     $services->set(SalesChannelListResource::class)
         ->args([service('sales_channel.repository')])
-        ->tag('mcp.resource')
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+        ->tag('mcp.resource');
 
     $services->set(CurrencyListResource::class)
         ->args([service('currency.repository')])
-        ->tag('mcp.resource')
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+        ->tag('mcp.resource');
 
     $services->set(LanguageListResource::class)
         ->args([service('language.repository')])
-        ->tag('mcp.resource')
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+        ->tag('mcp.resource');
 
     $services->set(StateMachineResource::class)
         ->args([service('state_machine.repository')])
-        ->tag('mcp.resource')
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+        ->tag('mcp.resource');
 
     $services->set(ExtensionsResource::class)
         ->args([
             service('Doctrine\DBAL\Connection'),
             service('kernel'),
         ])
-        ->tag('mcp.resource')
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+        ->tag('mcp.resource');
 
     $services->set(ToolResultResource::class)
         ->args([service(ToolResultCacheStorage::class)])
-        ->tag('mcp.resource_template')
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+        ->tag('mcp.resource_template');
 
     // App MCP Tool pipeline
     $services->set(AppMcpCapabilityExecutor::class)
@@ -334,7 +299,6 @@ return static function (ContainerConfigurator $container): void {
             service('request_stack'),
             service('router'),
         ])
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER'])
         ->tag('monolog.logger', ['channel' => 'mcp']);
 
     $services->set(AppMcpToolLoader::class)
@@ -344,24 +308,21 @@ return static function (ContainerConfigurator $container): void {
             param('shopware.mcp.allowed_tools'),
             service('logger'),
         ])
-        ->tag('mcp.loader')
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+        ->tag('mcp.loader');
 
     $services->set(AppMcpPromptLoader::class)
         ->args([
             service('Doctrine\DBAL\Connection'),
             service(AppMcpCapabilityExecutor::class),
         ])
-        ->tag('mcp.loader')
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+        ->tag('mcp.loader');
 
     $services->set(AppMcpResourceLoader::class)
         ->args([
             service('Doctrine\DBAL\Connection'),
             service(AppMcpCapabilityExecutor::class),
         ])
-        ->tag('mcp.loader')
-        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
+        ->tag('mcp.loader');
 
     $services->set(McpToolPersister::class)
         ->args([service('app_mcp_tool.repository')]);

@@ -10,6 +10,7 @@ use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistFilter;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
@@ -38,13 +39,18 @@ class McpServerController
 
     /**
      * @internal
+     *
+     * The five PhpMcp bundle params below are nullable because they are injected via
+     * nullOnInvalid(): when the bundle is absent (MCP_SERVER disabled in a shared compiled
+     * container) they resolve to null. Once MCP_SERVER is stable (v6.8.0) remove the
+     * nullable types, the null guards in handle(), and the Feature::isActive() check.
      */
     public function __construct(
-        private readonly Server $server,
-        private readonly HttpMessageFactoryInterface $httpMessageFactory,
-        private readonly HttpFoundationFactoryInterface $httpFoundationFactory,
-        private readonly ResponseFactoryInterface $responseFactory,
-        private readonly StreamFactoryInterface $streamFactory,
+        private readonly ?Server $server,
+        private readonly ?HttpMessageFactoryInterface $httpMessageFactory,
+        private readonly ?HttpFoundationFactoryInterface $httpFoundationFactory,
+        private readonly ?ResponseFactoryInterface $responseFactory,
+        private readonly ?StreamFactoryInterface $streamFactory,
         private readonly RateLimiter $rateLimiter,
         private readonly ?McpAllowlistProvider $allowlistProvider = null,
         private readonly ?LoggerInterface $logger = null,
@@ -55,6 +61,16 @@ class McpServerController
     #[Route(path: '/api/_mcp', name: 'api.mcp.endpoint', defaults: ['auth_required' => true], methods: ['GET', 'POST', 'DELETE', 'OPTIONS'])]
     public function handle(Request $request): Response
     {
+        if (!Feature::isActive('MCP_SERVER')
+            || $this->server === null
+            || $this->httpMessageFactory === null
+            || $this->httpFoundationFactory === null
+            || $this->responseFactory === null
+            || $this->streamFactory === null
+        ) {
+            return new Response(null, Response::HTTP_NOT_FOUND);
+        }
+
         $this->rateLimit($request);
 
         $this->logger?->debug('MCP request', [
@@ -157,6 +173,8 @@ class McpServerController
      */
     private function filterListResponse(Request $request, PsrResponseInterface $psrResponse, array $allowlist): PsrResponseInterface
     {
+        \assert($this->streamFactory !== null);
+
         $body = $this->decodeJson($request->getContent());
 
         if (!\is_array($body)) {
@@ -205,6 +223,8 @@ class McpServerController
 
     private function enrichInitializeResponse(Request $request, PsrResponseInterface $psrResponse): PsrResponseInterface
     {
+        \assert($this->streamFactory !== null);
+
         $body = $this->decodeJson($request->getContent());
 
         if (!\is_array($body) || ($body['method'] ?? null) !== 'initialize') {

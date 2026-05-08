@@ -23,9 +23,13 @@ class McpCapabilityCatalog
      *
      * @param array<string, list<string>> $toolDependencies tool-name => [dep-name, ...]
      * @param array<string, array{static: list<string>, entityParam: ?string, operations: list<string>}> $toolPrivileges tool-name => privilege info
+     *
+     * $registry is nullable via nullOnInvalid(): null when the PhpMcp bundle is absent
+     * (MCP_SERVER disabled in a shared compiled container). Once MCP_SERVER is stable
+     * (v6.8.0) remove the nullable type and the null guards in all public methods.
      */
     public function __construct(
-        private readonly RegistryInterface $registry,
+        private readonly ?RegistryInterface $registry,
         private readonly AppMcpPrivilegeProvider $privilegeProvider,
         private readonly array $toolDependencies = [],
         private readonly array $toolPrivileges = [],
@@ -41,6 +45,10 @@ class McpCapabilityCatalog
      */
     public function enrichedTools(?array $allowlist = null): array
     {
+        if ($this->registry === null) {
+            return [];
+        }
+
         $appToolPrivileges = $this->privilegeProvider->getAppToolPrivileges();
 
         $tools = [];
@@ -69,6 +77,10 @@ class McpCapabilityCatalog
      */
     public function findTool(string $name): ?array
     {
+        if ($this->registry === null) {
+            return null;
+        }
+
         $appToolPrivileges = $this->privilegeProvider->getAppToolPrivileges();
 
         foreach ($this->registry->getTools()->references as $tool) {
@@ -84,7 +96,7 @@ class McpCapabilityCatalog
 
     public function totalToolCount(): int
     {
-        return $this->registry->getTools()->count();
+        return $this->registry?->getTools()->count() ?? 0;
     }
 
     /**
@@ -96,6 +108,10 @@ class McpCapabilityCatalog
      */
     public function enrichedResources(?array $allowlist = null): array
     {
+        if ($this->registry === null) {
+            return [];
+        }
+
         $resources = [];
 
         foreach ($this->registry->getResources()->references as $resource) {
@@ -129,6 +145,10 @@ class McpCapabilityCatalog
      */
     public function enrichedPrompts(?array $allowlist = null): array
     {
+        if ($this->registry === null) {
+            return [];
+        }
+
         $prompts = [];
 
         foreach ($this->registry->getPrompts()->references as $prompt) {

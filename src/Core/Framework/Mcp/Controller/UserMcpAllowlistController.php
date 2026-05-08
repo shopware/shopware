@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Mcp\Controller;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\PlatformRequest;
@@ -44,6 +45,10 @@ class UserMcpAllowlistController
     )]
     public function save(string $userId, Request $request, Context $context): Response
     {
+        if (!Feature::isActive('MCP_SERVER')) {
+            return new Response(null, Response::HTTP_NOT_FOUND);
+        }
+
         $user = $this->userRepository
             ->search(new Criteria([$userId]), $context)
             ->getEntities()

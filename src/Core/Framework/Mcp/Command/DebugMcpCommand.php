@@ -8,6 +8,7 @@ use Mcp\Schema\Resource;
 use Mcp\Schema\ResourceTemplate;
 use Mcp\Schema\Tool;
 use Mcp\Server\Builder;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Mcp\McpCapabilityCatalog;
@@ -29,10 +30,15 @@ class DebugMcpCommand extends Command
 {
     /**
      * @internal
+     *
+     * $builder and $registry are nullable via nullOnInvalid(): null when the PhpMcp
+     * bundle is absent (MCP_SERVER disabled in a shared compiled container). Once
+     * MCP_SERVER is stable (v6.8.0) remove the nullable types and the null guards
+     * in execute().
      */
     public function __construct(
-        private readonly Builder $builder,
-        private readonly RegistryInterface $registry,
+        private readonly ?Builder $builder,
+        private readonly ?RegistryInterface $registry,
         private readonly McpAllowlistProvider $allowlistProvider,
         private readonly McpCapabilityCatalog $catalog,
     ) {
@@ -50,9 +56,15 @@ class DebugMcpCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->builder->build();
-
         $io = new SymfonyStyle($input, $output);
+
+        if (!Feature::isActive('MCP_SERVER') || $this->builder === null || $this->registry === null) {
+            $io->error('The MCP_SERVER feature flag is not active.');
+
+            return self::FAILURE;
+        }
+
+        $this->builder->build();
 
         $accessKey = $input->getOption('integration');
         $toolsAllowlist = null;
@@ -95,6 +107,8 @@ class DebugMcpCommand extends Command
 
     private function renderDetail(SymfonyStyle $io, string $name): int
     {
+        \assert($this->registry !== null);
+
         foreach ($this->registry->getTools()->references as $tool) {
             if (!$tool instanceof Tool) {
                 continue; // @codeCoverageIgnore
@@ -260,6 +274,8 @@ class DebugMcpCommand extends Command
      */
     private function renderTools(SymfonyStyle $io, ?array $allowlist = null): void
     {
+        \assert($this->registry !== null);
+
         $enrichedTools = $this->catalog->enrichedTools($allowlist);
         $total = $this->catalog->totalToolCount();
 
@@ -296,6 +312,8 @@ class DebugMcpCommand extends Command
 
     private function renderPrompts(SymfonyStyle $io): void
     {
+        \assert($this->registry !== null);
+
         $page = $this->registry->getPrompts();
         $io->section(\sprintf('Prompts (%d)', $page->count()));
 
@@ -320,6 +338,8 @@ class DebugMcpCommand extends Command
 
     private function renderResources(SymfonyStyle $io): void
     {
+        \assert($this->registry !== null);
+
         $page = $this->registry->getResources();
         $io->section(\sprintf('Resources (%d)', $page->count()));
 
@@ -345,6 +365,8 @@ class DebugMcpCommand extends Command
 
     private function renderResourceTemplates(SymfonyStyle $io): void
     {
+        \assert($this->registry !== null);
+
         $page = $this->registry->getResourceTemplates();
         $io->section(\sprintf('Resource Templates (%d)', $page->count()));
 

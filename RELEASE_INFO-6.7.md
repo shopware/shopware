@@ -35,6 +35,15 @@ If you dispatched that message manually, you should call the `TaskScheduler::reg
 `TestBootstrapper::addActivePlugins()` can now be used with Composer-managed plugins installed below `vendor/`.
 Plugins no longer need to be copied into `custom/plugins` or `custom/static-plugins` just to be installed and activated during test bootstrap.
 
+### Requirement-aware plugin installation order
+
+`plugin:install` now orders the selected plugins by their Composer plugin requirements before installation.
+When one selected plugin requires another selected plugin package, the required plugin is installed first.
+This ordering only applies to plugins that are known before the command starts.
+The command does not reload Composer's autoloader while it is running.
+If installing one plugin also installs new PHP packages, plugins installed afterwards in the same command cannot use those packages yet.
+Run those installs in separate CLI calls when a plugin depends on code that another plugin adds through Composer during installation.
+
 ## Administration
 
 ### Fixed "Last Quarter" timeframe returning the wrong year in `sw-date-filter`

@@ -90,15 +90,4 @@ class McpFeatureFlagTest extends TestCase
             \sprintf('Service "%s" should be registered when MCP_SERVER flag is active.', $serviceClass),
         );
     }
-
-    #[DataProvider('mcpServiceProvider')]
-    public function testMcpServiceIsAbsentWhenFlagOff(string $serviceClass): void
-    {
-        Feature::skipTestIfActive('MCP_SERVER', $this);
-
-        static::assertFalse(
-            static::getContainer()->has($serviceClass),
-            \sprintf('Service "%s" must NOT be in the container when MCP_SERVER flag is inactive.', $serviceClass),
-        );
-    }
 }

@@ -6,6 +6,8 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
+use Shopware\Core\Content\Cms\Service\EntityCmsSlotConfigInheritanceBuilder;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductException;
@@ -18,6 +20,7 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
 use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
@@ -44,14 +47,17 @@ class ProductDetailRoute extends AbstractProductDetailRoute
      * @internal
      *
      * @param SalesChannelRepository<SalesChannelProductCollection> $productRepository
+     * @param EntityRepository<ProductTranslationCollection> $productTranslationRepository
      */
     public function __construct(
         private readonly SalesChannelRepository $productRepository,
+        private readonly EntityRepository $productTranslationRepository,
         private readonly SystemConfigService $config,
         private readonly Connection $connection,
         private readonly ProductConfiguratorLoader $configuratorLoader,
         private readonly CategoryBreadcrumbBuilder $breadcrumbBuilder,
         private readonly SalesChannelCmsPageLoaderInterface $cmsPageLoader,
+        private readonly EntityCmsSlotConfigInheritanceBuilder $cmsSlotConfigInheritanceBuilder,
         private readonly SalesChannelProductDefinition $productDefinition,
         private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory,
         private readonly EventDispatcherInterface $dispatcher
@@ -121,7 +127,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
                     $request,
                     $this->createCriteria($pageId, $request),
                     $context,
-                    $product->getTranslation('slotConfig'),
+                    $this->buildMergedCmsSlotConfig($product, $context),
                     $resolverContext
                 );
 
@@ -220,5 +226,59 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         }
 
         return $criteria;
+    }
+
+    /**
+     * @return array<string, array<string, mixed>>|null
+     */
+    private function buildMergedCmsSlotConfig(SalesChannelProductEntity $product, SalesChannelContext $context): ?array
+    {
+        return $this->cmsSlotConfigInheritanceBuilder->build(
+            $this->loadProductTranslations($product, $context),
+            $context,
+        );
+    }
+
+    private function loadProductTranslations(SalesChannelProductEntity $product, SalesChannelContext $context): ?ProductTranslationCollection
+    {
+        $productIds = array_filter([$product->getParentId(), $product->getId()]);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('productId', $productIds));
+        $criteria->addFilter(new EqualsFilter('productVersionId', $context->getVersionId()));
+
+        $translations = $this->productTranslationRepository->search($criteria, $context->getContext())->getEntities();
+
+        if ($translations->count() === 0) {
+            return null;
+        }
+
+        return $this->buildInheritedProductTranslations($translations, $product);
+    }
+
+    private function buildInheritedProductTranslations(ProductTranslationCollection $translations, SalesChannelProductEntity $product): ProductTranslationCollection
+    {
+        $effectiveTranslations = [];
+        $parentId = $product->getParentId();
+
+        foreach ($translations as $translation) {
+            if ($translation->getSlotConfig() === null) {
+                continue;
+            }
+
+            $languageId = $translation->getLanguageId();
+
+            if ($translation->getProductId() === $parentId) {
+                $effectiveTranslations[$languageId] ??= $translation;
+
+                continue;
+            }
+
+            if ($translation->getProductId() === $product->getId()) {
+                $effectiveTranslations[$languageId] = $translation;
+            }
+        }
+
+        return new ProductTranslationCollection(array_values($effectiveTranslations));
     }
 }

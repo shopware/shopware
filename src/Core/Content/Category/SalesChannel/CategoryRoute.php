@@ -7,6 +7,7 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
+use Shopware\Core\Content\Cms\Service\EntityCmsSlotConfigInheritanceBuilder;
 use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
 use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -31,6 +32,7 @@ class CategoryRoute extends AbstractCategoryRoute
     public function __construct(
         private readonly SalesChannelRepository $categoryRepository,
         private readonly SalesChannelCmsPageLoaderInterface $cmsPageLoader,
+        private readonly EntityCmsSlotConfigInheritanceBuilder $cmsSlotConfigInheritanceBuilder,
         private readonly CategoryDefinition $categoryDefinition,
         private readonly EventDispatcherInterface $dispatcher
     ) {
@@ -69,12 +71,13 @@ class CategoryRoute extends AbstractCategoryRoute
         }
 
         $pageId = $category->getCmsPageId();
-        $slotConfig = $category->getTranslation('slotConfig');
-
         $salesChannel = $context->getSalesChannel();
+
         if ($category->getId() === $salesChannel->getNavigationCategoryId() && $salesChannel->getHomeCmsPageId()) {
             $pageId = $salesChannel->getHomeCmsPageId();
             $slotConfig = $salesChannel->getTranslation('homeSlotConfig');
+        } else {
+            $slotConfig = $this->buildMergedCmsSlotConfig($category, $context);
         }
 
         if (!$pageId) {
@@ -108,6 +111,7 @@ class CategoryRoute extends AbstractCategoryRoute
         $criteria->setTitle('category::data');
 
         $criteria->addAssociation('media');
+        $criteria->addAssociation('translations');
 
         $category = $this->categoryRepository
             ->search($criteria, $context)
@@ -118,6 +122,17 @@ class CategoryRoute extends AbstractCategoryRoute
         }
 
         return $category;
+    }
+
+    /**
+     * @return array<string, array<string, mixed>>|null
+     */
+    private function buildMergedCmsSlotConfig(CategoryEntity $category, SalesChannelContext $context): ?array
+    {
+        return $this->cmsSlotConfigInheritanceBuilder->build(
+            $category->getTranslations(),
+            $context,
+        );
     }
 
     private function createCriteria(string $pageId, Request $request): Criteria

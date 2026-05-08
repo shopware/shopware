@@ -4,11 +4,15 @@ declare(strict_types=1);
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Detail;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader;
+use Shopware\Core\Content\Cms\Service\EntityCmsSlotConfigInheritanceBuilder;
+use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -20,6 +24,7 @@ use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -73,16 +78,30 @@ class ProductDetailRouteTest extends TestCase
         $configuratorLoader = $this->createMock(ProductConfiguratorLoader::class);
         $breadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
         $cmsPageLoader = $this->createMock(SalesChannelCmsPageLoader::class);
+        $productTranslationRepository = $this->createMock(EntityRepository::class);
+        $productTranslationRepository->method('search')->willReturn(
+            new EntitySearchResult(
+                'product_translation',
+                0,
+                new ProductTranslationCollection([]),
+                null,
+                new Criteria(),
+                $this->context->getContext()
+            )
+        );
+        $cmsSlotConfigInheritanceBuilder = new EntityCmsSlotConfigInheritanceBuilder($this->createConnectionWithoutParentLanguage());
         $this->productCloseoutFilterFactory = new ProductCloseoutFilterFactory();
         $this->eventDispatcher = new EventDispatcher();
 
         $this->route = new ProductDetailRoute(
             $this->productRepository,
+            $productTranslationRepository,
             $this->systemConfig,
             $this->connection,
             $configuratorLoader,
             $breadcrumbBuilder,
             $cmsPageLoader,
+            $cmsSlotConfigInheritanceBuilder,
             new SalesChannelProductDefinition(),
             $this->productCloseoutFilterFactory,
             $this->eventDispatcher
@@ -360,5 +379,24 @@ class ProductDetailRouteTest extends TestCase
     {
         $this->expectException(DecorationPatternException::class);
         $this->route->getDecorated();
+    }
+
+    private function createConnectionWithoutParentLanguage(): Connection
+    {
+        $connection = $this->createMock(Connection::class);
+        $queryBuilder = $this->createMock(QueryBuilder::class);
+
+        $queryBuilder->method('select')->willReturnSelf();
+        $queryBuilder->method('from')->willReturnSelf();
+        $queryBuilder->method('where')->willReturnSelf();
+        $queryBuilder->method('setParameter')->willReturnSelf();
+
+        $result = $this->createMock(Result::class);
+        $result->method('fetchOne')->willReturn(null);
+
+        $queryBuilder->method('executeQuery')->willReturn($result);
+        $connection->method('createQueryBuilder')->willReturn($queryBuilder);
+
+        return $connection;
     }
 }

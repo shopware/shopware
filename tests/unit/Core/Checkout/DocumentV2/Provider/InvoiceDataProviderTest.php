@@ -22,7 +22,6 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
@@ -120,9 +119,10 @@ class InvoiceDataProviderTest extends TestCase
             '12345',
         );
 
-        $result = Feature::silent(
-            'v6.8.0.0',
-            static fn () => $provider->provideRenderingData($order, $request, Context::createDefaultContext()),
+        $result = $provider->provideRenderingData(
+            $order,
+            $request,
+            Context::createDefaultContext()
         );
 
         static::assertNotSame('', $result->documentDate);
@@ -297,17 +297,14 @@ class InvoiceDataProviderTest extends TestCase
         $entity->setPageSize('A4');
         $entity->setPageOrientation('portrait');
         $entity->setItemsPerPage(10);
-
-        Feature::silent('v6.8.0.0', static function () use ($entity, $config): void {
-            $entity->setConfig([
-                'companyName' => 'Example',
-                'companyStreet' => 'Example Street 1',
-                'companyZipcode' => '12345',
-                'companyCity' => 'Example City',
-                'companyCountryId' => self::COMPANY_COUNTRY_ID,
-                ...$config,
-            ]);
-        });
+        $entity->setConfig([
+            'companyName' => 'Example',
+            'companyStreet' => 'Example Street 1',
+            'companyZipcode' => '12345',
+            'companyCity' => 'Example City',
+            'companyCountryId' => self::COMPANY_COUNTRY_ID,
+            ...$config,
+        ]);
 
         return $entity;
     }

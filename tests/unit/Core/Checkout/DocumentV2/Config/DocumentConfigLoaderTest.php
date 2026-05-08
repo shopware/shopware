@@ -13,7 +13,6 @@ use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfigLoader;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
@@ -67,11 +66,11 @@ class DocumentConfigLoaderTest extends TestCase
 
         $loader = new DocumentConfigLoader($documentRepo, $countryRepo);
 
-        $bundle = Feature::silent('v6.8.0.0', static fn () => $loader->load(
+        $bundle = $loader->load(
             DocumentType::INVOICE->value,
             $matchingSalesChannelId,
             Context::createDefaultContext(),
-        ));
+        );
 
         static::assertSame('Letter', $bundle->config->pageSize);
         static::assertSame('Matching Channel GmbH', $bundle->company->companyName);
@@ -105,11 +104,11 @@ class DocumentConfigLoaderTest extends TestCase
 
         $loader = new DocumentConfigLoader($documentRepo, $countryRepo);
 
-        $bundle = Feature::silent('v6.8.0.0', static fn () => $loader->load(
+        $bundle = $loader->load(
             DocumentType::INVOICE->value,
             Uuid::randomHex(),
             Context::createDefaultContext(),
-        ));
+        );
 
         static::assertSame('A4', $bundle->config->pageSize);
         static::assertSame('Global GmbH', $bundle->company->companyName);
@@ -141,11 +140,11 @@ class DocumentConfigLoaderTest extends TestCase
         static::expectException(DocumentV2Exception::class);
         static::expectExceptionMessageMatches('/itemsPerPage/');
 
-        Feature::silent('v6.8.0.0', static fn () => $loader->load(
+        $loader->load(
             DocumentType::INVOICE->value,
             Uuid::randomHex(),
             Context::createDefaultContext(),
-        ));
+        );
     }
 
     private function buildBaseConfig(
@@ -162,16 +161,13 @@ class DocumentConfigLoaderTest extends TestCase
         $entity->setPageSize($pageSize);
         $entity->setPageOrientation('portrait');
         $entity->setItemsPerPage($itemsPerPage);
-
-        Feature::silent('v6.8.0.0', static function () use ($entity, $companyName): void {
-            $entity->setConfig([
-                'companyName' => $companyName,
-                'companyStreet' => 'Example Street 1',
-                'companyZipcode' => '12345',
-                'companyCity' => 'Example City',
-                'companyCountryId' => self::COMPANY_COUNTRY_ID,
-            ]);
-        });
+        $entity->setConfig([
+            'companyName' => $companyName,
+            'companyStreet' => 'Example Street 1',
+            'companyZipcode' => '12345',
+            'companyCity' => 'Example City',
+            'companyCountryId' => self::COMPANY_COUNTRY_ID,
+        ]);
 
         if (!$global && $salesChannelId !== null) {
             $assignment = new DocumentBaseConfigSalesChannelEntity();

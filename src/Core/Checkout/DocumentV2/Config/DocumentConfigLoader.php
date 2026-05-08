@@ -9,7 +9,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
@@ -185,17 +184,15 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
      */
     private function mergeJsonConfig(?DocumentBaseConfigEntity $globalRow, ?DocumentBaseConfigEntity $salesChannelRow): array
     {
-        return Feature::silent('v6.8.0.0', static function () use ($globalRow, $salesChannelRow): array {
-            $merged = $globalRow?->getConfig() ?? [];
+        $merged = $globalRow?->getConfig() ?? [];
 
-            foreach ($salesChannelRow?->getConfig() ?? [] as $key => $value) {
-                if ($value !== null) {
-                    $merged[$key] = $value;
-                }
+        foreach ($salesChannelRow?->getConfig() ?? [] as $key => $value) {
+            if ($value !== null) {
+                $merged[$key] = $value;
             }
+        }
 
-            return $merged;
-        });
+        return $merged;
     }
 
     /**

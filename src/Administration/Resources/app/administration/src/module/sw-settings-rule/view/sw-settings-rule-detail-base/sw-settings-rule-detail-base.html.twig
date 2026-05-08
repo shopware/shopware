@@ -84,6 +84,26 @@
                 />
                 {% endblock %}
             </div>
+            <div style="display: grid; grid-template-columns: 2fr 1fr; grid-column-gap: 32px">
+                {% block sw_settings_rule_detail_base_content_card_field_sales_channels %}
+                <sw-entity-multi-select
+                    v-model:entity-collection="rule.salesChannels"
+                    entity-name="sales_channel"
+                    :disabled="!rule.filterBySalesChannel"
+                    :label="$tc('sw-settings-rule.detail.labelSalesChannels')"
+                    :placeholder="$tc('sw-settings-rule.detail.placeholderSalesChannels')"
+                />
+                {% endblock %}
+
+                {% block sw_settings_rule_detail_base_content_card_field_filter_sales_channel %}
+                <mt-switch
+                    v-model="rule.filterBySalesChannel"
+                    :label="$tc('sw-settings-rule.detail.labelFilterBySalesChannel')"
+                    :disabled="!acl.can('rule.editor') || undefined"
+                    bordered
+                />
+                {% endblock %}
+            </div>
         </template>
         <sw-loader v-else />
     </mt-card>

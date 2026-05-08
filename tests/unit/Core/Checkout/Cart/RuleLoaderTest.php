@@ -9,12 +9,14 @@ use Shopware\Core\Checkout\Cart\RuleLoader;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Content\Rule\RuleEntity;
+use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
@@ -37,7 +39,8 @@ class RuleLoaderTest extends TestCase
         $ruleLoader->getDecorated();
     }
 
-    public function testLoad(): void
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testLoadLegacy(): void
     {
         /** @var StaticEntityRepository<RuleCollection> $ruleRepository */
         $ruleRepository = new StaticEntityRepository(
@@ -63,22 +66,73 @@ class RuleLoaderTest extends TestCase
         static::assertCount(501, $rules);
     }
 
-    public function testLoadWithoutSecondResult(): void
+    public function testLoad(): void
     {
         /** @var StaticEntityRepository<RuleCollection> $ruleRepository */
         $ruleRepository = new StaticEntityRepository(
             [
-                function (Criteria $criteria): RuleCollection {
-                    static::assertSame(500, $criteria->getLimit());
-                    static::assertSame('cart-rule-loader::load-rules', $criteria->getTitle());
+                function (Criteria $criteria): array {
+                    static::assertSame(10000, $criteria->getLimit());
+                    static::assertSame('cart-rule-loader::load-rule-ids', $criteria->getTitle());
                     static::assertCount(2, $criteria->getSorting());
                     static::assertInstanceOf(EqualsFilter::class, $criteria->getFilters()[0]);
                     static::assertSame('invalid', $criteria->getFilters()[0]->getField());
                     static::assertFalse($criteria->getFilters()[0]->getValue());
 
+                    return $this->getRuleIds(501);
+                },
+                function (Criteria $criteria): RuleCollection {
+                    static::assertCount(500, $criteria->getIds());
+                    static::assertNull($criteria->getLimit());
+                    static::assertSame('cart-rule-loader::load-rules', $criteria->getTitle());
+                    static::assertCount(0, $criteria->getSorting());
+                    static::assertEmpty($criteria->getFilters());
+
                     return $this->getRuleCollection(500);
                 },
-                $this->getRuleCollection(0),
+                function (Criteria $criteria): RuleCollection {
+                    static::assertCount(1, $criteria->getIds());
+                    static::assertNull($criteria->getLimit());
+                    static::assertSame('cart-rule-loader::load-rules', $criteria->getTitle());
+                    static::assertCount(0, $criteria->getSorting());
+                    static::assertEmpty($criteria->getFilters());
+
+                    return $this->getRuleCollection(1);
+                },
+            ],
+            new RuleDefinition(),
+        );
+
+        $ruleLoader = new RuleLoader($ruleRepository);
+        $rules = $ruleLoader->load(Context::createDefaultContext());
+
+        static::assertCount(501, $rules);
+    }
+
+    public function testLoadWithoutSecondResult(): void
+    {
+        /** @var StaticEntityRepository<RuleCollection> $ruleRepository */
+        $ruleRepository = new StaticEntityRepository(
+            [
+                function (Criteria $criteria): array {
+                    static::assertSame(10000, $criteria->getLimit());
+                    static::assertSame('cart-rule-loader::load-rule-ids', $criteria->getTitle());
+                    static::assertCount(2, $criteria->getSorting());
+                    static::assertInstanceOf(EqualsFilter::class, $criteria->getFilters()[0]);
+                    static::assertSame('invalid', $criteria->getFilters()[0]->getField());
+                    static::assertFalse($criteria->getFilters()[0]->getValue());
+
+                    return $this->getRuleIds(500);
+                },
+                function (Criteria $criteria): RuleCollection {
+                    static::assertCount(500, $criteria->getIds());
+                    static::assertNull($criteria->getLimit());
+                    static::assertSame('cart-rule-loader::load-rules', $criteria->getTitle());
+                    static::assertCount(0, $criteria->getSorting());
+                    static::assertEmpty($criteria->getFilters());
+
+                    return $this->getRuleCollection(500);
+                },
             ],
             new RuleDefinition(),
         );
@@ -87,6 +141,103 @@ class RuleLoaderTest extends TestCase
         $rules = $ruleLoader->load(Context::createDefaultContext());
 
         static::assertCount(500, $rules);
+    }
+
+    public function testLoadIds(): void
+    {
+        /** @var StaticEntityRepository<RuleCollection> $ruleRepository */
+        $ruleRepository = new StaticEntityRepository(
+            [
+                function (Criteria $criteria): array {
+                    static::assertSame(10000, $criteria->getLimit());
+                    static::assertSame('cart-rule-loader::load-rule-ids', $criteria->getTitle());
+                    static::assertCount(2, $criteria->getSorting());
+                    static::assertInstanceOf(EqualsFilter::class, $criteria->getFilters()[0]);
+                    static::assertSame('invalid', $criteria->getFilters()[0]->getField());
+                    static::assertFalse($criteria->getFilters()[0]->getValue());
+
+                    return $this->getRuleIds(10000);
+                },
+                $this->getRuleIds(1),
+            ],
+            new RuleDefinition(),
+        );
+
+        $ruleLoader = new RuleLoader($ruleRepository);
+        $rulesIds = $ruleLoader->loadIds(Context::createDefaultContext());
+
+        static::assertCount(10001, $rulesIds);
+    }
+
+    public function testLoadIdsSalesChannelSource(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+
+        /** @var StaticEntityRepository<RuleCollection> $ruleRepository */
+        $ruleRepository = new StaticEntityRepository(
+            [
+                function (Criteria $criteria): array {
+                    static::assertSame(10000, $criteria->getLimit());
+                    static::assertSame('cart-rule-loader::load-rule-ids', $criteria->getTitle());
+                    static::assertCount(2, $criteria->getSorting());
+                    static::assertSame(['invalid', 'filterBySalesChannel', 'salesChannels.id', 'filterBySalesChannel'], $criteria->getFilterFields());
+
+                    return $this->getRuleIds(1);
+                },
+            ],
+            new RuleDefinition(),
+        );
+
+        $ruleLoader = new RuleLoader($ruleRepository);
+        $rulesIds = $ruleLoader->loadIds(Context::createDefaultContext(new SalesChannelApiSource($salesChannelId)));
+
+        static::assertCount(1, $rulesIds);
+    }
+
+    public function testLoadContextType(): void
+    {
+        /** @var StaticEntityRepository<RuleCollection> $ruleRepository */
+        $ruleRepository = new StaticEntityRepository(
+            [
+                function (Criteria $criteria): array {
+                    static::assertSame(10000, $criteria->getLimit());
+                    static::assertSame('cart-rule-loader::load-rule-ids', $criteria->getTitle());
+                    static::assertCount(2, $criteria->getSorting());
+                    static::assertSame(['invalid', 'areas', 'areas'], $criteria->getFilterFields());
+
+                    return $this->getRuleIds(1);
+                },
+            ],
+            new RuleDefinition(),
+        );
+
+        $ruleLoader = new RuleLoader($ruleRepository);
+        $rulesIds = $ruleLoader->loadIds(Context::createDefaultContext(), RuleLoader::TYPE_CONTEXT);
+
+        static::assertCount(1, $rulesIds);
+    }
+
+    public function testLoadFlowType(): void
+    {
+        /** @var StaticEntityRepository<RuleCollection> $ruleRepository */
+        $ruleRepository = new StaticEntityRepository(
+            [
+                function (Criteria $criteria): array {
+                    static::assertSame(10000, $criteria->getLimit());
+                    static::assertSame('cart-rule-loader::load-rule-ids', $criteria->getTitle());
+                    static::assertCount(2, $criteria->getSorting());
+                    static::assertSame(['invalid', 'areas'], $criteria->getFilterFields());
+
+                    return $this->getRuleIds(1);
+                },
+            ],
+            new RuleDefinition(),
+        );
+
+        $ruleLoader = new RuleLoader($ruleRepository);
+        $rulesIds = $ruleLoader->loadIds(Context::createDefaultContext(), RuleLoader::TYPE_FLOW);
+
+        static::assertCount(1, $rulesIds);
     }
 
     private function getRuleCollection(int $count): RuleCollection
@@ -101,5 +252,18 @@ class RuleLoaderTest extends TestCase
         }
 
         return $ruleCollection;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getRuleIds(int $count): array
+    {
+        $ruleIds = [];
+        for ($i = 0; $i < $count; ++$i) {
+            $ruleIds[] = Uuid::randomHex();
+        }
+
+        return $ruleIds;
     }
 }

@@ -243,6 +243,7 @@ async function createWrapper(props = defaultProps, provide = {}) {
                 'sw-error-summary': true,
                 'sw-condition-tree': true,
                 'sw-entity-tag-select': true,
+                'sw-entity-multi-select': true,
                 'sw-multi-select': true,
                 'sw-textarea-field': true,
                 'sw-extension-component-section': true,
@@ -331,6 +332,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
 
         const association = [
             'tags',
+            'salesChannels',
             'flowSequences',
         ];
 

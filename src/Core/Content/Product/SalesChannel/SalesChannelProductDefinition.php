@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ObjectField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
@@ -55,12 +56,14 @@ class SalesChannelProductDefinition extends ProductDefinition implements SalesCh
 
         if ($criteria->getFields() === []) {
             $criteria
-                ->addAssociation('prices')
                 ->addAssociation('unit')
                 ->addAssociation('deliveryTime')
                 ->addAssociation('cover.media')
                 ->addAssociation('tax')
             ;
+
+            $criteria->getAssociation('prices')
+                ->addFilter(new EqualsAnyFilter('ruleId', $context->getRuleIds()));
         }
 
         if ($criteria->hasAssociation('productReviews')) {

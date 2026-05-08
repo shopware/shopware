@@ -16,6 +16,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Content\Flow\Aggregate\FlowSequence\FlowSequenceDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceDefinition;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionDefinition;
+use Shopware\Core\Content\Rule\Aggregate\RuleSalesChannel\RuleSalesChannelDefinition;
 use Shopware\Core\Content\Rule\Aggregate\RuleTag\RuleTagDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -40,6 +41,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\TaxProvider\TaxProviderDefinition;
 
@@ -68,6 +70,13 @@ class RuleDefinition extends EntityDefinition
         return '6.0.0.0';
     }
 
+    public function getDefaults(): array
+    {
+        return [
+            'filterBySalesChannel' => false,
+        ];
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
@@ -80,6 +89,9 @@ class RuleDefinition extends EntityDefinition
             (new ListField('areas', 'areas'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE))->setDescription('Internal field.'),
             (new CustomFields())->addFlags(new ApiAware())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
             (new JsonField('module_types', 'moduleTypes'))->setDescription('It can be used in cart or shipping pricing.'),
+
+            (new BoolField('filter_by_sales_channel', 'filterBySalesChannel'))->addFlags(new Since('6.7.8.0'))->setDescription('When the boolean value is `true`, the rule is filtered by sales channel.'),
+            (new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, RuleSalesChannelDefinition::class, 'rule_id', 'sales_channel_id'))->addFlags(new CascadeDelete(), new Since('6.7.8.0')),
 
             (new OneToManyAssociationField('conditions', RuleConditionDefinition::class, 'rule_id', 'id'))->addFlags(new CascadeDelete()),
 

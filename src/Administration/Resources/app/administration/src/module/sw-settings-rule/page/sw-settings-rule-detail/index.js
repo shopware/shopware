@@ -72,6 +72,7 @@ export default {
             const criteria = new Criteria();
 
             criteria.addAssociation('tags');
+            criteria.addAssociation('salesChannels');
             criteria.addAssociation('flowSequences.flow');
 
             const aggregationEntities = [

@@ -22,6 +22,7 @@ use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRec
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityCollection;
 use Shopware\Core\Content\ProductExport\ProductExportCollection;
+use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Seo\MainCategory\MainCategoryCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateCollection;
@@ -206,6 +207,8 @@ class SalesChannelEntity extends Entity
     protected ?CustomerWishlistCollection $wishlists = null;
 
     protected ?LandingPageCollection $landingPages = null;
+
+    protected ?RuleCollection $filteredRules = null;
 
     protected MeasurementUnits $measurementUnits;
 
@@ -971,5 +974,15 @@ class SalesChannelEntity extends Entity
     public function setMeasurementUnits(MeasurementUnits $measurementUnits): void
     {
         $this->measurementUnits = $measurementUnits;
+    }
+
+    public function getFilteredRules(): ?RuleCollection
+    {
+        return $this->filteredRules;
+    }
+
+    public function setFilteredRules(RuleCollection $filteredRules): void
+    {
+        $this->filteredRules = $filteredRules;
     }
 }

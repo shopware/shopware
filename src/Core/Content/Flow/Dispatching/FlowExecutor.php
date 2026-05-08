@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Flow\Dispatching;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\AbstractRuleLoader;
+use Shopware\Core\Checkout\Cart\RuleLoader;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowAction;
 use Shopware\Core\Content\Flow\Dispatching\Struct\ActionSequence;
@@ -20,6 +21,7 @@ use Shopware\Core\Framework\App\Flow\Action\AppFlowActionProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -235,7 +237,12 @@ class FlowExecutor
             return \in_array($ruleId, $event->getContext()->getRuleIds(), true);
         }
 
-        $rule = $this->ruleLoader->load($event->getContext())->filterForFlow()->get($ruleId);
+        if (!Feature::isActive('v6.8.0.0')) {
+            $rule = $this->ruleLoader->load($event->getContext())->filterForFlow()->get($ruleId);
+        } else {
+            // @phpstan-ignore-next-line arguments.count
+            $rule = $this->ruleLoader->load($event->getContext(), RuleLoader::TYPE_FLOW)->get($ruleId);
+        }
 
         if (!$rule || !$rule->getPayload() instanceof Rule) {
             return \in_array($ruleId, $event->getContext()->getRuleIds(), true);

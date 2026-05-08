@@ -13,6 +13,7 @@ export default {
         'ruleConditionDataProviderService',
         'acl',
         'customFieldDataProviderService',
+        'repositoryFactory',
     ],
 
     emits: [
@@ -60,6 +61,10 @@ export default {
     computed: {
         availableModuleTypes() {
             return this.ruleConditionDataProviderService.getModuleTypes();
+        },
+
+        salesChannelRepository() {
+            return this.repositoryFactory.create('sales_channel');
         },
 
         moduleTypes: {

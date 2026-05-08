@@ -13,6 +13,9 @@
         <service id="Shopware\Core\Content\Rule\Aggregate\RuleTag\RuleTagDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
+        <service id="Shopware\Core\Content\Rule\Aggregate\RuleSalesChannel\RuleSalesChannelDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
 
         <service id="Shopware\Core\Content\Rule\RuleValidator">
             <argument type="service" id="validator"/>

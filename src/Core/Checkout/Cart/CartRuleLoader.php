@@ -196,7 +196,14 @@ class CartRuleLoader implements ResetInterface
             return $this->rules;
         }
 
-        return $this->rules = $this->ruleLoader->load($context)->filterForContext();
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->rules = $this->ruleLoader->load($context)->filterForContext();
+        } else {
+            // @phpstan-ignore-next-line arguments.count
+            $this->rules = $this->ruleLoader->load($context, RuleLoader::TYPE_CONTEXT);
+        }
+
+        return $this->rules;
     }
 
     private function cartChanged(Cart $previous, Cart $current): bool

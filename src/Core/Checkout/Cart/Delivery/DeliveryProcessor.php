@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Profiling\Profiler;
@@ -76,11 +77,13 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
 
             $criteria = (new Criteria($ids))
                 ->addAssociations([
-                    'prices',
                     'deliveryTime',
                     'tax',
                 ])
                 ->setTitle('cart::shipping-methods');
+
+            $criteria->getAssociation('prices')
+                ->addFilter(new EqualsAnyFilter('ruleId', [null, ...$context->getRuleIds()]));
 
             $shippingMethods = $this->shippingMethodRepository->search($criteria, $context->getContext())->getEntities();
 

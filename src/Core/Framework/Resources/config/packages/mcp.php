@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-use Composer\InstalledVersions;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 /** @codeCoverageIgnore */
-return static function (ContainerConfigurator $container): void {
-    if (!InstalledVersions::isInstalled('symfony/mcp-bundle')) {
+return static function (ContainerConfigurator $container, ContainerBuilder $builder): void {
+    if (!$builder->hasExtension('mcp')) {
         return;
     }
 

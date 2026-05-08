@@ -79,7 +79,7 @@ export default {
                     id: salesChannel.id,
                     path: 'sw.sales.channel.detail',
                     params: { id: salesChannel.id },
-                    color: 'var(--color-icon-secondary-default)',
+                    color: 'var(--color-zinc-200)',
                     label: {
                         label: salesChannel.translated.name,
                         translated: true,
@@ -98,7 +98,7 @@ export default {
             return {
                 active: true,
                 children: [],
-                color: 'var(--color-icon-secondary-default)',
+                color: 'var(--color-zinc-200)',
                 icon: 'regular-ellipsis-v',
                 label: this.$t('sw-sales-channel.general.titleMenuMoreItems'),
                 path: 'sw.sales.channel.list',

@@ -12,6 +12,7 @@ $sw-metadata-item-caption-color: var(--color-text-primary-default);
     @include truncate;
 
     font-size: $font-size-xs;
+    color: var(--color-text-primary-default);
 
     @media screen and (max-width: 768px) {
         margin-bottom: 16px;

@@ -38,10 +38,16 @@ async function createWrapper() {
                     'sw-entity-single-select': true,
                     'sw-container': true,
                     'sw-field': true,
+                    'mt-text-field': true,
+                    'mt-switch': true,
                     'mt-number-field': true,
+                    'mt-icon': true,
                     'sw-media-add-thumbnail-form': true,
                     'sw-loader': true,
-                    'mt-tabs': true,
+                    'mt-tabs': {
+                        props: ['items', 'defaultItem', 'positionIdentifier'],
+                        template: '<mt-tabs-stub :items="items" :default-item="defaultItem" :position-identifier="positionIdentifier" />',
+                    },
                     'sw-tabs-deprecated': true,
                 },
                 provide: {
@@ -87,7 +93,55 @@ describe('src/app/asyncComponent/media/sw-media-modal-folder-settings', () => {
     let wrapper;
 
     beforeEach(async () => {
+        global.activeFeatureFlags = [''];
         wrapper = await createWrapper();
+    });
+
+    it('should render legacy tabs when the major feature flag is inactive', async () => {
+        await flushPromises();
+
+        expect(wrapper.find('sw-tabs-deprecated-stub').exists()).toBe(true);
+        expect(wrapper.find('mt-tabs-stub').exists()).toBe(false);
+    });
+
+    it('should render meteor tabs when the major feature flag is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+        wrapper = await createWrapper();
+
+        await flushPromises();
+
+        const mtTabs = wrapper.getComponent('mt-tabs-stub');
+
+        expect(mtTabs.props('items')).toStrictEqual([
+            {
+                label: 'global.sw-media-modal-folder-settings.labelSettings',
+                name: 'settings',
+                hasError: false,
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'global.sw-media-modal-folder-settings.labelThumbnails',
+                name: 'thumbnails',
+                onClick: expect.any(Function),
+            },
+        ]);
+        expect(mtTabs.props('defaultItem')).toBe('settings');
+        expect(mtTabs.props('positionIdentifier')).toBe('sw-media-modal-folder-settings');
+        expect(wrapper.find('sw-tabs-deprecated-stub').exists()).toBe(false);
+    });
+
+    it('should switch active content in the meteor tabs branch', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+        wrapper = await createWrapper();
+
+        await flushPromises();
+
+        wrapper.getComponent('mt-tabs-stub').props('items')[1].onClick();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.activeTab).toBe('thumbnails');
+        expect(wrapper.vm.modalClass).toBe('');
+        expect(wrapper.find('.sw-media-modal-folder-settings__thumbnails-container').exists()).toBe(true);
     });
 
     it('should get thumbnail sizes and unused thumbnail sizes with the correct criteria', async () => {

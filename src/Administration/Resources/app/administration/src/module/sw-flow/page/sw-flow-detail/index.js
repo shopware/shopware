@@ -49,6 +49,10 @@ export default {
     },
 
     computed: {
+        Shopware() {
+            return Shopware;
+        },
+
         identifier() {
             return this.flow?.name;
         },
@@ -178,6 +182,38 @@ export default {
 
         isTemplate() {
             return this.$route.query?.type === 'template';
+        },
+
+        defaultTabItem() {
+            if (
+                this.$route.name === 'sw.flow.detail.flow' ||
+                this.$route.name === 'sw.flow.create.flow'
+            ) {
+                return 'flow';
+            }
+
+            return 'general';
+        },
+
+        tabItems() {
+            return [
+                {
+                    label: this.$t('sw-flow.page.tabGeneral'),
+                    name: 'general',
+                    route: this.routeDetailTab('general'),
+                    onClick: () => {
+                        this.$router.push(this.routeDetailTab('general'));
+                    },
+                },
+                {
+                    label: this.$t('sw-flow.page.tabFlow'),
+                    name: 'flow',
+                    route: this.routeDetailTab('flow'),
+                    onClick: () => {
+                        this.$router.push(this.routeDetailTab('flow'));
+                    },
+                },
+            ];
         },
 
         isUnknownTrigger() {

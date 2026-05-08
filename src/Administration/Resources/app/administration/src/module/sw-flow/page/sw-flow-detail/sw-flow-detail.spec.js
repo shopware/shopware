@@ -119,7 +119,15 @@ const businessEventServiceMock = {
     getBusinessEvents: () => Promise.resolve(mockBusinessEvents),
 };
 
-async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess = true, param = {}, customProvides = {}) {
+async function createWrapper(
+    query = {},
+    config = {},
+    flowId = null,
+    saveSuccess = true,
+    param = {},
+    customProvides = {},
+    routeName = 'sw.flow.create.general',
+) {
     const wrapper = mount(
         await wrapTestComponent('sw-flow-detail', {
             sync: true,
@@ -191,7 +199,14 @@ async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess
                     ...customProvides,
                 },
                 mocks: {
-                    $route: { params: param, query: query },
+                    $route: {
+                        name: routeName,
+                        params: param,
+                        query: query,
+                    },
+                    $router: {
+                        push: jest.fn(),
+                    },
                 },
                 stubs: {
                     'sw-page': {
@@ -223,6 +238,14 @@ async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess
                         </div>
                     `,
                     },
+                    'mt-tabs': {
+                        props: [
+                            'items',
+                            'defaultItem',
+                            'positionIdentifier',
+                        ],
+                        template: '<mt-tabs-stub :items="items" :default-item="defaultItem" :position-identifier="positionIdentifier" />',
+                    },
                     'sw-card-view': {
                         template: `
                         <div class="sw-card-view">
@@ -251,6 +274,10 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
         Shopware.Service().register('businessEventService', () => {
             return businessEventServiceMock;
         });
+    });
+
+    beforeEach(() => {
+        global.activeFeatureFlags = [''];
     });
 
     it('should not be able to save a flow', async () => {
@@ -427,6 +454,88 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
         expect(tabs.flow.vm.route).toStrictEqual({
             name: 'sw.flow.create.flow',
         });
+    });
+
+    it('should render legacy tabs when major flag is inactive', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.find('.sw-tabs').exists()).toBe(true);
+        expect(wrapper.find('mt-tabs-stub').exists()).toBe(false);
+    });
+
+    it('should render mt-tabs when major flag is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper();
+        const mtTabs = wrapper.getComponent('mt-tabs-stub');
+
+        expect(mtTabs.props('items')).toStrictEqual([
+            {
+                label: 'sw-flow.page.tabGeneral',
+                name: 'general',
+                route: { name: 'sw.flow.create.general' },
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-flow.page.tabFlow',
+                name: 'flow',
+                route: { name: 'sw.flow.create.flow' },
+                onClick: expect.any(Function),
+            },
+        ]);
+        expect(mtTabs.props('defaultItem')).toBe('general');
+        expect(mtTabs.props('positionIdentifier')).toBe('sw-flow-detail');
+        expect(wrapper.find('.sw-tabs').exists()).toBe(false);
+    });
+
+    it('should use the flow tab as mt-tabs default on flow routes', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper({}, {}, null, true, {}, {}, 'sw.flow.create.flow');
+        const mtTabs = wrapper.getComponent('mt-tabs-stub');
+
+        expect(mtTabs.props('defaultItem')).toBe('flow');
+    });
+
+    it('should keep flow template routes for mt-tabs items', async () => {
+        global.activeAclRoles = ['flow.editor'];
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper(
+            {},
+            {
+                eventName: 'checkout.customer',
+                sequences: [
+                    {
+                        id: 'sequence-id',
+                        config: {},
+                    },
+                ],
+            },
+            null,
+            true,
+            {
+                flowTemplateId: ID_FLOW_TEMPLATE,
+            },
+        );
+        const mtTabs = wrapper.getComponent('mt-tabs-stub');
+
+        expect(mtTabs.props('items')).toEqual([
+            expect.objectContaining({
+                name: 'general',
+                route: {
+                    name: 'sw.flow.create.general',
+                    params: { flowTemplateId: ID_FLOW_TEMPLATE },
+                },
+            }),
+            expect.objectContaining({
+                name: 'flow',
+                route: {
+                    name: 'sw.flow.create.flow',
+                    params: { flowTemplateId: ID_FLOW_TEMPLATE },
+                },
+            }),
+        ]);
     });
 
     it('should be able to create flow from flow template', async () => {

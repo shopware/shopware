@@ -45,10 +45,35 @@ export default {
             mediaFolderConfigurationThumbnailSizeRepository: null,
             originalConfiguration: null,
             mediaFolder: null,
+            activeTab: 'settings',
         };
     },
 
     computed: {
+        Shopware() {
+            return Shopware;
+        },
+
+        tabItems() {
+            return [
+                {
+                    label: this.$t('global.sw-media-modal-folder-settings.labelSettings'),
+                    name: 'settings',
+                    hasError: !!this.mediaFolderNameError,
+                    onClick: () => {
+                        this.setActiveTab('settings');
+                    },
+                },
+                {
+                    label: this.$t('global.sw-media-modal-folder-settings.labelThumbnails'),
+                    name: 'thumbnails',
+                    onClick: () => {
+                        this.setActiveTab('thumbnails');
+                    },
+                },
+            ];
+        },
+
         mediaFolderRepository() {
             return this.repositoryFactory.create('media_folder');
         },
@@ -203,6 +228,11 @@ export default {
                 return;
             }
             this.modalClass = '';
+        },
+
+        setActiveTab(activeTab) {
+            this.activeTab = activeTab;
+            this.onActiveTabChanged(activeTab);
         },
 
         onChangeThumbnailSize(value, size) {

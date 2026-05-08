@@ -39,12 +39,45 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
+        Shopware() {
+            return Shopware;
+        },
+
         flowRepository(): Repository<'flow'> {
             return this.repositoryFactory.create('flow');
         },
 
         flowCriteria(): CriteriaType {
             return new Criteria(1, null);
+        },
+
+        defaultTabItem() {
+            if (this.$route.name === 'sw.flow.index.templates') {
+                return 'templates';
+            }
+
+            return 'flows';
+        },
+
+        tabItems() {
+            return [
+                {
+                    label: this.$t('sw-flow.general.tabMyFlows'),
+                    name: 'flows',
+                    route: { name: 'sw.flow.index.flows' },
+                    onClick: () => {
+                        void this.$router.push({ name: 'sw.flow.index.flows' });
+                    },
+                },
+                {
+                    label: this.$t('sw-flow.general.tabFlowTemplates'),
+                    name: 'templates',
+                    route: { name: 'sw.flow.index.templates' },
+                    onClick: () => {
+                        void this.$router.push({ name: 'sw.flow.index.templates' });
+                    },
+                },
+            ];
         },
     },
 

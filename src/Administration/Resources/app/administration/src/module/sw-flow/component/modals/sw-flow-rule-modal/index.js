@@ -46,10 +46,34 @@ export default {
             conditions: null,
             conditionTree: null,
             deletedIds: [],
+            activeTab: 'detail',
         };
     },
 
     computed: {
+        Shopware() {
+            return Shopware;
+        },
+
+        tabItems() {
+            return [
+                {
+                    label: this.$t('sw-flow.modals.rule.tabDetail'),
+                    name: 'detail',
+                    onClick: () => {
+                        this.activeTab = 'detail';
+                    },
+                },
+                {
+                    label: this.$t('sw-flow.modals.rule.tabRule'),
+                    name: 'rule',
+                    onClick: () => {
+                        this.activeTab = 'rule';
+                    },
+                },
+            ];
+        },
+
         modalTitle() {
             return this.ruleId
                 ? this.$t('sw-flow.modals.rule.labelEditRule')

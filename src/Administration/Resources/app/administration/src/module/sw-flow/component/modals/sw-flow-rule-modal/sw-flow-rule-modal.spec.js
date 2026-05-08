@@ -69,6 +69,10 @@ async function createWrapper() {
                     'sw-button-process': {
                         template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
                     },
+                    'mt-tabs': {
+                        props: ['items', 'defaultItem', 'positionIdentifier'],
+                        template: '<mt-tabs-stub :items="items" :default-item="defaultItem" :position-identifier="positionIdentifier" />',
+                    },
                     'sw-condition-tree': true,
                     'mt-banner': true,
                     'sw-extension-component-section': true,
@@ -88,6 +92,57 @@ async function createWrapper() {
 }
 
 describe('module/sw-flow/component/sw-flow-rule-modal', () => {
+    beforeEach(() => {
+        global.activeFeatureFlags = [''];
+    });
+
+    it('should render legacy tabs when the major feature flag is inactive', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-flow-rule-modal__tab-detail').exists()).toBe(true);
+        expect(wrapper.find('.sw-flow-rule-modal__tab-rule').exists()).toBe(true);
+        expect(wrapper.find('mt-tabs-stub').exists()).toBe(false);
+    });
+
+    it('should render meteor tabs when the major feature flag is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const mtTabs = wrapper.getComponent('mt-tabs-stub');
+
+        expect(mtTabs.props('items')).toStrictEqual([
+            {
+                label: 'sw-flow.modals.rule.tabDetail',
+                name: 'detail',
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-flow.modals.rule.tabRule',
+                name: 'rule',
+                onClick: expect.any(Function),
+            },
+        ]);
+        expect(mtTabs.props('defaultItem')).toBe('detail');
+        expect(mtTabs.props('positionIdentifier')).toBe('sw-flow-rule-modal');
+        expect(wrapper.find('.sw-flow-rule-modal__tab-detail').exists()).toBe(false);
+        expect(wrapper.find('.sw-flow-rule-modal__tab-rule').exists()).toBe(false);
+    });
+
+    it('should switch active content in the meteor tabs branch', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.getComponent('mt-tabs-stub').props('items')[1].onClick();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.activeTab).toBe('rule');
+    });
+
     it('should show element correctly', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

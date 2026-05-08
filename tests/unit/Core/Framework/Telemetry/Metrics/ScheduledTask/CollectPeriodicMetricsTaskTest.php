@@ -5,42 +5,42 @@ namespace Shopware\Tests\Unit\Core\Framework\Telemetry\Metrics\ScheduledTask;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Telemetry\Metrics\ScheduledTask\CollectSlowMetricsTask;
+use Shopware\Core\Framework\Telemetry\Metrics\ScheduledTask\CollectPeriodicMetricsTask;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 
 /**
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(CollectSlowMetricsTask::class)]
-class CollectSlowMetricsTaskTest extends TestCase
+#[CoversClass(CollectPeriodicMetricsTask::class)]
+class CollectPeriodicMetricsTaskTest extends TestCase
 {
     public function testTaskName(): void
     {
-        static::assertSame('telemetry.collect_slow_metrics', CollectSlowMetricsTask::getTaskName());
+        static::assertSame('telemetry.collect_periodic_metrics', CollectPeriodicMetricsTask::getTaskName());
     }
 
     public function testDefaultInterval(): void
     {
-        static::assertSame(300, CollectSlowMetricsTask::getDefaultInterval());
+        static::assertSame(300, CollectPeriodicMetricsTask::getDefaultInterval());
     }
 
     public function testShouldRunWhenEnabled(): void
     {
         $bag = new ParameterBag(['shopware.telemetry.metrics.enabled' => true]);
 
-        static::assertTrue(CollectSlowMetricsTask::shouldRun($bag));
+        static::assertTrue(CollectPeriodicMetricsTask::shouldRun($bag));
     }
 
     public function testShouldNotRunWhenDisabled(): void
     {
         $bag = new ParameterBag(['shopware.telemetry.metrics.enabled' => false]);
 
-        static::assertFalse(CollectSlowMetricsTask::shouldRun($bag));
+        static::assertFalse(CollectPeriodicMetricsTask::shouldRun($bag));
     }
 
     public function testShouldRescheduleOnFailure(): void
     {
-        static::assertTrue(CollectSlowMetricsTask::shouldRescheduleOnFailure());
+        static::assertTrue(CollectPeriodicMetricsTask::shouldRescheduleOnFailure());
     }
 }

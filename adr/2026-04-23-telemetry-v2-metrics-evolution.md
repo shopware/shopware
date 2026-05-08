@@ -51,9 +51,9 @@ storage. Transports that don't need lifecycle management implement `flush()` as 
 For long-running workers (Symfony Messenger), `kernel.terminate` and `console.terminate` do not fire
 per message — without an additional trigger, metrics emitted inside a worker would sit in transport
 buffers until the worker process exits (could be hours). Most pressingly, this affects
-`CollectSlowMetricsTaskHandler`: scheduled tasks are dispatched as Messenger messages, so the slow
-collector emissions land in a worker context and would not reach the backend on the cadence the
-collector implies.
+`CollectPeriodicMetricsTaskHandler`: scheduled tasks are dispatched as Messenger messages, so the
+periodic collector emissions land in a worker context and would not reach the backend on the cadence
+the collector implies.
 
 To address this, `TelemetryFlushListener` also subscribes to `WorkerRunningEvent` and calls
 `flush()` at most once every N seconds (default 60s). The listener tracks `lastFlushAt` per process
@@ -94,10 +94,10 @@ Three mechanisms work together to minimize overhead at different levels:
 Level 1 — Global off: When `shopware.telemetry.metrics.enabled` is `false`:
   - `Meter::emit()` checks the `enabled` flag and returns immediately. This is already near-no-op.
   - A compiler pass removes services tagged with `shopware.telemetry.subscriber` (event subscribers,
-    flush listener) and `shopware.telemetry.slow_metric_collector` from the container, so they are
-    neither invoked by the event dispatcher nor iterated by the slow-metric task handler.
-  - The `CollectSlowMetricsTask` itself stays registered but reports `shouldRun() === false`, so the
-    scheduler keeps the row in `skipped` state without dispatching.
+    flush listener) and `shopware.telemetry.periodic_metric_collector` from the container, so they
+    are neither invoked by the event dispatcher nor iterated by the periodic-metric task handler.
+  - The `CollectPeriodicMetricsTask` itself stays registered but reports `shouldRun() === false`, so
+    the scheduler keeps the row in `skipped` state without dispatching.
   - Inline emitters (e.g. `RetryableQuery` via `MeterProvider`) still call `Meter::emit()`, which
     short-circuits on the `enabled` check.
   - Result: no subscriber invocation, no metric processing. The only remaining cost is the `emit()`
@@ -117,9 +117,9 @@ Level 3 — Expensive value computation: delayed computation
 The compiler pass only affects subscribers; the `enabled` check in `Meter::emit()` covers inline emitters.
 
 **Subscriber identification**: Telemetry subscribers are identified by the `shopware.telemetry.subscriber`
-DI tag, added to their service definitions. Slow-metric collectors are identified by the
-`shopware.telemetry.slow_metric_collector` tag. When telemetry is globally disabled, the compiler pass
-removes the entire service definition for both tag groups.
+DI tag, added to their service definitions. Periodic-metric collectors are identified by the
+`shopware.telemetry.periodic_metric_collector` tag. When telemetry is globally disabled, the compiler
+pass removes the entire service definition for both tag groups.
 
 **Considered alternative — marker interface (`TelemetryAwareSubscriberInterface`):**
   - Type-safe identification, discoverable via IDE.
@@ -231,23 +231,24 @@ Scrape-time events are not part of core. Pull transports own their scrape lifecy
   - Useful for Prometheus pull: at scrape time, subscribers provide current values.
   - But for push transports (OTel), there is no natural trigger point. It doesn't belong at
     `kernel.terminate` (every request, wasteful for static info) or at task time (redundant with
-    `SlowMetricCollectorInterface`).
+    `PeriodicMetricCollectorInterface`).
   - Placing a pull-transport-specific event in core creates a confusing API.
 
-### 5. Slow metric collection via scheduled task
+### 5. Periodic metric collection via scheduled task
 
-Metrics requiring expensive computation are collected by a Shopware scheduled task iterating tagged
-`SlowMetricCollectorInterface` services:
+Metrics that should be collected on a schedule rather than emitted inline - typically expensive
+computations (database aggregations) or low-frequency information metrics - are collected
+by a Shopware scheduled task iterating tagged `PeriodicMetricCollectorInterface` services:
 
 ```php
-interface SlowMetricCollectorInterface
+interface PeriodicMetricCollectorInterface
 {
     /** @return iterable<ConfiguredMetric> */
     public function collect(): iterable;
 }
 ```
 
-The task uses Shopware's standard scheduled-task scheduling — `CollectSlowMetricsTask::getDefaultInterval()`
+The task uses Shopware's standard scheduled-task scheduling — `CollectPeriodicMetricsTask::getDefaultInterval()`
 returns 300 seconds (5 minutes). The interval can be tuned per environment through the existing
 `scheduled_task` administration just like any other scheduled task; we deliberately do not introduce
 a parallel config key. Owning a separate interval would duplicate state with the `scheduled_task` table
@@ -265,7 +266,7 @@ Plugins needing a different frequency register their own Shopware scheduled task
     task invocations.
 
 **Considered alternative — event-based collection:**
-  - Task dispatches a `CollectSlowMetricsEvent`, subscribers add metrics.
+  - Task dispatches a `CollectPeriodicMetricsEvent`, subscribers add metrics.
   - But error isolation is worse: one subscriber throwing stops event propagation (relying on developers discipline
     to properly process errors).
   - Return-based contract (`iterable<ConfiguredMetric>`) is cleaner than event mutation.
@@ -358,15 +359,16 @@ and `RetryableTransaction` (static code that cannot receive DI). Until those cal
 - **Developers**:
   - Telemetry subscribers should be tagged with `shopware.telemetry.subscriber` for zero-overhead global disable.
   - For expensive metrics: use closure values in `ConfiguredMetric` for lazy evaluation.
-  - For slow/periodic metrics: implement `SlowMetricCollectorInterface`, tag the service.
+  - For metrics that should run on a schedule (expensive aggregations, info metrics, slowly-changing data):
+    implement `PeriodicMetricCollectorInterface`, tag the service.
   - Every label must have either `allowed_values` or `policy: open` — config validation enforces this.
     Unknown label names throw in dev/test — typos caught earlier.
   - `emit(ConfiguredMetric)` remains the API. No change to existing emitter code.
 - **Operators**:
   - Use `shopware.telemetry.metrics.enabled: true/false` to enable/disable globally
     (additional kill-switch alongside `TELEMETRY_METRICS` feature flag, which will be removed with feature stabilization).
-  - Tune the `telemetry.collect_slow_metrics` scheduled task interval (default 5 minutes) via the standard scheduled-task
-    administration to trade slow-metric freshness against load.
+  - Tune the `telemetry.collect_periodic_metrics` scheduled task interval (default 5 minutes) via the standard
+    scheduled-task administration to trade periodic-metric freshness against load.
   - Override per-label `policy` or `allowed_values` via config merge.
   - Cardinality control for open label sets MUST be done at infrastructure level (OTel Collector processors, Prometheus relabeling).
 - **Migration**:
@@ -377,7 +379,7 @@ and `RetryableTransaction` (static code that cannot receive DI). Until those cal
     visible at the call site — only in the YAML config. This is a readability trade-off for a
     smaller, more flexible interface.
   - Subscriber registration cannot be toggled at runtime without a container rebuild, so this is a deployment-time decision.
-  - The scheduled task for slow metrics introduces data staleness up to the task interval, which should be
+  - The scheduled task for periodic metrics introduces data staleness up to the task interval, which should be
     acceptable for the type of metrics it serves (business aggregations, info metrics).
   - `MeterProvider` remains a static service locator. Necessary until static callers are refactored.
   - No storage on the abstraction level complicates optimization for the cases when the same metric (say counter) 

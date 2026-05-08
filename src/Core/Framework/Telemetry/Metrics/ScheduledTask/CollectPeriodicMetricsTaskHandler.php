@@ -7,18 +7,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
-use Shopware\Core\Framework\Telemetry\Metrics\Metric\SlowMetricCollectorInterface;
+use Shopware\Core\Framework\Telemetry\Metrics\Metric\PeriodicMetricCollectorInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * @internal
  */
-#[AsMessageHandler(handles: CollectSlowMetricsTask::class)]
+#[AsMessageHandler(handles: CollectPeriodicMetricsTask::class)]
 #[Package('framework')]
-final class CollectSlowMetricsTaskHandler extends ScheduledTaskHandler
+final class CollectPeriodicMetricsTaskHandler extends ScheduledTaskHandler
 {
     /**
-     * @param iterable<SlowMetricCollectorInterface> $collectors
+     * @param iterable<PeriodicMetricCollectorInterface> $collectors
      */
     public function __construct(
         EntityRepository $scheduledTaskRepository,
@@ -38,7 +38,7 @@ final class CollectSlowMetricsTaskHandler extends ScheduledTaskHandler
                 }
             } catch (\Throwable $e) {
                 $this->exceptionLogger->error(
-                    \sprintf('Slow metric collector %s failed: %s', $collector::class, $e->getMessage()),
+                    \sprintf('Periodic metric collector %s failed: %s', $collector::class, $e->getMessage()),
                     ['exception' => $e]
                 );
             }

@@ -36,7 +36,7 @@
             <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\Config\TransportConfigProvider"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Telemetry\Metrics\ScheduledTask\CollectSlowMetricsTask">
+        <service id="Shopware\Core\Framework\Telemetry\Metrics\ScheduledTask\CollectPeriodicMetricsTask">
             <tag name="shopware.scheduled.task"/>
         </service>
 
@@ -48,11 +48,11 @@
             <tag name="shopware.telemetry.subscriber"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Telemetry\Metrics\ScheduledTask\CollectSlowMetricsTaskHandler">
+        <service id="Shopware\Core\Framework\Telemetry\Metrics\ScheduledTask\CollectPeriodicMetricsTaskHandler">
             <argument type="service" id="scheduled_task.repository"/>
             <argument type="service" id="logger"/>
             <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\Meter"/>
-            <argument type="tagged_iterator" tag="shopware.telemetry.slow_metric_collector"/>
+            <argument type="tagged_iterator" tag="shopware.telemetry.periodic_metric_collector"/>
 
             <tag name="messenger.message_handler"/>
         </service>

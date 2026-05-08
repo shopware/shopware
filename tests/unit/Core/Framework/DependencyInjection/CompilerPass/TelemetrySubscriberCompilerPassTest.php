@@ -38,13 +38,13 @@ class TelemetrySubscriberCompilerPassTest extends TestCase
         static::assertTrue($container->getDefinition('test.regular.subscriber')->hasTag('kernel.event_subscriber'));
     }
 
-    public function testSlowMetricCollectorsAreRemovedWhenDisabled(): void
+    public function testPeriodicMetricCollectorsAreRemovedWhenDisabled(): void
     {
         $container = new ContainerBuilder();
         $container->setParameter('shopware.telemetry.metrics.enabled', false);
 
         $collectorDef = new Definition(\stdClass::class);
-        $collectorDef->addTag('shopware.telemetry.slow_metric_collector');
+        $collectorDef->addTag('shopware.telemetry.periodic_metric_collector');
         $container->setDefinition('test.telemetry.collector', $collectorDef);
 
         $unrelatedDef = new Definition(\stdClass::class);
@@ -68,7 +68,7 @@ class TelemetrySubscriberCompilerPassTest extends TestCase
         $container->setDefinition('test.telemetry.subscriber', $definition);
 
         $collectorDef = new Definition(\stdClass::class);
-        $collectorDef->addTag('shopware.telemetry.slow_metric_collector');
+        $collectorDef->addTag('shopware.telemetry.periodic_metric_collector');
         $container->setDefinition('test.telemetry.collector', $collectorDef);
 
         $pass = new TelemetrySubscriberCompilerPass();
@@ -77,6 +77,6 @@ class TelemetrySubscriberCompilerPassTest extends TestCase
         static::assertTrue($container->hasDefinition('test.telemetry.subscriber'));
         static::assertTrue($container->getDefinition('test.telemetry.subscriber')->hasTag('kernel.event_subscriber'));
         static::assertTrue($container->hasDefinition('test.telemetry.collector'));
-        static::assertTrue($container->getDefinition('test.telemetry.collector')->hasTag('shopware.telemetry.slow_metric_collector'));
+        static::assertTrue($container->getDefinition('test.telemetry.collector')->hasTag('shopware.telemetry.periodic_metric_collector'));
     }
 }

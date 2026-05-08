@@ -10,11 +10,11 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
  * @internal
  */
 #[Package('framework')]
-class CollectSlowMetricsTask extends ScheduledTask
+class CollectPeriodicMetricsTask extends ScheduledTask
 {
     public static function getTaskName(): string
     {
-        return 'telemetry.collect_slow_metrics';
+        return 'telemetry.collect_periodic_metrics';
     }
 
     public static function getDefaultInterval(): int

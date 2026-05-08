@@ -9,25 +9,25 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
-use Shopware\Core\Framework\Telemetry\Metrics\Metric\SlowMetricCollectorInterface;
-use Shopware\Core\Framework\Telemetry\Metrics\ScheduledTask\CollectSlowMetricsTaskHandler;
+use Shopware\Core\Framework\Telemetry\Metrics\Metric\PeriodicMetricCollectorInterface;
+use Shopware\Core\Framework\Telemetry\Metrics\ScheduledTask\CollectPeriodicMetricsTaskHandler;
 
 /**
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(CollectSlowMetricsTaskHandler::class)]
-class CollectSlowMetricsTaskHandlerTest extends TestCase
+#[CoversClass(CollectPeriodicMetricsTaskHandler::class)]
+class CollectPeriodicMetricsTaskHandlerTest extends TestCase
 {
     public function testCollectorsAreCalledAndMetricsEmitted(): void
     {
         $metric1 = new ConfiguredMetric('metric.one', 42);
         $metric2 = new ConfiguredMetric('metric.two', 100);
 
-        $collector1 = $this->createMock(SlowMetricCollectorInterface::class);
+        $collector1 = $this->createMock(PeriodicMetricCollectorInterface::class);
         $collector1->expects($this->once())->method('collect')->willReturn([$metric1]);
 
-        $collector2 = $this->createMock(SlowMetricCollectorInterface::class);
+        $collector2 = $this->createMock(PeriodicMetricCollectorInterface::class);
         $collector2->expects($this->once())->method('collect')->willReturn([$metric2]);
 
         $meter = $this->createMock(Meter::class);
@@ -40,7 +40,7 @@ class CollectSlowMetricsTaskHandlerTest extends TestCase
                 return $m === $expected[$callIndex++];
             }));
 
-        $handler = new CollectSlowMetricsTaskHandler(
+        $handler = new CollectPeriodicMetricsTaskHandler(
             $this->createMock(EntityRepository::class),
             $this->createMock(LoggerInterface::class),
             $meter,
@@ -52,11 +52,11 @@ class CollectSlowMetricsTaskHandlerTest extends TestCase
 
     public function testOneCollectorFailureDoesNotStopOthers(): void
     {
-        $failingCollector = $this->createMock(SlowMetricCollectorInterface::class);
+        $failingCollector = $this->createMock(PeriodicMetricCollectorInterface::class);
         $failingCollector->expects($this->once())->method('collect')->willThrowException(new \RuntimeException('DB timeout'));
 
         $metric = new ConfiguredMetric('metric.ok', 1);
-        $workingCollector = $this->createMock(SlowMetricCollectorInterface::class);
+        $workingCollector = $this->createMock(PeriodicMetricCollectorInterface::class);
         $workingCollector->expects($this->once())->method('collect')->willReturn([$metric]);
 
         $meter = $this->createMock(Meter::class);
@@ -65,7 +65,7 @@ class CollectSlowMetricsTaskHandlerTest extends TestCase
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->once())->method('error')->with(static::stringContains('DB timeout'));
 
-        $handler = new CollectSlowMetricsTaskHandler(
+        $handler = new CollectPeriodicMetricsTaskHandler(
             $this->createMock(EntityRepository::class),
             $logger,
             $meter,

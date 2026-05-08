@@ -520,11 +520,13 @@ export default {
                         return Promise.resolve();
                     }
 
-                    return this.loadEntityData(this.rule.id).then(() => {
-                        this.setTreeFinishedLoading();
-                    });
+                    return this.loadEntityData(this.rule.id);
                 })
                 .then(() => {
+                    if (reload) {
+                        this.setTreeFinishedLoading();
+                    }
+
                     if (!keepLoading) {
                         this.isLoading = false;
                     }
@@ -595,7 +597,7 @@ export default {
         onDuplicate() {
             return this.saveRuleChanges({ reload: false, keepLoading: true }).then((isSuccessful) => {
                 if (!isSuccessful) {
-                    return Promise.resolve();
+                    return Promise.resolve(false);
                 }
 
                 const behaviour = {

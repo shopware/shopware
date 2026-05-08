@@ -14,7 +14,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 /**
  * @internal
  */
-#[Package('inventory')]
+#[Package('discovery')]
 #[CoversClass(Migration1778146739AddSalesChannelTrackingCustomerPrivilege::class)]
 class Migration1778146739AddSalesChannelTrackingCustomerPrivilegeTest extends TestCase
 {

@@ -48,6 +48,10 @@ async function createWrapper(props = defaultProps) {
                 stubs: {
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
                     'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
+                    'mt-tabs': {
+                        props: ['items', 'defaultItem', 'positionIdentifier'],
+                        template: '<mt-tabs-stub :items="items" :default-item="defaultItem" :position-identifier="positionIdentifier" />',
+                    },
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
                     'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
@@ -68,6 +72,10 @@ async function createWrapper(props = defaultProps) {
 }
 
 describe('src/module/sw-settings-custom-field/component/sw-custom-field-translated-labels', () => {
+    beforeEach(() => {
+        global.activeFeatureFlags = [''];
+    });
+
     it('should render text field for single locale', async () => {
         const wrapper = await createWrapper({
             ...defaultProps,
@@ -114,6 +122,54 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-translat
 
         await wrapper.findAll('.sw-custom-field-translated-labels__translated-labels-field')[1].trigger('click');
         expect(wrapper.findAll('.sw-custom-field-translated-labels__translated-content-field')).toHaveLength(2);
+        expect(
+            wrapper.findAllComponents('.sw-custom-field-translated-labels__translated-content-field')[0].props('label'),
+        ).toBe('label1 (locale.de-DE)');
+    });
+
+    it('should render legacy tabs when the feature flag is inactive', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.findComponent({ name: 'sw-tabs-deprecated__wrapped' }).exists()).toBe(true);
+        expect(wrapper.find('mt-tabs-stub').exists()).toBe(false);
+    });
+
+    it('should render mt-tabs when the feature flag is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const mtTabs = wrapper.getComponent('mt-tabs-stub');
+
+        expect(mtTabs.props('items')).toStrictEqual([
+            {
+                label: 'locale.en-GB',
+                name: en,
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'locale.de-DE',
+                name: de,
+                onClick: expect.any(Function),
+            },
+        ]);
+        expect(mtTabs.props('defaultItem')).toBe(en);
+        expect(mtTabs.props('positionIdentifier')).toBe('sw-custom-field-translated-labels');
+        expect(wrapper.findComponent({ name: 'sw-tabs-deprecated__wrapped' }).exists()).toBe(false);
+    });
+
+    it('should update active content when mt-tabs item is clicked', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.tabItems[1].onClick();
+        await flushPromises();
+
+        expect(wrapper.vm.currentLocale).toBe(de);
         expect(
             wrapper.findAllComponents('.sw-custom-field-translated-labels__translated-content-field')[0].props('label'),
         ).toBe('label1 (locale.de-DE)');

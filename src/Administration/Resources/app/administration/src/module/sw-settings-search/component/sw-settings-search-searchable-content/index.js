@@ -189,8 +189,31 @@ export default {
     },
 
     computed: {
+        Shopware() {
+            return Shopware;
+        },
+
         productSearchFieldRepository() {
             return this.repositoryFactory.create('product_search_config_field');
+        },
+
+        tabItems() {
+            return [
+                {
+                    label: this.$t('sw-settings-search.generalTab.labelGeneralTab'),
+                    name: this.tabNames.generalTab,
+                    onClick: () => {
+                        this.onChangeTab(this.tabNames.generalTab);
+                    },
+                },
+                {
+                    label: this.$t('sw-settings-search.generalTab.labelCustomFieldsTab'),
+                    name: this.tabNames.customTab,
+                    onClick: () => {
+                        this.onChangeTab(this.tabNames.customTab);
+                    },
+                },
+            ];
         },
 
         productSearchFieldCriteria() {

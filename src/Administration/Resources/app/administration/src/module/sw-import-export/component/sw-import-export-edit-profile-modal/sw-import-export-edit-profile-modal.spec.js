@@ -66,8 +66,17 @@ async function createWrapper(
             global: {
                 stubs: {
                     'sw-select-base': true,
-                    'sw-tabs': true,
-                    'sw-tabs-item': true,
+                    'sw-tabs': await wrapTestComponent('sw-tabs'),
+                    'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
+                    'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+                    'mt-tabs': {
+                        props: [
+                            'items',
+                            'defaultItem',
+                            'positionIdentifier',
+                        ],
+                        template: '<mt-tabs-stub :items="items" :default-item="defaultItem" :position-identifier="positionIdentifier" />',
+                    },
                     'sw-button': await wrapTestComponent('sw-button'),
                     'sw-modal': await wrapTestComponent('sw-modal'),
                     'sw-import-export-edit-profile-general': true,
@@ -105,6 +114,80 @@ async function createWrapper(
 }
 
 describe('module/sw-import-export/components/sw-import-export-edit-profile-modal', () => {
+    beforeEach(() => {
+        global.activeFeatureFlags = [''];
+    });
+
+    it('should render legacy tabs when V6_8_0_0 is inactive', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.findComponent({ name: 'sw-tabs-deprecated__wrapped' }).exists()).toBe(true);
+        expect(wrapper.find('mt-tabs-stub').exists()).toBe(false);
+    });
+
+    it('should render mt-tabs when V6_8_0_0 is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper();
+        const mtTabs = wrapper.getComponent('mt-tabs-stub');
+
+        expect(mtTabs.props('items')).toStrictEqual([
+            {
+                label: 'sw-import-export.profile.generalTab',
+                name: 'general',
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-import-export.profile.mappingsTab',
+                name: 'mappings',
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-import-export.profile.advancedTab',
+                name: 'advanced',
+                onClick: expect.any(Function),
+            },
+        ]);
+        expect(mtTabs.props('defaultItem')).toBe('general');
+        expect(mtTabs.props('positionIdentifier')).toBe('sw-import-export-edit-profile-modal');
+        expect(wrapper.findComponent({ name: 'sw-tabs-deprecated__wrapped' }).exists()).toBe(false);
+    });
+
+    it('should omit the advanced mt-tabs item for export profiles', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper({
+            ...defaultProps,
+            profile: {
+                ...mockProfile,
+                type: 'export',
+            },
+        });
+
+        expect(wrapper.getComponent('mt-tabs-stub').props('items')).toStrictEqual([
+            {
+                label: 'sw-import-export.profile.generalTab',
+                name: 'general',
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-import-export.profile.mappingsTab',
+                name: 'mappings',
+                onClick: expect.any(Function),
+            },
+        ]);
+    });
+
+    it('should change the active tab from mt-tabs item click handlers', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper();
+
+        wrapper.getComponent('mt-tabs-stub').props('items')[1].onClick();
+
+        expect(wrapper.vm.activeTab).toBe('mappings');
+    });
+
     it('should save profile successful', async () => {
         const wrapper = await createWrapper();
 

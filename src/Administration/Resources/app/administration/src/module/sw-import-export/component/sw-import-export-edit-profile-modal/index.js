@@ -47,6 +47,7 @@ export default {
 
     data() {
         return {
+            activeTab: 'general',
             duplicateMappings: [],
             systemRequiredFields: {},
             missingRequiredFields: [],
@@ -54,6 +55,10 @@ export default {
     },
 
     computed: {
+        Shopware() {
+            return Shopware;
+        },
+
         ...mapPropertyErrors('profile', [
             'name',
             'sourceEntity',
@@ -88,6 +93,37 @@ export default {
 
         profileRepository() {
             return this.repositoryFactory.create('import_export_profile');
+        },
+
+        tabItems() {
+            const items = [
+                {
+                    label: this.$t('sw-import-export.profile.generalTab'),
+                    name: 'general',
+                    onClick: () => {
+                        this.activeTab = 'general';
+                    },
+                },
+                {
+                    label: this.$t('sw-import-export.profile.mappingsTab'),
+                    name: 'mappings',
+                    onClick: () => {
+                        this.activeTab = 'mappings';
+                    },
+                },
+            ];
+
+            if (this.profile.type !== 'export' && this.profile.config.updateEntities !== false) {
+                items.push({
+                    label: this.$t('sw-import-export.profile.advancedTab'),
+                    name: 'advanced',
+                    onClick: () => {
+                        this.activeTab = 'advanced';
+                    },
+                });
+            }
+
+            return items;
         },
     },
 

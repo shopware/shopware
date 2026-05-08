@@ -104,24 +104,36 @@
         {% endblock %}
         <sw-card-view>
             {% block sw_settings_rule_detail_tabs %}
-            <sw-tabs
-                v-if="rule && !rule.isNew()"
-                class="sw-settings-rule-detail__tabs"
-                position-identifier="sw-settings-rule-detail"
-            >
-                {% block sw_settings_rule_detail_tab_items %}
-                <sw-tabs-item
-                    v-for="tab in tabItems"
-                    :key="tab.route.name"
-                    :class="'sw-settings-rule-detail__tab-item sw-settings-rule-detail__tab-item-' + tab.cssClassSuffix"
-                    :route="tab.route"
-                    :title="tab.title"
-                    :has-error="tabHasError(tab)"
+            <template v-if="Shopware.Feature.isActive('V6_8_0_0')">
+                <mt-tabs
+                    v-if="rule && !rule.isNew()"
+                    :items="meteorTabItems"
+                    :default-item="defaultTabItem"
+                    class="sw-settings-rule-detail__tabs"
+                    position-identifier="sw-settings-rule-detail"
+                />
+            </template>
+
+            <template v-else>
+                <sw-tabs
+                    v-if="rule && !rule.isNew()"
+                    class="sw-settings-rule-detail__tabs"
+                    position-identifier="sw-settings-rule-detail"
                 >
-                    {{ tab.title }}
-                </sw-tabs-item>
-                {% endblock %}
-            </sw-tabs>
+                    {% block sw_settings_rule_detail_tab_items %}
+                    <sw-tabs-item
+                        v-for="tab in tabItems"
+                        :key="tab.route.name"
+                        :class="'sw-settings-rule-detail__tab-item sw-settings-rule-detail__tab-item-' + tab.cssClassSuffix"
+                        :route="tab.route"
+                        :title="tab.title"
+                        :has-error="tabHasError(tab)"
+                    >
+                        {{ tab.title }}
+                    </sw-tabs-item>
+                    {% endblock %}
+                </sw-tabs>
+            </template>
             {% endblock %}
 
             {% block sw_settings_rule_detail_content_view %}

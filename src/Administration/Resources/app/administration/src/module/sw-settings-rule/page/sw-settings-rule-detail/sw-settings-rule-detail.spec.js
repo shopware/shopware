@@ -158,7 +158,7 @@ const routeLeaveOrUpdateTestCases = [
     },
 ];
 
-async function createWrapper(props = defaultProps, provide = {}) {
+async function createWrapper(props = defaultProps, provide = {}, routeName = 'sw.settings.rule.detail.base') {
     delete config.global.mocks.$router;
     delete config.global.mocks.$route;
 
@@ -192,7 +192,7 @@ async function createWrapper(props = defaultProps, provide = {}) {
     });
 
     await router.push({
-        name: 'sw.settings.rule.detail.base',
+        name: routeName,
         params: {
             id: ruleMock.id,
         },
@@ -207,6 +207,10 @@ async function createWrapper(props = defaultProps, provide = {}) {
                 'sw-tabs': await wrapTestComponent('sw-tabs'),
                 'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                 'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+                'mt-tabs': {
+                    props: ['items', 'defaultItem', 'positionIdentifier'],
+                    template: '<mt-tabs-stub :items="items" :default-item="defaultItem" :position-identifier="positionIdentifier" />',
+                },
                 'sw-language-switch': await wrapTestComponent('sw-language-switch'),
                 'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
                 'sw-select-base': await wrapTestComponent('sw-select-base'),
@@ -296,6 +300,10 @@ async function createWrapper(props = defaultProps, provide = {}) {
 }
 
 describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
+    beforeEach(() => {
+        global.activeFeatureFlags = [''];
+    });
+
     afterEach(() => {
         jest.clearAllMocks();
     });
@@ -403,6 +411,58 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
 
         expect(wrapper.find('.sw-settings-rule-detail__tab-item-general').exists()).toBe(true);
         expect(wrapper.find('.sw-settings-rule-detail__tab-item-assignments').exists()).toBe(true);
+    });
+
+    it('should render legacy tabs when the feature flag is inactive', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.findComponent({ name: 'sw-tabs-deprecated__wrapped' }).exists()).toBe(true);
+        expect(wrapper.find('mt-tabs-stub').exists()).toBe(false);
+    });
+
+    it('should render mt-tabs when the feature flag is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const mtTabs = wrapper.getComponent('mt-tabs-stub');
+
+        expect(mtTabs.props('items')).toStrictEqual([
+            {
+                label: 'sw-settings-rule.detail.tabGeneral',
+                name: 'general',
+                route: {
+                    name: 'sw.settings.rule.detail.base',
+                    params: { id: ruleMock.id },
+                },
+                hasError: false,
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-settings-rule.detail.tabAssignments',
+                name: 'assignments',
+                route: {
+                    name: 'sw.settings.rule.detail.assignments',
+                    params: { id: ruleMock.id },
+                },
+                hasError: false,
+                onClick: expect.any(Function),
+            },
+        ]);
+        expect(mtTabs.props('defaultItem')).toBe('general');
+        expect(mtTabs.props('positionIdentifier')).toBe('sw-settings-rule-detail');
+        expect(wrapper.findComponent({ name: 'sw-tabs-deprecated__wrapped' }).exists()).toBe(false);
+    });
+
+    it('should set the active mt-tabs item from the current route', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper(defaultProps, {}, 'sw.settings.rule.detail.assignments');
+        await flushPromises();
+
+        expect(wrapper.getComponent('mt-tabs-stub').props('defaultItem')).toBe('assignments');
     });
 
     it.each([

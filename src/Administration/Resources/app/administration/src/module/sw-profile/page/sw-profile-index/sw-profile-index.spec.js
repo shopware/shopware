@@ -10,6 +10,7 @@ async function createWrapper(
     isSso = { isSso: false },
     saveFunction = () => Promise.resolve({}),
     loginService = { loginByUsername: () => Promise.resolve({}), logout: () => {} },
+    routeName = 'sw.profile.index.general',
 ) {
     return mount(await wrapTestComponent('sw-profile-index', { sync: true }), {
         global: {
@@ -34,11 +35,29 @@ async function createWrapper(
                 'sw-language-switch': true,
                 'sw-button-process': true,
                 'sw-language-info': true,
-                'sw-tabs': true,
-                'sw-tabs-item': true,
+                'sw-tabs': await wrapTestComponent('sw-tabs'),
+                'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
+                'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+                'mt-tabs': {
+                    props: [
+                        'items',
+                        'defaultItem',
+                        'positionIdentifier',
+                    ],
+                    template: '<mt-tabs-stub :items="items" :default-item="defaultItem" :position-identifier="positionIdentifier" />',
+                },
                 'sw-skeleton': true,
                 'sw-verify-user-modal': true,
                 'sw-media-modal-v2': true,
+            },
+            mocks: {
+                $route: {
+                    name: routeName,
+                    params: {},
+                },
+                $router: {
+                    push: jest.fn(),
+                },
             },
             provide: {
                 acl: {
@@ -129,6 +148,62 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
                 setLocaleWithId: jest.fn(),
             };
         });
+    });
+
+    beforeEach(() => {
+        global.activeFeatureFlags = [''];
+    });
+
+    it('should render legacy tabs when V6_8_0_0 is inactive', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.findComponent({ name: 'sw-tabs-deprecated__wrapped' }).exists()).toBe(true);
+        expect(wrapper.find('mt-tabs-stub').exists()).toBe(false);
+    });
+
+    it('should render mt-tabs when V6_8_0_0 is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper();
+        const mtTabs = wrapper.getComponent('mt-tabs-stub');
+
+        expect(mtTabs.props('items')).toStrictEqual([
+            {
+                label: 'sw-profile.tabGeneral.title',
+                name: 'general',
+                route: { name: 'sw.profile.index.general' },
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-profile.tabSearchPreferences.title',
+                name: 'searchPreferences',
+                route: { name: 'sw.profile.index.searchPreferences' },
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-profile.tabPrivacyPreferences.title',
+                name: 'privacyPreferences',
+                route: { name: 'sw.profile.index.privacyPreferences' },
+                onClick: expect.any(Function),
+            },
+        ]);
+        expect(mtTabs.props('defaultItem')).toBe('general');
+        expect(mtTabs.props('positionIdentifier')).toBe('sw-profile-index');
+        expect(wrapper.findComponent({ name: 'sw-tabs-deprecated__wrapped' }).exists()).toBe(false);
+    });
+
+    it('should use the current route as default mt-tabs item', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper(
+            [],
+            { isSso: false },
+            () => Promise.resolve({}),
+            { loginByUsername: () => Promise.resolve({}), logout: () => {} },
+            'sw.profile.index.privacyPreferences',
+        );
+
+        expect(wrapper.getComponent('mt-tabs-stub').props('defaultItem')).toBe('privacyPreferences');
     });
 
     it('should not be able to save own user', async () => {

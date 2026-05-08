@@ -100,7 +100,14 @@ async function createWrapper() {
                     'router-link': true,
                     'router-view': true,
                     'sw-skeleton': true,
-                    'mt-tabs': true,
+                    'mt-tabs': {
+                        props: [
+                            'items',
+                            'defaultItem',
+                            'positionIdentifier',
+                        ],
+                        template: '<mt-tabs-stub :items="items" :default-item="defaultItem" :position-identifier="positionIdentifier" />',
+                    },
                     'sw-extension-component-section': true,
                 },
             },
@@ -112,6 +119,42 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
     beforeEach(async () => {
         Shopware.Application.view.deleteReactive = () => {};
         global.activeAclRoles = [];
+        global.activeFeatureFlags = [''];
+    });
+
+    it('should render legacy tabs when major tabs migration is inactive', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.findComponent({ name: 'sw-tabs-deprecated__wrapped' }).exists()).toBe(true);
+        expect(wrapper.find('mt-tabs-stub').exists()).toBe(false);
+    });
+
+    it('should render mt-tabs with search tab items when major tabs migration is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const mtTabs = wrapper.getComponent('mt-tabs-stub');
+
+        expect(mtTabs.props('items')).toStrictEqual([
+            {
+                label: 'sw-settings-search.page.generalTab',
+                name: 'general',
+                route: { name: 'sw.settings.search.index.general' },
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-settings-search.page.liveSearchTab',
+                name: 'liveSearch',
+                route: { name: 'sw.settings.search.index.liveSearch' },
+                onClick: expect.any(Function),
+            },
+        ]);
+        expect(mtTabs.props('defaultItem')).toBe('general');
+        expect(mtTabs.props('positionIdentifier')).toBe('sw-settings-search-header');
+        expect(wrapper.findComponent({ name: 'sw-tabs-deprecated__wrapped' }).exists()).toBe(false);
     });
 
     it('should not able to save product search config without editor privilege', async () => {

@@ -37,13 +37,37 @@ export default {
         },
     },
 
+    data() {
+        return {
+            activeLocale: null,
+        };
+    },
+
     computed: {
+        Shopware() {
+            return Shopware;
+        },
+
         fallbackLocale() {
             return this.$root.$i18n.fallbackLocale.value;
         },
 
         localeCount() {
             return this.locales.length;
+        },
+
+        currentLocale() {
+            return this.activeLocale ?? this.fallbackLocale;
+        },
+
+        tabItems() {
+            return this.locales.map((locale) => ({
+                label: this.$t(`locale.${locale}`),
+                name: locale,
+                onClick: () => {
+                    this.activeLocale = locale;
+                },
+            }));
         },
     },
 

@@ -60,6 +60,10 @@ export default {
     },
 
     computed: {
+        Shopware() {
+            return Shopware;
+        },
+
         identifier() {
             return this.rule ? this.rule.name : '';
         },
@@ -149,6 +153,26 @@ export default {
                     cssClassSuffix: 'assignments',
                 },
             ];
+        },
+
+        defaultTabItem() {
+            if (this.$route.name === 'sw.settings.rule.detail.assignments') {
+                return 'assignments';
+            }
+
+            return 'general';
+        },
+
+        meteorTabItems() {
+            return this.tabItems.map((tab) => ({
+                label: tab.title,
+                name: tab.cssClassSuffix,
+                route: tab.route,
+                hasError: this.tabHasError(tab),
+                onClick: () => {
+                    this.$router.push(tab.route);
+                },
+            }));
         },
 
         conditionTreeFlat() {

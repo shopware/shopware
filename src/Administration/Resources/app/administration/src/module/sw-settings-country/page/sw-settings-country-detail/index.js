@@ -65,6 +65,10 @@ export default {
     },
 
     computed: {
+        Shopware() {
+            return Shopware;
+        },
+
         currentUserId() {
             return Shopware.Store.get('session').currentUser.id;
         },
@@ -123,6 +127,62 @@ export default {
 
         showCustomFields() {
             return this.customFieldSets && this.customFieldSets.length > 0;
+        },
+
+        defaultTabItem() {
+            if (this.$route.name === 'sw.settings.country.detail.state' || this.$route.name === 'sw.settings.country.create.state') {
+                return 'state';
+            }
+
+            if (
+                this.$route.name === 'sw.settings.country.detail.address-handling' ||
+                this.$route.name === 'sw.settings.country.create.address-handling'
+            ) {
+                return 'address-handling';
+            }
+
+            return 'general';
+        },
+
+        tabItems() {
+            return [
+                {
+                    label: this.$t('sw-settings-country.page.generalTab'),
+                    name: 'general',
+                    route: { name: this.isNewCountry ? 'sw.settings.country.create.general' : 'sw.settings.country.detail.general' },
+                    onClick: () => {
+                        this.$router.push({
+                            name: this.isNewCountry ? 'sw.settings.country.create.general' : 'sw.settings.country.detail.general',
+                        });
+                    },
+                },
+                {
+                    label: this.$t('sw-settings-country.page.stateTab'),
+                    name: 'state',
+                    route: { name: this.isNewCountry ? 'sw.settings.country.create.state' : 'sw.settings.country.detail.state' },
+                    onClick: () => {
+                        this.$router.push({
+                            name: this.isNewCountry ? 'sw.settings.country.create.state' : 'sw.settings.country.detail.state',
+                        });
+                    },
+                },
+                {
+                    label: this.$t('sw-settings-country.page.addressHandlingTab'),
+                    name: 'address-handling',
+                    route: {
+                        name: this.isNewCountry ?
+                            'sw.settings.country.create.address-handling' :
+                            'sw.settings.country.detail.address-handling',
+                    },
+                    onClick: () => {
+                        this.$router.push({
+                            name: this.isNewCountry ?
+                                'sw.settings.country.create.address-handling' :
+                                'sw.settings.country.detail.address-handling',
+                        });
+                    },
+                },
+            ];
         },
     },
 

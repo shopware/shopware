@@ -17,20 +17,23 @@ const routes = [
             {
                 name: 'sw.settings.country.detail.general',
                 path: '/sw/settings/country/detail/the-id/general',
+                component: {},
             },
             {
                 name: 'sw.settings.country.detail.state',
                 path: '/sw/settings/country/detail/the-id/state',
+                component: {},
             },
             {
                 name: 'sw.settings.country.detail.address-handling',
                 path: '/sw/settings/country/detail/the-id/address-handling',
+                component: {},
             },
         ],
     },
 ];
 
-async function createWrapper(privileges = []) {
+async function createWrapper(privileges = [], routeName = 'sw.settings.country.detail.general') {
     delete config.global.mocks.$router;
     delete config.global.mocks.$route;
 
@@ -38,6 +41,9 @@ async function createWrapper(privileges = []) {
         history: createWebHistory(),
         routes: routes,
     });
+
+    await router.push({ name: routeName });
+    await router.isReady();
 
     return mount(
         await wrapTestComponent('sw-settings-country-detail', {
@@ -155,13 +161,16 @@ async function createWrapper(privileges = []) {
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
                     'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
                     'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+                    'mt-tabs': {
+                        props: ['items', 'defaultItem', 'positionIdentifier'],
+                        template: '<mt-tabs-stub :items="items" :default-item="defaultItem" :position-identifier="positionIdentifier" />',
+                    },
                     'router-link': true,
                     'router-view': true,
                     'sw-skeleton': true,
                     'sw-settings-country-sidebar': true,
                     'sw-error-summary': true,
                     'sw-custom-field-set-renderer': true,
-                    'mt-tabs': true,
                     'sw-extension-component-section': true,
                 },
             },
@@ -172,6 +181,10 @@ async function createWrapper(privileges = []) {
 describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
     beforeAll(() => {
         Shopware.Store.get('session').setCurrentUser({});
+    });
+
+    beforeEach(() => {
+        global.activeFeatureFlags = [''];
     });
 
     it('should be render tab', async () => {
@@ -185,6 +198,65 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
 
         expect(generalTab.exists()).toBeTruthy();
         expect(stateTab.exists()).toBeTruthy();
+    });
+
+    it('should render legacy tabs when the feature flag is inactive', async () => {
+        const wrapper = await createWrapper([
+            'country.editor',
+        ]);
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.findComponent({ name: 'sw-tabs-deprecated__wrapped' }).exists()).toBe(true);
+        expect(wrapper.find('mt-tabs-stub').exists()).toBe(false);
+    });
+
+    it('should render mt-tabs when the feature flag is active', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper([
+            'country.editor',
+        ]);
+
+        await wrapper.vm.$nextTick();
+
+        const mtTabs = wrapper.getComponent('mt-tabs-stub');
+
+        expect(mtTabs.props('items')).toStrictEqual([
+            {
+                label: 'sw-settings-country.page.generalTab',
+                name: 'general',
+                route: { name: 'sw.settings.country.detail.general' },
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-settings-country.page.stateTab',
+                name: 'state',
+                route: { name: 'sw.settings.country.detail.state' },
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-settings-country.page.addressHandlingTab',
+                name: 'address-handling',
+                route: { name: 'sw.settings.country.detail.address-handling' },
+                onClick: expect.any(Function),
+            },
+        ]);
+        expect(mtTabs.props('defaultItem')).toBe('general');
+        expect(mtTabs.props('positionIdentifier')).toBe('sw-settings-country-detail-header');
+        expect(wrapper.findComponent({ name: 'sw-tabs-deprecated__wrapped' }).exists()).toBe(false);
+    });
+
+    it('should set the active mt-tabs item from the current route', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+
+        const wrapper = await createWrapper([
+            'country.editor',
+        ], 'sw.settings.country.detail.address-handling');
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.getComponent('mt-tabs-stub').props('defaultItem')).toBe('address-handling');
     });
 
     it('should be able to save the country', async () => {

@@ -58,6 +58,10 @@ export default {
     },
 
     computed: {
+        Shopware() {
+            return Shopware;
+        },
+
         minSearchTermLength() {
             return Store.get('swProfile').minSearchTermLength;
         },
@@ -102,6 +106,47 @@ export default {
 
         languageId() {
             return Shopware.Store.get('session').languageId;
+        },
+
+        defaultTabItem() {
+            if (this.$route?.name === 'sw.profile.index.searchPreferences') {
+                return 'searchPreferences';
+            }
+
+            if (this.$route?.name === 'sw.profile.index.privacyPreferences') {
+                return 'privacyPreferences';
+            }
+
+            return 'general';
+        },
+
+        tabItems() {
+            return [
+                {
+                    label: this.$t('sw-profile.tabGeneral.title'),
+                    name: 'general',
+                    route: { name: 'sw.profile.index.general' },
+                    onClick: () => {
+                        this.$router.push({ name: 'sw.profile.index.general' });
+                    },
+                },
+                {
+                    label: this.$t('sw-profile.tabSearchPreferences.title'),
+                    name: 'searchPreferences',
+                    route: { name: 'sw.profile.index.searchPreferences' },
+                    onClick: () => {
+                        this.$router.push({ name: 'sw.profile.index.searchPreferences' });
+                    },
+                },
+                {
+                    label: this.$t('sw-profile.tabPrivacyPreferences.title'),
+                    name: 'privacyPreferences',
+                    route: { name: 'sw.profile.index.privacyPreferences' },
+                    onClick: () => {
+                        this.$router.push({ name: 'sw.profile.index.privacyPreferences' });
+                    },
+                },
+            ];
         },
     },
 

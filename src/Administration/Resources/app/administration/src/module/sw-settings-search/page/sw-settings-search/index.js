@@ -47,6 +47,10 @@ export default {
     },
 
     computed: {
+        Shopware() {
+            return Shopware;
+        },
+
         productSearchRepository() {
             return this.repositoryFactory.create('product_search_config');
         },
@@ -88,6 +92,36 @@ export default {
                 message: `${systemKey} + S`,
                 appearance: 'light',
             };
+        },
+
+        defaultTabItem() {
+            if (this.$route.name === 'sw.settings.search.index.liveSearch') {
+                return 'liveSearch';
+            }
+
+            return 'general';
+        },
+
+        tabItems() {
+            return [
+                {
+                    label: this.$t('sw-settings-search.page.generalTab'),
+                    name: 'general',
+                    route: { name: 'sw.settings.search.index.general' },
+                    onClick: () => {
+                        this.onTabChange();
+                        this.$router.push({ name: 'sw.settings.search.index.general' });
+                    },
+                },
+                {
+                    label: this.$t('sw-settings-search.page.liveSearchTab'),
+                    name: 'liveSearch',
+                    route: { name: 'sw.settings.search.index.liveSearch' },
+                    onClick: () => {
+                        this.$router.push({ name: 'sw.settings.search.index.liveSearch' });
+                    },
+                },
+            ];
         },
     },
 

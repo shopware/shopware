@@ -94,6 +94,7 @@ class InfoControllerTest extends TestCase
             'bundles' => [],
             'settings' => [
                 'enableUrlFeature' => true,
+                'presignedUploadSupported' => false,
                 'appUrlReachable' => true,
                 'appsRequireAppUrl' => false,
                 'firstMigrationDate' => null,
@@ -448,6 +449,7 @@ class InfoControllerTest extends TestCase
             $this->createMock(StatsService::class),
             new EventDispatcher(),
             $this->createMock(ContentSystemDataLoaderTypeSchemaGenerator::class),
+            null,
         );
 
         $infoController->setContainer($this->createMock(Container::class));
@@ -525,6 +527,7 @@ class InfoControllerTest extends TestCase
             $this->createMock(StatsService::class),
             new EventDispatcher(),
             $this->createMock(ContentSystemDataLoaderTypeSchemaGenerator::class),
+            null,
         );
 
         $infoController->setContainer($this->createMock(Container::class));

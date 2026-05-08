@@ -1,7 +1,5 @@
 @import "~scss/variables";
 
-$sw-shipping-list-color-error: $color-crimson-500;
-
 .sw-settings-shipping-price-matrix {
     &.sw-card .sw-card__content {
         padding: 0;
@@ -10,8 +8,8 @@ $sw-shipping-list-color-error: $color-crimson-500;
 
     .sw-settings-shipping-price-matrix__top-container {
         padding: 32px 24px;
-        background-color: $color-gray-100;
-        border-bottom: 1px solid #d1d9e0;
+        background-color: var(--color-background-tertiary-default);
+        border-bottom: 1px solid var(--color-border-primary-default);
 
         .sw-select__single-selection {
             min-height: 30px;
@@ -24,7 +22,7 @@ $sw-shipping-list-color-error: $color-crimson-500;
 
     .sw-settings-shipping-price-matrix__price-group-context {
         width: 35px;
-        border: 1px solid #d6dde5;
+        border: 1px solid var(--color-border-primary-default);
         border-radius: 3px;
         padding: 0;
         cursor: pointer;
@@ -80,7 +78,7 @@ $sw-shipping-list-color-error: $color-crimson-500;
     }
 
     .sw-settings-shipping-price-matrix__price-load-all {
-        border-top: 1px solid $color-gray-300;
+        border-top: 1px solid var(--color-border-primary-default);
         padding: 20px;
 
         &-button {

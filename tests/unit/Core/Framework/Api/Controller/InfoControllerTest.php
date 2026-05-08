@@ -302,6 +302,7 @@ class InfoControllerTest extends TestCase
             $this->statsService,
             $this->eventDispatcher,
             $dataLoaderTypeSchemaGenerator ?? static::createStub(ContentSystemDataLoaderTypeSchemaGenerator::class),
+            null,
         );
     }
 }

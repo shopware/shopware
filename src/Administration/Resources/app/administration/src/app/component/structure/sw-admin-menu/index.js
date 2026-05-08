@@ -72,7 +72,7 @@ export default {
 
         userTitle() {
             if (this.currentUser && this.currentUser.admin) {
-                return this.$tc('global.sw-admin-menu.administrator');
+                return this.$t('global.sw-admin-menu.administrator');
             }
 
             if (this.currentUser && this.currentUser.title && this.currentUser.title.length > 0) {
@@ -223,6 +223,12 @@ The admin menu only supports up to three levels of nesting.`,
         isExpanded() {
             this.toggleSidebar();
         },
+
+        $route() {
+            if (this.isMobileViewport()) {
+                this.closeOffCanvas();
+            }
+        },
     },
 
     created() {
@@ -232,11 +238,13 @@ The admin menu only supports up to three levels of nesting.`,
     mounted() {
         this.mountedComponent();
         document.addEventListener('mouseleave', this.onFlyoutLeave);
+        document.addEventListener('click', this.onClickOutsideOffCanvas, true);
     },
 
     beforeUnmount() {
-        document.removeEventListener('mousemove', this.onMouseMoveDocument.bind(this));
+        document.removeEventListener('mousemove', this.onMouseMoveDocument);
         document.removeEventListener('mouseleave', this.onFlyoutLeave);
+        document.removeEventListener('click', this.onClickOutsideOffCanvas, true);
 
         this.beforeUnmountedComponent();
     },
@@ -245,7 +253,7 @@ The admin menu only supports up to three levels of nesting.`,
         createdComponent() {
             this.loginService.notifyOnLoginListener();
 
-            this.collapseMenuOnSmallViewports();
+            this.adjustMenuForViewport();
             this.getUser();
 
             Shopware.Utils.EventBus.on('sw-admin-menu/toggle-offcanvas', this.onToggleCanvas);
@@ -259,6 +267,15 @@ The admin menu only supports up to three levels of nesting.`,
 
         onToggleCanvas(state) {
             this.isOffCanvasShown = state;
+        },
+
+        closeOffCanvas() {
+            if (!this.isOffCanvasShown) {
+                return;
+            }
+
+            this.onToggleCanvas(false);
+            Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', false);
         },
 
         initNavigation() {
@@ -286,12 +303,12 @@ The admin menu only supports up to three levels of nesting.`,
 
             this.$device.onResize({
                 listener() {
-                    that.collapseMenuOnSmallViewports();
+                    that.adjustMenuForViewport();
                 },
                 component: this,
             });
 
-            document.addEventListener('mousemove', this.onMouseMoveDocument.bind(this));
+            document.addEventListener('mousemove', this.onMouseMoveDocument);
 
             this.addScrollbarOffset();
         },
@@ -309,14 +326,20 @@ The admin menu only supports up to three levels of nesting.`,
             });
         },
 
-        collapseMenuOnSmallViewports() {
-            if (this.$device.getViewportWidth() <= 1200 && this.$device.getViewportWidth() >= 500) {
-                this.collapseAdminMenu();
+        adjustMenuForViewport() {
+            if (this.isMobileViewport()) {
+                // Always render the menu expanded on mobile, as it is used as off-canvas. Otherwise the menu inside off-canvas would be collapsed and only show icon entries.
+                this.expandAdminMenu();
+                return;
             }
 
-            if (this.$device.getViewportWidth() <= 500) {
-                this.expandAdminMenu();
+            if (this.$device.getViewportWidth() <= 1200) {
+                this.collapseAdminMenu();
             }
+        },
+
+        isMobileViewport() {
+            return this.$device.getViewportWidth() <= 500;
         },
 
         isActiveItem(menuItem) {
@@ -429,6 +452,14 @@ The admin menu only supports up to three levels of nesting.`,
                 window.clearTimeout(this.subMenuTimer);
             }
 
+            if (!target) {
+                return;
+            }
+
+            if (this.shouldCloseOffCanvasOnMenuItemClick(target)) {
+                this.closeOffCanvas();
+            }
+
             if (level > 1 || !target.classList.contains('navigation-list-item__has-children') || !this.isExpanded) {
                 return;
             }
@@ -471,6 +502,26 @@ The admin menu only supports up to three levels of nesting.`,
             // Clear flyout entries if clicked
             if (this.flyoutEntries.length) {
                 this.flyoutEntries = [];
+            }
+        },
+
+        shouldCloseOffCanvasOnMenuItemClick(target) {
+            if (this.isMobileViewport() && this.isOffCanvasShown && target) {
+                return !target.classList.contains('navigation-list-item__has-children');
+            }
+
+            return false;
+        },
+
+        onClickOutsideOffCanvas({ target }) {
+            if (
+                this.isMobileViewport() &&
+                this.isOffCanvasShown &&
+                target instanceof Element &&
+                !this.$el.contains(target) &&
+                !target.closest('.sw-search-bar')
+            ) {
+                this.closeOffCanvas();
             }
         },
 
@@ -527,8 +578,11 @@ The admin menu only supports up to three levels of nesting.`,
             }
 
             target.classList.add('is--flyout-enabled');
+            const targetTop = target.getBoundingClientRect().top;
+            const appTop = document.getElementById('app').getBoundingClientRect().top;
             this.flyoutStyle = {
-                top: `${target.getBoundingClientRect().top - document.getElementById('app').getBoundingClientRect().top}px`,
+                top: `${targetTop - appTop}px`,
+                'max-height': `${window.innerHeight - targetTop}px`,
             };
 
             this.flyoutEntries = this.getChildren(entry);
@@ -590,8 +644,11 @@ The admin menu only supports up to three levels of nesting.`,
                 this.flyoutEntries = this.getChildren(entry);
             }
 
+            const targetTop = target.getBoundingClientRect().top;
+            const appTop = document.getElementById('app').getBoundingClientRect().top;
             this.flyoutStyle = {
-                top: `${target.getBoundingClientRect().top - document.getElementById('app').getBoundingClientRect().top}px`,
+                top: `${targetTop - appTop}px`,
+                'max-height': `${window.innerHeight - targetTop}px`,
             };
 
             // Remove previous flyout enabled

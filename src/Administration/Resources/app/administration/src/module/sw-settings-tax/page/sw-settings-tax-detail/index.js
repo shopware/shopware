@@ -86,7 +86,7 @@ export default {
         tooltipSave() {
             if (!this.allowSave) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     disabled: this.allowSave,
                     showOnDisabledElements: true,
                 };
@@ -105,7 +105,7 @@ export default {
         },
 
         label() {
-            return this.isShopwareDefaultTax ? this.$tc(`global.tax-rates.${this.tax.name}`) : this.tax.name;
+            return this.isShopwareDefaultTax ? this.$t(`global.tax-rates.${this.tax.name}`) : this.tax.name;
         },
 
         showCustomFields() {
@@ -189,7 +189,7 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-tax.detail.messageSaveError'),
+                        message: this.$t('sw-settings-tax.detail.messageSaveError'),
                     });
                     this.isLoading = false;
                 });

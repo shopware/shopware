@@ -85,10 +85,10 @@ export default {
 
         triggerNamePlaceholder() {
             if (!this.isUnknownTrigger) {
-                return this.$tc('sw-flow.detail.trigger.placeholder');
+                return this.$t('sw-flow.detail.trigger.placeholder');
             }
 
-            return this.$tc('sw-flow.detail.trigger.unknownTriggerPlaceholder');
+            return this.$t('sw-flow.detail.trigger.unknownTriggerPlaceholder');
         },
 
         ...mapState(
@@ -681,7 +681,7 @@ export default {
                         disabled: isEmpty(node.children) && this.hasOnlyStopFlow(node.id),
                         disabledToolTipText:
                             isEmpty(node.children) && this.hasOnlyStopFlow(node.id)
-                                ? this.$tc('sw-flow.detail.trigger.textHint')
+                                ? this.$t('sw-flow.detail.trigger.textHint')
                                 : null,
                     });
 
@@ -754,7 +754,7 @@ export default {
                 `sw-flow.triggers.${eventNameCamelCase}`,
             ].find((key) => this.$te(key));
 
-            return translatedEventName ? this.$tc(translatedEventName) : eventName.replace(/_|-/g, ' ');
+            return translatedEventName ? this.$t(translatedEventName) : eventName.replace(/_|-/g, ' ');
         },
     },
 };

@@ -70,9 +70,9 @@ export default {
 
         getEntryLabel() {
             if (this.entry.label instanceof Object) {
-                return this.entry.label.translated ? this.entry.label.label : this.$tc(this.entry.label.label);
+                return this.entry.label.translated ? this.entry.label.label : this.$t(this.entry.label.label);
             }
-            return this.$tc(this.entry.label);
+            return this.$t(this.entry.label);
         },
 
         showMenuItem() {

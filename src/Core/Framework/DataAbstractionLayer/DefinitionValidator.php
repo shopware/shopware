@@ -365,6 +365,7 @@ class DefinitionValidator
                 $getterMethods[] = 'is' . $propertyName;
                 $getterMethods[] = 'has' . $propertyName;
                 $getterMethods[] = 'has' . preg_replace('/^has/', '', $propertyName);
+                $getterMethods[] = 'was' . preg_replace('/^was/', '', $propertyName);
             }
 
             $hasGetter = false;

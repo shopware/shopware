@@ -3,34 +3,34 @@
 
 .sw-extension-card-base {
     &.is--deactivated {
-        background: $color-gray-100;
+        background: var(--color-background-primary-disabled);
         box-shadow: none;
-        border: 1px solid $color-gray-300;
+        border: 1px solid var(--color-border-primary-default);
 
         .sw-extension-card-base__extension-activation-switch {
-            background: $color-gray-50;
+            background: var(--color-background-secondary-default);
         }
 
         .sw-loader {
-            background-color: rgba($color-gray-100, 0.8);
+            background-color: var(--color-background-primary-disabled);
         }
     }
 
     &.deactivate-prevented {
         .mt-switch .mt-switch__switch {
-            background: $color-shopware-brand-500;
+            background: var(--color-background-brand-default);
             opacity: 0.5;
 
             &::after {
-                background: $color-white;
+                background: var(--color-background-primary-default);
             }
         }
     }
 
     &.is--not-installed {
-        background-color: $color-gray-50;
+        background-color: var(--color-background-secondary-default);
         box-shadow: none;
-        border: 1px solid $color-gray-300;
+        border: 1px solid var(--color-border-primary-default);
     }
 
     .sw-loader {
@@ -45,6 +45,14 @@
             label {
                 display: none;
             }
+        }
+    }
+
+    .sw-extension-icon {
+        background-color: var(--color-background-secondary-default);
+
+        &::after {
+            border-color: var(--color-border-primary-default);
         }
     }
 
@@ -66,7 +74,7 @@
             @include truncate;
 
             font-size: $font-size-xs;
-            color: $color-darkgray-200;
+            color: var(--color-text-primary-default);
             font-weight: $font-weight-semi-bold;
         }
 
@@ -85,7 +93,7 @@
         text-align: right;
 
         a {
-            color: $color-shopware-brand-500;
+            color: var(--color-text-brand-default);
             margin-left: 4px;
         }
 
@@ -97,12 +105,12 @@
     .sw-extension-card-base__open-extension {
         cursor: pointer;
         text-decoration: underline;
-        color: $color-shopware-brand-500;
+        color: var(--color-text-brand-default);
         transition: color 0.1s ease;
         font-weight: $font-weight-medium;
 
         &:hover {
-            color: $color-shopware-brand-800;
+            color: var(--color-text-brand-hover);
         }
     }
 }

@@ -46,7 +46,14 @@
                     tabindex="0"
                     @click="onOpenDetail(item.id)"
                     @keydown.enter="onOpenDetail(item.id)"
-                >{{ item.translated.name }}</h3>
+                >
+                    <span>{{ item.translated.name }}</span>
+                    <mt-promo-badge
+                        v-if="isAgenticCommerceSalesChannelType(item.id)"
+                        variant="new"
+                        size="s"
+                    />
+                </h3>
                 <div
                     class="sw-sales-channel-modal-grid__item-description"
                     role="button"
@@ -68,7 +75,7 @@
         >
             <mt-button
                 v-tooltip="{
-                    message: $tc('sw-sales-channel.modal.messageNoProductStreams'),
+                    message: $t('sw-sales-channel.modal.messageNoProductStreams'),
                     showOnDisabledElements: true,
                     disabled: !addChannelAction.disabled(item.id)
                 }"
@@ -77,9 +84,11 @@
                 variant="primary"
                 :is-loading="addChannelAction.loading(item.id)"
                 :disabled="addChannelAction.disabled(item.id)"
+                data-analytics-id="sw_sales_channel.modal_grid.sales_channel_add"
+                :data-analytics-sales-channel-type-id="item.id"
                 @click="onAddChannel(item.id)"
             >
-                {{ $tc('sw-sales-channel.modal.buttonAddChannel') }}
+                {{ $t('sw-sales-channel.modal.buttonAddChannel') }}
             </mt-button>
         </sw-grid-column>
         {% endblock %}

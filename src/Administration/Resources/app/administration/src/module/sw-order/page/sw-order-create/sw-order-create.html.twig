@@ -5,7 +5,7 @@
         {% block sw_order_create_smart_bar_header_title %}
         <h2 v-if="!showInitialModal">
             {% block sw_order_create_smart_bar_header_title_text %}
-            {{ $tc('sw-order.create.textNewOrder') }}
+            {{ $t('sw-order.create.textNewOrder') }}
             {% endblock %}
         </h2>
         {% endblock %}
@@ -23,7 +23,7 @@
                 data-analytics-id="sw-order-create.cancel-order"
                 @click="onCancelOrder"
             >
-                {{ $tc('global.default.cancel') }}
+                {{ $t('global.default.cancel') }}
             </mt-button>
             {% endblock %}
             {% block sw_order_create_smart_bar_actions_add %}
@@ -36,7 +36,7 @@
                 @update:process-success="saveFinish"
                 @click.prevent="onSaveOrder"
             >
-                {{ $tc('sw-order.create.buttonSaveOrder') }}
+                {{ $t('sw-order.create.buttonSaveOrder') }}
             </sw-button-process>
             {% endblock %}
         </template>
@@ -66,9 +66,9 @@
                 <sw-tabs-item
                     class="sw-order-create__tab-general"
                     :route="{ name: 'sw.order.create.general' }"
-                    :title="$tc('sw-order.detail.tabGeneral')"
+                    :title="$t('sw-order.detail.tabGeneral')"
                 >
-                    {{ $tc('sw-order.detail.tabGeneral') }}
+                    {{ $t('sw-order.detail.tabGeneral') }}
                 </sw-tabs-item>
                 {% endblock %}
 
@@ -76,9 +76,9 @@
                 <sw-tabs-item
                     class="sw-order-create__tab-details"
                     :route="{ name: 'sw.order.create.details' }"
-                    :title="$tc('sw-order.detail.tabDetails')"
+                    :title="$t('sw-order.detail.tabDetails')"
                 >
-                    {{ $tc('sw-order.detail.tabDetails') }}
+                    {{ $t('sw-order.detail.tabDetails') }}
                 </sw-tabs-item>
                 {% endblock %}
             </sw-tabs>
@@ -109,12 +109,12 @@
         <sw-modal
             v-if="showRemindPaymentModal"
             class="sw-order-create__remind-payment-modal"
-            :title="$tc('sw-order.create.remindPaymentModal.title')"
+            :title="$t('sw-order.create.remindPaymentModal.title')"
             :is-loading="remindPaymentModalLoading"
             @modal-close="onRemindPaymentModalClose"
         >
             {% block sw_order_create_remind_payment_modal_content %}
-            <p>{{ $tc('sw-order.create.remindPaymentModal.text', {paymentMethodName: paymentMethodName }, 0) }}</p>
+            <p>{{ $t('sw-order.create.remindPaymentModal.text', {paymentMethodName: paymentMethodName }, 0) }}</p>
             {% endblock %}
 
             <template #modal-footer>
@@ -126,7 +126,7 @@
                     data-analytics-id="sw-order-create.remind-payment-modal-cancel"
                     @click="onRemindPaymentModalClose"
                 >
-                    {{ $tc('global.default.no') }}
+                    {{ $t('global.default.no') }}
                 </mt-button>
 
                 <mt-button
@@ -136,7 +136,7 @@
                     data-analytics-id="sw-order-create.remind-customer"
                     @click="onRemindCustomer"
                 >
-                    {{ $tc('sw-order.create.remindPaymentModal.primaryAction') }}
+                    {{ $t('sw-order.create.remindPaymentModal.primaryAction') }}
                 </mt-button>
                 {% endblock %}
 

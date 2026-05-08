@@ -451,17 +451,14 @@ class TestBootstrapper
             $this->addActivePlugins('SwagCommercial');
         }
 
-        $application = new Application($kernel);
-
-        foreach ($this->activePlugins as $activePlugin) {
-            $args = [
+        if ($this->activePlugins !== []) {
+            $application = new Application($kernel);
+            $returnCode = $application->doRun(new ArrayInput([
                 'command' => 'plugin:install',
                 '--activate' => true,
                 '--reinstall' => true,
-                'plugins' => [$activePlugin],
-            ];
-
-            $returnCode = $application->doRun(new ArrayInput($args), $this->getOutput());
+                'plugins' => $this->activePlugins,
+            ]), $this->getOutput());
 
             if ($returnCode !== Command::SUCCESS) {
                 throw new \RuntimeException('system:install failed');

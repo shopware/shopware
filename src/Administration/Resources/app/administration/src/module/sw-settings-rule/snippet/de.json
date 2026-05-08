@@ -121,7 +121,20 @@
         "promotionGroupRules": "Rabattaktion-Setgruppenregeln",
         "shippingMethodAvailabilityRule": "Versandart-Verfügbarkeitsregeln",
         "flows": "Flow-Builders",
-        "taxProviders": "Steuerservice-Anbieter"
+        "taxProviders": "Steueranbieter",
+        "columns": {
+          "name": "Name",
+          "manufacturer": "Hersteller",
+          "description": "Beschreibung",
+          "taxCalculation": "Steuerberechnung",
+          "active": "Aktiv",
+          "extension": "Erweiterung",
+          "position": "Position",
+          "validFrom": "Gültig ab",
+          "validTo": "Gültig bis",
+          "flow": "Flow",
+          "trigger": "Trigger"
+        }
       },
       "typeHasNoAssociations": "Keine Regeln zugewiesen",
       "hasNoAssociations": "Diese Regel wird nicht verwendet",

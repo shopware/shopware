@@ -3,6 +3,7 @@ import './sw-theme-manager-detail.scss';
 
 const { Mixin } = Shopware;
 const Criteria = Shopware.Data.Criteria;
+const { mapInheritanceSlotPropsToMeteorProps } = Shopware.Utils;
 const { getObjectDiff, cloneDeep, deepMergeObject } = Shopware.Utils.object;
 const { isArray } = Shopware.Utils.types;
 
@@ -697,7 +698,7 @@ export default {
          *      config: anything else from field, including field.custom
          *  }
          */
-        getBind(field) {
+        getBind(field, inheritance = null, inheritedValue = null) {
             const config = Object.assign({}, field);
 
             if (!this.isFieldHandlingLabelAndHelpText(field)) {
@@ -722,7 +723,23 @@ export default {
                 delete config.custom;
             }
 
+            if (inheritance && this.isFieldHandlingLabelAndHelpText(field)) {
+                Object.assign(config, mapInheritanceSlotPropsToMeteorProps(inheritance, inheritedValue));
+                config.mapInheritance = inheritance;
+            }
+
             return { type: field.type, config };
+        },
+
+        getElementEventListeners(field, inheritance = null) {
+            if (!inheritance || !this.isFieldHandlingLabelAndHelpText(field)) {
+                return {};
+            }
+
+            return {
+                'inheritance-remove': inheritance.removeInheritance,
+                'inheritance-restore': inheritance.restoreInheritance,
+            };
         },
 
         /**

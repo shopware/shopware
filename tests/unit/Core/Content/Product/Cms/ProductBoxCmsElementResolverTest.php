@@ -20,7 +20,6 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -187,10 +186,7 @@ class ProductBoxCmsElementResolverTest extends TestCase
         $product->setId($productId);
         $product->setStock($availableStock);
         $product->setIsCloseout($closeout);
-
-        if (!Feature::isActive('v6.8.0.0')) {
-            $product->setAvailableStock($availableStock);
-        }
+        $product->setAvailableStock($availableStock);
 
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId($salesChannelId);

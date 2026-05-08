@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -43,24 +44,28 @@ final readonly class DocumentEntityPersister
      *
      * @throws DocumentV2Exception
      */
-    public function persist(DocumentGenerationRequest $generationRequest, RenderInput $input, array $persistedFiles): DocumentEntity
-    {
+    public function persist(
+        DocumentGenerationRequest $generationRequest,
+        RenderInput $input,
+        array $persistedFiles,
+        Context $context,
+    ): DocumentEntity {
         $documentId = Uuid::randomHex();
 
         // TODO: Keep this guard until the reused document table can enforce document_number + document_type_id uniqueness.
-        $this->assertDocumentNumberIsUnique($generationRequest, $input->documentNumber);
+        $this->assertDocumentNumberIsUnique($generationRequest, $input->documentNumber, $context);
 
         $this->documentRepository->create([
             [
                 'id' => $documentId,
                 'orderId' => $generationRequest->orderId,
                 'orderVersionId' => $generationRequest->orderVersionId,
-                'documentTypeId' => $this->getDocumentTypeId($generationRequest),
+                'documentTypeId' => $this->getDocumentTypeId($generationRequest, $context),
                 'documentNumber' => $input->documentNumber,
                 'deepLinkCode' => Random::getAlphanumericString(32),
                 'config' => [],
             ],
-        ], $generationRequest->apiContext);
+        ], $context);
 
         $documentFiles = [];
 
@@ -73,11 +78,11 @@ final readonly class DocumentEntityPersister
             ];
         }
 
-        $this->documentFileRepository->create($documentFiles, $generationRequest->apiContext);
+        $this->documentFileRepository->create($documentFiles, $context);
 
         $document = $this->documentRepository->search(
             (new Criteria([$documentId]))->addAssociation('documentFiles.media'),
-            $generationRequest->apiContext,
+            $context,
         )->first();
 
         if (!$document instanceof DocumentEntity) {
@@ -90,14 +95,17 @@ final readonly class DocumentEntityPersister
     /**
      * @throws DocumentV2Exception
      */
-    private function assertDocumentNumberIsUnique(DocumentGenerationRequest $generationRequest, string $documentNumber): void
-    {
+    private function assertDocumentNumberIsUnique(
+        DocumentGenerationRequest $generationRequest,
+        string $documentNumber,
+        Context $context,
+    ): void {
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('documentNumber', $documentNumber))
             ->addFilter(new EqualsFilter('documentType.technicalName', $generationRequest->documentType))
             ->setLimit(1);
 
-        $exists = $this->documentRepository->searchIds($criteria, $generationRequest->apiContext)->firstId() !== null;
+        $exists = $this->documentRepository->searchIds($criteria, $context)->firstId() !== null;
 
         if ($exists) {
             throw DocumentV2Exception::documentNumberAlreadyExists($documentNumber);
@@ -107,11 +115,10 @@ final readonly class DocumentEntityPersister
     /**
      * @throws DocumentV2Exception
      */
-    private function getDocumentTypeId(DocumentGenerationRequest $generationRequest): string
+    private function getDocumentTypeId(DocumentGenerationRequest $generationRequest, Context $context): string
     {
         // TODO: Remove this lookup once document generation no longer stores document types and formats in the database.
         $documentType = $generationRequest->documentType;
-        $context = $generationRequest->apiContext;
 
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('technicalName', $documentType))

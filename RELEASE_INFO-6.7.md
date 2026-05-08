@@ -825,6 +825,28 @@ Previously, the clearable button was always hidden by default (`showClearableBut
 
 ## Storefront
 
+### Form validation now supports the native HTML `pattern` attribute
+
+The form validation helper (`FormValidation`) now automatically validates input fields with the native HTML `pattern` attribute. This allows you to specify regex patterns for input validation without additional JavaScript code.
+
+**Example usage:**
+```html
+<input
+    type="text"
+    name="zipCode"
+    pattern="[0-9]{5}"
+    data-validation="required,pattern"
+/>
+```
+
+The pattern validator will:
+- Automatically activate when a `pattern` attribute is present on an input field
+- Validate the input value against the specified regex pattern
+- Show the appropriate error message if validation fails
+- Skip validation for empty values (use the `required` validator to check for emptiness)
+
+**Note:** The pattern attribute is now automatically included in the validation rules when present, similar to how the `required` attribute works. You can explicitly add it to `data-validation` for clarity, but it's not required.
+
 ### Selling and packaging information in the product detail page
 
 * Display the selling and packaging information with the product that has advanced pricing.

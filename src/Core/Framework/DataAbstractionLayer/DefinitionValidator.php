@@ -44,6 +44,8 @@ class DefinitionValidator
         'order_line_item.cover',
         'customer.defaultBillingAddress',
         'customer.defaultShippingAddress',
+        'customer_address.defaultBillingAddressCustomer',
+        'customer_address.defaultShippingAddressCustomer',
         'customer.activeShippingAddress',
         'customer.activeBillingAddress',
         'product_configurator_setting.selected',

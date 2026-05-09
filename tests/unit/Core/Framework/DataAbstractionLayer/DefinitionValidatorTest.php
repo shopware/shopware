@@ -134,6 +134,9 @@ class DefinitionValidatorTest extends TestCase
         static::assertEmpty($primaryKeyViolations, 'Non-StorageAware primary key fields should be ignored');
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - should be removed when FEATURE_GATED_IGNORE_FIELDS is cleared
+     */
     #[DataProvider('featureGatedIgnoreFieldProvider')]
     public function testFeatureGatedIgnoreFieldsAreValidatedWithFeatureActive(string $key): void
     {
@@ -152,6 +155,9 @@ class DefinitionValidatorTest extends TestCase
         });
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - should be removed when FEATURE_GATED_IGNORE_FIELDS is cleared
+     */
     public function testIgnoreFieldsAreStillIgnoredWithFeatureActive(): void
     {
         $validator = new DefinitionValidator(
@@ -166,6 +172,8 @@ class DefinitionValidatorTest extends TestCase
     }
 
     /**
+     * @deprecated tag:v6.8.0 - should be removed when FEATURE_GATED_IGNORE_FIELDS is cleared
+     *
      * @return \Generator<string, array{string}>
      */
     public static function featureGatedIgnoreFieldProvider(): \Generator

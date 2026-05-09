@@ -1314,6 +1314,9 @@ class DefinitionValidator
         ];
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - should be removed when FEATURE_GATED_IGNORE_FIELDS is cleared
+     */
     private function isIgnoredField(string $key): bool
     {
         return \in_array($key, self::IGNORE_FIELDS, true)

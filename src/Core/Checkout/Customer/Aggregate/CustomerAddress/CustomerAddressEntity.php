@@ -55,8 +55,14 @@ class CustomerAddressEntity extends Entity
 
     protected ?CustomerEntity $customer = null;
 
+    /**
+     * @internal
+     */
     protected ?CustomerEntity $defaultBillingAddressCustomer = null;
 
+    /**
+     * @internal
+     */
     protected ?CustomerEntity $defaultShippingAddressCustomer = null;
 
     protected ?string $hash = null;
@@ -251,21 +257,33 @@ class CustomerAddressEntity extends Entity
         $this->customer = $customer;
     }
 
+    /**
+     * @internal
+     */
     public function getDefaultBillingAddressCustomer(): ?CustomerEntity
     {
         return $this->defaultBillingAddressCustomer;
     }
 
+    /**
+     * @internal
+     */
     public function setDefaultBillingAddressCustomer(?CustomerEntity $defaultBillingAddressCustomer): void
     {
         $this->defaultBillingAddressCustomer = $defaultBillingAddressCustomer;
     }
 
+    /**
+     * @internal
+     */
     public function getDefaultShippingAddressCustomer(): ?CustomerEntity
     {
         return $this->defaultShippingAddressCustomer;
     }
 
+    /**
+     * @internal
+     */
     public function setDefaultShippingAddressCustomer(?CustomerEntity $defaultShippingAddressCustomer): void
     {
         $this->defaultShippingAddressCustomer = $defaultShippingAddressCustomer;

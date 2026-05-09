@@ -57,6 +57,9 @@ class DefinitionValidator
         'product.cheapest_price_accessor',
     ];
 
+    /**
+     * @deprecated tag:v6.8.0 - should be cleared in preparation for 6.9
+     */
     private const FEATURE_GATED_IGNORE_FIELDS = [
         'customer.defaultBillingAddress',
         'customer.defaultShippingAddress',

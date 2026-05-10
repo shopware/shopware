@@ -144,7 +144,12 @@ export default {
                 ...(normalizedDateValue.to ? { lte: normalizedDateValue.to } : {}),
             };
 
-            this.$emit('filter-update', this.filter.name, [Criteria.range(this.filter.property, params)], normalizedDateValue);
+            this.$emit(
+                'filter-update',
+                this.filter.name,
+                [Criteria.range(this.filter.property, params)],
+                normalizedDateValue,
+            );
         },
 
         onTimeframeSelect(timeframe) {

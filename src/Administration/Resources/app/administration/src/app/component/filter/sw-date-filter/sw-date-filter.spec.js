@@ -269,7 +269,7 @@ describe('src/app/component/filter/sw-date-filter', () => {
         'a year': {
             timeframe: -365,
             expectedFrom: '1336-12-31T00:00:00.000Z',
-            expectedTo: '1337-12-31T00:00:00.000Z',
+            expectedTo: '1337-12-31T23:59:59.000Z',
         },
         'a quarter': {
             timeframe: 'lastQuarter',
@@ -279,17 +279,17 @@ describe('src/app/component/filter/sw-date-filter', () => {
         'a month': {
             timeframe: -30,
             expectedFrom: '1337-12-01T00:00:00.000Z',
-            expectedTo: '1337-12-31T00:00:00.000Z',
+            expectedTo: '1337-12-31T23:59:59.000Z',
         },
         'a week': {
             timeframe: -7,
             expectedFrom: '1337-12-24T00:00:00.000Z',
-            expectedTo: '1337-12-31T00:00:00.000Z',
+            expectedTo: '1337-12-31T23:59:59.000Z',
         },
         'a day': {
             timeframe: -1,
             expectedFrom: '1337-12-30T00:00:00.000Z',
-            expectedTo: '1337-12-31T00:00:00.000Z',
+            expectedTo: '1337-12-31T23:59:59.000Z',
         },
     };
 

@@ -150,7 +150,7 @@ class UnusedMediaPurger
      */
     private function filterOutNewMedia(array $mediaIds, int $gracePeriodDays, Context $context): array
     {
-        if ($gracePeriodDays === 0) {
+        if ($gracePeriodDays === 0 || $mediaIds === []) {
             return $mediaIds;
         }
 

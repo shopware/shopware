@@ -7,6 +7,7 @@ describe('use-block-context', () => {
     let legacyIf;
     let legacyElseIf;
     let legacyElse;
+    let legacyConditionContext;
 
     beforeEach(async () => {
         useBlockContext = (await import('./use-block-context')).default;
@@ -15,6 +16,7 @@ describe('use-block-context', () => {
         legacyIf = blockContext.legacyIf;
         legacyElseIf = blockContext.legacyElseIf;
         legacyElse = blockContext.legacyElse;
+        legacyConditionContext = blockContext.legacyConditionContext;
     });
 
     afterEach(() => {
@@ -142,5 +144,26 @@ describe('use-block-context', () => {
     it('does not render orphaned legacy else branches', () => {
         expect(legacyElseIf('test', true)).toBe(false);
         expect(legacyElse('test')).toBe(false);
+    });
+
+    it('cleans up legacy if chains without an else branch', async () => {
+        expect(legacyIf('test', false)).toBe(false);
+        expect(legacyElseIf('test', true)).toBe(true);
+        expect(legacyConditionContext).toStrictEqual({
+            test: [
+                false,
+                true,
+            ],
+        });
+
+        await Promise.resolve();
+
+        expect(legacyConditionContext).toStrictEqual({});
+    });
+
+    it('keeps legacy else branches available during the current render tick', () => {
+        expect(legacyIf('test', false)).toBe(false);
+        expect(legacyElse('test')).toBe(true);
+        expect(legacyConditionContext).toStrictEqual({});
     });
 });

@@ -6,6 +6,14 @@ import { reactive, type Slot } from 'vue';
 const blockContext: Record<string, Slot[]> = reactive({});
 const legacyConditionContext: Record<string, boolean[]> = {};
 
+function scheduleLegacyConditionCleanup(blockName: string, chain: boolean[]): void {
+    queueMicrotask(() => {
+        if (legacyConditionContext[blockName] === chain) {
+            delete legacyConditionContext[blockName];
+        }
+    });
+}
+
 function getBlocks(blockName: string): Slot[] {
     return blockContext[blockName] ?? [];
 }
@@ -36,7 +44,9 @@ function removeBlock(blockName: string, block?: Slot): void {
 function legacyIf(blockName: string, expression: unknown): boolean {
     const result = Boolean(expression);
 
-    legacyConditionContext[blockName] = [result];
+    const chain = [result];
+    legacyConditionContext[blockName] = chain;
+    scheduleLegacyConditionCleanup(blockName, chain);
 
     return result;
 }
@@ -52,6 +62,7 @@ function legacyElseIf(blockName: string, expression: unknown): boolean {
     const previousConditionMatched = chain.some(Boolean);
 
     chain.push(!previousConditionMatched && result);
+    scheduleLegacyConditionCleanup(blockName, chain);
 
     return !previousConditionMatched && result;
 }

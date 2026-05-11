@@ -16,6 +16,7 @@
 
 import Twig from 'twig';
 import reconstructInnerTemplate, { type TwigToken } from './reconstruct-twig-template';
+import { transformLegacyBlockExtensionConditionals } from './transform-legacy-block-conditionals';
 
 /**
  * @private
@@ -74,7 +75,13 @@ export function indexTwigBlocksFromTemplate(componentName: string, rawTemplate: 
         const blockName = token.token.blockName;
         const output = (token.token.output ?? []) as TwigToken[];
 
-        const innerTemplate = reconstructInnerTemplate(output);
+        console.log('[sw-block] Indexing block "%s" from component "%s"', blockName, componentName);
+        if(componentName === 'sw-native-block-else-demo-validation') {
+            console.log('Output', output);
+            console.log('Inner template', reconstructInnerTemplate(output));
+            console.log('Full', transformLegacyBlockExtensionConditionals(blockName, reconstructInnerTemplate(output)));
+        }
+        const innerTemplate = transformLegacyBlockExtensionConditionals(blockName, reconstructInnerTemplate(output));
 
         const existing = getBlockEntries(blockName);
         existing.push({ componentName, innerTemplate });

@@ -53,6 +53,24 @@ describe('core/factory/twig-block-index.ts', () => {
             expect(entry.innerTemplate).toContain('class="inner"');
         });
 
+        it('stores legacy Twig parent/v-else overrides with native block condition helpers', () => {
+            indexTwigBlocksFromTemplate(
+                'sw-product-detail',
+                `
+                {% block legacy_else_block %}
+                    {% parent %}
+                    <div v-else class="legacy-else"></div>
+                {% endblock %}
+            `,
+            );
+
+            const [entry] = getBlockEntries('legacy_else_block');
+
+            expect(entry.innerTemplate).toContain('<sw-block-parent></sw-block-parent>');
+            expect(entry.innerTemplate).toContain(`v-if="swLegacyBlockElse('legacy_else_block')"`);
+            expect(entry.innerTemplate).not.toContain('v-else class="legacy-else"');
+        });
+
         it('accumulates multiple entries for the same block name from separate calls', () => {
             indexTwigBlocksFromTemplate(
                 'sw-plugin-a',

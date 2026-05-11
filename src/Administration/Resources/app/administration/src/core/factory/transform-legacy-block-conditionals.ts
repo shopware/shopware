@@ -5,9 +5,31 @@
 const SELF_CLOSING_TAG_REG_EXP = /<([A-Za-z][\w:-]*)(?:\s+((?:[^"'<>]|"[^"]*"|'[^']*')*?))?\s*\/>/g;
 const CONDITIONAL_REG_EXP = /v-(?:if|else-if|else)\b/;
 const SW_BLOCK_PARENT_TAG = 'sw-block-parent';
+const SW_BLOCK_TAG = 'sw-block';
+
+type LegacyBlockHelperNames = {
+    if: string;
+    elseIf: string;
+    else: string;
+};
+
+const GLOBAL_LEGACY_HELPERS = {
+    if: '$swLegacyBlockIf',
+    elseIf: '$swLegacyBlockElseIf',
+    else: '$swLegacyBlockElse',
+} satisfies LegacyBlockHelperNames;
+const SHIM_LEGACY_HELPERS = {
+    if: 'swLegacyBlockIf',
+    elseIf: 'swLegacyBlockElseIf',
+    else: 'swLegacyBlockElse',
+} satisfies LegacyBlockHelperNames;
 
 function escapeSingleQuotedString(value: string): string {
     return value.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+}
+
+function escapeDoubleQuotedString(value: string): string {
+    return value.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
 }
 
 function createLegacyHelperExpression(helperName: string, blockName: string, expression?: string | null): string {
@@ -82,7 +104,11 @@ function getLeadingConditionalElement(children: Element[]): Element | null {
     return null;
 }
 
-function rewriteTrailingConditionalChain(blockName: string, conditionalChain: Element[]): boolean {
+function rewriteTrailingConditionalChain(
+    blockName: string,
+    conditionalChain: Element[],
+    helpers: LegacyBlockHelperNames = GLOBAL_LEGACY_HELPERS,
+): boolean {
     if (conditionalChain.length === 0) {
         return false;
     }
@@ -94,7 +120,7 @@ function rewriteTrailingConditionalChain(blockName: string, conditionalChain: El
         return false;
     }
 
-    firstConditional.setAttribute('v-if', createLegacyHelperExpression('$swLegacyBlockIf', blockName, firstExpression));
+    firstConditional.setAttribute('v-if', createLegacyHelperExpression(helpers.if, blockName, firstExpression));
 
     conditionalChain.slice(1).forEach((conditionalElement) => {
         const expression = conditionalElement.getAttribute('v-else-if');
@@ -104,20 +130,24 @@ function rewriteTrailingConditionalChain(blockName: string, conditionalChain: El
         }
 
         conditionalElement.removeAttribute('v-else-if');
-        conditionalElement.setAttribute('v-if', createLegacyHelperExpression('$swLegacyBlockElseIf', blockName, expression));
+        conditionalElement.setAttribute('v-if', createLegacyHelperExpression(helpers.elseIf, blockName, expression));
     });
 
     return true;
 }
 
-function rewriteLeadingConditional(blockName: string, conditionalElement: Element | null): boolean {
+function rewriteLeadingConditional(
+    blockName: string,
+    conditionalElement: Element | null,
+    helpers: LegacyBlockHelperNames = GLOBAL_LEGACY_HELPERS,
+): boolean {
     if (!conditionalElement) {
         return false;
     }
 
     if (conditionalElement.hasAttribute('v-else')) {
         conditionalElement.removeAttribute('v-else');
-        conditionalElement.setAttribute('v-if', createLegacyHelperExpression('$swLegacyBlockElse', blockName));
+        conditionalElement.setAttribute('v-if', createLegacyHelperExpression(helpers.else, blockName));
 
         return true;
     }
@@ -129,7 +159,7 @@ function rewriteLeadingConditional(blockName: string, conditionalElement: Elemen
     }
 
     conditionalElement.removeAttribute('v-else-if');
-    conditionalElement.setAttribute('v-if', createLegacyHelperExpression('$swLegacyBlockElseIf', blockName, expression));
+    conditionalElement.setAttribute('v-if', createLegacyHelperExpression(helpers.elseIf, blockName, expression));
 
     return true;
 }
@@ -176,4 +206,34 @@ export default function transformLegacyBlockConditionals(template: string): stri
     }
 
     return parsedTemplate.innerHTML;
+}
+
+/**
+ * @private
+ */
+export function transformLegacyBlockExtensionConditionals(blockName: string, template: string): string {
+    if (!CONDITIONAL_REG_EXP.test(template) || typeof document === 'undefined') {
+        return template;
+    }
+
+    const parsedTemplate = document.createElement('template');
+    parsedTemplate.innerHTML =
+        `<${SW_BLOCK_TAG} extends="${escapeDoubleQuotedString(blockName)}">` +
+        `${normalizeSelfClosingTags(template)}` +
+        `</${SW_BLOCK_TAG}>`;
+
+    const blockElement = parsedTemplate.content.querySelector(`${SW_BLOCK_TAG}[extends]`);
+
+    if (
+        !blockElement ||
+        !rewriteLeadingConditional(
+            blockName,
+            getLeadingConditionalElement(Array.from(blockElement.children)),
+            SHIM_LEGACY_HELPERS,
+        )
+    ) {
+        return template;
+    }
+
+    return blockElement.innerHTML;
 }

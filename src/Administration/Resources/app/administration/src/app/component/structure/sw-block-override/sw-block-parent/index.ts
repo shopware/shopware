@@ -14,13 +14,15 @@ import parentsInjectionKey from '../sw-block/parents-injection-key';
  */
 export default Shopware.Component.wrapComponentConfig({
     setup() {
-        const parent = inject(parentsInjectionKey, null)?.value.pop();
+        const parents = inject(parentsInjectionKey, null);
+        const parent = parents?.value.pop();
+        const parentIndex = parents?.value.length ?? -1;
 
         return {
-            parent,
+            parent: () => parents?.value[parentIndex] ?? parent,
         };
     },
     render() {
-        return h(() => this.parent);
+        return h(() => this.parent());
     },
 });

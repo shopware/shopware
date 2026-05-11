@@ -18,10 +18,46 @@ import type { BlockEntry } from 'src/core/factory/twig-block-index';
 import swBlockParent from '../sw-block-parent/index';
 
 const warnedBlocks = new Set<string>();
+const legacyBlockHelperAliases = {
+    swLegacyBlockIf: '$swLegacyBlockIf',
+    swLegacyBlockElseIf: '$swLegacyBlockElseIf',
+    swLegacyBlockElse: '$swLegacyBlockElse',
+} as const;
+const legacyBlockHelperKeys = new Set<string>(Object.keys(legacyBlockHelperAliases));
+
+function isLegacyBlockHelperKey(key: string | symbol): key is string {
+    return typeof key === 'string' && legacyBlockHelperKeys.has(key);
+}
+
+function getGlobalProperty(source: Record<string | symbol, unknown>, helperName: string): unknown {
+    const instance = source.$ as
+        | {
+              appContext?: {
+                  config?: {
+                      globalProperties?: Record<string, unknown>;
+                  };
+              };
+          }
+        | undefined;
+
+    return instance?.appContext?.config?.globalProperties?.[helperName];
+}
+
+function getLegacyBlockHelper(source: Record<string | symbol, unknown>, key: string): unknown {
+    const helperName = legacyBlockHelperAliases[key as keyof typeof legacyBlockHelperAliases];
+    const helper = source[helperName] ?? getGlobalProperty(source, helperName);
+
+    return typeof helper === 'function' ? helper.bind(source) : helper;
+}
 
 /** Guards against accidentally exposing Vue internals or private properties into the shim template. */
-const isInternalKey = (key: string | symbol): boolean =>
-    typeof key === 'string' && (key.startsWith('$') || key.startsWith('_'));
+function isInternalKey(key: string | symbol): boolean {
+    if (typeof key !== 'string' || isLegacyBlockHelperKey(key)) {
+        return false;
+    }
+
+    return key[0] === '$' || key[0] === '_';
+}
 
 /** @private */
 export function createShimSlot(entry: BlockEntry, blockName: string): Slot {
@@ -79,6 +115,10 @@ function buildSetupContext(dataScope: Record<string | symbol, unknown> | null): 
 
     return new Proxy({} as Record<string, unknown>, {
         get(_t, key: string | symbol): unknown {
+            if (isLegacyBlockHelperKey(key)) {
+                return getLegacyBlockHelper(source, key);
+            }
+
             return isInternalKey(key) ? undefined : source[key];
         },
         has(_t, key: string | symbol): boolean {
@@ -87,11 +127,29 @@ function buildSetupContext(dataScope: Record<string | symbol, unknown> | null): 
             // here ensures that Vue's internal identity checks work correctly on
             // the host proxy without leaking them as template-visible bindings
             // (isInternalKey only guards against string-prefixed private names).
+            if (isLegacyBlockHelperKey(key)) {
+                return typeof getLegacyBlockHelper(source, key) === 'function';
+            }
+
             return !isInternalKey(key) && key in source;
         },
         getOwnPropertyDescriptor(_t, key: string | symbol): PropertyDescriptor | undefined {
+            if (isLegacyBlockHelperKey(key)) {
+                if (typeof getLegacyBlockHelper(source, key) !== 'function') return undefined;
+
+                return {
+                    configurable: true,
+                    enumerable: false,
+                    get: () => getLegacyBlockHelper(source, key),
+                };
+            }
+
             if (isInternalKey(key) || !(key in source)) return undefined;
-            return { configurable: true, enumerable: false, get: () => source[key] };
+            return {
+                configurable: true,
+                enumerable: false,
+                get: () => source[key],
+            };
         },
         ownKeys(): (string | symbol)[] {
             return [];

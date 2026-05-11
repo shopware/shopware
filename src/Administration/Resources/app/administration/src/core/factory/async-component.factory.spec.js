@@ -3367,6 +3367,55 @@ describe('core/factory/async-component.factory.ts', () => {
             expect(wrapper.find('.false-branch').exists()).toBe(true);
         });
 
+        it('renders a legacy Twig shim v-else branch using the host component condition scope', async () => {
+            const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+            ComponentFactory.register('native-block-legacy-twig-shim-else', {
+                data() {
+                    return {
+                        isConditionTrue: false,
+                    };
+                },
+                computed: {
+                    dataScope() {
+                        return this;
+                    },
+                },
+                template: `
+                    <div>
+                        <sw-block name="twig_shim_test_block" :data="dataScope">
+                            <div v-if="isConditionTrue" class="true-branch">true</div>
+                        </sw-block>
+                    </div>
+                `,
+            });
+
+            ComponentFactory.override('native-block-legacy-twig-shim-else', {
+                template: `
+                    {% block twig_shim_test_block %}
+                        {% parent %}
+                        <div v-else class="false-branch">false</div>
+                    {% endblock %}
+                `,
+            });
+
+            let wrapper;
+
+            try {
+                wrapper = await mountNativeBlockComponent('native-block-legacy-twig-shim-else');
+            } finally {
+                consoleWarn.mockRestore();
+            }
+
+            expect(wrapper.find('.true-branch').exists()).toBe(false);
+            expect(wrapper.find('.false-branch').exists()).toBe(true);
+
+            await wrapper.setData({ isConditionTrue: true });
+
+            expect(wrapper.find('.true-branch').exists()).toBe(true);
+            expect(wrapper.find('.false-branch').exists()).toBe(false);
+        });
+
         it('preserves v-else-if chains that end inside a native block', async () => {
             const registerNativeBlockChain = (componentName, initialState) => {
                 const blockName = `${componentName}-block`;

@@ -273,6 +273,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
      */
     private function collectMatchingIdsInLanguageContexts(array $languageContexts, Criteria $criteria): array
     {
+        /** @var array<string, true> $matches */
         $matches = [];
 
         foreach ($languageContexts as $languageContext) {
@@ -280,10 +281,12 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
                 fn (Context $context): array => $this->repository->searchIds($criteria, $context)->getIds()
             );
 
-            $matches = [...$matches, ...$languageMatches];
+            foreach ($languageMatches as $id) {
+                $matches[$id] = true;
+            }
         }
 
-        return array_values(array_unique($matches));
+        return array_keys($matches);
     }
 
     /**

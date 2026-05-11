@@ -108,56 +108,57 @@ class StringFieldSerializerTest extends TestCase
      * @param list<Flag> $flags
      */
     #[DataProvider('requiredValueProvider')]
-    public function testRequiredFieldsRejectMissingAndBlankValues(?string $input, array $flags, bool $exists): void
+    public function testRequiredFieldsRejectMissingAndBlankValues(?string $input, array $flags): void
     {
         $field = $this->createField($flags);
 
         try {
-            $this->encodeValue($field, $input, $exists);
-            static::fail('Required string fields must reject missing or blank values.');
+            $this->encodeValue($field, $input);
+            static::fail('Required string fields must reject missing or blank values for new entities.');
+        } catch (WriteConstraintViolationException $exception) {
+            static::assertSame('/name', $exception->getViolations()->get(0)->getPropertyPath());
+        }
+
+        try {
+            $this->encodeValue($field, $input, exists: true);
+            static::fail('Required string fields must reject missing or blank values for existing entities.');
         } catch (WriteConstraintViolationException $exception) {
             static::assertSame('/name', $exception->getViolations()->get(0)->getPropertyPath());
         }
     }
 
     /**
-     * @return array<string, array{?string, list<Flag>, bool}>
+     * @return array<string, array{?string, list<Flag>}>
      */
     public static function requiredValueProvider(): array
     {
         return [
-            'create null required' => [null, [new Required()], false],
-            'update null required' => [null, [new Required()], true],
-            'create null allow empty required' => [null, [new Required(), new AllowEmptyString()], false],
-            'update null allow empty required' => [null, [new Required(), new AllowEmptyString()], true],
-            'create empty required' => ['', [new Required()], false],
-            'update empty required' => ['', [new Required()], true],
-            'create space required' => [' ', [new Required()], false],
-            'update space required' => [' ', [new Required()], true],
-            'required HTML-only content is blank after stripping tags' => ['<test>', [new Required()], false],
+            'null required' => [null, [new Required()]],
+            'null allow empty required' => [null, [new Required(), new AllowEmptyString()]],
+            'empty required' => ['', [new Required()]],
+            'space required' => [' ', [new Required()]],
+            'HTML-only content is blank after stripping tags' => ['<test>', [new Required()]],
         ];
     }
 
     #[DataProvider('optionalBlankValueProvider')]
-    public function testOptionalFieldsNormalizeBlankValuesToNull(?string $input, bool $exists): void
+    public function testOptionalFieldsNormalizeBlankValuesToNull(?string $input): void
     {
         $field = $this->createField();
 
-        static::assertSame(['name' => null], $this->encodeValue($field, $input, $exists));
+        static::assertSame(['name' => null], $this->encodeValue($field, $input));
+        static::assertSame(['name' => null], $this->encodeValue($field, $input, exists: true));
     }
 
     /**
-     * @return array<string, array{?string, bool}>
+     * @return array<string, array{?string}>
      */
     public static function optionalBlankValueProvider(): array
     {
         return [
-            'create null optional' => [null, false],
-            'update null optional' => [null, true],
-            'create empty optional' => ['', false],
-            'update empty optional' => ['', true],
-            'create space optional' => [' ', false],
-            'update space optional' => [' ', true],
+            'null optional' => [null],
+            'empty optional' => [''],
+            'space optional' => [' '],
         ];
     }
 
@@ -165,23 +166,22 @@ class StringFieldSerializerTest extends TestCase
      * @param list<Flag> $flags
      */
     #[DataProvider('allowedEmptyValueProvider')]
-    public function testAllowedEmptyValuesArePreserved(string $input, string $expected, array $flags, bool $exists): void
+    public function testAllowedEmptyValuesArePreserved(string $input, string $expected, array $flags): void
     {
         $field = $this->createField($flags);
 
-        static::assertSame(['name' => $expected], $this->encodeValue($field, $input, $exists));
+        static::assertSame(['name' => $expected], $this->encodeValue($field, $input));
+        static::assertSame(['name' => $expected], $this->encodeValue($field, $input, exists: true));
     }
 
     /**
-     * @return array<string, array{string, string, list<Flag>, bool}>
+     * @return array<string, array{string, string, list<Flag>}>
      */
     public static function allowedEmptyValueProvider(): array
     {
         return [
-            'create space allow empty' => [' ', ' ', [new AllowEmptyString()], false],
-            'update space allow empty' => [' ', ' ', [new AllowEmptyString()], true],
-            'create empty allow empty required' => ['', '', [new Required(), new AllowEmptyString()], false],
-            'update empty allow empty required' => ['', '', [new Required(), new AllowEmptyString()], true],
+            'space allow empty' => [' ', ' ', [new AllowEmptyString()]],
+            'empty allow empty required' => ['', '', [new Required(), new AllowEmptyString()]],
         ];
     }
 
@@ -190,8 +190,15 @@ class StringFieldSerializerTest extends TestCase
         $field = $this->createField(maxLength: 5);
 
         try {
+            $this->encodeValue($field, '123456789');
+            static::fail('String fields must reject values that exceed their max length for new entities.');
+        } catch (WriteConstraintViolationException $exception) {
+            static::assertSame('/name', $exception->getViolations()->get(0)->getPropertyPath());
+        }
+
+        try {
             $this->encodeValue($field, '123456789', exists: true);
-            static::fail('String fields must reject values that exceed their max length.');
+            static::fail('String fields must reject values that exceed their max length for existing entities.');
         } catch (WriteConstraintViolationException $exception) {
             static::assertSame('/name', $exception->getViolations()->get(0)->getPropertyPath());
         }
@@ -203,7 +210,14 @@ class StringFieldSerializerTest extends TestCase
 
         try {
             $this->encodeValue($field, true);
-            static::fail('String fields must reject non-string values.');
+            static::fail('String fields must reject non-string values for new entities.');
+        } catch (WriteConstraintViolationException $exception) {
+            static::assertSame('/name', $exception->getViolations()->get(0)->getPropertyPath());
+        }
+
+        try {
+            $this->encodeValue($field, true, exists: true);
+            static::fail('String fields must reject non-string values for existing entities.');
         } catch (WriteConstraintViolationException $exception) {
             static::assertSame('/name', $exception->getViolations()->get(0)->getPropertyPath());
         }
@@ -218,6 +232,7 @@ class StringFieldSerializerTest extends TestCase
         $field = $this->createField($flags);
 
         static::assertSame(['name' => $expected], $this->encodeValue($field, $input));
+        static::assertSame(['name' => $expected], $this->encodeValue($field, $input, exists: true));
     }
 
     /**

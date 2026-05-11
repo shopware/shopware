@@ -21,7 +21,6 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\HelperSet;
 use Symfony\Component\Console\Tester\CommandTester;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
 /**
@@ -30,8 +29,6 @@ use Symfony\Component\Filesystem\Path;
 #[CoversClass(PluginInstallCommand::class)]
 class PluginInstallCommandTest extends TestCase
 {
-    private Filesystem $filesystem;
-
     private string $projectDir;
 
     private MockObject&PluginLifecycleService $pluginLifecycleService;
@@ -44,8 +41,7 @@ class PluginInstallCommandTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->filesystem = new Filesystem();
-        $this->projectDir = Path::join(sys_get_temp_dir(), Uuid::randomHex());
+        $this->projectDir = __DIR__ . '/_fixtures/project';
         $this->pluginLifecycleService = $this->createMock(PluginLifecycleService::class);
         $this->cacheClearer = $this->createMock(CacheClearer::class);
         $this->plugins = new PluginCollection();
@@ -66,16 +62,11 @@ class PluginInstallCommandTest extends TestCase
         $this->commandTester = new CommandTester($command);
     }
 
-    protected function tearDown(): void
-    {
-        $this->filesystem->remove($this->projectDir);
-    }
-
     public function testInstallSortsPluginsByRequirements(): void
     {
-        $dependentPlugin = $this->createPlugin('DependentPlugin', 'swag/dependent-plugin', ['swag/base-plugin']);
-        $independentPlugin = $this->createPlugin('IndependentPlugin', 'swag/independent-plugin');
-        $basePlugin = $this->createPlugin('BasePlugin', 'swag/base-plugin');
+        $dependentPlugin = $this->createPluginEntity('DependentPlugin', 'swag/dependent-plugin');
+        $independentPlugin = $this->createPluginEntity('IndependentPlugin', 'swag/independent-plugin');
+        $basePlugin = $this->createPluginEntity('BasePlugin', 'swag/base-plugin');
         $this->plugins->fill([$dependentPlugin, $independentPlugin, $basePlugin]);
 
         $installedPlugins = [];
@@ -101,20 +92,20 @@ class PluginInstallCommandTest extends TestCase
     public function testInstallFailsWhenPluginComposerJsonIsMissingDuringRequirementSorting(): void
     {
         $missingPlugin = $this->createPluginEntity('MissingComposerPlugin', 'swag/missing-composer-plugin');
-        $existingPlugin = $this->createPlugin('ExistingComposerPlugin', 'swag/existing-composer-plugin');
+        $existingPlugin = $this->createPluginEntity('ExistingComposerPlugin', 'swag/existing-composer-plugin');
         $this->plugins->fill([$missingPlugin, $existingPlugin]);
 
         $this->pluginLifecycleService->expects($this->never())->method('installPlugin');
 
         $this->expectException(PluginException::class);
-        $this->expectExceptionMessage(\sprintf('Plugin "MissingComposerPlugin" has no composer.json at "%s".', Path::join($this->projectDir, 'custom/plugins/MissingComposerPlugin/composer.json')));
+        $this->expectExceptionMessage(\sprintf('Plugin "MissingComposerPlugin" has no composer.json at "%s".', Path::join($this->projectDir, 'plugins/MissingComposerPlugin/composer.json')));
 
         $this->commandTester->execute(['plugins' => ['MissingComposerPlugin', 'ExistingComposerPlugin']], ['interactive' => false]);
     }
 
     public function testInstallSkipsAlreadyInstalledPlugin(): void
     {
-        $plugin = $this->createPlugin('InstalledPlugin', 'swag/installed-plugin');
+        $plugin = $this->createPluginEntity('InstalledPlugin', 'swag/installed-plugin');
         $plugin->setInstalledAt(new \DateTimeImmutable());
         $this->plugins->add($plugin);
 
@@ -129,7 +120,7 @@ class PluginInstallCommandTest extends TestCase
 
     public function testInstallActivatesAlreadyInstalledInactivePlugin(): void
     {
-        $plugin = $this->createPlugin('InstalledPlugin', 'swag/installed-plugin');
+        $plugin = $this->createPluginEntity('InstalledPlugin', 'swag/installed-plugin');
         $plugin->setInstalledAt(new \DateTimeImmutable());
         $plugin->setActive(false);
         $this->plugins->add($plugin);
@@ -150,7 +141,7 @@ class PluginInstallCommandTest extends TestCase
 
     public function testInstallWithActivateInstallsAndActivatesWithoutRequirementValidation(): void
     {
-        $plugin = $this->createPlugin('NewPlugin', 'swag/new-plugin');
+        $plugin = $this->createPluginEntity('NewPlugin', 'swag/new-plugin');
         $this->plugins->add($plugin);
 
         $this->pluginLifecycleService
@@ -177,7 +168,7 @@ class PluginInstallCommandTest extends TestCase
 
     public function testInstallWithReinstallUninstallsBeforeInstalling(): void
     {
-        $plugin = $this->createPlugin('ReinstallPlugin', 'swag/reinstall-plugin');
+        $plugin = $this->createPluginEntity('ReinstallPlugin', 'swag/reinstall-plugin');
         $plugin->setInstalledAt(new \DateTimeImmutable());
         $this->plugins->add($plugin);
 
@@ -213,7 +204,7 @@ class PluginInstallCommandTest extends TestCase
 
     public function testInstallPassesSkipAssetBuildStateToLifecycleService(): void
     {
-        $plugin = $this->createPlugin('SkipAssetBuildPlugin', 'swag/skip-asset-build-plugin');
+        $plugin = $this->createPluginEntity('SkipAssetBuildPlugin', 'swag/skip-asset-build-plugin');
         $this->plugins->add($plugin);
 
         $this->pluginLifecycleService
@@ -232,33 +223,6 @@ class PluginInstallCommandTest extends TestCase
         ], ['interactive' => false]));
     }
 
-    /**
-     * @param list<string> $requirements
-     */
-    private function createPlugin(string $name, string $composerName, array $requirements = []): PluginEntity
-    {
-        $pluginPath = 'custom/plugins/' . $name;
-        $composerJson = [
-            'name' => $composerName,
-            'description' => 'Plugin install command test fixture',
-            'version' => '1.0.0',
-            'type' => 'shopware-platform-plugin',
-            'extra' => [
-                'shopware-plugin-class' => $name . '\\' . $name,
-            ],
-        ];
-        if ($requirements !== []) {
-            $composerJson['require'] = array_fill_keys($requirements, '*');
-        }
-
-        $this->filesystem->dumpFile(
-            Path::join($this->projectDir, $pluginPath, 'composer.json'),
-            json_encode($composerJson, \JSON_THROW_ON_ERROR)
-        );
-
-        return $this->createPluginEntity($name, $composerName);
-    }
-
     private function createPluginEntity(string $name, string $composerName): PluginEntity
     {
         $plugin = new PluginEntity();
@@ -266,7 +230,7 @@ class PluginInstallCommandTest extends TestCase
         $plugin->setName($name);
         $plugin->setLabel($name);
         $plugin->setVersion('1.0.0');
-        $plugin->setPath('custom/plugins/' . $name);
+        $plugin->setPath('plugins/' . $name);
         $plugin->setComposerName($composerName);
         $plugin->setActive(false);
         $plugin->setManagedByComposer(false);

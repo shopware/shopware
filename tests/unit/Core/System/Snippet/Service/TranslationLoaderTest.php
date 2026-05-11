@@ -30,6 +30,7 @@ use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Tests\Unit\Core\System\Snippet\Mock\TestPlugin;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Validator\Validation;
@@ -236,6 +237,10 @@ class TranslationLoaderTest extends TestCase
         static::assertSame('/translation/locale/de-DE', $loader->getLocalePath('de-DE'));
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed with tested method
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testPluginTranslationExists(): void
     {
         $loader = $this->getTranslationLoader();
@@ -250,6 +255,18 @@ class TranslationLoaderTest extends TestCase
 
         static::assertTrue($loader->pluginTranslationExists($existingPlugin));
         static::assertFalse($loader->pluginTranslationExists($noLocaleBasePathPlugin));
+    }
+
+    public function testPluginTranslationExistsForLocale(): void
+    {
+        $loader = $this->getTranslationLoader();
+
+        $existingPlugin = new TestPlugin(true, '');
+        $existingPlugin->setName('SwagPublisher');
+        $this->flysystem->createDirectory($loader->getLocalePath('de-DE') . '/Plugins/SwagPublisher');
+
+        static::assertTrue($loader->pluginTranslationExistsForLocale($existingPlugin, 'de-DE'));
+        static::assertFalse($loader->pluginTranslationExistsForLocale($existingPlugin, 'en-GB'));
     }
 
     public function testPluginTranslationExistsWorksWithMappedPlugin(): void
@@ -271,10 +288,10 @@ class TranslationLoaderTest extends TestCase
         $mappedNamePlugin->setName('SwagPaypal');
 
         $this->flysystem->createDirectory($loader->getLocalePath('de-DE') . '/Plugins/SwagPaypal');
-        static::assertFalse($loader->pluginTranslationExists($mappedNamePlugin));
+        static::assertFalse($loader->pluginTranslationExistsForLocale($mappedNamePlugin, 'de-DE'));
 
         $this->flysystem->createDirectory($loader->getLocalePath('de-DE') . '/Plugins/MappedName');
-        static::assertTrue($loader->pluginTranslationExists($mappedNamePlugin));
+        static::assertTrue($loader->pluginTranslationExistsForLocale($mappedNamePlugin, 'de-DE'));
     }
 
     public function testLoadCreatesLanguageWithActiveFalseWhenSkipped(): void

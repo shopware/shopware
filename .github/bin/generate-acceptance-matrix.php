@@ -23,9 +23,9 @@ $matrix = [
             [
                 'name' => 'Install',
                 'php-version' => $nightly ? '8.4' : '8.2',
-                'no-currents' => !$nightly,
                 'shard' => 1,
                 'shard-count' => 1,
+                'no-currents' => !$nightly,
             ],
         ],
     ],

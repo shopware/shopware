@@ -2,6 +2,22 @@
 
 ## Features
 
+### Mail templates store only merchant overrides
+
+Shipped defaults for system mail templates now live on disk under `src/Core/Content/MailTemplate/Resources/mail-templates/` (using the same directory convention plugins and apps already use). The `mail_template_translation` table only stores fields that a merchant has explicitly customised — empty fields fall back to the shipped default at read time.
+
+This means a fresh install no longer duplicates ~88 default translation rows into the database, and updating a shipped default no longer needs an `UpdateMailTrait`-based migration: editing the twig file is enough, and unmodified merchant installs pick the change up automatically.
+
+For administration extensions and external tooling, three new admin action routes expose the merged view:
+
+- `GET /api/_action/mail-template/{id}/resolved` returns the merchant overrides merged with the shipped default, plus a `_source` map identifying per field whether the value came from the database (`user`) or the default (`default`).
+- `GET /api/_action/mail-template/{id}/defaults` returns just the shipped default for the template's technical name.
+- `POST /api/_action/mail-template/{id}/reset` (`{fields, languageId}`) nulls the named override fields, returning the template to defaults.
+
+The Administration template editor now uses these routes: the input placeholder previews the shipped default when no override is set, and a "Reset to default" link appears next to any field marked as `user`-modified.
+
+A new `MailTemplateDefaultsRegistry` public service exposes the same data to PHP code and is the central source of truth for plugin- and app-shipped defaults. Plugin/app lifecycle hooks register and remove their declared templates against it.
+
 ## API
 
 ### Mail template preview and send routes support richer rendering context
@@ -53,6 +69,11 @@ Extensions that use the registry automatically benefit from the lock; direct SQL
 
 The `RegisterScheduleTaskMessage` class and the accompanying message handler `RegisterScheduledTaskHandler` is deprecated and will be removed in Shopware 6.8.0.0, as the message wasn't dispatched anymore.
 If you dispatched that message manually, you should call the `TaskScheduler::registerTask()` method directly instead.
+
+### Deprecation of `UpdateMailTrait`
+
+`Shopware\Core\Migration\Traits\UpdateMailTrait` (and its companion structs `MailUpdate` / `MailSubjectUpdate`) is deprecated and will be removed in Shopware 6.8.
+Shipped defaults for system mail templates now live on disk under `src/Core/Content/MailTemplate/Resources/mail-templates/` and are served by `MailTemplateDefaultsRegistry`; to change a default, edit the twig and XML files in that directory instead of authoring a migration that mutates `mail_template_translation`. Existing migrations using the trait keep working for replay during upgrades.
 
 ## Administration
 

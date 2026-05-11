@@ -8,6 +8,13 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.8.0 - Will be removed. Shipped defaults for system mail templates now live
+ * on disk under `src/Core/Content/MailTemplate/Resources/mail-templates/` and are served at read
+ * time by {@see \Shopware\Core\Content\MailTemplate\Defaults\MailTemplateDefaultsRegistry}. To
+ * change a default, edit the twig/XML files in that directory instead of authoring a migration
+ * that mutates `mail_template_translation`.
+ */
 #[Package('framework')]
 trait UpdateMailTrait
 {

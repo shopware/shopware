@@ -2,7 +2,8 @@
   "sw-customer": {
     "error": {
       "COMPANY_IS_REQUIRED": "Bei gewerblichen Kunden ist die Firma ein Pflichtfeld",
-      "passwordDoNotMatch": "Die Eingaben für Passwort und Passwortbestätigung stimmen nicht überein."
+      "passwordDoNotMatch": "Die Eingaben für Passwort und Passwortbestätigung stimmen nicht überein.",
+      "VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE": "Diese E-Mail-Adresse ist bereits registriert."
     },
     "notification": {
       "requiredFields": "Bitte fülle alle Pflichtfelder aus."
@@ -31,6 +32,7 @@
       }
     },
     "card": {
+      "buttonConvertCustomer": "In ein registriertes Konto umwandeln",
       "buttonImitateCustomer": "Als Kunde anmelden",
       "tooltipImitateCustomerGuest": "Gastbesteller können nicht imitiert werden.",
       "tooltipImitateCustomerInactive": "Inaktive Kunden können nicht imitiert werden.",
@@ -205,6 +207,19 @@
       "modalInfoLogout": "abzumelden",
       "modalInfoNoDomains": "Keine aktive Domain gefunden. Bitte überprüfe die Verkaufskanaleinstellungen.",
       "labelCancel": "Schließen"
+    },
+    "convertGuest": {
+      "modalTitle": "Benutzer konvertieren",
+      "mail": {
+        "title": "Passwort-Reset-E-Mail senden (empfohlen)",
+        "description": "Der Kunde erhält einen sicheren Link, um ein neues Passwort festzulegen.",
+        "button": "Reset-E-Mail senden"
+      },
+      "manual": {
+        "title": "Passwort manuell setzen",
+        "description": "Ein neues Passwort wird direkt für den Kunden festgelegt. Der Kunde wird nicht benachrichtigt.",
+        "button": "Passwort setzen"
+      }
     },
     "addressForm": {
       "labelCompany": "Firma",

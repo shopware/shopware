@@ -28,7 +28,7 @@
             @click="onOpenConvertCustomerModal"
             :disabled="!customer.guest"
         >
-            Convert to registered account
+            {{ $t('sw-customer.card.buttonConvertCustomer') }}
         </mt-button>
 
         {% block sw_customer_card_action_customer_impersonation %}

@@ -56,8 +56,20 @@ export default {
                     }),
                 });
             } catch (error) {
+                const [firstError] = error?.response?.data?.errors ?? [];
+
+                if (!firstError) {
+                    return;
+                }
+
+                let message = firstError.detail || this.$t('sw-customer.detail.messageSaveError');
+
+                if(firstError.code === "VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE") {
+                    message = this.$t('sw-customer.error.VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE');
+                }
+
                 this.createNotificationError({
-                    message: error?.response?.data?.errors[0]?.detail || this.$t('sw-customer.detail.messageSaveError')
+                    message
                 });
             } finally {
                 this.onCancel();
@@ -83,29 +95,52 @@ export default {
                     }),
                 });
             } catch (error) {
-                const apiErrors = error?.response?.data?.errors ?? [];
+                const [firstError] = error?.response?.data?.errors ?? [];
 
-                const emailError = apiErrors.find(
-                    ({ code }) => code === 'VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE'
-                );
-
-                if (emailError) {
-                    this.onCancel();
-
-                    this.createNotificationError({
-                        message: emailError.detail || this.$t('sw-customer.detail.messageSaveError'),
-                    });
-
+                if (!firstError) {
                     return;
                 }
 
-                const [firstError] = apiErrors;
+                const expression = `customer.${this.customer.id}.convert`;
+                const errorStore = Shopware.Store.get('error');
 
-                Shopware.Store.get('error').addApiError({
-                    expression: `customer.${this.customer.id}.convert`,
+                let detailMessage;
+
+                switch (firstError.code) {
+                    case 'VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE':
+                        this.onCancel();
+
+                        errorStore.removeApiError(`customer.${this.customer.id}.convert`);
+
+                        this.createNotificationError({
+                            message: this.$t('sw-customer.error.VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE'),
+                        });
+
+                        return;
+
+                    case 'VIOLATION::TOO_LONG_ERROR':
+                        detailMessage = this.$t(
+                            'sw-customer.error.VIOLATION::PASSWORD_IS_TOO_LONG'
+                        );
+                        break;
+
+                    case 'VIOLATION::TOO_SHORT_ERROR':
+                        detailMessage = this.$t(
+                            'sw-customer.error.VIOLATION::PASSWORD_IS_TOO_SHORT'
+                        );
+                        break;
+
+                    default:
+                        detailMessage =
+                            firstError.detail ||
+                            this.$t('sw-customer.detail.messageSaveError');
+                }
+
+                errorStore.addApiError({
+                    expression,
                     error: new ShopwareError({
-                        detail: firstError?.detail || this.$t('sw-customer.detail.messageSaveError'),
-                        code:  firstError?.code || 'customer_convert',
+                        detail: detailMessage,
+                        code: firstError.code || 'customer_convert',
                     }),
                 });
             }

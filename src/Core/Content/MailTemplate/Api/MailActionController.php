@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\MailTemplate\Api;
 
 use Shopware\Core\Content\Mail\Payload\MailPayloadFactory;
+use Shopware\Core\Content\MailTemplate\Defaults\MailTemplateResolver;
 use Shopware\Core\Content\MailTemplate\MailTemplateException;
 use Shopware\Core\Content\MailTemplate\Request\GetDataAndSendRequest;
 use Shopware\Core\Content\MailTemplate\Request\PreviewRequest;
@@ -14,6 +15,10 @@ use Shopware\Core\Content\MailTemplate\Service\MailTemplateSendService;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
@@ -39,6 +44,9 @@ class MailActionController extends AbstractController
         private readonly MailTemplateService $mailTemplateService,
         private readonly MailTemplateSendService $mailTemplateSendService,
         private readonly MailPayloadFactory $mailPayloadFactory,
+        private readonly MailTemplateResolver $mailTemplateResolver,
+        private readonly EntityRepository $mailTemplateRepository,
+        private readonly EntityRepository $mailTemplateTranslationRepository,
     ) {
     }
 
@@ -215,5 +223,151 @@ class MailActionController extends AbstractController
         }
 
         return new JsonResponse($this->mailTemplateService->getAvailableVariables($eventName, $context, $parentVariablePath));
+    }
+
+    /**
+     * Returns the resolved view of a mail template — the merchant's overrides merged with the shipped defaults
+     * from MailTemplateDefaultsRegistry. The response includes a `_source` map indicating, per field, whether
+     * the value came from the database (`user`) or the shipped default (`default`).
+     */
+    #[Route(
+        path: '/api/_action/mail-template/{id}/resolved',
+        name: 'api.action.mail_template.resolved',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['mail_template:read']],
+        methods: [Request::METHOD_GET]
+    )]
+    public function resolved(string $id, Request $request, Context $context): JsonResponse
+    {
+        $context = $this->withLanguage($context, $request->query->get('languageId'));
+        $mailTemplate = $this->mailTemplateService->loadTemplate($id, $context);
+        $resolved = $this->mailTemplateResolver->resolve($mailTemplate, $context);
+
+        return new JsonResponse([
+            'subject' => $resolved->subject,
+            'senderName' => $resolved->senderName,
+            'description' => $resolved->description,
+            'contentHtml' => $resolved->contentHtml,
+            'contentPlain' => $resolved->contentPlain,
+            '_source' => $resolved->source,
+        ]);
+    }
+
+    /**
+     * Returns just the shipped defaults for a mail template (no DB merge). Used by the admin to populate the
+     * "default" pane in side-by-side diffs and to drive the "reset to default" affordance.
+     */
+    #[Route(
+        path: '/api/_action/mail-template/{id}/defaults',
+        name: 'api.action.mail_template.defaults',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['mail_template:read']],
+        methods: [Request::METHOD_GET]
+    )]
+    public function defaults(string $id, Request $request, Context $context): JsonResponse
+    {
+        $context = $this->withLanguage($context, $request->query->get('languageId'));
+        $mailTemplate = $this->mailTemplateService->loadTemplate($id, $context);
+        $default = $this->mailTemplateResolver->resolveDefaults($mailTemplate, $context);
+
+        if ($default === null) {
+            return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+        }
+
+        return new JsonResponse([
+            'technicalName' => $default->technicalName,
+            'locale' => $default->locale,
+            'subject' => $default->subject,
+            'senderName' => $default->senderName,
+            'description' => $default->description,
+            'contentHtml' => $default->contentHtml,
+            'contentPlain' => $default->contentPlain,
+        ]);
+    }
+
+    /**
+     * Resets the listed fields of a mail template translation back to the shipped defaults by NULLing them in
+     * the database. If the translation row no longer contains any overrides afterwards, the row itself is
+     * deleted so the resolver cleanly returns to the defaults.
+     */
+    #[Route(
+        path: '/api/_action/mail-template/{id}/reset',
+        name: 'api.action.mail_template.reset',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['mail_template:update']],
+        methods: [Request::METHOD_POST]
+    )]
+    public function reset(string $id, RequestDataBag $post, Context $context): JsonResponse
+    {
+        $context = $this->withLanguage($context, $post->get('languageId'));
+
+        $rawFields = $post->get('fields', []);
+        if ($rawFields instanceof DataBag) {
+            $rawFields = $rawFields->all();
+        }
+
+        if (!\is_array($rawFields)) {
+            throw MailTemplateException::invalidRequestParameterType('fields', 'array', get_debug_type($rawFields));
+        }
+
+        $allowed = ['subject', 'senderName', 'description', 'contentHtml', 'contentPlain'];
+        $fields = array_values(array_intersect($allowed, array_filter($rawFields, \is_string(...))));
+
+        if ($fields === []) {
+            return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+        }
+
+        $payload = ['id' => $id];
+        foreach ($fields as $field) {
+            $payload[$field] = null;
+        }
+
+        $this->mailTemplateRepository->update([$payload], $context);
+
+        $this->deleteEmptyTranslationRow($id, $context);
+
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+    }
+
+    private function withLanguage(Context $context, mixed $languageId): Context
+    {
+        if (!\is_string($languageId) || $languageId === '') {
+            return $context;
+        }
+
+        return new Context(
+            $context->getSource(),
+            $context->getRuleIds(),
+            $context->getCurrencyId(),
+            [$languageId, ...$context->getLanguageIdChain()],
+            $context->getVersionId(),
+            $context->getCurrencyFactor(),
+            $context->considerInheritance(),
+            $context->getRounding(),
+        );
+    }
+
+    private function deleteEmptyTranslationRow(string $mailTemplateId, Context $context): void
+    {
+        $languageId = $context->getLanguageId();
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
+            new EqualsFilter('mailTemplateId', $mailTemplateId),
+            new EqualsFilter('languageId', $languageId),
+            new EqualsFilter('subject', null),
+            new EqualsFilter('senderName', null),
+            new EqualsFilter('description', null),
+            new EqualsFilter('contentHtml', null),
+            new EqualsFilter('contentPlain', null),
+        ]));
+
+        $found = $this->mailTemplateTranslationRepository->searchIds($criteria, $context)->getTotal();
+
+        if ($found === 0) {
+            return;
+        }
+
+        $this->mailTemplateTranslationRepository->delete(
+            [['mailTemplateId' => $mailTemplateId, 'languageId' => $languageId]],
+            $context,
+        );
     }
 }

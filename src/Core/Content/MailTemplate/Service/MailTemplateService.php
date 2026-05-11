@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\MailTemplate\Service;
 
+use Shopware\Core\Content\MailTemplate\Defaults\MailTemplateResolver;
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateException;
@@ -31,6 +32,7 @@ class MailTemplateService
         private readonly MailDataProvider $mailDataProvider,
         private readonly MailDataSimulator $mailDataSimulator,
         private readonly MailTemplateContentBuilder $mailTemplateContentBuilder,
+        private readonly MailTemplateResolver $mailTemplateResolver,
     ) {
     }
 
@@ -107,7 +109,7 @@ class MailTemplateService
             $this->templateRenderer->enableTestMode();
         }
 
-        $templateContent = $this->getTemplateContent($request->mailTemplate);
+        $templateContent = $this->getTemplateContent($request->mailTemplate, $context);
 
         if ($request->includeHeaderFooter) {
             $templateContent = array_replace(
@@ -225,13 +227,15 @@ class MailTemplateService
      *     contentPlain: string
      * }
      */
-    private function getTemplateContent(MailTemplateEntity $mailTemplate): array
+    private function getTemplateContent(MailTemplateEntity $mailTemplate, Context $context): array
     {
+        $resolved = $this->mailTemplateResolver->resolve($mailTemplate, $context);
+
         return [
-            'subject' => $mailTemplate->getSubject() ?? '',
-            'senderName' => $mailTemplate->getSenderName() ?? '',
-            'contentHtml' => $mailTemplate->getContentHtml() ?? '',
-            'contentPlain' => $mailTemplate->getContentPlain() ?? '',
+            'subject' => $resolved->subject,
+            'senderName' => $resolved->senderName,
+            'contentHtml' => $resolved->contentHtml,
+            'contentPlain' => $resolved->contentPlain,
         ];
     }
 

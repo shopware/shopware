@@ -6,6 +6,7 @@ use Composer\InstalledVersions;
 use Composer\IO\NullIO;
 use Composer\Semver\Comparator;
 use Psr\Cache\CacheItemPoolInterface;
+use Shopware\Core\Content\MailTemplate\Defaults\MailTemplateDefaultsRegistry;
 use Shopware\Core\Content\MailTemplate\MailTemplateLoader;
 use Shopware\Core\Content\MailTemplate\MailTemplateSetPersister;
 use Shopware\Core\Content\MailTemplate\MailTemplateXmlLoader;
@@ -103,6 +104,7 @@ class PluginLifecycleService
         private readonly DefinitionInstanceRegistry $definitionRegistry,
         private readonly RequestStack $requestStack,
         private readonly MailTemplateSetPersister $mailTemplateSetPersister,
+        private readonly MailTemplateDefaultsRegistry $mailTemplateDefaultsRegistry,
     ) {
         $this->originalEventDispatcher = $eventDispatcher;
     }
@@ -787,6 +789,7 @@ class PluginLifecycleService
         $mailTemplates = MailTemplateLoader::load($basePath);
 
         $this->mailTemplateSetPersister->sync($mailTemplates, $context);
+        $this->mailTemplateDefaultsRegistry->register($mailTemplates);
     }
 
     private function removePluginMailTemplates(Plugin $pluginBaseClass, Context $context): void
@@ -804,5 +807,6 @@ class PluginLifecycleService
         );
 
         $this->mailTemplateSetPersister->removeByTechnicalNames($technicalNames, $context);
+        $this->mailTemplateDefaultsRegistry->remove($technicalNames);
     }
 }

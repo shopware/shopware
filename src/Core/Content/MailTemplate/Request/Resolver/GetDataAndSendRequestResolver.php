@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\MailTemplate\Request\Resolver;
 
 use Shopware\Core\Content\Mail\Payload\MailPayloadFactory;
+use Shopware\Core\Content\MailTemplate\Defaults\MailTemplateResolver;
 use Shopware\Core\Content\MailTemplate\Request\GetDataAndSendRequest;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
 use Shopware\Core\Framework\Context;
@@ -22,6 +23,7 @@ readonly class GetDataAndSendRequestResolver extends AbstractMailTemplateRequest
     public function __construct(
         private MailTemplateService $mailTemplateService,
         private MailPayloadFactory $mailPayloadFactory,
+        private MailTemplateResolver $mailTemplateResolver,
     ) {
     }
 
@@ -52,6 +54,8 @@ readonly class GetDataAndSendRequestResolver extends AbstractMailTemplateRequest
 
         $templateData = $this->normalizeArrayParameter('templateData', $request->get('templateData', []));
 
+        $resolved = $this->mailTemplateResolver->resolve($mailTemplate, $context);
+
         return new GetDataAndSendRequest(
             mailTemplate: $mailTemplate,
             entityMapping: $entities,
@@ -59,10 +63,10 @@ readonly class GetDataAndSendRequestResolver extends AbstractMailTemplateRequest
             mailPayload: $this->mailPayloadFactory->make(
                 $request,
                 [
-                    'contentHtml' => $mailTemplate->getContentHtml(),
-                    'contentPlain' => $mailTemplate->getContentPlain(),
-                    'subject' => $mailTemplate->getSubject(),
-                    'senderName' => $mailTemplate->getSenderName(),
+                    'contentHtml' => $resolved->contentHtml,
+                    'contentPlain' => $resolved->contentPlain,
+                    'subject' => $resolved->subject,
+                    'senderName' => $resolved->senderName,
                 ],
             ),
         );

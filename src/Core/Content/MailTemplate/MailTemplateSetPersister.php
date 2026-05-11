@@ -22,6 +22,13 @@ class MailTemplateSetPersister
     ) {
     }
 
+    /**
+     * Synchronises the parent rows for the given declarative templates.
+     *
+     * Content (subject, sender_name, description, content_html, content_plain) is intentionally never
+     * written to the database. The {@see \Shopware\Core\Content\MailTemplate\Defaults\MailTemplateDefaultsRegistry}
+     * is the source of truth for default content; the database only stores merchant overrides on top.
+     */
     public function sync(MailTemplates $mailTemplates, Context $context): void
     {
         $context->scope(Context::SYSTEM_SCOPE, function () use ($mailTemplates): void {
@@ -71,7 +78,7 @@ class MailTemplateSetPersister
 
         foreach ($mailTemplates->getMailTemplates() as $mailTemplate) {
             $typeId = $this->upsertMailTemplateType($mailTemplate, $localeToLanguage, $now);
-            $this->upsertMailTemplate($mailTemplate, $typeId, $localeToLanguage, $now);
+            $this->upsertMailTemplate($typeId, $now);
         }
     }
 
@@ -142,9 +149,11 @@ class MailTemplateSetPersister
     }
 
     /**
-     * @param array<string, string> $localeToLanguage locale code => binary language ID
+     * Ensures the parent `mail_template` row exists for the type. Content (subject/sender/html/plain)
+     * is not persisted here — the registry serves it at read time. Merchant overrides are written
+     * separately through the DAL when an admin edits the template.
      */
-    private function upsertMailTemplate(MailTemplate $mailTemplate, string $typeId, array $localeToLanguage, string $now): void
+    private function upsertMailTemplate(string $typeId, string $now): void
     {
         $existingTemplateId = $this->connection->fetchOne(
             'SELECT id FROM mail_template WHERE mail_template_type_id = :typeId',
@@ -161,63 +170,11 @@ class MailTemplateSetPersister
                 'created_at' => $now,
             ]);
         } else {
-            $templateId = $existingTemplateId;
-
             $this->connection->update(
                 'mail_template',
                 ['updated_at' => $now],
-                ['id' => $templateId]
+                ['id' => $existingTemplateId]
             );
-        }
-
-        // Collect all locales across all translatable fields and content
-        $allLocales = array_unique(array_merge(
-            array_keys($mailTemplate->getSubject()),
-            array_keys($mailTemplate->getSenderName()),
-            array_keys($mailTemplate->getDescription()),
-            array_keys($mailTemplate->getContentHtml()),
-            array_keys($mailTemplate->getContentPlain()),
-        ));
-
-        foreach ($allLocales as $locale) {
-            if (!isset($localeToLanguage[$locale])) {
-                continue;
-            }
-
-            $languageId = $localeToLanguage[$locale];
-
-            $translationData = array_filter([
-                'subject' => $mailTemplate->getSubject()[$locale] ?? null,
-                'sender_name' => $mailTemplate->getSenderName()[$locale] ?? null,
-                'description' => $mailTemplate->getDescription()[$locale] ?? null,
-                'content_html' => $mailTemplate->getContentHtml()[$locale] ?? null,
-                'content_plain' => $mailTemplate->getContentPlain()[$locale] ?? null,
-            ], static fn ($value) => $value !== null);
-
-            if ($translationData === []) {
-                continue;
-            }
-
-            $exists = $this->connection->fetchOne(
-                'SELECT 1 FROM mail_template_translation WHERE mail_template_id = :templateId AND language_id = :languageId',
-                ['templateId' => $templateId, 'languageId' => $languageId]
-            );
-
-            if ($exists !== false) {
-                $translationData['updated_at'] = $now;
-
-                $this->connection->update(
-                    'mail_template_translation',
-                    $translationData,
-                    ['mail_template_id' => $templateId, 'language_id' => $languageId]
-                );
-            } else {
-                $translationData['mail_template_id'] = $templateId;
-                $translationData['language_id'] = $languageId;
-                $translationData['created_at'] = $now;
-
-                $this->connection->insert('mail_template_translation', $translationData);
-            }
         }
     }
 

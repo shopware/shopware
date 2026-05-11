@@ -8,6 +8,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\Payload\MailPayload;
 use Shopware\Core\Content\Mail\Payload\MailPayloadFactory;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeEntity;
+use Shopware\Core\Content\MailTemplate\Defaults\MailTemplateResolver;
+use Shopware\Core\Content\MailTemplate\Defaults\ResolvedMailTemplate;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateException;
 use Shopware\Core\Content\MailTemplate\Request\GetDataAndSendRequest;
@@ -31,12 +33,25 @@ class GetDataAndSendRequestResolverTest extends TestCase
 
     private MailPayloadFactory&MockObject $mailPayloadFactory;
 
+    private MailTemplateResolver&MockObject $mailTemplateResolver;
+
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->mailTemplateService = $this->createMock(MailTemplateService::class);
         $this->mailPayloadFactory = $this->createMock(MailPayloadFactory::class);
+        $this->mailTemplateResolver = $this->createMock(MailTemplateResolver::class);
+        $this->mailTemplateResolver->method('resolve')->willReturnCallback(
+            static fn (MailTemplateEntity $entity): ResolvedMailTemplate => new ResolvedMailTemplate(
+                subject: $entity->getSubject() ?? '',
+                senderName: $entity->getSenderName() ?? '',
+                description: $entity->getDescription() ?? '',
+                contentHtml: $entity->getContentHtml() ?? '',
+                contentPlain: $entity->getContentPlain() ?? '',
+                source: [],
+            )
+        );
     }
 
     public function testResolveBuildsRequestAndFiltersUnknownEntities(): void
@@ -226,7 +241,7 @@ class GetDataAndSendRequestResolverTest extends TestCase
 
     private function resolveRequest(Request $request): GetDataAndSendRequest
     {
-        $resolver = new GetDataAndSendRequestResolver($this->mailTemplateService, $this->mailPayloadFactory);
+        $resolver = new GetDataAndSendRequestResolver($this->mailTemplateService, $this->mailPayloadFactory, $this->mailTemplateResolver);
 
         return iterator_to_array(
             $resolver->resolve($request, new ArgumentMetadata('request', GetDataAndSendRequest::class, false, false, null))

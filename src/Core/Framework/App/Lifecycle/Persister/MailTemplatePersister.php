@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
+use Shopware\Core\Content\MailTemplate\Defaults\MailTemplateDefaultsRegistry;
 use Shopware\Core\Content\MailTemplate\MailTemplateLoader;
 use Shopware\Core\Content\MailTemplate\MailTemplateSetPersister;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
@@ -15,6 +16,7 @@ class MailTemplatePersister implements PersisterInterface
 {
     public function __construct(
         private readonly MailTemplateSetPersister $mailTemplateSetPersister,
+        private readonly MailTemplateDefaultsRegistry $mailTemplateDefaultsRegistry,
     ) {
     }
 
@@ -32,5 +34,7 @@ class MailTemplatePersister implements PersisterInterface
             $mailTemplates,
             $context->context
         );
+
+        $this->mailTemplateDefaultsRegistry->register($mailTemplates);
     }
 }

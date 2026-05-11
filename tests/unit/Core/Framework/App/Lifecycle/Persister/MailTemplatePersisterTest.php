@@ -58,7 +58,10 @@ class MailTemplatePersisterTest extends TestCase
                     static::isInstanceOf(Context::class)
                 );
 
-            $mailTemplatePersister = new MailTemplatePersister($persister);
+            $mailTemplatePersister = new MailTemplatePersister(
+                $persister,
+                new \Shopware\Core\Content\MailTemplate\Defaults\MailTemplateDefaultsRegistry(sys_get_temp_dir() . '/does-not-exist'),
+            );
 
             $app = new AppEntity();
             $app->setId('test-app-id');
@@ -88,7 +91,10 @@ class MailTemplatePersisterTest extends TestCase
             $persister = $this->createMock(MailTemplateSetPersister::class);
             $persister->expects($this->never())->method('sync');
 
-            $mailTemplatePersister = new MailTemplatePersister($persister);
+            $mailTemplatePersister = new MailTemplatePersister(
+                $persister,
+                new \Shopware\Core\Content\MailTemplate\Defaults\MailTemplateDefaultsRegistry(sys_get_temp_dir() . '/does-not-exist'),
+            );
 
             $app = new AppEntity();
             $app->setId('test-app-id');

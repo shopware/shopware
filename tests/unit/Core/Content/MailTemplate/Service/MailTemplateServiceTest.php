@@ -7,6 +7,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterEntity;
+use Shopware\Core\Content\MailTemplate\Defaults\MailTemplateResolver;
+use Shopware\Core\Content\MailTemplate\Defaults\ResolvedMailTemplate;
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateException;
@@ -41,6 +43,8 @@ class MailTemplateServiceTest extends TestCase
 
     private MailTemplateContentBuilder $mailTemplateContentBuilder;
 
+    private MailTemplateResolver&MockObject $mailTemplateResolver;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -49,6 +53,17 @@ class MailTemplateServiceTest extends TestCase
         $this->templateRenderer = $this->createMock(StringTemplateRenderer::class);
         $this->mailDataSimulator = $this->createMock(MailDataSimulator::class);
         $this->mailTemplateContentBuilder = new MailTemplateContentBuilder();
+        $this->mailTemplateResolver = $this->createMock(MailTemplateResolver::class);
+        $this->mailTemplateResolver->method('resolve')->willReturnCallback(
+            static fn (MailTemplateEntity $entity): ResolvedMailTemplate => new ResolvedMailTemplate(
+                subject: $entity->getSubject() ?? '',
+                senderName: $entity->getSenderName() ?? '',
+                description: $entity->getDescription() ?? '',
+                contentHtml: $entity->getContentHtml() ?? '',
+                contentPlain: $entity->getContentPlain() ?? '',
+                source: [],
+            )
+        );
     }
 
     public function testLoadTemplate(): void
@@ -454,6 +469,7 @@ class MailTemplateServiceTest extends TestCase
             $this->mailDataProvider,
             $this->mailDataSimulator,
             $this->mailTemplateContentBuilder,
+            $this->mailTemplateResolver,
         );
     }
 

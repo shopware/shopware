@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\Payload\MailPayload;
 use Shopware\Core\Content\Mail\Payload\MailPayloadFactory;
 use Shopware\Core\Content\MailTemplate\Api\MailActionController;
+use Shopware\Core\Content\MailTemplate\Defaults\MailTemplateResolver;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateException;
 use Shopware\Core\Content\MailTemplate\Request\GetDataAndSendRequest;
@@ -18,6 +19,7 @@ use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
 use Shopware\Core\Content\MailTemplate\Validation\MailTemplateRenderResult;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -38,12 +40,21 @@ class MailActionControllerTest extends TestCase
 
     private MailPayloadFactory&MockObject $mailPayloadFactory;
 
+    private MailTemplateResolver&MockObject $mailTemplateResolver;
+
+    private EntityRepository&MockObject $mailTemplateRepository;
+
+    private EntityRepository&MockObject $mailTemplateTranslationRepository;
+
     protected function setUp(): void
     {
         $this->stringTemplateRenderer = $this->createMock(StringTemplateRenderer::class);
         $this->mailTemplateService = $this->createMock(MailTemplateService::class);
         $this->mailTemplateSendService = $this->createMock(MailTemplateSendService::class);
         $this->mailPayloadFactory = $this->createMock(MailPayloadFactory::class);
+        $this->mailTemplateResolver = $this->createMock(MailTemplateResolver::class);
+        $this->mailTemplateRepository = $this->createMock(EntityRepository::class);
+        $this->mailTemplateTranslationRepository = $this->createMock(EntityRepository::class);
     }
 
     public function testSendSuccess(): void
@@ -253,6 +264,9 @@ class MailActionControllerTest extends TestCase
             $this->mailTemplateService,
             $this->mailTemplateSendService,
             $this->mailPayloadFactory,
+            $this->mailTemplateResolver,
+            $this->mailTemplateRepository,
+            $this->mailTemplateTranslationRepository,
         );
     }
 

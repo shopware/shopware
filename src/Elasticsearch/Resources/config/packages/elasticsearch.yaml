@@ -5,6 +5,12 @@ elasticsearch:
     hosts: "%env(string:OPENSEARCH_URL)%"
     index_prefix: "%env(string:SHOPWARE_ES_INDEX_PREFIX)%"
     throw_exception: "%env(string:SHOPWARE_ES_THROW_EXCEPTION)%"
+    # When enabled, injects the `sw_dimension_normalize` char_filter into every
+    # technical-term analyzer chain so dimensional notations like "5 x 70",
+    # "5x70", and "5×70" collapse to a single token before tokenization.
+    # See AbstractElasticsearchDefinition::TECHNICAL_TERM_SEARCH_FIELD and
+    # SEARCH_ARCHITECTURE.md §4. Toggling requires a full reindex.
+    dimension_normalize: "%env(bool:SHOPWARE_ES_DIMENSION_NORMALIZE)%"
     search:
         timeout: 5s
         term_max_length: 300
@@ -145,6 +151,61 @@ elasticsearch:
             sw_lowercase_normalizer:
                 type: custom
                 filter: ['lowercase']
+        char_filter:
+            # Locale correctness for German: collapses "3,3" to "3.3" before
+            # tokenization so "3,3 mm" and "3.3 mm" produce identical tokens.
+            # Wired only into the German technical-term analyzer pair below;
+            # never applied to English / locale-agnostic chains where `,` means
+            # thousands separator, not decimal point.
+            sw_decimal_normalize:
+                type: pattern_replace
+                pattern: '(\d),(\d)'
+                replacement: '$1.$2'
+            # Collapses dimensional notations ("5 x 70", "5 X 70", "5×70") to a
+            # single canonical token ("5x70") before tokenization. Off by
+            # default; enabled via SHOPWARE_ES_DIMENSION_NORMALIZE. The
+            # IndexCreator injects this char_filter into the technical-term
+            # analyzer chains only when the bool is true.
+            sw_dimension_normalize:
+                type: pattern_replace
+                pattern: '(\d)\s*[xX×]\s*(\d)'
+                replacement: '$1x$2'
+            # Bridges the boundary between a numeric quantity and an
+            # adjacent non-numeric token, regardless of script or unit:
+            # "100 ml" → "100ml", "3.3 mm" → "3.3mm", "5 €" → "5€",
+            # "64 GB" → "64GB", "100 °C" → "100°C", "1,000 kg" →
+            # "1,000kg", "1'200 km" → "1'200km" (Swiss thousands),
+            # "1/2 inch" → "1/2inch", "5-10 mm" → "5-10mm" (range).
+            #
+            # The pattern is unit-agnostic — it exploits the structural
+            # convention that quantities are written as "digit-run …
+            # unit/symbol", so it covers SI, imperial, currency, fractions,
+            # ranges, and any non-Latin labels without needing a vocabulary
+            # list. Three structural guards keep it from over-gluing into
+            # identifiers:
+            #
+            # - `(^|\s)` anchor: the numeric run must start the string or
+            #   be preceded by whitespace, so digits embedded inside an
+            #   identifier (the "49" in "Gr49") never trigger glue.
+            # - `\d+(?:[./,'-]\d+)*` captures only structurally-numeric
+            #   runs — digits with optional decimal / thousands / fraction /
+            #   range separators between digit groups. Anything else (an
+            #   "x", a unit letter, etc.) stops the capture.
+            # - `[^\d\s]` second capture excludes digits so legitimately
+            #   separate numerics ("Pack 5 of 10") are not glued together.
+            #
+            # After this char_filter, `word_delimiter_graph` re-splits the
+            # merged form via `split_on_numerics` and re-joins via
+            # `catenate_all`, so both the glued ("100ml") and split
+            # ("100", "ml") forms end up in the inverted index. The
+            # `.exact` subfield (whitespace-only analyzer, no char_filters)
+            # carries the verbatim tokens for literal-match queries
+            # regardless of what this filter does to `.search`. Always on;
+            # wired into every technical-term analyzer chain.
+            sw_unit_glue:
+                type: pattern_replace
+                pattern: '(^|\s)(\d+(?:[./,''\-]\d+)*)\s+([^\d\s])'
+                replacement: '$1$2$3'
         analyzer:
             sw_whitespace_analyzer:
                 type: custom
@@ -153,10 +214,12 @@ elasticsearch:
             sw_whitespace_word_delimiter_index_analyzer:
                 type: custom
                 tokenizer: whitespace
+                char_filter: ['sw_unit_glue']
                 filter: ['sw_word_delimiter_filter', 'flatten_graph', 'lowercase', 'sw_length_min', 'remove_duplicates']
             sw_whitespace_word_delimiter_search_analyzer:
                 type: custom
                 tokenizer: whitespace
+                char_filter: ['sw_unit_glue']
                 filter: ['sw_word_delimiter_filter', 'lowercase', 'sw_length_min', 'remove_duplicates', 'sw_unique_filter']
             sw_ngram_analyzer:
                 type: custom
@@ -169,10 +232,12 @@ elasticsearch:
             sw_english_word_delimiter_index_analyzer:
                 type: custom
                 tokenizer: whitespace
+                char_filter: ['sw_unit_glue']
                 filter: ['sw_word_delimiter_filter', 'flatten_graph', 'lowercase', 'sw_length_min', 'remove_duplicates', 'sw_english_stop_filter']
             sw_english_word_delimiter_search_analyzer:
                 type: custom
                 tokenizer: whitespace
+                char_filter: ['sw_unit_glue']
                 filter: ['sw_word_delimiter_filter', 'lowercase', 'sw_length_min', 'remove_duplicates', 'sw_english_stop_filter', 'sw_unique_filter']
             sw_german_analyzer:
                 type: custom
@@ -181,10 +246,12 @@ elasticsearch:
             sw_german_word_delimiter_index_analyzer:
                 type: custom
                 tokenizer: whitespace
+                char_filter: ['sw_decimal_normalize', 'sw_unit_glue']
                 filter: ['sw_word_delimiter_filter', 'flatten_graph', 'lowercase', 'sw_length_min', 'remove_duplicates', 'sw_german_stop_filter']
             sw_german_word_delimiter_search_analyzer:
                 type: custom
                 tokenizer: whitespace
+                char_filter: ['sw_decimal_normalize', 'sw_unit_glue']
                 filter: ['sw_word_delimiter_filter', 'lowercase', 'sw_length_min', 'remove_duplicates', 'sw_german_stop_filter', 'sw_unique_filter']
         filter:
             sw_ngram_filter:
@@ -247,6 +314,7 @@ parameters:
     env(SHOPWARE_ES_NGRAM_MIN_GRAM): "4"
     env(SHOPWARE_ES_NGRAM_MAX_GRAM): "5"
     env(SHOPWARE_ES_USE_LANGUAGE_ANALYZER): "1"
+    env(SHOPWARE_ES_DIMENSION_NORMALIZE): "0"
     env(SHOPWARE_ES_NUMBER_OF_SHARDS): ""
     env(SHOPWARE_ES_NUMBER_OF_REPLICAS): ""
     # @deprecated tag:v6.8.0 - change SHOPWARE_ADMIN_ES_NUMBER_OF_SHARDS and SHOPWARE_ADMIN_ES_NUMBER_OF_REPLICAS to empty string to match regular Elasticsearch of Storefront config

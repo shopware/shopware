@@ -58,6 +58,29 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
         expect(() => compile(transformedTemplate)).not.toThrow();
     });
 
+    it('rewrites native legacy conditionals after a later sw-block-parent', () => {
+        const template = `
+            <div>
+                <sw-block name="test-block">
+                    <div v-if="showDefault" class="default-branch">default</div>
+                </sw-block>
+
+                <sw-block extends="test-block">
+                    <div class="before-parent">before</div>
+                    <sw-block-parent />
+                    <div v-else class="fallback-branch">fallback</div>
+                </sw-block>
+            </div>
+        `;
+
+        const transformedTemplate = transformLegacyBlockConditionals(template);
+
+        expect(transformedTemplate).toContain(`v-if="$swLegacyBlockIf('test-block', showDefault)"`);
+        expect(transformedTemplate).toContain(`v-if="$swLegacyBlockElse('test-block')"`);
+        expect(transformedTemplate).not.toContain('v-else class="fallback-branch"');
+        expect(() => compile(transformedTemplate)).not.toThrow();
+    });
+
     it('leaves unrelated templates untouched', () => {
         const template = `
             <div>
@@ -94,6 +117,21 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
 
         expect(transformedTemplate).toContain(`v-if="swLegacyBlockElseIf('test-block', showRed)"`);
         expect(transformedTemplate).not.toContain('v-else-if="showRed"');
+        expect(() => compile(transformedTemplate)).not.toThrow();
+    });
+
+    it('rewrites legacy Twig shim v-else branches after a later sw-block-parent', () => {
+        const template = `
+            <div class="before-parent">before</div>
+            <sw-block-parent />
+            <div v-else class="false-branch">false</div>
+        `;
+
+        const transformedTemplate = transformLegacyBlockExtensionConditionals('test-block', template);
+
+        expect(transformedTemplate).toContain('<sw-block-parent></sw-block-parent>');
+        expect(transformedTemplate).toContain(`v-if="swLegacyBlockElse('test-block')"`);
+        expect(transformedTemplate).not.toContain('v-else class="false-branch"');
         expect(() => compile(transformedTemplate)).not.toThrow();
     });
 });

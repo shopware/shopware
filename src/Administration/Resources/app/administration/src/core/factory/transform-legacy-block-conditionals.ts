@@ -88,17 +88,20 @@ function getTrailingConditionalChain(children: Element[]): Element[] {
     return [];
 }
 
-function getLeadingConditionalElement(children: Element[]): Element | null {
+function getConditionalElementFollowingBlockParent(children: Element[]): Element | null {
+    let shouldCheckChild = true;
+
     for (const child of children) {
         if (child.tagName.toLowerCase() === SW_BLOCK_PARENT_TAG) {
+            shouldCheckChild = true;
             continue;
         }
 
-        if (child.hasAttribute('v-else') || child.hasAttribute('v-else-if')) {
+        if (shouldCheckChild && (child.hasAttribute('v-else') || child.hasAttribute('v-else-if'))) {
             return child;
         }
 
-        return null;
+        shouldCheckChild = false;
     }
 
     return null;
@@ -197,7 +200,10 @@ export default function transformLegacyBlockConditionals(template: string): stri
         }
 
         hasChanges =
-            rewriteLeadingConditional(blockName, getLeadingConditionalElement(Array.from(blockElement.children))) ||
+            rewriteLeadingConditional(
+                blockName,
+                getConditionalElementFollowingBlockParent(Array.from(blockElement.children)),
+            ) ||
             hasChanges;
     });
 
@@ -228,7 +234,7 @@ export function transformLegacyBlockExtensionConditionals(blockName: string, tem
         !blockElement ||
         !rewriteLeadingConditional(
             blockName,
-            getLeadingConditionalElement(Array.from(blockElement.children)),
+            getConditionalElementFollowingBlockParent(Array.from(blockElement.children)),
             SHIM_LEGACY_HELPERS,
         )
     ) {

@@ -203,8 +203,7 @@ export default function transformLegacyBlockConditionals(template: string): stri
             rewriteLeadingConditional(
                 blockName,
                 getConditionalElementFollowingBlockParent(Array.from(blockElement.children)),
-            ) ||
-            hasChanges;
+            ) || hasChanges;
     });
 
     if (!hasChanges) {

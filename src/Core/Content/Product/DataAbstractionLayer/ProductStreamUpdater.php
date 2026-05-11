@@ -259,19 +259,10 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
     private function createLanguageContext(Context $context, LanguageEntity $language): Context
     {
-        $languageContext = new Context(
-            $context->getSource(),
-            $context->getRuleIds(),
-            $context->getCurrencyId(),
-            array_values(array_unique(array_filter([$language->getId(), $language->getParentId(), Defaults::LANGUAGE_SYSTEM]))),
-            $context->getVersionId(),
-            $context->getCurrencyFactor(),
-            $context->considerInheritance(),
-            $context->getTaxState(),
-            $context->getRounding(),
-        );
-
-        $languageContext->setExtensions($context->getExtensions());
+        $languageContext = clone $context;
+        $languageContext->assign([
+            'languageIdChain' => array_values(array_unique(array_filter([$language->getId(), $language->getParentId(), Defaults::LANGUAGE_SYSTEM]))),
+        ]);
 
         return $languageContext;
     }

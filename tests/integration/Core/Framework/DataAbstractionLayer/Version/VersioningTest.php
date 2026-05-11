@@ -858,6 +858,54 @@ class VersioningTest extends TestCase
         static::assertSame('updated', $product->getEan());
     }
 
+    public function testICanMergeIntoNonLiveVersion(): void
+    {
+        $id = Uuid::randomHex();
+        $data = [
+            'id' => $id,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 1,
+            'name' => 'test',
+            'ean' => 'EAN',
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 10, 'linked' => false]],
+            'manufacturer' => ['name' => 'create'],
+            'tax' => ['name' => 'create', 'taxRate' => 1],
+        ];
+
+        $context = Context::createDefaultContext();
+        $this->productRepository->create([$data], $context);
+
+        $targetVersionId = $this->productRepository->createVersion($id, $context);
+        $targetVersionContext = $context->createWithVersionId($targetVersionId);
+
+        $this->productRepository->update([['id' => $id, 'stock' => 5]], $targetVersionContext);
+
+        $sourceVersionId = $this->productRepository->createVersion($id, $targetVersionContext);
+        $sourceVersionContext = $targetVersionContext->createWithVersionId($sourceVersionId);
+        $this->productRepository->update([['id' => $id, 'ean' => 'source-version']], $sourceVersionContext);
+
+        $this->productRepository->merge($sourceVersionId, $targetVersionContext);
+
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->first();
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertSame('EAN', $product->getEan());
+        static::assertSame(1, $product->getStock());
+
+        $product = $this->productRepository->search(new Criteria([$id]), $targetVersionContext)->first();
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertSame('source-version', $product->getEan());
+        static::assertSame(5, $product->getStock());
+
+        $changelog = $this->getVersionData('product', $id, $targetVersionId);
+        $mergeChangelog = array_values(array_filter(
+            $changelog,
+            static fn (array $row) => ($row['payload']['ean'] ?? null) === 'source-version'
+        ));
+
+        static::assertCount(1, $mergeChangelog);
+        static::assertSame($targetVersionId, $mergeChangelog[0]['entity_id']['versionId']);
+    }
+
     public function testICanReadOneToManyInASpecifyVersion(): void
     {
         $productId = Uuid::randomHex();

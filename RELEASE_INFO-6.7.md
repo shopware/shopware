@@ -16,7 +16,7 @@ For administration extensions and external tooling, three new admin action route
 
 The Administration template editor now uses these routes: the input placeholder previews the shipped default when no override is set, and a "Reset to default" link appears next to any field marked as `user`-modified.
 
-A new `MailTemplateDefaultsRegistry` public service exposes the same data to PHP code and is the central source of truth for plugin- and app-shipped defaults. Plugin/app lifecycle hooks register and remove their declared templates against it.
+A new `MailTemplateDefaultsRegistry` public service exposes the same data to PHP code and is the central source of truth for plugin- and app-shipped defaults. Plugin/app lifecycle hooks register and remove their declared templates against it; **no rows are written to `mail_template` or `mail_template_type` on install** — `MailTemplateMaterializer::ensure(technicalName)` creates them lazily the first time something concretely needs a UUID (merchant override, flow assignment, sales-channel binding).
 
 ## API
 

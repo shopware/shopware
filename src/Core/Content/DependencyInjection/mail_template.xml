@@ -34,11 +34,12 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
-        <service id="Shopware\Core\Content\MailTemplate\MailTemplateSetPersister">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-        </service>
-
         <service id="Shopware\Core\Content\MailTemplate\Defaults\MailTemplateDefaultsRegistry" public="true"/>
+
+        <service id="Shopware\Core\Content\MailTemplate\MailTemplateMaterializer" public="true">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Content\MailTemplate\Defaults\MailTemplateDefaultsRegistry"/>
+        </service>
 
         <service id="Shopware\Core\Content\MailTemplate\Defaults\MailTemplateResolver" public="true">
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Defaults\MailTemplateDefaultsRegistry"/>

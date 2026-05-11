@@ -26,6 +26,16 @@ class MailTemplateDefaultsRegistry
      */
     private array $defaults = [];
 
+    /**
+     * @var array<string, array<string, string>> technicalName => locale => display name
+     */
+    private array $typeNames = [];
+
+    /**
+     * @var array<string, array<string, string>> technicalName => entity alias => entity name
+     */
+    private array $availableEntities = [];
+
     private bool $coreLoaded = false;
 
     public function __construct(
@@ -107,8 +117,32 @@ class MailTemplateDefaultsRegistry
         $this->ensureCoreLoaded();
 
         foreach ($technicalNames as $technicalName) {
-            unset($this->defaults[$technicalName]);
+            unset($this->defaults[$technicalName], $this->typeNames[$technicalName], $this->availableEntities[$technicalName]);
         }
+    }
+
+    /**
+     * Returns the registered display name (`<name>` in the manifest) for the template type in the
+     * given locale, or null if unknown.
+     */
+    public function getTypeName(string $technicalName, string $locale): ?string
+    {
+        $this->ensureCoreLoaded();
+
+        return $this->typeNames[$technicalName][$locale] ?? null;
+    }
+
+    /**
+     * Returns the declared available-entities map (alias => entityName) for the template type, or
+     * an empty array if none were declared.
+     *
+     * @return array<string, string>
+     */
+    public function getAvailableEntities(string $technicalName): array
+    {
+        $this->ensureCoreLoaded();
+
+        return $this->availableEntities[$technicalName] ?? [];
     }
 
     /**
@@ -118,6 +152,8 @@ class MailTemplateDefaultsRegistry
     public function reset(): void
     {
         $this->defaults = [];
+        $this->typeNames = [];
+        $this->availableEntities = [];
         $this->coreLoaded = false;
     }
 
@@ -158,6 +194,15 @@ class MailTemplateDefaultsRegistry
                 contentHtml: $mailTemplate->getContentHtml()[$locale] ?? null,
                 contentPlain: $mailTemplate->getContentPlain()[$locale] ?? null,
             );
+        }
+
+        foreach ($mailTemplate->getName() as $locale => $name) {
+            $this->typeNames[$technicalName][$locale] = $name;
+        }
+
+        $availableEntities = $mailTemplate->getAvailableEntities();
+        if ($availableEntities !== []) {
+            $this->availableEntities[$technicalName] = $availableEntities;
         }
     }
 }

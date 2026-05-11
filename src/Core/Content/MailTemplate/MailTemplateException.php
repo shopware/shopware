@@ -16,6 +16,7 @@ class MailTemplateException extends HttpException
     public const MAIL_TEMPLATE_UNKNOWN_FIELD_TYPE = 'CONTENT__MAIL_TEMPLATE_UNKNOWN_FIELD_TYPE';
     public const INVALID_REQUEST_PARAMETER_TYPE = 'CONTENT__MAIL_TEMPLATE_INVALID_REQUEST_PARAMETER_TYPE';
     public const INVALID_SALES_CHANNEL_ID = 'CONTENT__MAIL_TEMPLATE_INVALID_SALES_CHANNEL_ID';
+    public const TECHNICAL_NAME_NOT_REGISTERED = 'CONTENT__MAIL_TEMPLATE_TECHNICAL_NAME_NOT_REGISTERED';
 
     public static function invalidMailTemplateContent(): self
     {
@@ -75,6 +76,16 @@ class MailTemplateException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::MAIL_TEMPLATE_UNKNOWN_EVENT_DATA_TYPE,
             'Unknown event data type: ' . $dataType,
+        );
+    }
+
+    public static function technicalNameNotRegistered(string $technicalName): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::TECHNICAL_NAME_NOT_REGISTERED,
+            'No mail template registered for technical name "{{ technicalName }}".',
+            ['technicalName' => $technicalName],
         );
     }
 }

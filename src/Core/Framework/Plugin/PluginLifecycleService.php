@@ -8,7 +8,6 @@ use Composer\Semver\Comparator;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Content\MailTemplate\Defaults\MailTemplateDefaultsRegistry;
 use Shopware\Core\Content\MailTemplate\MailTemplateLoader;
-use Shopware\Core\Content\MailTemplate\MailTemplateSetPersister;
 use Shopware\Core\Content\MailTemplate\MailTemplateXmlLoader;
 use Shopware\Core\Content\MailTemplate\Xml\MailTemplate as MailTemplateXml;
 use Shopware\Core\Defaults;
@@ -103,7 +102,6 @@ class PluginLifecycleService
         private readonly VersionSanitizer $versionSanitizer,
         private readonly DefinitionInstanceRegistry $definitionRegistry,
         private readonly RequestStack $requestStack,
-        private readonly MailTemplateSetPersister $mailTemplateSetPersister,
         private readonly MailTemplateDefaultsRegistry $mailTemplateDefaultsRegistry,
     ) {
         $this->originalEventDispatcher = $eventDispatcher;
@@ -250,7 +248,7 @@ class PluginLifecycleService
 
         if (!$uninstallContext->keepUserData()) {
             $this->removeCustomEntities($plugin->getId());
-            $this->removePluginMailTemplates($pluginBaseClass, $shopwareContext);
+            $this->removePluginMailTemplates($pluginBaseClass);
         }
 
         if ($pluginBaseClass->executeComposerCommands()) {
@@ -778,6 +776,10 @@ class PluginLifecycleService
         }
     }
 
+    // Plugin install/update registers declared templates with the registry — no DB writes here.
+    // Parent `mail_template` / `mail_template_type` rows are created lazily by
+    // {@see \Shopware\Core\Content\MailTemplate\MailTemplateMaterializer} the first time something
+    // concretely needs a UUID for one of these technical names.
     private function syncPluginMailTemplates(Plugin $pluginBaseClass, Context $context): void
     {
         $basePath = $pluginBaseClass->getPath() . '/Resources/mail-templates';
@@ -787,12 +789,10 @@ class PluginLifecycleService
         }
 
         $mailTemplates = MailTemplateLoader::load($basePath);
-
-        $this->mailTemplateSetPersister->sync($mailTemplates, $context);
         $this->mailTemplateDefaultsRegistry->register($mailTemplates);
     }
 
-    private function removePluginMailTemplates(Plugin $pluginBaseClass, Context $context): void
+    private function removePluginMailTemplates(Plugin $pluginBaseClass): void
     {
         $basePath = $pluginBaseClass->getPath() . '/Resources/mail-templates';
 
@@ -806,7 +806,6 @@ class PluginLifecycleService
             $mailTemplates->getMailTemplates()
         );
 
-        $this->mailTemplateSetPersister->removeByTechnicalNames($technicalNames, $context);
         $this->mailTemplateDefaultsRegistry->remove($technicalNames);
     }
 }

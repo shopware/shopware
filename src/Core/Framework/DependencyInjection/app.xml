@@ -165,7 +165,6 @@
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\MailTemplatePersister">
-            <argument type="service" id="Shopware\Core\Content\MailTemplate\MailTemplateSetPersister"/>
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Defaults\MailTemplateDefaultsRegistry"/>
             <tag name="shopware.app_lifecycle.persister" priority="-1150"/>
         </service>

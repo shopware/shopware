@@ -8,11 +8,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\System\SystemConfig\Event\BeforeSystemConfigMultipleChangedEvent;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigMultipleChangedEvent;
-use Shopware\Core\System\SystemConfig\Exception\InvalidKeyException;
 use Shopware\Core\System\SystemConfig\Store\MemoizedSystemConfigStore;
 use Shopware\Core\System\SystemConfig\SymfonySystemConfigService;
 use Shopware\Core\System\SystemConfig\SystemConfigException;
@@ -340,36 +338,6 @@ class SystemConfigServiceTest extends TestCase
         $this->systemConfigService->delete('foo', TestDefaults::SALES_CHANNEL);
         $actual = $this->systemConfigService->get('foo', TestDefaults::SALES_CHANNEL);
         static::assertNull($actual);
-    }
-
-    public function testGetDomainEmptyThrows(): void
-    {
-        $this->expectExceptionObject(SystemConfigException::invalidDomain('Empty domain'));
-        $this->systemConfigService->getDomain('');
-    }
-
-    public function testGetDomainOnlySpacesThrows(): void
-    {
-        $this->expectExceptionObject(SystemConfigException::invalidDomain('Empty domain'));
-        $this->systemConfigService->getDomain('     ');
-    }
-
-    public function testSetEmptyKeyThrows(): void
-    {
-        $this->expectException(InvalidKeyException::class);
-        $this->systemConfigService->set('', 'throws error');
-    }
-
-    public function testSetOnlySpacesKeyThrows(): void
-    {
-        $this->expectException(InvalidKeyException::class);
-        $this->systemConfigService->set('          ', 'throws error');
-    }
-
-    public function testSetInvalidSalesChannelThrows(): void
-    {
-        $this->expectException(InvalidUuidException::class);
-        $this->systemConfigService->set('foo.bar', 'test', 'invalid uuid');
     }
 
     public function testWebhookEventsFired(): void

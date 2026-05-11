@@ -28,9 +28,9 @@ use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMappingCollect
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
 use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Tests\Unit\Core\System\Snippet\Mock\TestPlugin;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Validator\Validation;

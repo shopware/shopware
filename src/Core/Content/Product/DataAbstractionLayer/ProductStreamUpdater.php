@@ -21,8 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -249,7 +248,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
     private function getLanguageContexts(Context $context): array
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new NandFilter([new EqualsFilter('salesChannels.id', null)]));
+        $criteria->addFilter(new NotEqualsFilter('salesChannels.id', null));
         $languages = $this->languageRepository->search($criteria, Context::createDefaultContext())->getEntities();
 
         return array_values($languages->map(

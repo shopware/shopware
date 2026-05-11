@@ -10,9 +10,9 @@ use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Tests\Integration\Core\Framework\Plugin\_fixtures\bundles\FooBarBundle;
 use Shopware\Tests\Integration\Core\Framework\Plugin\_fixtures\bundles\GizmoBundle;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\Service\Attribute\Required;
 
 class SwagTestPlugin extends Plugin

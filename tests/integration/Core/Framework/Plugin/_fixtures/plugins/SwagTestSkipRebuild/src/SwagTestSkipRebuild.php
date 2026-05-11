@@ -10,8 +10,8 @@ use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
-use Shopware\Tests\Integration\Core\Framework\Plugin\_fixtures\bundles\FooBarBundle;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Tests\Integration\Core\Framework\Plugin\_fixtures\bundles\FooBarBundle;
 use Symfony\Contracts\Service\Attribute\Required;
 
 class SwagTestSkipRebuild extends Plugin

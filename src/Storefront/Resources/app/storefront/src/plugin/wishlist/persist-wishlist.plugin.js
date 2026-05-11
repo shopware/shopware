@@ -14,51 +14,48 @@ export default class WishlistPersistStoragePlugin extends BaseWishlistStoragePlu
         this.httpClient.setErrorHandlingInternal(true);
     }
 
-    async load() {
-        await this._merge(() => this._loadProducts());
+    load() {
+        this._merge(() => this._loadProducts())
+            .catch(error => this._handleRequestError(error));
     }
 
-    async add(productId, router) {
-        try {
-            const response = await this._fetchJson(router.path, {
-                method: 'POST',
-            });
-
-            if (response === null) {
-                return;
-            }
-
-            if (response.success) {
-                super.add(productId);
-
-                return;
-            }
-
-            console.warn('unable to add product to wishlist');
-        } catch (error) {
-            this._handleRequestError(error);
-        }
-    }
-
-    async remove(productId, router) {
-        try {
-            const response = await this._fetchJson(router.path, {
-                method: 'POST',
-            });
-
-            if (response === null) {
-                return;
-            }
-
-            if (Object.prototype.hasOwnProperty.call(response, 'success')) {
-                if (response.success === false) {
-                    console.warn('unable to remove product to wishlist');
+    add(productId, router) {
+        this._fetchJson(router.path, {
+            method: 'POST',
+        })
+            .then(response => {
+                if (response === null) {
+                    return;
                 }
-                super.remove(productId);
-            }
-        } catch (error) {
-            this._handleRequestError(error);
-        }
+
+                if (response.success) {
+                    super.add(productId);
+
+                    return;
+                }
+
+                console.warn('unable to add product to wishlist');
+            })
+            .catch(error => this._handleRequestError(error));
+    }
+
+    remove(productId, router) {
+        this._fetchJson(router.path, {
+            method: 'POST',
+        })
+            .then(response => {
+                if (response === null) {
+                    return;
+                }
+
+                if (Object.prototype.hasOwnProperty.call(response, 'success')) {
+                    if (response.success === false) {
+                        console.warn('unable to remove product to wishlist');
+                    }
+                    super.remove(productId);
+                }
+            })
+            .catch(error => this._handleRequestError(error));
     }
 
     /**

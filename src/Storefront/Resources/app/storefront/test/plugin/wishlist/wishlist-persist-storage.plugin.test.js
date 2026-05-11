@@ -6,6 +6,7 @@ import Storage from 'src/helper/storage/storage.helper';
  * @package checkout
  */
 describe('WishlistPersistStoragePlugin tests', () => {
+    const flushPromises = () => new Promise(process.nextTick);
     const defaultHeaders = {
         'X-Requested-With': 'XMLHttpRequest',
         'Content-Type': 'application/json',
@@ -64,7 +65,11 @@ describe('WishlistPersistStoragePlugin tests', () => {
 
         global.fetch = jest.fn(() => Promise.resolve(response));
 
-        await wishlistStoragePlugin.load();
+        const result = wishlistStoragePlugin.load();
+
+        expect(result).toBeUndefined();
+
+        await flushPromises();
 
         expect(global.fetch).toHaveBeenCalledWith('/wishlist/list', {
             headers: defaultHeaders,
@@ -79,7 +84,11 @@ describe('WishlistPersistStoragePlugin tests', () => {
 
         global.fetch = jest.fn(() => Promise.resolve(createJsonResponse(products)));
 
-        await wishlistStoragePlugin.load();
+        const result = wishlistStoragePlugin.load();
+
+        expect(result).toBeUndefined();
+
+        await flushPromises();
 
         expect(global.fetch).toHaveBeenCalledWith('/wishlist/list', {
             headers: defaultHeaders,
@@ -93,7 +102,11 @@ describe('WishlistPersistStoragePlugin tests', () => {
 
         global.fetch = jest.fn(() => Promise.resolve(createJsonResponse({ success: true })));
 
-        await wishlistStoragePlugin.add('product-1', { path: '/wishlist/add/product-1' });
+        const result = wishlistStoragePlugin.add('product-1', { path: '/wishlist/add/product-1' });
+
+        expect(result).toBeUndefined();
+
+        await flushPromises();
 
         expect(global.fetch).toHaveBeenCalledWith('/wishlist/add/product-1', {
             method: 'POST',
@@ -109,7 +122,11 @@ describe('WishlistPersistStoragePlugin tests', () => {
 
         global.fetch = jest.fn(() => Promise.resolve(createJsonResponse({ success: false })));
 
-        await wishlistStoragePlugin.add('product-1', { path: '/wishlist/add/product-1' });
+        const result = wishlistStoragePlugin.add('product-1', { path: '/wishlist/add/product-1' });
+
+        expect(result).toBeUndefined();
+
+        await flushPromises();
 
         expect(warnSpy).toHaveBeenCalledWith('unable to add product to wishlist');
         expect(addSpy).not.toHaveBeenCalled();
@@ -122,7 +139,11 @@ describe('WishlistPersistStoragePlugin tests', () => {
 
         global.fetch = jest.fn(() => Promise.resolve(response));
 
-        await wishlistStoragePlugin.add('product-1', { path: '/wishlist/add/product-1' });
+        const result = wishlistStoragePlugin.add('product-1', { path: '/wishlist/add/product-1' });
+
+        expect(result).toBeUndefined();
+
+        await flushPromises();
 
         expect(response.json).not.toHaveBeenCalled();
         expect(addSpy).not.toHaveBeenCalled();
@@ -134,7 +155,11 @@ describe('WishlistPersistStoragePlugin tests', () => {
 
         global.fetch = jest.fn(() => Promise.resolve(createJsonResponse({ success: true })));
 
-        await wishlistStoragePlugin.remove('product-1', { path: '/wishlist/remove/product-1' });
+        const result = wishlistStoragePlugin.remove('product-1', { path: '/wishlist/remove/product-1' });
+
+        expect(result).toBeUndefined();
+
+        await flushPromises();
 
         expect(global.fetch).toHaveBeenCalledWith('/wishlist/remove/product-1', {
             method: 'POST',
@@ -151,7 +176,11 @@ describe('WishlistPersistStoragePlugin tests', () => {
 
         global.fetch = jest.fn(() => Promise.resolve(createJsonResponse({ success: false })));
 
-        await wishlistStoragePlugin.remove('product-1', { path: '/wishlist/remove/product-1' });
+        const result = wishlistStoragePlugin.remove('product-1', { path: '/wishlist/remove/product-1' });
+
+        expect(result).toBeUndefined();
+
+        await flushPromises();
 
         expect(warnSpy).toHaveBeenCalledWith('unable to remove product to wishlist');
         expect(removeSpy).toHaveBeenCalledWith('product-1');
@@ -164,7 +193,11 @@ describe('WishlistPersistStoragePlugin tests', () => {
 
         global.fetch = jest.fn(() => Promise.resolve(createJsonResponse({})));
 
-        await wishlistStoragePlugin.remove('product-1', { path: '/wishlist/remove/product-1' });
+        const result = wishlistStoragePlugin.remove('product-1', { path: '/wishlist/remove/product-1' });
+
+        expect(result).toBeUndefined();
+
+        await flushPromises();
 
         expect(removeSpy).not.toHaveBeenCalled();
         expect(wishlistStoragePlugin.has('product-1')).toBe(true);
@@ -177,7 +210,11 @@ describe('WishlistPersistStoragePlugin tests', () => {
 
         global.fetch = jest.fn(() => Promise.resolve(response));
 
-        await wishlistStoragePlugin.remove('product-1', { path: '/wishlist/remove/product-1' });
+        const result = wishlistStoragePlugin.remove('product-1', { path: '/wishlist/remove/product-1' });
+
+        expect(result).toBeUndefined();
+
+        await flushPromises();
 
         expect(response.json).not.toHaveBeenCalled();
         expect(removeSpy).not.toHaveBeenCalled();

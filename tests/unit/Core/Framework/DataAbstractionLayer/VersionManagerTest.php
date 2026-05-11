@@ -173,6 +173,36 @@ class VersionManagerTest extends TestCase
         );
     }
 
+    public function testMergeFailsWhenSourceAndTargetVersionAreIdentical(): void
+    {
+        $versionId = Uuid::randomHex();
+
+        $lockFactory = $this->createMock(LockFactory::class);
+        $lockFactory->expects($this->never())->method('createLock');
+
+        $versionManager = new VersionManager(
+            $this->createMock(EntityWriterInterface::class),
+            $this->createMock(EntityReaderInterface::class),
+            $this->createMock(EntitySearcherInterface::class),
+            $this->createMock(EntityWriteGatewayInterface::class),
+            $this->createMock(EventDispatcherInterface::class),
+            $this->createMock(SerializerInterface::class),
+            $this->createMock(DefinitionInstanceRegistry::class),
+            $this->createMock(VersionCommitDefinition::class),
+            $this->createMock(VersionCommitDataDefinition::class),
+            $this->createMock(VersionDefinition::class),
+            $lockFactory
+        );
+
+        static::expectException(DataAbstractionLayerException::class);
+        static::expectExceptionMessage(DataAbstractionLayerException::versionMergeSameVersion($versionId)->getMessage());
+
+        $versionManager->merge(
+            $versionId,
+            WriteContext::createFromContext(Context::createDefaultContext()->createWithVersionId($versionId))
+        );
+    }
+
     public function testMergeFailsForNonExistentVersion(): void
     {
         $lockFactory = $this->createMock(LockFactory::class);

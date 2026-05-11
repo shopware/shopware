@@ -450,8 +450,12 @@ return (new Config())
         }
 
         foreach ($composerFiles as $composerFile) {
+            $composerFileName = (string) $composerFile->name;
+
             if ($composerFile->status === File::STATUS_REMOVED
-                || str_contains((string) $composerFile->name, '/Test/')
+                || str_starts_with($composerFileName, 'tests/')
+                || str_contains($composerFileName, '/test/')
+                || str_contains($composerFileName, '/Test/')
             ) {
                 continue;
             }

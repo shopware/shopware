@@ -129,6 +129,7 @@
     "CHECKOUT__UNKNOWN_PAYMENT_METHOD": "Die gewählte Zahlungsart konnte nicht gefunden werden.",
     "productNotFound": "Produkt \"%number%\" konnte nicht gefunden werden.",
     "VIOLATION::TOO_SHORT_ERROR": "Die Eingabe ist zu kurz.",
+    "VIOLATION::INVALID_PATTERN_ERROR": "Die Eingabe entspricht nicht dem erforderlichen Format.",
     "product-not-found": "Das Produkt wurde nicht gefunden.",
     "message-403-ajax": "Die Sitzung ist abgelaufen. Bitte laden Sie die Seite neu und versuchen Sie es erneut.",
     "message-403": "Die Sitzung ist abgelaufen. Bitte kehren Sie zur letzten Seite zurück neu und versuchen Sie  es erneut.",

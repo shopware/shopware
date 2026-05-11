@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Elasticsearch\Framework;
 use AsyncAws\Core\Configuration;
 use AsyncAws\Core\Credentials\CredentialProvider;
 use AsyncAws\Core\Credentials\Credentials;
+use GuzzleHttp\Psr7\HttpFactory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -39,21 +40,14 @@ class AsyncAwsSignerTest extends TestCase
 
         $credentialProvider = $this->createMock(CredentialProvider::class);
         $credentialProvider->method('getCredentials')->willReturn(new Credentials('key', 'secret'));
+
         $signer = new AsyncAwsSigner($configuration, $this->logger, 'es', 'us-east-1', $credentialProvider);
 
-        $request = [
-            'http_method' => 'GET',
-            'headers' => ['Host' => ['https://example.com']],
-            'uri' => '/test',
-            'scheme' => 'https',
-            'body' => '',
-            'query_string' => '',
-        ];
+        $request = (new HttpFactory())->createRequest('GET', 'https://example.com/test');
 
-        $result = ($signer)($request);
-        $result = $result->offsetGet('transfer_stats');
+        $result = $signer($request);
 
-        static::assertSame('https://example.com/test', $result['url']);
+        static::assertStringContainsString('key', $result->getHeader('Authorization')[0]);
     }
 
     public function testInvokeLogsErrorOnFailure(): void
@@ -62,7 +56,13 @@ class AsyncAwsSignerTest extends TestCase
             'region' => 'test',
         ]);
 
-        $signer = new AsyncAwsSigner($configuration, $this->logger, 'es', 'test', $this->credentialProvider);
+        $signer = new AsyncAwsSigner(
+            $configuration,
+            $this->logger,
+            'es',
+            'test',
+            $this->credentialProvider,
+        );
 
         $this->logger->expects($this->once())
             ->method('error')
@@ -71,14 +71,7 @@ class AsyncAwsSignerTest extends TestCase
         $this->expectException(ElasticsearchException::class);
         $this->expectExceptionMessage('Could not get AWS credentials');
 
-        $request = [
-            'http_method' => 'GET',
-            'headers' => ['Host' => ['https://example.com']],
-            'uri' => '/test',
-            'scheme' => 'https',
-            'body' => '',
-            'query_string' => '',
-        ];
+        $request = (new HttpFactory())->createRequest('GET', 'https://example.com/test');
 
         ($signer)($request);
     }

@@ -203,6 +203,65 @@ Multiple overrides are applied in registration order. Each receives a shallow co
 
 ---
 
+## Shopware Setup SFC Authoring
+
+Shopware setup SFCs provide syntax sugar around the same Composition API extension runtime. The transform runs before Vue compiles the SFC. Base components are lowered through `createScriptSetupExtendableComponent()`, which delegates to `createExtendableSetup(...)`; override files are lowered to import-time `overrideComponentSetup(...)` registration.
+
+### Source authoring modes
+
+Base component mode uses `sw-component` on the native Vue setup block. In this example, `count` is part of the public override API because it is listed in `swDefinePublic({...})`. `internalValue` stays private state: the component template can still use it, and overrides can still read it through `previousState._private`, but it is not exposed as a top-level public override key.
+
+```vue
+<template>
+    <div>{{ count }}</div>
+</template>
+
+<script setup lang="ts" sw-component="sw-example-component">
+import { ref } from 'vue';
+
+const props = useSwProps();
+const count = ref(props.initialCount ?? 0);
+const internalValue = ref('private');
+
+swDefinePublic({
+    count,
+});
+</script>
+```
+
+Override mode uses `sw-override` for the component it extends. `previousState` is the current public state after earlier overrides have run, `props` and `context` mirror the normal setup inputs, and `doubled` becomes the override payload returned to the extension runtime.
+
+```vue
+<script setup lang="ts" sw-override="sw-example-component">
+import { computed } from 'vue';
+
+const previousState = useSwPreviousState();
+const props = useSwProps();
+const context = useSwContext();
+
+const doubled = computed(() => previousState.count.value * 2);
+</script>
+```
+
+### Runtime inputs
+
+Shopware setup SFCs use transform-injected helper functions instead of broad runtime globals:
+
+| Mode | Helpers |
+|---|---|
+| Base | `useSwProps()`, `useSwContext()` |
+| Override | `useSwPreviousState()`, `useSwProps()`, `useSwContext()` |
+
+`swDefinePublic({...})` is the only public marker in base mode. It accepts stable object-literal keys only:
+
+```text
+swDefinePublic({ count });
+swDefinePublic({ count: localCount });
+swDefinePublic({ 'count': localCount });
+```
+
+---
+
 ## Options API Shim
 
 **Location:** `options-composition-shim.ts`

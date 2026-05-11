@@ -101,7 +101,9 @@ export default defineConfig(({ command }) => {
                 AssetPathPlugin(),
                 ImageDeprecationPlugin(__dirname),
                 AssetCssPostprocessPlugin('/bundles/administration/administration/assets/'),
-                ShopwareSetupPlugin(),
+                ShopwareSetupPlugin({
+                    administrationRoot: __dirname,
+                }),
 
                 // Twig.JS loads node modules, so we need to polyfill them
                 nodePolyfills({

@@ -76,7 +76,9 @@ const getBaseConfig = (extension: ExtensionDefinition, isProd = false) => {
                 root: extension.path,
                 pluginEntryFile: extension.filePath,
             }),
-            ShopwareSetupPlugin(),
+            ShopwareSetupPlugin({
+                administrationRoot: path.dirname(__dirname),
+            }),
             vue({
                 template: {
                     compilerOptions: {

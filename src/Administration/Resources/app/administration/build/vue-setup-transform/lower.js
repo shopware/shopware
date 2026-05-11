@@ -8,11 +8,8 @@ const { ShopwareSetupTransformError } = require('./utils/transform-error');
  * @typedef {import('./utils/shopware-setup-block').ShopwareSetupBlock} ShopwareSetupBlock
  * @typedef {import('./script-analyzer').ShopwareSetupScriptAnalysis} ShopwareSetupScriptAnalysis
  * @typedef {import('./script-analyzer').PublicEntry} PublicEntry
- * @typedef {import('./script-analyzer').ImportBlock} ImportBlock
  * @typedef {PublicEntry['key']} PublicKey
  */
-
-const RUNTIME_IMPORT = 'src/app/adapter/composition-extension-system';
 
 /**
  * Indents generated callback bodies while preserving intentionally blank spacer lines.
@@ -201,21 +198,6 @@ function buildOverrideReturn(analysis) {
 }
 
 /**
- * Keeps user imports before generated runtime imports for readable transformed output.
- *
- * @param {ImportBlock[]} userImports
- * @param {string} helperImport
- * @returns {string}
- */
-function buildImports(userImports, helperImport) {
-    if (userImports.length === 0) {
-        return helperImport;
-    }
-
-    return `${userImports.map((importBlock) => importBlock.code).join('\n')}\n\n${helperImport}`;
-}
-
-/**
  * Lowers base mode into the existing extendable setup runtime bridge.
  *
  * @param {ShopwareSetupBlock} block
@@ -224,13 +206,11 @@ function buildImports(userImports, helperImport) {
  */
 function buildBaseScript(block, analysis) {
     const takenNames = getTakenNames(analysis);
-    const createHelperName = makeUniqueName('__swCreateScriptSetupExtendableComponent', takenNames);
     const setupBindingsName = makeUniqueName('__shopwareSetupBindings', takenNames);
     const publicEntryByLocalName = createPublicEntryByLocalNameMap(analysis.publicEntries);
     const destructureEntries = analysis.runtimeBindings.map((binding) => {
         return formatDestructureEntry(binding.name, publicEntryByLocalName.get(binding.name));
     });
-    const helperImport = `import { createScriptSetupExtendableComponent as ${createHelperName} } from '${RUNTIME_IMPORT}';`;
     const body = [
         `const useSwProps = () => ${setupBindingsName}.props;`,
         `const useSwContext = () => ${setupBindingsName}.context;`,
@@ -242,11 +222,11 @@ function buildBaseScript(block, analysis) {
 
     return [
         `<script${block.passthroughAttributesSource}>`,
-        buildImports(analysis.imports, helperImport),
-        '',
+        ...analysis.imports.map((importBlock) => importBlock.code),
+        ...(analysis.imports.length > 0 ? [''] : []),
         'const {',
         ...destructureEntries.map((entry) => `    ${entry},`),
-        `} = ${createHelperName}()('${escapeSingleQuoted(block.componentName)}', (${setupBindingsName}) => {`,
+        `} = Shopware.Component.createScriptSetupExtendableComponent()('${escapeSingleQuoted(block.componentName)}', (${setupBindingsName}) => {`,
         indent(body),
         '});',
         '</script>',
@@ -254,7 +234,8 @@ function buildBaseScript(block, analysis) {
 }
 
 /**
- * Lowers override mode into import-time override registration.
+ * Lowers override mode into a hidden override component consumed by
+ * registerOverrideComponent.
  *
  * @param {ShopwareSetupBlock} block
  * @param {ShopwareSetupScriptAnalysis} analysis
@@ -262,11 +243,9 @@ function buildBaseScript(block, analysis) {
  */
 function buildOverrideScript(block, analysis) {
     const takenNames = getTakenNames(analysis);
-    const overrideHelperName = makeUniqueName('__swOverrideComponentSetup', takenNames);
     const previousStateName = makeUniqueName('__swPreviousState', takenNames);
     const propsName = makeUniqueName('__swProps', takenNames);
     const contextName = makeUniqueName('__swContext', takenNames);
-    const helperImport = `import { overrideComponentSetup as ${overrideHelperName} } from '${RUNTIME_IMPORT}';`;
     const passthroughAttributesSource = block.attributes.toSourceWithout([
         'setup',
         'sw-component',
@@ -284,13 +263,17 @@ function buildOverrideScript(block, analysis) {
 
     return [
         `<script${passthroughAttributesSource}>`,
-        buildImports(analysis.imports, helperImport),
+        ...analysis.imports.map((importBlock) => importBlock.code),
+        ...(analysis.imports.length > 0 ? [''] : []),
+        'export default {',
+        '    setup() {',
+        `        Shopware.Component.overrideComponentSetup()('${escapeSingleQuoted(block.componentName)}', (${previousStateName}, ${propsName}, ${contextName}) => {`,
+        indent(body, 12),
+        '        });',
         '',
-        `${overrideHelperName}()('${escapeSingleQuoted(block.componentName)}', (${previousStateName}, ${propsName}, ${contextName}) => {`,
-        indent(body),
-        '});',
-        '',
-        'export default {};',
+        '        return () => null;',
+        '    },',
+        '};',
         '</script>',
     ].join('\n');
 }

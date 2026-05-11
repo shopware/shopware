@@ -105,14 +105,12 @@ swDefinePublic({
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 
-import { createScriptSetupExtendableComponent as __swCreateScriptSetupExtendableComponent } from 'src/app/adapter/composition-extension-system';
-
 const {
     count,
     doubled,
     internalThing,
     'foo': foo2,
-} = __swCreateScriptSetupExtendableComponent()('sw-my-component', (__shopwareSetupBindings) => {
+} = Shopware.Component.createScriptSetupExtendableComponent()('sw-my-component', (__shopwareSetupBindings) => {
     const useSwProps = () => __shopwareSetupBindings.props;
     const useSwContext = () => __shopwareSetupBindings.context;
 
@@ -138,7 +136,7 @@ const {
         expect(transformOrFail(source, 'base.vue').code).toBe(expected);
     });
 
-    it('transforms override Shopware setup blocks into import-time override registration', () => {
+    it('transforms override Shopware setup blocks into hidden override components', () => {
         const source = `<script setup sw-override="sw-my-component">
 import { computed } from 'vue';
 
@@ -152,28 +150,42 @@ const doubled = computed(() => previousState.count.value * 2);
         const expected = `<script>
 import { computed } from 'vue';
 
-import { overrideComponentSetup as __swOverrideComponentSetup } from 'src/app/adapter/composition-extension-system';
+export default {
+    setup() {
+        Shopware.Component.overrideComponentSetup()('sw-my-component', (__swPreviousState, __swProps, __swContext) => {
+            const useSwPreviousState = () => __swPreviousState;
+            const useSwProps = () => __swProps;
+            const useSwContext = () => __swContext;
 
-__swOverrideComponentSetup()('sw-my-component', (__swPreviousState, __swProps, __swContext) => {
-    const useSwPreviousState = () => __swPreviousState;
-    const useSwProps = () => __swProps;
-    const useSwContext = () => __swContext;
+            const previousState = useSwPreviousState();
+            const props = useSwProps();
+            const context = useSwContext();
 
-    const previousState = useSwPreviousState();
-    const props = useSwProps();
-    const context = useSwContext();
+            const doubled = computed(() => previousState.count.value * 2);
 
-    const doubled = computed(() => previousState.count.value * 2);
+            return {
+                doubled,
+            };
+        });
 
-    return {
-        doubled,
-    };
-});
-
-export default {};
+        return () => null;
+    },
+};
 </script>`;
 
-        expect(transformOrFail(source, 'override.vue').code).toBe(expected);
+        expect(transformOrFail(source, 'component.override.vue').code).toBe(expected);
+    });
+
+    it('transforms sw-override blocks in .override.vue files', () => {
+        const source = `<script setup sw-override="sw-my-component">
+const count = 1;
+</script>`;
+
+        const result = transformOrFail(source, 'component-name.override.vue');
+
+        expect(result.mode).toBe('override');
+        expect(result.filename).toBe('component-name.override.vue');
+        expect(result.code).toContain("Shopware.Component.overrideComponentSetup()('sw-my-component'");
     });
 
     it('keeps imports out of returned override state', () => {
@@ -183,9 +195,9 @@ import { computed } from 'vue';
 const doubled = computed(() => 2);
 </script>`;
 
-        const result = transformOrFail(source, 'override.vue').code;
+        const result = transformOrFail(source, 'component.override.vue').code;
 
-        expect(result).toContain('return {\n        doubled,\n    };');
+        expect(result).toContain('return {\n                doubled,\n            };');
         expect(result).not.toContain('computed,');
     });
 
@@ -215,7 +227,7 @@ const count = 1;
 
         const result = transformOrFail(source, 'script-attribute.vue').code;
 
-        expect(result).toContain("__swCreateScriptSetupExtendableComponent()('sw-my-component'");
+        expect(result).toContain("Shopware.Component.createScriptSetupExtendableComponent()('sw-my-component'");
     });
 
     it('preserves script setup attributes that do not belong to the Shopware transform', () => {
@@ -415,16 +427,16 @@ const count = 1;
 
         const result = transformOrFail(source, 'scanner.vue').code;
 
-        expect(result).toContain("__swCreateScriptSetupExtendableComponent()('real-component'");
-        expect(result).not.toContain("__swCreateScriptSetupExtendableComponent()('from-comment'");
-        expect(result).not.toContain("__swCreateScriptSetupExtendableComponent()('from-template'");
-        expect(result).not.toContain("__swCreateScriptSetupExtendableComponent()('from-style'");
-        expect(result).not.toContain("__swCreateScriptSetupExtendableComponent()('from-line-comment'");
-        expect(result).not.toContain("__swCreateScriptSetupExtendableComponent()('from-block-comment'");
-        expect(result).not.toContain("__swCreateScriptSetupExtendableComponent()('from-single-string'");
-        expect(result).not.toContain("__swCreateScriptSetupExtendableComponent()('from-string'");
-        expect(result).not.toContain("__swCreateScriptSetupExtendableComponent()('from-template-literal'");
-        expect(result).not.toContain("__swCreateScriptSetupExtendableComponent()('from-template-expression'");
+        expect(result).toContain("Shopware.Component.createScriptSetupExtendableComponent()('real-component'");
+        expect(result).not.toContain("Shopware.Component.createScriptSetupExtendableComponent()('from-comment'");
+        expect(result).not.toContain("Shopware.Component.createScriptSetupExtendableComponent()('from-template'");
+        expect(result).not.toContain("Shopware.Component.createScriptSetupExtendableComponent()('from-style'");
+        expect(result).not.toContain("Shopware.Component.createScriptSetupExtendableComponent()('from-line-comment'");
+        expect(result).not.toContain("Shopware.Component.createScriptSetupExtendableComponent()('from-block-comment'");
+        expect(result).not.toContain("Shopware.Component.createScriptSetupExtendableComponent()('from-single-string'");
+        expect(result).not.toContain("Shopware.Component.createScriptSetupExtendableComponent()('from-string'");
+        expect(result).not.toContain("Shopware.Component.createScriptSetupExtendableComponent()('from-template-literal'");
+        expect(result).not.toContain("Shopware.Component.createScriptSetupExtendableComponent()('from-template-expression'");
     });
 
     it('skips transformation when Vue reports SFC parse errors', () => {

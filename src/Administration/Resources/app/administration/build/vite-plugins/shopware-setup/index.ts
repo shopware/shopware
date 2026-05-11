@@ -3,7 +3,34 @@
  */
 
 import type { Plugin } from 'vite';
-import { transformShopwareSetupSfc } from '../../vue-setup-transform';
+import path from 'node:path';
+import type { transformShopwareSetupSfc as transformShopwareSetupSfcRuntime } from '../../vue-setup-transform';
+
+type ShopwareSetupTransformModule = {
+    transformShopwareSetupSfc: typeof transformShopwareSetupSfcRuntime;
+};
+
+type Options = {
+    administrationRoot: string;
+};
+
+/**
+ * Keep the CommonJS transform out of Vite's config bundle.
+ *
+ * The shared transform is intentionally still CommonJS because Jest, ESLint, and
+ * Volar consume it synchronously. Vite bundles `vite.config.mts` with esbuild by
+ * default; if the transform is statically imported there, its `require()` calls
+ * are inlined into an ESM config bundle and fail at runtime.
+ */
+async function loadShopwareSetupTransform(
+    administrationRoot: string,
+): Promise<typeof transformShopwareSetupSfcRuntime> {
+    const transformModule = await import(
+        path.join(administrationRoot, 'build/vue-setup-transform/index.js')
+    ) as ShopwareSetupTransformModule;
+
+    return transformModule.transformShopwareSetupSfc;
+}
 
 /**
  * @private
@@ -12,18 +39,19 @@ import { transformShopwareSetupSfc } from '../../vue-setup-transform';
  * Parser-sensitive behavior stays in build/vue-setup-transform for reuse by Jest,
  * ESLint, and editor tooling.
  */
-export default function ShopwareSetupPlugin(): Plugin {
+export default function ShopwareSetupPlugin(options: Options): Plugin {
     return {
         name: 'shopware-vite-plugin-shopware-setup',
         enforce: 'pre',
 
-        transform(code, id) {
+        async transform(code, id) {
             const fileName = id.split('?')[0];
 
             if (!fileName.endsWith('.vue')) {
                 return null;
             }
 
+            const transformShopwareSetupSfc = await loadShopwareSetupTransform(options.administrationRoot);
             const result = transformShopwareSetupSfc(code, fileName);
 
             if (!result) {

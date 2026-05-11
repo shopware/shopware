@@ -326,7 +326,7 @@ class ProductStreamUpdaterTest extends TestCase
 
     public function testProductStreamIndexingConsidersNonDefaultLanguageCustomFields(): void
     {
-        $languageId = $this->createAssignedLanguage('xx-XX', 'Test locale', 'Test', 'Test language');
+        $languageId = $this->createAssignedLanguage('de-DE-' . Uuid::randomHex(), 'Test locale', 'Test', 'Test language');
         $streamId = $this->createCustomFieldStream('Custom field stream');
         $productId = $this->createTranslatedProductWithNonDefaultLanguageCustomFieldMatch($languageId);
 
@@ -338,7 +338,7 @@ class ProductStreamUpdaterTest extends TestCase
 
     public function testUpdateProductsConsidersNonDefaultLanguageCustomFields(): void
     {
-        $languageId = $this->createAssignedLanguage('xy-XY', 'Update locale', 'Update', 'Update language');
+        $languageId = $this->createAssignedLanguage('de-DE-' . Uuid::randomHex(), 'Update locale', 'Update', 'Update language');
         $streamId = $this->createCustomFieldStream('Custom field stream update');
         $productId = $this->createTranslatedProductWithNonDefaultLanguageCustomFieldMatch($languageId);
 

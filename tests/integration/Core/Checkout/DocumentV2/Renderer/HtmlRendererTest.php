@@ -4,6 +4,11 @@ namespace Shopware\Tests\Integration\Core\Checkout\DocumentV2\Renderer;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Document\Renderer\AbstractDocumentRenderer;
+use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
+use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer as LegacyInvoiceRenderer;
+use Shopware\Core\Checkout\Document\Service\HtmlRenderer as LegacyHtmlRenderer;
+use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
@@ -37,6 +42,8 @@ class HtmlRendererTest extends TestCase
 {
     use DocumentTrait;
     use SnapshotTesting;
+
+    private const DOCUMENT_NUMBER = '1000';
 
     private SalesChannelContext $salesChannelContext;
 
@@ -112,14 +119,12 @@ class HtmlRendererTest extends TestCase
         $order = $this->orderRepository->search($criteria, $this->context)->getEntities()->first();
         static::assertInstanceOf(OrderEntity::class, $order);
 
-        $documentNumber = '1000';
-
         $generationRequest = new DocumentGenerationRequest(
             orderId: $orderId,
             orderVersionId: Defaults::LIVE_VERSION,
             documentType: $documentType,
             requestedFormats: [DocumentFormat::HTML],
-            documentNumber: $documentNumber,
+            documentNumber: self::DOCUMENT_NUMBER,
         );
 
         $renderData = $dataProvider->provideRenderingData(
@@ -127,9 +132,164 @@ class HtmlRendererTest extends TestCase
             $generationRequest,
             $this->context,
         );
-        static::assertInstanceOf(InvoiceRenderData::class, $renderData);
 
-        $renderData->configuration->merge([
+        if ($renderData instanceof InvoiceRenderData) {
+            $renderData->configuration->merge(self::getInvoiceComparisonConfig());
+        }
+
+        $input = new RenderInput(
+            documentType: $documentType->value,
+            documentNumber: self::DOCUMENT_NUMBER,
+            order: $order,
+            data: [$dataProvider->getKey() => $renderData],
+        );
+
+        $result = $this->renderer->renderToString(
+            $input,
+            new RenderState(),
+            $this->context,
+        );
+
+        static::assertSame(DocumentFormat::HTML->value, $result->format);
+        static::assertSame('html', $result->fileExtension);
+        static::assertSame('text/html', $result->mimeType);
+
+        $this->assertSnapshot('html_renderer_' . $documentType->value, [
+            [
+                'type' => self::TYPE_HTML,
+                'actual' => $result->content,
+            ],
+        ]);
+    }
+
+    /**
+     * @return iterable<string, array{
+     *     documentType: DocumentType,
+     *     dataProviderClass: class-string<AbstractDocumentDataProvider>
+     * }>
+     */
+    public static function provideHtmlDocumentTypes(): iterable
+    {
+        yield 'invoice' => [
+            'documentType' => DocumentType::INVOICE,
+            'dataProviderClass' => InvoiceDataProvider::class,
+        ];
+        // yield 'delivery_note' ...
+    }
+
+    /**
+     * @param class-string<AbstractDocumentDataProvider> $dataProviderClass
+     * @param class-string<AbstractDocumentRenderer> $legacyRendererClass
+     * @param array<string, mixed> $config
+     */
+    #[DataProvider('provideLegacyHtmlDocumentTypes')]
+    public function testOutputMatchesLegacyRenderer(
+        DocumentType $documentType,
+        string $dataProviderClass,
+        string $legacyRendererClass,
+        array $config,
+    ): void {
+        $dataProvider = static::getContainer()->get($dataProviderClass);
+        static::assertInstanceOf(AbstractDocumentDataProvider::class, $dataProvider);
+
+        $legacyRenderer = static::getContainer()->get($legacyRendererClass);
+        static::assertInstanceOf(AbstractDocumentRenderer::class, $legacyRenderer);
+
+        $orderId = $this->persistCart($this->generateDemoCartWithTaxes([7]));
+
+        $this->orderRepository->update([
+            [
+                'id' => $orderId,
+                'orderNumber' => '10000',
+                'orderDateTime' => '2026-05-05T12:00:00+00:00',
+            ],
+        ], $this->context);
+
+        $legacyOperation = new DocumentGenerateOperation(
+            $orderId,
+            LegacyHtmlRenderer::FILE_EXTENSION,
+            $config,
+        );
+        $legacyResult = $legacyRenderer->render(
+            [$orderId => $legacyOperation],
+            $this->context,
+            new DocumentRendererConfig(),
+        );
+
+        $legacyDocument = $legacyResult->getSuccess()[$orderId] ?? null;
+        static::assertNotNull($legacyDocument);
+
+        $legacyContent = $legacyDocument->getContent();
+        static::assertIsString($legacyContent);
+
+        $criteria = new Criteria([$orderId]);
+        $dataProvider->enrichOrderCriteria($criteria);
+
+        $order = $this->orderRepository->search($criteria, $this->context)->getEntities()->first();
+        static::assertInstanceOf(OrderEntity::class, $order);
+
+        $generationRequest = new DocumentGenerationRequest(
+            orderId: $orderId,
+            orderVersionId: Defaults::LIVE_VERSION,
+            documentType: $documentType,
+            requestedFormats: [DocumentFormat::HTML],
+            documentNumber: self::DOCUMENT_NUMBER,
+        );
+
+        $renderData = $dataProvider->provideRenderingData(
+            $order,
+            $generationRequest,
+            $this->context,
+        );
+
+        if ($renderData instanceof InvoiceRenderData) {
+            $renderData->configuration->merge($config);
+        }
+
+        $input = new RenderInput(
+            documentType: $documentType->value,
+            documentNumber: self::DOCUMENT_NUMBER,
+            order: $order,
+            data: [$dataProvider->getKey() => $renderData],
+        );
+
+        $result = $this->renderer->renderToString(
+            $input,
+            new RenderState(),
+            $this->context,
+        );
+
+        static::assertSame(
+            self::normalizeHtml($legacyContent),
+            self::normalizeHtml($result->content),
+        );
+    }
+
+    /**
+     * @return iterable<string, array{
+     *     documentType: DocumentType,
+     *     dataProviderClass: class-string<AbstractDocumentDataProvider>,
+     *     legacyRendererClass: class-string<AbstractDocumentRenderer>,
+     *     config: array<string, mixed>
+     * }>
+     */
+    public static function provideLegacyHtmlDocumentTypes(): iterable
+    {
+        yield 'invoice' => [
+            'documentType' => DocumentType::INVOICE,
+            'dataProviderClass' => InvoiceDataProvider::class,
+            'legacyRendererClass' => LegacyInvoiceRenderer::class,
+            'config' => self::getInvoiceComparisonConfig(),
+        ];
+        // yield 'delivery_note' ...
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function getInvoiceComparisonConfig(): array
+    {
+        return [
             'documentDate' => '2026-05-05T12:00:00+00:00',
             'documentComment' => 'comment.',
             'displayHeader' => true,
@@ -154,39 +314,7 @@ class HtmlRendererTest extends TestCase
             'bankBic' => 'COBADEFFXXX',
             'placeOfJurisdiction' => 'Example Place',
             'placeOfFulfillment' => 'Example Place',
-        ]);
-
-        $input = new RenderInput(
-            documentType: $documentType->value,
-            documentNumber: $documentNumber,
-            order: $order,
-            data: [$dataProvider->getKey() => $renderData],
-        );
-
-        $result = $this->renderer->renderToString(
-            $input,
-            new RenderState(),
-            $this->context,
-        );
-
-        static::assertSame(DocumentFormat::HTML->value, $result->format);
-        static::assertSame('html', $result->fileExtension);
-        static::assertSame('text/html', $result->mimeType);
-
-        $this->assertSnapshot('html_renderer_' . $documentType->value, [
-            [
-                'type' => self::TYPE_HTML,
-                'actual' => $result->content,
-            ],
-        ]);
-    }
-
-    /**
-     * @return iterable<string, array{DocumentType, class-string<AbstractDocumentDataProvider>}>
-     */
-    public static function provideHtmlDocumentTypes(): iterable
-    {
-        yield 'invoice' => [DocumentType::INVOICE, InvoiceDataProvider::class];
-        // yield 'delivery_note' ...
+            'documentNumber' => '1000',
+        ];
     }
 }

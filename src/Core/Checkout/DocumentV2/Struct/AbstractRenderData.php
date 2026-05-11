@@ -25,6 +25,9 @@ abstract readonly class AbstractRenderData
     public function __construct(
         public DocumentConfig $config,
         public CompanyInfo $company,
+        public string $documentDate,
+        public string $documentNumber,
+        public ?string $documentComment,
         /**
          * @deprecated tag:v6.8.0 - will be removed
          */

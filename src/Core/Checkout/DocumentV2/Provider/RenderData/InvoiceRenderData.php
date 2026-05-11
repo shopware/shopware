@@ -23,9 +23,9 @@ final readonly class InvoiceRenderData extends AbstractRenderData
     public function __construct(
         DocumentConfig $config,
         CompanyInfo $company,
-        public string $documentDate,
-        public string $documentNumber,
-        public ?string $documentComment,
+        string $documentDate,
+        string $documentNumber,
+        ?string $documentComment,
         public bool $intraCommunityDelivery,
         public bool $displayDivergentDeliveryAddress,
         public bool $displayLineItems,
@@ -35,6 +35,13 @@ final readonly class InvoiceRenderData extends AbstractRenderData
         array $legacyConfig = [],
         public array $custom = [],
     ) {
-        parent::__construct($config, $company, $legacyConfig);
+        parent::__construct(
+            $config,
+            $company,
+            $documentDate,
+            $documentNumber,
+            $documentComment,
+            $legacyConfig
+        );
     }
 }

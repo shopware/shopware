@@ -71,10 +71,12 @@ final readonly class HtmlRenderer extends AbstractDocumentRenderer
             ],
         );
 
+        $fileStem = $renderData->config->buildFileStem($renderData->documentNumber);
+
         return new RenderResult(
             self::FORMAT->value,
             $content,
-            $renderData->config->buildFileName($renderData->documentNumber),
+            $fileStem,
             self::FORMAT->fileExtension(),
             self::FORMAT->mimeType(),
         );

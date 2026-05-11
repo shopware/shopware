@@ -29,7 +29,7 @@ final readonly class DocumentConfig
     ) {
     }
 
-    public function buildFileName(string $documentNumber): string
+    public function buildFileStem(string $documentNumber): string
     {
         return ($this->filenamePrefix ?? '') . $documentNumber . ($this->filenameSuffix ?? '');
     }

@@ -117,6 +117,7 @@ class InvoiceDataProviderTest extends TestCase
             DocumentType::INVOICE,
             [DocumentFormat::PDF],
             '12345',
+            documentDate: '2026-05-05T12:00:00+00:00',
         );
 
         $result = $provider->provideRenderingData(
@@ -125,7 +126,7 @@ class InvoiceDataProviderTest extends TestCase
             Context::createDefaultContext()
         );
 
-        static::assertNotSame('', $result->documentDate);
+        static::assertSame('2026-05-05T12:00:00+00:00', $result->documentDate);
         static::assertSame('12345', $result->documentNumber);
         static::assertSame('12345', $result->custom['invoiceNumber']);
         static::assertSame($expectedIntraCommunityDelivery, $result->intraCommunityDelivery);

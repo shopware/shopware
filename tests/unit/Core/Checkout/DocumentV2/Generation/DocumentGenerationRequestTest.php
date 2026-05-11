@@ -33,6 +33,22 @@ class DocumentGenerationRequestTest extends TestCase
         static::assertSame('12345', $request->documentNumber);
     }
 
+    public function testWithDocumentDate(): void
+    {
+        $request = new DocumentGenerationRequest(
+            Uuid::randomHex(),
+            Uuid::randomHex(),
+            DocumentType::INVOICE,
+            [DocumentFormat::HTML],
+        );
+
+        static::assertNull($request->documentDate);
+
+        $request = $request->withDocumentDate('2026-05-05T12:00:00+00:00');
+
+        static::assertSame('2026-05-05T12:00:00+00:00', $request->documentDate);
+    }
+
     public function testNormalization(): void
     {
         $request = new DocumentGenerationRequest(

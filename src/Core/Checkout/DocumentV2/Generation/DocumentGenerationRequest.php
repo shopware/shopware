@@ -29,6 +29,7 @@ final readonly class DocumentGenerationRequest
         array $requestedFormats,
         public ?string $documentNumber = null,
         public ?string $documentComment = null,
+        public ?string $documentDate = null,
     ) {
         $this->documentType = $documentType instanceof DocumentType ? $documentType->value : $documentType;
         $this->requestedFormats = array_map(
@@ -46,6 +47,20 @@ final readonly class DocumentGenerationRequest
             $this->requestedFormats,
             $documentNumber,
             $this->documentComment,
+            $this->documentDate,
+        );
+    }
+
+    public function withDocumentDate(string $documentDate): self
+    {
+        return new self(
+            $this->orderId,
+            $this->orderVersionId,
+            $this->documentType,
+            $this->requestedFormats,
+            $this->documentNumber,
+            $this->documentComment,
+            $documentDate,
         );
     }
 }

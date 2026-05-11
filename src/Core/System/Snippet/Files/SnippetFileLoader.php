@@ -160,7 +160,7 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
                     continue;
                 }
 
-                // skip local file if a remote translation for this specific locale already exists
+                // skip plugin file if a core translation for this specific locale already exists
                 if (
                     $bundle instanceof Plugin
                     && $this->translationLoader->pluginTranslationExistsForLocale($bundle, $snippetFile->getIso())

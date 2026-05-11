@@ -558,11 +558,11 @@ class SnippetFileLoaderTest extends TestCase
         static::assertEmpty($files);
     }
 
-    public function testLoadShippedSnippetsSkipsLocalFileOnlyForLocaleWithRemoteTranslation(): void
+    public function testLoadShippedSnippetsSkipsLocalFileOnlyForLocaleWithCoreTranslation(): void
     {
         $loader = $this->getTranslationLoader();
 
-        // Simulate a remote translation installed only for locale 'de' (not 'en')
+        // Simulate a core translation installed only for locale 'de' (not 'en')
         $this->filesystem->createDirectory($loader->getLocalePath('de') . '/Plugins/SnippetSet');
 
         $connection = $this->createMock(Connection::class);
@@ -592,7 +592,7 @@ class SnippetFileLoaderTest extends TestCase
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
 
-        // Only the 'en' file should be loaded; 'de' is skipped because a remote translation exists for that locale
+        // Only the 'en' file should be loaded; 'de' is skipped because a core translation exists for that locale
         static::assertCount(1, $collection);
         $snippetFile = $collection->getSnippetFilesByIso('en')[0];
         static::assertSame('storefront.en', $snippetFile->getName());

@@ -452,6 +452,7 @@ return (new Config())
         foreach ($composerFiles as $composerFile) {
             if ($composerFile->status === File::STATUS_REMOVED
                 || str_contains((string) $composerFile->name, '/Test/')
+                || str_contains((string) $composerFile->name, '/_fixtures/')
             ) {
                 continue;
             }

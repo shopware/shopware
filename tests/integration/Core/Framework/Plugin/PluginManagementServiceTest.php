@@ -35,7 +35,7 @@ class PluginManagementServiceTest extends TestCase
 
     private const TEST_PLUGIN_ZIP_NAME = 'SwagFashionTheme.zip';
     private const TEST_APP_ZIP_NAME = 'App.zip';
-    private const FIXTURE_PATH = __DIR__ . '/../../../../../src/Core/Framework/Test/Plugin/_fixture/';
+    private const FIXTURE_PATH = __DIR__ . '/../../../../../tests/integration/Core/Framework/Plugin/_fixtures/';
     private const PLUGIN_ZIP_FIXTURE_PATH = self::FIXTURE_PATH . self::TEST_PLUGIN_ZIP_NAME;
     private const APP_ZIP_FIXTURE_PATH = self::FIXTURE_PATH . self::TEST_APP_ZIP_NAME;
     private const PLUGINS_PATH = self::FIXTURE_PATH . 'plugins';

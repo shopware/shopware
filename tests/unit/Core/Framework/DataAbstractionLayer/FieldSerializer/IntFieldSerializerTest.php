@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -99,8 +98,52 @@ class IntFieldSerializerTest extends TestCase
         iterator_to_array($this->serializer->encode($field, $existence, $kv, $this->createWriteParameterBag()));
     }
 
-    #[DataProvider('encodeProvider')]
-    public function testEncode(mixed $input, ?int $expected, bool $required, bool $expectError): void
+    public function testRequiredNullValueThrowsConstraintViolation(): void
+    {
+        $field = $this->createField();
+
+        try {
+            $this->encodeValue($field, null);
+            static::fail('Required int fields must reject null values.');
+        } catch (WriteConstraintViolationException $exception) {
+            static::assertSame('/count', $exception->getViolations()->get(0)->getPropertyPath());
+        }
+    }
+
+    public function testWrongValueTypeThrowsConstraintViolation(): void
+    {
+        $field = $this->createField();
+
+        try {
+            $this->encodeValue($field, 'foo');
+            static::fail('Int fields must reject non-integer values.');
+        } catch (WriteConstraintViolationException $exception) {
+            static::assertSame('/count', $exception->getViolations()->get(0)->getPropertyPath());
+        }
+    }
+
+    public function testZeroValueIsEncoded(): void
+    {
+        $field = $this->createField();
+
+        static::assertSame(['count' => 0], $this->encodeValue($field, 0));
+    }
+
+    public function testIntegerValueIsEncoded(): void
+    {
+        $field = $this->createField();
+
+        static::assertSame(['count' => 15], $this->encodeValue($field, 15));
+    }
+
+    public function testOptionalNullValueIsEncoded(): void
+    {
+        $field = $this->createField(required: false);
+
+        static::assertSame(['count' => null], $this->encodeValue($field, null));
+    }
+
+    private function createField(bool $required = true): IntField
     {
         $field = new IntField('count', 'count');
         if ($required) {
@@ -108,36 +151,20 @@ class IntFieldSerializerTest extends TestCase
         }
         $field->compile($this->definitionInstanceRegistry);
 
-        try {
-            $encoded = iterator_to_array($this->serializer->encode(
-                $field,
-                EntityExistence::createEmpty(),
-                new KeyValuePair('count', $input, false),
-                $this->createWriteParameterBag()
-            ));
-        } catch (WriteConstraintViolationException $exception) {
-            static::assertTrue($expectError);
-            static::assertSame('/count', $exception->getViolations()->get(0)->getPropertyPath());
-
-            return;
-        }
-
-        static::assertFalse($expectError);
-        static::assertSame(['count' => $expected], $encoded);
+        return $field;
     }
 
     /**
-     * @return array<string, array{mixed, ?int, bool, bool}>
+     * @return array<string, int|null>
      */
-    public static function encodeProvider(): array
+    private function encodeValue(IntField $field, mixed $value): array
     {
-        return [
-            'required null throws' => [null, null, true, true],
-            'wrong type throws' => ['foo', null, true, true],
-            'zero is valid' => [0, 0, true, false],
-            'integer is valid' => [15, 15, true, false],
-            'optional null is valid' => [null, null, false, false],
-        ];
+        return iterator_to_array($this->serializer->encode(
+            $field,
+            EntityExistence::createEmpty(),
+            new KeyValuePair('count', $value, false),
+            $this->createWriteParameterBag()
+        ));
     }
 
     private function createWriteParameterBag(): WriteParameterBag

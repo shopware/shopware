@@ -25,6 +25,11 @@
         {%- if activeRoute is not empty -%}is-active-route-{{ activeRoute|replace({'.': '-'}) }}{%- endif -%}
     {%- endblock %}">
 
+    {# @deprecated tag:v6.8.0 - Cookie permission bar "base_cookie_permission" will be moved to this position. #}
+    {% if feature('v6.8.0.0') %}
+        {{ sw_block('base_cookie_permission') }}
+    {% endif %}
+
     {% block base_body_skip_to_content %}
         {% sw_include '@Storefront/storefront/component/skip-to-content.html.twig' with {
             skipToSearch: true,
@@ -112,9 +117,12 @@
         {% sw_include '@Storefront/storefront/layout/scroll-up.html.twig' %}
     {% endblock %}
 
-    {% block base_cookie_permission %}
-        {% sw_include '@Storefront/storefront/layout/cookie/cookie-permission.html.twig' %}
-    {% endblock %}
+    {# @deprecated tag:v6.8.0 - Cookie permission bar "base_cookie_permission" will be moved to top of the body element. #}
+    {% if not feature('v6.8.0.0') %}
+        {% block base_cookie_permission %}
+            {% sw_include '@Storefront/storefront/layout/cookie/cookie-permission.html.twig' %}
+        {% endblock %}
+    {% endif %}
 
     {% block base_pseudo_modal %}
         {% sw_include '@Storefront/storefront/component/pseudo-modal.html.twig' %}

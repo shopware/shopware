@@ -4,7 +4,13 @@
 import ViewAdapter from 'src/core/adapter/view.adapter';
 import { createI18n } from 'vue-i18n';
 import type { FallbackLocale, I18n } from 'vue-i18n';
-import type { Router } from 'vue-router';
+import type {
+    NavigationGuardNext,
+    Router,
+    RouteLocationNormalized,
+    RouteLocationNormalizedLoaded,
+    RouteLocationRaw,
+} from 'vue-router';
 import { createApp, defineAsyncComponent, h } from 'vue';
 import type { Component as VueComponent, App } from 'vue';
 import VuePlugins from 'src/app/plugin';
@@ -52,11 +58,30 @@ import useSession from '../../composables/use-session';
 
 const { Component, State, Mixin } = Shopware;
 
+type RouteGuardName = 'beforeRouteEnter' | 'beforeRouteLeave' | 'beforeRouteUpdate';
+type RouteGuard = (
+    this: unknown,
+    to: RouteLocationNormalized,
+    from: RouteLocationNormalizedLoaded,
+    next: NavigationGuardNext,
+) => unknown;
+type RouteEnterCallback =
+    Exclude<Parameters<NavigationGuardNext>[0], undefined> extends (vm: infer VM) => void ? (vm: VM) => void : never;
+type RouteGuardResult = false | RouteLocationRaw | Error | RouteEnterCallback | undefined;
+
+const routeGuardNames: RouteGuardName[] = [
+    'beforeRouteEnter',
+    'beforeRouteLeave',
+    'beforeRouteUpdate',
+];
+
 /**
  * @private
  */
 export default class VueAdapter extends ViewAdapter {
     private resolvedComponentConfigs: Map<string, Promise<ComponentConfig | boolean>>;
+
+    private routeGuardComponents: WeakSet<ComponentConfig>;
 
     private vueComponents: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -72,6 +97,7 @@ export default class VueAdapter extends ViewAdapter {
 
         this.i18n = undefined;
         this.resolvedComponentConfigs = new Map();
+        this.routeGuardComponents = new WeakSet();
         this.vueComponents = {};
 
         this.app = createApp({
@@ -448,11 +474,7 @@ export default class VueAdapter extends ViewAdapter {
                 return;
             }
 
-            this.registerAsyncComponent(
-                componentName,
-                // @ts-expect-error - resolved config does not match completely a standard vue component
-                () => this.componentResolver(componentName),
-            );
+            this.registerAsyncComponent(componentName, () => this.componentResolver(componentName));
 
             const vueComponent = this.app?.component(componentName);
 
@@ -463,7 +485,7 @@ export default class VueAdapter extends ViewAdapter {
         });
     }
 
-    componentResolver(componentName: string) {
+    componentResolver(componentName: string): Promise<ComponentConfig | boolean> {
         if (!this.resolvedComponentConfigs.has(componentName)) {
             this.resolvedComponentConfigs.set(
                 componentName,
@@ -481,7 +503,7 @@ export default class VueAdapter extends ViewAdapter {
             );
         }
 
-        return this.resolvedComponentConfigs.get(componentName);
+        return this.resolvedComponentConfigs.get(componentName) as Promise<ComponentConfig | boolean>;
     }
 
     /**
@@ -519,8 +541,16 @@ export default class VueAdapter extends ViewAdapter {
      * Returns a final Vue component by its name without defineAsyncComponent
      * which cannot be used in the router.
      */
-    getComponentForRoute(componentName: string) {
-        return () => this.componentResolver(componentName);
+    getComponentForRoute(componentName: string): () => Promise<boolean | ComponentConfig> {
+        return async () => {
+            const componentConfig = await this.componentResolver(componentName);
+
+            if (typeof componentConfig !== 'boolean') {
+                this.normalizeRouteGuards(componentConfig);
+            }
+
+            return componentConfig;
+        };
     }
 
     /**
@@ -737,6 +767,155 @@ export default class VueAdapter extends ViewAdapter {
         if (componentConfig.extends) {
             // @ts-expect-error - extends can be a string or a component config
             this.resolveMixins(componentConfig.extends);
+        }
+    }
+
+    // Normalize route guards by collecting inherited and mixin guards and
+    // composing them into one deduplicated guard per hook for route components.
+    private normalizeRouteGuards(componentConfig: ComponentConfig) {
+        if (this.routeGuardComponents.has(componentConfig)) {
+            return;
+        }
+
+        this.routeGuardComponents.add(componentConfig);
+
+        routeGuardNames.forEach((guardName) => {
+            const guards = this.collectRouteGuards(componentConfig, guardName);
+
+            if (!guards.length) {
+                return;
+            }
+
+            this.setRouteGuard(componentConfig, guardName, this.composeRouteGuards(guards, guardName));
+        });
+    }
+
+    private collectRouteGuards(
+        componentConfig: ComponentConfig,
+        guardName: RouteGuardName,
+        visitedConfigs = new Set<ComponentConfig>(),
+        seenGuards = new Set<RouteGuard>(),
+    ): RouteGuard[] {
+        if (visitedConfigs.has(componentConfig)) {
+            return [];
+        }
+
+        visitedConfigs.add(componentConfig);
+
+        const guards: RouteGuard[] = [];
+
+        if (componentConfig.extends && typeof componentConfig.extends !== 'string') {
+            guards.push(...this.collectRouteGuards(componentConfig.extends, guardName, visitedConfigs, seenGuards));
+        }
+
+        componentConfig.mixins?.forEach((mixin) => {
+            if (typeof mixin === 'string') {
+                return;
+            }
+
+            guards.push(...this.collectRouteGuards(mixin as ComponentConfig, guardName, visitedConfigs, seenGuards));
+        });
+
+        const currentGuard = this.getRouteGuard(componentConfig, guardName);
+
+        if (currentGuard && !seenGuards.has(currentGuard)) {
+            seenGuards.add(currentGuard);
+            guards.push(currentGuard);
+        }
+
+        return guards;
+    }
+
+    private composeRouteGuards(guards: RouteGuard[], guardName: RouteGuardName): RouteGuard {
+        return async function composedRouteGuard(this: unknown, to, from, next) {
+            const enterCallbacks: RouteEnterCallback[] = [];
+
+            const runGuard = async (index: number): Promise<void> => {
+                if (index >= guards.length) {
+                    if (guardName === 'beforeRouteEnter' && enterCallbacks.length) {
+                        next((vm) => {
+                            enterCallbacks.forEach((callback) => {
+                                callback(vm);
+                            });
+                        });
+
+                        return;
+                    }
+
+                    next();
+                    return;
+                }
+
+                const guard = guards[index];
+                const forwardRouteResult = next as (result: Exclude<RouteGuardResult, undefined>) => void;
+
+                const continueNavigation = async (result?: RouteGuardResult) => {
+                    if (guardName === 'beforeRouteEnter' && typeof result === 'function') {
+                        enterCallbacks.push(result);
+                        await runGuard(index + 1);
+                        return;
+                    }
+
+                    if (typeof result === 'undefined') {
+                        await runGuard(index + 1);
+                        return;
+                    }
+
+                    // Only beforeRouteEnter callbacks and undefined are handled above;
+                    // all other defined results are forwarded to Vue Router unchanged.
+                    forwardRouteResult(result);
+                };
+
+                if (guard.length >= 3) {
+                    await new Promise<RouteGuardResult | undefined>((resolve, reject) => {
+                        const resolveRouteGuard: NavigationGuardNext = (result?) => {
+                            resolve(result as RouteGuardResult | undefined);
+                        };
+
+                        void Promise.resolve(guard.call(this, to, from, resolveRouteGuard)).catch(reject);
+                    })
+                        .then((result) => continueNavigation(result))
+                        .catch((error) => {
+                            throw error instanceof Error ? error : new Error(String(error));
+                        });
+
+                    return;
+                }
+
+                await continueNavigation((await guard.call(this, to, from, next)) as RouteGuardResult);
+            };
+
+            try {
+                await runGuard(0);
+            } catch (error) {
+                next(error as Error);
+            }
+        };
+    }
+
+    private getRouteGuard(componentConfig: ComponentConfig, guardName: RouteGuardName): RouteGuard | undefined {
+        switch (guardName) {
+            case 'beforeRouteEnter':
+                return componentConfig.beforeRouteEnter as RouteGuard | undefined;
+            case 'beforeRouteLeave':
+                return componentConfig.beforeRouteLeave as RouteGuard | undefined;
+            case 'beforeRouteUpdate':
+                return componentConfig.beforeRouteUpdate as RouteGuard | undefined;
+            default:
+                return undefined;
+        }
+    }
+
+    private setRouteGuard(componentConfig: ComponentConfig, guardName: RouteGuardName, guard: RouteGuard) {
+        switch (guardName) {
+            case 'beforeRouteEnter':
+                componentConfig.beforeRouteEnter = guard;
+                return;
+            case 'beforeRouteLeave':
+                componentConfig.beforeRouteLeave = guard;
+                return;
+            case 'beforeRouteUpdate':
+                componentConfig.beforeRouteUpdate = guard;
         }
     }
 }

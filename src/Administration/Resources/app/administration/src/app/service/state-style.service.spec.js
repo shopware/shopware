@@ -43,7 +43,7 @@ describe('src/app/service/state-style.service.ts', () => {
         expect(placeholder.hasOwnProperty('variant')).toBe(true);
         expect(placeholder.variant).toBe('neutral');
         expect(placeholder.hasOwnProperty('colorCode')).toBe(true);
-        expect(placeholder.colorCode).toBe('#94a6b8');
+        expect(placeholder.colorCode).toBe('var(--color-icon-secondary-default)');
     });
 
     it('should return placeholder for non existing state', async () => {
@@ -76,11 +76,11 @@ describe('src/app/service/state-style.service.ts', () => {
         const stateStyleService = new StateStyleService();
         const stateMachineForTesting = 'test-state-machine';
         const colorCodeMapping = {
-            neutral: '#94a6b8',
-            progress: '#189eff',
-            done: '#37d046',
-            warning: '#ffab22',
-            danger: '#de294c',
+            neutral: 'var(--color-icon-secondary-default)',
+            progress: 'var(--color-icon-brand-default)',
+            done: 'var(--color-icon-positive-default)',
+            warning: 'var(--color-icon-attention-default)',
+            danger: 'var(--color-icon-critical-default)',
         };
 
         const colorMapping = {

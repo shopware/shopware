@@ -182,7 +182,7 @@ class PluginManagementServiceTest extends TestCase
     private function getPluginService(): PluginService
     {
         return $this->createPluginService(
-            __DIR__ . '/_fixture/plugins',
+            self::FIXTURE_PATH . 'plugins',
             static::getContainer()->getParameter('kernel.project_dir'),
             static::getContainer()->get('plugin.repository'),
             static::getContainer()->get('language.repository'),

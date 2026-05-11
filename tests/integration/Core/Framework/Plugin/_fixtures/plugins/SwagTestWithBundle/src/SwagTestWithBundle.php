@@ -4,7 +4,7 @@ namespace SwagTestWithBundle;
 
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
 use Shopware\Core\Framework\Plugin;
-use Shopware\Core\Framework\Test\Plugin\_fixture\bundles\FooBarBundle;
+use Shopware\Tests\Integration\Core\Framework\Plugin\_fixtures\bundles\FooBarBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 
 class SwagTestWithBundle extends Plugin

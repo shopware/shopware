@@ -148,6 +148,16 @@ async function createWrapper(privileges = []) {
                     simulateMailTemplate,
                     sendMailTemplate: jest.fn(() => Promise.resolve({ size: 1 })),
                     loadAvailableVariables: jest.fn(() => Promise.resolve({})),
+                    fetchResolvedMailTemplate: jest.fn(() => Promise.resolve({
+                        subject: '',
+                        senderName: '',
+                        description: '',
+                        contentHtml: '',
+                        contentPlain: '',
+                        _source: {},
+                    })),
+                    fetchMailTemplateDefaults: jest.fn(() => Promise.resolve(null)),
+                    resetMailTemplate: jest.fn(() => Promise.resolve(null)),
                 },
                 entityMappingService: {
                     getEntityMapping: () => [],

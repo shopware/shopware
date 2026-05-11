@@ -100,9 +100,18 @@
                         class="sw-mail-template-detail__description-field"
                         name="sw-field--mailTemplate-description"
                         :label="$t('sw-mail-template.detail.basic.labelDescription')"
-                        :placeholder="$t('sw-mail-template.detail.basic.placeholderDescription')"
+                        :placeholder="defaultPlaceholderFor('description', $t('sw-mail-template.detail.basic.placeholderDescription'))"
                         :disabled="!acl.can('mail_templates.editor') || undefined"
                     />
+                    <mt-link
+                        v-if="isUserModified('description') && acl.can('mail_templates.editor')"
+                        as="button"
+                        class="sw-mail-template-detail__reset-link"
+                        variant="primary"
+                        @click="onResetField('description')"
+                    >
+                        {{ $t('sw-mail-template.detail.resetField') }}
+                    </mt-link>
                     {% endblock %}
                 </mt-card>
                 {% endblock %}
@@ -123,12 +132,20 @@
                                 v-model="mailTemplate.subject"
                                 class="sw-mail-template-detail__subject-field"
                                 name="sw-field--mailTemplate-subject"
-                                required
                                 :label="$t('sw-mail-template.detail.options.labelSubject')"
-                                :placeholder="placeholder(mailTemplate, 'subject', $t('sw-mail-template.detail.options.placeholderSubject'))"
+                                :placeholder="defaultPlaceholderFor('subject', placeholder(mailTemplate, 'subject', $t('sw-mail-template.detail.options.placeholderSubject')))"
                                 :disabled="!acl.can('mail_templates.editor') || undefined"
                                 :error="mailTemplateSubjectError"
                             />
+                            <mt-link
+                                v-if="isUserModified('subject') && acl.can('mail_templates.editor')"
+                                as="button"
+                                class="sw-mail-template-detail__reset-link"
+                                variant="primary"
+                                @click="onResetField('subject')"
+                            >
+                                {{ $t('sw-mail-template.detail.resetField') }}
+                            </mt-link>
                             {% endblock %}
                         </div>
 
@@ -138,9 +155,18 @@
                             class="sw-mail-template-detail__sender-name-field"
                             name="sw-field--mailTemplate-senderName"
                             :label="$t('sw-mail-template.detail.options.labelSenderName')"
-                            :placeholder="placeholder(mailTemplate, 'senderName', $t('sw-mail-template.detail.options.placeholderSenderName'))"
+                            :placeholder="defaultPlaceholderFor('senderName', placeholder(mailTemplate, 'senderName', $t('sw-mail-template.detail.options.placeholderSenderName')))"
                             :disabled="!acl.can('mail_templates.editor') || undefined"
                         />
+                        <mt-link
+                            v-if="isUserModified('senderName') && acl.can('mail_templates.editor')"
+                            as="button"
+                            class="sw-mail-template-detail__reset-link"
+                            variant="primary"
+                            @click="onResetField('senderName')"
+                        >
+                            {{ $t('sw-mail-template.detail.resetField') }}
+                        </mt-link>
                         {% endblock %}
                     </sw-container>
                 </mt-card>
@@ -239,13 +265,21 @@
                         name="content_plain"
                         completion-mode="entity"
                         :label="$t('sw-mail-template.detail.mailText.labelContentPlain')"
-                        :placeholder="placeholder(mailTemplate, 'contentPlain', $t('sw-mail-template.detail.mailText.placeholderPlain'))"
+                        :placeholder="defaultPlaceholderFor('contentPlain', placeholder(mailTemplate, 'contentPlain', $t('sw-mail-template.detail.mailText.placeholderPlain')))"
                         :completer-function="outerCompleterFunction"
                         :editor-config="editorConfig"
                         :disabled="!acl.can('mail_templates.editor')"
                         :error="mailTemplateContentPlainError"
-                        required
                     />
+                    <mt-link
+                        v-if="isUserModified('contentPlain') && acl.can('mail_templates.editor')"
+                        as="button"
+                        class="sw-mail-template-detail__reset-link"
+                        variant="primary"
+                        @click="onResetField('contentPlain')"
+                    >
+                        {{ $t('sw-mail-template.detail.resetField') }}
+                    </mt-link>
                     {% endblock %}
 
                     {% block sw_mail_template_mail_text_form_content_html_field %}
@@ -257,13 +291,21 @@
                         name="content_html"
                         completion-mode="entity"
                         :label="$t('sw-mail-template.detail.mailText.labelContentHtml')"
-                        :placeholder="placeholder(mailTemplate, 'contentHtml', $t('sw-mail-template.detail.mailText.placeholderHtml'))"
+                        :placeholder="defaultPlaceholderFor('contentHtml', placeholder(mailTemplate, 'contentHtml', $t('sw-mail-template.detail.mailText.placeholderHtml')))"
                         :completer-function="outerCompleterFunction"
                         :editor-config="editorConfig"
                         :disabled="!acl.can('mail_templates.editor')"
                         :error="mailTemplateContentHtmlError"
-                        required
                     />
+                    <mt-link
+                        v-if="isUserModified('contentHtml') && acl.can('mail_templates.editor')"
+                        as="button"
+                        class="sw-mail-template-detail__reset-link"
+                        variant="primary"
+                        @click="onResetField('contentHtml')"
+                    >
+                        {{ $t('sw-mail-template.detail.resetField') }}
+                    </mt-link>
                     {% endblock %}
                 </mt-card>
                 {% block sw_mail_template_detail_preview_modal %}

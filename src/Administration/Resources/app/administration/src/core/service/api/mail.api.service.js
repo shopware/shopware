@@ -183,6 +183,58 @@ class MailApiService extends ApiService {
             });
     }
 
+    /**
+     * Fetches a mail template merged with the shipped defaults. The response includes a `_source`
+     * map indicating, per field, whether the value came from the database ("user") or from the
+     * default registered for the technical name ("default").
+     */
+    fetchResolvedMailTemplate(mailTemplateId, languageId = null) {
+        const apiRoute = `/_action/${this.getApiBasePath()}/${mailTemplateId}/resolved`;
+
+        return this.httpClient
+            .get(apiRoute, {
+                headers: this.getBasicHeaders(),
+                params: languageId ? { languageId } : {},
+            })
+            .then((response) => ApiService.handleResponse(response));
+    }
+
+    /**
+     * Fetches just the shipped default for a mail template (no DB merge). Returns null when no
+     * default is registered for the underlying technical name.
+     */
+    fetchMailTemplateDefaults(mailTemplateId, languageId = null) {
+        const apiRoute = `/_action/${this.getApiBasePath()}/${mailTemplateId}/defaults`;
+
+        return this.httpClient
+            .get(apiRoute, {
+                headers: this.getBasicHeaders(),
+                params: languageId ? { languageId } : {},
+            })
+            .then((response) => ApiService.handleResponse(response));
+    }
+
+    /**
+     * Resets the named fields of a mail template back to the shipped defaults. Accepted field
+     * names: subject, senderName, description, contentHtml, contentPlain.
+     */
+    resetMailTemplate(mailTemplateId, fields, languageId = null) {
+        const apiRoute = `/_action/${this.getApiBasePath()}/${mailTemplateId}/reset`;
+
+        return this.httpClient
+            .post(
+                apiRoute,
+                {
+                    fields,
+                    languageId,
+                },
+                {
+                    headers: this.getBasicHeaders(),
+                },
+            )
+            .then((response) => ApiService.handleResponse(response));
+    }
+
     loadAvailableVariables(eventName, parentVariablePath = '') {
         const apiRoute = `/_action/${this.getApiBasePath()}/available-variables`;
 

@@ -89,7 +89,11 @@
       "titleResult": "E-Mail-Templates",
       "messageSaveSuccess": "Das E-Mail-Template \"{subject}\" wurde erfolgreich gespeichert.",
       "messageSaveError": "Das E-Mail-Template \"{subject}\" konnte nicht gespeichert werden.",
-      "textErrorMessage": "Fehlermeldung"
+      "textErrorMessage": "Fehlermeldung",
+      "modifiedBadge": "Geändert",
+      "resetField": "Auf Standard zurücksetzen",
+      "resetSuccess": "Feld wurde auf den Standardwert zurückgesetzt.",
+      "resetError": "Das Feld konnte nicht zurückgesetzt werden."
     }
   },
   "sw-mail-header-footer": {

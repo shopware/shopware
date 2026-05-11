@@ -61,6 +61,11 @@ export default {
             showLanguageNotAssignedToSalesChannelWarning: false,
             triggerEvent: null,
             triggerEvents: [],
+            // Resolved values merge merchant overrides with the shipped defaults registered for the
+            // template's technical name. `resolvedSource` records, per field, whether the value came
+            // from the database (`user`) or from the shipped default (`default`).
+            resolvedTemplate: null,
+            resolvedSource: {},
         };
     },
 
@@ -130,12 +135,15 @@ export default {
         },
 
         testMailRequirementsMet() {
+            const effective = (field) =>
+                this.mailTemplate[field] ?? this.mailTemplate.translated?.[field] ?? this.resolvedTemplate?.[field];
+
             return (
                 this.testerMail &&
-                (this.mailTemplate.subject || this.mailTemplate.translated?.subject) &&
-                (this.mailTemplate.contentPlain || this.mailTemplate.translated?.contentPlain) &&
-                (this.mailTemplate.contentHtml || this.mailTemplate.translated?.contentHtml) &&
-                (this.mailTemplate.senderName || this.mailTemplate.translated?.senderName)
+                !!effective('subject') &&
+                !!effective('contentPlain') &&
+                !!effective('contentHtml') &&
+                !!effective('senderName')
             );
         },
 
@@ -271,8 +279,55 @@ export default {
                 } else {
                     this.onChangeType(this.mailTemplate.mailTemplateType.id);
                     this.getMailTemplateMedia();
+                    this.fetchResolvedTemplate();
                 }
             });
+        },
+
+        // Loads the merged view (overrides on top of shipped defaults) plus the per-field source map.
+        // Failures are non-fatal: the editor still works against the entity directly.
+        fetchResolvedTemplate() {
+            return this.mailService
+                .fetchResolvedMailTemplate(this.mailTemplateId, Shopware.Context.api.languageId)
+                .then((response) => {
+                    this.resolvedTemplate = response;
+                    this.resolvedSource = response?._source ?? {};
+                })
+                .catch(() => {
+                    this.resolvedTemplate = null;
+                    this.resolvedSource = {};
+                });
+        },
+
+        // Returns the shipped-default placeholder string for a field, falling back to `fallback`.
+        // Used to populate the `placeholder` attribute on inputs so empty user values visually show
+        // the default they will fall back to at send time.
+        defaultPlaceholderFor(field, fallback = '') {
+            if (this.resolvedSource[field] === 'default' && this.resolvedTemplate?.[field]) {
+                return this.resolvedTemplate[field];
+            }
+            return fallback;
+        },
+
+        // Whether the named field has a merchant override (DB value), as opposed to falling back
+        // to the shipped default. Drives visibility of the "Reset to default" affordance.
+        isUserModified(field) {
+            return this.resolvedSource[field] === 'user';
+        },
+
+        async onResetField(field) {
+            try {
+                await this.mailService.resetMailTemplate(this.mailTemplateId, [field], Shopware.Context.api.languageId);
+                this.createNotificationSuccess({
+                    message: this.$t('sw-mail-template.detail.resetSuccess'),
+                });
+                this.loadEntityData();
+            } catch (error) {
+                this.createNotificationError({
+                    message: this.$t('sw-mail-template.detail.resetError'),
+                });
+                warn(this._name, error?.message ?? '', error?.response);
+            }
         },
 
         loadTriggerEvents() {
@@ -506,13 +561,16 @@ export default {
 
             const headerFooterParts = await this.getPreviewMailHeaderFooterParts();
 
+            const effective = (field) =>
+                this.mailTemplate[field] ?? this.mailTemplate.translated?.[field] ?? this.resolvedTemplate?.[field] ?? '';
+
             return this.mailService
                 .simulateMailTemplate(
                     {
-                        subject: this.mailTemplate.subject ?? this.mailTemplate.translated?.subject,
-                        senderName: this.mailTemplate.senderName ?? this.mailTemplate.translated?.senderName,
-                        contentHtml: this.mailTemplate.contentHtml ?? this.mailTemplate.translated?.contentHtml,
-                        contentPlain: this.mailTemplate.contentPlain ?? this.mailTemplate.translated?.contentPlain,
+                        subject: effective('subject'),
+                        senderName: effective('senderName'),
+                        contentHtml: effective('contentHtml'),
+                        contentPlain: effective('contentPlain'),
                         headerHtml: headerFooterParts.headerHtml,
                         footerHtml: headerFooterParts.footerHtml,
                         headerPlain: headerFooterParts.headerPlain,

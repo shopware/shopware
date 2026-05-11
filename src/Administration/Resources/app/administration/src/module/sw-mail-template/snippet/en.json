@@ -89,7 +89,11 @@
       "titleResult": "Email template",
       "messageSaveSuccess": "The email template \"{subject}\" has been saved.",
       "messageSaveError": "The email template \"{subject}\" could not be saved.",
-      "textErrorMessage": "Error message"
+      "textErrorMessage": "Error message",
+      "modifiedBadge": "Modified",
+      "resetField": "Reset to default",
+      "resetSuccess": "Field reset to its default value.",
+      "resetError": "The field could not be reset."
     }
   },
   "sw-mail-header-footer": {

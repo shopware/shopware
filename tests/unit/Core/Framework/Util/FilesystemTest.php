@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Framework\Util;
+namespace Shopware\Tests\Unit\Core\Framework\Util;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Filesystem;
@@ -13,6 +14,7 @@ use Symfony\Component\Filesystem\Path;
  * @internal
  */
 #[Package('framework')]
+#[CoversClass(Filesystem::class)]
 class FilesystemTest extends TestCase
 {
     private Io $io;

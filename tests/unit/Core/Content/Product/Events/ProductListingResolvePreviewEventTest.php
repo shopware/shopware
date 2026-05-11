@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Content\Product\Events;
+namespace Shopware\Tests\Unit\Core\Content\Product\Events;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Events\ProductListingResolvePreviewEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -12,6 +13,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @internal
  */
 #[Package('inventory')]
+#[CoversClass(ProductListingResolvePreviewEvent::class)]
 class ProductListingResolvePreviewEventTest extends TestCase
 {
     public function testReplace(): void

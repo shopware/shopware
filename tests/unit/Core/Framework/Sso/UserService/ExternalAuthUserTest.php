@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Framework\Sso\UserService;
+namespace Shopware\Tests\Unit\Core\Framework\Sso\UserService;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -15,6 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  */
 #[Package('framework')]
+#[CoversClass(ExternalAuthUser::class)]
 class ExternalAuthUserTest extends TestCase
 {
     public function testCreate(): void
@@ -44,18 +46,23 @@ class ExternalAuthUserTest extends TestCase
     #[DataProvider('createTestDataProvider')]
     public function testCreateWithValidationErrors(array $data, string $expected): void
     {
+        static::assertArrayHasKey('id', $data);
+        static::assertArrayHasKey('user_id', $data);
+        static::assertArrayHasKey('user_sub', $data);
+        static::assertArrayHasKey('token', $data);
+        static::assertArrayHasKey('expiry', $data);
+        static::assertArrayHasKey('email', $data);
+
+        $this->expectException(SsoException::class);
+        $this->expectExceptionMessage($expected);
+
         try {
-            static::assertArrayHasKey('id', $data);
-            static::assertArrayHasKey('user_id', $data);
-            static::assertArrayHasKey('user_sub', $data);
-            static::assertArrayHasKey('token', $data);
-            static::assertArrayHasKey('expiry', $data);
-            static::assertArrayHasKey('email', $data);
             ExternalAuthUser::create($data);
         } catch (SsoException $exception) {
-            static::assertSame($expected, $exception->getMessage());
             static::assertSame(Response::HTTP_UNAUTHORIZED, $exception->getStatusCode());
             static::assertSame(SsoException::SSO_LOGIN_USER_INVALID, $exception->getErrorCode());
+
+            throw $exception;
         }
     }
 

@@ -1,35 +1,34 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Framework\App\ActionButton\Response;
+namespace Shopware\Tests\Unit\Core\Framework\App\ActionButton\Response;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\App\ActionButton\Response\NotificationResponse;
+use Shopware\Core\Framework\App\ActionButton\Response\NotificationResponseFactory;
 use Shopware\Core\Framework\App\ActionButton\Response\OpenModalResponse;
 use Shopware\Core\Framework\App\ActionButton\Response\OpenNewTabResponse;
 use Shopware\Core\Framework\App\ActionButton\Response\ReloadDataResponse;
-use Shopware\Core\Framework\App\ActionButton\Response\ReloadDataResponseFactory;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Payload\Source;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 
 /**
  * @internal
  */
-class ReloadDataResponseFactoryTest extends TestCase
+#[CoversClass(NotificationResponseFactory::class)]
+class NotificationResponseFactoryTest extends TestCase
 {
-    use GuzzleTestClientBehaviour;
-
-    private ReloadDataResponseFactory $factory;
+    private NotificationResponseFactory $factory;
 
     private AppAction $action;
 
     protected function setUp(): void
     {
-        $this->factory = static::getContainer()->get(ReloadDataResponseFactory::class);
+        $this->factory = new NotificationResponseFactory();
         $app = new AppEntity();
         $app->setId(Uuid::randomHex());
         $app->setAppSecret('app-secret');
@@ -45,28 +44,28 @@ class ReloadDataResponseFactoryTest extends TestCase
     }
 
     #[DataProvider('provideActionTypes')]
-    public function testSupportsOnlyReloadDataActionType(string $actionType, bool $isSupported): void
+    public function testSupportsOnlyNotificationActionType(string $actionType, bool $isSupported): void
     {
         static::assertSame($isSupported, $this->factory->supports($actionType));
     }
 
-    public function testCreatesReloadDataResponse(): void
+    public function testCreatesNotificationResponse(): void
     {
         $response = $this->factory->create($this->action, [], Context::createDefaultContext());
 
-        static::assertInstanceOf(ReloadDataResponse::class, $response);
+        static::assertInstanceOf(NotificationResponse::class, $response);
     }
 
     /**
-     * @return array<int, array<string|bool>>
+     * @return array<int, array<int, string|bool>>
      */
     public static function provideActionTypes(): array
     {
         return [
-            [NotificationResponse::ACTION_TYPE, false],
+            [NotificationResponse::ACTION_TYPE, true],
             [OpenModalResponse::ACTION_TYPE, false],
             [OpenNewTabResponse::ACTION_TYPE, false],
-            [ReloadDataResponse::ACTION_TYPE, true],
+            [ReloadDataResponse::ACTION_TYPE, false],
         ];
     }
 }

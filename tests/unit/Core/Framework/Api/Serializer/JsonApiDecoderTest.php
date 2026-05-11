@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Framework\Api\Serializer;
+namespace Shopware\Tests\Unit\Core\Framework\Api\Serializer;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Serializer\JsonApiDecoder;
@@ -11,6 +12,7 @@ use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 /**
  * @internal
  */
+#[CoversClass(JsonApiDecoder::class)]
 class JsonApiDecoderTest extends TestCase
 {
     private JsonApiDecoder $decoder;

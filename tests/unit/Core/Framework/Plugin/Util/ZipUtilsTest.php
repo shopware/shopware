@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Framework\Plugin\Util;
+namespace Shopware\Tests\Unit\Core\Framework\Plugin\Util;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Plugin\Util\ZipUtils;
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\Plugin\Util\ZipUtils;
 /**
  * @internal
  */
+#[CoversClass(ZipUtils::class)]
 class ZipUtilsTest extends TestCase
 {
     public function testExceptionIsThrownIfZipFileDoesNotExist(): void

@@ -1,36 +1,42 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Framework\App\ActionButton\Response;
+namespace Shopware\Tests\Unit\Core\Framework\App\ActionButton\Response;
 
+use GuzzleHttp\Psr7\Uri;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\App\ActionButton\Response\NotificationResponse;
 use Shopware\Core\Framework\App\ActionButton\Response\OpenModalResponse;
-use Shopware\Core\Framework\App\ActionButton\Response\OpenModalResponseFactory;
 use Shopware\Core\Framework\App\ActionButton\Response\OpenNewTabResponse;
+use Shopware\Core\Framework\App\ActionButton\Response\OpenNewTabResponseFactory;
 use Shopware\Core\Framework\App\ActionButton\Response\ReloadDataResponse;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\Hmac\QuerySigner;
 use Shopware\Core\Framework\App\Payload\Source;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 
 /**
  * @internal
  */
-class OpenModalResponseFactoryTest extends TestCase
+#[CoversClass(OpenNewTabResponseFactory::class)]
+class OpenNewTabResponseFactoryTest extends TestCase
 {
-    use GuzzleTestClientBehaviour;
-
-    private OpenModalResponseFactory $factory;
+    private OpenNewTabResponseFactory $factory;
 
     private AppAction $action;
 
+    private QuerySigner&MockObject $signer;
+
     protected function setUp(): void
     {
-        $this->factory = static::getContainer()->get(OpenModalResponseFactory::class);
+        $this->signer = $this->createMock(QuerySigner::class);
+        $this->factory = new OpenNewTabResponseFactory($this->signer);
+
         $app = new AppEntity();
         $app->setName('TestApp');
         $app->setId(Uuid::randomHex());
@@ -49,24 +55,28 @@ class OpenModalResponseFactoryTest extends TestCase
     }
 
     #[DataProvider('provideActionTypes')]
-    public function testSupportsOnlyOpenModalActionType(string $actionType, bool $isSupported): void
+    public function testSupportsOnlyOpenNewTabActionType(string $actionType, bool $isSupported): void
     {
         static::assertSame($isSupported, $this->factory->supports($actionType));
     }
 
-    public function testCreatesOpenModalResponse(): void
+    public function testCreatesOpenNewTabResponse(): void
     {
-        $response = $this->factory->create($this->action, [
-            'iframeUrl' => 'http://iframe.url',
-            'size' => 'medium',
-            'expand' => false,
-        ], Context::createDefaultContext());
+        $context = Context::createDefaultContext();
+        $this->signer->expects($this->once())
+            ->method('signUri')
+            ->with('http://redirect.url', $this->action->getApp(), $context)
+            ->willReturn(new Uri('http://redirect.url?shopware-shop-signature=signature'));
 
-        static::assertInstanceOf(OpenModalResponse::class, $response);
+        $response = $this->factory->create($this->action, [
+            'redirectUrl' => 'http://redirect.url',
+        ], $context);
+
+        static::assertInstanceOf(OpenNewTabResponse::class, $response);
     }
 
     /**
-     * @param array<bool|string> $payload
+     * @param array<string, mixed> $payload
      */
     #[DataProvider('provideInvalidPayloads')]
     public function testThrowsExceptionWhenValidationFails(array $payload, string $message): void
@@ -88,37 +98,25 @@ class OpenModalResponseFactoryTest extends TestCase
     {
         return [
             [NotificationResponse::ACTION_TYPE, false],
-            [OpenModalResponse::ACTION_TYPE, true],
-            [OpenNewTabResponse::ACTION_TYPE, false],
+            [OpenModalResponse::ACTION_TYPE, false],
+            [OpenNewTabResponse::ACTION_TYPE, true],
             [ReloadDataResponse::ACTION_TYPE, false],
         ];
     }
 
     /**
-     * @return array<array<array<bool|string>|string>>
+     * @return array<array<string|array<string, mixed>>>
      */
     public static function provideInvalidPayloads(): array
     {
         return [
             [
-                ['size' => 'medium', 'expand' => false],
-                'The app provided an invalid iframeUrl',
+                [],
+                'The app provided an invalid redirectUrl',
             ],
             [
-                ['iframeUrl' => '', 'size' => 'medium', 'expand' => false],
-                'The app provided an invalid iframeUrl',
-            ],
-            [
-                ['iframeUrl' => 'http://iframe.url', 'expand' => false],
-                'The app provided an invalid size',
-            ],
-            [
-                ['iframeUrl' => 'http://iframe.url', 'size' => '', 'expand' => false],
-                'The app provided an invalid size',
-            ],
-            [
-                ['iframeUrl' => 'http://iframe.url', 'size' => 'xl', 'expand' => false],
-                'The app provided an invalid size',
+                ['redirectUrl' => ''],
+                'The app provided an invalid redirectUrl',
             ],
         ];
     }

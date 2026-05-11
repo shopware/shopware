@@ -1,15 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Framework\App\Hmac;
+namespace Shopware\Tests\Unit\Core\Framework\App\Hmac;
 
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Hmac\RequestSigner;
 
 /**
  * @internal
  */
+#[CoversClass(RequestSigner::class)]
 class RequestSignerTest extends TestCase
 {
     private string $authSecret;

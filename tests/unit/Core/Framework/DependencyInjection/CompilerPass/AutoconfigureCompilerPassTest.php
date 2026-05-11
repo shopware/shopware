@@ -1,8 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Framework\DependencyInjection\CompilerPass;
+namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection\CompilerPass;
 
 use League\Flysystem\FilesystemOperator;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Entity;
@@ -16,6 +17,7 @@ use Symfony\Component\DependencyInjection\Reference;
 /**
  * @internal
  */
+#[CoversClass(AutoconfigureCompilerPass::class)]
 class AutoconfigureCompilerPassTest extends TestCase
 {
     public function testAutoConfigure(): void

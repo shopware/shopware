@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Framework\App\Command;
+namespace Shopware\Tests\Unit\Core\Framework\App\Command;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Command\ChangeShopIdCommand;
 use Shopware\Core\Framework\App\ShopIdChangeResolver\Resolver;
@@ -11,6 +12,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
+#[CoversClass(ChangeShopIdCommand::class)]
 class ChangeShopIdCommandTest extends TestCase
 {
     public function testChoosesTheRightStrategyForChangingTheShopId(): void

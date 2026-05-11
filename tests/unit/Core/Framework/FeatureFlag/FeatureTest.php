@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Framework\FeatureFlag;
+namespace Shopware\Tests\Unit\Core\Framework\FeatureFlag;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\Extension\FeatureFlagExtension;
@@ -14,6 +15,8 @@ use Twig\Loader\FilesystemLoader;
  *
  * @phpstan-import-type FeatureFlagConfig from Feature
  */
+#[CoversClass(Feature::class)]
+#[CoversClass(FeatureFlagExtension::class)]
 class FeatureTest extends TestCase
 {
     /**

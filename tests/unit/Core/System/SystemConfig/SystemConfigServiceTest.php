@@ -15,7 +15,6 @@ use Shopware\Core\System\SystemConfig\AbstractSystemConfigLoader;
 use Shopware\Core\System\SystemConfig\Event\BeforeSystemConfigMultipleChangedEvent;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigMultipleChangedEvent;
-use Shopware\Core\System\SystemConfig\Exception\InvalidKeyException;
 use Shopware\Core\System\SystemConfig\SymfonySystemConfigService;
 use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -154,14 +153,14 @@ class SystemConfigServiceTest extends TestCase
 
     public function testSetRejectsEmptyKey(): void
     {
-        $this->expectException(InvalidKeyException::class);
+        $this->expectExceptionObject(SystemConfigException::invalidKey('key may not be empty'));
 
         $this->configService->set('', 'throws error');
     }
 
     public function testSetRejectsOnlySpacesKey(): void
     {
-        $this->expectException(InvalidKeyException::class);
+        $this->expectExceptionObject(SystemConfigException::invalidKey('key may not be empty'));
 
         $this->configService->set('          ', 'throws error');
     }

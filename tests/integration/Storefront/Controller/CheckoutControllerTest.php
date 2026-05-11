@@ -543,6 +543,30 @@ class CheckoutControllerTest extends TestCase
         static::assertArrayHasKey(CheckoutCartPageLoadedHook::HOOK_NAME, $traces);
     }
 
+    public function testCheckoutCartPageRendersOptionalCheckoutAssistForms(): void
+    {
+        $browser = $this->getBrowserWithLoggedInCustomer();
+        $browserSalesChannelId = $browser->getServerParameter('test-sales-channel-id');
+
+        $productId = Uuid::randomHex();
+        $this->createProductOnDatabase($productId, 'test.123', $browserSalesChannelId);
+
+        $browser->request('POST', '/checkout/product/add-by-number', ['number' => 'test.123']);
+        $browser->request('GET', '/checkout/cart');
+
+        $content = $browser->getResponse()->getContent();
+        static::assertNotFalse($content);
+
+        $crawler = new Crawler();
+        $crawler->addHtmlContent($content);
+
+        static::assertCount(1, $crawler->filterXPath('//label[@for="addProductInput" and contains(concat(" ", normalize-space(@class), " "), " mb-1 ")]'));
+        static::assertCount(1, $crawler->filterXPath('//input[@id="addProductInput" and not(@required)]'));
+        static::assertCount(1, $crawler->filterXPath('//button[@id="addProductButton"]'));
+        static::assertCount(1, $crawler->filterXPath('//input[@id="addPromotionInput" and not(@required)]'));
+        static::assertCount(1, $crawler->filterXPath('//button[@id="addPromotion"]'));
+    }
+
     public function testCheckoutConfirmPageLoadedHookScriptsAreExecuted(): void
     {
         $contextToken = Uuid::randomHex();
@@ -682,6 +706,27 @@ class CheckoutControllerTest extends TestCase
         $response = static::getContainer()->get(CheckoutController::class)->info($request, $salesChannelContext);
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
         static::assertEmpty($response->getContent());
+    }
+
+    public function testCheckoutOffcanvasRendersOptionalPromotionField(): void
+    {
+        $browser = $this->getBrowserWithLoggedInCustomer();
+        $browserSalesChannelId = $browser->getServerParameter('test-sales-channel-id');
+
+        $productId = Uuid::randomHex();
+        $this->createProductOnDatabase($productId, 'test.123', $browserSalesChannelId);
+
+        $browser->request('POST', '/checkout/product/add-by-number', ['number' => 'test.123']);
+        $browser->request('GET', '/checkout/offcanvas');
+
+        $content = $browser->getResponse()->getContent();
+        static::assertNotFalse($content);
+
+        $crawler = new Crawler();
+        $crawler->addHtmlContent($content);
+
+        static::assertCount(1, $crawler->filterXPath('//input[@id="addPromotionOffcanvasCartInput" and not(@required)]'));
+        static::assertCount(1, $crawler->filterXPath('//button[@id="addPromotionOffcanvasCart"]'));
     }
 
     public function testCheckoutOffcanvasWidgetLoadedHookScriptsAreExecuted(): void

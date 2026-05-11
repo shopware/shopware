@@ -147,9 +147,12 @@ class UnusedMediaPurgerTest extends TestCase
             }
         );
 
+        $connection = static::getContainer()->get(Connection::class);
+        static::assertInstanceOf(Connection::class, $connection);
+
         $purger = new UnusedMediaPurger(
             $this->mediaRepo,
-            $this->createMock(Connection::class),
+            $connection,
             $eventDispatcher,
         );
 

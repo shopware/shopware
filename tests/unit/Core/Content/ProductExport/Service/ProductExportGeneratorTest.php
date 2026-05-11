@@ -6,6 +6,8 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
@@ -23,7 +25,9 @@ use Shopware\Core\Framework\Adapter\Twig\TwigVariableParserFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
@@ -33,7 +37,9 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Generator;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Twig\Environment;
 
 /**
@@ -76,6 +82,14 @@ class ProductExportGeneratorTest extends TestCase
 
     protected function setUp(): void
     {
+        $registry = new StaticDefinitionInstanceRegistry(
+            [CategoryDefinition::class, ProductCategoryDefinition::class, ProductDefinition::class],
+            $this->createMock(ValidatorInterface::class),
+            $this->createMock(EntityWriteGatewayInterface::class)
+        );
+        $productDefinition = $registry->get(ProductDefinition::class);
+        static::assertInstanceOf(ProductDefinition::class, $productDefinition);
+
         $this->productStreamBuilder = $this->createMock(ProductStreamBuilderInterface::class);
         $this->productRepository = $this->createMock(SalesChannelRepository::class);
         $this->productExportRender = $this->createMock(ProductExportRendererInterface::class);
@@ -87,7 +101,7 @@ class ProductExportGeneratorTest extends TestCase
         $this->connection = $this->createMock(Connection::class);
         $this->seoUrlPlaceholderHandler = $this->createMock(SeoUrlPlaceholderHandlerInterface::class);
         $this->twig = $this->createMock(Environment::class);
-        $this->productDefinition = new ProductDefinition();
+        $this->productDefinition = $productDefinition;
         $this->languageLocaleProvider = $this->createMock(LanguageLocaleCodeProvider::class);
         $this->parserFactory = $this->createMock(TwigVariableParserFactory::class);
     }
@@ -168,7 +182,7 @@ class ProductExportGeneratorTest extends TestCase
         $productExport = $this->getProductExportEntity();
         $productExport->setEncoding(ProductExportEntity::ENCODING_UTF8);
         $productExport->setFileFormat(ProductExportEntity::FILE_FORMAT_JSONL);
-        $productExport->setBodyTemplate('{{ product.id }}');
+        $productExport->setBodyTemplate('{{ product.id }}{{ product.categories.count }}');
         $productExport->setIncludeVariants(false);
 
         $context = $this->createSalesChannelContext();
@@ -182,7 +196,7 @@ class ProductExportGeneratorTest extends TestCase
         $this->productStreamBuilder->expects($this->once())->method('buildFilters')->with('productStreamId', $context->getContext())->willReturn([]);
 
         $twigVariableParser = $this->createMock(TwigVariableParser::class);
-        $twigVariableParser->expects($this->once())->method('parse')->with('{{ product.id }}')->willReturn([]);
+        $twigVariableParser->expects($this->once())->method('parse')->with('{{ product.id }}{{ product.categories.count }}')->willReturn(['product.categories.count']);
         $this->parserFactory->expects($this->once())->method('getParser')->willReturn($twigVariableParser);
 
         $this->productRepository->expects($this->exactly(2))
@@ -190,6 +204,9 @@ class ProductExportGeneratorTest extends TestCase
             ->willReturnCallback(static function (Criteria $criteria, SalesChannelContext $salesChannelContext) use ($context): IdSearchResult {
                 static::assertSame(Criteria::TOTAL_COUNT_MODE_EXACT, $criteria->getTotalCountMode());
                 static::assertSame($context, $salesChannelContext);
+                static::assertTrue($criteria->hasAssociation('categories'));
+                static::assertCount(1, $criteria->getAssociation('categories')->getFilters());
+                static::assertEquals(new EqualsFilter('active', true), $criteria->getAssociation('categories')->getFilters()[0]);
 
                 return IdSearchResult::fromIds(['product-id'], $criteria, $context->getContext());
             });

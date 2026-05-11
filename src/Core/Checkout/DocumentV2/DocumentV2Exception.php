@@ -42,6 +42,8 @@ class DocumentV2Exception extends HttpException
 
     public const DUPLICATE_PROVIDER_KEY = 'DOCUMENT_V2__DUPLICATE_PROVIDER_KEY';
 
+    public const TEMPLATE_RENDER_FAILED = 'DOCUMENT_V2__TEMPLATE_RENDER_FAILED';
+
     public static function unknownRenderData(string $key, string $expectedClass): self
     {
         return new self(
@@ -181,6 +183,17 @@ class DocumentV2Exception extends HttpException
             self::DUPLICATE_PROVIDER_KEY,
             'Duplicate document data provider key "{{ key }}" for document type "{{ documentType }}".',
             ['key' => $key, 'documentType' => $documentType],
+        );
+    }
+
+    public static function templateRenderFailed(string $view, \Throwable $previous): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::TEMPLATE_RENDER_FAILED,
+            'Failed to render document template "{{ view }}": {{ reason }}.',
+            ['view' => $view, 'reason' => $previous->getMessage()],
+            $previous,
         );
     }
 }

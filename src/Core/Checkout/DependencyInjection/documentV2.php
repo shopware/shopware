@@ -6,14 +6,21 @@ use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileDefinition;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentNumberGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentDependencyResolver;
-use Shopware\Core\Checkout\DocumentV2\Generation\DocumentEntityPersister;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
 use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
+use Shopware\Core\Checkout\DocumentV2\Renderer\HtmlRenderer;
+use Shopware\Core\Checkout\DocumentV2\Twig\DocumentTemplateRenderer;
+use Shopware\Core\Content\Media\MediaService;
+use Shopware\Core\Framework\Adapter\Translation\Translator;
+use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
+use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
 
@@ -29,6 +36,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ]);
 
     $services->set(InvoiceDataProvider::class)
+        ->public()
         ->args([
             service(DocumentConfigLoader::class),
             service('validator'),
@@ -40,9 +48,22 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             tagged_iterator('shopware.document_v2.provider'),
         ]);
 
-    // $services->set(HtmlRenderer::class)
-    //    ->args([...])
-    //    ->tag('shopware.document_v2.renderer');
+    $services->set(DocumentTemplateRenderer::class)
+        ->public()
+        ->args([
+            service(TemplateFinder::class),
+            service('twig'),
+            service(Translator::class),
+            service(SalesChannelContextFactory::class),
+            param('kernel.project_dir'),
+        ]);
+
+    $services->set(HtmlRenderer::class)
+        ->public()
+        ->args([
+            service(DocumentTemplateRenderer::class),
+        ])
+        ->tag('shopware.document_v2.renderer');
 
     $services->set(DocumentRendererRegistry::class)
         ->args([
@@ -54,11 +75,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DocumentRendererRegistry::class),
         ]);
 
-    $services->set(DocumentEntityPersister::class)
+    $services->set(DocumentPersister::class)
         ->args([
             service('document.repository'),
             service('document_file.repository'),
             service('document_type.repository'),
+            service(MediaService::class),
         ]);
 
     $services->set(DocumentGenerator::class)
@@ -66,7 +88,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DocumentDataProviderRegistry::class),
             service(DocumentRendererRegistry::class),
             service(DocumentNumberGenerator::class),
-            service(DocumentEntityPersister::class),
+            service(DocumentPersister::class),
             service(DocumentDependencyResolver::class),
             service('order.repository'),
         ]);

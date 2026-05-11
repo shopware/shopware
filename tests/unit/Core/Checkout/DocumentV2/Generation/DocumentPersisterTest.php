@@ -15,10 +15,13 @@ use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileDefinit
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
-use Shopware\Core\Checkout\DocumentV2\Generation\DocumentEntityPersister;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
+use Shopware\Core\Checkout\DocumentV2\Struct\RenderResult;
+use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -30,8 +33,8 @@ use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticRenderData;
  * @internal
  */
 #[Package('after-sales')]
-#[CoversClass(DocumentEntityPersister::class)]
-class DocumentEntityPersisterTest extends TestCase
+#[CoversClass(DocumentPersister::class)]
+class DocumentPersisterTest extends TestCase
 {
     private const DOCUMENT_TYPE = DocumentType::INVOICE->value;
 
@@ -40,6 +43,8 @@ class DocumentEntityPersisterTest extends TestCase
     private DocumentGenerationRequest $generationRequest;
 
     private RenderInput $renderInput;
+
+    private RenderState $renderState;
 
     private Context $context;
 
@@ -61,6 +66,15 @@ class DocumentEntityPersisterTest extends TestCase
             new OrderEntity(),
             ['test' => new StaticRenderData()]
         );
+
+        $this->renderState = new RenderState();
+        $this->renderState->add(new RenderResult(
+            self::FORMAT,
+            'content',
+            'filename',
+            'pdf',
+            'application/pdf',
+        ));
     }
 
     public function testPersist(): void
@@ -68,12 +82,16 @@ class DocumentEntityPersisterTest extends TestCase
         $fileId = Uuid::randomHex();
         $documentTypeId = Uuid::randomHex();
 
-        [$persister, $documentRepository, $documentFileRepository] = $this->createPersister($documentTypeId);
+        [$persister, $documentRepository, $documentFileRepository] = $this->createPersister(
+            $documentTypeId,
+            mediaServiceReturn: $fileId,
+        );
 
         $document = $persister->persist(
             $this->generationRequest,
             $this->renderInput,
-            [self::FORMAT => $fileId],
+            $this->renderState,
+            [self::FORMAT],
             $this->context,
         );
 
@@ -100,7 +118,8 @@ class DocumentEntityPersisterTest extends TestCase
         $persister->persist(
             $this->generationRequest,
             $this->renderInput,
-            [self::FORMAT => Uuid::randomHex()],
+            $this->renderState,
+            [self::FORMAT],
             $this->context,
         );
     }
@@ -148,7 +167,8 @@ class DocumentEntityPersisterTest extends TestCase
         $persister->persist(
             $this->generationRequest,
             $this->renderInput,
-            [self::FORMAT => Uuid::randomHex()],
+            $this->renderState,
+            [self::FORMAT],
             $this->context,
         );
     }
@@ -157,7 +177,7 @@ class DocumentEntityPersisterTest extends TestCase
      * @param list<string> $existingDocumentIds
      *
      * @return array{
-     *     0: DocumentEntityPersister,
+     *     0: DocumentPersister,
      *     1: StaticEntityRepository<DocumentCollection>,
      *     2: StaticEntityRepository<DocumentFileCollection>,
      * }
@@ -166,6 +186,7 @@ class DocumentEntityPersisterTest extends TestCase
         string $documentTypeId,
         ?callable $documentSearch = null,
         array $existingDocumentIds = [],
+        ?string $mediaServiceReturn = null,
     ): array {
         /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
@@ -203,11 +224,15 @@ class DocumentEntityPersisterTest extends TestCase
             },
         ], new DocumentTypeDefinition());
 
+        $mediaService = $this->createMock(MediaService::class);
+        $mediaService->method('saveFile')->willReturn($mediaServiceReturn ?? Uuid::randomHex());
+
         return [
-            new DocumentEntityPersister(
+            new DocumentPersister(
                 $documentRepository,
                 $documentFileRepository,
                 $documentTypeRepository,
+                $mediaService,
             ),
             $documentRepository,
             $documentFileRepository,

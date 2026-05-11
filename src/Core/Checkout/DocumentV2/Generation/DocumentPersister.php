@@ -8,6 +8,8 @@ use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
+use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
+use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -17,16 +19,20 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * Persists the generated document aggregate after rendering finished successfully.
+ * Persists a generated document and one document_file per requested format.
  *
  * One document row represents the shared document number and order snapshot, while each
  * requested output format is stored as a separate document_file linked to the same document.
  *
+ * Media is written under {@see Context::SYSTEM_SCOPE}.
+ *
  * @internal
  */
 #[Package('after-sales')]
-final readonly class DocumentEntityPersister
+final readonly class DocumentPersister
 {
+    final public const MEDIA_FOLDER = 'document';
+
     /**
      * @param EntityRepository<DocumentCollection> $documentRepository
      * @param EntityRepository<DocumentFileCollection> $documentFileRepository
@@ -36,18 +42,20 @@ final readonly class DocumentEntityPersister
         private EntityRepository $documentRepository,
         private EntityRepository $documentFileRepository,
         private EntityRepository $documentTypeRepository,
+        private MediaService $mediaService,
     ) {
     }
 
     /**
-     * @param array<string, string> $persistedFiles
+     * @param list<string> $requestedFormats
      *
      * @throws DocumentV2Exception
      */
     public function persist(
         DocumentGenerationRequest $generationRequest,
         RenderInput $input,
-        array $persistedFiles,
+        RenderState $state,
+        array $requestedFormats,
         Context $context,
     ): DocumentEntity {
         $documentId = Uuid::randomHex();
@@ -55,15 +63,22 @@ final readonly class DocumentEntityPersister
         // TODO: Keep this guard until the reused document table can enforce document_number + document_type_id uniqueness.
         $this->assertDocumentNumberIsUnique($generationRequest, $input->documentNumber, $context);
 
+        $persistedFiles = $this->writeMediaFiles(
+            $state,
+            $requestedFormats,
+            $context,
+        );
+
         $this->documentRepository->create([
             [
                 'id' => $documentId,
                 'orderId' => $generationRequest->orderId,
                 'orderVersionId' => $generationRequest->orderVersionId,
                 'documentTypeId' => $this->getDocumentTypeId($generationRequest, $context),
-                'documentNumber' => $input->documentNumber,
                 'deepLinkCode' => Random::getAlphanumericString(32),
-                'config' => [],
+                'config' => [
+                    'documentNumber' => $input->documentNumber,
+                ],
             ],
         ], $context);
 
@@ -90,6 +105,34 @@ final readonly class DocumentEntityPersister
         }
 
         return $document;
+    }
+
+    /**
+     * @param list<string> $requestedFormats
+     *
+     * @return array<string, string> map<format, mediaId>
+     */
+    private function writeMediaFiles(RenderState $state, array $requestedFormats, Context $context): array
+    {
+        $persisted = [];
+
+        foreach ($requestedFormats as $format) {
+            $result = $state->require($format);
+
+            $persisted[$format] = $context->scope(
+                Context::SYSTEM_SCOPE,
+                fn (Context $scoped): string => $this->mediaService->saveFile(
+                    $result->content,
+                    $result->fileExtension,
+                    $result->mimeType,
+                    $result->fileName,
+                    $scoped,
+                    self::MEDIA_FOLDER,
+                ),
+            );
+        }
+
+        return $persisted;
     }
 
     /**

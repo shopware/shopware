@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderResult;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -20,7 +21,7 @@ use Shopware\Core\Framework\Log\Package;
  * @codeCoverageIgnore
  */
 #[Package('after-sales')]
-abstract class AbstractDocumentRenderer
+abstract readonly class AbstractDocumentRenderer
 {
     /**
      * Returns the output format this renderer produces.
@@ -61,10 +62,5 @@ abstract class AbstractDocumentRenderer
     /**
      * Renders the format into memory without persisting it.
      */
-    abstract public function renderToString(RenderInput $input, RenderState $state): RenderResult;
-
-    /**
-     * Persists a rendered result and returns the created media id.
-     */
-    abstract public function persistToFile(RenderInput $input, RenderResult $result): string;
+    abstract public function renderToString(RenderInput $input, RenderState $state, Context $context): RenderResult;
 }

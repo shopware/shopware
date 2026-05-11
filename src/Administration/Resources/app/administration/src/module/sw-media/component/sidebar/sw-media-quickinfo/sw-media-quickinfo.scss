@@ -14,10 +14,6 @@ $sw-media-quickinfo-border-radius-preview: $border-radius-default;
         font-size: inherit;
     }
 
-    .sw-media-quickinfo-metadata-item__description {
-        color: var(--color-text-primary-default);
-    }
-
     .sw-media-sidebar__quickaction--disabled {
         opacity: 0.5;
         pointer-events: none;

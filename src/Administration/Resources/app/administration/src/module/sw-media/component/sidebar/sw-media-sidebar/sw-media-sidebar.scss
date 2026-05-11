@@ -93,7 +93,6 @@ $sw-media-sidebar-color-quick-action-danger: var(--color-icon-critical-default);
     .sw-media-sidebar__quickaction {
         cursor: pointer;
         margin-bottom: 16px;
-        color: var(--color-text-primary-default);
 
         &:hover {
             color: $sw-media-sidebar-color-quick-action;

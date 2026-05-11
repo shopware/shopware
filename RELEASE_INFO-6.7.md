@@ -4,6 +4,12 @@
 
 ## API
 
+### Newsletter status schema now includes all Store API status values
+
+The Store API now uses a shared `NewsletterStatus` schema for newsletter-related responses.
+
+This aligns the documented schema for `/store-api/newsletter/subscribe` with the existing runtime behavior by including `undefined` as a valid newsletter status, alongside `notSet`, `optIn`, `optOut`, and `direct`. The account newsletter recipient schema also reuses the same status definition, so API consumers and generated clients get a consistent enum for newsletter status values.
+
 ### Mail template preview and send routes support richer rendering context
 
 The mail template Admin API now exposes dedicated preview and send routes:

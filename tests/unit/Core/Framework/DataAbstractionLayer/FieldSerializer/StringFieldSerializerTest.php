@@ -112,6 +112,7 @@ class StringFieldSerializerTest extends TestCase
     {
         $field = $this->createField($flags);
 
+        // Create case
         try {
             $this->encodeValue($field, $input);
             static::fail('Required string fields must reject missing or blank values for new entities.');
@@ -119,6 +120,7 @@ class StringFieldSerializerTest extends TestCase
             static::assertSame('/name', $exception->getViolations()->get(0)->getPropertyPath());
         }
 
+        // Update case
         try {
             $this->encodeValue($field, $input, exists: true);
             static::fail('Required string fields must reject missing or blank values for existing entities.');
@@ -146,7 +148,10 @@ class StringFieldSerializerTest extends TestCase
     {
         $field = $this->createField();
 
+        // Create case
         static::assertSame(['name' => null], $this->encodeValue($field, $input));
+
+        // Update case
         static::assertSame(['name' => null], $this->encodeValue($field, $input, exists: true));
     }
 
@@ -170,7 +175,10 @@ class StringFieldSerializerTest extends TestCase
     {
         $field = $this->createField($flags);
 
+        // Create case
         static::assertSame(['name' => $expected], $this->encodeValue($field, $input));
+
+        // Update case
         static::assertSame(['name' => $expected], $this->encodeValue($field, $input, exists: true));
     }
 
@@ -189,6 +197,7 @@ class StringFieldSerializerTest extends TestCase
     {
         $field = $this->createField(maxLength: 5);
 
+        // Create case
         try {
             $this->encodeValue($field, '123456789');
             static::fail('String fields must reject values that exceed their max length for new entities.');
@@ -196,6 +205,7 @@ class StringFieldSerializerTest extends TestCase
             static::assertSame('/name', $exception->getViolations()->get(0)->getPropertyPath());
         }
 
+        // Update case
         try {
             $this->encodeValue($field, '123456789', exists: true);
             static::fail('String fields must reject values that exceed their max length for existing entities.');
@@ -208,6 +218,7 @@ class StringFieldSerializerTest extends TestCase
     {
         $field = $this->createField([new Required()]);
 
+        // Create case
         try {
             $this->encodeValue($field, true);
             static::fail('String fields must reject non-string values for new entities.');
@@ -215,6 +226,7 @@ class StringFieldSerializerTest extends TestCase
             static::assertSame('/name', $exception->getViolations()->get(0)->getPropertyPath());
         }
 
+        // Update case
         try {
             $this->encodeValue($field, true, exists: true);
             static::fail('String fields must reject non-string values for existing entities.');
@@ -231,7 +243,10 @@ class StringFieldSerializerTest extends TestCase
     {
         $field = $this->createField($flags);
 
+        // Create case
         static::assertSame(['name' => $expected], $this->encodeValue($field, $input));
+
+        // Update case
         static::assertSame(['name' => $expected], $this->encodeValue($field, $input, exists: true));
     }
 

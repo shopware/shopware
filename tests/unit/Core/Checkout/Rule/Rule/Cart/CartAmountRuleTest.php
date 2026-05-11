@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
@@ -180,11 +181,10 @@ class CartAmountRuleTest extends TestCase
     {
         $result = (new CartAmountRule())->getConstraints();
 
-        static::assertArrayHasKey('amount', $result);
-        static::assertIsArray($result['amount']);
-
-        static::assertArrayHasKey('operator', $result);
-        static::assertIsArray($result['operator']);
+        static::assertEquals([
+            'amount' => RuleConstraints::float(),
+            'operator' => RuleConstraints::numericOperators(false),
+        ], $result);
     }
 
     public function testGetConfig(): void

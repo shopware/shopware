@@ -14,14 +14,12 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleException;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * @internal
@@ -204,23 +202,21 @@ class ShippingCountryRuleTest extends TestCase
 
     public function testConstraints(): void
     {
-        $expectedOperators = [
-            Rule::OPERATOR_EQ,
-            Rule::OPERATOR_NEQ,
-            Rule::OPERATOR_EMPTY,
-        ];
-
         $ruleConstraints = (new ShippingCountryRule())->getConstraints();
 
-        static::assertArrayHasKey('operator', $ruleConstraints, 'Constraint operator not found in Rule');
-        $operators = $ruleConstraints['operator'];
-        static::assertEquals(new NotBlank(), $operators[0]);
-        static::assertEquals(new Choice(choices: $expectedOperators), $operators[1]);
+        static::assertEquals([
+            'operator' => RuleConstraints::uuidOperators(),
+            'countryIds' => RuleConstraints::uuids(),
+        ], $ruleConstraints);
+    }
 
-        static::assertArrayHasKey('countryIds', $ruleConstraints, 'Constraint countryIds not found in Rule');
-        $countryIds = $ruleConstraints['countryIds'];
-        static::assertEquals(new NotBlank(), $countryIds[0]);
-        static::assertEquals(new ArrayOfUuid(), $countryIds[1]);
+    public function testConstraintsForEmptyOperator(): void
+    {
+        $rule = (new ShippingCountryRule())->assign(['operator' => Rule::OPERATOR_EMPTY]);
+
+        static::assertEquals([
+            'operator' => RuleConstraints::uuidOperators(),
+        ], $rule->getConstraints());
     }
 
     #[DataProvider('getMatchValues')]

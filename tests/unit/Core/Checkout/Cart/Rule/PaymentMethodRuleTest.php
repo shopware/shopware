@@ -9,11 +9,9 @@ use Shopware\Core\Checkout\Cart\Rule\PaymentMethodRule;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * @internal
@@ -51,13 +49,11 @@ class PaymentMethodRuleTest extends TestCase
         $rule = new PaymentMethodRule();
 
         $constraints = $rule->getConstraints();
-        static::assertCount(2, $constraints['paymentMethodIds']);
-        static::assertInstanceOf(NotBlank::class, $constraints['paymentMethodIds'][0]);
-        static::assertInstanceOf(ArrayOfUuid::class, $constraints['paymentMethodIds'][1]);
-        static::assertIsArray($constraints['operator']);
-        static::assertCount(2, $constraints['operator']);
-        static::assertInstanceOf(NotBlank::class, $constraints['operator'][0]);
-        static::assertInstanceOf(Choice::class, $constraints['operator'][1]);
+
+        static::assertEquals([
+            'paymentMethodIds' => RuleConstraints::uuids(),
+            'operator' => RuleConstraints::uuidOperators(false),
+        ], $constraints);
     }
 
     public function testRuleDoesNotMatchNoPaymentIds(): void

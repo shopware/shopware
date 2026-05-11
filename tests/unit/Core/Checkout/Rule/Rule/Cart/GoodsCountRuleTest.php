@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Cart\Rule\GoodsCountRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Rule\SimpleRule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -182,11 +183,10 @@ class GoodsCountRuleTest extends TestCase
 
         $result = $goodsCountRule->getConstraints();
 
-        static::assertArrayHasKey('count', $result);
-        static::assertArrayHasKey('operator', $result);
-
-        static::assertIsArray($result['count']);
-        static::assertIsArray($result['operator']);
+        static::assertEquals([
+            'count' => RuleConstraints::int(),
+            'operator' => RuleConstraints::numericOperators(false),
+        ], $result);
     }
 
     #[DataProvider('getLineItemScopeTestData')]

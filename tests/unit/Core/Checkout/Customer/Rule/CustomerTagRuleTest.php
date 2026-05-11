@@ -11,9 +11,8 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\CustomerTagRule;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
-use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\Validator\Constraints\Choice;
 
 /**
  * @internal
@@ -58,19 +57,21 @@ class CustomerTagRuleTest extends TestCase
 
     public function testConstraints(): void
     {
-        $operators = [
-            Rule::OPERATOR_EQ,
-            Rule::OPERATOR_NEQ,
-            Rule::OPERATOR_EMPTY,
-        ];
-
         $constraints = $this->rule->getConstraints();
 
-        static::assertArrayHasKey('identifiers', $constraints, 'identifiers constraint not found');
-        static::assertArrayHasKey('operator', $constraints, 'operator constraints not found');
+        static::assertEquals([
+            'operator' => RuleConstraints::uuidOperators(),
+            'identifiers' => RuleConstraints::uuids(),
+        ], $constraints);
+    }
 
-        static::assertEquals(new ArrayOfUuid(), $constraints['identifiers'][1]);
-        static::assertEquals(new Choice(choices: $operators), $constraints['operator'][1]);
+    public function testConstraintsForEmptyOperator(): void
+    {
+        $this->rule->assign(['operator' => Rule::OPERATOR_EMPTY]);
+
+        static::assertEquals([
+            'operator' => RuleConstraints::uuidOperators(),
+        ], $this->rule->getConstraints());
     }
 
     /**

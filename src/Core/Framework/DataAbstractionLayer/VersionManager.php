@@ -538,8 +538,16 @@ class VersionManager
         $fields = $definition->getFields()->filter(static fn (Field $field) => $field instanceof VersionField || $field instanceof ReferenceVersionField);
 
         foreach ($fields as $field) {
-            if ($field instanceof ReferenceVersionField && $sourceVersionId !== null && ($payload[$field->getPropertyName()] ?? null) !== $sourceVersionId) {
-                continue;
+            if ($field instanceof ReferenceVersionField && $sourceVersionId !== null) {
+                $propertyName = $field->getPropertyName();
+
+                if (\array_key_exists($propertyName, $payload)) {
+                    if ($payload[$propertyName] !== $sourceVersionId) {
+                        continue;
+                    }
+                } elseif ($field->getVersionReferenceDefinition() !== $definition->getParentDefinition()) {
+                    continue;
+                }
             }
 
             $payload[$field->getPropertyName()] = $versionId;

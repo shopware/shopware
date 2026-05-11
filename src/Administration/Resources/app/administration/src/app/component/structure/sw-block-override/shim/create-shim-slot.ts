@@ -17,6 +17,8 @@ import { h, shallowRef, type Slot } from 'vue';
 import type { BlockEntry } from 'src/core/factory/twig-block-index';
 import swBlockParent from '../sw-block-parent/index';
 
+type DataScope = Record<string | symbol, unknown>;
+
 const warnedBlocks = new Set<string>();
 const legacyBlockHelperAliases = {
     swLegacyBlockIf: '$swLegacyBlockIf',
@@ -82,16 +84,31 @@ export function createShimSlot(entry: BlockEntry, blockName: string): Slot {
     // same component type across slot calls and reuses the instance. Creating a
     // new object on every call (e.g. via spread) causes unmount + remount,
     // which destroys focus on every keystroke.
-    const dataScopeRef = shallowRef<Record<string | symbol, unknown> | null>(null);
+    // The render version still changes every slot call so Vue patches the
+    // reused shim instance even when the host component proxy identity is stable.
+    const dataScopeRef = shallowRef<DataScope>({});
+    let renderVersion = 0;
 
     const shimComponent = {
         ...def,
-        setup: () => buildSetupContext(dataScopeRef.value),
+        props: {
+            swBlockShimRenderVersion: {
+                type: Number,
+                required: true,
+            },
+        },
+        setup: () => buildSetupContext(() => dataScopeRef.value),
     };
 
     return (dataScope) => {
-        dataScopeRef.value = dataScope as Record<string | symbol, unknown> | null;
-        return [h(shimComponent)];
+        dataScopeRef.value = (dataScope ?? {}) as DataScope;
+        renderVersion += 1;
+
+        return [
+            h(shimComponent, {
+                swBlockShimRenderVersion: renderVersion,
+            }),
+        ];
     };
 }
 
@@ -108,13 +125,11 @@ export function createShimSlot(entry: BlockEntry, blockName: string): Slot {
  * target would trigger Vue's `ownKeys` warning on that validation call even
  * though our trap returns `[]`. A plain `{}` target keeps that check silent.
  */
-function buildSetupContext(dataScope: Record<string | symbol, unknown> | null): Record<string, unknown> {
-    if (!dataScope) return {};
-
-    const source = dataScope;
-
+function buildSetupContext(getDataScope: () => DataScope): Record<string, unknown> {
     return new Proxy({} as Record<string, unknown>, {
         get(_t, key: string | symbol): unknown {
+            const source = getDataScope();
+
             if (isLegacyBlockHelperKey(key)) {
                 return getLegacyBlockHelper(source, key);
             }
@@ -122,6 +137,8 @@ function buildSetupContext(dataScope: Record<string | symbol, unknown> | null): 
             return isInternalKey(key) ? undefined : source[key];
         },
         has(_t, key: string | symbol): boolean {
+            const source = getDataScope();
+
             // Symbol keys are intentionally passed through: Vue uses private symbols
             // (e.g. __v_isRef, __v_isVue) on component proxies, and exposing them
             // here ensures that Vue's internal identity checks work correctly on
@@ -134,6 +151,8 @@ function buildSetupContext(dataScope: Record<string | symbol, unknown> | null): 
             return !isInternalKey(key) && key in source;
         },
         getOwnPropertyDescriptor(_t, key: string | symbol): PropertyDescriptor | undefined {
+            const source = getDataScope();
+
             if (isLegacyBlockHelperKey(key)) {
                 if (typeof getLegacyBlockHelper(source, key) !== 'function') return undefined;
 

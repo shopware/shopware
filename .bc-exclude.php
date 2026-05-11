@@ -39,6 +39,12 @@ return [
         preg_quote('CHANGED: Shopware\\Core\\DevOps\\System\\Command\\SystemDumpDatabaseCommand was marked "@internal"', '/'),
         preg_quote('REMOVED: Method Shopware\\Core\\DevOps\\System\\Command\\SystemDumpDatabaseCommand#getIgnoreTableStmt() was removed', '/'),
 
+        // Plugin lifecycle command constructors were not marked @internal
+        preg_quote('REMOVED: Method Shopware\Core\Framework\Plugin\Command\Lifecycle\AbstractPluginLifecycleCommand#__construct() was removed', '/'),
+        preg_quote('ADDED: Parameter projectDir was added to Method __construct() of class Shopware\Core\Framework\Plugin\Command\Lifecycle\AbstractPluginLifecycleCommand', '/'),
+        preg_quote('CHANGED: Shopware\Core\Framework\Plugin\Command\Lifecycle\AbstractPluginLifecycleCommand#__construct() was marked "@internal"', '/'),
+        preg_quote('CHANGED: The number of required arguments for Shopware\Core\Framework\Plugin\Command\Lifecycle\AbstractPluginLifecycleCommand#__construct() increased from 3 to 4', '/'),
+
         // No break as all existing NoContentResponse usages are still valid with the widened StoreApiResponse return type
         'CHANGED: The return type of Shopware\\\\Core\\\\Content\\\\Newsletter\\\\SalesChannel\\\\.* changed from Shopware\\\\Core\\\\System\\\\SalesChannel\\\\NoContentResponse to (?:the non-covariant )?Shopware\\\\Core\\\\System\\\\SalesChannel\\\\StoreApiResponse',
 

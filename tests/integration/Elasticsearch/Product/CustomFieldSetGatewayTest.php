@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Elasticsearch\Product;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -14,7 +13,6 @@ use Shopware\Elasticsearch\Product\CustomFieldSetGateway;
 /**
  * @internal
  */
-#[CoversClass(CustomFieldSetGateway::class)]
 class CustomFieldSetGatewayTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

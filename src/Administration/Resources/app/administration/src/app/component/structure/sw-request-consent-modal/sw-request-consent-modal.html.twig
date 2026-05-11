@@ -1,0 +1,62 @@
+<mt-modal-root
+    :is-open="hasConsentRequest"
+    :closable="false"
+>
+    <mt-modal
+        :title="$t('sw-request-consent-modal.title')"
+        class="sw-request-consent-modal"
+    >
+        <div class="sw-request-consent-modal__content">
+            <i18n-t
+                keypath="sw-request-consent-modal.message"
+                tag="p"
+            >
+                <template #appName>
+                    <b>{{ state.requester.extensionName }}</b>
+                </template>
+
+                <template #consentName>
+                    <b>{{ state.consentRequest.consent }}</b>
+                </template>
+            </i18n-t>
+
+            <div
+                v-if="state.consentRequest.requestMessage"
+                class="sw-request-consent-modal__requestMessage"
+                v-html="sanitizedMessage"
+            ></div>
+
+            <div v-if="state.consentRequest.privacyLink">
+                <p>{{ $t('sw-request-consent-modal.readMore') }}</p>
+                <mt-link
+                    as="a"
+                    :href="state.consentRequest.privacyLink"
+                    type="external"
+                    target="_blank"
+                >
+                    {{ state.consentRequest.privacyLink }}
+                </mt-link>
+            </div>
+        </div>
+
+        <template #footer>
+            <div class="sw-request-consent-modal__footer">
+                <mt-button
+                    variant="primary"
+                    @click="decline"
+                >
+                    {{ $t('sw-request-consent-modal.declineButton') }}
+                </mt-button>
+
+                <mt-button
+                    variant="primary"
+                    @click="accept"
+                >
+                    {{ $t('sw-request-consent-modal.acceptButton') }}
+                </mt-button>
+
+                <mt-loader v-if="isLoading" />
+            </div>
+        </template>
+    </mt-modal>
+</mt-modal-root>

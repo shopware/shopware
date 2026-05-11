@@ -12,7 +12,7 @@
         {% block sw_customer_default_addresses_shipping_postal %}
         <sw-address
             :address="customer.defaultShippingAddress"
-            :headline="$tc('sw-customer.detailBase.titleDefaultShippingAddress')"
+            :headline="$t('sw-customer.detailBase.titleDefaultShippingAddress')"
             :show-edit-button="customerEditMode"
             :edit-link="defaultShippingAddressLink"
             :formatting-address="formattingShippingAddress"
@@ -26,7 +26,7 @@
         {% block sw_customer_default_addresses_billing_postal %}
         <sw-address
             :address="customer.defaultBillingAddress"
-            :headline="$tc('sw-customer.detailBase.titleDefaultBillingAddress')"
+            :headline="$t('sw-customer.detailBase.titleDefaultBillingAddress')"
             :show-edit-button="customerEditMode"
             :edit-link="defaultBillingAddressLink"
             :formatting-address="formattingBillingAddress"

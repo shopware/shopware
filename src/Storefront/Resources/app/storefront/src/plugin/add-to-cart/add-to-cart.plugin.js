@@ -16,6 +16,11 @@ export default class AddToCartPlugin extends Plugin {
         redirectTo: 'frontend.cart.offcanvas',
         alertTemplateSelector: '.js-add-to-cart-alert-template',
         alertDismissDelay: 3000,
+        stockAlertTemplateSelector: '.js-quantity-stock-adjusted-template',
+        stockAlertClass: 'quantity-stock-adjusted-alert',
+        stockAdjustedText: null,
+        outOfStockText: null,
+        buyButtonSelector: 'button[type="submit"].btn-buy',
     };
 
     init() {
@@ -65,6 +70,8 @@ export default class AddToCartPlugin extends Plugin {
 
     _registerEvents() {
         this.el.addEventListener('submit', this._formSubmit.bind(this));
+        this._form.addEventListener('QuantitySelector/StockAdjusted', this._handleStockAdjusted.bind(this));
+        this._form.addEventListener('QuantitySelector/OutOfStock', this._handleOutOfStock.bind(this));
     }
 
     /**
@@ -187,5 +194,62 @@ export default class AddToCartPlugin extends Plugin {
         instance.openOffCanvas(requestUrl, formData, () => {
             this.$emitter.publish('openOffCanvasCart');
         });
+    }
+
+    /**
+     * Handle stock-adjusted event from the quantity selector.
+     * Shows a warning alert informing the user their quantity was reduced.
+     *
+     * @param {CustomEvent} event
+     * @private
+     */
+    _handleStockAdjusted(event) {
+        let text = this.options.stockAdjustedText || '';
+        text = text.replace('%quantity%', event.detail.quantity);
+        this._showStockAlert(text);
+    }
+
+    /**
+     * Handle out-of-stock event from the quantity selector.
+     * Shows an alert and disables the buy button.
+     *
+     * @private
+     */
+    _handleOutOfStock() {
+        this._showStockAlert(this.options.outOfStockText || '');
+
+        const buyButton = this._form.querySelector(this.options.buyButtonSelector);
+        if (buyButton) {
+            buyButton.disabled = true;
+        }
+    }
+
+    /**
+     * Render a stock alert by cloning the template and filling in the text.
+     *
+     * @param {string} text
+     * @private
+     */
+    _showStockAlert(text) {
+        const template = this._form.querySelector(this.options.stockAlertTemplateSelector);
+
+        if (!template) {
+            return;
+        }
+
+        const existingAlert = template.parentElement.querySelector(`.${this.options.stockAlertClass}`);
+        if (existingAlert) {
+            existingAlert.remove();
+        }
+
+        const alert = template.content.firstElementChild.cloneNode(true);
+        alert.classList.add(this.options.stockAlertClass);
+
+        const textEl = alert.querySelector('.alert-content-container');
+        if (textEl) {
+            textEl.textContent = text;
+        }
+
+        template.insertAdjacentElement('afterend', alert);
     }
 }

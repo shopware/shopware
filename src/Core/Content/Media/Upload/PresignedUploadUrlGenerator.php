@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Upload;
 
+use AsyncAws\S3\Input\DeleteObjectRequest;
 use AsyncAws\S3\Input\HeadObjectRequest;
 use AsyncAws\S3\Input\PutObjectRequest;
 use AsyncAws\S3\S3Client;
@@ -41,8 +42,10 @@ readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInter
         int $expirationMinutes = 5,
         bool $enabled = true,
     ): self {
+        $nonSupported = new self($mediaPathStrategy, null, null, '', $logger, $expirationMinutes, $enabled);
+
         if (!$enabled || ($filesystemConfig['type'] ?? null) !== 'amazon-s3') {
-            return new self($mediaPathStrategy, null, null, '', $logger, $expirationMinutes, $enabled);
+            return $nonSupported;
         }
 
         $s3Config = $filesystemConfig['config'] ?? [];
@@ -124,28 +127,6 @@ readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInter
         return $this->enabled && $this->s3Client !== null && $this->bucket !== null;
     }
 
-    public function verifyUpload(string $path): bool
-    {
-        if ($this->s3Client === null || $this->bucket === null) {
-            return false;
-        }
-
-        try {
-            $s3Key = $this->ensureRootPrefix($path);
-
-            $request = new HeadObjectRequest([
-                'Bucket' => $this->bucket,
-                'Key' => $s3Key,
-            ]);
-
-            $this->s3Client->headObject($request)->resolve();
-
-            return true;
-        } catch (\Throwable) {
-            return false;
-        }
-    }
-
     public function getFileMetadata(string $path): ?FileMetadataResult
     {
         if ($this->s3Client === null || $this->bucket === null) {
@@ -162,9 +143,16 @@ readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInter
 
             $result = $this->s3Client->headObject($request);
 
+            $etag = $result->getEtag();
+            if ($etag !== null) {
+                $etag = trim($etag, '"');
+            }
+
             return new FileMetadataResult(
-                size: $result->getContentLength() ?? 0,
+                size: (int) ($result->getContentLength()),
                 lastModified: $result->getLastModified() ?? new \DateTimeImmutable(),
+                etag: $etag,
+                contentType: $result->getContentType(),
             );
         } catch (\Throwable $e) {
             $this->logger->warning($e->getMessage(), [
@@ -173,6 +161,30 @@ readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInter
             ]);
 
             return null;
+        }
+    }
+
+    public function deleteFromStorage(string $path): void
+    {
+        if ($this->s3Client === null || $this->bucket === null) {
+            return;
+        }
+
+        try {
+            $s3Key = $this->ensureRootPrefix($path);
+
+            $request = new DeleteObjectRequest([
+                'Bucket' => $this->bucket,
+                'Key' => $s3Key,
+            ]);
+
+            $this->s3Client->deleteObject($request)->resolve();
+        } catch (\Throwable $e) {
+            $this->logger->warning('Failed to delete orphaned presigned upload at path "{path}": {message}', [
+                'path' => $path,
+                'message' => $e->getMessage(),
+                'exception' => $e,
+            ]);
         }
     }
 

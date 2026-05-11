@@ -109,9 +109,12 @@ export default {
                 fields.push(field);
             }
 
+            this.fields = fields;
             this.changeType({ type: null, parameters: null });
 
-            this.fields = fields;
+            if (field === 'cheapestPrice.percentage') {
+                this.actualCondition.value = String(100);
+            }
         },
 
         handleWrapForTypeNull(type, parameters) {
@@ -164,7 +167,27 @@ export default {
             if (this.handleWrapForTypeNull(type, parameters)) {
                 this.actualCondition.parameters = parameters;
                 this.actualCondition.value = null;
+
+                if (type !== null && this.actualCondition.field === 'cheapestPrice.percentage') {
+                    this.applyPercentageDefaultValue(parameters);
+                }
             }
+        },
+
+        applyPercentageDefaultValue(parameters) {
+            const defaultPercentage = 100;
+
+            if (parameters !== null) {
+                Object.keys(parameters).forEach((key) => {
+                    if (parameters[key] === null) {
+                        this.actualCondition.parameters[key] = defaultPercentage;
+                    }
+                });
+
+                return;
+            }
+
+            this.actualCondition.value = String(defaultPercentage);
         },
 
         wrapInNot(condition, newType, parameters) {
@@ -206,7 +229,7 @@ export default {
         getNoPermissionsTooltip(role, showOnDisabledElements = true) {
             return {
                 showDelay: 300,
-                message: this.$tc('sw-privileges.tooltip.warning'),
+                message: this.$t('sw-privileges.tooltip.warning'),
                 appearance: 'dark',
                 showOnDisabledElements,
                 disabled: this.acl.can(role),

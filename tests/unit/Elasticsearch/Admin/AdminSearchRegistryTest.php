@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Elasticsearch\Admin;
 
 use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
-use OpenSearch\Common\Exceptions\NoNodesAvailableException;
+use OpenSearch\Exception\RuntimeException;
 use OpenSearch\Namespaces\IndicesNamespace;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -448,7 +448,7 @@ class AdminSearchRegistryTest extends TestCase
         $client = $this->createMock(Client::class);
         $client->expects($this->never())->method('bulk');
 
-        $client->method('indices')->willThrowException(new NoNodesAvailableException('no nodes'));
+        $client->method('indices')->willThrowException(new RuntimeException('no nodes'));
 
         $connection = $this->createMock(Connection::class);
 
@@ -466,6 +466,43 @@ class AdminSearchRegistryTest extends TestCase
             $client,
             $searchHelper,
             $logger,
+            [],
+            [],
+            'test'
+        );
+
+        $index->refresh(new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([
+            new EntityWrittenEvent('promotion', [
+                new EntityWriteResult(
+                    'c1a28776116d4431a2208eb2960ec340',
+                    [],
+                    'promotion',
+                    EntityWriteResult::OPERATION_INSERT
+                ),
+            ], Context::createDefaultContext()),
+        ]), []));
+    }
+
+    public function testRefreshIndicesNoEmptyDbCall(): void
+    {
+        $client = $this->createMock(Client::class);
+        $indices = $this->createMock(IndicesNamespace::class);
+        $indices->expects($this->never())->method('existsAlias');
+
+        $client->method('indices')->willReturn($indices);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('executeStatement');
+
+        $searchHelper = new AdminElasticsearchHelper(true, true, 'sw-admin', 'test', true, new NullLogger());
+        $index = new AdminSearchRegistry(
+            [],
+            $connection,
+            $this->createMock(MessageBusInterface::class),
+            $this->createMock(EventDispatcherInterface::class),
+            $client,
+            $searchHelper,
+            $this->createMock(LoggerInterface::class),
             [],
             [],
             'test'

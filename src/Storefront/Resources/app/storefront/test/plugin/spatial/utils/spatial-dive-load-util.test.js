@@ -3,6 +3,7 @@ import { loadDIVE } from 'src/plugin/spatial/utils/spatial-dive-load-util';
 jest.mock('@shopware-ag/dive', () => ({ DIVE: {} }));
 jest.mock('@shopware-ag/dive/ar', () => ({ ARSystem: {} }));
 jest.mock('@shopware-ag/dive/quickview', () => ({ QuickView: {} }));
+jest.mock('@shopware-ag/dive/animation', () => ({ AnimationSystem: {} }));
 
 
 /**
@@ -14,6 +15,7 @@ describe('loadDIVE', () => {
         window.DIVEClass = undefined;
         window.DIVEARPlugin = undefined;
         window.DIVEQuickViewPlugin = undefined;
+        window.DIVEAnimationPlugin = undefined;
         window.loadDiveUtil = undefined;
     });
 
@@ -32,6 +34,7 @@ describe('loadDIVE', () => {
         expect(typeof window.DIVEClass).toBe('object');
         expect(typeof window.DIVEARPlugin).toBe('object');
         expect(typeof window.DIVEQuickViewPlugin).toBe('object');
+        expect(typeof window.DIVEAnimationPlugin).toBe('object');
         expect(typeof window.loadDiveUtil.promise).toBe('object');
     });
 
@@ -57,6 +60,14 @@ describe('loadDIVE', () => {
         await loadDIVE();
 
         expect(window.DIVEQuickViewPlugin).toBe('quickViewPlugin');
+    });
+
+    test('should not load dive if AnimationPlugin is already loaded', async () => {
+        window.DIVEAnimationPlugin = 'animationPlugin';
+
+        await loadDIVE();
+
+        expect(window.DIVEAnimationPlugin).toBe('animationPlugin');
     });
 
     test('should not run import when dive is already loading', async () => {

@@ -53,6 +53,11 @@ async function createWrapper(propsOverride = {}, repositoryFactoryOverride = {})
         },
         global: {
             provide: {
+                mediaPresignedUploadService: {
+                    prepareUpload: jest.fn(),
+                    uploadToPresignedUrl: jest.fn(),
+                    finalizeUpload: jest.fn(),
+                },
                 repositoryFactory: repositoryFactoryMock,
                 searchRankingService: {
                     isValidTerm: (term) => {
@@ -308,6 +313,21 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
 
         const deleteVariantsButton = wrapper.find('.sw-product-variants-overview__bulk-delete-action');
         expect(deleteVariantsButton.exists()).toBeFalsy();
+    });
+
+    it('should keep the current inline edit row when another variant is double clicked before saving', async () => {
+        global.activeAclRoles = ['product.editor'];
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const variantGrid = wrapper.vm.$refs.variantGrid;
+
+        variantGrid.onDbClickCell(wrapper.vm.variants[0]);
+        expect(variantGrid.currentInlineEditId).toBe(1);
+
+        variantGrid.onDbClickCell(wrapper.vm.variants[1]);
+        expect(variantGrid.currentInlineEditId).toBe(1);
     });
 
     it('should add the downloads column when the product type is equal "digital"', async () => {

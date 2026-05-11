@@ -83,10 +83,8 @@ class EntityDeleteSubscriberTest extends TestCase
             ->willReturn(new QueryBuilder($connection));
 
         $connection->expects($this->once())
-            ->method('commit');
-
-        $connection->expects($this->never())
-            ->method('rollBack');
+            ->method('transactional')
+            ->willReturnCallback(static fn (\Closure $func) => $func());
 
         $statementMock = $this->createMock(Statement::class);
         $statementMock->expects($this->exactly(4))
@@ -155,36 +153,10 @@ class EntityDeleteSubscriberTest extends TestCase
     {
         $productId = Uuid::randomBytes();
         $connection = $this->createMock(Connection::class);
-        $connection->expects($this->once())
-            ->method('createQueryBuilder')
-            ->willReturn(new QueryBuilder($connection));
 
         $connection->expects($this->once())
-            ->method('commit')
+            ->method('transactional')
             ->willThrowException($this->createMock(DeadlockException::class));
-
-        $connection->expects($this->once())
-            ->method('rollBack');
-
-        $statementMock = $this->createMock(Statement::class);
-        $statementMock->expects($this->exactly(4))
-            ->method('bindValue')
-            ->withAnyParameters()
-            ->willReturnCallback(function ($key, $value) use ($productId): void {
-                if ($key === ':entity_name') {
-                    static::assertSame(EntityWithSinglePrimaryKey::ENTITY_NAME, $value);
-                    $this->requiredParameter[':entity_name'] = true;
-                }
-
-                if ($key === ':entity_ids') {
-                    static::assertSame(json_encode(['id' => Uuid::fromBytesToHex($productId)]), $value);
-                    $this->requiredParameter[':entity_ids'] = true;
-                }
-            });
-
-        $connection->expects($this->once())
-            ->method('prepare')
-            ->willReturn($statementMock);
 
         $registry = new StaticDefinitionInstanceRegistry(
             [new EntityWithSinglePrimaryKey()],
@@ -223,10 +195,8 @@ class EntityDeleteSubscriberTest extends TestCase
         $subscriber->handleEntityDeleteEvent($event);
 
         // marks the event as successful --> we write the deletion into the expected table
+        // the exception from transactional is silently caught, so no exception is expected
         $event->success();
-
-        static::assertTrue($this->requiredParameter[':entity_name']);
-        static::assertTrue($this->requiredParameter[':entity_ids']);
     }
 
     public function testHandleDeletedEventStoresDataMultipleEntities(): void
@@ -237,10 +207,8 @@ class EntityDeleteSubscriberTest extends TestCase
             ->willReturn(new QueryBuilder($connection));
 
         $connection->expects($this->once())
-            ->method('commit');
-
-        $connection->expects($this->never())
-            ->method('rollBack');
+            ->method('transactional')
+            ->willReturnCallback(static fn (\Closure $func) => $func());
 
         $statementMock = $this->createMock(Statement::class);
         // assert bindValue to be called 2 * 4 times (2 entities with 5 parameters)
@@ -302,7 +270,7 @@ class EntityDeleteSubscriberTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->never())
-            ->method('beginTransaction');
+            ->method('transactional');
 
         $registry = new StaticDefinitionInstanceRegistry(
             [new EntityWithSinglePrimaryKey()],
@@ -370,7 +338,7 @@ class EntityDeleteSubscriberTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->never())
-            ->method('beginTransaction');
+            ->method('transactional');
 
         $consentService = $this->createConsentService(ConsentStatus::REVOKED);
 
@@ -408,7 +376,7 @@ class EntityDeleteSubscriberTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->never())
-            ->method('beginTransaction');
+            ->method('transactional');
 
         $registry = new StaticDefinitionInstanceRegistry(
             [new EntityWithSinglePrimaryKey()],

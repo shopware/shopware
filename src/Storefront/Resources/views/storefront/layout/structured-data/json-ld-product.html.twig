@@ -1,5 +1,6 @@
 {% block page_product_detail_json_ld %}
     {# Determine availability following the same logic as delivery-information.html.twig #}
+    {# ludtwig-ignore twig-variable-definition-naming #}
     {% set digitalType = constant('Shopware\\Core\\Content\\Product\\ProductDefinition::TYPE_DIGITAL') %}
     {% set isDigitalProduct = page.product.type === digitalType %}
 
@@ -285,6 +286,12 @@
             url: savedData.url,
             offers: savedData.offers
         } %}
+        {% if savedData.description is defined %}
+            {% set variantProduct = variantProduct|merge({description: savedData.description}) %}
+        {% endif %}
+        {% if savedData.image is defined %}
+            {% set variantProduct = variantProduct|merge({image: savedData.image}) %}
+        {% endif %}
         {% if savedData.gtin13 is defined %}
             {% set variantProduct = variantProduct|merge({gtin13: savedData.gtin13}) %}
         {% endif %}

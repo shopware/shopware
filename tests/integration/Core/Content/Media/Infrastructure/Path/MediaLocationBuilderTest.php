@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Content\Media\Infrastructure\Path;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Core\Event\MediaLocationEvent;
@@ -22,10 +21,6 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
-#[CoversClass(SqlMediaLocationBuilder::class)]
-#[CoversClass(MediaLocationEvent::class)]
-#[CoversClass(MediaLocationStruct::class)]
-#[CoversClass(ThumbnailLocationStruct::class)]
 class MediaLocationBuilderTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

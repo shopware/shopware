@@ -3,7 +3,7 @@ import template from './sw-sales-channel-detail.html.twig';
 const { Component } = Shopware;
 
 /**
- * @package discovery
+ * @sw-package discovery
  */
 Component.override('sw-sales-channel-detail', {
     template,
@@ -39,7 +39,7 @@ Component.override('sw-sales-channel-detail', {
                 await this.themeService.assignTheme(newThemeId, this.salesChannel.id);
             } catch {
                 this.createNotificationError({
-                    message: this.$tc('sw-theme-manager.general.messageSaveError')
+                    message: this.$t('sw-theme-manager.general.messageSaveError')
                 });
             }
         },

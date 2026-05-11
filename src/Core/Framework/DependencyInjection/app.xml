@@ -65,6 +65,22 @@
             <tag name="shopware.app_manifest.validator"/>
         </service>
 
+        <service id="Shopware\Core\Framework\App\Validation\Requirements\SecureUrlValidator">
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Validation\Requirements\PublicAccess">
+            <argument type="service" id="Shopware\Core\Framework\App\Validation\Requirements\SecureUrlValidator"/>
+            <argument type="service" id="shopware.app_system.guzzle"/>
+            <tag name="app.requirements_validator"/>
+            <tag name="kernel.reset" method="reset"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Validation\AppRequirementsValidator">
+            <argument type="tagged_iterator" tag="app.requirements_validator"/>
+            <argument type="service" id="logger"/>
+            <argument>%kernel.environment%</argument>
+        </service>
+
         <service id="Shopware\Core\Framework\App\Lifecycle\PermissionLifecycleService">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\App\Privileges\Privileges"/>
@@ -185,6 +201,7 @@
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
             <argument type="service" id="Shopware\Core\Framework\Store\InAppPurchase"/>
             <argument type="string">%env(APP_URL)%</argument>
+            <argument type="service" id="Symfony\Component\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\ActiveAppsLoader">
@@ -311,6 +328,7 @@
             <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\Util\ConfigReader"/>
             <argument type="service" id="Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Validation\AppRequirementsValidator"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator">
@@ -358,6 +376,11 @@
             <argument type="service" id="logger"/>
         </service>
 
+        <service id="shopware.app_system.guzzle.middleware" class="Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware">
+            <argument>%kernel.shopware_version%</argument>
+            <argument type="service" id="Shopware\Core\Framework\App\AppLocaleProvider"/>
+        </service>
+
         <service id="shopware.app_system.guzzle" class="GuzzleHttp\Client" lazy="true">
             <argument type="collection">
                 <argument key="timeout">5</argument>
@@ -371,11 +394,6 @@
                     </service>
                 </argument>
             </argument>
-        </service>
-
-        <service id="shopware.app_system.guzzle.middleware" class="Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware">
-            <argument>%kernel.shopware_version%</argument>
-            <argument type="service" id="Shopware\Core\Framework\App\AppLocaleProvider"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\ActionButton\ActionButtonLoader">

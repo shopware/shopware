@@ -27,7 +27,7 @@ Automated CI checks have been implemented to:
 - Validate that no unpinned dependencies exist
 - Block merges if unpinned dependencies are found
 
-These checks run via the `npm-audit-check.yml` workflow on every pull request and push to trunk.
+These checks run via the `npm-audit-check.yml` workflow. Pull requests and pushes to trunk run audits only for tracked packages whose `package.json`, `package-lock.json`, or `scripts/runNpmAudit.ts` changed. Scheduled and manual runs still execute the full audit matrix for all tracked packages, and scheduled audit failures create or update one GitHub issue with the latest affected packages.
 
 ## Consequences
 
@@ -53,4 +53,6 @@ When adding or updating dependencies:
 3. The CI pipeline will reject PRs with unpinned dependencies
 4. Use tools like `npm outdated` to check for available updates
 
+## Updates
 
+- 2025-11-15: PR audit run with pinned dependencies only, not on all npm packages in repository

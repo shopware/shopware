@@ -238,7 +238,7 @@ export default {
                 return null;
             }
 
-            return this.$tc('global.sw-list-price-field.helpTextListPriceGross');
+            return this.$t('global.sw-list-price-field.helpTextListPriceGross');
         },
 
         regulationPriceHelpText() {
@@ -246,7 +246,7 @@ export default {
                 return null;
             }
 
-            return this.$tc('global.sw-list-price-field.helpTextRegulationPriceGross');
+            return this.$t('global.sw-list-price-field.helpTextRegulationPriceGross');
         },
     },
 

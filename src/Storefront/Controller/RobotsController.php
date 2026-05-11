@@ -21,7 +21,7 @@ use Symfony\Component\Routing\Attribute\Route;
  *
  * @see RobotsControllerTest
  *
- * @CodeCoverageIgnore -> covered by integration tests
+ * @codeCoverageIgnore -> covered by integration tests
  */
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID, StorefrontRouteScope::ID], 'auth_required' => false])]
 #[Package('framework')]

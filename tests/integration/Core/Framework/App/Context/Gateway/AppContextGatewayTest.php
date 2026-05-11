@@ -3,11 +3,9 @@
 namespace Shopware\Tests\Integration\Core\Framework\App\Context\Gateway;
 
 use GuzzleHttp\Psr7\Response;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Context\Gateway\AppContextGateway;
 use Shopware\Core\Framework\App\Hmac\RequestSigner;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -28,7 +26,6 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 /**
  * @internal
  */
-#[CoversClass(AppContextGateway::class)]
 #[Package('checkout')]
 class AppContextGatewayTest extends TestCase
 {

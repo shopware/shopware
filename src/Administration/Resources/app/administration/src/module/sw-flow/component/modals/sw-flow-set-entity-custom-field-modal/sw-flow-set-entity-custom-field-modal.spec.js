@@ -100,7 +100,7 @@ async function createWrapper(customField = customNormalField) {
                     },
                 },
                 mocks: {
-                    $tc: (...args) => JSON.stringify([...args]),
+                    $t: (...args) => JSON.stringify([...args]),
                 },
                 data() {
                     return {

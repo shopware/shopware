@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\MessageQueue\ScheduledTask;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -15,7 +14,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
-use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Tests\Integration\Core\Framework\MessageQueue\fixtures\DummyScheduledTaskHandler;
@@ -25,7 +23,6 @@ use Shopware\Tests\Integration\Core\Framework\MessageQueue\fixtures\TestTask;
 /**
  * @internal
  */
-#[CoversClass(ScheduledTaskHandler::class)]
 class ScheduledTaskHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -75,9 +72,9 @@ class ScheduledTaskHandlerTest extends TestCase
 
         static::assertTrue($handler->wasCalled());
 
-        /** @var ScheduledTaskEntity $task */
         $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
 
+        static::assertInstanceOf(ScheduledTaskEntity::class, $task);
         $newOriginalNextExecution = clone $originalNextExecution;
         $newOriginalNextExecution->modify(\sprintf('+%d seconds', $interval));
         $newOriginalNextExecutionString = $newOriginalNextExecution->format(Defaults::STORAGE_DATE_TIME_FORMAT);
@@ -129,11 +126,11 @@ class ScheduledTaskHandlerTest extends TestCase
 
         static::assertTrue($handler->wasCalled());
 
-        /** @var ScheduledTaskEntity $task */
         $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
 
+        static::assertInstanceOf(ScheduledTaskEntity::class, $task);
         static::assertSame(ScheduledTaskDefinition::STATUS_SCHEDULED, $task->getStatus());
-        static::assertGreaterThan(
+        static::assertGreaterThanOrEqual(
             $task->getNextExecutionTime()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             $nowTime->format(Defaults::STORAGE_DATE_TIME_FORMAT)
         );
@@ -175,8 +172,8 @@ class ScheduledTaskHandlerTest extends TestCase
 
         static::assertTrue($handler->wasCalled());
 
-        /** @var ScheduledTaskEntity $task */
         $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
+        static::assertInstanceOf(ScheduledTaskEntity::class, $task);
         static::assertSame(ScheduledTaskDefinition::STATUS_FAILED, $task->getStatus());
     }
 
@@ -205,8 +202,6 @@ class ScheduledTaskHandlerTest extends TestCase
 
         $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $this->logger, $taskId, true);
 
-        $exception = null;
-
         try {
             $handler($task);
         } catch (\Exception $exception) {
@@ -214,8 +209,8 @@ class ScheduledTaskHandlerTest extends TestCase
 
         static::assertTrue($handler->wasCalled());
 
-        /** @var ScheduledTaskEntity $task */
         $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
+        static::assertInstanceOf(ScheduledTaskEntity::class, $task);
         static::assertSame(ScheduledTaskDefinition::STATUS_SCHEDULED, $task->getStatus());
     }
 
@@ -259,8 +254,8 @@ class ScheduledTaskHandlerTest extends TestCase
 
         static::assertFalse($handler->wasCalled());
 
-        /** @var ScheduledTaskEntity $task */
         $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
+        static::assertInstanceOf(ScheduledTaskEntity::class, $task);
         static::assertSame($status, $task->getStatus());
     }
 

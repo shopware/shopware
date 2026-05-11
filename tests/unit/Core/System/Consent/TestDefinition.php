@@ -17,7 +17,8 @@ class TestDefinition implements ConsentDefinition
     public function __construct(
         private readonly string $name,
         private readonly string $scopeName,
-        private readonly array $permissions = []
+        private readonly array $permissions = [],
+        private readonly ?string $latestRevision = null,
     ) {
     }
 
@@ -39,5 +40,10 @@ class TestDefinition implements ConsentDefinition
     public function getRequiredPermissions(): array
     {
         return $this->permissions;
+    }
+
+    public function getLatestRevision(): ?string
+    {
+        return $this->latestRevision;
     }
 }

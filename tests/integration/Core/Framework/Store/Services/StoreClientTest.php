@@ -6,7 +6,6 @@ use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Psr7\Query;
 use GuzzleHttp\Psr7\Response;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -28,7 +27,6 @@ use Symfony\Contracts\Cache\CacheInterface;
  * @internal
  */
 #[Package('checkout')]
-#[CoversClass(StoreClient::class)]
 class StoreClientTest extends TestCase
 {
     use IntegrationTestBehaviour;

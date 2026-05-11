@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Storefront\Framework\Seo\SeoUrlRoute;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\SeoUrlGenerator;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -18,7 +17,6 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 /**
  * @internal
  */
-#[CoversClass(ProductPageSeoUrlRoute::class)]
 class ProductPageSeoUrlRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

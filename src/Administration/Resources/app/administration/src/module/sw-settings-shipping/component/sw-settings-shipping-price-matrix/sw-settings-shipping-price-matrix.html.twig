@@ -10,10 +10,10 @@
         v-if="priceGroup.isNew"
         class="sw-settings-shipping-price-matrix__new-matrix-alert"
         variant="attention"
-        :title="$tc('global.default.warning')"
+        :title="$t('global.default.warning')"
         :closable="false"
     >
-        {{ $tc('sw-settings-shipping.priceMatrix.newMatrixAlertMessage') }}
+        {{ $t('sw-settings-shipping.priceMatrix.newMatrixAlertMessage') }}
     </mt-banner>
     {% endblock %}
     {% block sw_settings_shipping_price_matrix_topbar %}
@@ -32,7 +32,7 @@
             :placeholder="mainRulePlaceholder"
             rule-aware-group-key="shippingMethodPrices"
             :restricted-rule-ids="restrictedRuleIds"
-            :restricted-rule-ids-tooltip-label="$tc('sw-settings-shipping.priceMatrix.ruleAlreadyUsedOrRestricted')"
+            :restricted-rule-ids-tooltip-label="$t('sw-settings-shipping.priceMatrix.ruleAlreadyUsedOrRestricted')"
             @save-rule="onSaveMainRule"
         />
         {% endblock %}
@@ -47,10 +47,10 @@
             @click="onAddNewShippingPrice"
         >
             <template v-if="isRuleMatrix">
-                {{ $tc('sw-settings-shipping.priceMatrix.addNewRule') }}
+                {{ $t('sw-settings-shipping.priceMatrix.addNewRule') }}
             </template>
             <template v-else>
-                {{ $tc('sw-settings-shipping.priceMatrix.addNewShippingPrice') }}
+                {{ $t('sw-settings-shipping.priceMatrix.addNewShippingPrice') }}
             </template>
         </mt-button>
         {% endblock %}
@@ -65,14 +65,14 @@
                 v-tooltip="{
                     showDelay: 300,
                     showOnDisabledElements: true,
-                    message: $tc('sw-settings-shipping.priceMatrix.newMatrixAlreadyExists'),
+                    message: $t('sw-settings-shipping.priceMatrix.newMatrixAlreadyExists'),
                     disabled: !newPriceMatrixExists
                 }"
                 :disabled="newPriceMatrixExists"
                 class="sw-settings-shipping-price-matrix__action-duplicate"
                 @click="$emit('duplicate-price-matrix', priceGroup)"
             >
-                {{ $tc('sw-settings-shipping.priceMatrix.duplicateMatrixContextLabel') }}
+                {{ $t('sw-settings-shipping.priceMatrix.duplicateMatrixContextLabel') }}
             </sw-context-menu-item>
             {% endblock %}
             {% block sw_settings_shipping_price_matrix_topbar_context_button_delete %}
@@ -81,7 +81,7 @@
                 variant="danger"
                 @click="onDeletePriceMatrix"
             >
-                {{ $tc('sw-settings-shipping.priceMatrix.deleteMatrixContextLabel') }}
+                {{ $t('sw-settings-shipping.priceMatrix.deleteMatrixContextLabel') }}
             </sw-context-menu-item>
             {% endblock %}
         </sw-context-button>
@@ -109,10 +109,10 @@
                     :disabled="disabled"
                     :rule-id="item.calculationRuleId"
                     :rule-filter="shippingRuleFilterCriteria"
-                    :placeholder="$tc('sw-settings-shipping.priceMatrix.chooseCustomRule')"
+                    :placeholder="$t('sw-settings-shipping.priceMatrix.chooseCustomRule')"
                     rule-aware-group-key="shippingMethodPriceCalculations"
                     :restricted-rule-ids="usedCalculationRules"
-                    :restricted-rule-ids-tooltip-label="$tc('sw-settings-shipping.priceMatrix.ruleAlreadyUsedInMatrix')"
+                    :restricted-rule-ids-tooltip-label="$t('sw-settings-shipping.priceMatrix.ruleAlreadyUsedInMatrix')"
                     @save-rule="(ruleId) => onSaveCustomShippingRule(ruleId, item)"
                 >
                     <template #rule-modal="{ showRuleModal, onSaveRule, onCloseRuleModal }">
@@ -152,7 +152,7 @@
                     :name="`sw-field--${item.id}-quantity-end`"
                     :number-type="numberFieldType"
                     :size="compact ? 'small' : 'default'"
-                    :placeholder="$tc('sw-settings-shipping.priceMatrix.any')"
+                    :placeholder="$t('sw-settings-shipping.priceMatrix.any')"
                     :validation="item.quantityEnd === null || item.quantityEnd > item.quantityStart"
                     :min="item.quantityStart"
                     :digits="3"
@@ -213,7 +213,7 @@
                     variant="danger"
                     @click="onDeleteShippingPrice(item)"
                 >
-                    {{ $tc('sw-settings-shipping.priceMatrix.contextMenuDeletePrice') }}
+                    {{ $t('sw-settings-shipping.priceMatrix.contextMenuDeletePrice') }}
                 </sw-context-menu-item>
                 {% endblock %}
             </template>
@@ -230,7 +230,7 @@
                 variant="secondary"
                 @click="updateShowAllPrices"
             >
-                {{ $tc('sw-settings-shipping.priceMatrix.buttonLoadAllPrices') }}
+                {{ $t('sw-settings-shipping.priceMatrix.buttonLoadAllPrices') }}
             </mt-button>
         </div>
         {% endblock %}
@@ -242,7 +242,7 @@
         >
             {% block sw_settings_shipping_price_matrix_empty_text %}
             <p class="sw-settings-shipping-price-matrix__empty-text">
-                {{ $tc('sw-settings-shipping.priceMatrix.emptyText') }}
+                {{ $t('sw-settings-shipping.priceMatrix.emptyText') }}
             </p>
             {% endblock %}
             <sw-container
@@ -257,13 +257,13 @@
                     :disabled="disabled"
                     size="small"
                     show-clearable-button
-                    :placeholder="$tc('sw-settings-shipping.priceMatrix.selectProperty')"
+                    :placeholder="$t('sw-settings-shipping.priceMatrix.selectProperty')"
                     @update:value="onCalculationChange"
                 />
                 {% endblock %}
 
                 <p class="sw-settings-shipping-price-matrix__empty-text-or">
-                    {{ $tc('sw-settings-shipping.priceMatrix.textOr') }}
+                    {{ $t('sw-settings-shipping.priceMatrix.textOr') }}
                 </p>
 
                 {% block sw_settings_shipping_price_matrix_empty_rule_select %}
@@ -271,10 +271,10 @@
                     size="small"
                     :disabled="disabled"
                     :rule-filter="shippingRuleFilterCriteria"
-                    :placeholder="$tc('sw-settings-shipping.priceMatrix.chooseCustomRule')"
+                    :placeholder="$t('sw-settings-shipping.priceMatrix.chooseCustomRule')"
                     rule-aware-group-key="shippingMethodPriceCalculations"
                     :restricted-rule-ids="usedCalculationRules"
-                    :restricted-rule-ids-tooltip-label="$tc('sw-settings-shipping.priceMatrix.ruleAlreadyUsedInMatrix')"
+                    :restricted-rule-ids-tooltip-label="$t('sw-settings-shipping.priceMatrix.ruleAlreadyUsedInMatrix')"
                     @save-rule="(ruleId) => { onSaveCustomShippingRule(ruleId) }"
                 >
                     <template #rule-modal="{ showRuleModal, onSaveRule, onCloseRuleModal }">
@@ -295,7 +295,7 @@
     {% block sw_settings_shipping_price_matrix_delete_modal %}
     <sw-modal
         v-if="showDeleteModal"
-        :title="$tc('global.default.warning')"
+        :title="$t('global.default.warning')"
         variant="small"
         @modal-close="onCloseDeleteModal"
     >
@@ -313,7 +313,7 @@
                 variant="secondary"
                 @click="onCloseDeleteModal"
             >
-                {{ $tc('global.default.cancel') }}
+                {{ $t('global.default.cancel') }}
             </mt-button>
             {% endblock %}
 
@@ -323,7 +323,7 @@
                 size="small"
                 @click="onConfirmDeleteShippingPrice"
             >
-                {{ $tc('sw-settings-shipping.priceMatrix.buttonDelete') }}
+                {{ $t('sw-settings-shipping.priceMatrix.buttonDelete') }}
             </mt-button>
             {% endblock %}
         </template>

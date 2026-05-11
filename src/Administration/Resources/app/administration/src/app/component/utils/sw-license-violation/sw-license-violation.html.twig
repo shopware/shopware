@@ -1,7 +1,7 @@
 {% block sw_license_violation %}
 <sw-modal
     v-if="visible"
-    :title="$tc('sw-license-violation.title')"
+    :title="$t('sw-license-violation.title')"
     :closable="false"
     variant="large"
     class="sw-license-violation"
@@ -9,16 +9,16 @@
 >
 
     <span class="sw-license-violation__text">
-        {{ $tc('sw-license-violation.alertText') }}
+        {{ $t('sw-license-violation.alertText') }}
     </span>
 
     <table class="sw-license-violation__table">
         <thead>
             <tr>
                 <th width="200px">
-                    {{ $tc('sw-license-violation.table.plugin') }}
+                    {{ $t('sw-license-violation.table.plugin') }}
                 </th>
-                <th>{{ $tc('sw-license-violation.table.warning') }}</th>
+                <th>{{ $t('sw-license-violation.table.warning') }}</th>
                 <th width="350px"></th>
             </tr>
         </thead>
@@ -61,7 +61,7 @@
                             size="small"
                             @click.prevent="deletePlugin(violation)"
                         >
-                            {{ $tc('sw-license-violation.deletePlugin') }}
+                            {{ $t('sw-license-violation.deletePlugin') }}
                         </mt-button>
 
                         <mt-button
@@ -80,7 +80,7 @@
     <template #modal-footer>
         <mt-checkbox
             v-model:checked="readNotice"
-            :label="$tc('sw-license-violation.checkboxMessage')"
+            :label="$t('sw-license-violation.checkboxMessage')"
         />
 
         <mt-button
@@ -89,20 +89,20 @@
             size="small"
             @click="deactivateTemporary"
         >
-            {{ $tc('sw-license-violation.closeModal') }}
+            {{ $t('sw-license-violation.closeModal') }}
         </mt-button>
     </template>
 
     <sw-modal
         v-if="showDeleteModal"
-        :title="$tc('sw-license-violation.title')"
+        :title="$t('sw-license-violation.title')"
         class="sw-license-violation-confirm-delete"
         variant="small"
         @modal-close="onCloseDeleteModal"
     >
 
         <p class="sw-plugin-list__confirm-delete-text">
-            {{ $tc('sw-license-violation.messageDeleteConfirm', { pluginName: deletePluginItem.label }) }}
+            {{ $t('sw-license-violation.messageDeleteConfirm', { pluginName: deletePluginItem.label }) }}
         </p>
 
         <template #modal-footer>
@@ -111,7 +111,7 @@
                 variant="secondary"
                 @click="onCloseDeleteModal"
             >
-                {{ $tc('global.default.cancel') }}
+                {{ $t('global.default.cancel') }}
             </mt-button>
 
             <mt-button
@@ -119,7 +119,7 @@
                 variant="critical"
                 @click="onConfirmDelete"
             >
-                {{ $tc('global.default.delete') }}
+                {{ $t('global.default.delete') }}
             </mt-button>
         </template>
     </sw-modal>

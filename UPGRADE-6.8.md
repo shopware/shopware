@@ -4,6 +4,10 @@
 
 <details>
 
+### Minimum value constraints added to quantity fields in ProductPriceDefinition
+
+The fields `quantityStart` and `quantityEnd` of ProductPriceDefinition now require a minimum value of `1`.
+
 ## Default CMS page ID now persisted for categories
 
 The default CMS page ID is now automatically written to the database when a category is saved without a `cmsPageId`.
@@ -32,6 +36,39 @@ To partly comply with old behaviour, primary deliveries are ordered first and pr
 # API
 
 <details>
+
+## Mail payload custom data must use `extensions`
+
+When calling `/api/_action/mail-template/send`, arbitrary unknown top-level payload keys are no longer forwarded to the mail service in Shopware 6.8.
+Use the dedicated `extensions` field for custom mail payload data instead.
+
+Before:
+
+```json
+{
+  "recipients": {
+    "test@example.com": "Test"
+  },
+  "subject": "Subject",
+  "myPluginFlag": true
+}
+```
+
+After:
+
+```json
+{
+  "recipients": {
+    "test@example.com": "Test"
+  },
+  "subject": "Subject",
+  "extensions": {
+    "myPluginFlag": true
+  }
+}
+```
+
+If your plugin, app, or integration relied on reading custom top-level keys from the mail payload in `MailBeforeValidateEvent`, `MailBeforeSentEvent`, or deeper mail-service extensions, migrate those reads to `extensions`.
 
 ## Changed returned status code for `/store-api/document/download/` when no documents are found
 
@@ -70,6 +107,17 @@ The `/api/_action/mail-template/validate` route has been removed without replace
 From now on, the defined fields of an EntityDefinition are applied after the default fields.
 This makes it possible to properly overwrite the current default fields `createdAt` and `updatedAt`.
 Check your EntityDefinitions if your entities still behave like intended. (Only applicable if you manually add `CreatedAtField` and/or `UpdatedAtField`)
+
+## `CreatedByField` and `UpdatedByField` default write scopes changed
+
+The default write scopes of `Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedByField` and `Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedByField` now include `Context::CRUD_API_SCOPE` in addition to `Context::SYSTEM_SCOPE`.
+
+If you rely on the previous system-only behavior, pass the desired scopes explicitly when instantiating the field, for example:
+
+```php
+new CreatedByField([Context::SYSTEM_SCOPE]);
+new UpdatedByField([Context::SYSTEM_SCOPE]);
+```
 
 ## Multiple payment finalize calls allowed
 
@@ -173,6 +221,8 @@ If only one, the "primary", order delivery and order transaction is displayed an
 There is now an easy way to make use of this by using the `primaryOrderDelivery` and `primaryOrderTransaction` properties.
 All existing orders will be updated with a migration so that they also have the primary values.
 From now on, the `OrderTransactionStatusRule::match` will always use the `primaryOrderTransaction` instead of the most recently successful transaction.
+Starting with 6.8, integrations and API users that write orders through the Admin API, Sync API, or DAL must set `primaryOrderDeliveryId` and `primaryOrderTransactionId` when they write deliveries or transactions.
+Otherwise, the delivery address, delivery state, or payment state will be missing for those orders in the Administration.
 
 ### Use `primaryOrderDelivery`
 
@@ -180,7 +230,7 @@ Get the first order delivery with `order.primaryOrderDelivery` so you should rep
 
 ### Use `primaryOrderTransaction`
 
-Get the latest order transaction with `order.primaryOrderDelivery` so you should replace methods like `order.transactions.last()` or `order.transactions[length - 1]`.
+Get the latest order transaction with `order.primaryOrderTransaction` so you should replace methods like `order.transactions.last()` or `order.transactions[length - 1]`.
 
 ## Removal of helper methods in `\Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper`
 
@@ -265,6 +315,11 @@ The `\Shopware\Core\System\SalesChannel\Context\BaseSalesChannelContextFactory` 
 As a consequence the query with the title `base-context-factory::sales-channel` no longer adds the `languages` association,
 which means the `salesChannel` property of the `BaseSalesChannelContext` no longer contains the current language object.
 
+## Removal of `permisionsLocked` property of `SalesChannelContext`
+
+The `permisionsLocked` property of the `SalesChannelContext` was removed.
+Use `permissionsLocked` property or `SalesChannelContext::isPermissionsLocked()` instead.
+
 ## `RequestParamHelper::get` ignores `attribute` bag
 
 The `RequestParamHelper::get` method now ignores the `attribute` bag when fetching parameters from the request.
@@ -290,6 +345,11 @@ Use on own risk as it may change without prior notice.
 The default value for the `serializer` parameter in the `#[Serialized]` field attribute was removed.
 You need to explicitly set the serializer to use for your field.
 Additionally, the `SerializedField` class is now internal, as you should not use it directly in classic `EntityDefinitions`. It's only intended use case is in combination with the `#[Serialized]` attribute in attribute entities.
+
+## Removal of `RegisterScheduledTaskMessage`
+
+The class `\Shopware\Core\Framework\MessageQueue\ScheduledTask\MessageQueue\RegisterScheduledTaskMessage` and it's accompanying handler `\Shopware\Core\Framework\MessageQueue\ScheduledTask\MessageQueue\RegisterScheduledTaskHandler` were removed, as the message was no longer dispatched.
+If you dispatched that message manually, you should call the `TaskScheduler::registerTask()` method directly instead.
 
 ## Removal of `EntityDefinition` constructor
 
@@ -561,11 +621,38 @@ shopware:
           type: 'mysql'
 ```
 
+## Events require `Context` constructor parameter
+
+The following events now require `Context` as the last constructor parameter and implement `ShopwareEvent`.
+The deprecated `getNullableContext()` method was removed.
+
+```php
+// Before
+$event = new ThemeAssignedEvent($themeId, $salesChannelId);
+
+// After
+$event = new ThemeAssignedEvent($themeId, $salesChannelId, $context);
+```
+
+- `Shopware\Core\Content\ImportExport\Event\EnrichExportCriteriaEvent`
+- `Shopware\Core\Content\ImportExport\Event\ImportExportBeforeExportRecordEvent`
+- `Shopware\Core\Content\ImportExport\Event\ImportExportExceptionImportExportHandlerEvent`
+- `Shopware\Core\Content\Seo\Event\SeoUrlUpdateEvent`
+- `Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent`
+- `Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent`
+- `Shopware\Storefront\Theme\Event\ThemeAssignedEvent`
+- `Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent`
+- `Shopware\Storefront\Theme\Event\ThemeConfigResetEvent`
+
 ### Changed Exception Classes towards domain exceptions
 
 The following exception classes were removed and replaced by domain exceptions:
 * `\Shopware\Core\System\NumberRange\Exception\IncrementStorageNotFoundException` -> `\Shopware\Core\System\NumberRange\Exception\NumberRangeException::incrementStorageNotFound()`
 * `\Shopware\Core\System\NumberRange\Exception\NoConfigurationException` -> `\Shopware\Core\System\NumberRange\NumberRangeException::noConfigurationForEntity()`
+
+### Removed non-used `MAIL_TEMPLATE_SALES_CHANNEL_*_EVENT` constants
+
+Removed the constants `Shopware\Core\Content\MailTemplate\MAIL_TEMPLATE_SALES_CHANNEL_{WRITTEN,DELETED,LOADED,SEARCH_RESULT_LOADED,AGGREGATION_LOADED,ID_SEARCH_RESULT_LOADED}_EVENT` as the entity has been removed with Shopware 6.5 and the events were not fired anymore.
 
 </details>
 
@@ -901,6 +988,10 @@ Use the parent blocks instead
 ## File accessibility changed from public to private
 `administration/src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/index.js`
 
+## The following template blocks have been replaced due to a typo in their name
+* `sw_condiiton_date_range_field_to_date` -> `sw_condition_date_range_field_to_date`
+* `sw_cms_detail_stage_empty_stade_content` -> `sw_cms_detail_stage_empty_stage_content`
+
 ## Removed .png and .jpg images
 
 In favor of WebP the following images have been removed:
@@ -982,6 +1073,16 @@ As part of this update, the following administration component parts have been d
 
 * `src/module/sw-settings-document/page/sw-settings-document-list`
   * computed `countryRepository` was deprecated without replacement
+
+## Mail template preview component changes
+
+The mail template preview modal was extracted into its own Administration component: `sw-mail-template-preview-modal`.
+
+If you extend the legacy preview footer blocks in `sw-mail-template-detail`, migrate those customizations to the new component.
+The following legacy blocks are removed in Shopware 6.8:
+
+- `sw_mail_template_detail_preview_modal_footer`
+- `sw_mail_template_detail_preview_modal_footer_cancel`
   * computed `documentTypeRepository` was deprecated without replacement
   * computed `documentBaseConfigSalesChannelRepository` was deprecated without replacement
   * property `selectedType` was deprecated without replacement
@@ -1026,6 +1127,10 @@ The following templates no longer contain any microdata attributes:
 | `page/error/error-maintenance.html.twig` | `WebPage` on `<html>` |
 
 If your plugin or theme adds structured data by extending blocks in the templates above, migrate your overrides to the new JSON-LD template extension points described below.
+
+## Cookie bar moved to the top of the page
+
+The default cookie bar (block `base_cookie_permission`) has been moved from the bottom of the page to the top of the page (after the opening `<body>` element).
 
 ## New JSON-LD structured data block system
 
@@ -1421,6 +1526,27 @@ If you are still using any of these options in your configuration, you can safel
 
 OpenSearch 1.x reached end of life on 06 May 2025 is no longer supported.
 Please update OpenSearch to the latest supported Version.
+
+## Removed comma-separated multiple OpenSearch hosts
+
+Shopware no longer supports configuring multiple OpenSearch hosts as a comma-separated list in `OPENSEARCH_URL` or `ADMIN_OPENSEARCH_URL`.
+This configuration path used the deprecated OpenSearch PHP `ClientBuilder` host pool and was only kept temporarily in 6.7 for backwards compatibility while Shopware moved to the newer OpenSearch PHP client transport.
+
+Before:
+
+```dotenv
+OPENSEARCH_URL=http://opensearch-1:9200,http://opensearch-2:9200
+ADMIN_OPENSEARCH_URL=http://opensearch-1:9200,http://opensearch-2:9200
+```
+
+After:
+
+```dotenv
+OPENSEARCH_URL=http://opensearch.example.internal:9200
+ADMIN_OPENSEARCH_URL=http://opensearch.example.internal:9200
+```
+
+If you need failover or load distribution across multiple OpenSearch nodes, expose them through a single load-balanced endpoint and configure that endpoint in Shopware.
 
 ## Changed default Elasticsearch shard and replica counts for Admin ES
 

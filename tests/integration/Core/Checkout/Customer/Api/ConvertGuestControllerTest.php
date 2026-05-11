@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Api;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Api\ConvertGuestController;
@@ -27,7 +28,6 @@ use Symfony\Component\HttpFoundation\Request;
  * @internal
  */
 #[Package('checkout')]
-#[CoversClass(ConvertGuestController::class)]
 class ConvertGuestControllerTest extends TestCase
 {
     use EventDispatcherBehaviour;
@@ -50,6 +50,7 @@ class ConvertGuestControllerTest extends TestCase
             $this->getContainer()->get(SalesChannelContextService::class),
             $this->getContainer()->get(ConvertGuestRoute::class),
             $this->getContainer()->get(SendPasswordRecoveryMailRoute::class),
+            $this->getContainer()->get(Connection::class),
         );
     }
 
@@ -152,7 +153,7 @@ class ConvertGuestControllerTest extends TestCase
 
         $ids = $repository->searchIds($criteria, $context)->getIds();
 
-        if (empty($ids)) {
+        if (!$ids) {
             return;
         }
 

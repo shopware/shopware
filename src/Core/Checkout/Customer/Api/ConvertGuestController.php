@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Checkout\Customer\Api;
 
-use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractConvertGuestRoute;

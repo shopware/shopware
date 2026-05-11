@@ -86,9 +86,7 @@ final readonly class DocumentGenerator
             $apiContext,
         );
 
-        $generationRequest = $generationRequest
-            ->withDocumentNumber($documentNumber)
-            ->withDocumentDate((new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT));
+        $generationRequest = $generationRequest->withDocumentNumber($documentNumber);
 
         $providerData = $this->collectProviderData(
             $providers,

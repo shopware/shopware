@@ -64,7 +64,7 @@ class TemplateContextTest extends TestCase
             itemsPerPage: 1000,
             legacyConfig: [
                 'fileType' => 'pdf',
-                'itemsPerPage' => 10
+                'itemsPerPage' => 10,
             ],
         );
 

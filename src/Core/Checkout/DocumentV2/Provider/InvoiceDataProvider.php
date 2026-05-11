@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfigLoader;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
+use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -86,13 +87,16 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
             $order,
         );
 
-        $documentDate = $generationRequest->documentDate ?? '';
-        $documentNumber = $generationRequest->documentNumber ?? '';
+        $documentNumber = $generationRequest->documentNumber;
+
+        if ($documentNumber === null) {
+            throw DocumentV2Exception::missingDocumentNumber($generationRequest->documentType);
+        }
 
         return new InvoiceRenderData(
             $bundle->config,
             $bundle->company,
-            $documentDate,
+            $generationRequest->documentDate,
             $documentNumber,
             $generationRequest->documentComment,
             $isIntraCommunityDelivery,

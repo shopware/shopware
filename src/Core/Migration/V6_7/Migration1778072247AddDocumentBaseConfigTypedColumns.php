@@ -76,7 +76,8 @@ class Migration1778072247AddDocumentBaseConfigTypedColumns extends MigrationStep
             UPDATE `document_base_config`
             SET `items_per_page` = CAST(JSON_EXTRACT(`config`, '$.itemsPerPage') AS UNSIGNED)
             WHERE `config` IS NOT NULL
-              AND JSON_TYPE(JSON_EXTRACT(`config`, '$.itemsPerPage')) IN ('INTEGER', 'UNSIGNED INTEGER')
+              AND JSON_TYPE(JSON_EXTRACT(`config`, '$.itemsPerPage')) = 'INTEGER'
+              AND CAST(JSON_EXTRACT(`config`, '$.itemsPerPage') AS SIGNED) >= 1
         SQL);
     }
 

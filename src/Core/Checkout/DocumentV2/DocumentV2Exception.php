@@ -50,6 +50,8 @@ class DocumentV2Exception extends HttpException
 
     public const UNSUPPORTED_CONFIG_CAST_TYPE = 'DOCUMENT_V2__UNSUPPORTED_CONFIG_CAST_TYPE';
 
+    public const MISSING_DOCUMENT_NUMBER = 'DOCUMENT_V2__MISSING_DOCUMENT_NUMBER';
+
     public static function unknownRenderData(string $key, string $expectedClass): self
     {
         return new self(
@@ -230,6 +232,16 @@ class DocumentV2Exception extends HttpException
             self::UNSUPPORTED_CONFIG_CAST_TYPE,
             'Unsupported document config cast type "{{ type }}".',
             ['type' => $type],
+        );
+    }
+
+    public static function missingDocumentNumber(string $documentType): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MISSING_DOCUMENT_NUMBER,
+            'Document number is missing for document type "{{ documentType }}".',
+            ['documentType' => $documentType],
         );
     }
 }

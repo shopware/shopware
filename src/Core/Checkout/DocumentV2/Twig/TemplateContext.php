@@ -39,9 +39,6 @@ final readonly class TemplateContext implements \ArrayAccess
      */
     private array $properties;
 
-    /**
-     * @param array<string, mixed> $properties
-     */
     public function __construct(
         AbstractRenderData $data,
         ?string $fileType = null,

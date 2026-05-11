@@ -93,7 +93,7 @@
         "ramsey/uuid": "^4.7",
         "setasign/fpdi": "^2.3.7",
         "setasign/tfpdf": "^1.33",
-        "shopware/conflicts": "0.6.0",
+        "shopware/conflicts": "0.6.1",
         "squirrelphp/twig-php-syntax": "^1.13.0",
         "symfony/asset": "~7.4.0",
         "symfony/cache": "~7.4.0",

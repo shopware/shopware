@@ -127,9 +127,9 @@ export default {
         async createdComponent() {
             this.recipient = this.order.orderCustomer.email;
 
-            await this.setEmailTemplateAccordingToDocumentType();
-
             this.loadTheLinksForA11y();
+
+            await this.setEmailTemplateAccordingToDocumentType();
         },
 
         async setEmailTemplateAccordingToDocumentType() {
@@ -176,36 +176,31 @@ export default {
                 localMailTemplate.mailTemplateType.templateData.order = this.order;
             }
 
+            const apiContext = {
+                ...Shopware.Context.api,
+                languageId: this.order.languageId || Shopware.Context.api.languageId,
+            };
+
             this.subject = localMailTemplate.subject;
 
-            if (!this.order.salesChannel || !this.order.salesChannel.mailHeaderFooterId) {
-                this.content = await this.mailService.buildRenderPreview(
-                    localMailTemplate.mailTemplateType,
-                    localMailTemplate,
-                );
-
-                return;
-            }
-
-            const mailTemplateWithHeaderFooter = { ...localMailTemplate };
-
-            const mailHeaderFooter = await this.mailHeaderFooterRepository.search(
-                new Criteria(1, 1).addFilter(Criteria.equals('id', this.order.salesChannel.mailHeaderFooterId)),
-            );
-
-            if (mailHeaderFooter[0]?.headerHtml) {
-                mailTemplateWithHeaderFooter.contentHtml =
-                    mailHeaderFooter[0].headerHtml + mailTemplateWithHeaderFooter.contentHtml;
-            }
-
-            if (mailHeaderFooter[0]?.footerHtml) {
-                mailTemplateWithHeaderFooter.contentHtml += mailHeaderFooter[0].footerHtml;
-            }
-
-            this.content = await this.mailService.buildRenderPreview(
-                mailTemplateWithHeaderFooter.mailTemplateType,
-                mailTemplateWithHeaderFooter,
-            );
+            return this.mailService
+                .previewMailTemplate(
+                    localMailTemplate.id,
+                    {
+                        order: this.order.id,
+                        salesChannel: this.order.salesChannelId,
+                    },
+                    {
+                        a11yDocuments: this.a11yDocuments,
+                    },
+                    this.order.salesChannelId,
+                    true,
+                    true,
+                    apiContext,
+                )
+                .then((preview) => {
+                    this.content = preview?.contentHtml?.content ?? '';
+                });
         },
 
         async onSendDocument() {
@@ -231,30 +226,31 @@ export default {
             });
 
             try {
-                await this.mailService.sendMailTemplate(
-                    this.recipient,
-                    `${this.order.orderCustomer.firstName} ${this.order.orderCustomer.lastName}`,
+                await this.mailService.getDataAndSendMailTemplate(
                     {
-                        ...mailTemplate,
-                        ...{
-                            subject: this.subject,
-                            recipient: this.recipient,
+                        recipients: {
+                            [this.recipient]: `${this.order.orderCustomer.firstName} ${this.order.orderCustomer.lastName}`,
+                        },
+                        salesChannelId: this.order.salesChannelId,
+                        mediaIds: Array.from(mediaCollection.getIds()),
+                        subject: this.subject,
+                        senderMail: mailTemplate.senderMail,
+                        senderName: mailTemplate.senderName ?? mailTemplate.translated?.senderName,
+                        documentIds: [this.document.id],
+                        testMode: false,
+                        mailTemplateId: mailTemplate.id,
+                        entities: {
+                            order: this.order.id,
+                            salesChannel: this.order.salesChannelId,
+                        },
+                        templateData: {
+                            a11yDocuments: this.a11yDocuments,
                         },
                     },
-                    mediaCollection,
-                    this.order.salesChannelId,
-                    false,
-                    [this.document.id],
-                    {
-                        order: this.order,
-                        salesChannel: this.order.salesChannel,
-                        document: this.document,
-                        a11yDocuments: this.a11yDocuments,
-                    },
-                    null,
-                    null,
                     apiContext,
                 );
+
+                this.$emit('document-sent');
             } catch {
                 this.createNotificationError({
                     message: this.$t('sw-order.documentSendModal.errorMessage'),
@@ -264,8 +260,6 @@ export default {
             } finally {
                 this.isLoading = false;
             }
-
-            this.$emit('document-sent');
         },
 
         loadTheLinksForA11y() {

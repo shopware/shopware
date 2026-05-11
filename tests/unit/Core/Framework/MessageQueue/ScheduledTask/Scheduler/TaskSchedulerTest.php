@@ -2,8 +2,10 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\MessageQueue\ScheduledTask\Scheduler;
 
+use Monolog\Logger;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Constraint\StringStartsWith;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -14,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\MinResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\MessageQueue\MessageQueueException;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
@@ -45,6 +48,7 @@ class TaskSchedulerTest extends TestCase
             $scheduledTaskRepository,
             $this->createMock(MessageBusInterface::class),
             new ParameterBag(),
+            new Logger('test'),
             12
         );
 
@@ -93,6 +97,7 @@ class TaskSchedulerTest extends TestCase
             $scheduledTaskRepository,
             $this->createMock(MessageBusInterface::class),
             new ParameterBag(),
+            new Logger('test'),
             12
         );
 
@@ -139,6 +144,7 @@ class TaskSchedulerTest extends TestCase
             $scheduledTaskRepository,
             $bus,
             new ParameterBag(),
+            new Logger('test'),
             12
         );
 
@@ -181,6 +187,7 @@ class TaskSchedulerTest extends TestCase
             new ParameterBag([
                 'shopware.test.active' => false,
             ]),
+            new Logger('test'),
             12
         );
 
@@ -230,6 +237,7 @@ class TaskSchedulerTest extends TestCase
             $scheduledTaskRepository,
             $bus,
             new ParameterBag(['shopware.test.active' => $shouldSchedule]),
+            new Logger('test'),
             12
         );
 
@@ -249,7 +257,8 @@ class TaskSchedulerTest extends TestCase
     {
         $scheduledTask = new ScheduledTaskEntity();
         $scheduledTask->setId('1');
-        $scheduledTask->setScheduledTaskClass('foo');
+        /** @phpstan-ignore argument.type (wrong class string is needed for test case) */
+        $scheduledTask->setScheduledTaskClass(ScheduledTaskEntity::class);
 
         $result = $this->createMock(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new ScheduledTaskCollection([$scheduledTask]));
@@ -263,11 +272,41 @@ class TaskSchedulerTest extends TestCase
             $scheduledTaskRepository,
             $this->createMock(MessageBusInterface::class),
             new ParameterBag(),
+            new Logger('test'),
             12
         );
 
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('Tried to schedule "foo", but class does not extend ScheduledTask');
+        static::expectExceptionObject(MessageQueueException::scheduledTaskDoesNotImplementInterface(ScheduledTaskEntity::class));
+        $scheduler->queueScheduledTasks();
+    }
+
+    public function testScheduleWithUnknownClassIsHandledGracefully(): void
+    {
+        $scheduledTask = new ScheduledTaskEntity();
+        $scheduledTask->setId('1');
+        /** @phpstan-ignore argument.type (wrong class string is needed for test case) */
+        $scheduledTask->setScheduledTaskClass('foo');
+
+        $result = $this->createMock(EntitySearchResult::class);
+        $result->method('getEntities')->willReturn(new ScheduledTaskCollection([$scheduledTask]));
+
+        $scheduledTaskRepository = $this->createMock(EntityRepository::class);
+        $scheduledTaskRepository
+            ->method('search')
+            ->willReturn($result);
+
+        $logger = $this->createMock(Logger::class);
+        $logger->expects($this->once())->method('warning')
+            ->with(new StringStartsWith('Scheduled task class "foo" does not exist'));
+
+        $scheduler = new TaskScheduler(
+            $scheduledTaskRepository,
+            $this->createMock(MessageBusInterface::class),
+            new ParameterBag(),
+            $logger,
+            12
+        );
+
         $scheduler->queueScheduledTasks();
     }
 }

@@ -32,25 +32,6 @@ return [
         // Expected to be appended when a new event is added
         preg_quote('Value of constant Shopware\Core\Framework\Webhook\Hookable', '/'),
 
-        // Had a typo in the internal annotation
-        preg_quote('CHANGED: Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecoder was marked "@internal"', '/'),
-
-        // SystemDumpDatabaseCommand was not marked @internal
-        preg_quote('CHANGED: Shopware\\Core\\DevOps\\System\\Command\\SystemDumpDatabaseCommand was marked "@internal"', '/'),
-        preg_quote('REMOVED: Method Shopware\\Core\\DevOps\\System\\Command\\SystemDumpDatabaseCommand#getIgnoreTableStmt() was removed', '/'),
-
-        // No break as all existing NoContentResponse usages are still valid with the widened StoreApiResponse return type
-        'CHANGED: The return type of Shopware\\\\Core\\\\Content\\\\Newsletter\\\\SalesChannel\\\\.* changed from Shopware\\\\Core\\\\System\\\\SalesChannel\\\\NoContentResponse to (?:the non-covariant )?Shopware\\\\Core\\\\System\\\\SalesChannel\\\\StoreApiResponse',
-
-        // class is @final, so making a parameter nullable is not a breaking change
-        preg_quote('CHANGED: The parameter $fileType of Shopware\Core\Checkout\Document\Service\DocumentGenerator#readDocument() changed from string to string|null', '/'),
-
-        // SystemRestoreDatabaseCommand was marked @internal
-        preg_quote('CHANGED: Shopware\\Core\\DevOps\\System\\Command\\SystemRestoreDatabaseCommand was marked "@internal"', '/'),
-
-        // Unused protected method from final class can be removed safely
-        preg_quote('REMOVED: Method Shopware\Core\Framework\Store\InAppPurchase\Services\DecodedPurchaseStruct#throwException() was removed', '/'),
-
         // TaxProviderPersister was mistakenly not marked @internal
         preg_quote('CHANGED: Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister was marked "@internal"', '/'),
         preg_quote('REMOVED: Method Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister#updateTaxProviders() was removed', '/'),
@@ -61,7 +42,16 @@ return [
         // Return type is still of type "self" but more specific. Could never be something different from the InvalidSortQueryException, so this should be fine
         'CHANGED: The return type of Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\DataAbstractionLayerException.* changed from self to (?:the non-covariant )?Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Exception\\\\InvalidSortQueryException',
 
-        // Revert new feature, which was not released yet
+        // minor library update, no break
+        preg_quote(' OpenSearch\Client', '/'),
+        // widening input argument in exception factory, no break
+        preg_quote('CHANGED: The parameter $previous of Shopware\Elasticsearch\Product\ElasticsearchProductException::cannotChangeFieldType() changed from OpenSearch\Common\Exceptions\BadRequest400Exception to OpenSearch\Common\Exceptions\BadRequest400Exception|OpenSearch\Exception\BadRequestHttpException', '/'),
+        preg_quote('CHANGED: The parameter $previous of Shopware\Elasticsearch\Product\ElasticsearchProductException::cannotChangeCustomFieldType() changed from OpenSearch\Common\Exceptions\BadRequest400Exception to OpenSearch\Common\Exceptions\BadRequest400Exception|OpenSearch\Exception\BadRequestHttpException', '/'),
+        // constructor changes of internal decorator, no break
+        preg_quote('ADDED: Parameter transport was added to Method __construct() of class Shopware\Elasticsearch\Profiler\ClientProfiler', '/'),
+        preg_quote('CHANGED: Parameter 0 of Shopware\Elasticsearch\Profiler\ClientProfiler#__construct() changed name from client to transport', '/'),
+        
+      // Revert new feature, which was not released yet
         preg_quote('REMOVED: Class Shopware\Storefront\DependencyInjection\TwigComponentBundlePass has been deleted', '/'),
         preg_quote('REMOVED: Method Shopware\Storefront\Framework\Twig\Extension\ConfigExtension#componentImportMap() was removed', '/'),
         preg_quote('REMOVED: Method Shopware\Storefront\Framework\Twig\TemplateConfigAccessor#componentImportMap() was removed', '/'),

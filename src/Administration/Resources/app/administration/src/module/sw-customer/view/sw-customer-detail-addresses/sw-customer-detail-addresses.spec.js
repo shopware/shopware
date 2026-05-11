@@ -25,7 +25,9 @@ async function createWrapper() {
                         template: '<div class="sw-card-filter"><slot name="filter"></slot></div>',
                     },
                     'sw-field': true,
-                    'sw-modal': true,
+                    'sw-modal': {
+                        template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
+                    },
                     'sw-one-to-many-grid': {
                         props: ['collection'],
                         template: `
@@ -43,8 +45,16 @@ async function createWrapper() {
                         emits: ['click'],
                         template: '<div class="sw-context-menu-item" @click="$emit(\'click\')"><slot></slot></div>',
                     },
-                    'sw-customer-address-form': true,
-                    'sw-customer-address-form-options': true,
+                    'sw-customer-address-form': {
+                        name: 'sw-customer-address-form',
+                        props: ['disabled'],
+                        template: '<div class="sw-customer-address-form"><slot></slot></div>',
+                    },
+                    'sw-customer-address-form-options': {
+                        name: 'sw-customer-address-form-options',
+                        props: ['disabled'],
+                        template: '<div class="sw-customer-address-form-options"></div>',
+                    },
                     'sw-radio-field': true,
                     'sw-address': true,
                 },
@@ -186,5 +196,30 @@ describe('module/sw-customer/view/sw-customer-detail-addresses.spec.js', () => {
 
         expect(lines.at(1).find('a').exists()).toBeTruthy();
         expect(lines.at(1).text()).toContain('Thu');
+    });
+
+    it('should disable address form options when edit mode is off', async () => {
+        await wrapper.setData({
+            currentAddress: {
+                id: '1',
+            },
+        });
+
+        expect(wrapper.getComponent('.sw-customer-address-form').props('disabled')).toBe(true);
+        expect(wrapper.getComponent('.sw-customer-address-form-options').props('disabled')).toBe(true);
+    });
+
+    it('should enable address form options when edit mode is on', async () => {
+        await wrapper.setProps({
+            customerEditMode: true,
+        });
+        await wrapper.setData({
+            currentAddress: {
+                id: '1',
+            },
+        });
+
+        expect(wrapper.getComponent('.sw-customer-address-form').props('disabled')).toBe(false);
+        expect(wrapper.getComponent('.sw-customer-address-form-options').props('disabled')).toBe(false);
     });
 });

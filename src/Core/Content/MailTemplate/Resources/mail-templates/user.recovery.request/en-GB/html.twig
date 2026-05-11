@@ -1,0 +1,13 @@
+<div style="font-family:arial; font-size:12px;">
+    <p>
+        Dear {{ userRecovery.user.firstName }} {{ userRecovery.user.lastName }},<br/>
+        <br/>
+        there has been a request to reset your password.
+        Please confirm the link below to specify a new password.<br/>
+        <br/>
+        <a href="{{ resetUrl }}">Reset password</a><br/>
+        <br/>
+        This link is valid for the next 2 hours. After that you have to request a new confirmation link.<br/>
+        If you do not want to reset your password, please ignore this email. No changes will be made.
+    </p>
+</div>

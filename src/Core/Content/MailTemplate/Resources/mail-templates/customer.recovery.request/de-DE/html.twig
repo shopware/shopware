@@ -1,0 +1,16 @@
+<div style="font-family:arial; font-size:12px;">
+    <p>
+        Hallo {{ customerRecovery.customer.firstName }} {{ customerRecovery.customer.lastName }},<br/>
+        <br/>
+        Sie haben ein neues Passwort für Ihren {{ shopName }}-Account angefordert.
+        Klicken Sie auf folgenden Link, um Ihr Passwort zurückzusetzen:<br/>
+        <br/>
+        <a href="{{ resetUrl }}">{{ resetUrl }}</a><br/>
+        <br/>
+        Dieser Link ist für die nächsten 2 Stunden gültig.
+        Falls Sie Ihr Passwort nicht zurücksetzen möchten, ignorieren Sie diese E-Mail - es wird dann keine Änderung vorgenommen.<br/>
+        <br/>
+        Mit freundlichen Grüßen
+        Ihr {{ shopName }}-Team
+    </p>
+</div>

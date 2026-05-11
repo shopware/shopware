@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mail-templates xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../Schema/mail-templates-1.0.xsd">
+    <mail-template technical-name="admin_sso_user_invite">
+        <name lang="de-DE">Sso Benutzer einladung</name>
+        <name>Sso user invitation</name>
+        <subject lang="de-DE">{{ nameOfInviter }} hat dich eingeladen, {{ storeName }} beizutreten</subject>
+        <subject>{{ nameOfInviter }} invited you to join {{ storeName }}</subject>
+        <sender-name lang="de-DE">Admin</sender-name>
+        <sender-name>Admin</sender-name>
+        <description lang="de-DE">Shopware Sso Admin Einladung</description>
+        <description>Shopware Sso admin Invitation</description>
+    </mail-template>
+    <mail-template technical-name="cancellation_mail">
+        <name lang="de-DE">Stornorechnung</name>
+        <name>Cancellation invoice</name>
+        <subject lang="de-DE">Neues Dokument für Ihre Bestellung</subject>
+        <subject>New document for your order</subject>
+        <sender-name lang="de-DE">{{ salesChannel.translated.name }}</sender-name>
+        <sender-name>{{ salesChannel.translated.name }}</sender-name>
+    </mail-template>
+    <mail-template technical-name="contact_form">
+        <name lang="de-DE">Kontaktformular</name>
+        <name>Contact form</name>
+        <subject lang="de-DE">Kontaktanfrage erhalten - {{ salesChannel.translated.name }}</subject>
+        <subject>Contact form received - {{ salesChannel.translated.name }}</subject>
+        <sender-name lang="de-DE">{{ salesChannel.translated.name }}</sender-name>
+        <sender-name>{{ salesChannel.translated.name }}</sender-name>
+        <description lang="de-DE">Kontaktanfrage erhalten</description>
+        <description>Contact form received</description>
+    </mail-template>
+    <mail-template technical-name="credit_note_mail">
+        <name lang="de-DE">Gutschrift</name>
+        <name>Credit note</name>
+        <subject lang="de-DE">Neues Dokument für Ihre Bestellung</subject>
+        <subject>New document for your order</subject>
+        <sender-name lang="de-DE">{{ salesChannel.translated.name }}</sender-name>
+        <sender-name>{{ salesChannel.translated.name }}</sender-name>
+    </mail-template>
+    <mail-template technical-name="customer.group.registration.accepted">
+        <name lang="de-DE">Kunden Gruppen Registrierung Akzeptiert</name>
+        <name>Customer Group Registration Accepted</name>
+        <subject lang="de-DE">Kunden Gruppen Registrierung Akzeptiert</subject>
+        <subject>Customer Group Registration Accepted</subject>
+        <sender-name lang="de-DE">Shop</sender-name>
+        <sender-name>Shop</sender-name>
+    </mail-template>
+    <mail-template technical-name="customer.group.registration.declined">
+        <name lang="de-DE">Kunden Gruppen Registrierung Abgelehnt</name>
+        <name>Customer Group Registration Declined</name>
+        <subject lang="de-DE">Kunden Gruppen Registrierung Abgelehnt</subject>
+        <subject>Customer Group Registration Declined</subject>
+        <sender-name lang="de-DE">Shop</sender-name>
+        <sender-name>Shop</sender-name>
+    </mail-template>
+    <mail-template technical-name="customer.password.changed">
+        <name lang="de-DE">Kunden-Password geändert</name>
+        <name>Customer password changed</name>
+        <subject lang="de-DE">Kunden-Password geändert</subject>
+        <subject>Customer password changed</subject>
+        <sender-name lang="de-DE">{{ salesChannel.translated.name }}</sender-name>
+        <sender-name>{{ salesChannel.translated.name }}</sender-name>
+    </mail-template>
+    <mail-template technical-name="customer.recovery.request">
+        <name lang="de-DE">Benutzer Passwort Wiederherstellung</name>
+        <name>Customer password recovery</name>
+        <subject lang="de-DE">Password-Wiederherstellung</subject>
+        <subject>Password recovery</subject>
+        <sender-name lang="de-DE">{{ shopName }}</sender-name>
+        <sender-name>{{ shopName }}</sender-name>
+    </mail-template>
+    <mail-template technical-name="customer_group_change_accept">
+        <name lang="de-DE">Kundengruppenwechsel akzeptiert</name>
+        <name>Customer group change accepted</name>
+        <subject lang="de-DE">Ihr Händleraccount wurde freigeschaltet - {{ salesChannel.translated.name }}</subject>
+        <subject>Your merchant account has been unlocked - {{ salesChannel.translated.name }}</subject>
+        <sender-name lang="de-DE">{{ salesChannel.translated.name }}</sender-name>
+        <sender-name>{{ salesChannel.translated.name }}</sender-name>
+        <description lang="de-DE">Kundengruppenwechsel freigeschaltet</description>
+        <description>Customer Group Change accepted</description>
+    </mail-template>
+    <mail-template technical-name="customer_group_change_reject">
+        <name lang="de-DE">Kundengruppenwechsel abgelehnt</name>
+        <name>Customer group change rejected</name>
+        <subject lang="de-DE">Ihr Händleraccountantrag wurde abgelehnt - {{ salesChannel.translated.name }}</subject>
+        <subject>Your trader account has not been accepted - {{ salesChannel.translated.name }}</subject>
+        <sender-name lang="de-DE">{{ salesChannel.translated.name }}</sender-name>
+        <sender-name>{{ salesChannel.translated.name }}</sender-name>
+        <description lang="de-DE">Kundengruppenwechsel abgelehnt</description>
+        <description>Customer Group Change rejected</description>
+    </mail-template>
+    <mail-template technical-name="customer_register">
+        <name lang="de-DE">Kunden-Registrierung</name>
+        <name>Customer registration</name>
+        <subject lang="de-DE">Deine Registrierung bei {{ salesChannel.translated.name }}</subject>
+        <subject>Your sign-up with {{ salesChannel.translated.name }}</subject>
+        <sender-name lang="de-DE">{{ salesChannel.translated.name }}</sender-name>
+        <sender-name>{{ salesChannel.translated.name }}</sender-name>
+        <description lang="de-DE">Registrierungsbestätigung</description>
+        <description>Registration confirmation</description>
+    </mail-template>
+    <mail-template technical-name="customer_register.double_opt_in">
+        <name lang="de-DE">Double-Opt-In-Registrierung</name>
+        <name>Double opt in registration</name>
+        <subject lang="de-DE">Bitte bestätigen Sie Ihre Anmeldung bei {{ salesChannel.translated.name }}</subject>
+        <subject>Please confirm your sign-up with {{ salesChannel.translated.name }}</subject>
+        <sender-name lang="de-DE">{{ salesChannel.translated.name }}</sender-name>
+        <sender-name>{{ salesChannel.translated.name }}</sender-name>
+        <description lang="de-DE">Anmeldebestätigung</description>
+        <description>Registration confirmation</description>
+    </mail-template>
+    <mail-template technical-name="delivery_mail">
+        <name lang="de-DE">Versandbenachrichtigung</name>
+        <name>Delivery note</name>
+        <subject lang="de-DE">Neues Dokument für Ihre Bestellung</subject>
+        <subject>New document for your order</subject>
+        <sender-name lang="de-DE">{{ salesChannel.translated.name }}</sender-name>
+        <sender-name>{{ salesChannel.translated.name }}</sender-name>
+    </mail-template>
+    <mail-template technical-name="downloads_delivery">
+        <name lang="de-DE">Versand digitaler Produkte</name>
+        <name>Delivery of digital products</name>
+        <subject lang="de-DE">Ihre Dateien von {{ salesChannel.translated.name }} stehen bereit</subject>
+        <subject>Your downloads from {{ salesChannel.translated.name }} are ready</subject>
+        <sender-name lang="de-DE">{{ salesChannel.translated.name }}</sender-name>
+        <sender-name>{{ salesChannel.translated.name }}</sender-name>
+        <description lang="de-DE">Shopware Default Template</description>
+        <description>Shopware Default Template</description>
+    </mail-template>
+    <mail-template technical-name="guest_order.double_opt_in">
+        <name lang="de-DE">Double-Opt-In-Gast-Bestellung</name>
+        <name>Double opt in guest order</name>
+        <subject lang="de-DE">Bitte bestätigen Sie Ihre E-Mail-Adresse bei {{ salesChannel.translated.name }}</subject>
+        <subject>Please confirm your email address at {{ salesChannel.translated.name }}</subject>
+        <sender-name lang="de-DE">{{ salesChannel.translated.name }}</sender-name>
+        <sender-name>{{ salesChannel.translated.name }}</sender-name>
+        <description lang="de-DE">Anmeldebestätigung bei Gastbestellungen</description>
+        <description>Email confirmation at guest orders</description>
+    </mail-template>
+    <mail-template technical-name="invoice_mail">
+        <name lang="de-DE">Rechnung</name>
+        <name>Invoice</name>
+        <subject lang="de-DE">Neues Dokument für Ihre Bestellung</subject>
+        <subject>New document for your order</subject>
+        <sender-name lang="de-DE">{{ salesChannel.translated.name }}</sender-name>
+        <sender-name>{{ salesChannel.translated.name }}</sender-name>
+    </mail-template>
+    <mail-template technical-name="newsletterDoubleOptIn">
+        <name lang="de-DE">Newsletter Double-Opt-In</name>
+        <name>Newsletter double opt-in</name>
+        <subject lang="de-DE">Newsletter</subject>
+        <subject>Newsletter</subject>
+        <sender-name lang="de-DE">{{ salesChannel.translated.name }}</sender-name>
+        <sender-name>{{ salesChannel.translated.name }}</sender-name>
+    </mail-template>
+    <mail-template technical-name="newsletterRegister">
+        <name lang="de-DE">Newsletter-Registrierung</name>
+        <name>Newsletter registration</name>
+        <subject lang="de-DE">Register</subject>
+        <subject>Register</subject>
+        <sender-name lang="de-DE">{{ salesChannel.translated.name }}</sender-name>
+        <sender-name>{{ salesChannel.translated.name }}</sender-name>
+    </mail-template>
+    <mail-template technical-name="order.payment_method.changed">
+        <name lang="de-DE">Zahlungsart geändert</name>
+        <name>Payment method changed</name>
+        <subject lang="de-DE">Zahlungsart geändert</subject>
+        <subject>Payment method changed</subject>
+        <sender-name lang="de-DE">{{ salesChannel.translated.name }}</sender-name>
+        <sender-name>{{ salesChannel.translated.name }}</sender-name>
+        <description lang="de-DE">Bestätigung der Änderung der Zahlungsmethode</description>
+        <description>Confirmation of payment method change</description>
+    </mail-template>
+    <mail-template technical-name="order.state.cancelled">
+        <name lang="de-DE">Eintritt Bestellstatus: Abgebrochen</name>
+        <name>Enter order state: Cancelled</name>
+        <subject lang="de-DE">Neues Dokument für Ihre Bestellung</subject>
+        <subject>New document for your order</subject>
+        <sender-name lang="de-DE">{{ salesChannel.translated.name }}</sender-name>
+        <sender-name>{{ salesChannel.translated.name }}</sender-name>
+    </mail-template>
+    <mail-template technical-name="order.state.completed">
+        <name lang="de-DE">Eintritt Bestellstatus: Abgeschlossen</name>
+        <name>Enter order state: Done</name>
+        <subject lang="de-DE">Neues Dokument für Ihre Bestellung</subject>
+        <subject>New document for your order</subject>
+        <sender-name lang="de-DE">{{ salesChannel.translated.name }}</sender-name>
+        <sender-name>{{ salesChannel.translated.name }}</sender-name>
+    </mail-template>
+    <mail-template technical-name="order.state.in_progress">
+        <name lang="de-DE">Eintritt Bestellstatus: In Bearbeitung</name>
+        <name>Enter order state: In progress</name>
+        <subject lang="de-DE">Neues Dokument für Ihre Bestellung</subject>
+        <subject>New document for your order</subject>
+        <sender-name lang="de-DE">{{ salesChannel.translated.name }}</sender-name>
+        <sender-name>{{ salesChannel.translated.name }}</sender-name>
+    </mail-template>
+    <mail-template technical-name="order.state.open">
+        <name lang="de-DE">Eintritt Bestellstatus: Offen</name>
+        <name>Enter order state: Open</name>
+        <subject lang="de-DE">Neues Dokument für Ihre Bestellung</subject>
+        <subject>New document for your order</subject>
+        <sender-name lang="de-DE">{{ salesChannel.translated.name }}</sender-name>
+        <sender-name>{{ salesChannel.translated.name }}</sender-name>
+    </mail-template>
+    <mail-template technical-name="order_confirmation_mail">
+        <name lang="de-DE">Bestellbestätigung</name>
+        <name>Order confirmation</name>
+        <subject lang="de-DE">Bestellbestätigung</subject>
+        <subject>Order confirmation</subject>
+        <sender-name lang="de-DE">{{ salesChannel.translated.name }}</sender-name>
+        <sender-name>{{ salesChannel.translated.name }}</sender-name>
+    </mail-template>
+    <mail-template technical-name="order_delivery.state.cancelled">
+        <name lang="de-DE">Eintritt Lieferstatus: Abgebrochen</name>
+        <name>Enter delivery state: Cancelled</name>
+        <subject lang="de-DE">Neues Dokument für Ihre Bestellung</subject>
+        <subject>New document for your order</subject>
+        <sender-name lang="de-DE">{{ salesChannel.translated.name }}</sender-name>
+        <sender-name>{{ salesChannel.translated.name }}</sender-name>
+    </mail-template>
+    <mail-template technical-name="order_delivery.state.returned">
+        <name lang="de-DE">Eintritt Lieferstatus: Retour</name>
+        <name>Enter delivery state: Returned</name>
+        <subject lang="de-DE">Neues Dokument für Ihre Bestellung</subject>
+        <subject>New document for your order</subject>
+        <sender-name lang="de-DE">{{ salesChannel.translated.name }}</sender-name>
+        <sender-name>{{ salesChannel.translated.name }}</sender-name>
+    </mail-template>
+    <mail-template technical-name="order_delivery.state.returned_partially">
+        <name lang="de-DE">Eintritt Lieferstatus: Offen</name>
+        <name>Enter delivery state: Open</name>
+        <subject lang="de-DE">Neues Dokument für Ihre Bestellung</subject>
+        <subject>New document for your order</subject>
+        <sender-name lang="de-DE">{{ salesChannel.translated.name }}</sender-name>
+        <sender-name>{{ salesChannel.translated.name }}</sender-name>
+    </mail-template>
+    <mail-template technical-name="order_delivery.state.shipped">
+        <name lang="de-DE">Eintritt Lieferstatus: Versandt</name>
+        <name>Enter delivery state: Shipped</name>
+        <subject lang="de-DE">Neues Dokument für Ihre Bestellung</subject>
+        <subject>New document for your order</subject>
+        <sender-name lang="de-DE">{{ salesChannel.translated.name }}</sender-name>
+        <sender-name>{{ salesChannel.translated.name }}</sender-name>
+    </mail-template>
+    <mail-template technical-name="order_delivery.state.shipped_partially">
+        <name lang="de-DE">Eintritt Lieferstatus: Teilweise versandt</name>
+        <name>Enter delivery state: Shipped (partially)</name>
+        <subject lang="de-DE">Neues Dokument für Ihre Bestellung</subject>
+        <subject>New document for your order</subject>
+        <sender-name lang="de-DE">{{ salesChannel.translated.name }}</sender-name>
+        <sender-name>{{ salesChannel.translated.name }}</sender-name>
+    </mail-template>
+    <mail-template technical-name="order_transaction.state.authorized">
+        <name lang="de-DE">Eintritt Zahlungsstatus: Autorisiert</name>
+        <name>Enter payment state: Authorized</name>
+        <subject lang="de-DE">Neues Dokument für Ihre Bestellung</subject>
+        <subject>New document for your order</subject>
+        <sender-name lang="de-DE">{{ salesChannel.translated.name }}</sender-name>
+        <sender-name>{{ salesChannel.translated.name }}</sender-name>
+    </mail-template>
+    <mail-template technical-name="order_transaction.state.cancelled">
+        <name lang="de-DE">Eintritt Zahlungsstatus: Abgebrochen</name>
+        <name>Enter payment state: Cancelled</name>
+        <subject lang="de-DE">Neues Dokument für Ihre Bestellung</subject>
+        <subject>New document for your order</subject>
+        <sender-name lang="de-DE">{{ salesChannel.translated.name }}</sender-name>
+        <sender-name>{{ salesChannel.translated.name }}</sender-name>
+    </mail-template>
+    <mail-template technical-name="order_transaction.state.chargeback">
+        <name lang="de-DE">Eintritt Zahlungsstatus: Rückbuchung</name>
+        <name>Enter payment state: Chargeback</name>
+        <subject lang="de-DE">Neues Dokument für Ihre Bestellung</subject>
+        <subject>New document for your order</subject>
+        <sender-name lang="de-DE">{{ salesChannel.translated.name }}</sender-name>
+        <sender-name>{{ salesChannel.translated.name }}</sender-name>
+    </mail-template>
+    <mail-template technical-name="order_transaction.state.open">
+        <name lang="de-DE">Eintritt Zahlungsstatus: Offen</name>
+        <name>Enter payment state: Open</name>
+        <subject lang="de-DE">Neues Dokument für Ihre Bestellung</subject>
+        <subject>New document for your order</subject>
+        <sender-name lang="de-DE">{{ salesChannel.translated.name }}</sender-name>
+        <sender-name>{{ salesChannel.translated.name }}</sender-name>
+    </mail-template>
+    <mail-template technical-name="order_transaction.state.paid">
+        <name lang="de-DE">Eintritt Zahlungsstatus: Bezahlt</name>
+        <name>Enter payment state: Paid</name>
+        <subject lang="de-DE">Neues Dokument für Ihre Bestellung</subject>
+        <subject>New document for your order</subject>
+        <sender-name lang="de-DE">{{ salesChannel.translated.name }}</sender-name>
+        <sender-name>{{ salesChannel.translated.name }}</sender-name>
+    </mail-template>
+    <mail-template technical-name="order_transaction.state.paid_partially">
+        <name lang="de-DE">Eintritt Zahlungsstatus: Teilweise bezahlt</name>
+        <name>Enter payment state: Paid (partially)</name>
+        <subject lang="de-DE">Neues Dokument für Ihre Bestellung</subject>
+        <subject>New document for your order</subject>
+        <sender-name lang="de-DE">{{ salesChannel.translated.name }}</sender-name>
+        <sender-name>{{ salesChannel.translated.name }}</sender-name>
+    </mail-template>
+    <mail-template technical-name="order_transaction.state.refunded">
+        <name lang="de-DE">Eintritt Zahlungsstatus: Erstattet</name>
+        <name>Enter payment state: Refunded</name>
+        <subject lang="de-DE">Neues Dokument für Ihre Bestellung</subject>
+        <subject>New document for your order</subject>
+        <sender-name lang="de-DE">{{ salesChannel.translated.name }}</sender-name>
+        <sender-name>{{ salesChannel.translated.name }}</sender-name>
+    </mail-template>
+    <mail-template technical-name="order_transaction.state.refunded_partially">
+        <name lang="de-DE">Eintritt Zahlungsstatus: Teilweise erstattet</name>
+        <name>Enter payment state: Refunded (partially)</name>
+        <subject lang="de-DE">Neues Dokument für Ihre Bestellung</subject>
+        <subject>New document for your order</subject>
+        <sender-name lang="de-DE">{{ salesChannel.translated.name }}</sender-name>
+        <sender-name>{{ salesChannel.translated.name }}</sender-name>
+    </mail-template>
+    <mail-template technical-name="order_transaction.state.reminded">
+        <name lang="de-DE">Eintritt Zahlungsstatus: Erinnert</name>
+        <name>Enter payment state: Reminded</name>
+        <subject lang="de-DE">Neues Dokument für Ihre Bestellung</subject>
+        <subject>New document for your order</subject>
+        <sender-name lang="de-DE">{{ salesChannel.translated.name }}</sender-name>
+        <sender-name>{{ salesChannel.translated.name }}</sender-name>
+    </mail-template>
+    <mail-template technical-name="order_transaction.state.unconfirmed">
+        <name lang="de-DE">Eintritt Zahlungsstatus: Unbestätigt</name>
+        <name>Enter payment state: Unconfirmed</name>
+        <subject lang="de-DE">Neues Dokument für Ihre Bestellung</subject>
+        <subject>New document for your order</subject>
+        <sender-name lang="de-DE">{{ salesChannel.translated.name }}</sender-name>
+        <sender-name>{{ salesChannel.translated.name }}</sender-name>
+    </mail-template>
+    <mail-template technical-name="password_change">
+        <name lang="de-DE">Passwort Änderungsanfrage</name>
+        <name>Password change request</name>
+        <subject lang="de-DE">Password zurücksetzen - {{ salesChannel.translated.name }}</subject>
+        <subject>Password reset - {{ salesChannel.translated.name }}</subject>
+        <sender-name lang="de-DE">{{ salesChannel.translated.name }}</sender-name>
+        <sender-name>{{ salesChannel.translated.name }}</sender-name>
+        <description lang="de-DE">Anfrage zum Zurücksetzen des Passworts</description>
+        <description>Password reset request</description>
+    </mail-template>
+    <mail-template technical-name="review_form">
+        <name lang="de-DE">Produktbewertung</name>
+        <name>Product review</name>
+        <subject lang="de-DE">Neue Produktbewertung</subject>
+        <subject>New product review</subject>
+        <sender-name lang="de-DE">{{ salesChannel.translated.name }}</sender-name>
+        <sender-name>{{ salesChannel.translated.name }}</sender-name>
+    </mail-template>
+    <mail-template technical-name="revocation_request.customer">
+        <name lang="de-DE">Widerrufsantrag gestellt</name>
+        <name>Revocation request requested</name>
+        <subject lang="de-DE">Widerrufsantrag gesendet</subject>
+        <subject>Revocation request sent</subject>
+        <sender-name lang="de-DE">{{ salesChannel.translated.name }}</sender-name>
+        <sender-name>{{ salesChannel.translated.name }}</sender-name>
+        <description lang="de-DE">Empfangsbestätigung für Widerrufsantrag des Kunden</description>
+        <description>Confirmation receipt of customers revocation request</description>
+    </mail-template>
+    <mail-template technical-name="revocation_request.merchant">
+        <name lang="de-DE">Widerrufsantrag erhalten</name>
+        <name>Revocation request received</name>
+        <subject lang="de-DE">Widerrufsantrag erhalten</subject>
+        <subject>Revocation request received</subject>
+        <sender-name lang="de-DE">{{ salesChannel.translated.name }}</sender-name>
+        <sender-name>{{ salesChannel.translated.name }}</sender-name>
+        <description lang="de-DE">Widerrufsantrag vom Kunden erhalten</description>
+        <description>Received revocation request from customer</description>
+    </mail-template>
+    <mail-template technical-name="user.recovery.request">
+        <name lang="de-DE">Benutzer Passwort Wiederherstellung</name>
+        <name>User password recovery</name>
+        <subject lang="de-DE">Password-Wiederherstellung</subject>
+        <subject>Password recovery</subject>
+        <sender-name lang="de-DE">Shopware Administration</sender-name>
+        <sender-name>Shopware Administration</sender-name>
+    </mail-template>
+</mail-templates>

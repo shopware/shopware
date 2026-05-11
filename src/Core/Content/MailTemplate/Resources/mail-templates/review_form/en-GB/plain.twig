@@ -1,0 +1,14 @@
+A product review has just been {% if reviewFormData.id is defined %}edited{% else %}sent{% endif %}.
+
+{% if reviewFormData.name is defined %}Name: {{ reviewFormData.name }}{% if reviewFormData.lastName is defined %} {{ reviewFormData.lastName }}{% endif %}{% endif %}
+
+{% if reviewFormData.email is defined %}Email address: {{ reviewFormData.email }}{% endif %}
+
+{% if product.translated.name is defined %}Product: {{ product.translated.name }}{% endif %}
+
+Rating: {{ reviewFormData.points }}
+
+Title: {{ reviewFormData.title }}
+
+Content:
+{{ reviewFormData.content }}

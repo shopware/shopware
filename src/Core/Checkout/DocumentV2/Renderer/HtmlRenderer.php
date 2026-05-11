@@ -53,11 +53,11 @@ final readonly class HtmlRenderer extends AbstractDocumentRenderer
             InvoiceRenderData::class
         );
 
-        $configuration = new TemplateContext($renderData, [
-            'fileType' => self::FORMAT->fileExtension(),
-            'itemsPerPage' => 1000,
-            'getAddressParts' => $renderData->company->getAddressParts(),
-        ]);
+        $configuration = new TemplateContext(
+            $renderData,
+            fileType: self::FORMAT->fileExtension(),
+            itemsPerPage: 1000,
+        );
 
         $template = DocumentType::from($input->documentType)->templatePath();
 

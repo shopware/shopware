@@ -10,17 +10,14 @@ use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Read-only flat-namespace view over an {@see AbstractRenderData} for Twig templates.
+ * Read-only flat-namespace view over an {@see AbstractRenderData} for legacy Twig templates.
  *
  * Resolves dot-access (`config.companyName`, `config.displayHeader`, `config.documentDate`)
- * across the render data, its `DocumentConfig`, and its `CompanyInfo` plus a renderer-supplied
- * overrides map — preserving the historical flat `config.*` contract that document templates
- * and their plugin extensions rely on.
+ * through an explicit compatibility map that preserves the historical flat `config.*` contract
+ * document templates and their plugin extensions rely on.
  *
- * Resolution order: overrides → render data → DocumentConfig → CompanyInfo → legacyConfig.
- * The legacyConfig fallback exists so templates and plugin extensions reading keys that
- * have not yet been promoted to typed properties keep working during the v6.7 → v6.8
- * deprecation window.
+ * The legacyConfig fallback exists so keys that have not yet been promoted to typed properties
+ * keep working during the v6.7 → v6.8 deprecation window.
  *
  * @internal
  *
@@ -43,22 +40,28 @@ final readonly class TemplateContext implements \ArrayAccess
     private array $properties;
 
     /**
-     * @param array<string, mixed> $overrides
+     * @param array<string, mixed> $properties
      */
     public function __construct(
         AbstractRenderData $data,
-        array $overrides = [],
+        ?string $fileType = null,
+        ?int $itemsPerPage = null,
     ) {
-        $properties = $data->legacyConfig;
+        $properties = array_replace(
+            $data->legacyConfig,
+            self::companyProperties($data->company),
+            self::configProperties($data->config),
+            self::renderDataProperties($data),
+        );
 
-        foreach ([$data->company, $data->config, $data] as $source) {
-            foreach (get_object_vars($source) as $key => $value) {
-                $properties[$key] = $value;
-            }
+        $properties['getAddressParts'] = $data->company->getAddressParts();
+
+        if ($fileType !== null) {
+            $properties['fileType'] = $fileType;
         }
 
-        foreach ($overrides as $key => $value) {
-            $properties[$key] = $value;
+        if ($itemsPerPage !== null) {
+            $properties['itemsPerPage'] = $itemsPerPage;
         }
 
         $this->properties = $properties;
@@ -92,5 +95,79 @@ final readonly class TemplateContext implements \ArrayAccess
     public function offsetUnset(mixed $offset): void
     {
         throw DocumentV2Exception::templateContextReadOnly((string) $offset);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function companyProperties(CompanyInfo $company): array
+    {
+        return [
+            'companyName' => $company->companyName,
+            'companyStreet' => $company->companyStreet,
+            'companyZipcode' => $company->companyZipcode,
+            'companyCity' => $company->companyCity,
+            'companyCountry' => $company->companyCountry,
+            'companyEmail' => $company->companyEmail,
+            'companyPhone' => $company->companyPhone,
+            'companyUrl' => $company->companyUrl,
+            'executiveDirector' => $company->executiveDirector,
+            'taxNumber' => $company->taxNumber,
+            'taxOffice' => $company->taxOffice,
+            'vatId' => $company->vatId,
+            'bankName' => $company->bankName,
+            'bankIban' => $company->bankIban,
+            'bankBic' => $company->bankBic,
+            'placeOfJurisdiction' => $company->placeOfJurisdiction,
+            'placeOfFulfillment' => $company->placeOfFulfillment,
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function configProperties(DocumentConfig $config): array
+    {
+        return [
+            'pageSize' => $config->pageSize,
+            'pageOrientation' => $config->pageOrientation,
+            'itemsPerPage' => $config->itemsPerPage,
+            'filenamePrefix' => $config->filenamePrefix,
+            'filenameSuffix' => $config->filenameSuffix,
+            'logo' => $config->logo,
+            'displayHeader' => $config->displayHeader,
+            'displayFooter' => $config->displayFooter,
+            'displayPageCount' => $config->displayPageCount,
+            'displayCompanyAddress' => $config->displayCompanyAddress,
+            'displayReturnAddress' => $config->displayReturnAddress,
+            'displayCustomerVatId' => $config->displayCustomerVatId,
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function renderDataProperties(AbstractRenderData $data): array
+    {
+        $properties = [
+            'documentDate' => $data->documentDate,
+            'documentNumber' => $data->documentNumber,
+            'documentComment' => $data->documentComment,
+        ];
+
+        if (!$data instanceof InvoiceRenderData) {
+            return $properties;
+        }
+
+        return [
+            ...$properties,
+            'intraCommunityDelivery' => $data->intraCommunityDelivery,
+            'displayDivergentDeliveryAddress' => $data->displayDivergentDeliveryAddress,
+            'displayLineItems' => $data->displayLineItems,
+            'displayLineItemPosition' => $data->displayLineItemPosition,
+            'displayPrices' => $data->displayPrices,
+            'deliveryCountries' => $data->deliveryCountries,
+            'custom' => $data->custom,
+        ];
     }
 }

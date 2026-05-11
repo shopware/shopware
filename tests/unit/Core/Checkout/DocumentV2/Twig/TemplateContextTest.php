@@ -51,17 +51,25 @@ class TemplateContextTest extends TestCase
 
     public function testExposesOverrides(): void
     {
-        $context = $this->createContext(overrides: ['fileType' => 'html', 'itemsPerPage' => 1000]);
+        $context = $this->createContext(fileType: 'html', itemsPerPage: 1000);
 
         static::assertSame('html', $context->fileType);
         static::assertSame(1000, $context->itemsPerPage);
     }
 
-    public function testOverrideTakesPrecedenceOverRenderData(): void
+    public function testRendererValuesTakePrecedenceOverDocumentConfig(): void
     {
-        $context = $this->createContext(overrides: ['companyName' => 'shopware']);
+        $context = $this->createContext(
+            fileType: 'html',
+            itemsPerPage: 1000,
+            legacyConfig: [
+                'fileType' => 'pdf',
+                'itemsPerPage' => 10
+            ],
+        );
 
-        static::assertSame('shopware', $context->companyName);
+        static::assertSame('html', $context->fileType);
+        static::assertSame(1000, $context->itemsPerPage);
     }
 
     public function testFallsBackToLegacyConfigForKeysNotPromotedToTypedProperties(): void
@@ -98,7 +106,7 @@ class TemplateContextTest extends TestCase
 
     public function testArrayAccessMirrorsPropertyAccess(): void
     {
-        $context = $this->createContext(overrides: ['fileType' => 'html']);
+        $context = $this->createContext(fileType: 'html');
 
         static::assertSame($context->companyName, $context->offsetGet('companyName'));
         static::assertSame($context->pageSize, $context->offsetGet('pageSize'));
@@ -128,11 +136,13 @@ class TemplateContextTest extends TestCase
     }
 
     /**
-     * @param array<string, mixed> $overrides
      * @param array<string, mixed> $legacyConfig
      */
-    private function createContext(array $overrides = [], array $legacyConfig = []): TemplateContext
-    {
+    private function createContext(
+        ?string $fileType = null,
+        ?int $itemsPerPage = null,
+        array $legacyConfig = [],
+    ): TemplateContext {
         $renderData = new InvoiceRenderData(
             new DocumentConfig('a4', 'landscape', 10),
             new CompanyInfo('company', 'example street 10', '12345', 'example city', new CountryEntity()),
@@ -148,6 +158,10 @@ class TemplateContextTest extends TestCase
             $legacyConfig,
         );
 
-        return new TemplateContext($renderData, $overrides);
+        return new TemplateContext(
+            $renderData,
+            $fileType,
+            $itemsPerPage
+        );
     }
 }

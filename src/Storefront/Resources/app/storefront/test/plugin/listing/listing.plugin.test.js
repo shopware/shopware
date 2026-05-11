@@ -346,4 +346,22 @@ describe('ListingPlugin tests', () => {
         expect(activeFilterElements[2].textContent).toMatch('Pommes Spezial');
         expect(activeFilterElements[2].getAttribute('aria-label')).toBe('Remove filter: Pommes Spezial');
     });
+
+    test('should redirect to login on xhr request being unauthorized', async () => {
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                status: 403,
+                json: () => Promise.resolve({ redirectTo: 'foo.bar', redirectParameters: '{}' }),
+            })
+        );
+        const navigateToSpy = jest.spyOn(listingPlugin, '_navigateTo')
+            .mockImplementation(() => {});
+
+        window.router['frontend.account.login.page'] = 'http://localhost/account/login';
+
+        listingPlugin._buildRequest();
+        await new Promise(process.nextTick);
+
+        expect(navigateToSpy).toHaveBeenCalledWith('http://localhost/account/login?redirectTo=foo.bar&redirectParameters=%7B%7D');
+    });
 });

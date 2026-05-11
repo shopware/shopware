@@ -17,6 +17,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Event\MaintenanceRedirectEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -178,11 +179,10 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
     public function customerNotLoggedInHandler(ExceptionEvent $event): void
     {
-        if (!$event->getRequest()->attributes->has(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
-            return;
-        }
-
-        if (!$this->shouldRedirectLoginPage($event->getThrowable())) {
+        if (
+            !$event->getRequest()->attributes->has(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)
+            || !$this->shouldRedirectLoginPage($event->getThrowable())
+        ) {
             return;
         }
 
@@ -192,6 +192,17 @@ class StorefrontSubscriber implements EventSubscriberInterface
             'redirectTo' => $request->attributes->get('_route'),
             'redirectParameters' => json_encode($request->attributes->get('_route_params'), \JSON_THROW_ON_ERROR),
         ];
+
+        if ($request->isXmlHttpRequest()) {
+            if ($event->getResponse() instanceof JsonResponse) {
+                return;
+            }
+
+            $status = $event->getResponse()?->getStatusCode() ?? Response::HTTP_FORBIDDEN;
+            $event->setResponse(new JsonResponse($parameters, $status));
+
+            return;
+        }
 
         $redirectResponse = new RedirectResponse($this->router->generate('frontend.account.login.page', $parameters));
 

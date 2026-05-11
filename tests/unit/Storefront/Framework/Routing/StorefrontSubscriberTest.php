@@ -21,6 +21,7 @@ use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Shopware\Storefront\Framework\Routing\StorefrontSubscriber;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -242,6 +243,53 @@ class StorefrontSubscriberTest extends TestCase
         ))->customerNotLoggedInHandler($event);
 
         static::assertInstanceOf(RedirectResponse::class, $event->getResponse());
+    }
+
+    #[DataProvider('dataProviderForbiddenResponseToXhrRequest')]
+    public function testRedirectLoginPageWhenCustomerNotLoggedInWithXhrRequest(Response $response): void
+    {
+        $request = new Request(attributes: [
+            SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
+            '_route' => 'foo.bar',
+            '_route_params' => [],
+        ]);
+        $request->headers->set('X-Requested-With', 'XMLHttpRequest');
+
+        $event = new ExceptionEvent(
+            $this->createMock(HttpKernelInterface::class),
+            $request,
+            HttpKernelInterface::MAIN_REQUEST,
+            new CustomerNotLoggedInException(
+                Response::HTTP_FORBIDDEN,
+                RoutingException::CUSTOMER_NOT_LOGGED_IN_CODE,
+                'Foo test'
+            )
+        );
+        $event->setResponse($response);
+
+        (new StorefrontSubscriber(
+            $this->createMock(RequestStack::class),
+            $this->createMock(RouterInterface::class),
+            $this->createMock(MaintenanceModeResolver::class),
+            new StaticSystemConfigService(),
+            new EventDispatcher(),
+        ))->customerNotLoggedInHandler($event);
+
+        static::assertInstanceOf(JsonResponse::class, $event->getResponse());
+        static::assertSame(
+            json_encode(['redirectTo' => 'foo.bar', 'redirectParameters' => '[]']),
+            $event->getResponse()->getContent()
+        );
+        static::assertSame(Response::HTTP_FORBIDDEN, $event->getResponse()->getStatusCode());
+    }
+
+    public static function dataProviderForbiddenResponseToXhrRequest(): \Generator
+    {
+        yield 'text response' => [new Response(status: Response::HTTP_FORBIDDEN)];
+        yield 'json response' => [new JsonResponse([
+            'redirectTo' => 'foo.bar',
+            'redirectParameters' => '[]',
+        ], Response::HTTP_FORBIDDEN)];
     }
 
     public function testCustomerNotLoggedInHandlerWithoutRedirect(): void

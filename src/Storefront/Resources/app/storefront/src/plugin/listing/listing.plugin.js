@@ -239,7 +239,7 @@ export default class ListingPlugin extends Plugin {
 
     /**
      * @private
-     * @returns {URLSearchParams} 
+     * @returns {URLSearchParams}
      */
     _getDisabledFiltersParamsFromParams(params) {
         const filterParams = Object.assign({}, {'only-aggregations': 1, 'reduce-aggregations': 1}, params);
@@ -437,10 +437,27 @@ export default class ListingPlugin extends Plugin {
         fetch(url, {
             headers: { 'X-Requested-With': 'XMLHttpRequest' },
         })
+            .then((response) => response.status >= 400 ? Promise.reject(response) : response)
             .then((response) => response.text())
             .then((response) => {
                 this.renderResponse(response);
+            })
+            .catch(async (response) => {
+                if (response?.status !== 403) {
+                    return;
+                }
 
+                const data = await response.json();
+                const parameters = new URLSearchParams(
+                    (data?.redirectTo && data.redirectParameters) ? {
+                        redirectTo: data.redirectTo,
+                        redirectParameters: data.redirectParameters,
+                    } : {},
+                );
+
+                this._navigateTo(`${window.router['frontend.account.login.page']}?${parameters.toString()}`);
+            })
+            .finally(() => {
                 if (this._filterPanelActive) {
                     this.removeLoadingIndicatorClass();
                     this._updateAriaLive();
@@ -583,5 +600,9 @@ export default class ListingPlugin extends Plugin {
         }
 
         return url.toString();
+    }
+
+    _navigateTo(url) {
+        window.location.href = url;
     }
 }

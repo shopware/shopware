@@ -18,11 +18,6 @@ const GLOBAL_LEGACY_HELPERS = {
     elseIf: '$swLegacyBlockElseIf',
     else: '$swLegacyBlockElse',
 } satisfies LegacyBlockHelperNames;
-const SHIM_LEGACY_HELPERS = {
-    if: 'swLegacyBlockIf',
-    elseIf: 'swLegacyBlockElseIf',
-    else: 'swLegacyBlockElse',
-} satisfies LegacyBlockHelperNames;
 
 function escapeSingleQuotedString(value: string): string {
     return value.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
@@ -234,7 +229,6 @@ export function transformLegacyBlockExtensionConditionals(blockName: string, tem
         !rewriteLeadingConditional(
             blockName,
             getConditionalElementFollowingBlockParent(Array.from(blockElement.children)),
-            SHIM_LEGACY_HELPERS,
         )
     ) {
         return template;

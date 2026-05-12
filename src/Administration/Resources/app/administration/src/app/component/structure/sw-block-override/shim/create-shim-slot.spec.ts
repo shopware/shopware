@@ -86,6 +86,22 @@ describe('app/component/structure/sw-block-override/shim/create-shim-slot.ts', (
 
             expect(result.length).toBeGreaterThan(0);
         });
+
+        it('exposes allowlisted legacy block helpers while keeping other $ keys hidden', () => {
+            const legacyElse = jest.fn(() => true);
+            const slot = createShimSlot(makeEntry(), 'slot_allowlisted_helper');
+            const [vnode] = slot({
+                $swLegacyBlockElse: legacyElse,
+                $store: {},
+            });
+            const shimComponent = vnode.type as { setup: () => Record<string, unknown> };
+            const setupContext = shimComponent.setup();
+
+            expect('$swLegacyBlockElse' in setupContext).toBe(true);
+            expect('$store' in setupContext).toBe(false);
+            expect((setupContext.$swLegacyBlockElse as () => boolean)()).toBe(true);
+            expect(legacyElse).toHaveBeenCalledTimes(1);
+        });
     });
 
     describe('VNode type stability (focus preservation)', () => {

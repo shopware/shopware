@@ -18,43 +18,34 @@ import type { BlockEntry } from 'src/core/factory/twig-block-index';
 import swBlockParent from '../sw-block-parent/index';
 
 type DataScope = Record<string | symbol, unknown>;
+type DataScopeWithAppContext = DataScope & {
+    $?: {
+        appContext?: {
+            config?: {
+                globalProperties?: Record<string, unknown>;
+            };
+        };
+    };
+};
+type LegacyBlockHelper = (...args: unknown[]) => unknown;
 
 const warnedBlocks = new Set<string>();
-const legacyBlockHelperAliases = {
-    swLegacyBlockIf: '$swLegacyBlockIf',
-    swLegacyBlockElseIf: '$swLegacyBlockElseIf',
-    swLegacyBlockElse: '$swLegacyBlockElse',
-} as const;
-const legacyBlockHelperKeys = new Set<string>(Object.keys(legacyBlockHelperAliases));
+const allowedLegacyBlockHelperKeys = new Set<string>([
+    '$swLegacyBlockIf',
+    '$swLegacyBlockElseIf',
+    '$swLegacyBlockElse',
+]);
 
-function isLegacyBlockHelperKey(key: string | symbol): key is string {
-    return typeof key === 'string' && legacyBlockHelperKeys.has(key);
-}
-
-function getGlobalProperty(source: Record<string | symbol, unknown>, helperName: string): unknown {
-    const instance = source.$ as
-        | {
-              appContext?: {
-                  config?: {
-                      globalProperties?: Record<string, unknown>;
-                  };
-              };
-          }
-        | undefined;
-
-    return instance?.appContext?.config?.globalProperties?.[helperName];
-}
-
-function getLegacyBlockHelper(source: Record<string | symbol, unknown>, key: string): unknown {
-    const helperName = legacyBlockHelperAliases[key as keyof typeof legacyBlockHelperAliases];
-    const helper = source[helperName] ?? getGlobalProperty(source, helperName);
+function resolveAllowedLegacyBlockHelper(source: DataScope, helperName: string): unknown {
+    const helper =
+        source[helperName] ?? (source as DataScopeWithAppContext).$?.appContext?.config?.globalProperties?.[helperName];
 
     return typeof helper === 'function' ? helper.bind(source) : helper;
 }
 
 /** Guards against accidentally exposing Vue internals or private properties into the shim template. */
 function isInternalKey(key: string | symbol): boolean {
-    if (typeof key !== 'string' || isLegacyBlockHelperKey(key)) {
+    if (typeof key !== 'string' || allowedLegacyBlockHelperKeys.has(key)) {
         return false;
     }
 
@@ -88,9 +79,20 @@ export function createShimSlot(entry: BlockEntry, blockName: string): Slot {
     // reused shim instance even when the host component proxy identity is stable.
     const dataScopeRef = shallowRef<DataScope>({});
     let renderVersion = 0;
+    const methods = Object.fromEntries(
+        Array.from(allowedLegacyBlockHelperKeys).map((helperName) => [
+            helperName,
+            (...args: unknown[]): unknown => {
+                const helper = resolveAllowedLegacyBlockHelper(dataScopeRef.value, helperName);
+
+                return typeof helper === 'function' ? (helper as LegacyBlockHelper)(...args) : undefined;
+            },
+        ]),
+    );
 
     const shimComponent = {
         ...def,
+        methods,
         props: {
             swBlockShimRenderVersion: {
                 type: Number,
@@ -130,8 +132,8 @@ function buildSetupContext(getDataScope: () => DataScope): Record<string, unknow
         get(_t, key: string | symbol): unknown {
             const source = getDataScope();
 
-            if (isLegacyBlockHelperKey(key)) {
-                return getLegacyBlockHelper(source, key);
+            if (typeof key === 'string' && allowedLegacyBlockHelperKeys.has(key)) {
+                return resolveAllowedLegacyBlockHelper(source, key);
             }
 
             return isInternalKey(key) ? undefined : source[key];
@@ -144,8 +146,8 @@ function buildSetupContext(getDataScope: () => DataScope): Record<string, unknow
             // here ensures that Vue's internal identity checks work correctly on
             // the host proxy without leaking them as template-visible bindings
             // (isInternalKey only guards against string-prefixed private names).
-            if (isLegacyBlockHelperKey(key)) {
-                return typeof getLegacyBlockHelper(source, key) === 'function';
+            if (typeof key === 'string' && allowedLegacyBlockHelperKeys.has(key)) {
+                return typeof resolveAllowedLegacyBlockHelper(source, key) === 'function';
             }
 
             return !isInternalKey(key) && key in source;
@@ -153,13 +155,13 @@ function buildSetupContext(getDataScope: () => DataScope): Record<string, unknow
         getOwnPropertyDescriptor(_t, key: string | symbol): PropertyDescriptor | undefined {
             const source = getDataScope();
 
-            if (isLegacyBlockHelperKey(key)) {
-                if (typeof getLegacyBlockHelper(source, key) !== 'function') return undefined;
+            if (typeof key === 'string' && allowedLegacyBlockHelperKeys.has(key)) {
+                if (typeof resolveAllowedLegacyBlockHelper(source, key) !== 'function') return undefined;
 
                 return {
                     configurable: true,
                     enumerable: false,
-                    get: () => getLegacyBlockHelper(source, key),
+                    get: () => resolveAllowedLegacyBlockHelper(source, key),
                 };
             }
 

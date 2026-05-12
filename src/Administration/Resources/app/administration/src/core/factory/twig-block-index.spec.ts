@@ -67,7 +67,7 @@ describe('core/factory/twig-block-index.ts', () => {
             const [entry] = getBlockEntries('legacy_else_block');
 
             expect(entry.innerTemplate).toContain('<sw-block-parent></sw-block-parent>');
-            expect(entry.innerTemplate).toContain(`v-if="swLegacyBlockElse('legacy_else_block')"`);
+            expect(entry.innerTemplate).toContain(`v-if="$swLegacyBlockElse('legacy_else_block')"`);
             expect(entry.innerTemplate).not.toContain('v-else class="legacy-else"');
         });
 

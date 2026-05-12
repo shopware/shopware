@@ -102,7 +102,7 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
         const transformedTemplate = transformLegacyBlockExtensionConditionals('test-block', template);
 
         expect(transformedTemplate).toContain('<sw-block-parent></sw-block-parent>');
-        expect(transformedTemplate).toContain(`v-if="swLegacyBlockElse('test-block')"`);
+        expect(transformedTemplate).toContain(`v-if="$swLegacyBlockElse('test-block')"`);
         expect(transformedTemplate).not.toContain('v-else class="false-branch"');
         expect(() => compile(transformedTemplate)).not.toThrow();
     });
@@ -115,7 +115,7 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
 
         const transformedTemplate = transformLegacyBlockExtensionConditionals('test-block', template);
 
-        expect(transformedTemplate).toContain(`v-if="swLegacyBlockElseIf('test-block', showRed)"`);
+        expect(transformedTemplate).toContain(`v-if="$swLegacyBlockElseIf('test-block', showRed)"`);
         expect(transformedTemplate).not.toContain('v-else-if="showRed"');
         expect(() => compile(transformedTemplate)).not.toThrow();
     });
@@ -130,7 +130,7 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
         const transformedTemplate = transformLegacyBlockExtensionConditionals('test-block', template);
 
         expect(transformedTemplate).toContain('<sw-block-parent></sw-block-parent>');
-        expect(transformedTemplate).toContain(`v-if="swLegacyBlockElse('test-block')"`);
+        expect(transformedTemplate).toContain(`v-if="$swLegacyBlockElse('test-block')"`);
         expect(transformedTemplate).not.toContain('v-else class="false-branch"');
         expect(() => compile(transformedTemplate)).not.toThrow();
     });

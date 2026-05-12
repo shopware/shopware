@@ -3309,15 +3309,17 @@ describe('core/factory/async-component.factory.ts', () => {
                         'sw-block': swBlock,
                         'sw-block-parent': swBlockParent,
                     },
-                    mocks: {
-                        $swLegacyBlockIf(blockName, expression) {
-                            return legacyIf(getLegacyBlockConditionKey(this, blockName), expression);
-                        },
-                        $swLegacyBlockElseIf(blockName, expression) {
-                            return legacyElseIf(getLegacyBlockConditionKey(this, blockName), expression);
-                        },
-                        $swLegacyBlockElse(blockName) {
-                            return legacyElse(getLegacyBlockConditionKey(this, blockName));
+                    config: {
+                        globalProperties: {
+                            $swLegacyBlockIf(blockName, expression) {
+                                return legacyIf(getLegacyBlockConditionKey(this, blockName), expression);
+                            },
+                            $swLegacyBlockElseIf(blockName, expression) {
+                                return legacyElseIf(getLegacyBlockConditionKey(this, blockName), expression);
+                            },
+                            $swLegacyBlockElse(blockName) {
+                                return legacyElse(getLegacyBlockConditionKey(this, blockName));
+                            },
                         },
                     },
                 },

@@ -25,6 +25,7 @@ export default class QuantitySelectorPlugin extends Plugin {
         this._input = this.el.querySelector('input.js-quantity-selector');
         this._btnPlus = this.el.querySelector('.js-btn-plus');
         this._btnMinus = this.el.querySelector('.js-btn-minus');
+        this._unitLabel = this.el.querySelector('.js-quantity-selector-unit');
         this._purchaseLimitFetched = false;
 
         if (this.options.ariaLiveUpdates) {
@@ -78,6 +79,8 @@ export default class QuantitySelectorPlugin extends Plugin {
                 return false;
             }
         });
+
+        this._input.addEventListener('change', this._updateUnitLabel.bind(this));
     }
 
     /**
@@ -146,6 +149,31 @@ export default class QuantitySelectorPlugin extends Plugin {
         }
 
         this.ariaLiveContainer.innerHTML = text;
+    }
+
+    /**
+     * Update the visible unit label when singular and plural pack units are configured.
+     *
+     * @private
+     */
+    _updateUnitLabel() {
+        if (!this._unitLabel) {
+            return;
+        }
+
+        const { unitSingular, unitPlural } = this._unitLabel.dataset;
+
+        if (!unitSingular) {
+            return;
+        }
+
+        const quantityValue = parseFloat(this._input.value);
+
+        if (Number.isNaN(quantityValue)) {
+            return;
+        }
+
+        this._unitLabel.textContent = quantityValue > 1 && unitPlural ? unitPlural : unitSingular;
     }
 
     /**

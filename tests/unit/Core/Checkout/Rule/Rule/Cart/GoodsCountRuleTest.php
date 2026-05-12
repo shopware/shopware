@@ -12,10 +12,15 @@ use Shopware\Core\Checkout\Cart\Rule\GoodsCountRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Rule\SimpleRule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
+use Symfony\Component\Validator\Constraints\Choice;
+use Symfony\Component\Validator\Constraints\Type;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
+use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
@@ -182,11 +187,59 @@ class GoodsCountRuleTest extends TestCase
 
         $result = $goodsCountRule->getConstraints();
 
-        static::assertArrayHasKey('count', $result);
-        static::assertArrayHasKey('operator', $result);
+        static::assertEquals([
+            'count' => RuleConstraints::int(),
+            'operator' => RuleConstraints::numericOperators(false),
+        ], $result);
+    }
 
-        static::assertIsArray($result['count']);
-        static::assertIsArray($result['operator']);
+    public function testConstraintsRejectStringCount(): void
+    {
+        $violations = $this->validateConstraint('count', '3');
+
+        $this->assertViolationCode($violations, Type::INVALID_TYPE_ERROR);
+    }
+
+    public function testConstraintsRejectFloatCount(): void
+    {
+        $violations = $this->validateConstraint('count', 1.1);
+
+        $this->assertViolationCode($violations, Type::INVALID_TYPE_ERROR);
+    }
+
+    #[DataProvider('validNumericOperators')]
+    public function testConstraintsAcceptAvailableOperators(string $operator): void
+    {
+        $violations = $this->validateConstraint('operator', $operator);
+
+        static::assertCount(0, $violations);
+    }
+
+    #[DataProvider('invalidNumericOperators')]
+    public function testConstraintsRejectInvalidOperator(string $operator): void
+    {
+        $violations = $this->validateConstraint('operator', $operator);
+
+        $this->assertViolationCode($violations, Choice::NO_SUCH_CHOICE_ERROR);
+    }
+
+    /**
+     * @return \Generator<string, array{string}>
+     */
+    public static function validNumericOperators(): \Generator
+    {
+        yield 'equals' => [Rule::OPERATOR_EQ];
+        yield 'not equals' => [Rule::OPERATOR_NEQ];
+        yield 'less than or equals' => [Rule::OPERATOR_LTE];
+        yield 'greater than or equals' => [Rule::OPERATOR_GTE];
+    }
+
+    /**
+     * @return \Generator<string, array{string}>
+     */
+    public static function invalidNumericOperators(): \Generator
+    {
+        yield 'unknown operator' => ['Invalid'];
     }
 
     #[DataProvider('getLineItemScopeTestData')]
@@ -239,5 +292,19 @@ class GoodsCountRuleTest extends TestCase
     private function createLineItemWithGoodsCount(): LineItem
     {
         return $this->createLineItem()->setGood(true);
+    }
+
+    private function validateConstraint(string $field, mixed $value): ConstraintViolationListInterface
+    {
+        return Validation::createValidator()->validate($value, (new GoodsCountRule())->getConstraints()[$field]);
+    }
+
+    private function assertViolationCode(ConstraintViolationListInterface $violations, string $expectedCode): void
+    {
+        static::assertCount(1, $violations);
+
+        foreach ($violations as $violation) {
+            static::assertSame($expectedCode, $violation->getCode());
+        }
     }
 }

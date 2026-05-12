@@ -147,7 +147,7 @@ Automatic inlining is out of scope for this codemod because it requires resolvin
    `src/Administration/Resources/app/administration/src/app/component/{base,form,structure,...}/<name>/index.js`.
 
 2. **Copy relevant options** — merge the parent's `data`, `computed`, `methods`, and lifecycle hooks
-   into the child, following [Vue's merge strategy](https://v3-migration.vuejs.org/breaking-changes/merge-strategy.html):
+   into the child, following [Vue 2's option merging strategy](https://v2.vuejs.org/v2/guide/mixins.html#Option-Merging):
    - `data`: deep-merged (child wins on conflict)
    - `methods` / `computed`: child overrides parent
    - lifecycle hooks: both run (parent first)

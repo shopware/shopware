@@ -17,14 +17,15 @@ use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentDependencyResolver;
-use Shopware\Core\Checkout\DocumentV2\Generation\DocumentEntityPersister;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -132,7 +133,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertSame($orderId, $documentRepository->creates[0][0]['orderId']);
         static::assertSame($orderVersionId, $documentRepository->creates[0][0]['orderVersionId']);
         static::assertSame($documentTypeId, $documentRepository->creates[0][0]['documentTypeId']);
-        static::assertSame('generated-number', $documentRepository->creates[0][0]['documentNumber']);
+        static::assertSame('generated-number', $documentRepository->creates[0][0]['config']['documentNumber']);
         static::assertCount(1, $documentFileRepository->creates);
         static::assertSame(DocumentFormat::PDF->value, $documentFileRepository->creates[0][0]['documentFormat']);
         static::assertIsString($documentFileRepository->creates[0][0]['mediaId']);
@@ -242,14 +243,18 @@ class DocumentGeneratorTest extends TestCase
             ),
         ]);
 
+        $mediaService = $this->createMock(MediaService::class);
+        $mediaService->method('saveFile')->willReturn(Uuid::randomHex());
+
         $generator = new DocumentGenerator(
             $providerRegistry,
             $rendererRegistry,
             new DocumentNumberGenerator($numberRangeValueGenerator),
-            new DocumentEntityPersister(
+            new DocumentPersister(
                 $documentRepository,
                 $documentFileRepository,
                 $documentTypeRepository,
+                $mediaService,
             ),
             new DocumentDependencyResolver($rendererRegistry),
             $orderRepository,

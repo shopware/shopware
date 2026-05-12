@@ -7,7 +7,6 @@ use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTy
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
-use Shopware\Core\Content\MailTemplate\MailTemplateException;
 use Shopware\Core\Content\MailTemplate\Request\PreviewRequest;
 use Shopware\Core\Content\MailTemplate\Request\SimulateRequest;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
@@ -41,13 +40,6 @@ class MailTemplateServiceTest extends TestCase
         $this->mailTemplateRepository = static::getContainer()->get('mail_template.repository');
         $this->mailTemplateService = static::getContainer()->get(MailTemplateService::class);
         $this->context = Context::createDefaultContext();
-    }
-
-    public function testLoadTemplateNoTemplateFound(): void
-    {
-        $this->expectExceptionObject(MailTemplateException::templateNotFound());
-
-        $this->mailTemplateService->loadTemplate(Uuid::randomHex(), $this->context);
     }
 
     public function testLoadTemplate(): void

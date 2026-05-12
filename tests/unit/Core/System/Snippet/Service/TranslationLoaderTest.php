@@ -13,6 +13,7 @@ use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
@@ -234,6 +235,58 @@ class TranslationLoaderTest extends TestCase
         $loader = $this->getTranslationLoader();
         static::assertSame('', $loader->getLocalePath('_not-a-locale_'));
         static::assertSame('/translation/locale/de-DE', $loader->getLocalePath('de-DE'));
+    }
+
+    public function testGetLocalePathBypassesValidatorForAllowedPseudoLocale(): void
+    {
+        $loader = $this->getTranslationLoader();
+        static::assertSame('/translation/locale/ach-UG', $loader->getLocalePath('ach-UG'));
+    }
+
+    public function testLoadCreatesPseudoLocaleEntryWhenMissing(): void
+    {
+        $this->config = new TranslationConfig(
+            new Uri('http://localhost:8000'),
+            ['ach-UG'],
+            [],
+            new LanguageDtoCollection([new Language('ach-UG', 'Acholi (Pseudo Language)')]),
+            new PluginMappingCollection(),
+            new Uri('http://localhost:8000/metadata.json'),
+            [],
+        );
+        $this->localeRepository = new StaticEntityRepository([
+            $this->getEmptySearchResult(),
+            $this->getSearchResult('locale'),
+        ]);
+        $this->languageRepository = new StaticEntityRepository([$this->getEmptySearchResult()]);
+        $this->snippetSetRepository = new StaticEntityRepository([$this->getEmptySearchResult()]);
+
+        $loader = $this->getTranslationLoader();
+        $loader->load('ach-UG', $this->context);
+
+        static::assertCount(1, $this->localeRepository->creates);
+        $createdLocales = $this->localeRepository->creates[0];
+        static::assertIsArray($createdLocales);
+        static::assertCount(1, $createdLocales);
+
+        $locale = $createdLocales[0];
+        static::assertIsArray($locale);
+        static::assertSame('ach-UG', $locale['code']);
+        static::assertArrayHasKey('translations', $locale);
+        $translation = $locale['translations'][Defaults::LANGUAGE_SYSTEM];
+        static::assertSame('Acholi', $translation['name']);
+        static::assertSame('Pseudo Language', $translation['territory']);
+    }
+
+    public function testLoadStillThrowsForUnknownNonPseudoLocale(): void
+    {
+        $this->localeRepository = new StaticEntityRepository([$this->getEmptySearchResult()]);
+
+        $loader = $this->getTranslationLoader();
+
+        static::expectException(SnippetException::class);
+        static::expectExceptionMessage('The configured locale "es-ES" does not exist.');
+        $loader->load('es-ES', $this->context);
     }
 
     public function testPluginTranslationExists(): void

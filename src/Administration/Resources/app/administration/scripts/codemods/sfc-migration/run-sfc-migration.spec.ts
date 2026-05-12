@@ -544,7 +544,9 @@ describe('runMigration — delete-originals (fully-migrated)', () => {
         runMigration(tmpDir, { dryRun: false, deleteOriginals: true });
 
         const entrypoint = readFileSync(join(componentDir, 'index.js'), 'utf-8');
-        expect(entrypoint).toBe("import component from './sw-simple-card.vue';\n\nShopware.Component.register('sw-simple-card', component);\n");
+        expect(entrypoint).toBe(
+            'import component from "./sw-simple-card.vue";\n\nShopware.Component.register("sw-simple-card", component);\n',
+        );
     });
 
     it('writes the .vue file before deleting originals', () => {
@@ -605,7 +607,7 @@ describe('runMigration — delete-originals (partially-migrated)', () => {
         expect(existsSync(join(componentDir, 'sw-mixin-list.html.twig'))).toBe(false);
 
         const entrypoint = readFileSync(join(componentDir, 'index.js'), 'utf-8');
-        expect(entrypoint).toBe("import './sw-mixin-list.vue';\n");
+        expect(entrypoint).toBe('import "./sw-mixin-list.vue";\n');
     });
 
     it('increments deletedOriginals stat for partially-migrated component', () => {

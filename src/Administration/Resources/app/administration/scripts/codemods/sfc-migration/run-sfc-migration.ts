@@ -109,7 +109,7 @@ export function normaliseJsContent(jsContent: string, componentName: string): st
 }
 
 function quoteJsString(value: string): string {
-    return `'${value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
+    return JSON.stringify(value);
 }
 
 function buildIndexShim(componentName: string, sfc: string): string {

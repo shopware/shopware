@@ -281,10 +281,12 @@ export default {
 
         destroyedComponent() {
             document.removeEventListener('click', this.closeOnClickOutside);
+            Shopware.Utils.EventBus.off('sw-admin-menu/toggle-offcanvas', this.onOffCanvasToggle);
         },
 
         registerListener() {
             document.addEventListener('click', this.closeOnClickOutside);
+            Shopware.Utils.EventBus.on('sw-admin-menu/toggle-offcanvas', this.onOffCanvasToggle);
         },
 
         onMouseOver(index, column) {
@@ -469,6 +471,10 @@ export default {
             this.isOffCanvasShown = !this.isOffCanvasShown;
 
             Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', this.isOffCanvasShown);
+        },
+
+        onOffCanvasToggle(state) {
+            this.isOffCanvasShown = state;
         },
 
         resetSearchType() {

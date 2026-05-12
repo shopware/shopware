@@ -3,7 +3,7 @@
 | Event | Description | Permissions needed | Payload
 | :--- | :--- | :--- | :--- |
 |`checkout.customer.before.login` | Triggers as soon as a customer logs in | - | {"email":"string"}
-|`checkout.customer.deleted` | Triggers if a customer gets deleted | `customer:read` | {"entity":"customer"}
+|`checkout.customer.deleted` | Triggers if a customer gets deleted | - | {"customer":"object"}
 |`checkout.customer.double_opt_in_guest_order` | Triggers as soon as double opt-in is accepted in a guest order | `customer:read` | {"entity":"customer","confirmUrl":"string"}
 |`checkout.customer.double_opt_in_registration` | Triggers when a customer commits to his registration via double opt in | `customer:read` | {"entity":"customer","confirmUrl":"string"}
 |`checkout.customer.guest_register` | __EMPTY__ | `customer:read` | {"entity":"customer"}

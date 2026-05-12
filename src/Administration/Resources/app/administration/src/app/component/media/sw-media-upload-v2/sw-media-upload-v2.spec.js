@@ -49,6 +49,11 @@ async function createWrapper(customOptions = {}) {
             provide: {
                 fileValidationService: new FileValidationService(),
                 validationService: {},
+                mediaPresignedUploadService: {
+                    prepareUpload: jest.fn(),
+                    uploadToPresignedUrl: jest.fn(),
+                    finalizeUpload: jest.fn(),
+                },
                 repositoryFactory: {
                     create: () => repositoryFactoryMock,
                 },
@@ -272,6 +277,11 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
                     provide: {
                         fileValidationService: new FileValidationService(),
                         validationService: {},
+                        mediaPresignedUploadService: {
+                            prepareUpload: jest.fn(),
+                            uploadToPresignedUrl: jest.fn(),
+                            finalizeUpload: jest.fn(),
+                        },
                         repositoryFactory: {
                             create: () => ({
                                 create: () => ({}),
@@ -340,6 +350,11 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
                     provide: {
                         fileValidationService: new FileValidationService(),
                         validationService: {},
+                        mediaPresignedUploadService: {
+                            prepareUpload: jest.fn(),
+                            uploadToPresignedUrl: jest.fn(),
+                            finalizeUpload: jest.fn(),
+                        },
                         repositoryFactory: {
                             create: () => ({
                                 create: () => ({}),

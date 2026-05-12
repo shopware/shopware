@@ -49,6 +49,15 @@ describe('findTwigFile', () => {
         expect(result).toBe(join(tmpDir, 'sw-foo.html.twig'));
     });
 
+    it('returns null when two .html.twig files are present that do not match the component name', () => {
+        writeFileSync(join(tmpDir, 'helper.html.twig'), '<div>helper</div>', 'utf-8');
+        writeFileSync(join(tmpDir, 'sidebar.html.twig'), '<div>sidebar</div>', 'utf-8');
+
+        const result = findTwigFile(tmpDir, 'sw-foo');
+
+        expect(result).toBeNull();
+    });
+
     it('returns null when no .html.twig file is present', () => {
         writeFileSync(join(tmpDir, 'index.js'), 'export default {}', 'utf-8');
         const result = findTwigFile(tmpDir, 'missing-component');

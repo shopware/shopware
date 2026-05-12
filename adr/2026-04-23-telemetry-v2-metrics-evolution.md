@@ -351,6 +351,106 @@ and `RetryableTransaction` (static code that cannot receive DI). Until those cal
 | `allow_unknown_label_values` | Remove — superseded by per-label value policies |
 | `enable_internal_metrics` | Remove — per-metric `enabled` is sufficient |
 
+### 6. Unified instrumentation via `Telemetry` class
+
+Measuring how long an operation takes and emitting it as a histogram metric is a recurring pattern
+that requires boilerplate code. Developers may also want to create profiler spans for the same
+operations. A new DI-injectable `Telemetry` class introduces a high-level interface that handles
+both concerns, and additionally acts as a facade over `Meter::emit()` for regular metric emission:
+
+```php
+class Telemetry
+{
+    public function emit(ConfiguredMetric $metric): void;
+
+    /**
+     * @template T
+     * @param \Closure(): T $callback
+     * @return T
+     */
+    public function instrument(
+        \Closure $callback,
+        ?DurationMetric $metric = null,
+        ?SpanOptions $span = null,
+    ): mixed;
+}
+```
+
+`DurationMetric` and `SpanOptions` are simple value objects (additional properties may be added later):
+
+```php
+final class DurationMetric
+{
+    public function __construct(
+        public readonly string $name,
+        public readonly array $labels = [],
+    ) {}
+}
+
+final class SpanOptions
+{
+    public function __construct(
+        public readonly string $name,
+        public readonly string $category = 'shopware',
+        public readonly array $tags = [],
+    ) {}
+}
+```
+
+Usage covers all combinations through a single method:
+
+```php
+// span + duration metric
+$this->telemetry->instrument(
+    callback: fn() => $this->processPayment($order),
+    metric: new DurationMetric('payment.process.duration', ['method' => 'card']),
+    span: new SpanOptions('payment-processing'),
+);
+
+// duration metric only, no span
+$this->telemetry->instrument(
+    callback: fn() => $this->buildCart($token),
+    metric: new DurationMetric('cart.build.duration'),
+);
+
+// span only, no metric
+$this->telemetry->instrument(
+    callback: fn() => $this->warmCache(),
+    span: new SpanOptions('cache-warmup', category: 'cache'),
+);
+
+// regular (non-duration) metric
+$this->telemetry->emit(new ConfiguredMetric('order.placed.count', 1, ['channel' => 'web']));
+```
+
+- **Single injection point.** Services that need both regular metrics and duration measurement inject
+  only `Telemetry` instead of both `Meter` and a separate helper.
+- **Profiling and metrics degrade independently.** If profiler integrations are off, the `Profiler::trace()`
+  call is a no-op wrapper. If metrics are disabled, `Meter::emit()` short-circuits. Neither blocks the other.
+- **Metric name and span name are decoupled.** Span names and metric names may follow a different convention and
+  are independent.
+- **Duration is always milliseconds.** `instrument()` always computes milliseconds. Initially no unit parameter
+  on `DurationMetric`. The YAML `unit` field remains as informational metadata for transports and humans.
+- **Histogram is the expected metric type** for `DurationMetric`. The metric must be defined as a
+  histogram in YAML config. `Telemetry` delegates to `Meter::emit()`, which resolves the type from
+  config.
+- **Class, not interface.** `Telemetry` is a concrete class (not an interface) so new methods can
+  be added in minor versions without BC breaks. It is non-final to allow mocking in unit tests.
+- **`instrument()` with both `metric: null` and `span: null`** is a no-op beyond executing the
+  callback. In dev/test environments this should throw (it likely indicates a misconfiguration).
+
+**Considered alternative — add `emitDurationInMs()` to Meter:**
+- Convenient one-liner for metric-only duration.
+- But expands the Meter interface beyond its "emit pre-built metric" responsibility.
+- Does not create profiler spans, so developers who want both still need two calls.
+- Adding spans will blur Meter responsibility area.
+
+**Considered alternative — add metric emission directly to `Profiler::trace()`:**
+  - Zero migration: existing call sites add an optional parameter.
+  - But `Profiler` is static (no DI), so it would need `MeterProvider` (static accessor) to reach
+    `Meter`, also not possible to inject.
+  - Blurred responsibility after adding metrics.
+
 ## Consequences
 
 - **Transport packages** (shopware/opentelemetry, shopware/prometheus-exporter):
@@ -363,7 +463,15 @@ and `RetryableTransaction` (static code that cannot receive DI). Until those cal
     implement `PeriodicMetricCollectorInterface`, tag the service.
   - Every label must have either `allowed_values` or `policy: open` — config validation enforces this.
     Unknown label names throw in dev/test — typos caught earlier.
-  - `emit(ConfiguredMetric)` remains the API. No change to existing emitter code.
+  - `emit(ConfiguredMetric)` remains the low-level API via `Meter`. No change to existing emitter code.
+  - Inject `Meter` directly when the service only emits pre-computed metric values. Inject `Telemetry`
+    when a generic facade is preferred or when both `emit()` and `instrument()` are needed.
+  - For measuring operation duration: use `Telemetry::instrument()` with a `DurationMetric`. Duration
+    is always emitted in milliseconds. Define the metric as a histogram in YAML config (gauge will always store only
+    last emitted value during collection interval).
+  - For profiler spans without a metric: use `Telemetry::instrument()` with only `SpanOptions` set.
+    Do not call `Profiler::trace()` directly in new code — routing through `Telemetry` keeps call
+    sites testable and provides a migration path for when `Profiler` becomes injectable.
 - **Operators**:
   - Use `shopware.telemetry.metrics.enabled: true/false` to enable/disable globally
     (additional kill-switch alongside `TELEMETRY_METRICS` feature flag, which will be removed with feature stabilization).

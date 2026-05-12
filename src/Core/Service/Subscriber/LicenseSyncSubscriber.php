@@ -49,6 +49,7 @@ class LicenseSyncSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
+            // @deprecated tag:v6.8.0 - remove the install/update legacy license sync fallback.
             AppInstalledEvent::class => 'serviceInstalled',
             AppUpdatedEvent::class => 'serviceInstalled',
             AppActivatedEvent::class => 'serviceActivated',
@@ -75,10 +76,14 @@ class LicenseSyncSubscriber implements EventSubscriberInterface
         $licenseKey = $key === self::CONFIG_STORE_LICENSE_KEY ? $value : $this->config->getString(self::CONFIG_STORE_LICENSE_KEY);
         $licenseHost = $key === self::CONFIG_STORE_LICENSE_HOST ? $value : $this->config->getString(self::CONFIG_STORE_LICENSE_HOST);
 
+        /** @deprecated tag:v6.8.0 - remove the legacy endpoint sync and keep only the `commercial_license.provided` webhook. */
         $this->syncLicenseByLegacyEndpoint($licenseKey, $licenseHost);
         $this->eventDispatcher->dispatch(CommercialLicenseProvidedEvent::forAll($licenseKey, $licenseHost));
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:remove-subscriber - Will be removed with the legacy commercial license sync endpoint support.
+     */
     public function serviceInstalled(AppInstalledEvent|AppUpdatedEvent $event): void
     {
         $app = $event->getApp();
@@ -120,6 +125,9 @@ class LicenseSyncSubscriber implements EventSubscriberInterface
         ));
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed with the legacy commercial license sync endpoint support.
+     */
     private function syncLicenseByLegacyEndpoint(string $licenseKey, string $licenseHost): void
     {
         $context = Context::createDefaultContext();
@@ -140,6 +148,9 @@ class LicenseSyncSubscriber implements EventSubscriberInterface
         }
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed with the legacy commercial license sync endpoint support.
+     */
     private function syncLicenseByService(AppEntity $app, Context $context, string $licenseKey, string $licenseHost): void
     {
         try {
@@ -157,6 +168,9 @@ class LicenseSyncSubscriber implements EventSubscriberInterface
         }
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed with the legacy commercial license sync endpoint support.
+     */
     private function appDefinedWebhook(AppEntity $app): bool
     {
         $webhooks = $app->getWebhooks();
@@ -164,6 +178,9 @@ class LicenseSyncSubscriber implements EventSubscriberInterface
         return $webhooks !== null && $webhooks->filterForEvent(CommercialLicenseProvidedEvent::NAME)->count() > 0;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed with the install/update legacy license sync fallback.
+     */
     private function manifestDefinesWebhook(Manifest $manifest): bool
     {
         $webhooks = $manifest->getWebhooks();

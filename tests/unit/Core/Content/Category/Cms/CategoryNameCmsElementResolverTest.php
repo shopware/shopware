@@ -14,6 +14,7 @@ use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\TextStruct;
+use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -27,7 +28,8 @@ class CategoryNameCmsElementResolverTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->resolver = new CategoryNameCmsElementResolver();
+        $htmlSanitizer = new HtmlSanitizer(null, false, ['basic' => ['tags' => ['h1']]]);
+        $this->resolver = new CategoryNameCmsElementResolver($htmlSanitizer);
     }
 
     public function testType(): void

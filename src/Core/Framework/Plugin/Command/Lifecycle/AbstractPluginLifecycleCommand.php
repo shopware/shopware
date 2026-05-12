@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\Input;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -87,7 +88,7 @@ abstract class AbstractPluginLifecycleCommand extends Command
             $context->addState(PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
         }
 
-        $plugins = $this->parsePluginArgument($input->getArgument('plugins'), $lifecycleMethod, $io, $context);
+        $plugins = $this->parsePluginArgument($input->getArgument('plugins'), $lifecycleMethod, $io, $input, $context);
 
         if ($plugins === null) {
             return null;
@@ -143,6 +144,7 @@ abstract class AbstractPluginLifecycleCommand extends Command
         array $arguments,
         string $lifecycleMethod,
         SymfonyStyle $io,
+        Input $input,
         Context $context
     ): ?PluginCollection {
         $plugins = array_unique($arguments);
@@ -169,7 +171,7 @@ abstract class AbstractPluginLifecycleCommand extends Command
 
         $pluginCollection = $this->pluginRepo->search($criteria, $context)->getEntities();
 
-        if ($pluginCollection->count() <= 1) {
+        if ($pluginCollection->count() <= 1 || !$input->isInteractive()) {
             return $pluginCollection;
         }
 

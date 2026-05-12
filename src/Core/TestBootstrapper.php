@@ -457,6 +457,7 @@ class TestBootstrapper
                 'command' => 'plugin:install',
                 '--activate' => true,
                 '--reinstall' => true,
+                '--no-interaction' => true,
                 'plugins' => $this->activePlugins,
             ]), $this->getOutput());
 

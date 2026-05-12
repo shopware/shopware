@@ -26,20 +26,24 @@ class FlowEventTest extends TestCase
 
     public function testCreateFromXmlFileFailed(): void
     {
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessageMatches('/Unable to parse file \".*flow-1-0.xml"\. Message: Resource \".*flow-1-0.xml\" is not a file./');
-
         $xmlFile = \dirname(__FILE__, 3) . '/_fixtures/flow-1-0.xml';
+
+        $this->expectExceptionObject(AppException::createFromXmlFileFlowError(
+            $xmlFile,
+            \sprintf('Resource "%s" is not a file.', $xmlFile)
+        ));
+
         Event::createFromXmlFile($xmlFile);
     }
 
     #[DataProvider('invalidFlowEventProvider')]
     public function testCreateFromXmlFailsForInvalidFlowEvent(string $fixture, string $message): void
     {
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage($message);
+        $file = \dirname(__FILE__, 3) . '/_fixtures/Resources/' . $fixture;
 
-        Event::createFromXmlFile(\dirname(__FILE__, 3) . '/_fixtures/Resources/' . $fixture);
+        $this->expectExceptionObject(AppException::createFromXmlFileFlowError($file, $message));
+
+        Event::createFromXmlFile($file);
     }
 
     /**
@@ -59,7 +63,7 @@ class FlowEventTest extends TestCase
 
         yield 'missing aware child' => [
             'fixture' => 'flow-event-without-aware.xml',
-            'message' => 'Message: [ERROR 1871] Element \'flow-event\': Missing child element(s). Expected is ( aware ).',
+            'message' => '[ERROR 1871] Element \'flow-event\': Missing child element(s). Expected is ( aware ).',
         ];
     }
 }

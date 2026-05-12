@@ -40,17 +40,25 @@ class CmsExtensionsTest extends TestCase
 
     public function testThrowsXmlParsingExceptionIfDuplicateCategory(): void
     {
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('Element \'category\': This element is not expected. Expected is ( label )');
+        $file = __DIR__ . '/../_fixtures/Resources/cms-duplicate-category.xml';
 
-        CmsExtensions::createFromXmlFile(__DIR__ . '/../_fixtures/Resources/cms-duplicate-category.xml');
+        $this->expectExceptionObject(AppException::xmlParsingException(
+            $file,
+            '[ERROR 1871] Element \'category\': This element is not expected. Expected is ( label ).'
+        ));
+
+        CmsExtensions::createFromXmlFile($file);
     }
 
     public function testThrowsXmlParsingExceptionIfDuplicateSlotName(): void
     {
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('Element \'slot\': Duplicate key-sequence [\'left\'] in unique identity-constraint \'uniqueSlotName\'');
+        $file = __DIR__ . '/../_fixtures/Resources/cms-duplicate-slot-name.xml';
 
-        CmsExtensions::createFromXmlFile(__DIR__ . '/../_fixtures/Resources/cms-duplicate-slot-name.xml');
+        $this->expectExceptionObject(AppException::xmlParsingException(
+            $file,
+            '[ERROR 1877] Element \'slot\': Duplicate key-sequence [\'left\'] in unique identity-constraint \'uniqueSlotName\'.'
+        ));
+
+        CmsExtensions::createFromXmlFile($file);
     }
 }

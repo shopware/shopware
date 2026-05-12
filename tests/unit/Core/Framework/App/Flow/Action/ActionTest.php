@@ -27,10 +27,11 @@ class ActionTest extends TestCase
     #[DataProvider('invalidFlowActionProvider')]
     public function testCreateFromXmlFailsForInvalidFlowAction(string $fixture, string $message): void
     {
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage($message);
+        $file = __DIR__ . '/../../_fixtures/Resources/' . $fixture;
 
-        Action::createFromXmlFile(__DIR__ . '/../../_fixtures/Resources/' . $fixture);
+        $this->expectExceptionObject(AppException::createFromXmlFileFlowError($file, $message));
+
+        Action::createFromXmlFile($file);
     }
 
     /**
@@ -50,7 +51,7 @@ class ActionTest extends TestCase
 
         yield 'missing config child' => [
             'fixture' => 'flow-action-config-without-required-child.xml',
-            'message' => 'Message: [ERROR 1871] Element \'config\': Missing child element(s). Expected is ( input-field ).',
+            'message' => '[ERROR 1871] Element \'config\': Missing child element(s). Expected is ( input-field ).',
         ];
 
         yield 'invalid input field type' => [

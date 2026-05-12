@@ -453,13 +453,15 @@ class TestBootstrapper
 
         if ($this->activePlugins !== []) {
             $application = new Application($kernel);
-            $returnCode = $application->doRun(new ArrayInput([
+
+            $input = new ArrayInput([
                 'command' => 'plugin:install',
                 '--activate' => true,
                 '--reinstall' => true,
-                '--no-interaction' => true,
                 'plugins' => $this->activePlugins,
-            ]), $this->getOutput());
+            ]);
+            $input->setInteractive(false);
+            $returnCode = $application->doRun($input, $this->getOutput());
 
             if ($returnCode !== Command::SUCCESS) {
                 throw new \RuntimeException('system:install failed');

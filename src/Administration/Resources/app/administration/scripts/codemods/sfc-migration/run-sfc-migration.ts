@@ -293,15 +293,15 @@ if (process.argv[1] === __filename) {
         console.log(`
 Migration Summary
 =================
-Fully migrated:      ${stats.fullyMigrated}
-Partially migrated:  ${stats.partiallyMigrated}
-Not migratable:      ${stats.notMigratable}
-Skipped (no twig):   ${stats.skipped}
-Skipped (exists):    ${stats.skippedExisting}
-Deleted originals:   ${stats.deletedOriginals}
-Components with $el: ${stats.elWarnings}
+Fully migrated:       ${stats.fullyMigrated}
+Partially migrated:   ${stats.partiallyMigrated}
+Not migratable:       ${stats.notMigratable}
+Skipped (no twig):    ${stats.skipped}
+Skipped (exists):     ${stats.skippedExisting}
+Deleted originals:    ${stats.deletedOriginals}
+Components with $el:  ${stats.elWarnings}
 Components (extends): ${stats.extendsComponents}
-Errors:              ${stats.errors}
+Errors:               ${stats.errors}
 `);
 
         if (dryRun) {

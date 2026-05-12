@@ -73,8 +73,7 @@ class JWTFactoryV2Test extends TestCase
     {
         $token = Uuid::randomHex();
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('The provided token ' . $token . ' is invalid and the payment could not be processed.');
+        $this->expectExceptionObject(PaymentException::invalidToken($token));
 
         static::assertNotEmpty($token);
 
@@ -88,8 +87,7 @@ class JWTFactoryV2Test extends TestCase
         $token = $this->tokenFactory->generateToken($tokenStruct);
         $invalidToken = substr($token, 0, -5);
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('The provided token ' . $invalidToken . ' is invalid and the payment could not be processed.');
+        $this->expectExceptionObject(PaymentException::invalidToken($invalidToken));
 
         static::assertNotEmpty($invalidToken);
 
@@ -114,8 +112,7 @@ class JWTFactoryV2Test extends TestCase
         $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId(), null, -50);
         $token = $tokenFactory->generateToken($tokenStruct);
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('The provided token ' . $token . ' is invalid and the payment could not be processed.');
+        $this->expectExceptionObject(PaymentException::invalidToken($token));
 
         static::assertNotEmpty($token);
 

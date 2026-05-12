@@ -371,8 +371,7 @@ class PaymentProcessorTest extends TestCase
         $request = new Request();
         $salesChannelContext = Generator::generateSalesChannelContext();
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('The order with id order-id is invalid or could not be found.');
+        $this->expectExceptionObject(PaymentException::invalidOrder('order-id'));
         $this->processor->pay(
             'order-id',
             $request,
@@ -501,8 +500,7 @@ class PaymentProcessorTest extends TestCase
             ->method('invalidateToken')
             ->with('token');
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('Could not find payment method with id "payment-method-id"');
+        $this->expectExceptionObject(PaymentException::unknownPaymentMethodById('payment-method-id'));
         $this->processor->pay(
             'order-id',
             $request,
@@ -550,8 +548,7 @@ class PaymentProcessorTest extends TestCase
             ->method('invalidateToken')
             ->with('token-id');
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('Could not find payment method with id "payment-method-id"');
+        $this->expectExceptionObject(PaymentException::unknownPaymentMethodById('payment-method-id'));
         $this->processor->pay(
             'order-id',
             $request,
@@ -618,8 +615,7 @@ class PaymentProcessorTest extends TestCase
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testFinalizeWithInvalidToken(): void
     {
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('The provided token  is invalid and the payment could not be processed.');
+        $this->expectExceptionObject(PaymentException::invalidToken(''));
 
         $this->processor->finalize(
             new TokenStruct(),
@@ -653,8 +649,7 @@ class PaymentProcessorTest extends TestCase
         });
         static::assertInstanceOf(TokenStruct::class, $fakeTokenStruct);
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('Could not find payment method with id "payment-method-id"');
+        $this->expectExceptionObject(PaymentException::unknownPaymentMethodById('payment-method-id'));
         $this->processor->finalize(
             $fakeTokenStruct,
             $request,
@@ -929,8 +924,7 @@ class PaymentProcessorTest extends TestCase
             ->with($salesChannelContext->getPaymentMethod()->getId())
             ->willReturn(null);
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('Could not find payment method with id "payment-method-id"');
+        $this->expectExceptionObject(PaymentException::unknownPaymentMethodById('payment-method-id'));
         $this->processor->validate(
             $cart,
             $requestDataBag,
@@ -958,9 +952,7 @@ class PaymentProcessorTest extends TestCase
             ->with($salesChannelContext->getPaymentMethod()->getId())
             ->willReturn($handler);
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('The validation process of the prepared payment was interrupted due to the following error:
-failed');
+        $this->expectExceptionObject(PaymentException::validatePreparedPaymentInterrupted('failed'));
         $this->processor->validate(
             $cart,
             $requestDataBag,

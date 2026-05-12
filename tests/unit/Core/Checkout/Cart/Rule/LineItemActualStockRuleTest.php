@@ -211,11 +211,10 @@ class LineItemActualStockRuleTest extends TestCase
         );
 
         if (!Feature::isActive('v6.8.0.0')) {
-            $this->expectException(UnsupportedValueException::class);
+            $this->expectExceptionObject(new UnsupportedValueException('NULL', LineItemActualStockRule::class));
         } else {
-            $this->expectException(CartException::class);
+            $this->expectExceptionObject(CartException::unsupportedValue('NULL', LineItemActualStockRule::class));
         }
-        $this->expectExceptionMessage('Unsupported value of type NULL in Shopware\Core\Checkout\Cart\Rule\LineItemActualStockRule');
 
         $goodsCountRule->match($scope);
     }

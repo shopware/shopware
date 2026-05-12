@@ -24,6 +24,8 @@
 
 import { existsSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
+import commandLineArgs from 'command-line-args';
+import getUsage from 'command-line-usage';
 import { globSync } from 'glob';
 import { Project, ScriptKind } from 'ts-morph';
 import { mergeComponentFiles } from './generate-sfc';
@@ -49,6 +51,102 @@ export interface RunStats {
 export interface RunResult {
     stats: RunStats;
     report: string[];
+}
+
+interface CliOptionDefinition {
+    name: string;
+    alias?: string;
+    type: StringConstructor | BooleanConstructor;
+    defaultOption?: boolean;
+    typeLabel?: string;
+    description: string;
+}
+
+interface RawCliOptions {
+    help?: boolean;
+    dryRun?: boolean;
+    write?: boolean;
+    force?: boolean;
+    deleteOriginals?: boolean;
+    path?: string;
+}
+
+export interface CliOptions {
+    help: boolean;
+    targetDir?: string;
+    dryRun: boolean;
+    force: boolean;
+    deleteOriginals: boolean;
+}
+
+const cliOptionDefinitions: CliOptionDefinition[] = [
+    {
+        name: 'help',
+        alias: 'h',
+        type: Boolean,
+        description: 'Prints this help page.',
+    },
+    {
+        name: 'dry-run',
+        type: Boolean,
+        description: '(default) Preview what would be written without writing files.',
+    },
+    {
+        name: 'write',
+        type: Boolean,
+        description: 'Write .vue files to disk.',
+    },
+    {
+        name: 'force',
+        type: Boolean,
+        description: 'Overwrite existing .vue files (default: skip if already exists).',
+    },
+    {
+        name: 'delete-originals',
+        type: Boolean,
+        description: 'Replace source index.js with an SFC entry point and delete .html.twig.',
+    },
+    {
+        name: 'path',
+        type: String,
+        defaultOption: true,
+        typeLabel: '<path>',
+        description: 'Directory to scan for index.js component files.',
+    },
+];
+
+const cliUsageSections = [
+    {
+        header: 'SFC Migration Codemod',
+        content: 'Generates .vue SFCs from Options API components.',
+    },
+    {
+        header: 'Synopsis',
+        content: [
+            '$ npm run codemod:sfc-migration -- [--dry-run | --write] [--force] [--delete-originals] <path>',
+            '$ npm run codemod:sfc-migration -- --help',
+        ],
+    },
+    {
+        header: 'Options',
+        optionList: cliOptionDefinitions,
+    },
+];
+
+export function getCliUsage(): string {
+    return getUsage(cliUsageSections);
+}
+
+export function parseCliOptions(argv: string[]): CliOptions {
+    const options = commandLineArgs(cliOptionDefinitions, { argv, camelCase: true }) as RawCliOptions;
+
+    return {
+        help: options.help ?? false,
+        targetDir: options.path ? resolve(options.path) : undefined,
+        dryRun: options.dryRun ?? !options.write,
+        force: options.force ?? false,
+        deleteOriginals: options.deleteOriginals ?? false,
+    };
 }
 
 function selectTwigFile(dir: string, componentName: string): { path: string | null; candidates: string[] } {
@@ -232,7 +330,9 @@ export function runMigration(targetDir: string, options: RunOptions): RunResult 
                         const parentMatch = extendsBlocker.match(/\(parent: ([^)]+)\)/);
                         const parentName = parentMatch ? parentMatch[1] : 'unknown';
                         stats.extendsComponents++;
-                        report.push(`   ⚠  manually inline parent options from '${parentName}' before re-running codemod; see README.md`);
+                        report.push(
+                            `   ⚠  manually inline parent options from '${parentName}' before re-running codemod; see README.md`,
+                        );
                     }
                     break;
                 }
@@ -253,41 +353,36 @@ export function runMigration(targetDir: string, options: RunOptions): RunResult 
 
 // Only execute when invoked directly as a script, not when imported by tests.
 if (process.argv[1] === __filename) {
-    const args = process.argv.slice(2);
+    let cliOptions: CliOptions;
 
-    if (args.includes('--help') || args.includes('-h')) {
-        console.log('Usage: npx tsx run-sfc-migration.ts [--dry-run | --write] [--force] [--delete-originals] <path>');
-        console.log('  <path>               Directory to scan for index.js component files');
-        console.log('  --dry-run            (default) Preview what would be written without writing files');
-        console.log('  --write              Write .vue files to disk');
-        console.log('  --force              Overwrite existing .vue files (default: skip if already exists)');
-        console.log('  --delete-originals   Replace source index.js with an SFC entry point and delete .html.twig');
-        process.exit(0);
-    }
-
-    const targetArg = args.find((a) => !a.startsWith('--'));
-
-    if (!targetArg) {
-        console.error('Usage: npx tsx run-sfc-migration.ts [--dry-run | --write] [--force] [--delete-originals] <path>');
-        console.error('  <path>               Directory to scan for index.js component files');
-        console.error('  --dry-run            (default) Preview what would be written without writing files');
-        console.error('  --write              Write .vue files to disk');
-        console.error('  --force              Overwrite existing .vue files (default: skip if already exists)');
-        console.error('  --delete-originals   Replace source index.js with an SFC entry point and delete .html.twig');
+    try {
+        cliOptions = parseCliOptions(process.argv.slice(2));
+    } catch (err) {
+        console.error(err instanceof Error ? err.message : String(err));
+        console.error(getCliUsage());
         process.exit(1);
     }
 
-    const TARGET_DIR = resolve(targetArg);
-    const dryRun = args.includes('--dry-run') || !args.includes('--write');
-    const force = args.includes('--force');
-    const deleteOriginals = args.includes('--delete-originals');
+    if (cliOptions.help) {
+        console.log(getCliUsage());
+        process.exit(0);
+    }
 
-    if (!dryRun && deleteOriginals) {
+    if (!cliOptions.targetDir) {
+        console.error(getCliUsage());
+        process.exit(1);
+    }
+
+    if (!cliOptions.dryRun && cliOptions.deleteOriginals) {
         console.warn('WARNING: --delete-originals will permanently delete source files. Ensure git is clean.');
     }
 
     try {
-        const { stats, report } = runMigration(TARGET_DIR, { dryRun, force, deleteOriginals });
+        const { stats, report } = runMigration(cliOptions.targetDir, {
+            dryRun: cliOptions.dryRun,
+            force: cliOptions.force,
+            deleteOriginals: cliOptions.deleteOriginals,
+        });
 
         console.log(report.join('\n'));
         console.log(`
@@ -304,7 +399,7 @@ Components (extends): ${stats.extendsComponents}
 Errors:               ${stats.errors}
 `);
 
-        if (dryRun) {
+        if (cliOptions.dryRun) {
             console.log('[DRY RUN] No files were written. Run with --write to apply.');
         }
 

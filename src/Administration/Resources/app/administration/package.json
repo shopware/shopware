@@ -140,6 +140,8 @@
     "@swc/jest": "0.2.39",
     "@testing-library/jest-dom": "5.17.0",
     "@types/cli-progress": "3.11.6",
+    "@types/command-line-args": "5.2.3",
+    "@types/command-line-usage": "5.0.4",
     "@types/convert-units": "2.3.12",
     "@types/debug": "4.1.12",
     "@types/eslint": "9.6.1",

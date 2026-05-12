@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path, { join } from 'node:path';
-import { findTwigFile, normaliseJsContent, runMigration } from './run-sfc-migration';
+import { findTwigFile, getCliUsage, normaliseJsContent, parseCliOptions, runMigration } from './run-sfc-migration';
 
 const FIXTURES_DIR = path.join(__dirname, '__fixtures__');
 
@@ -22,6 +22,80 @@ function makeComponent(baseDir: string, componentName: string, jsContent: string
     }
     return dir;
 }
+
+describe('parseCliOptions', () => {
+    it('sets help when --help is provided', () => {
+        expect(parseCliOptions(['--help'])).toMatchObject({
+            help: true,
+            targetDir: undefined,
+            dryRun: true,
+        });
+    });
+
+    it('sets help when -h is provided', () => {
+        expect(parseCliOptions(['-h'])).toMatchObject({
+            help: true,
+            targetDir: undefined,
+            dryRun: true,
+        });
+    });
+
+    it('keeps dry-run mode by default', () => {
+        const result = parseCliOptions(['src/app/component/base/sw-button']);
+
+        expect(result).toMatchObject({
+            targetDir: path.resolve('src/app/component/base/sw-button'),
+            dryRun: true,
+            force: false,
+            deleteOriginals: false,
+        });
+    });
+
+    it('disables dry-run mode when --write is provided', () => {
+        const result = parseCliOptions([
+            '--write',
+            'src/app/component/base/sw-button',
+        ]);
+
+        expect(result.dryRun).toBe(false);
+    });
+
+    it('lets --dry-run win when both --dry-run and --write are provided', () => {
+        const result = parseCliOptions([
+            '--dry-run',
+            '--write',
+            'src/app/component/base/sw-button',
+        ]);
+
+        expect(result.dryRun).toBe(true);
+    });
+
+    it('parses --force and --delete-originals flags', () => {
+        const result = parseCliOptions([
+            '--write',
+            '--force',
+            '--delete-originals',
+            'src/app/component/base/sw-button',
+        ]);
+
+        expect(result.force).toBe(true);
+        expect(result.deleteOriginals).toBe(true);
+    });
+
+    it('leaves targetDir empty when no path is provided', () => {
+        const result = parseCliOptions(['--write']);
+
+        expect(result.targetDir).toBeUndefined();
+    });
+
+    it('builds usage output from the option definitions', () => {
+        const usage = getCliUsage();
+
+        expect(usage).toContain('SFC Migration Codemod');
+        expect(usage).toContain('--dry-run');
+        expect(usage).toContain('--delete-originals');
+    });
+});
 
 describe('findTwigFile', () => {
     let tmpDir: string;
@@ -279,11 +353,7 @@ describe('runMigration — skip (ambiguous twig files)', () => {
 
     beforeEach(() => {
         tmpDir = createTempDir();
-        componentDir = makeComponent(
-            tmpDir,
-            'sw-ambiguous-card',
-            readFixture('simple-component.index.js'),
-        );
+        componentDir = makeComponent(tmpDir, 'sw-ambiguous-card', readFixture('simple-component.index.js'));
         writeFileSync(join(componentDir, 'helper.html.twig'), '<div>helper</div>', 'utf-8');
         writeFileSync(join(componentDir, 'sidebar.html.twig'), '<div>sidebar</div>', 'utf-8');
     });

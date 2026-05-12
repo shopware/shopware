@@ -2,10 +2,10 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\Cms\ProductSlider;
 
-use Psr\Log\LoggerInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfig;

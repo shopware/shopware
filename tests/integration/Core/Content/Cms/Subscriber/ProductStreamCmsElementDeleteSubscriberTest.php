@@ -2,13 +2,11 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Cms\Subscriber;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotDefinition;
 use Shopware\Core\Content\Cms\CmsPageCollection;
-use Shopware\Core\Content\Cms\Subscriber\ProductStreamCmsElementDeleteSubscriber;
 use Shopware\Core\Content\LandingPage\LandingPageCollection;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -29,7 +27,6 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
  * @internal
  */
 #[Package('discovery')]
-#[CoversClass(ProductStreamCmsElementDeleteSubscriber::class)]
 class ProductStreamCmsElementDeleteSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;

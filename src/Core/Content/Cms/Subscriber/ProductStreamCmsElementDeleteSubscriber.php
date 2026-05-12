@@ -68,7 +68,7 @@ class ProductStreamCmsElementDeleteSubscriber implements EventSubscriberInterfac
 
     public function beforeDelete(EntityDeleteEvent $event): void
     {
-        $productStreamIds = array_values($event->getIds(ProductStreamDefinition::ENTITY_NAME));
+        $productStreamIds = $this->normalizeIds(array_values($event->getIds(ProductStreamDefinition::ENTITY_NAME)));
 
         if ($productStreamIds === []) {
             return;
@@ -98,7 +98,7 @@ class ProductStreamCmsElementDeleteSubscriber implements EventSubscriberInterfac
             return;
         }
 
-        throw DataAbstractionLayerException::restrictDeleteViolations($this->productStreamDefinition, $restrictions);
+        throw DataAbstractionLayerException::restrictDeleteViolations($this->productStreamDefinition, $restrictions); // @phpstan-ignore shopware.domainException (Restrict delete violations are DAL exceptions.)
     }
 
     /**

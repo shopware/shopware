@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatch;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
 use Shopware\Core\Framework\App\Source\SourceResolver;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
 use Shopware\Core\Framework\Plugin;
@@ -22,6 +23,7 @@ use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Util\Hasher;
+use Symfony\Component\DependencyInjection\Exception\ParameterNotFoundException;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
@@ -279,7 +281,7 @@ class AssetService
             $batches[] = new CopyBatchInput(
                 Path::join($originDir, $file),
                 [Path::join($targetDirectory, $file)],
-                $this->parameterBag->get('shopware.filesystem.asset.config')['visibility'] ?? Visibility::PUBLIC,
+                $this->getAssetVisibility(),
             );
         }
 
@@ -372,5 +374,18 @@ class AssetService
     private function areAssetsStoredLocally(): bool
     {
         return $this->parameterBag->get('shopware.filesystem.asset.type') === 'local';
+    }
+
+    private function getAssetVisibility(): string
+    {
+        try {
+            return (string) ((
+                !Feature::isActive('v6.8.0.0')
+                    ? $this->parameterBag->get('shopware.filesystem.asset.config')['visibility'] ?? null
+                    : null
+            ) ?? $this->parameterBag->get('shopware.filesystem.asset.visibility'));
+        } catch (ParameterNotFoundException) {
+            return Visibility::PUBLIC;
+        }
     }
 }

@@ -386,8 +386,11 @@ class DateRangeRuleTest extends TestCase
     public static function invalidConstraintValuesProvider(): \Generator
     {
         yield 'missing fromDate' => ['fromDate', null, NotBlank::IS_BLANK_ERROR];
+        yield 'missing toDate' => ['toDate', null, NotBlank::IS_BLANK_ERROR];
         yield 'invalid fromDate format' => ['fromDate', 'Invalid', DateTimeConstraint::INVALID_FORMAT_ERROR];
+        yield 'invalid boolean fromDate format' => ['fromDate', true, DateTimeConstraint::INVALID_FORMAT_ERROR];
         yield 'invalid toDate format' => ['toDate', 'Invalid', DateTimeConstraint::INVALID_FORMAT_ERROR];
+        yield 'invalid boolean toDate format' => ['toDate', true, DateTimeConstraint::INVALID_FORMAT_ERROR];
         yield 'missing useTime' => ['useTime', null, NotNull::IS_NULL_ERROR];
         yield 'invalid useTime type' => ['useTime', 'true', Type::INVALID_TYPE_ERROR];
         yield 'invalid timezone' => ['timezone', 'Invalid/Timezone', Timezone::TIMEZONE_IDENTIFIER_ERROR];

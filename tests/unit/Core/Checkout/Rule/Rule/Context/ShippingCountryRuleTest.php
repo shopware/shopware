@@ -17,9 +17,14 @@ use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Symfony\Component\Validator\Constraints\Choice;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
+use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
@@ -219,6 +224,66 @@ class ShippingCountryRuleTest extends TestCase
         ], $rule->getConstraints());
     }
 
+    public function testConstraintsRejectEmptyCountryIds(): void
+    {
+        $violations = $this->validateConstraint('countryIds', []);
+
+        $this->assertViolationCode($violations, NotBlank::IS_BLANK_ERROR);
+    }
+
+    public function testConstraintsRejectInvalidCountryIdsUuid(): void
+    {
+        $violations = $this->validateConstraint('countryIds', ['INVALID-UUID', true, 3]);
+
+        $this->assertViolationCode($violations, ArrayOfUuid::INVALID_TYPE_CODE, 3);
+    }
+
+    public function testConstraintsAcceptValidCountryIds(): void
+    {
+        $violations = $this->validateConstraint('countryIds', [Uuid::randomHex(), Uuid::randomHex()]);
+
+        static::assertCount(0, $violations);
+    }
+
+    #[DataProvider('validUuidOperators')]
+    public function testConstraintsAcceptAvailableOperators(string $operator): void
+    {
+        $violations = $this->validateConstraint('operator', $operator);
+
+        static::assertCount(0, $violations);
+    }
+
+    #[DataProvider('invalidUuidOperators')]
+    public function testConstraintsRejectInvalidOperators(string $operator): void
+    {
+        $violations = $this->validateConstraint('operator', $operator);
+
+        $this->assertViolationCode($violations, Choice::NO_SUCH_CHOICE_ERROR);
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function validUuidOperators(): array
+    {
+        return [
+            'equals' => [Rule::OPERATOR_EQ],
+            'not equals' => [Rule::OPERATOR_NEQ],
+        ];
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function invalidUuidOperators(): array
+    {
+        return [
+            'less than or equals' => [Rule::OPERATOR_LTE],
+            'greater than or equals' => [Rule::OPERATOR_GTE],
+            'unknown operator' => ['Invalid'],
+        ];
+    }
+
     #[DataProvider('getMatchValues')]
     public function testRuleMatching(string $operator, bool $isMatching, string $countryId): void
     {
@@ -253,5 +318,19 @@ class ShippingCountryRuleTest extends TestCase
             'operator_empty / not match / country id' => [Rule::OPERATOR_NEQ, false, 'kyln123'],
             'operator_empty / match / country id' => [Rule::OPERATOR_EMPTY, true, ''],
         ];
+    }
+
+    private function validateConstraint(string $field, mixed $value): ConstraintViolationListInterface
+    {
+        return Validation::createValidator()->validate($value, (new ShippingCountryRule())->getConstraints()[$field]);
+    }
+
+    private function assertViolationCode(ConstraintViolationListInterface $violations, string $expectedCode, int $expectedCount = 1): void
+    {
+        static::assertCount($expectedCount, $violations);
+
+        foreach ($violations as $violation) {
+            static::assertSame($expectedCode, $violation->getCode());
+        }
     }
 }

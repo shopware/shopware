@@ -221,6 +221,7 @@ class UserController extends AbstractController
         if ((!$source instanceof AdminApiSource)
             || (!$source->isAllowed('user:update')
             && $source->getUserId() !== $data['id'])
+            || (!$source->isAdmin() && isset($data['admin']))
         ) {
             throw new PermissionDeniedException();
         }

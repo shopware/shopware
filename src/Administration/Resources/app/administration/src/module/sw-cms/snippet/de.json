@@ -665,6 +665,9 @@
     },
     "blocks": {
       "commerce": {
+        "categoryHeading": {
+          "label": "Kategoriename"
+        },
         "productHeading": {
           "label": "Produktname & Hersteller-Logo"
         },

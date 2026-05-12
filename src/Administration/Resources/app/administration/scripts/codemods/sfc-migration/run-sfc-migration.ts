@@ -30,6 +30,7 @@ import { globSync } from 'glob';
 import { Project, ScriptKind } from 'ts-morph';
 import type { MergeResult } from './generate-sfc';
 import { mergeComponentFiles } from './generate-sfc';
+import { quoteJsString } from './string-literals';
 
 export interface RunOptions {
     dryRun?: boolean;
@@ -209,13 +210,9 @@ export function normaliseJsContent(jsContent: string, componentName: string): st
 
     return (
         jsContent.slice(0, start) +
-        `Shopware.Component.register('${componentName}', ${objectLiteralText});` +
+        `Shopware.Component.register(${quoteJsString(componentName)}, ${objectLiteralText});` +
         jsContent.slice(end)
     );
-}
-
-function quoteJsString(value: string): string {
-    return JSON.stringify(value);
 }
 
 function buildIndexShim(componentName: string, sfc: string): string {

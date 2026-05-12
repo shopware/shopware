@@ -154,6 +154,13 @@ describe('normaliseJsContent', () => {
         expect(result).not.toContain('export default');
     });
 
+    it('escapes component names when wrapping export default {}', () => {
+        const input = `export default {};`;
+        const result = normaliseJsContent(input, `sw-foo's-card`);
+
+        expect(result).toBe(`Shopware.Component.register('sw-foo\\'s-card', {});`);
+    });
+
     it('handles a multiline export default with nested objects', () => {
         const input = `export default {\n    data() {\n        return {\n            x: 1,\n        };\n    },\n};`;
         const result = normaliseJsContent(input, 'sw-multi');
@@ -635,7 +642,7 @@ describe('runMigration — delete-originals (fully-migrated)', () => {
 
         const entrypoint = readFileSync(join(componentDir, 'index.js'), 'utf-8');
         expect(entrypoint).toBe(
-            'import component from "./sw-simple-card.vue";\n\nShopware.Component.register("sw-simple-card", component);\n',
+            "import component from './sw-simple-card.vue';\n\nShopware.Component.register('sw-simple-card', component);\n",
         );
     });
 
@@ -697,7 +704,7 @@ describe('runMigration — delete-originals (partially-migrated)', () => {
         expect(existsSync(join(componentDir, 'sw-mixin-list.html.twig'))).toBe(false);
 
         const entrypoint = readFileSync(join(componentDir, 'index.js'), 'utf-8');
-        expect(entrypoint).toBe('import "./sw-mixin-list.vue";\n');
+        expect(entrypoint).toBe("import './sw-mixin-list.vue';\n");
     });
 
     it('increments deletedOriginals stat for partially-migrated component', () => {

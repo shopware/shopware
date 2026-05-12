@@ -7,6 +7,7 @@ import {
     SourceFile,
     SyntaxKind,
 } from 'ts-morph';
+import { quoteJsString } from './string-literals';
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -211,7 +212,7 @@ function sanitizeTodoCommentText(value: string): string {
 }
 
 function buildPropertyAccess(target: string, name: string): string {
-    return isSafeIdentifier(name) ? `${target}.${name}` : `${target}[${quoteString(name)}]`;
+    return isSafeIdentifier(name) ? `${target}.${name}` : `${target}[${quoteJsString(name)}]`;
 }
 
 function createWrappedSnippetSource(
@@ -281,10 +282,6 @@ function buildWatchSource(name: string, propNames: Set<string>, injectNames: Set
     }
 
     return `${name}.value`;
-}
-
-function quoteString(value: string): string {
-    return `'${value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
 }
 
 function serializeMethodLikeFunction(method: MethodDeclaration): string {
@@ -1472,7 +1469,7 @@ function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componen
 
     // ── inject ────────────────────────────────────────────────────────────────
     supportedInjectProps.forEach(({ localName, sourceKey, defaultValueText, treatDefaultAsFactory }) => {
-        const args = [quoteString(sourceKey)];
+        const args = [quoteJsString(sourceKey)];
 
         if (defaultValueText !== undefined) {
             args.push(defaultValueText);

@@ -236,8 +236,8 @@ class McpServerController
             return $psrResponse;
         }
 
-        $responseData = $this->decodeJson((string) $psrResponse->getBody());
-        if (!\is_array($responseData)) {
+        $responseData = $this->decodeJson((string) $psrResponse->getBody(), false);
+        if (!$responseData instanceof \stdClass) {
             return $psrResponse;
         }
 
@@ -252,27 +252,37 @@ class McpServerController
             return $psrResponse;
         }
 
-        $shopwareMeta = [];
+        $shopwareMeta = new \stdClass();
         if ($source->getUserId() !== null) {
-            $shopwareMeta['user'] = ['id' => $source->getUserId()];
+            $shopwareMeta->user = (object) ['id' => $source->getUserId()];
         }
         if ($source->getIntegrationId() !== null) {
-            $shopwareMeta['integration'] = ['id' => $source->getIntegrationId()];
+            $shopwareMeta->integration = (object) ['id' => $source->getIntegrationId()];
         }
 
-        if ($shopwareMeta === []) {
+        if (!isset($shopwareMeta->user) && !isset($shopwareMeta->integration)) {
             return $psrResponse;
         }
 
-        $result = $responseData['result'] ?? null;
-        if (!\is_array($result)) {
+        $result = $responseData->result ?? null;
+        if (!$result instanceof \stdClass) {
             return $psrResponse;
         }
 
-        $responseData['result']['_meta'] = array_merge_recursive(
-            \is_array($result['_meta'] ?? null) ? $result['_meta'] : [],
-            ['shopware' => $shopwareMeta],
-        );
+        if (!isset($result->_meta) || !$result->_meta instanceof \stdClass) {
+            $result->_meta = new \stdClass();
+        }
+
+        if (!isset($result->_meta->shopware) || !$result->_meta->shopware instanceof \stdClass) {
+            $result->_meta->shopware = new \stdClass();
+        }
+
+        if (isset($shopwareMeta->user)) {
+            $result->_meta->shopware->user = $shopwareMeta->user;
+        }
+        if (isset($shopwareMeta->integration)) {
+            $result->_meta->shopware->integration = $shopwareMeta->integration;
+        }
 
         $newBody = json_encode($responseData, \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_UNICODE);
         $newStream = $this->streamFactory->createStream($newBody);
@@ -296,10 +306,10 @@ class McpServerController
         return new Response($payload, Response::HTTP_OK, ['Content-Type' => 'application/json']);
     }
 
-    private function decodeJson(string $content): mixed
+    private function decodeJson(string $content, bool $associative = true): mixed
     {
         try {
-            return json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+            return json_decode($content, $associative, 512, \JSON_THROW_ON_ERROR);
         } catch (\JsonException) { // @codeCoverageIgnore
             return null; // @codeCoverageIgnore
         }

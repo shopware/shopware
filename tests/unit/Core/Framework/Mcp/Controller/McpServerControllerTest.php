@@ -11,12 +11,15 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistFilter;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Mcp\Controller\McpServerController;
 use Shopware\Core\Framework\Mcp\McpException;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Shopware\Core\PlatformRequest;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Bridge\PsrHttpMessage\HttpFoundationFactoryInterface;
 use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
@@ -69,6 +72,51 @@ class McpServerControllerTest extends TestCase
         $response = $controller->handle(new Request());
 
         static::assertSame(200, $response->getStatusCode());
+    }
+
+    public function testInitializeEnrichmentKeepsEmptyCapabilityObjects(): void
+    {
+        $body = json_encode([
+            'jsonrpc' => '2.0',
+            'method' => 'initialize',
+            'params' => [
+                'protocolVersion' => '2025-03-26',
+                'capabilities' => new \stdClass(),
+                'clientInfo' => ['name' => 'test', 'version' => '1.0'],
+            ],
+            'id' => 1,
+        ], \JSON_THROW_ON_ERROR);
+
+        $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);
+        $controller = $this->buildController($psrRequest, new HttpFoundationFactory());
+        $sfRequest = Request::create('/api/_mcp', 'POST', content: $body);
+        $sfRequest->attributes->set(
+            PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT,
+            Context::createDefaultContext(new AdminApiSource(null, 'integration-id')),
+        );
+
+        $response = $controller->handle($sfRequest);
+
+        $data = json_decode((string) $response->getContent(), false, 512, \JSON_THROW_ON_ERROR);
+        static::assertInstanceOf(\stdClass::class, $data);
+
+        $result = $data->result ?? null;
+        static::assertInstanceOf(\stdClass::class, $result);
+
+        $capabilities = $result->capabilities ?? null;
+        static::assertInstanceOf(\stdClass::class, $capabilities);
+        static::assertInstanceOf(\stdClass::class, $capabilities->logging ?? null);
+        static::assertInstanceOf(\stdClass::class, $capabilities->completions ?? null);
+
+        $meta = $result->_meta ?? null;
+        static::assertInstanceOf(\stdClass::class, $meta);
+
+        $shopwareMeta = $meta->shopware ?? null;
+        static::assertInstanceOf(\stdClass::class, $shopwareMeta);
+
+        $integrationMeta = $shopwareMeta->integration ?? null;
+        static::assertInstanceOf(\stdClass::class, $integrationMeta);
+        static::assertSame('integration-id', $integrationMeta->id ?? null);
     }
 
     public function testHandleDetectsStreamedResponse(): void

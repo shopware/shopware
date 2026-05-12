@@ -131,13 +131,13 @@ class JsonApiEncoderTest extends TestCase
      */
     public static function complexStructsProvider(): iterable
     {
-        yield 'complex structs media definition test basic struct' => [MediaDefinition::class, new TestBasicStruct()];
-        yield 'complex structs user definition test basic with to many' => [UserDefinition::class, new TestBasicWithToManyRelationships()];
-        yield 'complex structs media definition test basic with to one' => [MediaDefinition::class, new TestBasicWithToOneRelationship()];
-        yield 'complex structs media folder definition test collection with reference' => [MediaFolderDefinition::class, new TestCollectionWithSelfReference()];
-        yield 'complex structs media definition test collection with to one' => [MediaDefinition::class, new TestCollectionWithToOneRelationship()];
-        yield 'complex structs rule definition test internal fields are filtered' => [RuleDefinition::class, new TestInternalFieldsAreFiltered()];
-        yield 'complex structs user definition test main resource should not' => [UserDefinition::class, new TestMainResourceShouldNotBeInIncluded()];
+        yield 'media resource with basic struct is encoded' => [MediaDefinition::class, new TestBasicStruct()];
+        yield 'user resource with to many relationships is encoded' => [UserDefinition::class, new TestBasicWithToManyRelationships()];
+        yield 'media resource with to one relationship is encoded' => [MediaDefinition::class, new TestBasicWithToOneRelationship()];
+        yield 'media folder resource with self reference collection is encoded' => [MediaFolderDefinition::class, new TestCollectionWithSelfReference()];
+        yield 'media resource with collection to one relationship is encoded' => [MediaDefinition::class, new TestCollectionWithToOneRelationship()];
+        yield 'rule resource filters internal fields' => [RuleDefinition::class, new TestInternalFieldsAreFiltered()];
+        yield 'user resource keeps main resource out of included data' => [UserDefinition::class, new TestMainResourceShouldNotBeInIncluded()];
     }
 
     /**

@@ -1245,8 +1245,8 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
      */
     public static function salesChannelAssignmentCsvProvider(): iterable
     {
-        yield 'sales channel assignment csv fixtures products with visibilities csv' => ['/fixtures/products_with_visibilities.csv'];
-        yield 'sales channel assignment csv fixtures products with visibility names' => ['/fixtures/products_with_visibility_names.csv'];
+        yield 'sales channel assignments are imported from visibility ids' => ['/fixtures/products_with_visibilities.csv'];
+        yield 'sales channel assignments are imported from visibility names' => ['/fixtures/products_with_visibility_names.csv'];
     }
 
     #[Group('slow')]

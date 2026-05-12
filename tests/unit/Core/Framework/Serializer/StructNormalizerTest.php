@@ -100,11 +100,11 @@ class StructNormalizerTest extends TestCase
      */
     public static function denormalizeShouldReturnNonArraysProvider(): iterable
     {
-        yield 'denormalize should return non arrays string' => ['string'];
-        yield 'denormalize should return non arrays 1' => [1];
-        yield 'denormalize should return non arrays null' => [null];
-        yield 'denormalize should return non arrays false' => [false];
-        yield 'denormalize should return non arrays std' => [new \stdClass()];
+        yield 'string input is returned unchanged' => ['string'];
+        yield 'integer input is returned unchanged' => [1];
+        yield 'null input is returned unchanged' => [null];
+        yield 'false input is returned unchanged' => [false];
+        yield 'object input is returned unchanged' => [new \stdClass()];
     }
 
     #[DataProvider('denormalizeShouldReturnNonArraysProvider')]

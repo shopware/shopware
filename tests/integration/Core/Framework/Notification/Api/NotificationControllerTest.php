@@ -109,7 +109,7 @@ class NotificationControllerTest extends TestCase
         yield 'save notification integration success this is a notification false cache clear' => ['integration', 'success', 'This is a notification', false, ['cache:clear'], true];
         yield 'save notification integration this is a notification false cache clear' => ['integration', '', 'This is a notification', false, ['cache:clear'], false];
         yield 'save notification integration success false cache clear false' => ['integration', 'success', '', false, ['cache:clear'], false];
-        yield 'save notification browser success this is a notification true true' => ['browser', 'success', 'This is a notification', true, [], true];
+        yield 'browser success notification with admin visibility is saved' => ['browser', 'success', 'This is a notification', true, [], true];
     }
 
     /**

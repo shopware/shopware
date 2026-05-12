@@ -107,19 +107,19 @@ class CanonicalRedirectServiceTest extends TestCase
      */
     public static function requestDataProvider(): iterable
     {
-        yield 'request request response' => [
+        yield 'HTTP request without canonical URL returns no redirect' => [
             'request' => self::getRequest([]),
             'response' => new Response(),
         ];
-        yield 'request request response variant 2' => [
+        yield 'HTTP request with canonical URL redirects permanently' => [
             'request' => self::getRequest([SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK => '']),
             'response' => new Response(),
         ];
-        yield 'request request response variant 3' => [
+        yield 'HTTPS request without canonical URL returns no redirect' => [
             'request' => self::getRequest([SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK => true]),
             'response' => new Response(),
         ];
-        yield 'request request response variant 4' => [
+        yield 'HTTPS request with canonical URL redirects permanently' => [
             'request' => self::getRequest([SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK => '/lorem/ipsum/dolor-sit/amet']),
             'response' => (new Response())->setStatusCode(Response::HTTP_MOVED_PERMANENTLY),
         ];

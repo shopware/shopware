@@ -157,13 +157,11 @@ class ApiRequestContextResolverTest extends TestCase
             ['product-creator' => ['product:detail', 'product:create']],
             false,
         ];
-        // test admin
         yield 'user role admin' => [
             ['product:detail' => true, 'product:create' => true],
             [],
             true,
         ];
-        // test multiple roles
         yield 'user role multiple roles' => [
             [
                 'product:detail' => true,
@@ -179,7 +177,6 @@ class ApiRequestContextResolverTest extends TestCase
             ],
             false,
         ];
-        // test no roles
         yield 'user role no roles' => [
             [
                 'product:detail' => false,

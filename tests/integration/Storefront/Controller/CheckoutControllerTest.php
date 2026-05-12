@@ -359,8 +359,7 @@ class CheckoutControllerTest extends TestCase
         static::assertNotNull($paidInAdvancePaymentMethodId, 'Paid in advance payment method not found');
         static::assertNotNull($invoicePaymentMethodId, 'Invoice payment method not found');
 
-        // One shipping method blocked is expected to be switched
-        yield 'error one shipping method blocked is expected to be switched' => [
+        yield 'single blocked shipping method is switched to the fallback method' => [
             new ErrorCollection(
                 [
                     new ShippingMethodChangedError(
@@ -376,8 +375,7 @@ class CheckoutControllerTest extends TestCase
                 \sprintf(self::SHIPPING_METHOD_CHANGED_ERROR_CONTENT, 'Standard', 'Express'),
             ],
         ];
-        // All shipping methods blocked expected to stay blocked
-        yield 'error all shipping methods blocked expected to stay blocked' => [
+        yield 'blocked shipping method remains blocked when every shipping method is blocked' => [
             new ErrorCollection(
                 [
                     new ShippingMethodChangedError(
@@ -402,8 +400,7 @@ class CheckoutControllerTest extends TestCase
             false,
             true,
         ];
-        // One payment method blocked is expected to be switched
-        yield 'error one payment method blocked is expected to be switched' => [
+        yield 'single blocked payment method is switched to the fallback method' => [
             new ErrorCollection(
                 [
                     new PaymentMethodChangedError(
@@ -419,8 +416,7 @@ class CheckoutControllerTest extends TestCase
                 \sprintf(self::PAYMENT_METHOD_CHANGED_ERROR_CONTENT, 'Cash on delivery', 'Paid in advance'),
             ],
         ];
-        // All payment methods blocked expected to stay blocked
-        yield 'error all payment methods blocked expected to stay blocked' => [
+        yield 'blocked payment method remains blocked when every payment method is blocked' => [
             new ErrorCollection(
                 [
                     new PaymentMethodChangedError(
@@ -452,8 +448,7 @@ class CheckoutControllerTest extends TestCase
             false,
             true,
         ];
-        // Standard shipping and payment method blocked expected to switch both
-        yield 'error standard shipping and payment method blocked expected to switch both' => [
+        yield 'blocked shipping and payment methods are both switched to fallbacks' => [
             new ErrorCollection(
                 [
                     new ShippingMethodChangedError(
@@ -477,8 +472,7 @@ class CheckoutControllerTest extends TestCase
                 \sprintf(self::PAYMENT_METHOD_CHANGED_ERROR_CONTENT, 'Cash on delivery', 'Paid in advance'),
             ],
         ];
-        // None defaults blocked, should switch to defaults
-        yield 'error none defaults blocked should switch to defaults' => [
+        yield 'non default shipping and payment methods are switched back to defaults' => [
             new ErrorCollection(
                 [
                     new ShippingMethodChangedError(
@@ -503,7 +497,6 @@ class CheckoutControllerTest extends TestCase
             ],
             true,
         ];
-        // Promotion not found
         yield 'error promotion not found' => [
             new ErrorCollection(
                 [
@@ -514,7 +507,6 @@ class CheckoutControllerTest extends TestCase
                 self::PROMOTION_NOT_FOUND_ERROR_CONTENT,
             ],
         ];
-        // Product out of stock
         yield 'error product out of stock' => [
             new ErrorCollection(
                 [

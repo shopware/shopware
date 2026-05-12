@@ -70,9 +70,9 @@ class JsonSalesChannelApiEncoderTest extends TestCase
      */
     public static function complexStructsProvider(): iterable
     {
-        yield 'complex structs media definition test basic struct' => [MediaDefinition::class, new TestBasicStruct()];
-        yield 'complex structs media definition test basic with to one' => [MediaDefinition::class, new TestBasicWithToOneRelationship()];
-        yield 'complex structs media definition test collection with to one' => [MediaDefinition::class, new TestCollectionWithToOneRelationship()];
+        yield 'media resource with basic struct is encoded' => [MediaDefinition::class, new TestBasicStruct()];
+        yield 'media resource with to one relationship is encoded' => [MediaDefinition::class, new TestBasicWithToOneRelationship()];
+        yield 'media resource with collection to one relationship is encoded' => [MediaDefinition::class, new TestCollectionWithToOneRelationship()];
     }
 
     /**

@@ -236,10 +236,10 @@ class ProductBoxCmsElementResolverTest extends TestCase
      */
     public static function enrichDataProvider(): iterable
     {
-        yield 'enrich false false 1' => [false, false, 1];
-        yield 'enrich false true 1' => [false, true, 1];
-        yield 'enrich true false 1' => [true, false, 1];
-        yield 'enrich true true 1' => [true, true, 1];
-        yield 'enrich true true 0' => [true, true, 0];
+        yield 'visible product with stock is enriched' => [false, false, 1];
+        yield 'hidden product with stock is enriched when closeout is disabled' => [false, true, 1];
+        yield 'closeout product with stock is enriched when it is visible' => [true, false, 1];
+        yield 'hidden closeout product with stock is enriched' => [true, true, 1];
+        yield 'hidden closeout product without stock is not enriched' => [true, true, 0];
     }
 }

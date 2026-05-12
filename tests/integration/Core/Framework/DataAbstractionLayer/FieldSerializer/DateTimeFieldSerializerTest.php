@@ -59,15 +59,15 @@ class DateTimeFieldSerializerTest extends TestCase
      */
     public static function serializerProvider(): iterable
     {
-        yield 'serializer date time date time' => [
+        yield 'UTC date time is serialized unchanged' => [
             new \DateTime('2020-05-15 00:00:00', new \DateTimeZone('UTC')),
             new \DateTime('2020-05-15 00:00:00', new \DateTimeZone('UTC')),
         ];
-        yield 'serializer date time date time variant 2' => [
+        yield 'future UTC date time is serialized unchanged' => [
             new \DateTime('2099-05-18 00:00:00', new \DateTimeZone('UTC')),
             new \DateTime('2099-05-18 00:00:00', new \DateTimeZone('UTC')),
         ];
-        yield 'serializer date time date time variant 3' => [
+        yield 'New York date time is converted to UTC' => [
             new \DateTime('2020-05-15 22:00:00', new \DateTimeZone('America/New_York')),
             new \DateTime('2020-05-16 02:00:00', new \DateTimeZone('UTC')),
         ];

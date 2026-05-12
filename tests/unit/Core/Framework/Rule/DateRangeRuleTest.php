@@ -47,8 +47,7 @@ class DateRangeRuleTest extends TestCase
      */
     public static function matchDataProvider(): iterable
     {
-        // from and to set, useTime = false
-        yield 'match from and to set use time false' => [
+        yield 'same day range without time matches the start of the day' => [
             '2021-01-01 00:00:00',
             '2021-01-01 00:00:00',
             false,
@@ -56,7 +55,7 @@ class DateRangeRuleTest extends TestCase
             '2021-01-01 00:00:00',
             true,
         ];
-        yield 'match 2021 01 01 00 00 2021 01 01 00 00' => [
+        yield 'same day range without time rejects the previous second' => [
             '2021-01-01 00:00:00',
             '2021-01-01 00:00:00',
             false,
@@ -64,7 +63,7 @@ class DateRangeRuleTest extends TestCase
             '2020-12-31 23:59:59',
             false,
         ];
-        yield 'match 2021 01 01 00 00 2021 01 01 00 00 variant 2' => [
+        yield 'same day range without time includes the end of the day' => [
             '2021-01-01 00:00:00',
             '2021-01-01 00:00:00',
             false,
@@ -72,7 +71,7 @@ class DateRangeRuleTest extends TestCase
             '2021-01-01 23:59:59',
             true,
         ];
-        yield 'match 2021 01 01 00 00 2021 01 01 00 00 variant 3' => [
+        yield 'same day range without time rejects the next day' => [
             '2021-01-01 00:00:00',
             '2021-01-01 00:00:00',
             false,
@@ -80,7 +79,7 @@ class DateRangeRuleTest extends TestCase
             '2021-01-02 00:00:00',
             false,
         ];
-        yield 'match 2021 01 01 11 00 2021 01 02 10 00' => [
+        yield 'multi day range without time includes the start day' => [
             '2021-01-01 11:00:00',
             '2021-01-02 10:00:00',
             false,
@@ -88,7 +87,7 @@ class DateRangeRuleTest extends TestCase
             '2021-01-01 10:00:00',
             true,
         ];
-        yield 'match 2021 01 01 11 00 2021 01 02 10 00 variant 2' => [
+        yield 'multi day range without time includes the end day' => [
             '2021-01-01 11:00:00',
             '2021-01-02 10:00:00',
             false,
@@ -96,7 +95,7 @@ class DateRangeRuleTest extends TestCase
             '2021-01-02 10:00:00',
             true,
         ];
-        yield 'match 2021 01 01 11 00 2021 01 02 10 00 variant 3' => [
+        yield 'multi day range without time rejects the day after the end' => [
             '2021-01-01 11:00:00',
             '2021-01-02 10:00:00',
             false,
@@ -104,8 +103,7 @@ class DateRangeRuleTest extends TestCase
             '2021-01-03 10:00:00',
             false,
         ];
-        // from and to set, useTime = true
-        yield 'match from and to set use time true' => [
+        yield 'timed range matches the exact start time' => [
             '2021-01-01 00:00:00',
             '2021-01-01 10:00:00',
             true,
@@ -113,7 +111,7 @@ class DateRangeRuleTest extends TestCase
             '2021-01-01 00:00:00',
             true,
         ];
-        yield 'match 2021 01 01 00 00 2021 01 01 10 00' => [
+        yield 'timed range rejects the second before the start' => [
             '2021-01-01 00:00:00',
             '2021-01-01 10:00:00',
             true,
@@ -121,7 +119,7 @@ class DateRangeRuleTest extends TestCase
             '2020-12-31 23:59:59',
             false,
         ];
-        yield 'match 2021 01 01 00 00 2021 01 01 10 00 variant 2' => [
+        yield 'timed range matches the second before the end' => [
             '2021-01-01 00:00:00',
             '2021-01-01 10:00:00',
             true,
@@ -129,7 +127,7 @@ class DateRangeRuleTest extends TestCase
             '2021-01-01 09:59:59',
             true,
         ];
-        yield 'match 2021 01 01 00 00 2021 01 01 10 00 variant 3' => [
+        yield 'timed range excludes the exact end time' => [
             '2021-01-01 00:00:00',
             '2021-01-01 10:00:00',
             true,
@@ -137,8 +135,7 @@ class DateRangeRuleTest extends TestCase
             '2021-01-01 10:00:00',
             false,
         ];
-        // only from set, useTime = false
-        yield 'match only from set use time false' => [
+        yield 'open ended from date without time matches the start day' => [
             '2021-01-01 00:00:00',
             null,
             false,
@@ -146,7 +143,7 @@ class DateRangeRuleTest extends TestCase
             '2021-01-01 00:00:00',
             true,
         ];
-        yield 'match 2021 01 01 00 00 null false null' => [
+        yield 'open ended from date without time rejects the previous day' => [
             '2021-01-01 00:00:00',
             null,
             false,
@@ -154,8 +151,7 @@ class DateRangeRuleTest extends TestCase
             '2020-12-31 23:59:59',
             false,
         ];
-        // only from set, useTime = true
-        yield 'match only from set use time true' => [
+        yield 'open ended from date with time matches the exact start' => [
             '2021-01-01 00:00:00',
             null,
             true,
@@ -163,7 +159,7 @@ class DateRangeRuleTest extends TestCase
             '2021-01-01 00:00:00',
             true,
         ];
-        yield 'match 2021 01 01 00 00 null true null' => [
+        yield 'open ended from date with time rejects the previous second' => [
             '2021-01-01 00:00:00',
             null,
             true,
@@ -171,8 +167,7 @@ class DateRangeRuleTest extends TestCase
             '2020-12-31 23:59:59',
             false,
         ];
-        // only to set, useTime = false
-        yield 'match only to set use time false' => [
+        yield 'open ended to date without time includes the full end day' => [
             null,
             '2021-01-01 00:00:00',
             false,
@@ -180,7 +175,7 @@ class DateRangeRuleTest extends TestCase
             '2021-01-01 23:59:59',
             true,
         ];
-        yield 'match null 2021 01 01 00 00 false null' => [
+        yield 'open ended to date without time rejects the next day' => [
             null,
             '2021-01-01 00:00:00',
             false,
@@ -188,9 +183,7 @@ class DateRangeRuleTest extends TestCase
             '2021-01-02 00:00:00',
             false,
         ];
-        // Some timezone checks
-        // with useTime = false
-        yield 'match some timezone checks with use time false' => [
+        yield 'UTC timed range rejects a value after the end in negative offset' => [
             '2021-01-01 10:00:00',
             '2021-01-01 20:00:00',
             true,
@@ -198,7 +191,7 @@ class DateRangeRuleTest extends TestCase
             '2021-01-01 20:00:00 -01:00',
             false,
         ];
-        yield 'match 2021 01 01 10 00 2021 01 01 20 00' => [
+        yield 'UTC timed range rejects a value after timezone normalization' => [
             '2021-01-01 10:00:00',
             '2021-01-01 20:00:00',
             true,
@@ -206,7 +199,7 @@ class DateRangeRuleTest extends TestCase
             '2021-01-01 20:00:00 +01:00',
             false,
         ];
-        yield 'match 2021 01 01 00 00 2021 01 01 00 00 variant 4' => [
+        yield 'UTC day range rejects a value normalized beyond the end day' => [
             '2021-01-01 00:00:00',
             '2021-01-01 00:00:00',
             false,
@@ -214,7 +207,7 @@ class DateRangeRuleTest extends TestCase
             '2021-01-02 02:00:00 +04:00',
             false,
         ];
-        yield 'match 2021 01 02 00 00 2021 01 02 00 00' => [
+        yield 'GMT minus two day range rejects the previous UTC day boundary' => [
             '2021-01-02 00:00:00',
             '2021-01-02 00:00:00',
             false,
@@ -222,7 +215,7 @@ class DateRangeRuleTest extends TestCase
             '2021-01-01 22:00:00',
             false,
         ];
-        yield 'match 2021 01 02 00 00 2021 01 02 00 00 variant 2' => [
+        yield 'GMT minus two day range rejects the second before the UTC boundary' => [
             '2021-01-02 00:00:00',
             '2021-01-02 00:00:00',
             false,
@@ -230,8 +223,7 @@ class DateRangeRuleTest extends TestCase
             '2021-01-01 21:59:59',
             false,
         ];
-        // with useTime = true
-        yield 'match with use time true' => [
+        yield 'GMT minus two timed range rejects the normalized end boundary' => [
             '2021-01-01 10:00:00',
             '2021-01-01 20:00:00',
             true,
@@ -239,7 +231,7 @@ class DateRangeRuleTest extends TestCase
             '2021-01-01 08:00:00',
             false,
         ];
-        yield 'match 2021 01 01 10 00 2021 01 01 20 00 variant 2' => [
+        yield 'GMT minus two timed range rejects the second after the normalized end' => [
             '2021-01-01 10:00:00',
             '2021-01-01 20:00:00',
             true,
@@ -247,8 +239,7 @@ class DateRangeRuleTest extends TestCase
             '2021-01-01 07:59:59',
             false,
         ];
-        // nothing set
-        yield 'match nothing set' => [
+        yield 'empty date range always matches' => [
             null,
             null,
             true,
@@ -256,8 +247,7 @@ class DateRangeRuleTest extends TestCase
             '2021-01-01 07:59:59',
             true,
         ];
-        // edge case test with timezone and border time
-        yield 'match edge case test with timezone and border time' => [
+        yield 'timed ISO range rejects a value before the start' => [
             '2026-03-02T00:00:00',
             '2026-03-12T23:59:59',
             true,
@@ -265,7 +255,7 @@ class DateRangeRuleTest extends TestCase
             '2026-03-01T23:50:00',
             false,
         ];
-        yield 'match 2026 03 02 t00 00 2026 03 12 t23 59' => [
+        yield 'date only ISO range rejects a value before the start day' => [
             '2026-03-02T00:00:00',
             '2026-03-12T23:59:59',
             false,
@@ -273,7 +263,7 @@ class DateRangeRuleTest extends TestCase
             '2026-03-01T23:50:00',
             false,
         ];
-        yield 'match 2026 03 02 t00 00 2026 03 12 t23 59 variant 2' => [
+        yield 'date only ISO range matches a value after the start' => [
             '2026-03-02T00:00:00',
             '2026-03-12T23:59:59',
             false,
@@ -281,7 +271,7 @@ class DateRangeRuleTest extends TestCase
             '2026-03-02T00:00:01',
             true,
         ];
-        yield 'match 2026 03 02 t00 00 2026 03 12 t23 59 variant 3' => [
+        yield 'date only ISO range includes the end day timestamp' => [
             '2026-03-02T00:00:00',
             '2026-03-12T23:59:59',
             false,
@@ -289,7 +279,7 @@ class DateRangeRuleTest extends TestCase
             '2026-03-12T23:59:59',
             true,
         ];
-        yield 'match 2026 03 02 t00 00 2026 03 12 t23 59 variant 4' => [
+        yield 'timed ISO range matches a value after the start' => [
             '2026-03-02T00:00:00',
             '2026-03-12T23:59:59',
             true,
@@ -297,7 +287,7 @@ class DateRangeRuleTest extends TestCase
             '2026-03-02T00:00:01',
             true,
         ];
-        yield 'match 2026 03 02 t00 00 2026 03 12 t23 59 variant 5' => [
+        yield 'timed ISO range excludes the exact end timestamp' => [
             '2026-03-02T00:00:00',
             '2026-03-12T23:59:59',
             true,
@@ -305,7 +295,7 @@ class DateRangeRuleTest extends TestCase
             '2026-03-12T23:59:59',
             false,
         ];
-        yield 'match 2026 03 02 t00 00 2026 03 12 t23 59 variant 6' => [
+        yield 'timed ISO range matches the second before the end timestamp' => [
             '2026-03-02T00:00:00',
             '2026-03-12T23:59:59',
             true,

@@ -76,7 +76,7 @@ class HeaderPageletLoaderTest extends TestCase
             ],
             'expectedOrder' => ['Alang', 'Blang', 'Dlang', 'Xlang'],
         ];
-        yield 'sorting test languages expected order variant 2' => [
+        yield 'German fallback languages keep expected order' => [
             'languages' => [
                 ['name' => 'Русский'],
                 ['name' => 'हिन्दी'],
@@ -118,7 +118,7 @@ class HeaderPageletLoaderTest extends TestCase
                 '한국어',
             ],
         ];
-        yield 'sorting test languages expected order variant 3' => [
+        yield 'mixed locale languages keep expected order' => [
             'languages' => [
                 ['name' => 'Alang'],
                 ['name' => 'Ablang'],

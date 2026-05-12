@@ -243,7 +243,7 @@ class ShippingMethodRuleTest extends TestCase
      */
     public static function matchDataProvider(): iterable
     {
-        yield 'match operator rule operator eq shipping method ids 965a0713093841ceb86b0f83edd7dab4' => [
+        yield 'equals operator rejects when no shipping methods are configured' => [
             [
                 'operator' => Rule::OPERATOR_EQ,
                 'shippingMethodIds' => [],
@@ -251,7 +251,7 @@ class ShippingMethodRuleTest extends TestCase
             '965a0713093841ceb86b0f83edd7dab4',
             false,
         ];
-        yield 'match operator rule operator eq shipping method ids 965a0713093841ceb86b0f83edd7dab4 variant 2' => [
+        yield 'equals operator rejects a different shipping method' => [
             [
                 'operator' => Rule::OPERATOR_EQ,
                 'shippingMethodIds' => ['ff5a0713093841ceb86b0f83edd7dab4'],
@@ -259,7 +259,7 @@ class ShippingMethodRuleTest extends TestCase
             '965a0713093841ceb86b0f83edd7dab4',
             false,
         ];
-        yield 'match operator rule operator neq shipping method ids 965a0713093841ceb86b0f83edd7dab4' => [
+        yield 'not equals operator rejects the configured shipping method' => [
             [
                 'operator' => Rule::OPERATOR_NEQ,
                 'shippingMethodIds' => ['965a0713093841ceb86b0f83edd7dab4'],
@@ -267,7 +267,7 @@ class ShippingMethodRuleTest extends TestCase
             '965a0713093841ceb86b0f83edd7dab4',
             false,
         ];
-        yield 'match operator rule operator neq shipping method ids ff5a0713093841ceb86b0f83edd7dab4' => [
+        yield 'not equals operator rejects one of multiple configured shipping methods' => [
             [
                 'operator' => Rule::OPERATOR_NEQ,
                 'shippingMethodIds' => ['965a0713093841ceb86b0f83edd7dab4', 'ff5a0713093841ceb86b0f83edd7dab4'],
@@ -275,7 +275,7 @@ class ShippingMethodRuleTest extends TestCase
             'ff5a0713093841ceb86b0f83edd7dab4',
             false,
         ];
-        yield 'match operator rule operator eq shipping method ids 965a0713093841ceb86b0f83edd7dab4 variant 3' => [
+        yield 'equals operator matches the configured shipping method' => [
             [
                 'operator' => Rule::OPERATOR_EQ,
                 'shippingMethodIds' => ['965a0713093841ceb86b0f83edd7dab4'],
@@ -283,7 +283,7 @@ class ShippingMethodRuleTest extends TestCase
             '965a0713093841ceb86b0f83edd7dab4',
             true,
         ];
-        yield 'match operator rule operator eq shipping method ids ff5a0713093841ceb86b0f83edd7dab4' => [
+        yield 'equals operator matches one of multiple configured shipping methods' => [
             [
                 'operator' => Rule::OPERATOR_EQ,
                 'shippingMethodIds' => ['965a0713093841ceb86b0f83edd7dab4', 'ff5a0713093841ceb86b0f83edd7dab4'],
@@ -291,7 +291,7 @@ class ShippingMethodRuleTest extends TestCase
             'ff5a0713093841ceb86b0f83edd7dab4',
             true,
         ];
-        yield 'match operator rule operator neq shipping method ids ee5a0713093841ceb86b0f83edd7dab4' => [
+        yield 'not equals operator matches an unconfigured shipping method' => [
             [
                 'operator' => Rule::OPERATOR_NEQ,
                 'shippingMethodIds' => ['965a0713093841ceb86b0f83edd7dab4', 'ff5a0713093841ceb86b0f83edd7dab4'],

@@ -180,11 +180,11 @@ class ProductBoxTypeDataResolverTest extends TestCase
      */
     public static function enrichWithStaticConfigProvider(): iterable
     {
-        yield 'enrich with static config closeout hidden available stock' => ['closeout' => false, 'hidden' => false, 'availableStock' => 1];
-        yield 'enrich with static config closeout hidden available stock variant 2' => ['closeout' => false, 'hidden' => true,  'availableStock' => 1];
-        yield 'enrich with static config closeout hidden available stock variant 3' => ['closeout' => true, 'hidden' => false, 'availableStock' => 1];
-        yield 'enrich with static config closeout hidden available stock variant 4' => ['closeout' => true, 'hidden' => true,  'availableStock' => 1];
-        yield 'enrich with static config closeout hidden available stock variant 5' => ['closeout' => true, 'hidden' => true,  'availableStock' => 0];
+        yield 'visible product with stock is enriched' => ['closeout' => false, 'hidden' => false, 'availableStock' => 1];
+        yield 'hidden product with stock is enriched when closeout is disabled' => ['closeout' => false, 'hidden' => true,  'availableStock' => 1];
+        yield 'closeout product with stock is enriched when it is visible' => ['closeout' => true, 'hidden' => false, 'availableStock' => 1];
+        yield 'hidden closeout product with stock is enriched' => ['closeout' => true, 'hidden' => true,  'availableStock' => 1];
+        yield 'hidden closeout product without stock is not enriched' => ['closeout' => true, 'hidden' => true,  'availableStock' => 0];
     }
 
     public function testEnrichWithStaticConfigButNoResult(): void

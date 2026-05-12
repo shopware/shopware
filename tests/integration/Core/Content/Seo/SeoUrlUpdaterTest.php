@@ -171,23 +171,19 @@ class SeoUrlUpdaterTest extends TestCase
      */
     public static function seoLanguageDataProvider(): iterable
     {
-        yield 'seo language all translations available expected to use child path info' => [
-            // All translations available > expected to use child translation
+        yield 'child path info is used when all translations are available' => [
             'translations' => [self::DEFAULT, self::PARENT, self::CHILD],
             'pathInfo' => self::CHILD,
         ];
-        yield 'seo language parent translation missing expected to use child path info' => [
-            // Parent translation missing > expected to use child translation
+        yield 'child path info is used when parent translation is missing' => [
             'translations' => [self::DEFAULT, self::CHILD],
             'pathInfo' => self::CHILD,
         ];
-        yield 'seo language child translation missing expected to use parent path info' => [
-            // Child translation missing > expected to use parent translation
+        yield 'parent path info is used when child translation is missing' => [
             'translations' => [self::DEFAULT, self::PARENT],
             'pathInfo' => self::PARENT,
         ];
-        yield 'seo language parent and child translations missing expected to path info' => [
-            // Parent and child translations missing > expected to use default translation
+        yield 'default path info is used when parent and child translations are missing' => [
             'translations' => [self::DEFAULT],
             'pathInfo' => self::DEFAULT,
         ];

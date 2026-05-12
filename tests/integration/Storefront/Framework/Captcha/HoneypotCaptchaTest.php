@@ -44,13 +44,13 @@ class HoneypotCaptchaTest extends TestCase
             self::getRequest(),
             self::IS_VALID,
         ];
-        yield 'request get request is valid variant 2' => [
+        yield 'GET request with custom captcha field is valid' => [
             self::getRequest([
                 HoneypotCaptcha::CAPTCHA_REQUEST_PARAMETER => null,
             ]),
             self::IS_VALID,
         ];
-        yield 'request get request is valid variant 3' => [
+        yield 'GET request with empty captcha field is invalid' => [
             self::getRequest([
                 HoneypotCaptcha::CAPTCHA_REQUEST_PARAMETER => '',
             ]),

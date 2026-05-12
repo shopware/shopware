@@ -38,14 +38,14 @@ class KeyMappingPipeTest extends TestCase
      */
     public static function simpleMappingProvider(): iterable
     {
-        yield 'simple mapping input expected output' => [
+        yield 'missing simple keys are mapped to empty strings' => [
             'input' => [],
             'expectedOutput' => [
                 'bar' => '',
                 'x' => '',
             ],
         ];
-        yield 'simple mapping input expected output variant 2' => [
+        yield 'foo input is mapped to bar output' => [
             'input' => [
                 'foo' => 1234,
             ],
@@ -54,7 +54,7 @@ class KeyMappingPipeTest extends TestCase
                 'x' => '',
             ],
         ];
-        yield 'simple mapping input expected output variant 3' => [
+        yield 'a input is mapped to x output' => [
             'input' => [
                 'a' => 1234,
             ],
@@ -63,7 +63,7 @@ class KeyMappingPipeTest extends TestCase
                 'x' => 1234,
             ],
         ];
-        yield 'simple mapping input expected output variant 4' => [
+        yield 'multiple simple keys are mapped at once' => [
             'input' => [
                 'foo' => 'test',
                 'a' => 0.1234,
@@ -108,7 +108,7 @@ class KeyMappingPipeTest extends TestCase
      */
     public static function nestedProvider(): iterable
     {
-        yield 'nested input expected output' => [
+        yield 'missing nested keys are mapped to empty strings' => [
             'input' => [],
             'expectedOutput' => [
                 'bar' => '',
@@ -117,7 +117,7 @@ class KeyMappingPipeTest extends TestCase
                 'x_y_z2' => '',
             ],
         ];
-        yield 'nested input expected output variant 2' => [
+        yield 'top level value is mapped while nested keys stay empty' => [
             'input' => [
                 'foo' => 0.123,
             ],
@@ -128,7 +128,7 @@ class KeyMappingPipeTest extends TestCase
                 'x_y_z2' => '',
             ],
         ];
-        yield 'nested input expected output variant 3' => [
+        yield 'single nested value is flattened into mapped output' => [
             'input' => [
                 'foo' => 0.123,
                 'a' => [
@@ -142,7 +142,7 @@ class KeyMappingPipeTest extends TestCase
                 'x_y_z2' => '',
             ],
         ];
-        yield 'nested input expected output variant 4' => [
+        yield 'multiple nested values are flattened into mapped output' => [
             'input' => [
                 'foo' => 0.123,
                 'a' => [

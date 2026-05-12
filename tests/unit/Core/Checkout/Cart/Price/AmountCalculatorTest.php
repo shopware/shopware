@@ -103,27 +103,27 @@ class AmountCalculatorTest extends TestCase
         $highTax = new TaxRuleCollection([new TaxRule(19)]);
         $lowTax = new TaxRuleCollection([new TaxRule(7)]);
 
-        yield 'calculate amount for net deliveries cart price price collection' => [
+        yield 'free tax state with one 19 percent delivery' => [
             new CartPrice(19.5, 19.5, 19.5, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE),
             new PriceCollection([
                 new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.5)]), $highTax),
             ]),
         ];
-        yield 'calculate amount for net deliveries cart price price collection variant 2' => [
+        yield 'free tax state sums two 19 percent deliveries' => [
             new CartPrice(33.7, 33.7, 33.7, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE),
             new PriceCollection([
                 new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
                 new CalculatedPrice(14.20, 14.20, new CalculatedTaxCollection([new CalculatedTax(2.27, 19, 14.20)]), $highTax),
             ]),
         ];
-        yield 'calculate amount for net deliveries cart price price collection variant 3' => [
+        yield 'free tax state sums mixed 19 and 7 percent deliveries' => [
             new CartPrice(33.70, 33.70, 33.70, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE),
             new PriceCollection([
                 new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
                 new CalculatedPrice(14.20, 14.20, new CalculatedTaxCollection([new CalculatedTax(0.93, 7, 14.20)]), $lowTax),
             ]),
         ];
-        yield 'calculate amount for net deliveries cart price price collection variant 4' => [
+        yield 'free tax state sums multiple mixed tax deliveries' => [
             new CartPrice(105.6, 105.6, 105.6, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE),
             new PriceCollection([
                 new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
@@ -132,7 +132,7 @@ class AmountCalculatorTest extends TestCase
                 new CalculatedPrice(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(2.18, 7, 33.30)]), $lowTax),
             ]),
         ];
-        yield 'calculate amount for net deliveries cart price price collection variant 5' => [
+        yield 'free tax state keeps float equivalent mixed tax totals' => [
             new CartPrice(105.60, 105.60, 105.60, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE),
             new PriceCollection([
                 new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
@@ -141,7 +141,7 @@ class AmountCalculatorTest extends TestCase
                 new CalculatedPrice(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(2.18, 7, 33.30)]), $lowTax),
             ]),
         ];
-        yield 'calculate amount for net deliveries cart price price collection variant 6' => [
+        yield 'free tax state sums deliveries without tax rules' => [
             new CartPrice(20, 20, 20, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE),
             new PriceCollection([
                 new CalculatedPrice(10.00, 10.00, new CalculatedTaxCollection([]), new TaxRuleCollection([])),
@@ -159,14 +159,14 @@ class AmountCalculatorTest extends TestCase
         $lowTax = new TaxRuleCollection([new TaxRule(7)]);
         $mixedTaxes = new TaxRuleCollection([new TaxRule(19), new TaxRule(7)]);
 
-        yield 'calculate amount with net prices cart price price collection sales channel definition' => [
+        yield 'net horizontal calculation with one 19 percent price' => [
             new CartPrice(19.5, 22.61, 19.5, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.5)]), $highTax, CartPrice::TAX_STATE_NET),
             new PriceCollection([
                 new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
             ]),
             SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
         ];
-        yield 'calculate amount with net prices cart price price collection sales channel definition variant 2' => [
+        yield 'net horizontal calculation sums two 19 percent prices' => [
             new CartPrice(33.7, 39.08, 33.7, new CalculatedTaxCollection([new CalculatedTax(5.38, 19, 33.7)]), $highTax, CartPrice::TAX_STATE_NET),
             new PriceCollection([
                 new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
@@ -174,7 +174,7 @@ class AmountCalculatorTest extends TestCase
             ]),
             SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
         ];
-        yield 'calculate amount with net prices cart price price collection sales channel definition variant 3' => [
+        yield 'net horizontal calculation keeps separate 19 and 7 percent taxes' => [
             new CartPrice(
                 33.70,
                 37.74,
@@ -192,7 +192,7 @@ class AmountCalculatorTest extends TestCase
             ]),
             SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
         ];
-        yield 'calculate amount with net prices cart price price collection sales channel definition variant 4' => [
+        yield 'net horizontal calculation distributes mixed taxes across four prices' => [
             new CartPrice(
                 105.6,
                 117.49,
@@ -212,7 +212,7 @@ class AmountCalculatorTest extends TestCase
             ]),
             SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
         ];
-        yield 'calculate amount with net prices cart price price collection sales channel definition variant 5' => [
+        yield 'net horizontal calculation handles many different tax rates' => [
             new CartPrice(
                 244.5,
                 272.44,
@@ -246,7 +246,7 @@ class AmountCalculatorTest extends TestCase
             ]),
             SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
         ];
-        yield 'calculate amount with net prices cart price price collection sales channel definition variant 6' => [
+        yield 'net horizontal calculation handles prices without tax rules' => [
             new CartPrice(20, 20, 20, new CalculatedTaxCollection([]), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
             new PriceCollection([
                 new CalculatedPrice(10.00, 10.00, new CalculatedTaxCollection([]), new TaxRuleCollection([])),
@@ -254,7 +254,7 @@ class AmountCalculatorTest extends TestCase
             ]),
             SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
         ];
-        yield 'calculate amount with net prices cart price price collection sales channel definition variant 7' => [
+        yield 'net horizontal calculation rounds many small 19 percent prices' => [
             new CartPrice(
                 34.97,
                 41.67,
@@ -287,14 +287,14 @@ class AmountCalculatorTest extends TestCase
             ]),
             SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
         ];
-        yield 'calculate amount with net prices cart price price collection sales channel definition variant 8' => [
+        yield 'net vertical calculation recalculates tax for one 19 percent price' => [
             new CartPrice(19.5, 23.21, 19.5, new CalculatedTaxCollection([new CalculatedTax(3.71, 19, 19.5)]), $highTax, CartPrice::TAX_STATE_NET),
             new PriceCollection([
                 new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
             ]),
             SalesChannelDefinition::CALCULATION_TYPE_VERTICAL,
         ];
-        yield 'calculate amount with net prices cart price price collection sales channel definition variant 9' => [
+        yield 'net vertical calculation rounds many small 19 percent prices' => [
             new CartPrice(
                 34.97,
                 41.61,
@@ -338,14 +338,14 @@ class AmountCalculatorTest extends TestCase
         $lowTax = new TaxRuleCollection([new TaxRule(7)]);
         $mixedTaxes = new TaxRuleCollection([new TaxRule(19), new TaxRule(7)]);
 
-        yield 'calculate amount with gross prices cart price price collection sales channel definition' => [
+        yield 'gross horizontal calculation with one 19 percent price' => [
             new CartPrice(16.39, 19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax, CartPrice::TAX_STATE_GROSS),
             new PriceCollection([
                 new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
             ]),
             SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
         ];
-        yield 'calculate amount with gross prices cart price price collection sales channel definition variant 2' => [
+        yield 'gross horizontal calculation sums two 19 percent prices' => [
             new CartPrice(28.32, 33.7, 33.7, new CalculatedTaxCollection([new CalculatedTax(5.38, 19, 33.7)]), $highTax, CartPrice::TAX_STATE_GROSS),
             new PriceCollection([
                 new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
@@ -353,7 +353,7 @@ class AmountCalculatorTest extends TestCase
             ]),
             SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
         ];
-        yield 'calculate amount with gross prices cart price price collection sales channel definition variant 3' => [
+        yield 'gross horizontal calculation keeps separate 19 and 7 percent taxes' => [
             new CartPrice(
                 29.66,
                 33.70,
@@ -371,7 +371,7 @@ class AmountCalculatorTest extends TestCase
             ]),
             SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
         ];
-        yield 'calculate amount with gross prices cart price price collection sales channel definition variant 4' => [
+        yield 'gross horizontal calculation distributes mixed taxes across four prices' => [
             new CartPrice(
                 93.71,
                 105.6,
@@ -391,7 +391,7 @@ class AmountCalculatorTest extends TestCase
             ]),
             SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
         ];
-        yield 'calculate amount with gross prices cart price price collection sales channel definition variant 5' => [
+        yield 'gross horizontal calculation handles many different tax rates' => [
             new CartPrice(
                 216.56,
                 244.5,
@@ -425,7 +425,7 @@ class AmountCalculatorTest extends TestCase
             ]),
             SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
         ];
-        yield 'calculate amount with gross prices cart price price collection sales channel definition variant 6' => [
+        yield 'gross horizontal calculation handles prices without tax rules' => [
             new CartPrice(20, 20, 20, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS),
             new PriceCollection([
                 new CalculatedPrice(10.00, 10.00, new CalculatedTaxCollection([]), new TaxRuleCollection([])),
@@ -433,7 +433,7 @@ class AmountCalculatorTest extends TestCase
             ]),
             SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
         ];
-        yield 'calculate amount with gross prices cart price price collection sales channel definition variant 7' => [
+        yield 'gross horizontal calculation rounds many small 19 percent prices' => [
             new CartPrice(
                 35.00,
                 41.70,
@@ -466,7 +466,7 @@ class AmountCalculatorTest extends TestCase
             ]),
             SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
         ];
-        yield 'calculate amount with gross prices cart price price collection sales channel definition variant 8' => [
+        yield 'gross horizontal calculation zeroes fully discounted prices' => [
             new CartPrice(
                 0,
                 0,
@@ -482,14 +482,14 @@ class AmountCalculatorTest extends TestCase
             ]),
             SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
         ];
-        yield 'calculate amount with gross prices cart price price collection sales channel definition variant 9' => [
+        yield 'gross vertical calculation with one 19 percent price' => [
             new CartPrice(16.39, 19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax, CartPrice::TAX_STATE_GROSS),
             new PriceCollection([
                 new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
             ]),
             SalesChannelDefinition::CALCULATION_TYPE_VERTICAL,
         ];
-        yield 'calculate amount with gross prices cart price price collection sales channel definition variant 10' => [
+        yield 'gross vertical calculation rounds many small 19 percent prices' => [
             new CartPrice(
                 35.04,
                 41.70,

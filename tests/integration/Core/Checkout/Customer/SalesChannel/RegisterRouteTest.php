@@ -319,16 +319,13 @@ class RegisterRouteTest extends TestCase
      */
     public static function registerWithDomainAndLeadingSlashProvider(): iterable
     {
-        // test without leading slash
-        yield 'register with domain and leading slash without leading slash' => [
+        yield 'domain without trailing slash is used unchanged' => [
             ['domain' => 'http://my-evil-page', 'expectDomain' => 'http://my-evil-page'],
         ];
-        // test with leading slash
-        yield 'register with domain and leading slash with leading slash' => [
+        yield 'domain with trailing slash is normalized' => [
             ['domain' => 'http://my-evil-page/', 'expectDomain' => 'http://my-evil-page'],
         ];
-        // test with double leading slash
-        yield 'register with domain and leading slash with double leading slash' => [
+        yield 'domain with double trailing slash is normalized' => [
             ['domain' => 'http://my-evil-page//', 'expectDomain' => 'http://my-evil-page'],
         ];
     }
@@ -651,76 +648,76 @@ class RegisterRouteTest extends TestCase
      */
     public static function customerBoundToSalesChannelProvider(): iterable
     {
-        yield 'customer bound to sales channel is customer scoped has global account has' => [
-        'isCustomerScoped' => true,
-        'hasGlobalAccount' => false,
-        'hasBoundAccount' => true, // Account which has bound_sales_channel_id not null
-        'requestOnSameSalesChannel' => true,
-        'expectedStatus' => 400, // Email existed status
-    ];
-        yield 'customer bound to sales channel is customer scoped has global account has variant 2' => [
-        'isCustomerScoped' => true,
-        'hasGlobalAccount' => false,
-        'hasBoundAccount' => true,
-        'requestOnSameSalesChannel' => false,
-        'expectedStatus' => 200, // Success status
-    ];
-        yield 'customer bound to sales channel is customer scoped has global account account' => [
-        'isCustomerScoped' => true,
-        'hasGlobalAccount' => true, // Account which has bound_sales_channel_id = null
-        'hasBoundAccount' => false,
-        'requestOnSameSalesChannel' => true,
-        'expectedStatus' => 400,
-    ];
-        yield 'customer bound to sales channel is customer scoped has global account has variant 3' => [
-        'isCustomerScoped' => true,
-        'hasGlobalAccount' => true,
-        'hasBoundAccount' => false,
-        'requestOnSameSalesChannel' => false,
-        'expectedStatus' => 400,
-    ];
-        yield 'customer bound to sales channel is customer scoped has global account has variant 4' => [
-        'isCustomerScoped' => true,
-        'hasGlobalAccount' => false,
-        'hasBoundAccount' => false,
-        'requestOnSameSalesChannel' => true,
-        'expectedStatus' => 200,
-    ];
-        yield 'customer bound to sales channel is customer scoped has global account has variant 5' => [
-        'isCustomerScoped' => false,
-        'hasGlobalAccount' => false,
-        'hasBoundAccount' => true,
-        'requestOnSameSalesChannel' => true,
-        'expectedStatus' => 400,
-    ];
-        yield 'customer bound to sales channel is customer scoped has global account has variant 6' => [
-        'isCustomerScoped' => false,
-        'hasGlobalAccount' => false,
-        'hasBoundAccount' => true,
-        'requestOnSameSalesChannel' => false,
-        'expectedStatus' => 400,
-    ];
-        yield 'customer bound to sales channel is customer scoped has global account has variant 7' => [
-        'isCustomerScoped' => false,
-        'hasGlobalAccount' => true,
-        'hasBoundAccount' => false,
-        'requestOnSameSalesChannel' => true,
-        'expectedStatus' => 400,
-    ];
-        yield 'customer bound to sales channel is customer scoped has global account has variant 8' => [
-        'isCustomerScoped' => false,
-        'hasGlobalAccount' => true,
-        'hasBoundAccount' => false,
-        'requestOnSameSalesChannel' => false,
-        'expectedStatus' => 400,
-    ];
-        yield 'customer bound to sales channel is customer scoped has global account has variant 9' => [
-        'isCustomerScoped' => false,
-        'hasGlobalAccount' => false,
-        'hasBoundAccount' => false,
-        'requestOnSameSalesChannel' => true,
-        'expectedStatus' => 200,
-    ];
+        yield 'scoped customer cannot reuse a bound account on the same sales channel' => [
+            'isCustomerScoped' => true,
+            'hasGlobalAccount' => false,
+            'hasBoundAccount' => true,
+            'requestOnSameSalesChannel' => true,
+            'expectedStatus' => 400,
+        ];
+        yield 'scoped customer can reuse a bound account on another sales channel' => [
+            'isCustomerScoped' => true,
+            'hasGlobalAccount' => false,
+            'hasBoundAccount' => true,
+            'requestOnSameSalesChannel' => false,
+            'expectedStatus' => 200,
+        ];
+        yield 'scoped customer cannot reuse a global account on the same sales channel' => [
+            'isCustomerScoped' => true,
+            'hasGlobalAccount' => true,
+            'hasBoundAccount' => false,
+            'requestOnSameSalesChannel' => true,
+            'expectedStatus' => 400,
+        ];
+        yield 'scoped customer cannot reuse a global account on another sales channel' => [
+            'isCustomerScoped' => true,
+            'hasGlobalAccount' => true,
+            'hasBoundAccount' => false,
+            'requestOnSameSalesChannel' => false,
+            'expectedStatus' => 400,
+        ];
+        yield 'scoped customer can register without an existing account' => [
+            'isCustomerScoped' => true,
+            'hasGlobalAccount' => false,
+            'hasBoundAccount' => false,
+            'requestOnSameSalesChannel' => true,
+            'expectedStatus' => 200,
+        ];
+        yield 'unscoped customer cannot reuse a bound account on the same sales channel' => [
+            'isCustomerScoped' => false,
+            'hasGlobalAccount' => false,
+            'hasBoundAccount' => true,
+            'requestOnSameSalesChannel' => true,
+            'expectedStatus' => 400,
+        ];
+        yield 'unscoped customer cannot reuse a bound account on another sales channel' => [
+            'isCustomerScoped' => false,
+            'hasGlobalAccount' => false,
+            'hasBoundAccount' => true,
+            'requestOnSameSalesChannel' => false,
+            'expectedStatus' => 400,
+        ];
+        yield 'unscoped customer cannot reuse a global account on the same sales channel' => [
+            'isCustomerScoped' => false,
+            'hasGlobalAccount' => true,
+            'hasBoundAccount' => false,
+            'requestOnSameSalesChannel' => true,
+            'expectedStatus' => 400,
+        ];
+        yield 'unscoped customer cannot reuse a global account on another sales channel' => [
+            'isCustomerScoped' => false,
+            'hasGlobalAccount' => true,
+            'hasBoundAccount' => false,
+            'requestOnSameSalesChannel' => false,
+            'expectedStatus' => 400,
+        ];
+        yield 'unscoped customer can register without an existing account' => [
+            'isCustomerScoped' => false,
+            'hasGlobalAccount' => false,
+            'hasBoundAccount' => false,
+            'requestOnSameSalesChannel' => true,
+            'expectedStatus' => 200,
+        ];
     }
 
     public function testRegistrationWithAllowedAccountType(): void

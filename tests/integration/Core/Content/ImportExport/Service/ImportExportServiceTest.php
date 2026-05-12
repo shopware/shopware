@@ -56,67 +56,67 @@ class ImportExportServiceTest extends TestCase
      */
     public static function mimeTypeProvider(): iterable
     {
-        yield 'mime type client mime type file extension expected mime type' => [
+        yield 'text csv upload with csv extension is accepted as csv' => [
             'clientMimeType' => 'text/csv',
             'fileExtension' => 'csv',
             'expectedMimeType' => 'text/csv',
         ];
-        yield 'mime type client mime type file extension expected mime type variant 2' => [
+        yield 'text x-csv upload with csv extension is normalized to csv' => [
             'clientMimeType' => 'text/x-csv',
             'fileExtension' => 'csv',
             'expectedMimeType' => 'text/csv',
         ];
-        yield 'mime type client mime type file extension expected mime type variant 3' => [
+        yield 'Excel client mime with csv extension is treated as csv' => [
             'clientMimeType' => 'application/vnd.ms-excel',
             'fileExtension' => 'csv',
             'expectedMimeType' => 'text/csv',
         ];
-        yield 'mime type client mime type file extension expected mime type variant 4' => [
+        yield 'text csv upload without extension is accepted as csv' => [
             'clientMimeType' => 'text/csv',
             'fileExtension' => '',
             'expectedMimeType' => 'text/csv',
         ];
-        yield 'mime type client mime type file extension expected mime type variant 5' => [
+        yield 'text x-csv upload without extension is normalized to csv' => [
             'clientMimeType' => 'text/x-csv',
             'fileExtension' => '',
             'expectedMimeType' => 'text/csv',
         ];
-        yield 'mime type client mime type file extension expected mime type variant 6' => [
+        yield 'text csv upload with txt extension still uses csv mime type' => [
             'clientMimeType' => 'text/csv',
             'fileExtension' => 'txt',
             'expectedMimeType' => 'text/csv',
         ];
-        yield 'mime type client mime type file extension expected mime type variant 7' => [
+        yield 'text x-csv upload with txt extension still uses csv mime type' => [
             'clientMimeType' => 'text/x-csv',
             'fileExtension' => 'txt',
             'expectedMimeType' => 'text/csv',
         ];
-        yield 'mime type client mime type file extension expected mime type variant 8' => [
+        yield 'octet stream upload with csv extension is detected as csv' => [
             'clientMimeType' => 'application/octet-stream',
             'fileExtension' => 'csv',
             'expectedMimeType' => 'text/csv',
         ];
-        yield 'mime type client mime type file extension expected mime type variant 9' => [
+        yield 'text xml upload with xml extension is rejected' => [
             'clientMimeType' => 'text/xml',
             'fileExtension' => 'xml',
             'expectedMimeType' => false,
         ];
-        yield 'mime type client mime type file extension expected mime type variant 10' => [
+        yield 'text xml upload without extension is rejected' => [
             'clientMimeType' => 'text/xml',
             'fileExtension' => '',
             'expectedMimeType' => false,
         ];
-        yield 'mime type client mime type file extension expected mime type variant 11' => [
+        yield 'application xml upload with xml extension is rejected' => [
             'clientMimeType' => 'application/xml',
             'fileExtension' => 'xml',
             'expectedMimeType' => false,
         ];
-        yield 'mime type client mime type file extension expected mime type variant 12' => [
+        yield 'application xml upload without extension is rejected' => [
             'clientMimeType' => 'application/xml',
             'fileExtension' => '',
             'expectedMimeType' => false,
         ];
-        yield 'mime type client mime type file extension expected mime type variant 13' => [
+        yield 'Excel client mime with xls extension is rejected' => [
             'clientMimeType' => 'application/vnd.ms-excel',
             'fileExtension' => 'xls',
             'expectedMimeType' => false,

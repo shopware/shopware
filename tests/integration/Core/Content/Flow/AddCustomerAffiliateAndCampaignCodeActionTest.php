@@ -90,8 +90,7 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
      */
     public static function createDataProvider(): iterable
     {
-        // existed data / update data / expect data
-        yield 'create affiliate code value 11111 upsert false campaign affiliate code 11111 campaign' => [
+        yield 'new entity stores affiliate and campaign codes' => [
             [],
             [
                 'affiliateCode' => ['value' => '11111', 'upsert' => false],
@@ -99,7 +98,7 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
             ],
             ['affiliateCode' => '11111', 'campaignCode' => '22222'],
         ];
-        yield 'create affiliate code 11111 campaign code 22222 affiliate code value 33333 upsert' => [
+        yield 'existing affiliate and campaign codes are kept when upsert is disabled' => [
             ['affiliateCode' => '11111', 'campaignCode' => '22222'],
             [
                 'affiliateCode' => ['value' => '33333', 'upsert' => false],
@@ -107,7 +106,7 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
             ],
             ['affiliateCode' => '11111', 'campaignCode' => '22222'],
         ];
-        yield 'create affiliate code 11111 campaign code 22222 affiliate code value 33333 upsert variant 2' => [
+        yield 'campaign code is updated when only campaign upsert is enabled' => [
             ['affiliateCode' => '11111', 'campaignCode' => '22222'],
             [
                 'affiliateCode' => ['value' => '33333', 'upsert' => false],
@@ -115,7 +114,7 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
             ],
             ['affiliateCode' => '11111', 'campaignCode' => '33333'],
         ];
-        yield 'create affiliate code 11111 campaign code 22222 affiliate code value 33333 upsert variant 3' => [
+        yield 'affiliate and campaign codes are updated when both upserts are enabled' => [
             ['affiliateCode' => '11111', 'campaignCode' => '22222'],
             [
                 'affiliateCode' => ['value' => '33333', 'upsert' => true],

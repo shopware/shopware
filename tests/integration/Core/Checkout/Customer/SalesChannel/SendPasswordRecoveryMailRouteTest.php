@@ -225,16 +225,13 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
      */
     public static function sendMailWithDomainAndLeadingSlashProvider(): iterable
     {
-        // test without leading slash
-        yield 'send mail with domain and leading slash without leading slash' => [
+        yield 'domain without trailing slash is used unchanged' => [
             ['domain' => 'http://my-evil-page', 'expectDomain' => 'http://my-evil-page'],
         ];
-        // test with leading slash
-        yield 'send mail with domain and leading slash with leading slash' => [
+        yield 'domain with trailing slash is normalized' => [
             ['domain' => 'http://my-evil-page/', 'expectDomain' => 'http://my-evil-page'],
         ];
-        // test with double leading slash
-        yield 'send mail with domain and leading slash with double leading slash' => [
+        yield 'domain with double trailing slash is normalized' => [
             ['domain' => 'http://my-evil-page//', 'expectDomain' => 'http://my-evil-page'],
         ];
     }

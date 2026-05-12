@@ -66,7 +66,6 @@ class AclCriteriaValidatorTest extends TestCase
      */
     public static function criteriaProvider(): iterable
     {
-        // association validation
         yield 'Has read permission for root entity' => [
             ['product:read'],
             new Criteria(),
@@ -102,7 +101,6 @@ class AclCriteriaValidatorTest extends TestCase
             (new Criteria())->addAssociation('categories.media'),
             false,
         ];
-        // filter field validation
         yield 'Has permissions for filter' => [
             ['product:read', 'category:read'],
             (new Criteria())
@@ -127,7 +125,6 @@ class AclCriteriaValidatorTest extends TestCase
                 ->addFilter(new EqualsFilter('categories.media.private', true)),
             false,
         ];
-        // post filter validation
         yield 'Has permissions for post filter' => [
             ['product:read', 'category:read'],
             (new Criteria())
@@ -152,7 +149,6 @@ class AclCriteriaValidatorTest extends TestCase
                 ->addPostFilter(new EqualsFilter('categories.media.private', true)),
             false,
         ];
-        // sorting validation
         yield 'Has permissions for sorting' => [
             ['product:read', 'category:read'],
             (new Criteria())
@@ -177,7 +173,6 @@ class AclCriteriaValidatorTest extends TestCase
                 ->addSorting(new FieldSorting('categories.media.private')),
             false,
         ];
-        // query validation
         yield 'Has permissions for query' => [
             ['product:read', 'category:read'],
             (new Criteria())
@@ -202,7 +197,6 @@ class AclCriteriaValidatorTest extends TestCase
                 ->addQuery(new ScoreQuery(new EqualsFilter('categories.media.private', true), 100)),
             false,
         ];
-        // grouping validation
         yield 'Has permissions for grouping' => [
             ['product:read', 'category:read'],
             (new Criteria())
@@ -227,7 +221,6 @@ class AclCriteriaValidatorTest extends TestCase
                 ->addGroupField(new FieldGrouping('categories.media.private')),
             false,
         ];
-        // aggregation validation
         yield 'Has permissions for aggregation' => [
             ['product:read', 'category:read'],
             (new Criteria())

@@ -58,15 +58,15 @@ class ConfigJsonFieldSerializerTest extends TestCase
      */
     public static function serializerProvider(): iterable
     {
-        yield 'serializer string' => ['string'];
-        yield 'serializer 11234' => [11234];
-        yield 'serializer 11234 point 123243' => [11234.123243];
-        yield 'serializer foo sadfsadf bar a 1234' => [['foo' => 'sadfsadf', 'bar' => ['a' => 1234]]];
-        yield 'serializer 1 2 3' => [[1, 2, 3]];
-        yield 'serializer null' => [null];
-        yield 'serializer false' => [false];
-        yield 'serializer 0' => [0];
-        yield 'serializer scenario 9' => [''];
+        yield 'string config value is serialized' => ['string'];
+        yield 'integer config value is serialized' => [11234];
+        yield 'float config value is serialized' => [11234.123243];
+        yield 'nested config value is serialized' => [['foo' => 'sadfsadf', 'bar' => ['a' => 1234]]];
+        yield 'list config value is serialized' => [[1, 2, 3]];
+        yield 'null config value is serialized' => [null];
+        yield 'false config value is serialized' => [false];
+        yield 'zero config value is serialized' => [0];
+        yield 'empty string config value is serialized' => [''];
     }
 
     /**

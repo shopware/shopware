@@ -36,20 +36,19 @@ class MemorySizeCalculatorTest extends TestCase
      */
     public static function memorySizeDataProvider(): iterable
     {
-        yield 'memory size 2k 2048' => ['2k', 2048];
-        yield 'memory size 2 k 2048' => ['2 k', 2048];
-        yield 'memory size 8m 8' => ['8m', 8 * 1024 * 1024];
-        yield 'memory size 2 k 2048 variant 2' => ['+2 k', 2048];
-        yield 'memory size 2 k 2048 variant 3' => ['+2???k', 2048];
-        yield 'memory size 0x10 16' => ['0x10', 16];
-        yield 'memory size 0xf 15' => ['0xf', 15];
-        yield 'memory size 010 8' => ['010', 8];
-        yield 'memory size 0x10 k 16' => ['+0x10 k', 16 * 1024];
-        yield 'memory size 1g 1024' => ['1g', 1024 * 1024 * 1024];
-        yield 'memory size 1 g 1024' => ['1G', 1024 * 1024 * 1024];
-        yield 'memory size 1 -1' => ['-1', -1];
-        yield 'memory size 0 0' => ['0', 0];
-        // the unit must be the last char, so in this case 'k', not 'm'
+        yield 'compact kilobyte value is parsed as bytes' => ['2k', 2048];
+        yield 'spaced kilobyte value is parsed as bytes' => ['2 k', 2048];
+        yield 'megabyte value is parsed as bytes' => ['8m', 8 * 1024 * 1024];
+        yield 'signed kilobyte value is parsed as bytes' => ['+2 k', 2048];
+        yield 'unit after invalid characters is still parsed as kilobytes' => ['+2???k', 2048];
+        yield 'hexadecimal value is parsed as bytes' => ['0x10', 16];
+        yield 'lower hexadecimal value is parsed as bytes' => ['0xf', 15];
+        yield 'octal value is parsed as bytes' => ['010', 8];
+        yield 'signed hexadecimal kilobyte value is parsed as bytes' => ['+0x10 k', 16 * 1024];
+        yield 'compact gigabyte value is parsed as bytes' => ['1g', 1024 * 1024 * 1024];
+        yield 'uppercase gigabyte value is parsed as bytes' => ['1G', 1024 * 1024 * 1024];
+        yield 'unlimited memory value is kept as negative one' => ['-1', -1];
+        yield 'zero memory value is parsed as zero bytes' => ['0', 0];
         yield 'memory size uses the last unit character' => ['2mk', 2048];
     }
 
@@ -64,14 +63,14 @@ class MemorySizeCalculatorTest extends TestCase
      */
     public static function bytesProvider(): iterable
     {
-        yield 'bytes 0 0 b' => [0, '0 B'];
-        yield 'bytes 100 100 b' => [100, '100 B'];
-        yield 'bytes 1024 1 kb' => [1024, '1 KB'];
-        yield 'bytes 2024 1 98 kb' => [2024, '1.98 KB'];
-        yield 'bytes 20240 19 77 kb' => [20240, '19.77 KB'];
-        yield 'bytes 15768749 15 04 mb' => [15768749, '15.04 MB'];
-        yield 'bytes 7415768749 6 91 gb' => [7415768749, '6.91 GB'];
-        yield 'bytes 7369137415768749 6702 19 tb' => [7369137415768749, '6702.19 TB'];
+        yield 'zero bytes are formatted as bytes' => [0, '0 B'];
+        yield 'small value is formatted as bytes' => [100, '100 B'];
+        yield 'one kilobyte is formatted without decimals' => [1024, '1 KB'];
+        yield 'kilobyte value is formatted with decimals' => [2024, '1.98 KB'];
+        yield 'larger kilobyte value is formatted with decimals' => [20240, '19.77 KB'];
+        yield 'megabyte value is formatted with decimals' => [15768749, '15.04 MB'];
+        yield 'gigabyte value is formatted with decimals' => [7415768749, '6.91 GB'];
+        yield 'terabyte value is formatted with decimals' => [7369137415768749, '6702.19 TB'];
     }
 
     #[DataProvider('maxUploadSizeProvider')]

@@ -141,17 +141,17 @@ class SeoUrlGeneratorTest extends TestCase
      */
     public static function templateDataProvider(): iterable
     {
-        yield 'template count path info' => [
+        yield 'dynamic template renders one SEO URL' => [
             'template' => '{{ id }}',
             'count' => 1,
             'pathInfo' => 'id',
         ];
-        yield 'template count path info variant 2' => [
+        yield 'static template renders one SEO URL' => [
             'template' => 'STATIC',
             'count' => 1,
             'pathInfo' => 'STATIC',
         ];
-        yield 'template count path info variant 3' => [
+        yield 'empty template renders no SEO URLs' => [
             'template' => '',
             'count' => 0,
             'pathInfo' => '',

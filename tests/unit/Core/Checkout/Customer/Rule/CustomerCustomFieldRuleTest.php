@@ -177,27 +177,27 @@ class CustomerCustomFieldRuleTest extends TestCase
             'customFieldValueInCustomer' => true,
             'result' => false,
         ];
-        yield 'testStringCustomField' => [
+        yield 'matching string custom field satisfies the rule' => [
             'rule' => self::setupStringRule('my_test_value'),
             'customFieldValueInCustomer' => 'my_test_value',
             'result' => true,
         ];
-        yield 'testStringCustomFieldInvalid' => [
+        yield 'different string custom field does not satisfy the rule' => [
             'rule' => self::setupStringRule('my_test_value'),
             'customFieldValueInCustomer' => 'my_invalid_value',
             'result' => false,
         ];
-        yield 'testMultiSelectCustomField' => [
+        yield 'overlapping multi select custom field satisfies the rule' => [
             'rule' => self::setupSelectRule([1, 2], ['componentName' => 'sw-multi-select']),
             'customFieldValueInCustomer' => [1],
             'result' => true,
         ];
-        yield 'testMultiSelectCustomFieldInvalid' => [
+        yield 'different multi select custom field does not satisfy the rule' => [
             'rule' => self::setupSelectRule([1, 2], ['componentName' => 'sw-multi-select']),
             'customFieldValueInCustomer' => [3],
             'result' => false,
         ];
-        yield 'testMultiSelectCustomFieldNull' => [
+        yield 'null multi select rule value does not satisfy the rule' => [
             'rule' => self::setupSelectRule(null, ['componentName' => 'sw-multi-select']),
             'customFieldValueInCustomer' => [3],
             'result' => false,
@@ -209,11 +209,11 @@ class CustomerCustomFieldRuleTest extends TestCase
      */
     public static function getStringRuleValueWhichShouldBeConsideredAsTrueProvider(): iterable
     {
-        yield 'string rule value which should be considered as true yes' => ['yes'];
-        yield 'string rule value which should be considered as true true' => ['True'];
-        yield 'string rule value which should be considered as true 1' => ['1'];
-        yield 'string rule value which should be considered as true true variant 2' => ['true'];
-        yield 'string rule value which should be considered as true yes variant 2' => ['yes '];
+        yield 'yes string is treated as true' => ['yes'];
+        yield 'uppercase true string is treated as true' => ['True'];
+        yield 'one string is treated as true' => ['1'];
+        yield 'lowercase true string is treated as true' => ['true'];
+        yield 'yes string with trailing space is treated as true' => ['yes '];
     }
 
     /**
@@ -221,12 +221,12 @@ class CustomerCustomFieldRuleTest extends TestCase
      */
     public static function getStringRuleValueWhichShouldBeConsideredAsFalseProvider(): iterable
     {
-        yield 'string rule value which should be considered as false no' => ['no'];
-        yield 'string rule value which should be considered as false false' => ['False'];
-        yield 'string rule value which should be considered as false 0' => ['0'];
-        yield 'string rule value which should be considered as false false variant 2' => ['false'];
-        yield 'string rule value which should be considered as false no variant 2' => ['no '];
-        yield 'string rule value which should be considered as false some string' => ['some string'];
+        yield 'no string is treated as false' => ['no'];
+        yield 'uppercase false string is treated as false' => ['False'];
+        yield 'zero string is treated as false' => ['0'];
+        yield 'lowercase false string is treated as false' => ['false'];
+        yield 'no string with trailing space is treated as false' => ['no '];
+        yield 'unknown string is treated as false' => ['some string'];
     }
 
     /**

@@ -158,32 +158,31 @@ class AclAnnotationValidatorTest extends TestCase
      */
     public static function annotationProvider(): iterable
     {
-        yield 'annotation privs of user acl should pass product true' => [
-            // privs of user   //acl   // should pass?
+        yield 'product write privilege is accepted when no annotation is required' => [
             ['product:write'], [], true,
         ];
-        yield 'annotation product write false' => [
+        yield 'missing product write privilege is rejected' => [
             [], ['productWrite'], false,
         ];
-        yield 'annotation product write product write true' => [
+        yield 'matching product write privilege is accepted' => [
             ['product:write'], ['product:write'], true,
         ];
-        yield 'annotation product write product read product write product read' => [
+        yield 'matching product write and read privileges are accepted' => [
             ['product:write', 'product:read'], ['product:write', 'product:read'], true,
         ];
-        yield 'annotation product write product write product read false' => [
+        yield 'missing product read privilege is rejected' => [
             ['product:write'], ['product:write', 'product:read'], false,
         ];
-        yield 'annotation api test route api test route true' => [
+        yield 'matching route privilege is accepted' => [
             ['api.test.route'], ['api.test.route'], true,
         ];
-        yield 'annotation api test route false' => [
+        yield 'missing route privilege is rejected' => [
             [], ['api.test.route'], false,
         ];
-        yield 'annotation product write product read api test route false' => [
+        yield 'entity privileges do not satisfy route privilege' => [
             ['product:write', 'product:read'], ['api.test.route'], false,
         ];
-        yield 'annotation app all app true' => [
+        yield 'app wildcard privilege satisfies app annotation' => [
             ['app.all'], ['app'], true,
         ];
     }

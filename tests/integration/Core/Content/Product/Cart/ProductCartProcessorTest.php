@@ -360,7 +360,7 @@ class ProductCartProcessorTest extends TestCase
      */
     public static function productFeatureProvider(): iterable
     {
-        yield 'product feature type product feature set definition id null translations defaults language' => [
+        yield 'translated product description is exposed as an attribute feature' => [
             [
                 'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_ATTRIBUTE,
                 'id' => null,
@@ -384,7 +384,7 @@ class ProductCartProcessorTest extends TestCase
                 'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_ATTRIBUTE,
             ],
         ];
-        yield 'product feature type product feature set definition id null manufacturer number 22ee3d8063da' => [
+        yield 'manufacturer number is exposed as an attribute feature' => [
             [
                 'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_ATTRIBUTE,
                 'id' => null,
@@ -400,7 +400,7 @@ class ProductCartProcessorTest extends TestCase
                 'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_ATTRIBUTE,
             ],
         ];
-        yield 'product feature type product feature set definition id 7c8e7851ff88447ba254d3c2a7c45101 properties id bf821e9e206848579049bc1694c5c3e7' => [
+        yield 'translated property options are exposed as a property feature' => [
             [
                 'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_PROPERTY,
                 'id' => '7c8e7851ff88447ba254d3c2a7c45101',
@@ -483,7 +483,7 @@ class ProductCartProcessorTest extends TestCase
                 'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_PROPERTY,
             ],
         ];
-        yield 'product feature type product feature set definition id null translations defaults language variant 2' => [
+        yield 'translated custom field is exposed as a custom field feature' => [
             [
                 'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_CUSTOM_FIELD,
                 'id' => null,
@@ -515,7 +515,7 @@ class ProductCartProcessorTest extends TestCase
                 'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_CUSTOM_FIELD,
             ],
         ];
-        yield 'product feature type product feature set definition id null translations defaults language variant 3' => [
+        yield 'translated pack unit is exposed as a reference price feature' => [
             [
                 'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_REFERENCE_PRICE,
                 'id' => null,
@@ -639,19 +639,19 @@ class ProductCartProcessorTest extends TestCase
      */
     public static function productDeliverabilityProvider(): iterable
     {
-        yield 'fixed quantity should be return 2' => [2, 2, 20, 3, 2, self::PURCHASE_STEP_QUANTITY_ERROR_KEY];
-        yield 'fixed quantity should be return 4' => [2, 2, 20, 5, 4, self::PURCHASE_STEP_QUANTITY_ERROR_KEY];
-        yield 'fixed quantity should be return 3' => [1, 2, 20, 4, 3, self::PURCHASE_STEP_QUANTITY_ERROR_KEY];
-        yield 'fixed quantity should be return 9' => [1, 2, 20, 10, 9, self::PURCHASE_STEP_QUANTITY_ERROR_KEY];
-        yield 'fixed quantity should be return 5, actual quantity is 6' => [5, 5, 20, 6, 5, self::PURCHASE_STEP_QUANTITY_ERROR_KEY];
-        yield 'fixed quantity should be return 5, actual quantity is 7' => [5, 5, 20, 7, 5, self::PURCHASE_STEP_QUANTITY_ERROR_KEY];
-        yield 'fixed quantity should be return 5, actual quantity is 8' => [5, 5, 20, 8, 5, self::PURCHASE_STEP_QUANTITY_ERROR_KEY];
-        yield 'fixed quantity should be return 5, actual quantity is 9' => [5, 5, 20, 9, 5, self::PURCHASE_STEP_QUANTITY_ERROR_KEY];
-        yield 'fixed quantity should be return equal max purchase' => [2, 2, 20, 22, 20, self::PRODUCT_STOCK_REACHED_ERROR_KEY];
-        yield 'fixed quantity should be return equal min purchase' => [2, 2, 20, 1, 2, self::MIN_ORDER_QUANTITY_ERROR_KEY];
-        yield 'fixed quantity should be return 1' => [1, 3, 5, 2, 1, self::PURCHASE_STEP_QUANTITY_ERROR_KEY];
-        yield 'fixed quantity should be return 10 with purchase step error message' => [10, 3, 13, 11, 10, self::PURCHASE_STEP_QUANTITY_ERROR_KEY];
-        yield 'fixed quantity should be return 10, with min order quantity error message' => [10, 2, 20, 2, 10, self::MIN_ORDER_QUANTITY_ERROR_KEY];
+        yield 'quantity 3 is reduced to purchase step 2' => [2, 2, 20, 3, 2, self::PURCHASE_STEP_QUANTITY_ERROR_KEY];
+        yield 'quantity 5 is reduced to purchase step 4' => [2, 2, 20, 5, 4, self::PURCHASE_STEP_QUANTITY_ERROR_KEY];
+        yield 'quantity 4 is reduced to purchase step 3' => [1, 2, 20, 4, 3, self::PURCHASE_STEP_QUANTITY_ERROR_KEY];
+        yield 'quantity 10 is reduced to purchase step 9' => [1, 2, 20, 10, 9, self::PURCHASE_STEP_QUANTITY_ERROR_KEY];
+        yield 'quantity 6 is reduced to minimum purchase 5' => [5, 5, 20, 6, 5, self::PURCHASE_STEP_QUANTITY_ERROR_KEY];
+        yield 'quantity 7 is reduced to minimum purchase 5' => [5, 5, 20, 7, 5, self::PURCHASE_STEP_QUANTITY_ERROR_KEY];
+        yield 'quantity 8 is reduced to minimum purchase 5' => [5, 5, 20, 8, 5, self::PURCHASE_STEP_QUANTITY_ERROR_KEY];
+        yield 'quantity 9 is reduced to minimum purchase 5' => [5, 5, 20, 9, 5, self::PURCHASE_STEP_QUANTITY_ERROR_KEY];
+        yield 'quantity above stock is capped at max purchase' => [2, 2, 20, 22, 20, self::PRODUCT_STOCK_REACHED_ERROR_KEY];
+        yield 'quantity below minimum is raised to min purchase' => [2, 2, 20, 1, 2, self::MIN_ORDER_QUANTITY_ERROR_KEY];
+        yield 'quantity 2 is reduced to purchase step 1' => [1, 3, 5, 2, 1, self::PURCHASE_STEP_QUANTITY_ERROR_KEY];
+        yield 'quantity 11 is reduced to purchase step 10' => [10, 3, 13, 11, 10, self::PURCHASE_STEP_QUANTITY_ERROR_KEY];
+        yield 'quantity below high minimum is raised to min purchase' => [10, 2, 20, 2, 10, self::MIN_ORDER_QUANTITY_ERROR_KEY];
     }
 
     public function testProcessCartShouldSetQuantityOfPriceDefinitionWhenAddingASimilarProduct(): void

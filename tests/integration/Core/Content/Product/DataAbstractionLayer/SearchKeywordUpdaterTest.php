@@ -237,7 +237,7 @@ class SearchKeywordUpdaterTest extends TestCase
     {
         $idsCollection = new IdsCollection();
 
-        yield 'test different languages' => [
+        yield 'translated product name creates language specific keywords' => [
             (new ProductBuilder($idsCollection, '1000'))
                 ->price(10)
                 ->name('Test product')
@@ -257,7 +257,7 @@ class SearchKeywordUpdaterTest extends TestCase
                 'test produkt', // product name
             ],
         ];
-        yield 'test it uses parent languages' => [
+        yield 'missing translation falls back to parent language keywords' => [
             (new ProductBuilder($idsCollection, '1000'))
                 ->price(10)
                 ->name('Test product')
@@ -276,7 +276,7 @@ class SearchKeywordUpdaterTest extends TestCase
                 'test product', // product name
             ],
         ];
-        yield 'test it uses correct languages for association' => [
+        yield 'translated manufacturer name creates language specific keywords' => [
             (new ProductBuilder($idsCollection, '1000'))
                 ->price(10)
                 ->name('Test product')
@@ -298,7 +298,7 @@ class SearchKeywordUpdaterTest extends TestCase
                 'test product', // product name
             ],
         ];
-        yield 'test it uses correct translation from parent' => [
+        yield 'variant inherits translated product name from parent' => [
             (new ProductBuilder($idsCollection, '1001'))
                 ->name('Test product')
                 ->translation('de-DE', 'name', 'Test produkt')
@@ -325,7 +325,7 @@ class SearchKeywordUpdaterTest extends TestCase
             ],
             ['1001'],
         ];
-        yield 'test it uses correct translation from parent association' => [
+        yield 'variant inherits translated manufacturer name from parent' => [
             (new ProductBuilder($idsCollection, '1001'))
                 ->name('Test product')
                 ->manufacturer('manufacturer', ['de-DE' => ['name' => 'Hersteller']])

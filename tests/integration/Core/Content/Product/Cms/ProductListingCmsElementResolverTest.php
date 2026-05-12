@@ -329,7 +329,7 @@ class ProductListingCmsElementResolverTest extends TestCase
         $sizeId = Uuid::randomHex();
         $textileId = Uuid::randomHex();
 
-        yield 'filters manufacturer filter true price filter true rating filters value null property' => [
+        yield 'default config keeps all filters enabled without a property whitelist' => [
             [
                 'manufacturer-filter' => true,
                 'price-filter' => true,
@@ -345,7 +345,7 @@ class ProductListingCmsElementResolverTest extends TestCase
                 'propertyWhitelist' => null,
             ],
         ];
-        yield 'filters manufacturer filter false price filter false rating filters value invalid filter' => [
+        yield 'invalid filter value is preserved when no known filters are active' => [
             [
                 'manufacturer-filter' => false,
                 'price-filter' => false,
@@ -361,7 +361,7 @@ class ProductListingCmsElementResolverTest extends TestCase
                 'propertyWhitelist' => null,
             ],
         ];
-        yield 'filters manufacturer filter true price filter false rating filters value invalid filter' => [
+        yield 'invalid filter value is preserved before active manufacturer and rating filters' => [
             [
                 'manufacturer-filter' => true,
                 'price-filter' => false,
@@ -377,7 +377,7 @@ class ProductListingCmsElementResolverTest extends TestCase
                 'propertyWhitelist' => null,
             ],
         ];
-        yield 'filters manufacturer filter true price filter true rating filters value manufacturer filter' => [
+        yield 'all active filters are returned when every filter is enabled' => [
             [
                 'manufacturer-filter' => true,
                 'price-filter' => true,
@@ -393,7 +393,7 @@ class ProductListingCmsElementResolverTest extends TestCase
                 'propertyWhitelist' => ['value' => []],
             ],
         ];
-        yield 'filters manufacturer filter false price filter true rating filters value price filter' => [
+        yield 'disabled manufacturer filter is omitted from active filters' => [
             [
                 'manufacturer-filter' => false,
                 'price-filter' => true,
@@ -409,7 +409,7 @@ class ProductListingCmsElementResolverTest extends TestCase
                 'propertyWhitelist' => ['value' => []],
             ],
         ];
-        yield 'filters manufacturer filter false price filter false rating filters value rating filter' => [
+        yield 'disabled manufacturer and price filters are omitted from active filters' => [
             [
                 'manufacturer-filter' => false,
                 'price-filter' => false,
@@ -425,7 +425,7 @@ class ProductListingCmsElementResolverTest extends TestCase
                 'propertyWhitelist' => ['value' => []],
             ],
         ];
-        yield 'filters manufacturer filter false price filter false rating filters value property filter' => [
+        yield 'property and shipping filters are enabled when both are active' => [
             [
                 'manufacturer-filter' => false,
                 'price-filter' => false,
@@ -441,7 +441,7 @@ class ProductListingCmsElementResolverTest extends TestCase
                 'propertyWhitelist' => ['value' => []],
             ],
         ];
-        yield 'filters manufacturer filter false price filter false rating filters value property filter variant 2' => [
+        yield 'only property filter is enabled when shipping filter is inactive' => [
             [
                 'manufacturer-filter' => false,
                 'price-filter' => false,
@@ -457,7 +457,7 @@ class ProductListingCmsElementResolverTest extends TestCase
                 'propertyWhitelist' => ['value' => []],
             ],
         ];
-        yield 'filters manufacturer filter false price filter false rating filters value property whitelist' => [
+        yield 'all filters are disabled and property whitelist is empty' => [
             [
                 'manufacturer-filter' => false,
                 'price-filter' => false,
@@ -473,7 +473,7 @@ class ProductListingCmsElementResolverTest extends TestCase
                 'propertyWhitelist' => ['value' => []],
             ],
         ];
-        yield 'filters manufacturer filter false price filter false rating filters value property whitelist variant 2' => [
+        yield 'disabled filters keep the configured property whitelist' => [
             [
                 'manufacturer-filter' => false,
                 'price-filter' => false,
@@ -489,7 +489,7 @@ class ProductListingCmsElementResolverTest extends TestCase
                 'propertyWhitelist' => ['value' => [$sizeId, $textileId]],
             ],
         ];
-        yield 'filters manufacturer filter false price filter false rating filters value property filter variant 3' => [
+        yield 'property filter keeps the configured property whitelist' => [
             [
                 'manufacturer-filter' => false,
                 'price-filter' => false,

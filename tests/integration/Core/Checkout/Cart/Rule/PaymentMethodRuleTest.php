@@ -243,7 +243,7 @@ class PaymentMethodRuleTest extends TestCase
      */
     public static function matchDataProvider(): iterable
     {
-        yield 'match operator rule operator eq payment method ids 965a0713093841ceb86b0f83edd7dab4' => [
+        yield 'equals operator rejects when no payment methods are configured' => [
             [
                 'operator' => Rule::OPERATOR_EQ,
                 'paymentMethodIds' => [],
@@ -251,7 +251,7 @@ class PaymentMethodRuleTest extends TestCase
             '965a0713093841ceb86b0f83edd7dab4',
             false,
         ];
-        yield 'match operator rule operator eq payment method ids 965a0713093841ceb86b0f83edd7dab4 variant 2' => [
+        yield 'equals operator rejects a different payment method' => [
             [
                 'operator' => Rule::OPERATOR_EQ,
                 'paymentMethodIds' => ['ff5a0713093841ceb86b0f83edd7dab4'],
@@ -259,7 +259,7 @@ class PaymentMethodRuleTest extends TestCase
             '965a0713093841ceb86b0f83edd7dab4',
             false,
         ];
-        yield 'match operator rule operator neq payment method ids 965a0713093841ceb86b0f83edd7dab4' => [
+        yield 'not equals operator rejects the configured payment method' => [
             [
                 'operator' => Rule::OPERATOR_NEQ,
                 'paymentMethodIds' => ['965a0713093841ceb86b0f83edd7dab4'],
@@ -267,7 +267,7 @@ class PaymentMethodRuleTest extends TestCase
             '965a0713093841ceb86b0f83edd7dab4',
             false,
         ];
-        yield 'match operator rule operator neq payment method ids ff5a0713093841ceb86b0f83edd7dab4' => [
+        yield 'not equals operator rejects one of multiple configured payment methods' => [
             [
                 'operator' => Rule::OPERATOR_NEQ,
                 'paymentMethodIds' => ['965a0713093841ceb86b0f83edd7dab4', 'ff5a0713093841ceb86b0f83edd7dab4'],
@@ -275,7 +275,7 @@ class PaymentMethodRuleTest extends TestCase
             'ff5a0713093841ceb86b0f83edd7dab4',
             false,
         ];
-        yield 'match operator rule operator eq payment method ids 965a0713093841ceb86b0f83edd7dab4 variant 3' => [
+        yield 'equals operator matches the configured payment method' => [
             [
                 'operator' => Rule::OPERATOR_EQ,
                 'paymentMethodIds' => ['965a0713093841ceb86b0f83edd7dab4'],
@@ -283,7 +283,7 @@ class PaymentMethodRuleTest extends TestCase
             '965a0713093841ceb86b0f83edd7dab4',
             true,
         ];
-        yield 'match operator rule operator eq payment method ids ff5a0713093841ceb86b0f83edd7dab4' => [
+        yield 'equals operator matches one of multiple configured payment methods' => [
             [
                 'operator' => Rule::OPERATOR_EQ,
                 'paymentMethodIds' => ['965a0713093841ceb86b0f83edd7dab4', 'ff5a0713093841ceb86b0f83edd7dab4'],
@@ -291,7 +291,7 @@ class PaymentMethodRuleTest extends TestCase
             'ff5a0713093841ceb86b0f83edd7dab4',
             true,
         ];
-        yield 'match operator rule operator neq payment method ids ee5a0713093841ceb86b0f83edd7dab4' => [
+        yield 'not equals operator matches an unconfigured payment method' => [
             [
                 'operator' => Rule::OPERATOR_NEQ,
                 'paymentMethodIds' => ['965a0713093841ceb86b0f83edd7dab4', 'ff5a0713093841ceb86b0f83edd7dab4'],

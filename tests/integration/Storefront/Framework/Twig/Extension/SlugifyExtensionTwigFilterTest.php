@@ -25,12 +25,12 @@ class SlugifyExtensionTwigFilterTest extends TestCase
      */
     public static function sampleAnchorIdProvider(): iterable
     {
-        yield 'sample anchor id scenario 1' => ['', ''];
-        yield 'sample anchor id hello hello' => ['Hello', 'Hello'];
-        yield 'sample anchor id hello world hello world' => ['Hello World', 'Hello-World'];
-        yield 'sample anchor id h ll w rld helloe woerld' => ['Hëllö Wörld', 'Helloe-Woerld'];
-        yield 'sample anchor id schokolade in ma en verzehren schokolade in massen verzehren' => ['Schokolade in Maßen verzehren', 'Schokolade-in-Massen-verzehren'];
-        yield 'sample anchor id je d test les caract je detest les caracteres' => ['Je détest les caractères spéciaux', 'Je-detest-les-caracteres-speciaux'];
+        yield 'empty anchor id stays empty' => ['', ''];
+        yield 'single word anchor id stays unchanged' => ['Hello', 'Hello'];
+        yield 'spaces in anchor id are replaced with dashes' => ['Hello World', 'Hello-World'];
+        yield 'umlauts in anchor id are transliterated' => ['Hëllö Wörld', 'Helloe-Woerld'];
+        yield 'German sharp s in anchor id is transliterated' => ['Schokolade in Maßen verzehren', 'Schokolade-in-Massen-verzehren'];
+        yield 'French accents in anchor id are transliterated' => ['Je détest les caractères spéciaux', 'Je-detest-les-caracteres-speciaux'];
     }
 
     private function renderTestTemplate(?string $input): string

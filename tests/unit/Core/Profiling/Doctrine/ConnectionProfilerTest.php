@@ -147,10 +147,10 @@ class ConnectionProfilerTest extends TestCase
      */
     public static function paramProvider(): iterable
     {
-        yield 'param some value some value' => ['some value', [], 'some value'];
-        yield 'param 1 1' => [1, [], 1];
-        yield 'param true true' => [true, [], true];
-        yield 'param null null' => [null, [], null];
+        yield 'string profiling parameter stays unchanged' => ['some value', [], 'some value'];
+        yield 'integer profiling parameter stays unchanged' => [1, [], 1];
+        yield 'profiling enabled parameter stays true' => [true, [], true];
+        yield 'missing profiling parameter stays null' => [null, [], null];
     }
 
     public function testCollectQueryWithNoParams(): void

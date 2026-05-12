@@ -48,73 +48,73 @@ class FloatComparatorTest extends TestCase
      */
     public static function compareDataProvider(): iterable
     {
-        yield 'Test not equal return true' => [
+        yield 'not equal operator accepts different values' => [
             'operator' => Rule::OPERATOR_NEQ,
             'a' => 1,
             'b' => 2,
             'expected' => true,
         ];
-        yield 'Test not equal return false' => [
+        yield 'not equal operator rejects equal values' => [
             'operator' => Rule::OPERATOR_NEQ,
             'a' => 1,
             'b' => 1,
             'expected' => false,
         ];
-        yield 'Test greater than or equal return true' => [
+        yield 'greater than or equal operator accepts equal values' => [
             'operator' => Rule::OPERATOR_GTE,
             'a' => 1,
             'b' => 1,
             'expected' => true,
         ];
-        yield 'Test greater than or equal return false' => [
+        yield 'greater than or equal operator rejects lower values' => [
             'operator' => Rule::OPERATOR_GTE,
             'a' => 1,
             'b' => 2,
             'expected' => false,
         ];
-        yield 'Test less than or equal return true' => [
+        yield 'less than or equal operator accepts equal values' => [
             'operator' => Rule::OPERATOR_LTE,
             'a' => 1,
             'b' => 1,
             'expected' => true,
         ];
-        yield 'Test less than or equal return false' => [
+        yield 'less than or equal operator rejects higher values' => [
             'operator' => Rule::OPERATOR_LTE,
             'a' => 1,
             'b' => 0,
             'expected' => false,
         ];
-        yield 'Test equal return true' => [
+        yield 'equal operator accepts equal values' => [
             'operator' => Rule::OPERATOR_EQ,
             'a' => 1,
             'b' => 1,
             'expected' => true,
         ];
-        yield 'Test equal return false' => [
+        yield 'equal operator rejects different values' => [
             'operator' => Rule::OPERATOR_EQ,
             'a' => 1,
             'b' => 2,
             'expected' => false,
         ];
-        yield 'Test greater than return true' => [
+        yield 'greater than operator accepts higher values' => [
             'operator' => Rule::OPERATOR_GT,
             'a' => 2,
             'b' => 1,
             'expected' => true,
         ];
-        yield 'Test greater than return false' => [
+        yield 'greater than operator rejects lower values' => [
             'operator' => Rule::OPERATOR_GT,
             'a' => 1,
             'b' => 2,
             'expected' => false,
         ];
-        yield 'Test less than return true' => [
+        yield 'less than operator accepts lower values' => [
             'operator' => Rule::OPERATOR_LT,
             'a' => 1,
             'b' => 2,
             'expected' => true,
         ];
-        yield 'Test less than return false' => [
+        yield 'less than operator rejects higher values' => [
             'operator' => Rule::OPERATOR_LT,
             'a' => 2,
             'b' => 1,
@@ -195,7 +195,7 @@ class FloatComparatorTest extends TestCase
         yield 'less than 42 42 false' => [42, 42, false];
         yield 'less than 1 point 0 1 point 0 false' => [1.0, 1.0, false];
         yield 'less than 0 point 0 0 point 0 false' => [0.0, 0.0, false];
-        yield 'less than 0 point 0 0 point 0 false variant 2' => [0.0, 0.0, false];
+        yield 'zero is not less than zero with decimal input' => [0.0, 0.0, false];
         yield 'less than 8 1 point 6 false' => [8 - 6.4, 1.6, false];
         yield 'less than 1 point 6 8 false' => [1.6, 8 - 6.4, false];
         yield 'less than 1 point 00001 1 false' => [1.00001, 1, false];
@@ -295,7 +295,7 @@ class FloatComparatorTest extends TestCase
         yield 'greater than or equals 2 1 true' => [2, 1, true];
         yield 'greater than or equals 1 point 00001 1 true' => [1.00001, 1, true];
         yield 'greater than or equals 0 point 00001 0 true' => [0.00001, 0, true];
-        yield 'greater than or equals 0 point 1 0 true variant 2' => [0.1, 0 - 0.1, true];
+        yield 'positive value is greater than computed negative value' => [0.1, 0 - 0.1, true];
         yield 'greater than or equals 1 1 point 0001 false' => [1, 1.0001, false];
         yield 'greater than or equals 0 0 point 00001 false' => [0, 0.00001, false];
         yield 'greater than or equals 23 42 false' => [23, 42, false];

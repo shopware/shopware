@@ -19,14 +19,17 @@ const GLOBAL_LEGACY_HELPERS = {
     else: '$swLegacyBlockElse',
 } satisfies LegacyBlockHelperNames;
 
+/** Escapes block names for helper calls embedded in single-quoted Vue expressions. */
 function escapeSingleQuotedString(value: string): string {
     return value.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 }
 
+/** Escapes block names for the temporary wrapper attribute used during DOM parsing. */
 function escapeDoubleQuotedString(value: string): string {
     return value.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
 }
 
+/** Builds the replacement v-if expression that links a branch to the legacy chain state. */
 function createLegacyHelperExpression(helperName: string, blockName: string, expression?: string | null): string {
     const escapedBlockName = escapeSingleQuotedString(blockName);
 
@@ -37,6 +40,7 @@ function createLegacyHelperExpression(helperName: string, blockName: string, exp
     return `${helperName}('${escapedBlockName}', ${expression})`;
 }
 
+/** Expands self-closing custom components so the browser parser keeps the intended tree. */
 function normalizeSelfClosingTags(template: string): string {
     return template.replace(SELF_CLOSING_TAG_REG_EXP, (match, tagName: string, attributes: string = '') => {
         const trimmedAttributes = attributes.trim();
@@ -46,6 +50,7 @@ function normalizeSelfClosingTags(template: string): string {
     });
 }
 
+/** Finds the v-if / v-else-if chain at the end of a native block. */
 function getTrailingConditionalChain(children: Element[]): Element[] {
     const lastElement = children.at(-1);
 
@@ -83,6 +88,7 @@ function getTrailingConditionalChain(children: Element[]): Element[] {
     return [];
 }
 
+/** Finds the first v-else / v-else-if that directly continues after sw-block-parent. */
 function getConditionalElementFollowingBlockParent(children: Element[]): Element | null {
     let shouldCheckChild = true;
 
@@ -102,6 +108,7 @@ function getConditionalElementFollowingBlockParent(children: Element[]): Element
     return null;
 }
 
+/** Rewrites the parent side of a cross-block conditional chain. */
 function rewriteTrailingConditionalChain(
     blockName: string,
     conditionalChain: Element[],
@@ -134,6 +141,7 @@ function rewriteTrailingConditionalChain(
     return true;
 }
 
+/** Rewrites the extension side so Vue no longer needs adjacent v-if/v-else nodes. */
 function rewriteLeadingConditional(
     blockName: string,
     conditionalElement: Element | null,
@@ -163,6 +171,8 @@ function rewriteLeadingConditional(
 }
 
 /**
+ * Rewrites native sw-block conditional chains before Vue compiles them.
+ *
  * @private
  */
 export default function transformLegacyBlockConditionals(template: string): string {
@@ -209,6 +219,8 @@ export default function transformLegacyBlockConditionals(template: string): stri
 }
 
 /**
+ * Applies the same rewrite to reconstructed legacy Twig block override content.
+ *
  * @private
  */
 export function transformLegacyBlockExtensionConditionals(blockName: string, template: string): string {
@@ -226,10 +238,7 @@ export function transformLegacyBlockExtensionConditionals(blockName: string, tem
 
     if (
         !blockElement ||
-        !rewriteLeadingConditional(
-            blockName,
-            getConditionalElementFollowingBlockParent(Array.from(blockElement.children)),
-        )
+        !rewriteLeadingConditional(blockName, getConditionalElementFollowingBlockParent(Array.from(blockElement.children)))
     ) {
         return template;
     }

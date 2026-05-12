@@ -41,6 +41,8 @@ function removeBlock(blockName: string, block?: Slot): void {
         delete blockContext[blockName];
     }
 }
+
+/** Starts a legacy conditional chain for one block render. */
 function legacyIf(blockName: string, expression: unknown): boolean {
     const result = Boolean(expression);
 
@@ -51,6 +53,7 @@ function legacyIf(blockName: string, expression: unknown): boolean {
     return result;
 }
 
+/** Continues the chain only when no earlier branch matched. */
 function legacyElseIf(blockName: string, expression: unknown): boolean {
     const chain = legacyConditionContext[blockName];
 
@@ -67,6 +70,7 @@ function legacyElseIf(blockName: string, expression: unknown): boolean {
     return !previousConditionMatched && result;
 }
 
+/** Finishes the chain and renders only when all previous branches missed. */
 function legacyElse(blockName: string): boolean {
     const chain = legacyConditionContext[blockName];
 

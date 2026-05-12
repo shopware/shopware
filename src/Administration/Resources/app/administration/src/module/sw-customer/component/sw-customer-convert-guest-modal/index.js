@@ -1,6 +1,6 @@
-import './sw-customer-convert-guest-modal.scss'
+import './sw-customer-convert-guest-modal.scss';
 import template from './sw-customer-convert-guest-modal.html.twig';
-import errorConfig from "../../error-config.json";
+import errorConfig from '../../error-config.json';
 
 /**
  * @sw-package checkout
@@ -17,8 +17,8 @@ export default {
     emits: ['modal-close'],
 
     inject: [
-        'GuestCustomerConvertService',
-        'loadCustomer'
+        'guestCustomerConvertService',
+        'loadCustomer',
     ],
 
     mixins: [
@@ -47,29 +47,25 @@ export default {
     methods: {
         async sendRecoveryEmail() {
             try {
-                await this.GuestCustomerConvertService.sendMail(this.customer.id);
+                await this.guestCustomerConvertService.sendMail(this.customer.id);
                 await this.loadCustomer();
 
                 this.createNotificationSuccess({
                     message: this.$t('sw-customer.detail.messageSaveSuccess', {
-                        name: `${this.customer.firstName} ${this.customer.lastName}`
+                        name: `${this.customer.firstName} ${this.customer.lastName}`,
                     }),
                 });
             } catch (error) {
                 const [firstError] = error?.response?.data?.errors ?? [];
 
-                if (!firstError) {
-                    return;
-                }
+                let message = firstError?.detail || this.$t('sw-customer.detail.messageSaveError');
 
-                let message = firstError.detail || this.$t('sw-customer.detail.messageSaveError');
-
-                if(firstError.code === "VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE") {
+                if (firstError?.code === 'VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE') {
                     message = this.$t('sw-customer.error.VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE');
                 }
 
                 this.createNotificationError({
-                    message
+                    message,
                 });
             } finally {
                 this.onCancel();
@@ -82,7 +78,7 @@ export default {
 
         async convert() {
             try {
-                await this.GuestCustomerConvertService.convert(this.customer.id, { password: this.password });
+                await this.guestCustomerConvertService.convert(this.customer.id, { password: this.password });
                 await this.loadCustomer();
 
                 this.onCancel();
@@ -97,16 +93,12 @@ export default {
             } catch (error) {
                 const [firstError] = error?.response?.data?.errors ?? [];
 
-                if (!firstError) {
-                    return;
-                }
-
                 const expression = `customer.${this.customer.id}.convert`;
                 const errorStore = Shopware.Store.get('error');
 
                 let detailMessage;
 
-                switch (firstError.code) {
+                switch (firstError?.code) {
                     case 'VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE':
                         this.onCancel();
 
@@ -119,31 +111,25 @@ export default {
                         return;
 
                     case 'VIOLATION::TOO_LONG_ERROR':
-                        detailMessage = this.$t(
-                            'sw-customer.error.VIOLATION::PASSWORD_IS_TOO_LONG'
-                        );
+                        detailMessage = this.$t('sw-customer.error.VIOLATION::PASSWORD_IS_TOO_LONG');
                         break;
 
                     case 'VIOLATION::TOO_SHORT_ERROR':
-                        detailMessage = this.$t(
-                            'sw-customer.error.VIOLATION::PASSWORD_IS_TOO_SHORT'
-                        );
+                        detailMessage = this.$t('sw-customer.error.VIOLATION::PASSWORD_IS_TOO_SHORT');
                         break;
 
                     default:
-                        detailMessage =
-                            firstError.detail ||
-                            this.$t('sw-customer.detail.messageSaveError');
+                        detailMessage = firstError?.detail || this.$t('sw-customer.detail.messageSaveError');
                 }
 
                 errorStore.addApiError({
                     expression,
                     error: new ShopwareError({
                         detail: detailMessage,
-                        code: firstError.code || 'customer_convert',
+                        code: firstError?.code || 'customer_convert',
                     }),
                 });
             }
-        }
-    }
+        },
+    },
 };

@@ -23,13 +23,20 @@
             />
         {% endblock %}
 
+        {% block sw_customer_card_convert_customer_modal %}
             <mt-button
+                v-tooltip="{
+                    message: $t('sw-privileges.tooltip.warning'),
+                    disabled: acl.can('customer.editor'),
+                    showOnDisabledElements: true
+                }"
                 variant="action"
-                :disabled="!customer.guest"
+                :disabled="!canUseConvertCustomer"
                 @click="onOpenConvertCustomerModal"
             >
                 {{ $t('sw-customer.card.buttonConvertCustomer') }}
             </mt-button>
+        {% endblock %}
 
         {% block sw_customer_card_action_customer_impersonation %}
             <mt-button

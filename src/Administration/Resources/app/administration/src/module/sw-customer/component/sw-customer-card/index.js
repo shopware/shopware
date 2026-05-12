@@ -146,6 +146,12 @@ export default {
             return this.acl.can('api_proxy_imitate-customer');
         },
 
+        canUseConvertCustomer() {
+            if (this.customer.guest && this.acl.can('customer:update')) {
+                return true;
+            }
+        },
+
         customerImitationWarning() {
             if (this.customer.guest) {
                 return this.$t('sw-customer.card.tooltipImitateCustomerGuest');
@@ -235,6 +241,6 @@ export default {
 
         onCloseConvertCustomerModal() {
             this.showConvertCustomerModal = false;
-        }
+        },
     },
 };

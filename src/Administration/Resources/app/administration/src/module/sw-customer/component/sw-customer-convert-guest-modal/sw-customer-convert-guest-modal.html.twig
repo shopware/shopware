@@ -1,13 +1,12 @@
-<!-- eslint-disable vuejs-accessibility/click-events-have-key-events -->
 {% block sw_customer_guest_convert_customer_modal %}
 <sw-modal
     :title="$t('sw-customer.convertGuest.modalTitle')"
     class="sw-customer-guest-convert-customer-modal"
     @modal-close="onCancel"
 >
-        {% block sw_customer_guest_convert_customer_modal_content %}
+    {% block sw_customer_guest_convert_customer_modal_content %}
     <div class="sw-customer-guest-convert-customer-modal__content">
-                {% block sw_customer_guest_convert_customer_modal_option_reset %}
+        {% block sw_customer_guest_convert_customer_modal_option_reset %}
         <div class="sw-customer-guest-convert-customer-modal__option sw-customer-guest-convert-customer-modal__option--reset">
             <p class="sw-customer-guest-convert-customer-modal__title">
                 {{ $tc('sw-customer.convertGuest.mail.title') }}
@@ -24,9 +23,9 @@
                 {{ $tc('sw-customer.convertGuest.mail.button') }}
             </mt-button>
         </div>
-                {% endblock %}
+        {% endblock %}
 
-                {% block sw_customer_guest_convert_customer_modal_option_manual %}
+        {% block sw_customer_guest_convert_customer_modal_option_manual %}
         <div class="sw-customer-guest-convert-customer-modal__option sw-customer-guest-convert-customer-modal__option--manual">
             <p class="sw-customer-guest-convert-customer-modal__title">
                 {{ $tc('sw-customer.convertGuest.manual.title') }}
@@ -40,7 +39,7 @@
                     <mt-password-field
                         v-model="password"
                         class="sw-customer-guest-convert-customer-modal__input"
-                        label="New password"
+                        :label="$t('sw-customer.convertGuest.manual.passwordLabel')"
                         type="password"
                         :error="customerConvertError"
                     />
@@ -56,8 +55,8 @@
                 </form>
             </div>
         </div>
-                {% endblock %}
-    </div>
         {% endblock %}
+    </div>
+    {% endblock %}
 </sw-modal>
 {% endblock %}

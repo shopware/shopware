@@ -5,7 +5,7 @@ $sw-customer-color-mail-to-link: var(--color-text-brand-default);
 .sw-customer-card {
     &__header {
         display: flex;
-        gap: 8px;
+        gap: var(--scale-size-8);
     }
 
     .sw-customer-card__metadata {

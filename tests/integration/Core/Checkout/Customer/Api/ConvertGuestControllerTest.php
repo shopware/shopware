@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Api;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Api\ConvertGuestController;
 use Shopware\Core\Checkout\Customer\CustomerCollection;

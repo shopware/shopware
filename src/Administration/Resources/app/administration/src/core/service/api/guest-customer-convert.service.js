@@ -9,7 +9,7 @@ import ApiService from '../api.service';
 class GuestCustomerConvertService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = '/') {
         super(httpClient, loginService, apiEndpoint);
-        this.name = 'GuestCustomerConvertService';
+        this.name = 'guestCustomerConvertService';
     }
 
     /**
@@ -24,14 +24,11 @@ class GuestCustomerConvertService extends ApiService {
 
         return this.httpClient
             .post(`/_action/customer-convert/${customerId}`, payload, {
-                additionalParams,
+                params: { ...additionalParams },
                 headers,
             })
             .then((response) => {
                 return ApiService.handleResponse(response);
-            })
-            .catch((exception) => {
-                throw exception;
             });
     }
 
@@ -47,14 +44,11 @@ class GuestCustomerConvertService extends ApiService {
 
         return this.httpClient
             .post(`/_action/customer-convert/${customerId}`, payload, {
-                additionalParams,
+                params: { ...additionalParams },
                 headers,
             })
             .then((response) => {
                 return ApiService.handleResponse(response);
-            })
-            .catch((exception) => {
-                throw exception;
             });
     }
 }

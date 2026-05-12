@@ -21,24 +21,24 @@ async function createWrapper() {
                         stopEventListener: () => {},
                         startEventListener: () => {},
                     },
-                    GuestCustomerConvertService: {
+                    guestCustomerConvertService: {
                         sendMail: async () => {},
-                        convert: async () => {}
+                        convert: async () => {},
                     },
-                    loadCustomer: jest.fn()
+                    loadCustomer: jest.fn(),
                 },
             },
             props: {
                 customer: {
                     id: 'customer-id',
-                    email: 'test@test.com'
+                    email: 'test@test.com',
                 },
             },
         },
     );
 }
 
-describe('module/sw-customer-convert-customer-modal', () => {
+describe('module/sw-customer-convert-guest-modal', () => {
     let wrapper;
 
     it('can close modal', async () => {
@@ -62,9 +62,7 @@ describe('module/sw-customer-convert-customer-modal', () => {
         await flushPromises();
 
         const buttons = await wrapper.findAll('.sw-customer-guest-convert-customer-modal__action');
-        const button = buttons.find(btn =>
-            btn.text().includes('sw-customer.convertGuest.mail.button')
-        );
+        const button = buttons.find((btn) => btn.text().includes('sw-customer.convertGuest.mail.button'));
 
         expect(button.exists()).toBe(true);
 
@@ -78,14 +76,12 @@ describe('module/sw-customer-convert-customer-modal', () => {
     it('can set password', async () => {
         wrapper = await createWrapper();
 
-        const spy = jest.spyOn(wrapper.vm.GuestCustomerConvertService, 'convert');
+        const spy = jest.spyOn(wrapper.vm.guestCustomerConvertService, 'convert');
 
         await flushPromises();
 
         const buttons = await wrapper.findAll('.sw-customer-guest-convert-customer-modal__action');
-        const button = buttons.find(btn =>
-            btn.text().includes('sw-customer.convertGuest.manual.button')
-        );
+        const button = buttons.find((btn) => btn.text().includes('sw-customer.convertGuest.manual.button'));
 
         expect(button.exists()).toBe(true);
 
@@ -105,14 +101,12 @@ describe('module/sw-customer-convert-customer-modal', () => {
     it('cannot set password with empty input', async () => {
         wrapper = await createWrapper();
 
-        const spy = jest.spyOn(wrapper.vm.GuestCustomerConvertService, 'convert');
+        const spy = jest.spyOn(wrapper.vm.guestCustomerConvertService, 'convert');
 
         await flushPromises();
 
         const buttons = await wrapper.findAll('.sw-customer-guest-convert-customer-modal__action');
-        const button = buttons.find(btn =>
-            btn.text().includes('sw-customer.convertGuest.manual.button')
-        );
+        const button = buttons.find((btn) => btn.text().includes('sw-customer.convertGuest.manual.button'));
 
         expect(button.exists()).toBe(true);
 
@@ -122,6 +116,4 @@ describe('module/sw-customer-convert-customer-modal', () => {
 
         expect(spy).not.toHaveBeenCalled();
     });
-
 });
-

@@ -217,6 +217,7 @@
       },
       "manual": {
         "title": "Set password manually",
+        "passwordLabel": "New password",
         "description": "Set a new password for the customer directly. The customer will not be notified.",
         "button": "Set password"
       }

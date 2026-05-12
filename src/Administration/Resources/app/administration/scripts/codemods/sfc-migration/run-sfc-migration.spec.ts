@@ -106,8 +106,6 @@ describe('normaliseJsContent', () => {
     });
 
     it('does not corrupt trailing module-level code that contains `};` after the export default', () => {
-        // This is the actual bug: the old lastIndexOf('};') would have matched the
-        // TRAILING constant's closing `};` instead of the export default's.
         const input = [
             `export default {`,
             `    data() { return { x: 1 }; },`,

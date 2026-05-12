@@ -52,11 +52,11 @@ class ImportExportServiceTest extends TestCase
     }
 
     /**
-     * @return list<array{clientMimeType: string, fileExtension: string, expectedMimeType: string|false}>
+     * @return iterable<int, array{clientMimeType: string, fileExtension: string, expectedMimeType: string|false}>
      */
-    public static function mimeTypeProvider(): array
+    public static function mimeTypeProvider(): iterable
     {
-        return [
+        yield from [
             [
                 'clientMimeType' => 'text/csv',
                 'fileExtension' => 'csv',
@@ -261,11 +261,11 @@ class ImportExportServiceTest extends TestCase
     }
 
     /**
-     * @return array<array{0: array<string, mixed>, 1: ImportExportProfileEntity::TYPE_EXPORT|ImportExportProfileEntity::TYPE_IMPORT, 2: bool, 3?: ImportExportLogEntity::ACTIVITY_*|null}>
+     * @return iterable<array{0: array<string, mixed>, 1: ImportExportProfileEntity::TYPE_EXPORT|ImportExportProfileEntity::TYPE_IMPORT, 2: bool, 3?: ImportExportLogEntity::ACTIVITY_*|null}>
      */
-    public static function profileProvider(): array
+    public static function profileProvider(): iterable
     {
-        return [
+        yield from [
             'Import with export type should throw exception' => [
                 [
                     'id' => Uuid::randomHex(),

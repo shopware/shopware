@@ -38,11 +38,11 @@ class ThumbnailSizeCalculatorTest extends TestCase
     }
 
     /**
-     * @return list<array{0: ImageSize, 1: ImageSize, 2: ImageSize}>
+     * @return iterable<int, array{0: ImageSize, 1: ImageSize, 2: ImageSize}>
      */
-    public static function thumbnailSizeProvider(): array
+    public static function thumbnailSizeProvider(): iterable
     {
-        return [
+        yield from [
             // image size, preferred size, expected size
             [['width' => 2000, 'height' => 1000], ['width' => 800, 'height' => 600], ['width' => 800, 'height' => 400]],
             [['width' => 2000, 'height' => 1000], ['width' => 600, 'height' => 800], ['width' => 600, 'height' => 300]],

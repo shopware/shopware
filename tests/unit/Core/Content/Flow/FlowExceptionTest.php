@@ -51,11 +51,11 @@ class FlowExceptionTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: \Throwable, 1: string, 2: string}>
+     * @return iterable<string, array{0: \Throwable, 1: string, 2: string}>
      */
-    public static function exceptionProvider(): array
+    public static function exceptionProvider(): iterable
     {
-        return [
+        yield from [
             'commit-fail' => [
                 new TableNotFoundException(
                     new DbalPdoException('Table not found', null, 1146),

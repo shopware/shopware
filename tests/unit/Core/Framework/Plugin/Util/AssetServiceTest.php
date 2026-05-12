@@ -209,11 +209,11 @@ class AssetServiceTest extends TestCase
     }
 
     /**
-     * @return array<string, array{manifest: array<string, string>, expectedWrites: array<string, string>, expectedDeletes: array<string>}>
+     * @return iterable<string, array{manifest: array<string, string>, expectedWrites: array<string, string>, expectedDeletes: array<string>}>
      */
-    public static function adminFilesProvider(): array
+    public static function adminFilesProvider(): iterable
     {
-        return [
+        yield from [
             'destination-empty' => [
                 'manifest' => [],
                 'expectedWrites' => [

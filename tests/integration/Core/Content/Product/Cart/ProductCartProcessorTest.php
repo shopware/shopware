@@ -352,15 +352,15 @@ class ProductCartProcessorTest extends TestCase
     }
 
     /**
-     * @return list<array{
+     * @return iterable<int, array{
      *     array{type: string, id: string|null, name: string|null, position: int},
      *     array<string, mixed>,
      *     array{type: string, value: mixed, label: string}
      * }>
      */
-    public static function productFeatureProvider(): array
+    public static function productFeatureProvider(): iterable
     {
-        return [
+        yield from [
             [
                 [
                     'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_ATTRIBUTE,
@@ -637,11 +637,11 @@ class ProductCartProcessorTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: int, 1: int, 2: int, 3: int, 4: int, 5: string}>
+     * @return iterable<string, array{0: int, 1: int, 2: int, 3: int, 4: int, 5: string}>
      */
-    public static function productDeliverabilityProvider(): array
+    public static function productDeliverabilityProvider(): iterable
     {
-        return [
+        yield from [
             'fixed quantity should be return 2' => [2, 2, 20, 3, 2, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
             'fixed quantity should be return 4' => [2, 2, 20, 5, 4, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
             'fixed quantity should be return 3' => [1, 2, 20, 4, 3, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],

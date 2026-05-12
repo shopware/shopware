@@ -143,11 +143,11 @@ class ConnectionProfilerTest extends TestCase
     }
 
     /**
-     * @return array<array{0: mixed, 1: array<mixed>, 2: mixed}>
+     * @return iterable<array{0: mixed, 1: array<mixed>, 2: mixed}>
      */
-    public static function paramProvider(): array
+    public static function paramProvider(): iterable
     {
-        return [
+        yield from [
             ['some value', [], 'some value'],
             [1, [], 1],
             [true, [], true],

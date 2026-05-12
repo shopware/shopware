@@ -193,13 +193,13 @@ EOF;
     }
 
     /**
-     * @return array<string, array{0: list<array{id: string, data: array{0: array{currencyId: string, gross: float, net: 1, linked: true}}}>, 1: list<string>, 2: CashRoundingConfig, 3?: string}>
+     * @return iterable<string, array{0: list<array{id: string, data: array{0: array{currencyId: string, gross: float, net: 1, linked: true}}}>, 1: list<string>, 2: CashRoundingConfig, 3?: string}>
      */
-    public static function cashRoundingSortingProvider(): array
+    public static function cashRoundingSortingProvider(): iterable
     {
         $ids = new IdsCollection();
 
-        return [
+        yield from [
             '0.01 interval default currency' => [
                 [
                     ['id' => $ids->create('record-1'), 'data' => [self::gross(19.992)]],
@@ -307,13 +307,13 @@ EOF;
     }
 
     /**
-     * @return array<string, array{0: RangeFilter, 1: list<array{id: string, data: array{0: array{currencyId: string, gross: float, net: 1, linked: true}}}>, 2: list<string>, 3: CashRoundingConfig, 4?: string}>
+     * @return iterable<string, array{0: RangeFilter, 1: list<array{id: string, data: array{0: array{currencyId: string, gross: float, net: 1, linked: true}}}>, 2: list<string>, 3: CashRoundingConfig, 4?: string}>
      */
-    public static function cashRoundingFilterProvider(): array
+    public static function cashRoundingFilterProvider(): iterable
     {
         $ids = new IdsCollection();
 
-        return [
+        yield from [
             '0.01 interval default currency' => [
                 new RangeFilter('data', [RangeFilter::GTE => 19.99, RangeFilter::LTE => 20.05]),
                 [

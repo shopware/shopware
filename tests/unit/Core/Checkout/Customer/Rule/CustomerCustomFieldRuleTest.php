@@ -205,11 +205,11 @@ class CustomerCustomFieldRuleTest extends TestCase
     }
 
     /**
-     * @return array<array<string>>
+     * @return iterable<array<string>>
      */
-    public static function getStringRuleValueWhichShouldBeConsideredAsTrueProvider(): array
+    public static function getStringRuleValueWhichShouldBeConsideredAsTrueProvider(): iterable
     {
-        return [
+        yield from [
             ['yes'],
             ['True'],
             ['1'],
@@ -219,11 +219,11 @@ class CustomerCustomFieldRuleTest extends TestCase
     }
 
     /**
-     * @return array<array<string>>
+     * @return iterable<array<string>>
      */
-    public static function getStringRuleValueWhichShouldBeConsideredAsFalseProvider(): array
+    public static function getStringRuleValueWhichShouldBeConsideredAsFalseProvider(): iterable
     {
-        return [
+        yield from [
             ['no'],
             ['False'],
             ['0'],

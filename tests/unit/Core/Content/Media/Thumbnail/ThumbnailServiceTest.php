@@ -389,11 +389,11 @@ class ThumbnailServiceTest extends TestCase
     }
 
     /**
-     * @return array<array<array<string, int>|bool>>
+     * @return iterable<array<array<string, int>|bool>>
      */
-    public static function thumbnailSizeProvider(): array
+    public static function thumbnailSizeProvider(): iterable
     {
-        return [
+        yield from [
             // image size, keep aspect ratio, preferred size, expected size
             [['width' => 800, 'height' => 600], true, ['width' => 400, 'height' => 300], ['width' => 400, 'height' => 300]],
             [['width' => 800, 'height' => 600], false, ['width' => 800, 'height' => 300], ['width' => 800, 'height' => 300]],

@@ -172,11 +172,11 @@ class ProductStreamBuilderTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: string, 1: string, 2: string, 3: string, 4: list<string>, 5: int}>
+     * @return iterable<string, array{0: string, 1: string, 2: string, 3: string, 4: list<string>, 5: int}>
      */
-    public static function relativeTimeFiltersDataProvider(): array
+    public static function relativeTimeFiltersDataProvider(): iterable
     {
-        return [
+        yield from [
             'days until - gt' => ['until', 'gt', 'releaseDate', 'P5D', self::getReleaseDates('+'), 3],
             'days until - lt' => ['until', 'lt', 'releaseDate', 'P5D', self::getReleaseDates('+'), 5],
             'days until - gte' => ['until', 'gte', 'releaseDate', 'P5D', self::getReleaseDates('+'), 5],

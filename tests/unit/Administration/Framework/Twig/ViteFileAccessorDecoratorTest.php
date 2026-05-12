@@ -74,11 +74,11 @@ class ViteFileAccessorDecoratorTest extends TestCase
     }
 
     /**
-     * @return list<array{string, string, bool}>
+     * @return iterable<int, array{string, string, bool}>
      */
-    public static function hasFileProvider(): array
+    public static function hasFileProvider(): iterable
     {
-        return [
+        yield from [
             [
                 '_default',
                 FileAccessor::ENTRYPOINTS,
@@ -118,11 +118,11 @@ class ViteFileAccessorDecoratorTest extends TestCase
     }
 
     /**
-     * @return list<array{bool, string, string, string}>
+     * @return iterable<int, array{bool, string, string, string}>
      */
-    public static function getDataProvider(): array
+    public static function getDataProvider(): iterable
     {
-        return [
+        yield from [
             [
                 false,
                 '_default',

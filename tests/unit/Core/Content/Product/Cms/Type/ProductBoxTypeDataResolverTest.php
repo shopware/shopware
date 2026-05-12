@@ -176,11 +176,11 @@ class ProductBoxTypeDataResolverTest extends TestCase
     }
 
     /**
-     * @return list<array{closeout: bool, hidden: bool, availableStock: int}>
+     * @return iterable<int, array{closeout: bool, hidden: bool, availableStock: int}>
      */
-    public static function enrichWithStaticConfigProvider(): array
+    public static function enrichWithStaticConfigProvider(): iterable
     {
-        return [
+        yield from [
             ['closeout' => false, 'hidden' => false, 'availableStock' => 1],
             ['closeout' => false, 'hidden' => true,  'availableStock' => 1],
             ['closeout' => true, 'hidden' => false, 'availableStock' => 1],

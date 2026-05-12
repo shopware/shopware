@@ -91,11 +91,11 @@ class LongTextFieldTest extends TestCase
     }
 
     /**
-     * @return array<string, array{bool|string|null, ?string, Flag[]}>
+     * @return iterable<string, array{bool|string|null, ?string, Flag[]}>
      */
-    public static function longTextFieldDataProvider(): array
+    public static function longTextFieldDataProvider(): iterable
     {
-        return [
+        yield from [
             'String values are passed through' => ['test12-B', 'test12-B', [new Required()]],
             'Null is allowed without required flag' => [null, null, []],
             'Sanitation can be turned off' => ['<test>', '<test>', [new Required(), new AllowHtml(false)]],

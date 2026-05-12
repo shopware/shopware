@@ -597,11 +597,11 @@ class ThumbnailServiceTest extends TestCase
     }
 
     /**
-     * @return array<array<bool>>
+     * @return iterable<array<bool>>
      */
-    public static function strictModeConditionsProvider(): array
+    public static function strictModeConditionsProvider(): iterable
     {
-        return [[true], [false]];
+        yield from [[true], [false]];
     }
 
     #[DataProvider('strictModeConditionsProvider')]

@@ -40,11 +40,11 @@ class CustomFieldServiceTest extends TestCase
     }
 
     /**
-     * @return list<array{CustomFieldTypes::*, class-string<Field>}>
+     * @return iterable<int, array{CustomFieldTypes::*, class-string<Field>}>
      */
-    public static function attributeFieldTestProvider(): array
+    public static function attributeFieldTestProvider(): iterable
     {
-        return [
+        yield from [
             [CustomFieldTypes::BOOL, BoolField::class],
             [CustomFieldTypes::DATETIME, DateTimeField::class],
             [CustomFieldTypes::FLOAT, FloatField::class],

@@ -23,11 +23,11 @@ class LeadingSpacesFilterTest extends TestCase
     }
 
     /**
-     * @return array<array{string, string}>
+     * @return iterable<array{string, string}>
      */
-    public static function removeLeadingSpacesProvider(): array
+    public static function removeLeadingSpacesProvider(): iterable
     {
-        return [
+        yield from [
             'single line with leading spaces' => [
                 ' test',
                 'test',

@@ -28,11 +28,11 @@ class JsonApiDecoderTest extends TestCase
     }
 
     /**
-     * @return array<int, array<int, bool|\DateTime|float|int|string|null>>
+     * @return iterable<int, array<int, bool|\DateTime|float|int|string|null>>
      */
-    public static function emptyInputProvider(): array
+    public static function emptyInputProvider(): iterable
     {
-        return [
+        yield from [
             [null],
             ['string'],
             [1],
@@ -43,22 +43,22 @@ class JsonApiDecoderTest extends TestCase
     }
 
     /**
-     * @return array<int, array<int, array<int|string, string>>>
+     * @return iterable<int, array<int, array<int|string, string>>>
      */
-    public static function inputWithoutDataOnRootProvider(): array
+    public static function inputWithoutDataOnRootProvider(): iterable
     {
-        return [
+        yield from [
             [['randomKey' => 'randomValue']],
             [['data']],
         ];
     }
 
     /**
-     * @return array<int, array<int, array<string, array<int|string, array<string, string>|string>>>>
+     * @return iterable<int, array<int, array<string, array<int|string, array<string, string>|string>>>>
      */
-    public static function resourceIdentifierWIthInvalidStructureProvider(): array
+    public static function resourceIdentifierWIthInvalidStructureProvider(): iterable
     {
-        return [
+        yield from [
             [['data' => ['id' => 'some-id']]],
             [['data' => ['type' => 'some-type']]],
             [['data' => ['ids' => 'foo', 'types' => 'some-type']]],

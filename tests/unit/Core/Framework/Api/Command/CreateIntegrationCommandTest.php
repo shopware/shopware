@@ -17,11 +17,11 @@ use Symfony\Component\Dotenv\Dotenv;
 class CreateIntegrationCommandTest extends TestCase
 {
     /**
-     * @return array<array<bool>>
+     * @return iterable<array<bool>>
      */
-    public static function createIntegrationDataProvider(): array
+    public static function createIntegrationDataProvider(): iterable
     {
-        return [
+        yield from [
             ['adminOption' => false],
             ['adminOption' => true],
         ];

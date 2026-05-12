@@ -27,11 +27,11 @@ class VersionTest extends TestCase
     }
 
     /**
-     * @return array<array{string, string}>
+     * @return iterable<array{string, string}>
      */
-    public static function protectedRoutesDataProvider(): array
+    public static function protectedRoutesDataProvider(): iterable
     {
-        return [
+        yield from [
             ['GET', '/api/product'],
             ['GET', '/api/tax'],
             ['POST', '/api/_action/sync'],

@@ -64,11 +64,11 @@ class DeleteNotUsedMediaCommandTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: int, 1:int}>
+     * @return iterable<string, array{0: int, 1:int}>
      */
-    public static function limitOffsetProvider(): array
+    public static function limitOffsetProvider(): iterable
     {
-        return [
+        yield from [
             'zero-offset' => [10, 0],
             'mid-offset' => [10, 5],
         ];

@@ -1149,11 +1149,11 @@ class EntityAggregatorTest extends TestCase
     }
 
     /**
-     * @return array<list<DateHistogramCase>>
+     * @return iterable<list<DateHistogramCase>>
      */
-    public static function dateHistogramProvider(): array
+    public static function dateHistogramProvider(): iterable
     {
-        return array_filter([
+        yield from array_filter([
             [
                 new DateHistogramCase(DateHistogramAggregation::PER_MINUTE, [
                     '2019-01-01 10:11:00' => 1,

@@ -154,11 +154,11 @@ class AclAnnotationValidatorTest extends TestCase
     }
 
     /**
-     * @return list<array{0: list<string>, 1: list<string>, 2: bool}>
+     * @return iterable<int, array{0: list<string>, 1: list<string>, 2: bool}>
      */
-    public static function annotationProvider(): array
+    public static function annotationProvider(): iterable
     {
-        return [
+        yield from [
             [
                 // privs of user   //acl   // should pass?
                 ['product:write'], [], true,

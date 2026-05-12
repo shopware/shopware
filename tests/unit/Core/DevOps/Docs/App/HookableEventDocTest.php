@@ -40,7 +40,7 @@ class HookableEventDocTest extends TestCase
     }
 
     /**
-     * @return array<string, array{
+     * @return iterable<string, array{
      *     string,
      *     list<string>,
      *     string,
@@ -48,9 +48,9 @@ class HookableEventDocTest extends TestCase
      *     array<string, string>
      * }>
      */
-    public static function entityWrittenProvider(): array
+    public static function entityWrittenProvider(): iterable
     {
-        return [
+        yield from [
             'with permissions' => [
                 'product.written',
                 ['a', 'b'],

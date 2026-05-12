@@ -556,11 +556,11 @@ class EntityDispatcherTest extends TestCase
     }
 
     /**
-     * @return array<string, array{responseCode: int}>
+     * @return iterable<string, array{responseCode: int}>
      */
-    public static function recoverableResponseCodesDataProvider(): array
+    public static function recoverableResponseCodesDataProvider(): iterable
     {
-        return [
+        yield from [
             'HTTP_BAD_GATEWAY' => [
                 'responseCode' => 502,
             ],
@@ -574,11 +574,11 @@ class EntityDispatcherTest extends TestCase
     }
 
     /**
-     * @return array<string, array{responseCode: int}>
+     * @return iterable<string, array{responseCode: int}>
      */
-    public static function unrecoverableResponseCodesDataProvider(): array
+    public static function unrecoverableResponseCodesDataProvider(): iterable
     {
-        return [
+        yield from [
             'HTTP_BAD_REQUEST' => [
                 'responseCode' => 400,
             ],

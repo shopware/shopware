@@ -80,11 +80,11 @@ class GoogleReCaptchaV3Test extends TestCase
     }
 
     /**
-     * @return array<string, array{0: Request, 1: MockHandler, 2: bool, 3: string|null, 4?: string}>
+     * @return iterable<string, array{0: Request, 1: MockHandler, 2: bool, 3: string|null, 4?: string}>
      */
-    public static function requestDataIsValidProvider(): array
+    public static function requestDataIsValidProvider(): iterable
     {
-        return [
+        yield from [
             'request with no captcha input' => [
                 self::getRequest(),
                 new MockHandler(),
@@ -201,11 +201,11 @@ class GoogleReCaptchaV3Test extends TestCase
     }
 
     /**
-     * @return array<string, array{0: string, 1: bool, 2: bool}>
+     * @return iterable<string, array{0: string, 1: bool, 2: bool}>
      */
-    public static function requestDataSupportProvider(): array
+    public static function requestDataSupportProvider(): iterable
     {
-        return [
+        yield from [
             'with get method and inactive captcha' => ['GET', false, false],
             'with get method and active captcha' => ['GET', true, false],
             'with post method and inactive captcha' => ['POST', false, false],

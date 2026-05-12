@@ -102,11 +102,11 @@ class CartHasDeliveryFreeItemRuleTest extends TestCase
     }
 
     /**
-     * @return array<string, array<bool|null>>
+     * @return iterable<string, array<bool|null>>
      */
-    public static function inputProvider(): array
+    public static function inputProvider(): iterable
     {
-        return [
+        yield from [
             'free item' => [true],
             'not free item' => [false],
             'no delivery information' => [null],

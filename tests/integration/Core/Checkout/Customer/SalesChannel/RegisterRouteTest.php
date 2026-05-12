@@ -315,11 +315,11 @@ class RegisterRouteTest extends TestCase
     }
 
     /**
-     * @return array{array{array{domain: string, expectDomain: string}}, array{array{domain: string, expectDomain: string}}}
+     * @return iterable<int, array{array{array{domain: string, expectDomain: string}}, array{array{domain: string, expectDomain: string}}}>
      */
-    public static function registerWithDomainAndLeadingSlashProvider(): array
+    public static function registerWithDomainAndLeadingSlashProvider(): iterable
     {
-        return [
+        yield from [
             // test without leading slash
             [
                 ['domain' => 'http://my-evil-page', 'expectDomain' => 'http://my-evil-page'],
@@ -649,11 +649,11 @@ class RegisterRouteTest extends TestCase
     }
 
     /**
-     * @return array<int, array{isCustomerScoped: bool, hasGlobalAccount: bool, hasBoundAccount: bool, requestOnSameSalesChannel:bool, expectedStatus: int}>
+     * @return iterable<int, array{isCustomerScoped: bool, hasGlobalAccount: bool, hasBoundAccount: bool, requestOnSameSalesChannel:bool, expectedStatus: int}>
      */
-    public static function customerBoundToSalesChannelProvider(): array
+    public static function customerBoundToSalesChannelProvider(): iterable
     {
-        return [[
+        yield from [[
             'isCustomerScoped' => true,
             'hasGlobalAccount' => false,
             'hasBoundAccount' => true, // Account which has bound_sales_channel_id not null

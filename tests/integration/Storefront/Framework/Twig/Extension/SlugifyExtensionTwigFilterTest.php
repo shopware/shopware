@@ -21,11 +21,11 @@ class SlugifyExtensionTwigFilterTest extends TestCase
     }
 
     /**
-     * @return list<array{0: string, 1: string}>
+     * @return iterable<int, array{0: string, 1: string}>
      */
-    public static function sampleAnchorIdProvider(): array
+    public static function sampleAnchorIdProvider(): iterable
     {
-        return [
+        yield from [
             ['', ''],
             ['Hello', 'Hello'],
             ['Hello World', 'Hello-World'],

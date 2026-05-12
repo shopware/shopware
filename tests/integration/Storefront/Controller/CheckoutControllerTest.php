@@ -337,9 +337,9 @@ class CheckoutControllerTest extends TestCase
     }
 
     /**
-     * @return array<array<mixed>>
+     * @return iterable<array<mixed>>
      */
-    public static function errorDataProvider(): array
+    public static function errorDataProvider(): iterable
     {
         /** @var EntityRepository<ShippingMethodCollection> */
         $shippingMethodRepository = static::getContainer()->get('shipping_method.repository');
@@ -359,7 +359,7 @@ class CheckoutControllerTest extends TestCase
         static::assertNotNull($paidInAdvancePaymentMethodId, 'Paid in advance payment method not found');
         static::assertNotNull($invoicePaymentMethodId, 'Invoice payment method not found');
 
-        return [
+        yield from [
             // One shipping method blocked is expected to be switched
             [
                 new ErrorCollection(

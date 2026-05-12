@@ -239,11 +239,11 @@ class ShippingMethodRuleTest extends TestCase
     }
 
     /**
-     * @return array<array<string|bool|array<string, string|array<string>>>>
+     * @return iterable<array<string|bool|array<string, string|array<string>>>>
      */
-    public static function matchDataProvider(): array
+    public static function matchDataProvider(): iterable
     {
-        return [
+        yield from [
             [
                 [
                     'operator' => Rule::OPERATOR_EQ,

@@ -96,11 +96,11 @@ class StructNormalizerTest extends TestCase
     }
 
     /**
-     * @return array<list<mixed>>
+     * @return iterable<list<mixed>>
      */
-    public static function denormalizeShouldReturnNonArraysProvider(): array
+    public static function denormalizeShouldReturnNonArraysProvider(): iterable
     {
-        return [
+        yield from [
             ['string'],
             [1],
             [null],

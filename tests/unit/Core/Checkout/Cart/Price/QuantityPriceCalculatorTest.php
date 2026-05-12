@@ -129,9 +129,9 @@ class QuantityPriceCalculatorTest extends TestCase
     }
 
     /**
-     * @return list<array{0: CashRoundingConfig, 1: CalculatedPrice, 2: QuantityPriceDefinition}>
+     * @return iterable<int, array{0: CashRoundingConfig, 1: CalculatedPrice, 2: QuantityPriceDefinition}>
      */
-    public static function priceCalculationWithGrossPricesProvider(): array
+    public static function priceCalculationWithGrossPricesProvider(): iterable
     {
         $highTaxRules = new TaxRuleCollection([new TaxRule(19)]);
         $lowTaxRuleCollection = new TaxRuleCollection([new TaxRule(7)]);
@@ -139,7 +139,7 @@ class QuantityPriceCalculatorTest extends TestCase
         $rounding = new CashRoundingConfig(2, 0.01, true);
         $threeDecimals = new CashRoundingConfig(3, 0.01, true);
 
-        return [
+        yield from [
             [
                 $rounding,
                 new CalculatedPrice(15.99, 15.99, new CalculatedTaxCollection([new CalculatedTax(2.55, 19, 15.99)]), $highTaxRules),

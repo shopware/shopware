@@ -214,11 +214,11 @@ class PromotionRedemptionUpdaterTest extends TestCase
     }
 
     /**
-     * @return non-empty-list<array{EntityWriteResult, bool}>
+     * @return iterable<int, array{EntityWriteResult, bool}>
      */
-    public static function itemCreatedProvider(): array
+    public static function itemCreatedProvider(): iterable
     {
-        return [
+        yield from [
             [
                 new EntityWriteResult('id', ['some-field' => 'some-value'], 'order_line_item', EntityWriteResult::OPERATION_INSERT),
                 false,

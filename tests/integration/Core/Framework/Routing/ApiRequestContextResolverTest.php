@@ -148,11 +148,11 @@ class ApiRequestContextResolverTest extends TestCase
     }
 
     /**
-     * @return list<array{0: array<string, bool>, 1: array<string, list<string>>, 2: bool}>
+     * @return iterable<int, array{0: array<string, bool>, 1: array<string, list<string>>, 2: bool}>
      */
-    public static function userRoleProvider(): array
+    public static function userRoleProvider(): iterable
     {
-        return [
+        yield from [
             [
                 ['product:detail' => true, 'product:create' => true, 'product:delete' => false],
                 ['product-creator' => ['product:detail', 'product:create']],

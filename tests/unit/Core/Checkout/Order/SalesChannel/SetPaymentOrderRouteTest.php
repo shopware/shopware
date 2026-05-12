@@ -373,11 +373,11 @@ class SetPaymentOrderRouteTest extends TestCase
     }
 
     /**
-     * @return array<string, Request[]>
+     * @return iterable<string, Request[]>
      */
-    public static function requestDataProvider(): array
+    public static function requestDataProvider(): iterable
     {
-        return [
+        yield from [
             'empty' => [
                 self::getRequest([]),
             ],

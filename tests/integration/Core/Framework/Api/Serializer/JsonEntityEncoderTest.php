@@ -46,11 +46,11 @@ class JsonEntityEncoderTest extends TestCase
     use KernelTestBehaviour;
 
     /**
-     * @return array<array<mixed>>
+     * @return iterable<array<mixed>>
      */
-    public static function emptyInputProvider(): array
+    public static function emptyInputProvider(): iterable
     {
-        return [
+        yield from [
             [null],
             ['string'],
             [1],
@@ -70,11 +70,11 @@ class JsonEntityEncoderTest extends TestCase
     }
 
     /**
-     * @return list<array{class-string<EntityDefinition>, SerializationFixture}>
+     * @return iterable<int, array{class-string<EntityDefinition>, SerializationFixture}>
      */
-    public static function complexStructsProvider(): array
+    public static function complexStructsProvider(): iterable
     {
-        return [
+        yield from [
             [MediaDefinition::class, new TestBasicStruct()],
             [UserDefinition::class, new TestBasicWithToManyRelationships()],
             [MediaDefinition::class, new TestBasicWithToOneRelationship()],

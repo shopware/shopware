@@ -207,11 +207,11 @@ class OrderRouteTest extends TestCase
     }
 
     /**
-     * @return array<string, array{?bool, ?string, ?string, ?class-string<\Throwable>}>
+     * @return iterable<string, array{?bool, ?string, ?string, ?class-string<\Throwable>}>
      */
-    public static function customerDataProvider(): array
+    public static function customerDataProvider(): iterable
     {
-        return [
+        yield from [
             'no customer' => [null, 'test@example.com', 'AA-345', CustomerException::class],
             'no guest customer' => [false, 'test@example.com', 'AA-345', CustomerException::class],
             'no request e-mail' => [true, null, 'AA-345', GuestNotAuthenticatedException::class],
@@ -243,11 +243,11 @@ class OrderRouteTest extends TestCase
     }
 
     /**
-     * @return array<string, array{Filter}>
+     * @return iterable<string, array{Filter}>
      */
-    public static function deeplinkFilterProvider(): array
+    public static function deeplinkFilterProvider(): iterable
     {
-        return [
+        yield from [
             'deeplink equalsAny' => [new EqualsAnyFilter('deepLinkCode', ['deepLinkCode'])],
             'deeplink multi' => [new MultiFilter(MultiFilter::CONNECTION_OR, [new EqualsFilter('deepLinkCode', 'deepLinkCode')])],
             'deeplink not' => [new NotFilter(MultiFilter::CONNECTION_OR, [new EqualsFilter('deepLinkCode', 'deepLinkCode')])],
@@ -327,11 +327,11 @@ class OrderRouteTest extends TestCase
     }
 
     /**
-     * @return array<string, array{int, int, bool}>
+     * @return iterable<string, array{int, int, bool}>
      */
-    public static function deeplinkExpireDaysProvider(): array
+    public static function deeplinkExpireDaysProvider(): iterable
     {
-        return [
+        yield from [
             'order within limit' => [10, 30, false],
             'order beyond limit' => [31, 30, true],
             'order beyond default, within custom limit' => [40, 60, false],

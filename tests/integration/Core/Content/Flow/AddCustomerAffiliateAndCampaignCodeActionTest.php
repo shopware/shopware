@@ -86,11 +86,11 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
     }
 
     /**
-     * @return array<int, mixed>
+     * @return iterable<int, mixed>
      */
-    public static function createDataProvider(): array
+    public static function createDataProvider(): iterable
     {
-        return [
+        yield from [
             // existed data / update data / expect data
             [
                 [],

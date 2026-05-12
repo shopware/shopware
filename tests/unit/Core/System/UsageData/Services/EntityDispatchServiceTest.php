@@ -707,14 +707,14 @@ class EntityDispatchServiceTest extends TestCase
     }
 
     /**
-     * @return array<string, array{isConsentGiven: bool, lastConsentDate: ?\DateTimeImmutable, now: ?\DateTimeImmutable, expectedLastRunDate: ?\DateTimeImmutable}>
+     * @return iterable<string, array{isConsentGiven: bool, lastConsentDate: ?\DateTimeImmutable, now: ?\DateTimeImmutable, expectedLastRunDate: ?\DateTimeImmutable}>
      */
-    public static function lastRunDateProvider(): array
+    public static function lastRunDateProvider(): iterable
     {
         $now = new \DateTimeImmutable();
         $lastConsentDate = new \DateTimeImmutable('2023-07-25T07:00:19.803422+0000');
 
-        return [
+        yield from [
             'Consent was never given' => [
                 'isConsentGiven' => false,
                 'lastConsentDate' => null,

@@ -34,11 +34,11 @@ class RouteBlocklistServiceTest extends TestCase
     }
 
     /**
-     * @return array<string, array{string, bool}>
+     * @return iterable<string, array{string, bool}>
      */
-    public static function pathBlockedDataProvider(): array
+    public static function pathBlockedDataProvider(): iterable
     {
-        return [
+        yield from [
             'maintenance route blocked' => ['maintenance', true],
             'maintenance with slash blocked' => ['/maintenance', true],
             'maintenance with trailing slash blocked' => ['maintenance/', true],

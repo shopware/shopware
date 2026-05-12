@@ -36,11 +36,11 @@ class HoneypotCaptchaTest extends TestCase
     }
 
     /**
-     * @return list<array{0: Request, 1: bool}>
+     * @return iterable<int, array{0: Request, 1: bool}>
      */
-    public static function requestDataProvider(): array
+    public static function requestDataProvider(): iterable
     {
-        return [
+        yield from [
             [
                 self::getRequest(),
                 self::IS_VALID,

@@ -238,11 +238,11 @@ class AppUrlVerifierTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: list<int>, 1: list<array{sleep: int, status: VerificationStatus, tries: int, httpCalls: int, return: bool}>, 2: VerificationStatus}>
+     * @return iterable<string, array{0: list<int>, 1: list<array{sleep: int, status: VerificationStatus, tries: int, httpCalls: int, return: bool}>, 2: VerificationStatus}>
      */
-    public static function backoffScenarioProvider(): array
+    public static function backoffScenarioProvider(): iterable
     {
-        return [
+        yield from [
             '500 > 500 > 500 (soft fail retries with exponential backoff)' => [
                 [500, 500, 500],
                 [

@@ -488,11 +488,11 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @return array<int, array<MultiFilter|string[]>>
+     * @return iterable<int, array<MultiFilter|string[]>>
      */
-    public static function multiFilterWithOneToManyRelationProvider(): array
+    public static function multiFilterWithOneToManyRelationProvider(): iterable
     {
-        return require __DIR__ . '/Fixture/MultiFilterWithOneToManyRelation.php';
+        yield from require __DIR__ . '/Fixture/MultiFilterWithOneToManyRelation.php';
     }
 
     #[Depends('testIndexing')]
@@ -1639,11 +1639,11 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @return array<int, array<int, DateHistogramCase>>
+     * @return iterable<int, array<int, DateHistogramCase>>
      */
-    public static function dateHistogramProvider(): array
+    public static function dateHistogramProvider(): iterable
     {
-        return require __DIR__ . '/Fixture/DateHistogram.php';
+        yield from require __DIR__ . '/Fixture/DateHistogram.php';
     }
 
     #[Depends('testIndexing')]

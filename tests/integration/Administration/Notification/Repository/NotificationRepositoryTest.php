@@ -82,11 +82,11 @@ class NotificationRepositoryTest extends TestCase
     }
 
     /**
-     * @return array<int, array<int, string>>
+     * @return iterable<int, array<int, string>>
      */
-    public static function notificationProvider(): array
+    public static function notificationProvider(): iterable
     {
-        return [
+        yield from [
             [Context::USER_SCOPE, 'write'],
             [Context::USER_SCOPE, 'read'],
             [Context::SYSTEM_SCOPE, 'write'],

@@ -58,11 +58,11 @@ class Migration1732608755MigrateNavigationSettingsForProductSliderTest extends T
     }
 
     /**
-     * @return array<string, list<bool>>
+     * @return iterable<string, list<bool>>
      */
-    public static function productSliderConfigDataProvider(): array
+    public static function productSliderConfigDataProvider(): iterable
     {
-        return [
+        yield from [
             'config had navigation' => [true],
             'config had no navigation' => [false],
         ];

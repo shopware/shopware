@@ -167,11 +167,11 @@ class SeoUrlUpdaterTest extends TestCase
     }
 
     /**
-     * @return list<array{translations: list<string>, pathInfo: non-empty-string}>
+     * @return iterable<int, array{translations: list<string>, pathInfo: non-empty-string}>
      */
-    public static function seoLanguageDataProvider(): array
+    public static function seoLanguageDataProvider(): iterable
     {
-        return [
+        yield from [
             [
                 // All translations available > expected to use child translation
                 'translations' => [self::DEFAULT, self::PARENT, self::CHILD],

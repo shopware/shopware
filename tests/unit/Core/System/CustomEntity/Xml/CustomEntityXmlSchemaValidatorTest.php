@@ -54,11 +54,11 @@ class CustomEntityXmlSchemaValidatorTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: string, 1: class-string<\Throwable>, 2: string}>
+     * @return iterable<string, array{0: string, 1: class-string<\Throwable>, 2: string}>
      */
-    public static function xmlProvider(): array
+    public static function xmlProvider(): iterable
     {
-        return [
+        yield from [
             'custom-fields-aware-but-no-label' => [
                 <<<'XML'
                 <entity custom-fields-aware="true">

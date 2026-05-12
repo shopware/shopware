@@ -62,11 +62,11 @@ class AclCriteriaValidatorTest extends TestCase
     }
 
     /**
-     * @return array<string, array<int, array<int, string>|bool|Criteria>>
+     * @return iterable<string, array<int, array<int, string>|bool|Criteria>>
      */
-    public static function criteriaProvider(): array
+    public static function criteriaProvider(): iterable
     {
-        return [
+        yield from [
             // association validation
             'Has read permission for root entity' => [
                 ['product:read'],

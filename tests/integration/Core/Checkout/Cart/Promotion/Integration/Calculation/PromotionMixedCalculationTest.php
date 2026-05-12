@@ -311,7 +311,7 @@ class PromotionMixedCalculationTest extends TestCase
     }
 
     /**
-     * @return array<string, array<mixed>>
+     * @return iterable<string, array<mixed>>
      *
      * expectedDiscount,
      * applyTo,
@@ -322,9 +322,9 @@ class PromotionMixedCalculationTest extends TestCase
      * groupCount,
      * groupSorting
      */
-    public static function groupPackageAndPickerProvider(): array
+    public static function groupPackageAndPickerProvider(): iterable
     {
-        return [
+        yield from [
             /*
              * For every 4 items, get 1 first most expensive item
              * vertical => within each built group of items

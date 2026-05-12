@@ -53,11 +53,11 @@ class JsonFieldSerializerTest extends TestCase
     }
 
     /**
-     * @return list<array{JsonField, array<string, mixed>|null, string|null}>
+     * @return iterable<int, array{JsonField, array<string, mixed>|null, string|null}>
      */
-    public static function encodeProvider(): array
+    public static function encodeProvider(): iterable
     {
-        return [
+        yield from [
             [new JsonField('data', 'data'), ['foo' => 'bar'], Json::encode(['foo' => 'bar'])],
             [new JsonField('data', 'data'), ['foo' => 1], Json::encode(['foo' => 1])],
             [new JsonField('data', 'data'), ['foo' => 5.3], Json::encode(['foo' => 5.3])],
@@ -88,11 +88,11 @@ class JsonFieldSerializerTest extends TestCase
     }
 
     /**
-     * @return list<array{JsonField, string|null, array<string, mixed>|null}>
+     * @return iterable<int, array{JsonField, string|null, array<string, mixed>|null}>
      */
-    public static function decodeProvider(): array
+    public static function decodeProvider(): iterable
     {
-        return [
+        yield from [
             [new JsonField('data', 'data'), Json::encode(['foo' => 'bar']), ['foo' => 'bar']],
 
             [new JsonField('data', 'data'), Json::encode(['foo' => 1]), ['foo' => 1]],

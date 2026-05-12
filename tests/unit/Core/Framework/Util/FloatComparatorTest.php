@@ -138,11 +138,11 @@ class FloatComparatorTest extends TestCase
     }
 
     /**
-     * @return array{0: float, 1: float, 2: bool}[]
+     * @return iterable<int, array{0: float, 1: float, 2: bool}>
      */
-    public static function equalsDataProvider(): array
+    public static function equalsDataProvider(): iterable
     {
-        return [
+        yield from [
             [0, 0, true],
             [42, 42, true],
             [1.0, 1.0, true],
@@ -168,16 +168,13 @@ class FloatComparatorTest extends TestCase
     }
 
     /**
-     * @return array{0: float, 1: float, 2: bool}[]
+     * @return iterable<int, array{0: float, 1: float, 2: bool}>
      */
-    public static function notEqualsDataProvider(): array
+    public static function notEqualsDataProvider(): iterable
     {
-        $equalsData = self::equalsDataProvider();
-
-        return \array_map(
-            static fn ($testData) => [$testData[0], $testData[1], !$testData[2]],
-            $equalsData
-        );
+        foreach (self::equalsDataProvider() as $name => $testData) {
+            yield $name => [$testData[0], $testData[1], !$testData[2]];
+        }
     }
 
     #[DataProvider('lessThanDataProvider')]
@@ -187,11 +184,11 @@ class FloatComparatorTest extends TestCase
     }
 
     /**
-     * @return array{0: float, 1: float, 2: bool}[]
+     * @return iterable<int, array{0: float, 1: float, 2: bool}>
      */
-    public static function lessThanDataProvider(): array
+    public static function lessThanDataProvider(): iterable
     {
-        return [
+        yield from [
             [1, 2, true],
             [1, 1.0001, true],
             [0, 0.00001, true],
@@ -221,11 +218,11 @@ class FloatComparatorTest extends TestCase
     }
 
     /**
-     * @return array{0: float, 1: float, 2: bool}[]
+     * @return iterable<int, array{0: float, 1: float, 2: bool}>
      */
-    public static function greaterThanDataProvider(): array
+    public static function greaterThanDataProvider(): iterable
     {
-        return [
+        yield from [
             [2, 1, true],
             [1.00001, 1, true],
             [0.00001, 0, true],
@@ -254,11 +251,11 @@ class FloatComparatorTest extends TestCase
     }
 
     /**
-     * @return array{0: float, 1: float, 2: bool}[]
+     * @return iterable<int, array{0: float, 1: float, 2: bool}>
      */
-    public static function lessThanOrEqualsDataProvider(): array
+    public static function lessThanOrEqualsDataProvider(): iterable
     {
-        return [
+        yield from [
             [0, 0, true],
             [42, 42, true],
             [1.0, 1.0, true],
@@ -287,11 +284,11 @@ class FloatComparatorTest extends TestCase
     }
 
     /**
-     * @return array{0: float, 1: float, 2: bool}[]
+     * @return iterable<int, array{0: float, 1: float, 2: bool}>
      */
-    public static function greaterThanOrEqualsDataProvider(): array
+    public static function greaterThanOrEqualsDataProvider(): iterable
     {
-        return [
+        yield from [
             [0, 0, true],
             [42, 42, true],
             [1.0, 1.0, true],

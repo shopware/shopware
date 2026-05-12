@@ -43,11 +43,11 @@ class DateRangeRuleTest extends TestCase
     }
 
     /**
-     * @return array<int, array<int, bool|string|null>>
+     * @return iterable<int, array<int, bool|string|null>>
      */
-    public static function matchDataProvider(): array
+    public static function matchDataProvider(): iterable
     {
-        return [
+        yield from [
             // from and to set, useTime = false
             [
                 '2021-01-01 00:00:00',

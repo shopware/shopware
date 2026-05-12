@@ -221,11 +221,11 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
     }
 
     /**
-     * @return array<array{0: array{domain: string, expectDomain: string}}>
+     * @return iterable<array{0: array{domain: string, expectDomain: string}}>
      */
-    public static function sendMailWithDomainAndLeadingSlashProvider(): array
+    public static function sendMailWithDomainAndLeadingSlashProvider(): iterable
     {
-        return [
+        yield from [
             // test without leading slash
             [
                 ['domain' => 'http://my-evil-page', 'expectDomain' => 'http://my-evil-page'],

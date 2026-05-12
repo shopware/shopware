@@ -232,11 +232,11 @@ class ProductBoxCmsElementResolverTest extends TestCase
     }
 
     /**
-     * @return array<array<bool|int>> closeout, hidden, availableStock
+     * @return iterable<array<bool|int>> closeout, hidden, availableStock
      */
-    public static function enrichDataProvider(): array
+    public static function enrichDataProvider(): iterable
     {
-        return [
+        yield from [
             [false, false, 1],
             [false, true, 1],
             [true, false, 1],

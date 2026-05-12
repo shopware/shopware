@@ -60,11 +60,11 @@ class ExternalAuthUserTest extends TestCase
     }
 
     /**
-     * @return array<string, mixed>
+     * @return iterable<string, mixed>
      */
-    public static function createTestDataProvider(): array
+    public static function createTestDataProvider(): iterable
     {
-        return [
+        yield from [
             'all is null' => [
                 'data' => [
                     'id' => null,

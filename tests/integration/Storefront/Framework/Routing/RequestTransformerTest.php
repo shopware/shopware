@@ -93,9 +93,9 @@ class RequestTransformerTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: list<SalesChannel>, 1: list<ExpectedRequest>}>
+     * @return iterable<string, array{0: list<SalesChannel>, 1: list<ExpectedRequest>}>
      */
-    public static function domainProvider(): array
+    public static function domainProvider(): iterable
     {
         $germanId = Uuid::randomHex();
         $englishId = Uuid::randomHex();
@@ -108,7 +108,7 @@ class RequestTransformerTest extends TestCase
         $gerDomainId2 = Uuid::randomHex();
         $ukDomainId2 = Uuid::randomHex();
 
-        return [
+        yield from [
             'single' => [
                 [self::getGermanSalesChannel($germanId, $gerDomainId, 'http://german.test')],
                 [

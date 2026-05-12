@@ -55,11 +55,11 @@ class DateTimeFieldSerializerTest extends TestCase
     }
 
     /**
-     * @return array<int, array<int, \DateTime>>
+     * @return iterable<int, array<int, \DateTime>>
      */
-    public static function serializerProvider(): array
+    public static function serializerProvider(): iterable
     {
-        return [
+        yield from [
             [
                 new \DateTime('2020-05-15 00:00:00', new \DateTimeZone('UTC')),
                 new \DateTime('2020-05-15 00:00:00', new \DateTimeZone('UTC')),

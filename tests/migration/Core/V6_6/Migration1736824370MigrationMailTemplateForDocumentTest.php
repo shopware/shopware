@@ -87,11 +87,11 @@ class Migration1736824370MigrationMailTemplateForDocumentTest extends TestCase
     }
 
     /**
-     * @return array<string, array<string>>
+     * @return iterable<string, array<string>>
      */
-    public static function mailTypeProvider(): array
+    public static function mailTypeProvider(): iterable
     {
-        return [
+        yield from [
             MailTemplateTypes::MAILTYPE_DOCUMENT_INVOICE => [MailTemplateTypes::MAILTYPE_DOCUMENT_INVOICE],
             MailTemplateTypes::MAILTYPE_DOCUMENT_DELIVERY_NOTE => [MailTemplateTypes::MAILTYPE_DOCUMENT_DELIVERY_NOTE],
             MailTemplateTypes::MAILTYPE_DOCUMENT_CREDIT_NOTE => [MailTemplateTypes::MAILTYPE_DOCUMENT_CREDIT_NOTE],

@@ -287,11 +287,11 @@ class ErrorResponseFactoryTest extends TestCase
     }
 
     /**
-     * @return array<string, array{string}>
+     * @return iterable<string, array{string}>
      */
-    public static function invalidUtf8SequencesProvider(): array
+    public static function invalidUtf8SequencesProvider(): iterable
     {
-        return [
+        yield from [
             'Invalid 2 Octet Sequence' => ["\xc3\x28"],
             'Invalid Sequence Identifier' => ["\xa0\xa1"],
             'Invalid 3 Octet Sequence (in 2nd Octet)' => ["\xe2\x28\xa1"],

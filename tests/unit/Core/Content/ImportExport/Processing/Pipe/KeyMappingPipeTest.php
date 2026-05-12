@@ -34,11 +34,11 @@ class KeyMappingPipeTest extends TestCase
     }
 
     /**
-     * @return array<array{input: array<string, mixed>, expectedOutput: array<string, mixed>}>
+     * @return iterable<array{input: array<string, mixed>, expectedOutput: array<string, mixed>}>
      */
-    public static function simpleMappingProvider(): array
+    public static function simpleMappingProvider(): iterable
     {
-        return [
+        yield from [
             [
                 'input' => [],
                 'expectedOutput' => [
@@ -106,11 +106,11 @@ class KeyMappingPipeTest extends TestCase
     }
 
     /**
-     * @return array<array{input: array<string, mixed>, expectedOutput: array<string, mixed>}>
+     * @return iterable<array{input: array<string, mixed>, expectedOutput: array<string, mixed>}>
      */
-    public static function nestedProvider(): array
+    public static function nestedProvider(): iterable
     {
-        return [
+        yield from [
             [
                 'input' => [],
                 'expectedOutput' => [

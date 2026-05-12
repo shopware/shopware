@@ -100,11 +100,11 @@ class StateValidatorTest extends TestCase
     }
 
     /**
-     * @return array<string, array{state: string|null, storedState: string|null, expectException: bool}>
+     * @return iterable<string, array{state: string|null, storedState: string|null, expectException: bool}>
      */
-    public static function validateTestDataProvider(): array
+    public static function validateTestDataProvider(): iterable
     {
-        return [
+        yield from [
             'state and storedState is null' => [
                 'state' => null,
                 'storedState' => null,

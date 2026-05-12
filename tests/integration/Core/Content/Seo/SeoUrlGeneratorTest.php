@@ -137,11 +137,11 @@ class SeoUrlGeneratorTest extends TestCase
     }
 
     /**
-     * @return list<array{template: string, count: int, pathInfo: string}>
+     * @return iterable<int, array{template: string, count: int, pathInfo: string}>
      */
-    public static function templateDataProvider(): array
+    public static function templateDataProvider(): iterable
     {
-        return [
+        yield from [
             [
                 'template' => '{{ id }}',
                 'count' => 1,

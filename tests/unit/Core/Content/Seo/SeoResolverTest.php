@@ -22,11 +22,11 @@ use Shopware\Core\Test\Stub\Doctrine\FakeResultFactory;
 class SeoResolverTest extends TestCase
 {
     /**
-     * @return array<string, array{0: string, 1: string}>
+     * @return iterable<string, array{0: string, 1: string}>
      */
-    public static function resolveDataProvider(): array
+    public static function resolveDataProvider(): iterable
     {
-        return [
+        yield from [
             'null case' => [
                 '',
                 '/',
@@ -67,11 +67,11 @@ class SeoResolverTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: string, 1: string}>
+     * @return iterable<string, array{0: string, 1: string}>
      */
-    public static function resolveCanonicalDataProvider(): array
+    public static function resolveCanonicalDataProvider(): iterable
     {
-        return [
+        yield from [
             'null case' => [
                 '',
                 '/',

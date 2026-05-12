@@ -1241,11 +1241,11 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
     }
 
     /**
-     * @return list<array{0: string}>
+     * @return iterable<int, array{0: string}>
      */
-    public static function salesChannelAssignmentCsvProvider(): array
+    public static function salesChannelAssignmentCsvProvider(): iterable
     {
-        return [
+        yield from [
             ['/fixtures/products_with_visibilities.csv'],
             ['/fixtures/products_with_visibility_names.csv'],
         ];

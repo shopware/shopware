@@ -63,11 +63,11 @@ class HeaderPageletLoaderTest extends TestCase
      * Some characters like A and Ä share one position since Ä is being seen as A with decorations.
      * Adding a test case with e.g. Alang and Älang with an expected order will introduce flakynes.
      *
-     * @return array<array{languages: list<array{name: string}>, expectedOrder: list<string>}>
+     * @return iterable<array{languages: list<array{name: string}>, expectedOrder: list<string>}>
      */
-    public static function sortingTestDataProvider(): array
+    public static function sortingTestDataProvider(): iterable
     {
-        return [
+        yield from [
             [
                 'languages' => [
                     ['name' => 'Alang'],

@@ -133,11 +133,11 @@ class LineItemProductStatesRuleTest extends TestCase
     }
 
     /**
-     * @return array<string, array<int, array<int, string>|bool|string>>
+     * @return iterable<string, array<int, array<int, string>|bool|string>>
      */
-    public static function caseDataProvider(): array
+    public static function caseDataProvider(): iterable
     {
-        return [
+        yield from [
             'equal / match' => [[State::IS_PHYSICAL, State::IS_DOWNLOAD], Rule::OPERATOR_EQ, State::IS_DOWNLOAD, true],
             'equal / no match' => [[State::IS_PHYSICAL], Rule::OPERATOR_EQ, State::IS_DOWNLOAD, false],
             'not equal / match' => [[State::IS_PHYSICAL], Rule::OPERATOR_NEQ, State::IS_DOWNLOAD, true],

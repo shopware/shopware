@@ -391,11 +391,11 @@ class TranslatorTest extends TestCase
     }
 
     /**
-     * @return list<array{string, string, int, string}>
+     * @return iterable<int, array{string, string, int, string}>
      */
-    public static function pluralTranslationProvider(): array
+    public static function pluralTranslationProvider(): iterable
     {
-        return [
+        yield from [
             // Test English plural rules
             ['There are 0 apples', 'There is one apple|There are %count% apples', 0, 'en-GB'],
             ['There is one apple', 'There is one apple|There are %count% apples', 1, 'en-GB'],

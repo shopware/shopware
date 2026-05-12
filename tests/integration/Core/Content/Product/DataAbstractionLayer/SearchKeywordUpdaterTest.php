@@ -231,13 +231,13 @@ class SearchKeywordUpdaterTest extends TestCase
     }
 
     /**
-     * @return array<string, array<int, mixed>>
+     * @return iterable<string, array<int, mixed>>
      */
-    public static function productKeywordProvider(): array
+    public static function productKeywordProvider(): iterable
     {
         $idsCollection = new IdsCollection();
 
-        return [
+        yield from [
             'test different languages' => [
                 (new ProductBuilder($idsCollection, '1000'))
                     ->price(10)

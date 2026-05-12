@@ -56,11 +56,11 @@ class TokenTest extends TestCase
     }
 
     /**
-     * @return array<string, array{data: array<string, string>, expected: string}>
+     * @return iterable<string, array{data: array<string, string>, expected: string}>
      */
-    public static function validateTestDataProvider(): array
+    public static function validateTestDataProvider(): iterable
     {
-        return [
+        yield from [
             'test validate with empty array' => [
                 'data' => [],
                 'expected' => 'Invalid user Access or refresh token: [token]: This field is missing., [refreshToken]: This field is missing.',

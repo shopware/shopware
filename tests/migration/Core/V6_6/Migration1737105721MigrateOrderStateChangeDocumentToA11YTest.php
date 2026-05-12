@@ -92,11 +92,11 @@ class Migration1737105721MigrateOrderStateChangeDocumentToA11YTest extends TestC
     }
 
     /**
-     * @return array<string, array<string>>
+     * @return iterable<string, array<string>>
      */
-    public static function mailTypeProvider(): array
+    public static function mailTypeProvider(): iterable
     {
-        return [
+        yield from [
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_SHIPPED_PARTIALLY => [MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_SHIPPED_PARTIALLY],
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_REFUNDED_PARTIALLY => [MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_REFUNDED_PARTIALLY],
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_REMINDED => [MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_REMINDED],

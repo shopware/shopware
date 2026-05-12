@@ -322,14 +322,14 @@ class ProductListingCmsElementResolverTest extends TestCase
     }
 
     /**
-     * @return array<list<array<string, mixed>>>
+     * @return iterable<list<array<string, mixed>>>
      */
-    public static function filtersProvider(): array
+    public static function filtersProvider(): iterable
     {
         $sizeId = Uuid::randomHex();
         $textileId = Uuid::randomHex();
 
-        return [
+        yield from [
             [
                 [
                     'manufacturer-filter' => true,

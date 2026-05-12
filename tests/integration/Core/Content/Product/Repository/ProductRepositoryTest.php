@@ -2723,11 +2723,11 @@ class ProductRepositoryTest extends TestCase
     }
 
     /**
-     * @return array<string, mixed>
+     * @return iterable<string, mixed>
      */
-    public static function customFieldVariantsProvider(): array
+    public static function customFieldVariantsProvider(): iterable
     {
-        return [
+        yield from [
             'Test own values' => [
                 [
                     'parent' => [

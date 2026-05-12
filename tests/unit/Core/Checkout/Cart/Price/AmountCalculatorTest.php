@@ -96,14 +96,14 @@ class AmountCalculatorTest extends TestCase
     }
 
     /**
-     * @return list<array{0: CartPrice, 1: PriceCollection}>
+     * @return iterable<int, array{0: CartPrice, 1: PriceCollection}>
      */
-    public static function calculateAmountForNetDeliveriesProvider(): array
+    public static function calculateAmountForNetDeliveriesProvider(): iterable
     {
         $highTax = new TaxRuleCollection([new TaxRule(19)]);
         $lowTax = new TaxRuleCollection([new TaxRule(7)]);
 
-        return [
+        yield from [
             [
                 new CartPrice(19.5, 19.5, 19.5, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE),
                 new PriceCollection([
@@ -148,15 +148,15 @@ class AmountCalculatorTest extends TestCase
     }
 
     /**
-     * @return list<array{0: CartPrice, 1: PriceCollection}>
+     * @return iterable<int, array{0: CartPrice, 1: PriceCollection}>
      */
-    public static function calculateAmountWithNetPricesProvider(): array
+    public static function calculateAmountWithNetPricesProvider(): iterable
     {
         $highTax = new TaxRuleCollection([new TaxRule(19)]);
         $lowTax = new TaxRuleCollection([new TaxRule(7)]);
         $mixedTaxes = new TaxRuleCollection([new TaxRule(19), new TaxRule(7)]);
 
-        return [
+        yield from [
             [
                 new CartPrice(19.5, 22.61, 19.5, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.5)]), $highTax, CartPrice::TAX_STATE_NET),
                 new PriceCollection([
@@ -321,15 +321,15 @@ class AmountCalculatorTest extends TestCase
     }
 
     /**
-     * @return list<array{0: CartPrice, 1: PriceCollection}>
+     * @return iterable<int, array{0: CartPrice, 1: PriceCollection}>
      */
-    public static function calculateAmountWithGrossPricesProvider(): array
+    public static function calculateAmountWithGrossPricesProvider(): iterable
     {
         $highTax = new TaxRuleCollection([new TaxRule(19)]);
         $lowTax = new TaxRuleCollection([new TaxRule(7)]);
         $mixedTaxes = new TaxRuleCollection([new TaxRule(19), new TaxRule(7)]);
 
-        return [
+        yield from [
             [
                 new CartPrice(16.39, 19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax, CartPrice::TAX_STATE_GROSS),
                 new PriceCollection([
@@ -509,11 +509,11 @@ class AmountCalculatorTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: CashRoundingConfig, 1: CashRoundingConfig, 2: PriceCollection, 3: CartPrice}>
+     * @return iterable<string, array{0: CashRoundingConfig, 1: CashRoundingConfig, 2: PriceCollection, 3: CartPrice}>
      */
-    public static function cashRoundingProvider(): array
+    public static function cashRoundingProvider(): iterable
     {
-        return [
+        yield from [
             'Item and total rounding with different decimals' => [
                 new CashRoundingConfig(4, 0.01, true),
                 new CashRoundingConfig(2, 0.01, true),

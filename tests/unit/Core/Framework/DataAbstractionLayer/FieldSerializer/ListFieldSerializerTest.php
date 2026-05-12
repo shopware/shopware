@@ -104,11 +104,11 @@ class ListFieldSerializerTest extends TestCase
     }
 
     /**
-     * @return list<array{0: ListField, 1: string|null, 2: array<mixed>|null}>
+     * @return iterable<int, array{0: ListField, 1: string|null, 2: array<mixed>|null}>
      */
-    public static function decodeProvider(): array
+    public static function decodeProvider(): iterable
     {
-        return [
+        yield from [
             [new ListField('data', 'data'), Json::encode(['foo' => 'bar']), ['bar']],
             [new ListField('data', 'data'), Json::encode([0 => 'bar', 1 => 'foo']), ['bar', 'foo']],
             [new ListField('data', 'data'), Json::encode(['foo' => 1]), [1]],

@@ -46,11 +46,11 @@ class SystemConfigServiceTest extends TestCase
     }
 
     /**
-     * @return list<array{mixed}>
+     * @return iterable<int, array{mixed}>
      */
-    public static function differentTypesProvider(): array
+    public static function differentTypesProvider(): iterable
     {
-        return [
+        yield from [
             [true],
             [false],
             [null],
@@ -75,11 +75,11 @@ class SystemConfigServiceTest extends TestCase
     }
 
     /**
-     * @return list<array{mixed, string}>
+     * @return iterable<int, array{mixed, string}>
      */
-    public static function getStringProvider(): array
+    public static function getStringProvider(): iterable
     {
-        return [
+        yield from [
             [true, '1'],
             [false, ''],
             [null, ''],
@@ -107,11 +107,11 @@ class SystemConfigServiceTest extends TestCase
     }
 
     /**
-     * @return list<array{mixed, int}>
+     * @return iterable<int, array{mixed, int}>
      */
-    public static function getIntProvider(): array
+    public static function getIntProvider(): iterable
     {
-        return [
+        yield from [
             [true, 1],
             [false, 0],
             [null, 0],
@@ -139,11 +139,11 @@ class SystemConfigServiceTest extends TestCase
     }
 
     /**
-     * @return list<array{mixed, float}>
+     * @return iterable<int, array{mixed, float}>
      */
-    public static function getFloatProvider(): array
+    public static function getFloatProvider(): iterable
     {
-        return [
+        yield from [
             [true, 1],
             [false, 0],
             [null, 0],
@@ -171,11 +171,11 @@ class SystemConfigServiceTest extends TestCase
     }
 
     /**
-     * @return list<array{mixed, bool}>
+     * @return iterable<int, array{mixed, bool}>
      */
-    public static function getBoolProvider(): array
+    public static function getBoolProvider(): iterable
     {
-        return [
+        yield from [
             [true, true],
             [false, false],
             [null, false],

@@ -85,11 +85,11 @@ class MaintenanceModeResolverTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: Request, 1: bool}>
+     * @return iterable<string, array{0: Request, 1: bool}>
      */
-    public static function maintenanceModeInactiveProvider(): array
+    public static function maintenanceModeInactiveProvider(): iterable
     {
-        return [
+        yield from [
             'maintenance mode is inactive, no sales channel request' => [
                 self::getRequest(false, false, false, false, false, false),
                 false,
@@ -110,11 +110,11 @@ class MaintenanceModeResolverTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: Request, 1: bool}>
+     * @return iterable<string, array{0: Request, 1: bool}>
      */
-    public static function maintenanceModeActiveProvider(): array
+    public static function maintenanceModeActiveProvider(): iterable
     {
-        return [
+        yield from [
             'maintenance mode is active, sales channel requested' => [
                 self::getRequest(false, false, false, false, true, true),
                 true,
@@ -155,11 +155,11 @@ class MaintenanceModeResolverTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: Request, 1: bool}>
+     * @return iterable<string, array{0: Request, 1: bool}>
      */
-    public static function xmlHttpRequestProvider(): array
+    public static function xmlHttpRequestProvider(): iterable
     {
-        return [
+        yield from [
             'maintenance mode is active, sales channel requested, ajax' => [
                 self::getRequest(false, true, false, false, true, true),
                 false,
@@ -180,11 +180,11 @@ class MaintenanceModeResolverTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: Request, 1: bool}>
+     * @return iterable<string, array{0: Request, 1: bool}>
      */
-    public static function maintenancePageRequestProvider(): array
+    public static function maintenancePageRequestProvider(): iterable
     {
-        return [
+        yield from [
             'maintenance mode is active, maintenance page requested' => [
                 self::getRequest(false, false, false, true, false, true),
                 false,
@@ -197,11 +197,11 @@ class MaintenanceModeResolverTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: Request, 1: bool}>
+     * @return iterable<string, array{0: Request, 1: bool}>
      */
-    public static function errorControllerRequestProvider(): array
+    public static function errorControllerRequestProvider(): iterable
     {
-        return [
+        yield from [
             'maintenance mode is active, error controller requested' => [
                 self::getRequest(false, false, true, false, false, true),
                 false,

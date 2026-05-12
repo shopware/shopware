@@ -98,7 +98,7 @@ class AdminSearchControllerTest extends TestCase
      */
     public static function searchDataProvider(): iterable
     {
-        return [
+        yield from [
             'basic test with query' => [
                 [
                     'product' => [

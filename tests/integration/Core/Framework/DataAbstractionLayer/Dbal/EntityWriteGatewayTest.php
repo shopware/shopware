@@ -508,11 +508,11 @@ class EntityWriteGatewayTest extends TestCase
     }
 
     /**
-     * @return array<array<string>>
+     * @return iterable<array<string>>
      */
-    public static function methodProvider(): array
+    public static function methodProvider(): iterable
     {
-        return [
+        yield from [
             ['create'],
             ['upsert'],
             ['update'],

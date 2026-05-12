@@ -47,11 +47,11 @@ class StampedeProtectionConfiguratorTest extends TestCase
     }
 
     /**
-     * @return array<string, array{bool, string, bool}>
+     * @return iterable<string, array{bool, string, bool}>
      */
-    public static function applyDataProvider(): array
+    public static function applyDataProvider(): iterable
     {
-        return [
+        yield from [
             'disabled config' => [false, 'files', false],
             'enabled config, non-file session' => [true, 'redis', false],
             'enabled config, file session' => [true, 'files', true],

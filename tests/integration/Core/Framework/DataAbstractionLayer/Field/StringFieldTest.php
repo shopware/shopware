@@ -69,11 +69,11 @@ class StringFieldTest extends TestCase
     }
 
     /**
-     * @return list<array{string, bool|string|null, ?string, list<Flag>}>
+     * @return iterable<int, array{string, bool|string|null, ?string, list<Flag>}>
      */
-    public static function stringFieldDataProvider(): array
+    public static function stringFieldDataProvider(): iterable
     {
-        return [
+        yield from [
             ['writeException', '<test>', 'This value should not be blank.', [new Required()]],
             ['writeException', null, 'This value should not be blank.', [new Required()]],
             ['writeException', '', 'This value should not be blank.', [new Required()]],

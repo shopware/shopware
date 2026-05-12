@@ -22,11 +22,11 @@ class FileUrlValidatorTest extends TestCase
     }
 
     /**
-     * @return array<string, array<int, string|bool>>
+     * @return iterable<string, array<int, string|bool>>
      */
-    public static function fileSourceProvider(): array
+    public static function fileSourceProvider(): iterable
     {
-        return [
+        yield from [
             'reserved IPv4' => ['https://127.0.0.1', false],
             'converted reserved IPv4' => ['https://0:0:0:0:0:FFFF:7F00:0001', false],
             'reserved IPv4 mapped to IPv6' => ['https://[0:0:0:0:0:FFFF:127.0.0.1]', false],

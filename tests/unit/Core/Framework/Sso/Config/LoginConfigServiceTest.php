@@ -68,11 +68,11 @@ class LoginConfigServiceTest extends TestCase
     }
 
     /**
-     * @return array<string, array<string, mixed>>
+     * @return iterable<string, array<string, mixed>>
      */
-    public static function getConfigErrorsTestDataProvider(): array
+    public static function getConfigErrorsTestDataProvider(): iterable
     {
-        return [
+        yield from [
             'use_default is not set' => [
                 'rawConfig' => self::createConfig([], ['use_default']),
                 'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [use_default] is missing',
@@ -341,11 +341,11 @@ class LoginConfigServiceTest extends TestCase
     }
 
     /**
-     * @return array<string, array{random: string, rawConfig: array<string, string|bool>, expectedUrl: string}>
+     * @return iterable<string, array{random: string, rawConfig: array<string, string|bool>, expectedUrl: string}>
      */
-    public static function createRedirectUrlTestDataProvider(): array
+    public static function createRedirectUrlTestDataProvider(): iterable
     {
-        return [
+        yield from [
             'default test case' => [
                 'random' => 'justARandomString',
                 'rawConfig' => [

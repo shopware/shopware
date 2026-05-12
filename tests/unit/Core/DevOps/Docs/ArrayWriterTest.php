@@ -69,11 +69,11 @@ class ArrayWriterTest extends TestCase
     }
 
     /**
-     * @return array<string, array{array<string, string>, bool, string}>
+     * @return iterable<string, array{array<string, string>, bool, string}>
      */
-    public static function dumpProvider(): array
+    public static function dumpProvider(): iterable
     {
-        return [
+        yield from [
             'short' => [
                 ['foo' => 'bar', 'baz' => ''],
                 false,

@@ -59,16 +59,16 @@ class Migration1726557614FixProductComparisonIdealoWithHtmlFormatTest extends Te
     }
 
     /**
-     * @return array{array{array{oldTemplate: 'do_not_update_for_modified_template', expectedTemplate: 'do_not_update_for_modified_template'}}, array{array{oldTemplate: string, expectedTemplate: string}}}
+     * @return iterable<int, array{array{array{oldTemplate: 'do_not_update_for_modified_template', expectedTemplate: 'do_not_update_for_modified_template'}}, array{array{oldTemplate: string, expectedTemplate: string}}}>
      */
-    public static function dataProvider(): array
+    public static function dataProvider(): iterable
     {
         /** @var string $oldTemplate */
         $oldTemplate = file_get_contents(__DIR__ . '/../../../../src/Core/Migration/Fixtures/productComparison-export-profiles/next-37658/old-template-idealo.csv.twig');
         /** @var string $newTemplate */
         $newTemplate = file_get_contents(__DIR__ . '/../../../../src/Core/Migration/Fixtures/productComparison-export-profiles/next-37658/new-template-idealo.csv.twig');
 
-        return [
+        yield from [
             [['oldTemplate' => 'do_not_update_for_modified_template', 'expectedTemplate' => 'do_not_update_for_modified_template']],
             [['oldTemplate' => $oldTemplate, 'expectedTemplate' => $newTemplate]],
         ];

@@ -102,11 +102,11 @@ class NotificationControllerTest extends TestCase
     }
 
     /**
-     * @return array<array<array<string>|string|bool>>
+     * @return iterable<array<array<string>|string|bool>>
      */
-    public static function saveNotificationProvider(): array
+    public static function saveNotificationProvider(): iterable
     {
-        return [
+        yield from [
             ['integration', 'success', 'This is a notification', false, ['cache:clear'], true],
             ['integration', '', 'This is a notification', false, ['cache:clear'], false],
             ['integration', 'success', '', false, ['cache:clear'], false],
@@ -158,11 +158,11 @@ class NotificationControllerTest extends TestCase
     }
 
     /**
-     * @return array<array<array<string>|bool|int|null>>
+     * @return iterable<array<array<string>|bool|int|null>>
      */
-    public static function getNotificationProvider(): array
+    public static function getNotificationProvider(): iterable
     {
-        return [
+        yield from [
             [true, [], null, 1],
             [false, ['cache:clear'], ['cache:clear'], 1],
             [false, ['cache:clear'], [], 0],

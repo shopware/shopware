@@ -48,11 +48,11 @@ class PromotionCodeServiceTest extends TestCase
     }
 
     /**
-     * @return array<array<string>>
+     * @return iterable<array<string>>
      */
-    public static function codePreviewDataProvider(): array
+    public static function codePreviewDataProvider(): iterable
     {
-        return [
+        yield from [
             ['%s', '/([A-Z]){1}/'],
             ['%d', '/(\d){1}/'],
             ['%s%s%s', '/([A-Z]){3}/'],
@@ -94,11 +94,11 @@ class PromotionCodeServiceTest extends TestCase
     }
 
     /**
-     * @return array<array<int>>
+     * @return iterable<array<int>>
      */
-    public static function generateIndividualCodesDataProvider(): array
+    public static function generateIndividualCodesDataProvider(): iterable
     {
-        return [
+        yield from [
             [1],
             [10],
             [500],
@@ -117,11 +117,11 @@ class PromotionCodeServiceTest extends TestCase
     }
 
     /**
-     * @return array<array<int>>
+     * @return iterable<array<int>>
      */
-    public static function generateIndividualCodesWithInsufficientPatternDataProvider(): array
+    public static function generateIndividualCodesWithInsufficientPatternDataProvider(): iterable
     {
-        return [
+        yield from [
             [6],
             [10],
             [20],

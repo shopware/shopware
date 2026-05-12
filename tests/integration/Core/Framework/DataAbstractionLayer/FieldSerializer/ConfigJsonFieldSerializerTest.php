@@ -54,11 +54,11 @@ class ConfigJsonFieldSerializerTest extends TestCase
     }
 
     /**
-     * @return list<list<string|int|float|false|array<string, mixed>|list<int>|null>>
+     * @return iterable<int, list<string|int|float|false|array<string, mixed>|list<int>|null>>
      */
-    public static function serializerProvider(): array
+    public static function serializerProvider(): iterable
     {
-        return [
+        yield from [
             ['string'],
             [11234],
             [11234.123243],

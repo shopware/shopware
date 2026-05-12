@@ -107,11 +107,11 @@ class SetCustomerGroupCustomFieldActionTest extends TestCase
     }
 
     /**
-     * @return array<string, mixed>
+     * @return iterable<string, mixed>
      */
-    public static function createDataProvider(): array
+    public static function createDataProvider(): iterable
     {
-        return [
+        yield from [
             'upsert / existed data / update data / expect data' => ['upsert', ['red', 'green'], ['blue', 'gray'], ['blue', 'gray']],
             'create / existed data / update data / expect data' => ['create', ['red', 'green'], ['blue', 'gray'], ['red', 'green']],
             'clear / existed data / update data / expect data' => ['clear', ['red', 'green', 'blue'], null, null],

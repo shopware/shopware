@@ -40,11 +40,11 @@ class MeasurementUnitsFieldSerializerTest extends TestCase
     }
 
     /**
-     * @return array<string, array{Field, mixed, string|null}>
+     * @return iterable<string, array{Field, mixed, string|null}>
      */
-    public static function encodeProvider(): array
+    public static function encodeProvider(): iterable
     {
-        return [
+        yield from [
             'null value should return default units as JSON' => [
                 new MeasurementUnitsField('data', 'data'),
                 null,
@@ -102,11 +102,11 @@ class MeasurementUnitsFieldSerializerTest extends TestCase
     }
 
     /**
-     * @return array<string, array{string|null, MeasurementUnits}>
+     * @return iterable<string, array{string|null, MeasurementUnits}>
      */
-    public static function decodeProvider(): array
+    public static function decodeProvider(): iterable
     {
-        return [
+        yield from [
             'null value should return default MeasurementUnits' => [
                 null,
                 MeasurementUnits::createDefaultUnits(),

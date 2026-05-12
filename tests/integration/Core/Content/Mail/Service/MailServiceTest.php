@@ -101,11 +101,11 @@ class MailServiceTest extends TestCase
     }
 
     /**
-     * @return array<int, mixed[]>
+     * @return iterable<int, mixed[]>
      */
-    public static function senderEmailDataProvider(): array
+    public static function senderEmailDataProvider(): iterable
     {
-        return [
+        yield from [
             ['basic@example.com', 'basic@example.com', null, null],
             ['config@example.com', null, 'config@example.com', null],
             ['basic@example.com', 'basic@example.com', 'config@example.com', null],

@@ -103,11 +103,11 @@ class CanonicalRedirectServiceTest extends TestCase
     }
 
     /**
-     * @return array<int, array<string, Request|Response>>
+     * @return iterable<int, array<string, Request|Response>>
      */
-    public static function requestDataProvider(): array
+    public static function requestDataProvider(): iterable
     {
-        return [
+        yield from [
             [
                 'request' => self::getRequest([]),
                 'response' => new Response(),

@@ -34,11 +34,11 @@ class JsonSalesChannelEntityEncoderTest extends TestCase
     use KernelTestBehaviour;
 
     /**
-     * @return array<int, array<int, bool|\DateTime|float|int|string|null>>
+     * @return iterable<int, array<int, bool|\DateTime|float|int|string|null>>
      */
-    public static function emptyInputProvider(): array
+    public static function emptyInputProvider(): iterable
     {
-        return [
+        yield from [
             [null],
             ['string'],
             [1],
@@ -68,11 +68,11 @@ class JsonSalesChannelEntityEncoderTest extends TestCase
     }
 
     /**
-     * @return list<array{class-string<EntityDefinition>, SerializationFixture}>
+     * @return iterable<int, array{class-string<EntityDefinition>, SerializationFixture}>
      */
-    public static function complexStructsProvider(): array
+    public static function complexStructsProvider(): iterable
     {
-        return [
+        yield from [
             [MediaDefinition::class, new TestBasicStruct()],
             [MediaDefinition::class, new TestBasicWithToOneRelationship()],
             [MediaDefinition::class, new TestCollectionWithToOneRelationship()],

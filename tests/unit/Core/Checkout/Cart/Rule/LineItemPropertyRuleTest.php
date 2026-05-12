@@ -45,9 +45,9 @@ class LineItemPropertyRuleTest extends TestCase
     }
 
     /**
-     * @return array<array<CartRuleScopeCase>>
+     * @return iterable<array<CartRuleScopeCase>>
      */
-    public static function cartRuleScopeProvider(): array
+    public static function cartRuleScopeProvider(): iterable
     {
         $emptyItem = self::createLineItemWithVariantOptions();
         $redItem = self::createLineItemWithVariantOptions(['red']);
@@ -78,7 +78,7 @@ class LineItemPropertyRuleTest extends TestCase
             new CartRuleScopeCase('Merge case', true, new LineItemPropertyRule(['green']), [$mergeCase]),
         ];
 
-        return array_map(static fn ($case) => [$case], $cases);
+        yield from array_map(static fn ($case) => [$case], $cases);
     }
 
     /**

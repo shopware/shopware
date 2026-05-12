@@ -13,6 +13,7 @@ class GuestCustomerConvertService extends ApiService {
     }
 
     /**
+     * @param customerId
      * @param payload
      * @param additionalParams
      * @param additionalHeaders

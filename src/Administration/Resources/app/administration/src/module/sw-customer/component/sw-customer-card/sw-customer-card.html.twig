@@ -10,49 +10,49 @@
         <div class="sw-customer-card__header">
         {% block sw_customer_card_convert_guest %}
             <sw-customer-convert-guest-modal
-                :customer="customer"
                 v-if="showConvertCustomerModal"
+                :customer="customer"
                 @modal-close="onCloseConvertCustomerModal"
             />
         {% endblock %}
         {% block sw_customer_card_imitate_customer_modal %}
-        <sw-customer-imitate-customer-modal
-            v-if="showImitateCustomerModal"
-            :customer="customer"
-            @modal-close="onCloseImitateCustomerModal"
-        />
+            <sw-customer-imitate-customer-modal
+                v-if="showImitateCustomerModal"
+                :customer="customer"
+                @modal-close="onCloseImitateCustomerModal"
+            />
         {% endblock %}
 
-        <mt-button
-            variant="action"
-            @click="onOpenConvertCustomerModal"
-            :disabled="!customer.guest"
-        >
-            {{ $t('sw-customer.card.buttonConvertCustomer') }}
-        </mt-button>
+            <mt-button
+                variant="action"
+                :disabled="!customer.guest"
+                @click="onOpenConvertCustomerModal"
+            >
+                {{ $t('sw-customer.card.buttonConvertCustomer') }}
+            </mt-button>
 
         {% block sw_customer_card_action_customer_impersonation %}
-        <mt-button
-            v-tooltip="{
-                message: customerImitationWarning,
-                disabled: canUseCustomerImitation,
-                showOnDisabledElements: true
-            }"
-            :disabled="!canUseCustomerImitation"
-            variant="action"
-            @click="onImitateCustomer"
-        >
-            <template v-if="hasSingleBoundSalesChannelUrl">
-                {{ $t('sw-customer.card.buttonImitateCustomer') }}
-                <mt-icon
-                    name="regular-external-link-s"
-                    size="12px"
-                />
-            </template>
-            <template v-else>
-                {{ $t('sw-customer.card.buttonImitateCustomer') }}
-            </template>
-        </mt-button>
+            <mt-button
+                v-tooltip="{
+                    message: customerImitationWarning,
+                    disabled: canUseCustomerImitation,
+                    showOnDisabledElements: true
+                }"
+                :disabled="!canUseCustomerImitation"
+                variant="action"
+                @click="onImitateCustomer"
+            >
+                <template v-if="hasSingleBoundSalesChannelUrl">
+                    {{ $t('sw-customer.card.buttonImitateCustomer') }}
+                    <mt-icon
+                        name="regular-external-link-s"
+                        size="12px"
+                    />
+                </template>
+                <template v-else>
+                    {{ $t('sw-customer.card.buttonImitateCustomer') }}
+                </template>
+            </mt-button>
         {% endblock %}
         </div>
     </template>

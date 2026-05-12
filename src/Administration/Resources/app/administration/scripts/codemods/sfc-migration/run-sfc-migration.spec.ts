@@ -528,6 +528,19 @@ describe('runMigration — partially-migrated (mixins)', () => {
         expect(report[0]).toContain('partially-migrated');
         expect(report[0]).toContain('mixins');
     });
+
+    it('skips an existing .vue file without counting it as partially migrated', () => {
+        const originalContent = 'existing content';
+        writeFileSync(join(componentDir, 'sw-mixin-list.vue'), originalContent, 'utf-8');
+
+        const { report, stats } = runMigration(tmpDir, { dryRun: false });
+        const content = readFileSync(join(componentDir, 'sw-mixin-list.vue'), 'utf-8');
+
+        expect(content).toBe(originalContent);
+        expect(stats.skippedExisting).toBe(1);
+        expect(stats.partiallyMigrated).toBe(0);
+        expect(report[0]).toContain('SKIP (already exists)');
+    });
 });
 
 describe('runMigration — partially-migrated (extends)', () => {

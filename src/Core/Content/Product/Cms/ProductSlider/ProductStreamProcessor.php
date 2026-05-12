@@ -13,6 +13,7 @@ use Shopware\Core\Content\Product\Events\ProductSliderStreamCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
@@ -55,6 +56,9 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
         $products = $config->get('products');
         \assert($products instanceof FieldConfig);
         $criteria = $this->collectByProductStream($resolverContext, $products, $config);
+        if ($criteria === null) {
+            return null;
+        }
 
         $this->eventDispatcher->dispatch(new ProductSliderStreamCriteriaEvent($slot, $criteria, $resolverContext->getSalesChannelContext()));
 
@@ -99,11 +103,15 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
         ResolverContext $resolverContext,
         FieldConfig $config,
         FieldConfigCollection $elementConfig
-    ): Criteria {
-        $filters = $this->productStreamBuilder->buildFilters(
-            $config->getStringValue(),
-            $resolverContext->getSalesChannelContext()->getContext()
-        );
+    ): ?Criteria {
+        try {
+            $filters = $this->productStreamBuilder->buildFilters(
+                $config->getStringValue(),
+                $resolverContext->getSalesChannelContext()->getContext()
+            );
+        } catch (EntityNotFoundException) {
+            return null;
+        }
 
         $limit = $elementConfig->get('productStreamLimit')?->getIntValue() ?? self::FALLBACK_LIMIT;
 

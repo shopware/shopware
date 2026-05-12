@@ -16,6 +16,7 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
@@ -127,6 +128,26 @@ class ProductStreamProcessorTest extends TestCase
         $criteria = $list[ProductDefinition::class]['product-slider-entity-fallback_id'] ?? null;
         static::assertInstanceOf(Criteria::class, $criteria);
         static::assertTrue($criteria->hasAssociation('manufacturer'));
+    }
+
+    public function testCollectReturnsNullWhenProductStreamNoLongerExists(): void
+    {
+        $slot = $this->getSlot();
+        $resolverContext = $this->getResolverContext();
+
+        $config = new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, 'deleted-product-stream-id');
+        $this->config->add($config);
+
+        $this->productStreamBuilder = $this->createMock(ProductStreamBuilderInterface::class);
+        $this->productStreamBuilder->expects($this->once())
+            ->method('buildFilters')
+            ->with('deleted-product-stream-id', $resolverContext->getSalesChannelContext()->getContext())
+            ->willThrowException(new EntityNotFoundException('product_stream', 'deleted-product-stream-id'));
+
+        $this->eventDispatcher->expects($this->never())
+            ->method('dispatch');
+
+        static::assertNull($this->getProcessor()->collect($slot, $this->config, $resolverContext));
     }
 
     public function testCollectAddsRandomSortingIfRequired(): void

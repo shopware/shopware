@@ -78,6 +78,12 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Content\Cms\Subscriber\ProductStreamCmsElementDeleteSubscriber">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Content\ProductStream\ProductStreamDefinition"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Content\Cms\Subscriber\UnusedMediaSubscriber">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
 

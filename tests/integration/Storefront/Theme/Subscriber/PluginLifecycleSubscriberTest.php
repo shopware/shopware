@@ -35,7 +35,7 @@ class PluginLifecycleSubscriberTest extends TestCase
     {
         parent::setUp();
         $this->addTestPluginToKernel(
-            __DIR__ . '/../../../../../src/Core/Framework/Test/Plugin/_fixture/plugins/SwagTestPlugin',
+            __DIR__ . '/../../../../../tests/integration/Core/Framework/Plugin/_fixtures/plugins/SwagTestPlugin',
             'SwagTestPlugin'
         );
     }

@@ -29,6 +29,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 abstract class AbstractPluginLifecycleCommand extends Command
 {
     /**
+     * @internal
+     *
      * @param EntityRepository<PluginCollection> $pluginRepo
      */
     public function __construct(

@@ -54,6 +54,20 @@ Extensions that use the registry automatically benefit from the lock; direct SQL
 The `RegisterScheduleTaskMessage` class and the accompanying message handler `RegisterScheduledTaskHandler` is deprecated and will be removed in Shopware 6.8.0.0, as the message wasn't dispatched anymore.
 If you dispatched that message manually, you should call the `TaskScheduler::registerTask()` method directly instead.
 
+### Composer-managed plugins in `TestBootstrapper::addActivePlugins()`
+
+`TestBootstrapper::addActivePlugins()` can now be used with Composer-managed plugins installed below `vendor/`.
+Plugins no longer need to be copied into `custom/plugins` or `custom/static-plugins` just to be installed and activated during test bootstrap.
+
+### Requirement-aware plugin installation order
+
+`plugin:install` now orders the selected plugins by their Composer plugin requirements before installation.
+When one selected plugin requires another selected plugin package, the required plugin is installed first.
+This ordering only applies to plugins that are known before the command starts.
+The command does not reload Composer's autoloader while it is running.
+If installing one plugin also installs new PHP packages, plugins installed afterwards in the same command cannot use those packages yet.
+Run those installs in separate CLI calls when a plugin depends on code that another plugin adds through Composer during installation.
+
 ## Administration
 
 ### Mail template preview is now sales-channel-aware and uses isolated HTML rendering

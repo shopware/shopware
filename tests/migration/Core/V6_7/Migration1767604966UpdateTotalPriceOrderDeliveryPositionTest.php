@@ -43,6 +43,11 @@ class Migration1767604966UpdateTotalPriceOrderDeliveryPositionTest extends TestC
         static::assertSame(1, (int) $deletedRowCount);
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1767604966, (new Migration1767604966UpdateTotalPriceOrderDeliveryPosition())->getCreationTimestamp());
+    }
+
     public function testUpdate(): void
     {
         $this->rollBack();

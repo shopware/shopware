@@ -42,6 +42,11 @@ class Migration1721202771UpdateDefaultSearchConfigTest extends TestCase
      * @param list<array<string, mixed>> $input
      * @param array<string, mixed> $expected
      */
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1721202771, (new Migration1721202771UpdateDefaultSearchConfig())->getCreationTimestamp());
+    }
+
     #[DataProvider('migrationProvider')]
     public function testMigration(array $input, array $expected): void
     {

@@ -19,6 +19,11 @@ class Migration1743151679AddContextGatewayUrlTest extends TestCase
 {
     use KernelTestBehaviour;
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1743151679, (new Migration1743151679AddContextGatewayUrl())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         $connection = static::getContainer()->get(Connection::class);

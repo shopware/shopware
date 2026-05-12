@@ -26,6 +26,11 @@ class Migration1736831335AddGenerateDocumentTypesForDocumentConfigTest extends T
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1736831335, (new Migration1736831335AddGenerateDocumentTypesForDocumentConfig())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         $this->setDefaultDocumentConfigValues();

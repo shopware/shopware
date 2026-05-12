@@ -27,6 +27,11 @@ class Migration1773824493AddProviderColumnToProductExportTest extends TestCase
         }
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1773824493, (new Migration1773824493AddProviderColumnToProductExport())->getCreationTimestamp());
+    }
+
     public function testMigrationAddsProviderColumn(): void
     {
         static::assertFalse(TableHelper::columnExists($this->connection, 'product_export', 'provider'));

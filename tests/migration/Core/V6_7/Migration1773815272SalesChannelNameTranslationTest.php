@@ -39,6 +39,11 @@ class Migration1773815272SalesChannelNameTranslationTest extends TestCase
         $this->languageByteId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1773815272, (new Migration1773815272SalesChannelNameTranslation())->getCreationTimestamp());
+    }
+
     public function testUpdate(): void
     {
         $this->prepareTestMailTemplate();

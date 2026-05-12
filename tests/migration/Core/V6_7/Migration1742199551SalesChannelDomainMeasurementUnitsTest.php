@@ -35,7 +35,7 @@ class Migration1742199551SalesChannelDomainMeasurementUnitsTest extends TestCase
 
     public function testGetCreationTimestamp(): void
     {
-        static::assertEquals('1742199551', (new Migration1742199551SalesChannelDomainMeasurementUnits())->getCreationTimestamp());
+        static::assertSame(1742199551, (new Migration1742199551SalesChannelDomainMeasurementUnits())->getCreationTimestamp());
     }
 
     public function testMigration(): void

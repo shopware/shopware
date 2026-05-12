@@ -31,6 +31,11 @@ class Migration1740563553AddAppRequestedPrivilegesTest extends TestCase
         }
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1740563553, (new Migration1740563553AddAppRequestedPrivileges())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         static::assertFalse(TableHelper::columnExists($this->connection, 'app', 'requested_privileges'));

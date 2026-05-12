@@ -33,6 +33,11 @@ class Migration1753799632FixStateMachineHistoryIntegrationConstraintTest extends
         }
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1753799632, (new Migration1753799632FixStateMachineHistoryIntegrationConstraint())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         $migration = new Migration1753799632FixStateMachineHistoryIntegrationConstraint();

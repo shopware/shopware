@@ -33,6 +33,11 @@ class Migration1733323215AddHashToAppTemplateTest extends TestCase
         }
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1733323215, (new Migration1733323215AddHashToAppTemplate())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         $migration = new Migration1733323215AddHashToAppTemplate();

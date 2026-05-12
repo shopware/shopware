@@ -49,6 +49,11 @@ class Migration1773322284ChangeDocumentReferencedDocumentIdConstraintTest extend
         }
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1773322284, (new Migration1773322284ChangeDocumentReferencedDocumentIdConstraint())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         $foreignKeyBefore = TableHelper::getForeignKeyOfTable(

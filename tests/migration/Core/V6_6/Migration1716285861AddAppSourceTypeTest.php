@@ -29,6 +29,11 @@ class Migration1716285861AddAppSourceTypeTest extends TestCase
         }
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1716285861, (new Migration1716285861AddAppSourceType())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         static::assertFalse(TableHelper::columnExists($this->connection, 'app', 'source_type'));

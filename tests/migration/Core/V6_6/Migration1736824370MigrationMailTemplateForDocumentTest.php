@@ -28,6 +28,11 @@ class Migration1736824370MigrationMailTemplateForDocumentTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1736824370, (new Migration1736824370MigrationMailTemplateForDocument())->getCreationTimestamp());
+    }
+
     public function testDuplicateMigration(): void
     {
         $migration = new Migration1736824370MigrationMailTemplateForDocument();

@@ -26,6 +26,11 @@ class Migration1773826242RenameAgenticCommerceSalesChannelTypeTest extends TestC
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1773826242, (new Migration1773826242RenameAgenticCommerceSalesChannelType())->getCreationTimestamp());
+    }
+
     public function testMigrationRenamesAgenticCommerceTranslations(): void
     {
         $salesChannelTypeId = Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_AGENTIC_COMMERCE);

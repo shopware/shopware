@@ -32,6 +32,11 @@ class Migration1737105721MigrateOrderStateChangeDocumentToA11YTest extends TestC
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1737105721, (new Migration1737105721MigrateOrderStateChangeDocumentToA11Y())->getCreationTimestamp());
+    }
+
     public function testDuplicateMigration(): void
     {
         $migration = new Migration1737105721MigrateOrderStateChangeDocumentToA11Y();

@@ -58,6 +58,11 @@ class Migration1717573310ImportExportTechnicalNameRequiredTest extends TestCase
         $this->connection->executeStatement('DELETE FROM `import_export_profile` WHERE `system_default` != 1');
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1717573310, (new Migration1717573310ImportExportTechnicalNameRequired())->getCreationTimestamp());
+    }
+
     public function testUpdateSetTechnicalNameRequired(): void
     {
         $migration = new Migration1717573310ImportExportTechnicalNameRequired();

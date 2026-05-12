@@ -29,6 +29,11 @@ class Migration1713345551AddAppManagedColumnTest extends TestCase
         }
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1713345551, (new Migration1713345551AddAppManagedColumn())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         static::assertFalse(TableHelper::columnExists($this->connection, 'app', 'self_managed'));

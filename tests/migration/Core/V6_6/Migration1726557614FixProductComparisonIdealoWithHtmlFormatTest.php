@@ -31,6 +31,11 @@ class Migration1726557614FixProductComparisonIdealoWithHtmlFormatTest extends Te
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1726557614, (new Migration1726557614FixProductComparisonIdealoWithHtmlFormat())->getCreationTimestamp());
+    }
+
     public function testCreationTimestamp(): void
     {
         $migration = new Migration1726557614FixProductComparisonIdealoWithHtmlFormat();

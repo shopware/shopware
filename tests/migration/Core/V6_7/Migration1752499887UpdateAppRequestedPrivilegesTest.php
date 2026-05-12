@@ -32,6 +32,11 @@ class Migration1752499887UpdateAppRequestedPrivilegesTest extends TestCase
         }
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1752499887, (new Migration1752499887UpdateAppRequestedPrivileges())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         $migration = new Migration1752499887UpdateAppRequestedPrivileges();

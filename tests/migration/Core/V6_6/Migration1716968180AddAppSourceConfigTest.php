@@ -29,6 +29,11 @@ class Migration1716968180AddAppSourceConfigTest extends TestCase
         }
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1716968180, (new Migration1716968180AddAppSourceConfig())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         static::assertFalse(TableHelper::columnExists($this->connection, 'app', 'source_config'));

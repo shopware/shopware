@@ -26,6 +26,11 @@ class Migration1718635021AddIntraCommunityLabelDocumentConfigToCreditNoteTest ex
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1718635021, (new Migration1718635021AddIntraCommunityLabelDocumentConfigToCreditNote())->getCreationTimestamp());
+    }
+
     public function testDisplayAdditionalNoteDeliverySettingIsNotSetByDefault(): void
     {
         $this->setDefaultStornoDocumentConfigValues();

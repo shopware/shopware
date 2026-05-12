@@ -26,6 +26,11 @@ class Migration1717601705AddIntraCommunityLabelDocumentConfigToStornoTest extend
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1717601705, (new Migration1717601705AddIntraCommunityLabelDocumentConfigToStorno())->getCreationTimestamp());
+    }
+
     public function testDisplayAdditionalNoteDeliverySettingIsNotSetByDefault(): void
     {
         $this->setDefaultStornoDocumentConfigValues();

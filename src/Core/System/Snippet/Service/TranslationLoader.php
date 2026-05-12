@@ -224,7 +224,7 @@ class TranslationLoader extends AbstractTranslationLoader
             'code' => $language->locale,
             'translations' => [
                 Defaults::LANGUAGE_SYSTEM => [
-                    'name' => SnippetPatterns::ALLOWED_PSEUDO_LOCALES[$language->locale] ?? $language->name,
+                    'name' => SnippetPatterns::ALLOWED_PSEUDO_LOCALES[$language->locale],
                     'territory' => SnippetPatterns::PSEUDO_LOCALE_TERRITORY,
                 ],
             ],

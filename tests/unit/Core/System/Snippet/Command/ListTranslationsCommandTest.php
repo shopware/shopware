@@ -79,7 +79,7 @@ class ListTranslationsCommandTest extends TestCase
         static::assertStringContainsString('German (Germany)', $output);
         static::assertStringContainsString('Spanish (Spain)', $output);
         static::assertStringContainsString('2024-06-15 12:34', $output);
-        static::assertStringContainsString('NULL', $output);
+        static::assertStringContainsString('—', $output);
         static::assertStringContainsString('3 locales configured.', $output);
     }
 

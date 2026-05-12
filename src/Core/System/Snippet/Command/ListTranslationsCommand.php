@@ -5,6 +5,7 @@ namespace Shopware\Core\System\Snippet\Command;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\DataTransfer\Metadata\MetadataEntry;
 use Shopware\Core\System\Snippet\Service\TranslationMetadataLoader;
+use Shopware\Core\System\Snippet\SnippetPatterns;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -43,7 +44,7 @@ class ListTranslationsCommand extends Command
                 $language->locale,
                 $language->name,
                 $this->getEnglishName($language->locale),
-                $this->formatAge($entry),
+                $this->formatLastUpdate($entry),
             ];
         }
 
@@ -62,6 +63,10 @@ class ListTranslationsCommand extends Command
 
     private function getEnglishName(string $locale): string
     {
+        if (\array_key_exists($locale, SnippetPatterns::ALLOWED_PSEUDO_LOCALES)) {
+            return SnippetPatterns::ALLOWED_PSEUDO_LOCALES[$locale];
+        }
+
         try {
             return Locales::getName(str_replace('-', '_', $locale), 'en');
         } catch (MissingResourceException) {
@@ -69,10 +74,10 @@ class ListTranslationsCommand extends Command
         }
     }
 
-    private function formatAge(?MetadataEntry $entry): string
+    private function formatLastUpdate(?MetadataEntry $entry): string
     {
         if ($entry === null) {
-            return 'NULL';
+            return '—';
         }
 
         return $entry->updatedAt->format('Y-m-d H:i');

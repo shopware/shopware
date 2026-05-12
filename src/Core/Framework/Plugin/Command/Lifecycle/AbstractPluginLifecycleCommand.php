@@ -17,7 +17,6 @@ use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\Input;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -144,7 +143,7 @@ abstract class AbstractPluginLifecycleCommand extends Command
         array $arguments,
         string $lifecycleMethod,
         SymfonyStyle $io,
-        Input $input,
+        InputInterface $input,
         Context $context
     ): ?PluginCollection {
         $plugins = array_unique($arguments);

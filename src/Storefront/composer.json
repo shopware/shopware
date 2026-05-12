@@ -6,7 +6,10 @@
     "autoload": {
         "psr-4": {
             "Shopware\\Storefront\\": ""
-        }
+        },
+        "exclude-from-classmap": [
+            "Resources/app/storefront/node_modules/"
+        ]
     },
     "config": {
         "sort-packages": true

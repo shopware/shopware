@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Cms\ProductSlider;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
@@ -38,6 +39,7 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
         private readonly ProductStreamBuilderInterface $productStreamBuilder,
         private readonly SalesChannelRepository $productRepository,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -109,7 +111,15 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
                 $config->getStringValue(),
                 $resolverContext->getSalesChannelContext()->getContext()
             );
-        } catch (EntityNotFoundException) {
+        } catch (EntityNotFoundException $exception) {
+            $this->logger->warning(
+                'Product stream configured for CMS product slider could not be found.',
+                [
+                    'productStreamId' => $config->getStringValue(),
+                    'exception' => $exception,
+                ]
+            );
+
             return null;
         }
 

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\Cms\ProductSlider;
 
+use Psr\Log\LoggerInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -50,6 +51,8 @@ class ProductStreamProcessorTest extends TestCase
 
     private EventDispatcherInterface&MockObject $eventDispatcher;
 
+    private LoggerInterface&MockObject $logger;
+
     protected function setUp(): void
     {
         $this->productStreamBuilder = $this->createMock(ProductStreamBuilderInterface::class);
@@ -57,6 +60,7 @@ class ProductStreamProcessorTest extends TestCase
 
         $this->productRepository = $this->createMock(SalesChannelRepository::class);
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $this->logger = $this->createMock(LoggerInterface::class);
         $this->config = new FieldConfigCollection();
     }
 
@@ -138,11 +142,23 @@ class ProductStreamProcessorTest extends TestCase
         $config = new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, 'deleted-product-stream-id');
         $this->config->add($config);
 
+        $exception = new EntityNotFoundException('product_stream', 'deleted-product-stream-id');
+
         $this->productStreamBuilder = $this->createMock(ProductStreamBuilderInterface::class);
         $this->productStreamBuilder->expects($this->once())
             ->method('buildFilters')
             ->with('deleted-product-stream-id', $resolverContext->getSalesChannelContext()->getContext())
-            ->willThrowException(new EntityNotFoundException('product_stream', 'deleted-product-stream-id'));
+            ->willThrowException($exception);
+
+        $this->logger->expects($this->once())
+            ->method('warning')
+            ->with(
+                'Product stream configured for CMS product slider could not be found.',
+                [
+                    'productStreamId' => 'deleted-product-stream-id',
+                    'exception' => $exception,
+                ]
+            );
 
         $this->eventDispatcher->expects($this->never())
             ->method('dispatch');
@@ -262,7 +278,7 @@ class ProductStreamProcessorTest extends TestCase
 
     private function getProcessor(): ProductStreamProcessor
     {
-        return new ProductStreamProcessor($this->productStreamBuilder, $this->productRepository, $this->eventDispatcher);
+        return new ProductStreamProcessor($this->productStreamBuilder, $this->productRepository, $this->eventDispatcher, $this->logger);
     }
 
     private function getFilter(): MultiFilter

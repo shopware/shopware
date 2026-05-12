@@ -201,6 +201,49 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
         ], $error->getParameters());
     }
 
+    public function testSwitchFromPaymentMethodsUsesProvidedMethodsWithoutLoadingRoute(): void
+    {
+        $errorCollection = $this->getErrorCollection([
+            ['id' => 'original-payment-method-id', 'name' => 'original-payment-method-name'],
+        ]);
+
+        $paymentMethodRoute = $this->createMock(PaymentMethodRoute::class);
+        $paymentMethodRoute
+            ->expects($this->never())
+            ->method('load');
+
+        $switcher = new BlockedPaymentMethodSwitcher($paymentMethodRoute);
+        $anyOtherPaymentMethod = $this->paymentMethodCollection->get('any-other-payment-method-id');
+        $defaultPaymentMethod = $this->paymentMethodCollection->get('default-payment-method-id');
+        static::assertInstanceOf(PaymentMethodEntity::class, $anyOtherPaymentMethod);
+        static::assertInstanceOf(PaymentMethodEntity::class, $defaultPaymentMethod);
+
+        $newPaymentMethod = $switcher->switchFromPaymentMethods(
+            $errorCollection,
+            $this->salesChannelContext,
+            new PaymentMethodCollection([
+                $anyOtherPaymentMethod,
+                $defaultPaymentMethod,
+            ])
+        );
+
+        static::assertSame('default-payment-method-id', $newPaymentMethod->getId());
+
+        $errorCollectionFiltered = $errorCollection->filter(
+            static fn ($error) => $error instanceof PaymentMethodChangedError
+        );
+        static::assertCount(1, $errorCollectionFiltered);
+        $error = $errorCollectionFiltered->first();
+        static::assertInstanceOf(PaymentMethodChangedError::class, $error);
+        static::assertSame([
+            'oldPaymentMethodId' => 'original-payment-method-id',
+            'oldPaymentMethodName' => 'original-payment-method-name',
+            'newPaymentMethodId' => 'default-payment-method-id',
+            'newPaymentMethodName' => 'default-payment-method-name',
+            'reason' => 'Payment method blocked',
+        ], $error->getParameters());
+    }
+
     public function testSwitchBlockedOriginalAndDefaultAndAnyOtherDoesNotSwitch(): void
     {
         $switcher = new BlockedPaymentMethodSwitcher(

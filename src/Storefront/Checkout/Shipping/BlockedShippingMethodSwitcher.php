@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
 use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
+use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsAnyFilter;
@@ -32,7 +33,31 @@ class BlockedShippingMethodSwitcher
             return $originalShippingMethod;
         }
 
-        $shippingMethod = $this->getShippingMethodToChangeTo($errors, $salesChannelContext);
+        $shippingMethod = $this->getShippingMethodToChangeTo(
+            $errors,
+            $salesChannelContext,
+            $this->loadShippingMethodsToChangeTo($errors, $salesChannelContext)
+        );
+        if ($shippingMethod === null) {
+            return $originalShippingMethod;
+        }
+
+        $this->addNoticeToCart($errors, $shippingMethod);
+
+        return $shippingMethod;
+    }
+
+    public function switchFromShippingMethods(
+        ErrorCollection $errors,
+        SalesChannelContext $salesChannelContext,
+        ShippingMethodCollection $shippingMethods
+    ): ShippingMethodEntity {
+        $originalShippingMethod = $salesChannelContext->getShippingMethod();
+        if (!$this->shippingMethodBlocked($errors)) {
+            return $originalShippingMethod;
+        }
+
+        $shippingMethod = $this->getShippingMethodToChangeTo($errors, $salesChannelContext, $shippingMethods);
         if ($shippingMethod === null) {
             return $originalShippingMethod;
         }
@@ -53,51 +78,83 @@ class BlockedShippingMethodSwitcher
         return false;
     }
 
-    private function getShippingMethodToChangeTo(ErrorCollection $errors, SalesChannelContext $salesChannelContext): ?ShippingMethodEntity
+    private function loadShippingMethodsToChangeTo(ErrorCollection $errors, SalesChannelContext $salesChannelContext): ShippingMethodCollection
     {
         $request = new Request(['onlyAvailable' => true]);
         $criteria = (new Criteria([$salesChannelContext->getSalesChannel()->getShippingMethodId()]))
             ->setLimit(1);
 
-        if (Feature::isActive('v6.8.0.0')) {
-            $blockedShippingMethodIds = $errors->fmap(static fn (Error $error) => $error instanceof ShippingMethodBlockedError ? $error->getShippingMethodId() : null);
+        $shippingMethods = $this->shippingMethodRoute->load(
+            $request,
+            $salesChannelContext,
+            $criteria,
+        )->getShippingMethods();
 
-            $defaultShippingMethod = $this->shippingMethodRoute->load(
-                $request,
-                $salesChannelContext,
-                $criteria,
-            )->getShippingMethods()->first();
+        $defaultShippingMethod = $shippingMethods->first();
+        if ($defaultShippingMethod !== null && !$this->shippingMethodIsBlocked($defaultShippingMethod, $errors)) {
+            return $shippingMethods;
+        }
 
-            if ($defaultShippingMethod !== null && !\in_array($defaultShippingMethod->getId(), $blockedShippingMethodIds, true)) {
-                return $defaultShippingMethod;
-            }
-
-            // Default excluded take next shipping method
+        if (!Feature::isActive('v6.8.0.0')) {
             $criteria = (new Criteria())
-                ->addFilter(new NotEqualsAnyFilter('id', $blockedShippingMethodIds));
+                ->addFilter(new NotEqualsAnyFilter('name', $this->getBlockedShippingMethodNames($errors)));
         } else {
-            $blockedShippingMethodNames = $errors->fmap(static fn (Error $error) => $error instanceof ShippingMethodBlockedError ? $error->getName() : null);
-
-            $defaultShippingMethod = $this->shippingMethodRoute->load(
-                $request,
-                $salesChannelContext,
-                $criteria,
-            )->getShippingMethods()->first();
-
-            if ($defaultShippingMethod !== null && !\in_array($defaultShippingMethod->getName(), $blockedShippingMethodNames, true)) {
-                return $defaultShippingMethod;
-            }
-
-            // Default excluded take next shipping method
             $criteria = (new Criteria())
-                ->addFilter(new NotEqualsAnyFilter('name', $blockedShippingMethodNames));
+                ->addFilter(new NotEqualsAnyFilter('id', $this->getBlockedShippingMethodIds($errors)));
         }
 
         return $this->shippingMethodRoute->load(
             $request,
             $salesChannelContext,
             $criteria
-        )->getShippingMethods()->first();
+        )->getShippingMethods();
+    }
+
+    private function getShippingMethodToChangeTo(
+        ErrorCollection $errors,
+        SalesChannelContext $salesChannelContext,
+        ShippingMethodCollection $shippingMethods
+    ): ?ShippingMethodEntity {
+        $defaultShippingMethodId = $salesChannelContext->getSalesChannel()->getShippingMethodId();
+        $defaultShippingMethod = $shippingMethods->get($defaultShippingMethodId);
+        if ($defaultShippingMethod !== null && !$this->shippingMethodIsBlocked($defaultShippingMethod, $errors)) {
+            return $defaultShippingMethod;
+        }
+
+        foreach ($shippingMethods as $shippingMethod) {
+            if (!$this->shippingMethodIsBlocked($shippingMethod, $errors)) {
+                return $shippingMethod;
+            }
+        }
+
+        return null;
+    }
+
+    private function shippingMethodIsBlocked(ShippingMethodEntity $shippingMethod, ErrorCollection $errors): bool
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return \in_array($shippingMethod->getName(), $this->getBlockedShippingMethodNames($errors), true);
+        }
+
+        return \in_array($shippingMethod->getId(), $this->getBlockedShippingMethodIds($errors), true);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function getBlockedShippingMethodIds(ErrorCollection $errors): array
+    {
+        return $errors->fmap(static fn (Error $error) => $error instanceof ShippingMethodBlockedError ? $error->getShippingMethodId() : null);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - use getBlockedShippingMethodIds instead.
+     *
+     * @return array<string, string>
+     */
+    private function getBlockedShippingMethodNames(ErrorCollection $errors): array
+    {
+        return $errors->fmap(static fn (Error $error) => $error instanceof ShippingMethodBlockedError ? $error->getName() : null);
     }
 
     private function addNoticeToCart(ErrorCollection $cartErrors, ShippingMethodEntity $shippingMethod): void

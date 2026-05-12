@@ -201,6 +201,49 @@ class BlockedShippingMethodSwitcherTest extends TestCase
         ], $error->getParameters());
     }
 
+    public function testSwitchFromShippingMethodsUsesProvidedMethodsWithoutLoadingRoute(): void
+    {
+        $errorCollection = $this->getErrorCollection([
+            ['id' => 'original-shipping-method-id', 'name' => 'original-shipping-method-name'],
+        ]);
+
+        $shippingMethodRoute = $this->createMock(ShippingMethodRoute::class);
+        $shippingMethodRoute
+            ->expects($this->never())
+            ->method('load');
+
+        $switcher = new BlockedShippingMethodSwitcher($shippingMethodRoute);
+        $anyOtherShippingMethod = $this->shippingMethodCollection->get('any-other-shipping-method-id');
+        $defaultShippingMethod = $this->shippingMethodCollection->get('default-shipping-method-id');
+        static::assertInstanceOf(ShippingMethodEntity::class, $anyOtherShippingMethod);
+        static::assertInstanceOf(ShippingMethodEntity::class, $defaultShippingMethod);
+
+        $newShippingMethod = $switcher->switchFromShippingMethods(
+            $errorCollection,
+            $this->salesChannelContext,
+            new ShippingMethodCollection([
+                $anyOtherShippingMethod,
+                $defaultShippingMethod,
+            ])
+        );
+
+        static::assertSame('default-shipping-method-id', $newShippingMethod->getId());
+
+        $errorCollectionFiltered = $errorCollection->filter(
+            static fn ($error) => $error instanceof ShippingMethodChangedError
+        );
+        static::assertCount(1, $errorCollectionFiltered);
+        $error = $errorCollectionFiltered->first();
+        static::assertInstanceOf(ShippingMethodChangedError::class, $error);
+        static::assertSame([
+            'oldShippingMethodId' => 'original-shipping-method-id',
+            'oldShippingMethodName' => 'original-shipping-method-name',
+            'newShippingMethodId' => 'default-shipping-method-id',
+            'newShippingMethodName' => 'default-shipping-method-name',
+            'reason' => 'Shipping method blocked',
+        ], $error->getParameters());
+    }
+
     public function testSwitchBlockedOriginalAndDefaultAndAnyOtherDoesNotSwitch(): void
     {
         $switcher = new BlockedShippingMethodSwitcher(

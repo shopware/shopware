@@ -111,6 +111,11 @@ When merchants rename a media file, its URL automatically updates so they can do
 
 ## Storefront
 
+### Checkout gateway blocked method fallback
+
+Storefront checkout cart and confirm page loading now resolves payment and shipping methods blocked by the checkout gateway before rendering the page.
+The fallback method is selected from the checkout gateway response, preferring the sales-channel default method when available and otherwise using the first available method declared by the gateway.
+
 ## App System
 
 ## Hosting & Configuration

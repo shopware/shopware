@@ -1110,7 +1110,6 @@ function buildThisReplacement(node: import('ts-morph').PropertyAccessExpression,
         case '$attrs':
             return 'attrs';
         case '$tc':
-            return 'tc';
         case '$t':
             return 't';
         case '$el':
@@ -1439,7 +1438,7 @@ function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componen
     if (usedComposables.needsRoute) lines.push(`const route = useRoute();`);
     if (usedComposables.needsSlots) lines.push(`const slots = useSlots();`);
     if (usedComposables.needsAttrs) lines.push(`const attrs = useAttrs();`);
-    if (usedComposables.needsI18n) lines.push(`const { t, tc } = useI18n();`);
+    if (usedComposables.needsI18n) lines.push(`const { t } = useI18n();`);
     const hasComposableDeclarations =
         usedComposables.needsRouter ||
         usedComposables.needsRoute ||

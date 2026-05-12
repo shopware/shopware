@@ -359,8 +359,8 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             expect(result.script).toMatch(/import\s*\{[^}]*nextTick[^}]*\}\s*from\s*['"]vue['"]/);
         });
 
-        it('rewrites this.$tc → tc and this.$t → t, and calls useI18n()', () => {
-            expect(result.script).toContain("tc('sw.composables.label', 2)");
+        it('rewrites this.$tc and this.$t to t, and calls useI18n()', () => {
+            expect(result.script).toContain("t('sw.composables.label', 2)");
             expect(result.script).toContain("t('sw.composables.title')");
             expect(result.script).not.toMatch(/\bthis\.\$tc\b/);
             expect(result.script).not.toMatch(/\bthis\.\$t\b/);

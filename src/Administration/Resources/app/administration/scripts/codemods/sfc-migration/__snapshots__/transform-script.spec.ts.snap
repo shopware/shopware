@@ -107,7 +107,7 @@ const router = useRouter();
 const route = useRoute();
 const slots = useSlots();
 const attrs = useAttrs();
-const { t, tc } = useI18n();
+const { t } = useI18n();
 
 const {
     value,
@@ -134,7 +134,7 @@ const {
             return !!slots.default;
         });
         const label = computed(() => {
-            return tc('sw.composables.label', 2);
+            return t('sw.composables.label', 2);
         });
 
         const goBack = () => {

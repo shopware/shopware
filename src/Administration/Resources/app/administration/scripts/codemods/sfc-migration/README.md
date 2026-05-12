@@ -143,11 +143,14 @@ Automatic inlining is out of scope for this codemod because it requires resolvin
 
 ### Steps
 
-1. **Find the parent component source** — the report shows the name, e.g. `sw-button`. Locate it at
-   `src/Administration/Resources/app/administration/src/app/component/{base,form,structure,...}/<name>/index.js`.
+1. **Find the parent component source** — the report shows the parent name, e.g. `sw-button`. Search for the
+   parent component directory, usually `<parent-name>/index.js`, in the Administration source, module components,
+   or the plugin administration source.
 
-2. **Copy relevant options** — merge the parent's `data`, `computed`, `methods`, and lifecycle hooks
-   into the child, following [Vue 2's option merging strategy](https://v2.vuejs.org/v2/guide/mixins.html#Option-Merging):
+2. **Copy relevant options** — copy the parent options from that `index.js`: the `export default { ... }` object,
+   or the object passed to `Shopware.Component.register()` / `Shopware.Component.extend()`. Merge the parent's
+   `props`, `data`, `computed`, `methods`, and lifecycle hooks into the child, following
+   [Vue 2's option merging strategy](https://v2.vuejs.org/v2/guide/mixins.html#Option-Merging):
    - `data`: deep-merged (child wins on conflict)
    - `methods` / `computed`: child overrides parent
    - lifecycle hooks: both run (parent first)
@@ -163,9 +166,14 @@ Automatic inlining is out of scope for this codemod because it requires resolvin
 
    // After — parent options manually merged in
    Shopware.Component.register('sw-extended-button', {
-       // …parent props, computed, methods…
+       // copied from sw-button/index.js
+       props: { /* parent props */ },
+       computed: { /* parent computed */ },
        data() { return { /* parent data */, extraLabel: 'Extended' }; },
-       methods: { getLabel() { return this.extraLabel; } },
+       methods: {
+           /* parent methods */
+           getLabel() { return this.extraLabel; },
+       },
    });
    ```
 

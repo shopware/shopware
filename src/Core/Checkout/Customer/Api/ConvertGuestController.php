@@ -54,9 +54,9 @@ class ConvertGuestController
         }
 
         $token = $this->connection->fetchOne(
-            'SELECT token FROM sales_channel_api_context WHERE customer_id = :id  AND sales_channel_id = :salesChannelId',
+            'SELECT token FROM sales_channel_api_context WHERE customer_id = :customerId  AND sales_channel_id = :salesChannelId',
             [
-                'id' => Uuid::fromHexToBytes($customerId),
+                'customerId' => Uuid::fromHexToBytes($customerId),
                 'salesChannelId' => Uuid::fromHexToBytes($customer->getSalesChannelId()),
             ]
         ) ?: Random::getAlphanumericString(32);

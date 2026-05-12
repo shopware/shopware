@@ -57,7 +57,7 @@ describe('module/sw-customer-convert-guest-modal', () => {
     it('can send recovery email', async () => {
         wrapper = await createWrapper();
 
-        const spy = jest.spyOn(wrapper.vm.GuestCustomerConvertService, 'sendMail');
+        const spy = jest.spyOn(wrapper.vm.guestCustomerConvertService, 'convert');
 
         await flushPromises();
 

@@ -4,7 +4,7 @@ import createHTTPClient from 'src/core/factory/http.factory';
 import MockAdapter from 'axios-mock-adapter';
 
 /**
- * @sw-package fundamentals@framework
+ * @sw-package checkout
  */
 
 function getGuestCustomerConvertService() {
@@ -42,6 +42,7 @@ describe('GuestCustomerConvertService', () => {
             requestSent = true;
 
             expect(config.url).toBe(`/_action/customer-convert/${customerId}`);
+            expect(JSON.parse(config.data)).toEqual(payload);
 
             return [
                 200,
@@ -59,7 +60,7 @@ describe('GuestCustomerConvertService', () => {
         expect(response.success).toBe(true);
     });
 
-    it('calls sendMail with correct endpoint and payload', async () => {
+    it('calls convert with correct endpoint without payload', async () => {
         const { guestCustomerConvertService, clientMock } = getGuestCustomerConvertService();
 
         const customerId = 'test-customer-id';
@@ -79,7 +80,7 @@ describe('GuestCustomerConvertService', () => {
             ];
         });
 
-        const response = await guestCustomerConvertService.sendMail(customerId);
+        const response = await guestCustomerConvertService.convert(customerId);
 
         await flushPromises();
 
@@ -100,22 +101,8 @@ describe('GuestCustomerConvertService', () => {
             ],
         });
 
-        await expect(guestCustomerConvertService.convert(customerId, {})).rejects.toThrow();
-    });
-
-    it('throws error on sendMail request failure', async () => {
-        const { guestCustomerConvertService, clientMock } = getGuestCustomerConvertService();
-
-        const customerId = 'test-customer-id';
-
-        clientMock.onPost(`/_action/customer-convert/${customerId}`).reply(400, {
-            errors: [
-                {
-                    detail: 'Mail send failed',
-                },
-            ],
-        });
-
-        await expect(guestCustomerConvertService.sendMail(customerId, {})).rejects.toThrow();
+        await expect(
+            guestCustomerConvertService.convert(customerId, {}),
+        ).rejects.toThrow();
     });
 });

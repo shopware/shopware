@@ -25,13 +25,8 @@
 
         {% block sw_customer_card_convert_customer_modal %}
             <mt-button
-                v-tooltip="{
-                    message: $t('sw-privileges.tooltip.warning'),
-                    disabled: acl.can('customer.editor'),
-                    showOnDisabledElements: true
-                }"
+                v-if="canUseConvertCustomer"
                 variant="action"
-                :disabled="!canUseConvertCustomer"
                 @click="onOpenConvertCustomerModal"
             >
                 {{ $t('sw-customer.card.buttonConvertCustomer') }}

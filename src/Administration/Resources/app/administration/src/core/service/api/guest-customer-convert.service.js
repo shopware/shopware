@@ -3,7 +3,7 @@ import ApiService from '../api.service';
 /**
  * @class
  * @extends ApiService
- * @sw-package fundamentals@framework
+ * @sw-package checkout
  */
 
 class GuestCustomerConvertService extends ApiService {
@@ -19,37 +19,15 @@ class GuestCustomerConvertService extends ApiService {
      * @param additionalHeaders
      * @returns {Promise<T>}
      */
-    convert(customerId, payload, additionalParams = {}, additionalHeaders = {}) {
+    async convert(customerId, payload, additionalParams = {}, additionalHeaders = {}) {
         const headers = this.getBasicHeaders(additionalHeaders);
 
-        return this.httpClient
+        const response = await this.httpClient
             .post(`/_action/customer-convert/${customerId}`, payload, {
-                params: { ...additionalParams },
+                params: {...additionalParams},
                 headers,
-            })
-            .then((response) => {
-                return ApiService.handleResponse(response);
             });
-    }
-
-    /**
-     * @param customerId
-     * @param payload
-     * @param additionalParams
-     * @param additionalHeaders
-     * @returns {Promise<T>}
-     */
-    sendMail(customerId, payload, additionalParams = {}, additionalHeaders = {}) {
-        const headers = this.getBasicHeaders(additionalHeaders);
-
-        return this.httpClient
-            .post(`/_action/customer-convert/${customerId}`, payload, {
-                params: { ...additionalParams },
-                headers,
-            })
-            .then((response) => {
-                return ApiService.handleResponse(response);
-            });
+        return ApiService.handleResponse(response);
     }
 }
 

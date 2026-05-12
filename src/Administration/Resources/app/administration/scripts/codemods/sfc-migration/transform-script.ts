@@ -1,10 +1,13 @@
-import {
+import type {
+    CallExpression,
     MethodDeclaration,
-    Node,
     ObjectLiteralExpression,
+    SourceFile,
+} from 'ts-morph';
+import {
+    Node,
     Project,
     ScriptKind,
-    SourceFile,
     SyntaxKind,
 } from 'ts-morph';
 import { quoteJsString } from './string-literals';
@@ -69,6 +72,14 @@ interface InjectProp {
 interface ExtractInjectPropsResult {
     injectProps: InjectProp[];
     unsupportedEntries: string[];
+}
+
+interface ComponentRegistration {
+    call: CallExpression;
+    isExtend: boolean;
+    componentName: string;
+    optionsObject: ObjectLiteralExpression | undefined;
+    parentComponentName: string | null;
 }
 
 type ComputedProp =
@@ -319,42 +330,36 @@ function parseSource(jsContent: string): SourceFile {
 }
 
 /**
- * Finds the `Shopware.Component.register(name, options)` call expression.
- * Returns `undefined` when the file does not contain one.
+ * Extracts the `Shopware.Component.register()` or `Shopware.Component.extend()` call arguments.
  */
-function findRegisterCall(sourceFile: SourceFile) {
-    return sourceFile
+function findComponentRegistration(sourceFile: SourceFile): ComponentRegistration | undefined {
+    const call = sourceFile
         .getDescendantsOfKind(SyntaxKind.CallExpression)
-        .find((call) => /Shopware\.Component\.(register|extend)/.test(call.getExpression().getText()));
-}
+        .find((candidate) => /Shopware\.Component\.(register|extend)/.test(candidate.getExpression().getText()));
 
-/**
- * Extracts the Options API object literal from the register/extend call arguments.
- *
- * - `Shopware.Component.register('name', { … })` — options at index 1
- * - `Shopware.Component.extend('name', 'parent', { … })` — options at index 2
- */
-function findOptionsObject(sourceFile: SourceFile): ObjectLiteralExpression | undefined {
-    const call = findRegisterCall(sourceFile);
-    if (!call) return undefined;
+    if (!call) {
+        return undefined;
+    }
 
-    const isExtend = /Shopware\.Component\.extend/.test(call.getExpression().getText());
-    const optionsArgIndex = isExtend ? 2 : 1;
+    const expressionText = call.getExpression().getText();
+    const isExtend = /Shopware\.Component\.extend/.test(expressionText);
+    const args = call.getArguments();
+    const componentNameArg = args[0];
+    const parentComponentNameArg = args[1];
+    const optionsArg = args[isExtend ? 2 : 1];
 
-    const arg = call.getArguments()[optionsArgIndex];
-    return arg?.isKind(SyntaxKind.ObjectLiteralExpression)
-        ? arg.asKindOrThrow(SyntaxKind.ObjectLiteralExpression)
-        : undefined;
-}
-
-function extractComponentName(sourceFile: SourceFile): string {
-    const call = findRegisterCall(sourceFile);
-    if (!call) return 'unknown-component';
-
-    const firstArg = call.getArguments()[0];
-    return firstArg?.isKind(SyntaxKind.StringLiteral)
-        ? firstArg.asKindOrThrow(SyntaxKind.StringLiteral).getLiteralValue()
-        : 'unknown-component';
+    return {
+        call,
+        isExtend,
+        componentName: componentNameArg?.isKind(SyntaxKind.StringLiteral)
+            ? componentNameArg.asKindOrThrow(SyntaxKind.StringLiteral).getLiteralValue()
+            : 'unknown-component',
+        optionsObject: optionsArg?.asKind(SyntaxKind.ObjectLiteralExpression),
+        parentComponentName:
+            isExtend && parentComponentNameArg?.isKind(SyntaxKind.StringLiteral)
+                ? parentComponentNameArg.asKindOrThrow(SyntaxKind.StringLiteral).getLiteralValue()
+                : null,
+    };
 }
 
 // ---------------------------------------------------------------------------
@@ -905,17 +910,14 @@ function extractInheritAttrs(optionsObj: ObjectLiteralExpression): boolean {
 }
 
 /**
- * Collects module-level code that appears before the `Shopware.Component.register()`
- * call, excluding the `import template from '…'` import.
+ * Collects module-level code that appears before the component registration call,
+ * excluding the `import template from '…'` import.
  *
  * This preserves side-effect imports (e.g. `import './sw-avatar.scss'`) and
  * module-level variable declarations (e.g. `const { cloneDeep } = …`, `const colors = […]`).
  */
-function extractModuleLevelCode(sourceFile: SourceFile): string {
-    const registerCall = findRegisterCall(sourceFile);
-    if (!registerCall) return '';
-
-    const registerPos = registerCall.getStart();
+function extractModuleLevelCode(sourceFile: SourceFile, registration: ComponentRegistration): string {
+    const registerPos = registration.call.getStart();
     const lines: string[] = [];
 
     for (const stmt of sourceFile.getStatements()) {
@@ -1145,17 +1147,11 @@ function buildThisReplacement(node: import('ts-morph').PropertyAccessExpression,
  * Hard blockers (render) prevent any SFC output; soft blockers (mixins, extends)
  * trigger an Options API backoff instead.
  */
-function detectBlockers(optionsObj: ObjectLiteralExpression, sourceFile: SourceFile): string[] {
+function detectBlockers(optionsObj: ObjectLiteralExpression, registration: ComponentRegistration): string[] {
     const blockers: string[] = [];
 
-    const registerCall = findRegisterCall(sourceFile);
-    const isExtend = /Shopware\.Component\.extend/.test(registerCall?.getExpression().getText() ?? '');
-    if (isExtend) {
-        const parentArg = registerCall?.getArguments()[1];
-        const parentName = parentArg?.isKind(SyntaxKind.StringLiteral)
-            ? parentArg.asKindOrThrow(SyntaxKind.StringLiteral).getLiteralValue()
-            : null;
-        blockers.push(parentName ? `extends (parent: ${parentName})` : 'extends');
+    if (registration.isExtend) {
+        blockers.push(registration.parentComponentName ? `extends (parent: ${registration.parentComponentName})` : 'extends');
     }
     if (optionsObj.getProperty('mixins')) blockers.push('mixins');
     if (optionsObj.getProperty('render')) blockers.push('render function');
@@ -1179,7 +1175,12 @@ function analyzeUnsupportedInjectEntries(optionsObj: ObjectLiteralExpression): U
 // Code generators
 // ---------------------------------------------------------------------------
 
-function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componentName: string, sourceFile: SourceFile, useDataScope: boolean): { script: string; publicNames: string[]; manualMigrationReasons: string[] } {
+function buildCompositionApiScript(
+    optionsObj: ObjectLiteralExpression,
+    registration: ComponentRegistration,
+    sourceFile: SourceFile,
+    useDataScope: boolean,
+): { script: string; publicNames: string[]; manualMigrationReasons: string[] } {
     const { injectProps, unsupportedEntries: unsupportedInjectEntries } = extractInjectProps(optionsObj);
     const dataProps = extractDataProps(optionsObj);
     const { computedProps, unsupportedEntries: unsupportedComputedEntries } = extractComputedProps(optionsObj);
@@ -1189,7 +1190,7 @@ function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componen
     const propsText = extractPropsText(optionsObj);
     const emitsDefinition = extractEmitsDefinition(optionsObj);
     const inheritAttrs = extractInheritAttrs(optionsObj);
-    const moduleLevelCode = extractModuleLevelCode(sourceFile);
+    const moduleLevelCode = extractModuleLevelCode(sourceFile, registration);
     const manualMigrationReasons: string[] = [];
     const todoComments: string[] = [];
 
@@ -1462,7 +1463,7 @@ function buildCompositionApiScript(optionsObj: ObjectLiteralExpression, componen
     }
 
     lines.push('    {');
-    lines.push(`        name: '${componentName}',`);
+    lines.push(`        name: '${registration.componentName}',`);
     lines.push('        props,');
     lines.push('    },');
     lines.push('    () => {');
@@ -1661,8 +1662,8 @@ function buildOptionsApiBackoff(sourceFile: SourceFile): string {
 
     templateImport?.remove();
 
-    const optionsObj = findOptionsObject(clone);
-    optionsObj?.getProperty('template')?.remove();
+    const registration = findComponentRegistration(clone);
+    registration?.optionsObject?.getProperty('template')?.remove();
 
     return clone.getFullText().trim();
 }
@@ -1686,14 +1687,14 @@ function buildOptionsApiBackoff(sourceFile: SourceFile): string {
  */
 export function transformScript(jsContent: string, useDataScope = false): TransformScriptResult {
     const sourceFile = parseSource(jsContent);
-    const optionsObj = findOptionsObject(sourceFile);
-    const componentName = extractComponentName(sourceFile);
+    const registration = findComponentRegistration(sourceFile);
+    const optionsObj = registration?.optionsObject;
 
     if (!optionsObj) {
         return { script: '', scriptType: 'options', status: 'not-migratable', blockers: ['no options object found'], publicNames: [] };
     }
 
-    const blockers = detectBlockers(optionsObj, sourceFile);
+    const blockers = detectBlockers(optionsObj, registration);
     const unsupportedInjectAnalysis = analyzeUnsupportedInjectEntries(optionsObj);
 
     if (blockers.includes('render function')) {
@@ -1710,7 +1711,12 @@ export function transformScript(jsContent: string, useDataScope = false): Transf
         };
     }
 
-    const { script, publicNames, manualMigrationReasons } = buildCompositionApiScript(optionsObj, componentName, sourceFile, useDataScope);
+    const { script, publicNames, manualMigrationReasons } = buildCompositionApiScript(
+        optionsObj,
+        registration,
+        sourceFile,
+        useDataScope,
+    );
     return {
         script,
         scriptType: 'setup',

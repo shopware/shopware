@@ -52,11 +52,13 @@ my-component/
 | Options API | Composition API output |
 |---|---|
 | `props` | `defineProps(…)` |
-| `emits` | `defineEmits(…)` |
+| `emits` array/object form | `defineEmits(…)` |
 | `inheritAttrs: false` | `defineOptions({ inheritAttrs: false })` |
-| `data()` | `ref(…)` inside `createExtendableSetup` |
+| `name` | `defineOptions({ name })` |
+| `data()` / `data: () => ({ … })` | `ref(…)` inside `createExtendableSetup` |
 | `computed` | `computed(…)` inside `createExtendableSetup` |
-| `watch` | `watch(…)` inside `createExtendableSetup` |
+| `inject` array/object form | `inject(…)` inside `createExtendableSetup` |
+| `watch` method/object/string-handler form | `watch(…)` inside `createExtendableSetup` |
 | `methods` | plain functions inside `createExtendableSetup` |
 | `created` | runs directly in setup (equivalent behaviour) |
 | other lifecycle hooks | `onMounted`, `onBeforeUnmount`, etc. |
@@ -194,12 +196,7 @@ search your codebase for the `TODO:` comments the codemod inserts, and resolve e
 | `provide` | Drops with TODO comment | Add `provide(key, value)` calls manually in setup |
 | `components` | Drops silently | Verify components are globally registered; remove if so |
 | `directives` | Drops with TODO comment | Register directives globally or inline in setup |
-| `name` | Now emitted via `defineOptions({ name })` | No action needed |
 | `beforeCreate` | Drops with TODO comment | Move logic to top of `<script setup>` |
-| `inject` (object form) | Now supported | — |
-| `emits` (object form) | Now supported | — |
-| `watch` (object form) | Now supported | — |
 | `this.$store` | Inserts TODO comment | Migrate Vuex access to a composable |
 | `this.$parent` / `this.$root` | Inserts TODO comment | Refactor to avoid parent traversal |
-| `data` as arrow function | Now supported | — |
 | Nested watch path `'a.b'` | Leaves a TODO comment and skips the watcher | Write watcher manually |

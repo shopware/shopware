@@ -229,26 +229,22 @@ class CartAmountRuleTest extends TestCase
     }
 
     /**
-     * @return array<string, array{string}>
+     * @return \Generator<string, array{string}>
      */
-    public static function validNumericOperators(): array
+    public static function validNumericOperators(): \Generator
     {
-        return [
-            'equals' => [CartAmountRule::OPERATOR_EQ],
-            'not equals' => [CartAmountRule::OPERATOR_NEQ],
-            'less than or equals' => [CartAmountRule::OPERATOR_LTE],
-            'greater than or equals' => [CartAmountRule::OPERATOR_GTE],
-        ];
+        yield 'equals' => [CartAmountRule::OPERATOR_EQ];
+        yield 'not equals' => [CartAmountRule::OPERATOR_NEQ];
+        yield 'less than or equals' => [CartAmountRule::OPERATOR_LTE];
+        yield 'greater than or equals' => [CartAmountRule::OPERATOR_GTE];
     }
 
     /**
-     * @return array<string, array{string}>
+     * @return \Generator<string, array{string}>
      */
-    public static function invalidNumericOperators(): array
+    public static function invalidNumericOperators(): \Generator
     {
-        return [
-            'unknown operator' => ['Invalid'],
-        ];
+        yield 'unknown operator' => ['Invalid'];
     }
 
     public function testGetConfig(): void

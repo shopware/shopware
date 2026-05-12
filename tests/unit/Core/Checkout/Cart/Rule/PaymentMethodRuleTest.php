@@ -109,28 +109,24 @@ class PaymentMethodRuleTest extends TestCase
     }
 
     /**
-     * @return array<string, array{string}>
+     * @return \Generator<string, array{string}>
      */
-    public static function validUuidOperators(): array
+    public static function validUuidOperators(): \Generator
     {
-        return [
-            'equals' => [Rule::OPERATOR_EQ],
-            'not equals' => [Rule::OPERATOR_NEQ],
-        ];
+        yield 'equals' => [Rule::OPERATOR_EQ];
+        yield 'not equals' => [Rule::OPERATOR_NEQ];
     }
 
     /**
-     * @return array<string, array{mixed}>
+     * @return \Generator<string, array{mixed}>
      */
-    public static function invalidUuidOperators(): array
+    public static function invalidUuidOperators(): \Generator
     {
-        return [
-            'less than or equals' => [Rule::OPERATOR_LTE],
-            'greater than or equals' => [Rule::OPERATOR_GTE],
-            'unknown operator' => ['Invalid'],
-            'boolean operator' => [true],
-            'float operator' => [1.1],
-        ];
+        yield 'less than or equals' => [Rule::OPERATOR_LTE];
+        yield 'greater than or equals' => [Rule::OPERATOR_GTE];
+        yield 'unknown operator' => ['Invalid'];
+        yield 'boolean operator' => [true];
+        yield 'float operator' => [1.1];
     }
 
     public function testRuleDoesNotMatchNoPaymentIds(): void

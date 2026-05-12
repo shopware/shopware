@@ -224,26 +224,22 @@ class GoodsCountRuleTest extends TestCase
     }
 
     /**
-     * @return array<string, array{string}>
+     * @return \Generator<string, array{string}>
      */
-    public static function validNumericOperators(): array
+    public static function validNumericOperators(): \Generator
     {
-        return [
-            'equals' => [Rule::OPERATOR_EQ],
-            'not equals' => [Rule::OPERATOR_NEQ],
-            'less than or equals' => [Rule::OPERATOR_LTE],
-            'greater than or equals' => [Rule::OPERATOR_GTE],
-        ];
+        yield 'equals' => [Rule::OPERATOR_EQ];
+        yield 'not equals' => [Rule::OPERATOR_NEQ];
+        yield 'less than or equals' => [Rule::OPERATOR_LTE];
+        yield 'greater than or equals' => [Rule::OPERATOR_GTE];
     }
 
     /**
-     * @return array<string, array{string}>
+     * @return \Generator<string, array{string}>
      */
-    public static function invalidNumericOperators(): array
+    public static function invalidNumericOperators(): \Generator
     {
-        return [
-            'unknown operator' => ['Invalid'],
-        ];
+        yield 'unknown operator' => ['Invalid'];
     }
 
     #[DataProvider('getLineItemScopeTestData')]

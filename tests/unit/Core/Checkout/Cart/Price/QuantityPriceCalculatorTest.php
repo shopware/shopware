@@ -129,7 +129,7 @@ class QuantityPriceCalculatorTest extends TestCase
     }
 
     /**
-     * @return iterable<int, array{0: CashRoundingConfig, 1: CalculatedPrice, 2: QuantityPriceDefinition}>
+     * @return iterable<string, array{0: CashRoundingConfig, 1: CalculatedPrice, 2: QuantityPriceDefinition}>
      */
     public static function priceCalculationWithGrossPricesProvider(): iterable
     {
@@ -139,112 +139,135 @@ class QuantityPriceCalculatorTest extends TestCase
         $rounding = new CashRoundingConfig(2, 0.01, true);
         $threeDecimals = new CashRoundingConfig(3, 0.01, true);
 
-        yield from [
-            [
-                $rounding,
-                new CalculatedPrice(15.99, 15.99, new CalculatedTaxCollection([new CalculatedTax(2.55, 19, 15.99)]), $highTaxRules),
-                new QuantityPriceDefinition(13.436974789916, $highTaxRules),
-            ], [
-                $rounding,
-                new CalculatedPrice(21.32, 21.32, new CalculatedTaxCollection([new CalculatedTax(3.40, 19, 21.32)]), $highTaxRules),
-                new QuantityPriceDefinition(17.9159663865546, $highTaxRules),
-            ], [
-                $rounding,
-                new CalculatedPrice(50, 50, new CalculatedTaxCollection([new CalculatedTax(7.98, 19, 50)]), $highTaxRules),
-                new QuantityPriceDefinition(42.0168067226891, $highTaxRules),
-            ], [
-                $rounding,
-                new CalculatedPrice(-5.88, -5.88, new CalculatedTaxCollection([new CalculatedTax(-0.94, 19, -5.88)]), $highTaxRules),
-                new QuantityPriceDefinition(-4.94117647058824, $highTaxRules),
-            ], [
-                $rounding,
-                new CalculatedPrice(95799.97, 95799.97, new CalculatedTaxCollection([new CalculatedTax(15295.79, 19, 95799.97)]), $highTaxRules),
-                new QuantityPriceDefinition(80504.1764705882, $highTaxRules),
-            ], [
-                $rounding,
-                new CalculatedPrice(0.05, 0.05, new CalculatedTaxCollection([new CalculatedTax(0.01, 19, 0.05)]), $highTaxRules),
-                new QuantityPriceDefinition(0.0420168067226891, $highTaxRules),
-            ], [
-                $rounding,
-                new CalculatedPrice(0.01, 0.01, new CalculatedTaxCollection([new CalculatedTax(0.00, 19, 0.01)]), $highTaxRules),
-                new QuantityPriceDefinition(0.00840336134453782, $highTaxRules),
-            ], [
-                $rounding,
-                new CalculatedPrice(0.08, 0.08, new CalculatedTaxCollection([new CalculatedTax(0.01, 19, 0.08)]), $highTaxRules),
-                new QuantityPriceDefinition(0.0672268907563025, $highTaxRules),
-            ], [
-                $rounding,
-                new CalculatedPrice(0.11, 0.11, new CalculatedTaxCollection([new CalculatedTax(0.02, 19, 0.11)]), $highTaxRules),
-                new QuantityPriceDefinition(0.092436974789916, $highTaxRules),
-            ], [
-                $rounding,
-                new CalculatedPrice(0.11, 0.11, new CalculatedTaxCollection([new CalculatedTax(0.01, 7, 0.11)]), $lowTaxRuleCollection),
-                new QuantityPriceDefinition(0.102803738317757, $lowTaxRuleCollection),
-            ], [
-                $rounding,
-                new CalculatedPrice(15.99, 15.99, new CalculatedTaxCollection([new CalculatedTax(1.05, 7, 15.99)]), $lowTaxRuleCollection),
-                new QuantityPriceDefinition(14.9439252336449, $lowTaxRuleCollection),
-            ], [
-                $rounding,
-                new CalculatedPrice(21.32, 21.32, new CalculatedTaxCollection([new CalculatedTax(1.39, 7, 21.32)]), $lowTaxRuleCollection),
-                new QuantityPriceDefinition(19.9252336448598, $lowTaxRuleCollection),
-            ], [
-                $rounding,
-                new CalculatedPrice(50.00, 50.00, new CalculatedTaxCollection([new CalculatedTax(3.27, 7, 50.00)]), $lowTaxRuleCollection),
-                new QuantityPriceDefinition(46.7289719626168, $lowTaxRuleCollection),
-            ], [
-                $rounding,
-                new CalculatedPrice(95799.97, 95799.97, new CalculatedTaxCollection([new CalculatedTax(6267.29, 7, 95799.97)]), $lowTaxRuleCollection),
-                new QuantityPriceDefinition(89532.6822429906, $lowTaxRuleCollection),
-            ], [
-                $rounding,
-                new CalculatedPrice(0.05, 0.05, new CalculatedTaxCollection([new CalculatedTax(0.00, 7, 0.05)]), $lowTaxRuleCollection),
-                new QuantityPriceDefinition(0.0467289719626168, $lowTaxRuleCollection),
-            ], [
-                $rounding,
-                new CalculatedPrice(0.01, 0.01, new CalculatedTaxCollection([new CalculatedTax(0.00, 7, 0.01)]), $lowTaxRuleCollection),
-                new QuantityPriceDefinition(0.00934579439252336, $lowTaxRuleCollection),
-            ], [
-                $rounding,
-                new CalculatedPrice(0.08, 0.08, new CalculatedTaxCollection([new CalculatedTax(0.01, 7, 0.08)]), $lowTaxRuleCollection),
-                new QuantityPriceDefinition(0.0747663551401869, $lowTaxRuleCollection),
-            ], [
-                $rounding,
-                new CalculatedPrice(-5.88, -5.88, new CalculatedTaxCollection([new CalculatedTax(-0.38, 7, -5.88)]), $lowTaxRuleCollection),
-                new QuantityPriceDefinition(-5.49532710280374, $lowTaxRuleCollection),
-            ], [
-                $threeDecimals,
-                new CalculatedPrice(15.999, 15.999, new CalculatedTaxCollection([new CalculatedTax(2.554, 19, 15.999)]), $highTaxRules),
-                new QuantityPriceDefinition(13.4445378151261, $highTaxRules),
-            ], [
-                $threeDecimals,
-                new CalculatedPrice(21.322, 21.322, new CalculatedTaxCollection([new CalculatedTax(3.404, 19, 21.322)]), $highTaxRules),
-                new QuantityPriceDefinition(17.9176470588235, $highTaxRules),
-            ], [
-                $threeDecimals,
-                new CalculatedPrice(50.00, 50.00, new CalculatedTaxCollection([new CalculatedTax(7.983, 19, 50.00)]), $highTaxRules),
-                new QuantityPriceDefinition(42.01680672268908, $highTaxRules),
-            ], [
-                $threeDecimals,
-                new CalculatedPrice(95799.974, 95799.974, new CalculatedTaxCollection([new CalculatedTax(15295.794, 19, 95799.974)]), $highTaxRules),
-                new QuantityPriceDefinition(80504.1798319328, $highTaxRules),
-            ], [
-                $threeDecimals,
-                new CalculatedPrice(0.005, 0.005, new CalculatedTaxCollection([new CalculatedTax(0.001, 19, 0.005)]), $highTaxRules),
-                new QuantityPriceDefinition(0.00420168067226891, $highTaxRules),
-            ], [
-                $threeDecimals,
-                new CalculatedPrice(0.001, 0.001, new CalculatedTaxCollection([new CalculatedTax(0.000, 19, 0.001)]), $highTaxRules),
-                new QuantityPriceDefinition(0.000840336134453782, $highTaxRules),
-            ], [
-                $threeDecimals,
-                new CalculatedPrice(0.008, 0.008, new CalculatedTaxCollection([new CalculatedTax(0.001, 19, 0.008)]), $highTaxRules),
-                new QuantityPriceDefinition(0.00672268907563025, $highTaxRules),
-            ], [
-                $threeDecimals,
-                new CalculatedPrice(-5.988, -5.988, new CalculatedTaxCollection([new CalculatedTax(-0.956, 19, -5.988)]), $highTaxRules),
-                new QuantityPriceDefinition(-5.03193277310924, $highTaxRules),
-            ],
+        yield 'price calculation with gross prices rounding calculated price quantity price definition' => [
+            $rounding,
+            new CalculatedPrice(15.99, 15.99, new CalculatedTaxCollection([new CalculatedTax(2.55, 19, 15.99)]), $highTaxRules),
+            new QuantityPriceDefinition(13.436974789916, $highTaxRules),
+        ];
+        yield 'price calculation with gross prices rounding calculated price quantity price definition variant 2' => [
+            $rounding,
+            new CalculatedPrice(21.32, 21.32, new CalculatedTaxCollection([new CalculatedTax(3.40, 19, 21.32)]), $highTaxRules),
+            new QuantityPriceDefinition(17.9159663865546, $highTaxRules),
+        ];
+        yield 'price calculation with gross prices rounding calculated price quantity price definition variant 3' => [
+            $rounding,
+            new CalculatedPrice(50, 50, new CalculatedTaxCollection([new CalculatedTax(7.98, 19, 50)]), $highTaxRules),
+            new QuantityPriceDefinition(42.0168067226891, $highTaxRules),
+        ];
+        yield 'price calculation with gross prices rounding calculated price quantity price definition variant 4' => [
+            $rounding,
+            new CalculatedPrice(-5.88, -5.88, new CalculatedTaxCollection([new CalculatedTax(-0.94, 19, -5.88)]), $highTaxRules),
+            new QuantityPriceDefinition(-4.94117647058824, $highTaxRules),
+        ];
+        yield 'price calculation with gross prices rounding calculated price quantity price definition variant 5' => [
+            $rounding,
+            new CalculatedPrice(95799.97, 95799.97, new CalculatedTaxCollection([new CalculatedTax(15295.79, 19, 95799.97)]), $highTaxRules),
+            new QuantityPriceDefinition(80504.1764705882, $highTaxRules),
+        ];
+        yield 'price calculation with gross prices rounding calculated price quantity price definition variant 6' => [
+            $rounding,
+            new CalculatedPrice(0.05, 0.05, new CalculatedTaxCollection([new CalculatedTax(0.01, 19, 0.05)]), $highTaxRules),
+            new QuantityPriceDefinition(0.0420168067226891, $highTaxRules),
+        ];
+        yield 'price calculation with gross prices rounding calculated price quantity price definition variant 7' => [
+            $rounding,
+            new CalculatedPrice(0.01, 0.01, new CalculatedTaxCollection([new CalculatedTax(0.00, 19, 0.01)]), $highTaxRules),
+            new QuantityPriceDefinition(0.00840336134453782, $highTaxRules),
+        ];
+        yield 'price calculation with gross prices rounding calculated price quantity price definition variant 8' => [
+            $rounding,
+            new CalculatedPrice(0.08, 0.08, new CalculatedTaxCollection([new CalculatedTax(0.01, 19, 0.08)]), $highTaxRules),
+            new QuantityPriceDefinition(0.0672268907563025, $highTaxRules),
+        ];
+        yield 'price calculation with gross prices rounding calculated price quantity price definition variant 9' => [
+            $rounding,
+            new CalculatedPrice(0.11, 0.11, new CalculatedTaxCollection([new CalculatedTax(0.02, 19, 0.11)]), $highTaxRules),
+            new QuantityPriceDefinition(0.092436974789916, $highTaxRules),
+        ];
+        yield 'price calculation with gross prices rounding calculated price quantity price definition variant 10' => [
+            $rounding,
+            new CalculatedPrice(0.11, 0.11, new CalculatedTaxCollection([new CalculatedTax(0.01, 7, 0.11)]), $lowTaxRuleCollection),
+            new QuantityPriceDefinition(0.102803738317757, $lowTaxRuleCollection),
+        ];
+        yield 'price calculation with gross prices rounding calculated price quantity price definition variant 11' => [
+            $rounding,
+            new CalculatedPrice(15.99, 15.99, new CalculatedTaxCollection([new CalculatedTax(1.05, 7, 15.99)]), $lowTaxRuleCollection),
+            new QuantityPriceDefinition(14.9439252336449, $lowTaxRuleCollection),
+        ];
+        yield 'price calculation with gross prices rounding calculated price quantity price definition variant 12' => [
+            $rounding,
+            new CalculatedPrice(21.32, 21.32, new CalculatedTaxCollection([new CalculatedTax(1.39, 7, 21.32)]), $lowTaxRuleCollection),
+            new QuantityPriceDefinition(19.9252336448598, $lowTaxRuleCollection),
+        ];
+        yield 'price calculation with gross prices rounding calculated price quantity price definition variant 13' => [
+            $rounding,
+            new CalculatedPrice(50.00, 50.00, new CalculatedTaxCollection([new CalculatedTax(3.27, 7, 50.00)]), $lowTaxRuleCollection),
+            new QuantityPriceDefinition(46.7289719626168, $lowTaxRuleCollection),
+        ];
+        yield 'price calculation with gross prices rounding calculated price quantity price definition variant 14' => [
+            $rounding,
+            new CalculatedPrice(95799.97, 95799.97, new CalculatedTaxCollection([new CalculatedTax(6267.29, 7, 95799.97)]), $lowTaxRuleCollection),
+            new QuantityPriceDefinition(89532.6822429906, $lowTaxRuleCollection),
+        ];
+        yield 'price calculation with gross prices rounding calculated price quantity price definition variant 15' => [
+            $rounding,
+            new CalculatedPrice(0.05, 0.05, new CalculatedTaxCollection([new CalculatedTax(0.00, 7, 0.05)]), $lowTaxRuleCollection),
+            new QuantityPriceDefinition(0.0467289719626168, $lowTaxRuleCollection),
+        ];
+        yield 'price calculation with gross prices rounding calculated price quantity price definition variant 16' => [
+            $rounding,
+            new CalculatedPrice(0.01, 0.01, new CalculatedTaxCollection([new CalculatedTax(0.00, 7, 0.01)]), $lowTaxRuleCollection),
+            new QuantityPriceDefinition(0.00934579439252336, $lowTaxRuleCollection),
+        ];
+        yield 'price calculation with gross prices rounding calculated price quantity price definition variant 17' => [
+            $rounding,
+            new CalculatedPrice(0.08, 0.08, new CalculatedTaxCollection([new CalculatedTax(0.01, 7, 0.08)]), $lowTaxRuleCollection),
+            new QuantityPriceDefinition(0.0747663551401869, $lowTaxRuleCollection),
+        ];
+        yield 'price calculation with gross prices rounding calculated price quantity price definition variant 18' => [
+            $rounding,
+            new CalculatedPrice(-5.88, -5.88, new CalculatedTaxCollection([new CalculatedTax(-0.38, 7, -5.88)]), $lowTaxRuleCollection),
+            new QuantityPriceDefinition(-5.49532710280374, $lowTaxRuleCollection),
+        ];
+        yield 'price calculation with gross prices three decimals calculated price quantity price definition' => [
+            $threeDecimals,
+            new CalculatedPrice(15.999, 15.999, new CalculatedTaxCollection([new CalculatedTax(2.554, 19, 15.999)]), $highTaxRules),
+            new QuantityPriceDefinition(13.4445378151261, $highTaxRules),
+        ];
+        yield 'price calculation with gross prices three decimals calculated price quantity price definition variant 2' => [
+            $threeDecimals,
+            new CalculatedPrice(21.322, 21.322, new CalculatedTaxCollection([new CalculatedTax(3.404, 19, 21.322)]), $highTaxRules),
+            new QuantityPriceDefinition(17.9176470588235, $highTaxRules),
+        ];
+        yield 'price calculation with gross prices three decimals calculated price quantity price definition variant 3' => [
+            $threeDecimals,
+            new CalculatedPrice(50.00, 50.00, new CalculatedTaxCollection([new CalculatedTax(7.983, 19, 50.00)]), $highTaxRules),
+            new QuantityPriceDefinition(42.01680672268908, $highTaxRules),
+        ];
+        yield 'price calculation with gross prices three decimals calculated price quantity price definition variant 4' => [
+            $threeDecimals,
+            new CalculatedPrice(95799.974, 95799.974, new CalculatedTaxCollection([new CalculatedTax(15295.794, 19, 95799.974)]), $highTaxRules),
+            new QuantityPriceDefinition(80504.1798319328, $highTaxRules),
+        ];
+        yield 'price calculation with gross prices three decimals calculated price quantity price definition variant 5' => [
+            $threeDecimals,
+            new CalculatedPrice(0.005, 0.005, new CalculatedTaxCollection([new CalculatedTax(0.001, 19, 0.005)]), $highTaxRules),
+            new QuantityPriceDefinition(0.00420168067226891, $highTaxRules),
+        ];
+        yield 'price calculation with gross prices three decimals calculated price quantity price definition variant 6' => [
+            $threeDecimals,
+            new CalculatedPrice(0.001, 0.001, new CalculatedTaxCollection([new CalculatedTax(0.000, 19, 0.001)]), $highTaxRules),
+            new QuantityPriceDefinition(0.000840336134453782, $highTaxRules),
+        ];
+        yield 'price calculation with gross prices three decimals calculated price quantity price definition variant 7' => [
+            $threeDecimals,
+            new CalculatedPrice(0.008, 0.008, new CalculatedTaxCollection([new CalculatedTax(0.001, 19, 0.008)]), $highTaxRules),
+            new QuantityPriceDefinition(0.00672268907563025, $highTaxRules),
+        ];
+        yield 'price calculation with gross prices three decimals calculated price quantity price definition variant 8' => [
+            $threeDecimals,
+            new CalculatedPrice(-5.988, -5.988, new CalculatedTaxCollection([new CalculatedTax(-0.956, 19, -5.988)]), $highTaxRules),
+            new QuantityPriceDefinition(-5.03193277310924, $highTaxRules),
         ];
     }
 }

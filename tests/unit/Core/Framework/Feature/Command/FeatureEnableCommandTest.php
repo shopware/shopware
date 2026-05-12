@@ -88,10 +88,8 @@ class FeatureEnableCommandTest extends TestCase
      */
     public static function featureProvider(): iterable
     {
-        yield from [
-            'one-feature' => [['FEATURE_ONE'], ['FEATURE_ONE']],
-            'multiple-feature' => [['FEATURE_ONE', 'FEATURE_TWO'], ['FEATURE_ONE', 'FEATURE_TWO']],
-            'duplicate-features' => [['FEATURE_ONE', 'FEATURE_ONE'], ['FEATURE_ONE']],
-        ];
+        yield 'one-feature' => [['FEATURE_ONE'], ['FEATURE_ONE']];
+        yield 'multiple-feature' => [['FEATURE_ONE', 'FEATURE_TWO'], ['FEATURE_ONE', 'FEATURE_TWO']];
+        yield 'duplicate-features' => [['FEATURE_ONE', 'FEATURE_ONE'], ['FEATURE_ONE']];
     }
 }

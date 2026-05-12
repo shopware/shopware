@@ -31,14 +31,12 @@ class VersionTest extends TestCase
      */
     public static function protectedRoutesDataProvider(): iterable
     {
-        yield from [
-            ['GET', '/api/product'],
-            ['GET', '/api/tax'],
-            ['POST', '/api/_action/sync'],
-            ['GET', '/api/_info/stoplightio.html'],
-            ['GET', '/api/_info/entity-schema.json'],
-            ['GET', '/api/_info/events.json'],
-        ];
+        yield 'protected routes get api product' => ['GET', '/api/product'];
+        yield 'protected routes get api tax' => ['GET', '/api/tax'];
+        yield 'protected routes post api action sync' => ['POST', '/api/_action/sync'];
+        yield 'protected routes get api info stoplightio html' => ['GET', '/api/_info/stoplightio.html'];
+        yield 'protected routes get api info entity schema json' => ['GET', '/api/_info/entity-schema.json'];
+        yield 'protected routes get api info events json' => ['GET', '/api/_info/events.json'];
     }
 
     public function testAuthShouldNotBeProtected(): void

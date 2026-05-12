@@ -243,63 +243,61 @@ class ShippingMethodRuleTest extends TestCase
      */
     public static function matchDataProvider(): iterable
     {
-        yield from [
+        yield 'match operator rule operator eq shipping method ids 965a0713093841ceb86b0f83edd7dab4' => [
             [
-                [
-                    'operator' => Rule::OPERATOR_EQ,
-                    'shippingMethodIds' => [],
-                ],
-                '965a0713093841ceb86b0f83edd7dab4',
-                false,
+                'operator' => Rule::OPERATOR_EQ,
+                'shippingMethodIds' => [],
             ],
+            '965a0713093841ceb86b0f83edd7dab4',
+            false,
+        ];
+        yield 'match operator rule operator eq shipping method ids 965a0713093841ceb86b0f83edd7dab4 variant 2' => [
             [
-                [
-                    'operator' => Rule::OPERATOR_EQ,
-                    'shippingMethodIds' => ['ff5a0713093841ceb86b0f83edd7dab4'],
-                ],
-                '965a0713093841ceb86b0f83edd7dab4',
-                false,
+                'operator' => Rule::OPERATOR_EQ,
+                'shippingMethodIds' => ['ff5a0713093841ceb86b0f83edd7dab4'],
             ],
+            '965a0713093841ceb86b0f83edd7dab4',
+            false,
+        ];
+        yield 'match operator rule operator neq shipping method ids 965a0713093841ceb86b0f83edd7dab4' => [
             [
-                [
-                    'operator' => Rule::OPERATOR_NEQ,
-                    'shippingMethodIds' => ['965a0713093841ceb86b0f83edd7dab4'],
-                ],
-                '965a0713093841ceb86b0f83edd7dab4',
-                false,
+                'operator' => Rule::OPERATOR_NEQ,
+                'shippingMethodIds' => ['965a0713093841ceb86b0f83edd7dab4'],
             ],
+            '965a0713093841ceb86b0f83edd7dab4',
+            false,
+        ];
+        yield 'match operator rule operator neq shipping method ids ff5a0713093841ceb86b0f83edd7dab4' => [
             [
-                [
-                    'operator' => Rule::OPERATOR_NEQ,
-                    'shippingMethodIds' => ['965a0713093841ceb86b0f83edd7dab4', 'ff5a0713093841ceb86b0f83edd7dab4'],
-                ],
-                'ff5a0713093841ceb86b0f83edd7dab4',
-                false,
+                'operator' => Rule::OPERATOR_NEQ,
+                'shippingMethodIds' => ['965a0713093841ceb86b0f83edd7dab4', 'ff5a0713093841ceb86b0f83edd7dab4'],
             ],
+            'ff5a0713093841ceb86b0f83edd7dab4',
+            false,
+        ];
+        yield 'match operator rule operator eq shipping method ids 965a0713093841ceb86b0f83edd7dab4 variant 3' => [
             [
-                [
-                    'operator' => Rule::OPERATOR_EQ,
-                    'shippingMethodIds' => ['965a0713093841ceb86b0f83edd7dab4'],
-                ],
-                '965a0713093841ceb86b0f83edd7dab4',
-                true,
+                'operator' => Rule::OPERATOR_EQ,
+                'shippingMethodIds' => ['965a0713093841ceb86b0f83edd7dab4'],
             ],
+            '965a0713093841ceb86b0f83edd7dab4',
+            true,
+        ];
+        yield 'match operator rule operator eq shipping method ids ff5a0713093841ceb86b0f83edd7dab4' => [
             [
-                [
-                    'operator' => Rule::OPERATOR_EQ,
-                    'shippingMethodIds' => ['965a0713093841ceb86b0f83edd7dab4', 'ff5a0713093841ceb86b0f83edd7dab4'],
-                ],
-                'ff5a0713093841ceb86b0f83edd7dab4',
-                true,
+                'operator' => Rule::OPERATOR_EQ,
+                'shippingMethodIds' => ['965a0713093841ceb86b0f83edd7dab4', 'ff5a0713093841ceb86b0f83edd7dab4'],
             ],
+            'ff5a0713093841ceb86b0f83edd7dab4',
+            true,
+        ];
+        yield 'match operator rule operator neq shipping method ids ee5a0713093841ceb86b0f83edd7dab4' => [
             [
-                [
-                    'operator' => Rule::OPERATOR_NEQ,
-                    'shippingMethodIds' => ['965a0713093841ceb86b0f83edd7dab4', 'ff5a0713093841ceb86b0f83edd7dab4'],
-                ],
-                'ee5a0713093841ceb86b0f83edd7dab4',
-                true,
+                'operator' => Rule::OPERATOR_NEQ,
+                'shippingMethodIds' => ['965a0713093841ceb86b0f83edd7dab4', 'ff5a0713093841ceb86b0f83edd7dab4'],
             ],
+            'ee5a0713093841ceb86b0f83edd7dab4',
+            true,
         ];
     }
 

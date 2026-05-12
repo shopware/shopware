@@ -138,27 +138,25 @@ class FloatComparatorTest extends TestCase
     }
 
     /**
-     * @return iterable<int, array{0: float, 1: float, 2: bool}>
+     * @return iterable<string, array{0: float, 1: float, 2: bool}>
      */
     public static function equalsDataProvider(): iterable
     {
-        yield from [
-            [0, 0, true],
-            [42, 42, true],
-            [1.0, 1.0, true],
-            [0.0, 0.0, true],
-            [8 - 6.4, 1.6, true],
-            [1.6, 8 - 6.4, true],
-            [0.0001, 0.0001, true],
-            [0.1 + 0.2 - 0.3, 0, true],
-            [0.3, 0.1 + 0.2, true],
-            [0.4 - 0.1, 0.1 + 0.2, true],
-            [1, 2, false],
-            [1, 1.0001, false],
-            [0.00001, 0, false],
-            [-0.1, 0.1, false],
-            [42.00001, 42.000001, false],
-        ];
+        yield 'equals 0 0 true' => [0, 0, true];
+        yield 'equals 42 42 true' => [42, 42, true];
+        yield 'equals 1 point 0 1 point 0 true' => [1.0, 1.0, true];
+        yield 'equals 0 point 0 0 point 0 true' => [0.0, 0.0, true];
+        yield 'equals 8 1 point 6 true' => [8 - 6.4, 1.6, true];
+        yield 'equals 1 point 6 8 true' => [1.6, 8 - 6.4, true];
+        yield 'equals 0 point 0001 0 point 0001 true' => [0.0001, 0.0001, true];
+        yield 'equals 0 point 1 0 true' => [0.1 + 0.2 - 0.3, 0, true];
+        yield 'equals 0 point 3 0 point 1 true' => [0.3, 0.1 + 0.2, true];
+        yield 'equals 0 point 4 0 point 1 true' => [0.4 - 0.1, 0.1 + 0.2, true];
+        yield 'equals 1 2 false' => [1, 2, false];
+        yield 'equals 1 1 point 0001 false' => [1, 1.0001, false];
+        yield 'equals 0 point 00001 0 false' => [0.00001, 0, false];
+        yield 'equals -0 point 1 0 point 1 false' => [-0.1, 0.1, false];
+        yield 'equals 42 point 00001 42 point 000001 false' => [42.00001, 42.000001, false];
     }
 
     #[DataProvider('notEqualsDataProvider')]
@@ -168,7 +166,7 @@ class FloatComparatorTest extends TestCase
     }
 
     /**
-     * @return iterable<int, array{0: float, 1: float, 2: bool}>
+     * @return iterable<string, array{0: float, 1: float, 2: bool}>
      */
     public static function notEqualsDataProvider(): iterable
     {
@@ -184,31 +182,29 @@ class FloatComparatorTest extends TestCase
     }
 
     /**
-     * @return iterable<int, array{0: float, 1: float, 2: bool}>
+     * @return iterable<string, array{0: float, 1: float, 2: bool}>
      */
     public static function lessThanDataProvider(): iterable
     {
-        yield from [
-            [1, 2, true],
-            [1, 1.0001, true],
-            [0, 0.00001, true],
-            [0 - 0.1, 0.1, true],
-            [42.000001, 42.00001, true],
-            [0, 0, false],
-            [42, 42, false],
-            [1.0, 1.0, false],
-            [0.0, 0.0, false],
-            [0.0, 0.0, false],
-            [8 - 6.4, 1.6, false],
-            [1.6, 8 - 6.4, false],
-            [1.00001, 1, false],
-            [0.00001, 0, false],
-            [0.0001, 0.0001, false],
-            [0.1 + 0.2 - 0.3, 0, false],
-            [0.3, 0.1 + 0.2, false],
-            [0.4 - 0.1, 0.1 + 0.2, false],
-            [0.1 + 0.1 + 0.1, 0.1 + 0.2, false],
-        ];
+        yield 'less than 1 2 true' => [1, 2, true];
+        yield 'less than 1 1 point 0001 true' => [1, 1.0001, true];
+        yield 'less than 0 0 point 00001 true' => [0, 0.00001, true];
+        yield 'less than 0 0 point 1 true' => [0 - 0.1, 0.1, true];
+        yield 'less than 42 point 000001 42 point 00001 true' => [42.000001, 42.00001, true];
+        yield 'less than 0 0 false' => [0, 0, false];
+        yield 'less than 42 42 false' => [42, 42, false];
+        yield 'less than 1 point 0 1 point 0 false' => [1.0, 1.0, false];
+        yield 'less than 0 point 0 0 point 0 false' => [0.0, 0.0, false];
+        yield 'less than 0 point 0 0 point 0 false variant 2' => [0.0, 0.0, false];
+        yield 'less than 8 1 point 6 false' => [8 - 6.4, 1.6, false];
+        yield 'less than 1 point 6 8 false' => [1.6, 8 - 6.4, false];
+        yield 'less than 1 point 00001 1 false' => [1.00001, 1, false];
+        yield 'less than 0 point 00001 0 false' => [0.00001, 0, false];
+        yield 'less than 0 point 0001 0 point 0001 false' => [0.0001, 0.0001, false];
+        yield 'less than 0 point 1 0 false' => [0.1 + 0.2 - 0.3, 0, false];
+        yield 'less than 0 point 3 0 point 1 false' => [0.3, 0.1 + 0.2, false];
+        yield 'less than 0 point 4 0 point 1 false' => [0.4 - 0.1, 0.1 + 0.2, false];
+        yield 'less than 0 point 1 0 point 1 false' => [0.1 + 0.1 + 0.1, 0.1 + 0.2, false];
     }
 
     #[DataProvider('greaterThanDataProvider')]
@@ -218,30 +214,28 @@ class FloatComparatorTest extends TestCase
     }
 
     /**
-     * @return iterable<int, array{0: float, 1: float, 2: bool}>
+     * @return iterable<string, array{0: float, 1: float, 2: bool}>
      */
     public static function greaterThanDataProvider(): iterable
     {
-        yield from [
-            [2, 1, true],
-            [1.00001, 1, true],
-            [0.00001, 0, true],
-            [0.1, 0 - 0.1, true],
-            [42.00001, 42.000001, true],
-            [0, 0, false],
-            [42, 42, false],
-            [1.0, 1.0, false],
-            [0.0, 0.0, false],
-            [8 - 6.4, 1.6, false],
-            [1.6, 8 - 6.4, false],
-            [1, 1.0001, false],
-            [0, 0.00001, false],
-            [0.0001, 0.0001, false],
-            [0.1 + 0.2 - 0.3, 0, false],
-            [0.3, 0.1 + 0.2, false],
-            [0.4 - 0.1, 0.1 + 0.2, false],
-            [0.1 + 0.1 + 0.1, 0.1 + 0.2, false],
-        ];
+        yield 'greater than 2 1 true' => [2, 1, true];
+        yield 'greater than 1 point 00001 1 true' => [1.00001, 1, true];
+        yield 'greater than 0 point 00001 0 true' => [0.00001, 0, true];
+        yield 'greater than 0 point 1 0 true' => [0.1, 0 - 0.1, true];
+        yield 'greater than 42 point 00001 42 point 000001 true' => [42.00001, 42.000001, true];
+        yield 'greater than 0 0 false' => [0, 0, false];
+        yield 'greater than 42 42 false' => [42, 42, false];
+        yield 'greater than 1 point 0 1 point 0 false' => [1.0, 1.0, false];
+        yield 'greater than 0 point 0 0 point 0 false' => [0.0, 0.0, false];
+        yield 'greater than 8 1 point 6 false' => [8 - 6.4, 1.6, false];
+        yield 'greater than 1 point 6 8 false' => [1.6, 8 - 6.4, false];
+        yield 'greater than 1 1 point 0001 false' => [1, 1.0001, false];
+        yield 'greater than 0 0 point 00001 false' => [0, 0.00001, false];
+        yield 'greater than 0 point 0001 0 point 0001 false' => [0.0001, 0.0001, false];
+        yield 'greater than 0 point 1 0 false' => [0.1 + 0.2 - 0.3, 0, false];
+        yield 'greater than 0 point 3 0 point 1 false' => [0.3, 0.1 + 0.2, false];
+        yield 'greater than 0 point 4 0 point 1 false' => [0.4 - 0.1, 0.1 + 0.2, false];
+        yield 'greater than 0 point 1 0 point 1 false' => [0.1 + 0.1 + 0.1, 0.1 + 0.2, false];
     }
 
     #[DataProvider('lessThanOrEqualsDataProvider')]
@@ -251,30 +245,28 @@ class FloatComparatorTest extends TestCase
     }
 
     /**
-     * @return iterable<int, array{0: float, 1: float, 2: bool}>
+     * @return iterable<string, array{0: float, 1: float, 2: bool}>
      */
     public static function lessThanOrEqualsDataProvider(): iterable
     {
-        yield from [
-            [0, 0, true],
-            [42, 42, true],
-            [1.0, 1.0, true],
-            [0.0, 0.0, true],
-            [8 - 6.4, 1.6, true],
-            [1.6, 8 - 6.4, true],
-            [1, 1.0001, true],
-            [0, 0.00001, true],
-            [0.0001, 0.0001, true],
-            [42.0000001, 42.000001, true],
-            [0.1 + 0.2 - 0.3, 0, true],
-            [0.3, 0.1 + 0.2, true],
-            [0.4 - 0.1, 0.1 + 0.2, true],
-            [0.1 + 0.1 + 0.1, 0.1 + 0.2, true],
-            [2, 1, false],
-            [1.00001, 1, false],
-            [0.00001, 0, false],
-            [0.1, 0 - 0.1, false],
-        ];
+        yield 'less than or equals 0 0 true' => [0, 0, true];
+        yield 'less than or equals 42 42 true' => [42, 42, true];
+        yield 'less than or equals 1 point 0 1 point 0 true' => [1.0, 1.0, true];
+        yield 'less than or equals 0 point 0 0 point 0 true' => [0.0, 0.0, true];
+        yield 'less than or equals 8 1 point 6 true' => [8 - 6.4, 1.6, true];
+        yield 'less than or equals 1 point 6 8 true' => [1.6, 8 - 6.4, true];
+        yield 'less than or equals 1 1 point 0001 true' => [1, 1.0001, true];
+        yield 'less than or equals 0 0 point 00001 true' => [0, 0.00001, true];
+        yield 'less than or equals 0 point 0001 0 point 0001 true' => [0.0001, 0.0001, true];
+        yield 'less than or equals 42 point 0000001 42 point 000001 true' => [42.0000001, 42.000001, true];
+        yield 'less than or equals 0 point 1 0 true' => [0.1 + 0.2 - 0.3, 0, true];
+        yield 'less than or equals 0 point 3 0 point 1 true' => [0.3, 0.1 + 0.2, true];
+        yield 'less than or equals 0 point 4 0 point 1 true' => [0.4 - 0.1, 0.1 + 0.2, true];
+        yield 'less than or equals 0 point 1 0 point 1 true' => [0.1 + 0.1 + 0.1, 0.1 + 0.2, true];
+        yield 'less than or equals 2 1 false' => [2, 1, false];
+        yield 'less than or equals 1 point 00001 1 false' => [1.00001, 1, false];
+        yield 'less than or equals 0 point 00001 0 false' => [0.00001, 0, false];
+        yield 'less than or equals 0 point 1 0 false' => [0.1, 0 - 0.1, false];
     }
 
     #[DataProvider('greaterThanOrEqualsDataProvider')]
@@ -284,30 +276,28 @@ class FloatComparatorTest extends TestCase
     }
 
     /**
-     * @return iterable<int, array{0: float, 1: float, 2: bool}>
+     * @return iterable<string, array{0: float, 1: float, 2: bool}>
      */
     public static function greaterThanOrEqualsDataProvider(): iterable
     {
-        yield from [
-            [0, 0, true],
-            [42, 42, true],
-            [1.0, 1.0, true],
-            [0.0, 0.0, true],
-            [8 - 6.4, 1.6, true],
-            [1.6, 8 - 6.4, true],
-            [0.0001, 0.0001, true],
-            [42.000000001, 42.00000001, true],
-            [0.1 + 0.2 - 0.3, 0, true],
-            [0.3, 0.1 + 0.2, true],
-            [0.4 - 0.1, 0.1 + 0.2, true],
-            [0.1 + 0.1 + 0.1, 0.1 + 0.2, true],
-            [2, 1, true],
-            [1.00001, 1, true],
-            [0.00001, 0, true],
-            [0.1, 0 - 0.1, true],
-            [1, 1.0001, false],
-            [0, 0.00001, false],
-            [23, 42, false],
-        ];
+        yield 'greater than or equals 0 0 true' => [0, 0, true];
+        yield 'greater than or equals 42 42 true' => [42, 42, true];
+        yield 'greater than or equals 1 point 0 1 point 0 true' => [1.0, 1.0, true];
+        yield 'greater than or equals 0 point 0 0 point 0 true' => [0.0, 0.0, true];
+        yield 'greater than or equals 8 1 point 6 true' => [8 - 6.4, 1.6, true];
+        yield 'greater than or equals 1 point 6 8 true' => [1.6, 8 - 6.4, true];
+        yield 'greater than or equals 0 point 0001 0 point 0001 true' => [0.0001, 0.0001, true];
+        yield 'greater than or equals 42 point 000000001 42 point 00000001 true' => [42.000000001, 42.00000001, true];
+        yield 'greater than or equals 0 point 1 0 true' => [0.1 + 0.2 - 0.3, 0, true];
+        yield 'greater than or equals 0 point 3 0 point 1 true' => [0.3, 0.1 + 0.2, true];
+        yield 'greater than or equals 0 point 4 0 point 1 true' => [0.4 - 0.1, 0.1 + 0.2, true];
+        yield 'greater than or equals 0 point 1 0 point 1 true' => [0.1 + 0.1 + 0.1, 0.1 + 0.2, true];
+        yield 'greater than or equals 2 1 true' => [2, 1, true];
+        yield 'greater than or equals 1 point 00001 1 true' => [1.00001, 1, true];
+        yield 'greater than or equals 0 point 00001 0 true' => [0.00001, 0, true];
+        yield 'greater than or equals 0 point 1 0 true variant 2' => [0.1, 0 - 0.1, true];
+        yield 'greater than or equals 1 1 point 0001 false' => [1, 1.0001, false];
+        yield 'greater than or equals 0 0 point 00001 false' => [0, 0.00001, false];
+        yield 'greater than or equals 23 42 false' => [23, 42, false];
     }
 }

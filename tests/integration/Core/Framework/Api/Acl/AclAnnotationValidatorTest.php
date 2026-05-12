@@ -154,39 +154,37 @@ class AclAnnotationValidatorTest extends TestCase
     }
 
     /**
-     * @return iterable<int, array{0: list<string>, 1: list<string>, 2: bool}>
+     * @return iterable<string, array{0: list<string>, 1: list<string>, 2: bool}>
      */
     public static function annotationProvider(): iterable
     {
-        yield from [
-            [
-                // privs of user   //acl   // should pass?
-                ['product:write'], [], true,
-            ],
-            [
-                [], ['productWrite'], false,
-            ],
-            [
-                ['product:write'], ['product:write'], true,
-            ],
-            [
-                ['product:write', 'product:read'], ['product:write', 'product:read'], true,
-            ],
-            [
-                ['product:write'], ['product:write', 'product:read'], false,
-            ],
-            [
-                ['api.test.route'], ['api.test.route'], true,
-            ],
-            [
-                [], ['api.test.route'], false,
-            ],
-            [
-                ['product:write', 'product:read'], ['api.test.route'], false,
-            ],
-            [
-                ['app.all'], ['app'], true,
-            ],
+        yield 'annotation privs of user acl should pass product true' => [
+            // privs of user   //acl   // should pass?
+            ['product:write'], [], true,
+        ];
+        yield 'annotation product write false' => [
+            [], ['productWrite'], false,
+        ];
+        yield 'annotation product write product write true' => [
+            ['product:write'], ['product:write'], true,
+        ];
+        yield 'annotation product write product read product write product read' => [
+            ['product:write', 'product:read'], ['product:write', 'product:read'], true,
+        ];
+        yield 'annotation product write product write product read false' => [
+            ['product:write'], ['product:write', 'product:read'], false,
+        ];
+        yield 'annotation api test route api test route true' => [
+            ['api.test.route'], ['api.test.route'], true,
+        ];
+        yield 'annotation api test route false' => [
+            [], ['api.test.route'], false,
+        ];
+        yield 'annotation product write product read api test route false' => [
+            ['product:write', 'product:read'], ['api.test.route'], false,
+        ];
+        yield 'annotation app all app true' => [
+            ['app.all'], ['app'], true,
         ];
     }
 

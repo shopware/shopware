@@ -111,12 +111,10 @@ class SetCustomerGroupCustomFieldActionTest extends TestCase
      */
     public static function createDataProvider(): iterable
     {
-        yield from [
-            'upsert / existed data / update data / expect data' => ['upsert', ['red', 'green'], ['blue', 'gray'], ['blue', 'gray']],
-            'create / existed data / update data / expect data' => ['create', ['red', 'green'], ['blue', 'gray'], ['red', 'green']],
-            'clear / existed data / update data / expect data' => ['clear', ['red', 'green', 'blue'], null, null],
-            'add / existed data / update data / expect data' => ['add', ['red', 'green'], ['blue', 'gray'], ['red', 'green', 'blue', 'gray']],
-            'remove / existed data / update data / expect data' => ['remove', ['red', 'green', 'blue'], ['green', 'blue'], ['red']],
-        ];
+        yield 'upsert / existed data / update data / expect data' => ['upsert', ['red', 'green'], ['blue', 'gray'], ['blue', 'gray']];
+        yield 'create / existed data / update data / expect data' => ['create', ['red', 'green'], ['blue', 'gray'], ['red', 'green']];
+        yield 'clear / existed data / update data / expect data' => ['clear', ['red', 'green', 'blue'], null, null];
+        yield 'add / existed data / update data / expect data' => ['add', ['red', 'green'], ['blue', 'gray'], ['red', 'green', 'blue', 'gray']];
+        yield 'remove / existed data / update data / expect data' => ['remove', ['red', 'green', 'blue'], ['green', 'blue'], ['red']];
     }
 }

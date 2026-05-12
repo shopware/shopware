@@ -560,16 +560,14 @@ class EntityDispatcherTest extends TestCase
      */
     public static function recoverableResponseCodesDataProvider(): iterable
     {
-        yield from [
-            'HTTP_BAD_GATEWAY' => [
-                'responseCode' => 502,
-            ],
-            'HTTP_SERVICE_UNAVAILABLE' => [
-                'responseCode' => 503,
-            ],
-            'HTTP_GATEWAY_TIMEOUT' => [
-                'responseCode' => 504,
-            ],
+        yield 'HTTP_BAD_GATEWAY' => [
+            'responseCode' => 502,
+        ];
+        yield 'HTTP_SERVICE_UNAVAILABLE' => [
+            'responseCode' => 503,
+        ];
+        yield 'HTTP_GATEWAY_TIMEOUT' => [
+            'responseCode' => 504,
         ];
     }
 
@@ -578,22 +576,20 @@ class EntityDispatcherTest extends TestCase
      */
     public static function unrecoverableResponseCodesDataProvider(): iterable
     {
-        yield from [
-            'HTTP_BAD_REQUEST' => [
-                'responseCode' => 400,
-            ],
-            'HTTP_UNAUTHORIZED' => [
-                'responseCode' => 401,
-            ],
-            'HTTP_FORBIDDEN' => [
-                'responseCode' => 403,
-            ],
-            'HTTP_INTERNAL_SERVER_ERROR' => [
-                'responseCode' => 500,
-            ],
-            'HTTP_VERSION_NOT_SUPPORTED' => [
-                'responseCode' => 505,
-            ],
+        yield 'HTTP_BAD_REQUEST' => [
+            'responseCode' => 400,
+        ];
+        yield 'HTTP_UNAUTHORIZED' => [
+            'responseCode' => 401,
+        ];
+        yield 'HTTP_FORBIDDEN' => [
+            'responseCode' => 403,
+        ];
+        yield 'HTTP_INTERNAL_SERVER_ERROR' => [
+            'responseCode' => 500,
+        ];
+        yield 'HTTP_VERSION_NOT_SUPPORTED' => [
+            'responseCode' => 505,
         ];
     }
 }

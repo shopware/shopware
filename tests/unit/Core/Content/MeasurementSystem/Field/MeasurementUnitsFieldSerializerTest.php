@@ -44,49 +44,47 @@ class MeasurementUnitsFieldSerializerTest extends TestCase
      */
     public static function encodeProvider(): iterable
     {
-        yield from [
-            'null value should return default units as JSON' => [
-                new MeasurementUnitsField('data', 'data'),
-                null,
-                Json::encode([
-                    'system' => MeasurementUnits::DEFAULT_MEASUREMENT_SYSTEM,
-                    'units' => [
-                        'length' => MeasurementUnits::DEFAULT_LENGTH_UNIT,
-                        'weight' => MeasurementUnits::DEFAULT_WEIGHT_UNIT,
-                    ],
-                ]),
-            ],
-            'MeasurementUnits object should be converted to JSON' => [
-                new MeasurementUnitsField('data', 'data'),
-                new MeasurementUnits('imperial', ['length' => 'inch', 'weight' => 'pound']),
-                Json::encode([
-                    'system' => 'imperial',
-                    'units' => ['length' => 'inch', 'weight' => 'pound'],
-                ]),
-            ],
-            'array value should be passed through as JSON' => [
-                new MeasurementUnitsField('data', 'data'),
-                ['system' => 'custom', 'units' => ['length' => 'cm', 'weight' => 'g']],
-                Json::encode(['system' => 'custom', 'units' => ['length' => 'cm', 'weight' => 'g']]),
-            ],
-            'complex MeasurementUnits with multiple units' => [
-                new MeasurementUnitsField('data', 'data'),
-                new MeasurementUnits('scientific', [
+        yield 'null value should return default units as JSON' => [
+            new MeasurementUnitsField('data', 'data'),
+            null,
+            Json::encode([
+                'system' => MeasurementUnits::DEFAULT_MEASUREMENT_SYSTEM,
+                'units' => [
+                    'length' => MeasurementUnits::DEFAULT_LENGTH_UNIT,
+                    'weight' => MeasurementUnits::DEFAULT_WEIGHT_UNIT,
+                ],
+            ]),
+        ];
+        yield 'MeasurementUnits object should be converted to JSON' => [
+            new MeasurementUnitsField('data', 'data'),
+            new MeasurementUnits('imperial', ['length' => 'inch', 'weight' => 'pound']),
+            Json::encode([
+                'system' => 'imperial',
+                'units' => ['length' => 'inch', 'weight' => 'pound'],
+            ]),
+        ];
+        yield 'array value should be passed through as JSON' => [
+            new MeasurementUnitsField('data', 'data'),
+            ['system' => 'custom', 'units' => ['length' => 'cm', 'weight' => 'g']],
+            Json::encode(['system' => 'custom', 'units' => ['length' => 'cm', 'weight' => 'g']]),
+        ];
+        yield 'complex MeasurementUnits with multiple units' => [
+            new MeasurementUnitsField('data', 'data'),
+            new MeasurementUnits('scientific', [
+                'length' => 'mm',
+                'weight' => 'mg',
+                'temperature' => 'celsius',
+                'pressure' => 'bar',
+            ]),
+            Json::encode([
+                'system' => 'scientific',
+                'units' => [
                     'length' => 'mm',
                     'weight' => 'mg',
                     'temperature' => 'celsius',
                     'pressure' => 'bar',
-                ]),
-                Json::encode([
-                    'system' => 'scientific',
-                    'units' => [
-                        'length' => 'mm',
-                        'weight' => 'mg',
-                        'temperature' => 'celsius',
-                        'pressure' => 'bar',
-                    ],
-                ]),
-            ],
+                ],
+            ]),
         ];
     }
 
@@ -106,53 +104,51 @@ class MeasurementUnitsFieldSerializerTest extends TestCase
      */
     public static function decodeProvider(): iterable
     {
-        yield from [
-            'null value should return default MeasurementUnits' => [
-                null,
-                MeasurementUnits::createDefaultUnits(),
-            ],
-            'valid JSON should return MeasurementUnits object' => [
-                Json::encode([
-                    'system' => 'imperial',
-                    'units' => ['length' => 'inch', 'weight' => 'pound'],
-                ]),
-                new MeasurementUnits('imperial', ['length' => 'inch', 'weight' => 'pound']),
-            ],
-            'incomplete JSON should return MeasurementUnits with defaults' => [
-                Json::encode(['system' => 'custom']),
-                new MeasurementUnits('custom', [
-                    'length' => MeasurementUnits::DEFAULT_LENGTH_UNIT,
-                    'weight' => MeasurementUnits::DEFAULT_WEIGHT_UNIT,
-                ]),
-            ],
-            'JSON without system should use default system' => [
-                Json::encode(['units' => ['length' => 'cm', 'weight' => 'g']]),
-                new MeasurementUnits(MeasurementUnits::DEFAULT_MEASUREMENT_SYSTEM, ['length' => 'cm', 'weight' => 'g']),
-            ],
-            'empty JSON object should return defaults' => [
-                Json::encode([]),
-                new MeasurementUnits(MeasurementUnits::DEFAULT_MEASUREMENT_SYSTEM, [
-                    'length' => MeasurementUnits::DEFAULT_LENGTH_UNIT,
-                    'weight' => MeasurementUnits::DEFAULT_WEIGHT_UNIT,
-                ]),
-            ],
-            'complex units should be preserved' => [
-                Json::encode([
-                    'system' => 'scientific',
-                    'units' => [
-                        'length' => 'μm',
-                        'weight' => 'ng',
-                        'temperature' => '°K',
-                        'pressure' => 'Pa',
-                    ],
-                ]),
-                new MeasurementUnits('scientific', [
+        yield 'null value should return default MeasurementUnits' => [
+            null,
+            MeasurementUnits::createDefaultUnits(),
+        ];
+        yield 'valid JSON should return MeasurementUnits object' => [
+            Json::encode([
+                'system' => 'imperial',
+                'units' => ['length' => 'inch', 'weight' => 'pound'],
+            ]),
+            new MeasurementUnits('imperial', ['length' => 'inch', 'weight' => 'pound']),
+        ];
+        yield 'incomplete JSON should return MeasurementUnits with defaults' => [
+            Json::encode(['system' => 'custom']),
+            new MeasurementUnits('custom', [
+                'length' => MeasurementUnits::DEFAULT_LENGTH_UNIT,
+                'weight' => MeasurementUnits::DEFAULT_WEIGHT_UNIT,
+            ]),
+        ];
+        yield 'JSON without system should use default system' => [
+            Json::encode(['units' => ['length' => 'cm', 'weight' => 'g']]),
+            new MeasurementUnits(MeasurementUnits::DEFAULT_MEASUREMENT_SYSTEM, ['length' => 'cm', 'weight' => 'g']),
+        ];
+        yield 'empty JSON object should return defaults' => [
+            Json::encode([]),
+            new MeasurementUnits(MeasurementUnits::DEFAULT_MEASUREMENT_SYSTEM, [
+                'length' => MeasurementUnits::DEFAULT_LENGTH_UNIT,
+                'weight' => MeasurementUnits::DEFAULT_WEIGHT_UNIT,
+            ]),
+        ];
+        yield 'complex units should be preserved' => [
+            Json::encode([
+                'system' => 'scientific',
+                'units' => [
                     'length' => 'μm',
                     'weight' => 'ng',
                     'temperature' => '°K',
                     'pressure' => 'Pa',
-                ]),
-            ],
+                ],
+            ]),
+            new MeasurementUnits('scientific', [
+                'length' => 'μm',
+                'weight' => 'ng',
+                'temperature' => '°K',
+                'pressure' => 'Pa',
+            ]),
         ];
     }
 

@@ -36,10 +36,8 @@ class MediaEntityTest extends TestCase
      */
     public static function filenameExtensionProvider(): iterable
     {
-        yield from [
-            'only-ext' => ['file' => null, 'ext' => 'jpg', 'expected' => null],
-            'only-file' => ['file' => 'Tuscany-Landscape', 'ext' => null, 'expected' => null],
-            'file-and-ext' => ['file' => 'Tuscany-Landscape', 'ext' => 'jpg', 'expected' => 'Tuscany-Landscape.jpg'],
-        ];
+        yield 'only-ext' => ['file' => null, 'ext' => 'jpg', 'expected' => null];
+        yield 'only-file' => ['file' => 'Tuscany-Landscape', 'ext' => null, 'expected' => null];
+        yield 'file-and-ext' => ['file' => 'Tuscany-Landscape', 'ext' => 'jpg', 'expected' => 'Tuscany-Landscape.jpg'];
     }
 }

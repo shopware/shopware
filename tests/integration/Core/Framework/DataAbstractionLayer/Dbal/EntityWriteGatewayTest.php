@@ -512,12 +512,10 @@ class EntityWriteGatewayTest extends TestCase
      */
     public static function methodProvider(): iterable
     {
-        yield from [
-            ['create'],
-            ['upsert'],
-            ['update'],
-            ['delete'],
-        ];
+        yield 'method create' => ['create'];
+        yield 'method upsert' => ['upsert'];
+        yield 'method update' => ['update'];
+        yield 'method delete' => ['delete'];
     }
 
     public function testEntityWriteEventSuccessCallbacksCalled(): void

@@ -137,26 +137,24 @@ class SeoUrlGeneratorTest extends TestCase
     }
 
     /**
-     * @return iterable<int, array{template: string, count: int, pathInfo: string}>
+     * @return iterable<string, array{template: string, count: int, pathInfo: string}>
      */
     public static function templateDataProvider(): iterable
     {
-        yield from [
-            [
-                'template' => '{{ id }}',
-                'count' => 1,
-                'pathInfo' => 'id',
-            ],
-            [
-                'template' => 'STATIC',
-                'count' => 1,
-                'pathInfo' => 'STATIC',
-            ],
-            [
-                'template' => '',
-                'count' => 0,
-                'pathInfo' => '',
-            ],
+        yield 'template count path info' => [
+            'template' => '{{ id }}',
+            'count' => 1,
+            'pathInfo' => 'id',
+        ];
+        yield 'template count path info variant 2' => [
+            'template' => 'STATIC',
+            'count' => 1,
+            'pathInfo' => 'STATIC',
+        ];
+        yield 'template count path info variant 3' => [
+            'template' => '',
+            'count' => 0,
+            'pathInfo' => '',
         ];
     }
 

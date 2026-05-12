@@ -115,7 +115,7 @@ class StorefrontRoutingTest extends TestCase
     }
 
     /**
-     * @return iterable<array<int, RequestTestCase>>
+     * @return iterable<string, array<int, RequestTestCase>>
      */
     public static function getRequestTestCaseProvider(): iterable
     {
@@ -127,7 +127,15 @@ class StorefrontRoutingTest extends TestCase
         ];
         $cases = self::generateCases(array_keys($config), $config);
 
-        yield from array_map(static fn ($params) => [self::createCase($params['https'], $params['host'], $params['subDir'], $params['salesChannel'])], $cases);
+        foreach ($cases as $params) {
+            yield \sprintf(
+                '%s host %s subdir %s sales channel %s',
+                $params['https'] ? 'https' : 'http',
+                $params['host'],
+                $params['subDir'] === '' ? 'root' : trim($params['subDir'], '/'),
+                $params['salesChannel'] === '' ? 'root' : trim($params['salesChannel'], '/')
+            ) => [self::createCase($params['https'], $params['host'], $params['subDir'], $params['salesChannel'])];
+        }
     }
 
     private function getContext(Request $request): RequestContext

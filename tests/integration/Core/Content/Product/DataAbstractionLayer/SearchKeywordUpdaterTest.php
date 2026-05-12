@@ -237,124 +237,122 @@ class SearchKeywordUpdaterTest extends TestCase
     {
         $idsCollection = new IdsCollection();
 
-        yield from [
-            'test different languages' => [
-                (new ProductBuilder($idsCollection, '1000'))
-                    ->price(10)
-                    ->name('Test product')
-                    ->translation('de-DE', 'name', 'Test produkt')
-                    ->build(),
-                $idsCollection,
-                [
-                    '1000', // productNumber
-                    'product', // part of name
-                    'test', // part of name
-                    'test product', // product name
-                ],
-                [
-                    '1000', // productNumber
-                    'produkt', // part of name
-                    'test', // part of name
-                    'test produkt', // product name
-                ],
+        yield 'test different languages' => [
+            (new ProductBuilder($idsCollection, '1000'))
+                ->price(10)
+                ->name('Test product')
+                ->translation('de-DE', 'name', 'Test produkt')
+                ->build(),
+            $idsCollection,
+            [
+                '1000', // productNumber
+                'product', // part of name
+                'test', // part of name
+                'test product', // product name
             ],
-            'test it uses parent languages' => [
-                (new ProductBuilder($idsCollection, '1000'))
-                    ->price(10)
-                    ->name('Test product')
-                    ->build(),
-                $idsCollection,
-                [
-                    '1000', // productNumber
-                    'product', // part of name
-                    'test', // part of name
-                    'test product', // product name
-                ],
-                [
-                    '1000', // productNumber
-                    'product', // part of name
-                    'test', // part of name
-                    'test product', // product name
-                ],
+            [
+                '1000', // productNumber
+                'produkt', // part of name
+                'test', // part of name
+                'test produkt', // product name
             ],
-            'test it uses correct languages for association' => [
-                (new ProductBuilder($idsCollection, '1000'))
-                    ->price(10)
-                    ->name('Test product')
-                    ->manufacturer('manufacturer', ['de-DE' => ['name' => 'Hersteller']])
-                    ->build(),
-                $idsCollection,
-                [
-                    '1000', // productNumber
-                    'manufacturer', // manufacturer name
-                    'product', // part of name
-                    'test', // part of name
-                    'test product', // product name
-                ],
-                [
-                    '1000', // productNumber
-                    'Hersteller', // manufacturer name
-                    'product', // part of name
-                    'test', // part of name
-                    'test product', // product name
-                ],
+        ];
+        yield 'test it uses parent languages' => [
+            (new ProductBuilder($idsCollection, '1000'))
+                ->price(10)
+                ->name('Test product')
+                ->build(),
+            $idsCollection,
+            [
+                '1000', // productNumber
+                'product', // part of name
+                'test', // part of name
+                'test product', // product name
             ],
-            'test it uses correct translation from parent' => [
-                (new ProductBuilder($idsCollection, '1001'))
-                    ->name('Test product')
-                    ->translation('de-DE', 'name', 'Test produkt')
-                    ->price(5)
-                    ->variant(
-                        (new ProductBuilder($idsCollection, '1000'))
-                            ->price(10)
-                            ->name(null)
-                            ->build()
-                    )
-                    ->build(),
-                $idsCollection,
-                [
-                    '1000', // productNumber
-                    'product', // part of name
-                    'test', // part of name
-                    'test product', // product name
-                ],
-                [
-                    '1000', // productNumber
-                    'produkt', // part of name
-                    'test', // part of name
-                    'test produkt', // product name
-                ],
-                ['1001'],
+            [
+                '1000', // productNumber
+                'product', // part of name
+                'test', // part of name
+                'test product', // product name
             ],
-            'test it uses correct translation from parent association' => [
-                (new ProductBuilder($idsCollection, '1001'))
-                    ->name('Test product')
-                    ->manufacturer('manufacturer', ['de-DE' => ['name' => 'Hersteller']])
-                    ->price(5)
-                    ->variant(
-                        (new ProductBuilder($idsCollection, '1000'))
-                            ->price(10)
-                            ->name(null)
-                            ->build()
-                    )
-                    ->build(),
-                $idsCollection,
-                [
-                    '1000', // productNumber
-                    'manufacturer', // manufacturer name
-                    'product', // part of name
-                    'test', // part of name
-                    'test product', // product name
-                ],
-                [
-                    '1000', // productNumber
-                    'Hersteller', // manufacturer name
-                    'product', // part of name
-                    'test', // part of name
-                    'test product', // product name
-                ],
-                ['1001'],
+        ];
+        yield 'test it uses correct languages for association' => [
+            (new ProductBuilder($idsCollection, '1000'))
+                ->price(10)
+                ->name('Test product')
+                ->manufacturer('manufacturer', ['de-DE' => ['name' => 'Hersteller']])
+                ->build(),
+            $idsCollection,
+            [
+                '1000', // productNumber
+                'manufacturer', // manufacturer name
+                'product', // part of name
+                'test', // part of name
+                'test product', // product name
             ],
+            [
+                '1000', // productNumber
+                'Hersteller', // manufacturer name
+                'product', // part of name
+                'test', // part of name
+                'test product', // product name
+            ],
+        ];
+        yield 'test it uses correct translation from parent' => [
+            (new ProductBuilder($idsCollection, '1001'))
+                ->name('Test product')
+                ->translation('de-DE', 'name', 'Test produkt')
+                ->price(5)
+                ->variant(
+                    (new ProductBuilder($idsCollection, '1000'))
+                        ->price(10)
+                        ->name(null)
+                        ->build()
+                )
+                ->build(),
+            $idsCollection,
+            [
+                '1000', // productNumber
+                'product', // part of name
+                'test', // part of name
+                'test product', // product name
+            ],
+            [
+                '1000', // productNumber
+                'produkt', // part of name
+                'test', // part of name
+                'test produkt', // product name
+            ],
+            ['1001'],
+        ];
+        yield 'test it uses correct translation from parent association' => [
+            (new ProductBuilder($idsCollection, '1001'))
+                ->name('Test product')
+                ->manufacturer('manufacturer', ['de-DE' => ['name' => 'Hersteller']])
+                ->price(5)
+                ->variant(
+                    (new ProductBuilder($idsCollection, '1000'))
+                        ->price(10)
+                        ->name(null)
+                        ->build()
+                )
+                ->build(),
+            $idsCollection,
+            [
+                '1000', // productNumber
+                'manufacturer', // manufacturer name
+                'product', // part of name
+                'test', // part of name
+                'test product', // product name
+            ],
+            [
+                '1000', // productNumber
+                'Hersteller', // manufacturer name
+                'product', // part of name
+                'test', // part of name
+                'test product', // product name
+            ],
+            ['1001'],
         ];
     }
 

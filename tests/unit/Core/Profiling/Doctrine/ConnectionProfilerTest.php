@@ -147,12 +147,10 @@ class ConnectionProfilerTest extends TestCase
      */
     public static function paramProvider(): iterable
     {
-        yield from [
-            ['some value', [], 'some value'],
-            [1, [], 1],
-            [true, [], true],
-            [null, [], null],
-        ];
+        yield 'param some value some value' => ['some value', [], 'some value'];
+        yield 'param 1 1' => [1, [], 1];
+        yield 'param true true' => [true, [], true];
+        yield 'param null null' => [null, [], null];
     }
 
     public function testCollectQueryWithNoParams(): void

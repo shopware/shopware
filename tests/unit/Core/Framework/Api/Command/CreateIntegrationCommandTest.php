@@ -21,10 +21,8 @@ class CreateIntegrationCommandTest extends TestCase
      */
     public static function createIntegrationDataProvider(): iterable
     {
-        yield from [
-            ['adminOption' => false],
-            ['adminOption' => true],
-        ];
+        yield 'create integration admin option' => ['adminOption' => false];
+        yield 'create integration admin option variant 2' => ['adminOption' => true];
     }
 
     #[DataProvider('createIntegrationDataProvider')]

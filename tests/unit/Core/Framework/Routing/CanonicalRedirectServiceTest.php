@@ -103,27 +103,25 @@ class CanonicalRedirectServiceTest extends TestCase
     }
 
     /**
-     * @return iterable<int, array<string, Request|Response>>
+     * @return iterable<string, array<string, Request|Response>>
      */
     public static function requestDataProvider(): iterable
     {
-        yield from [
-            [
-                'request' => self::getRequest([]),
-                'response' => new Response(),
-            ],
-            [
-                'request' => self::getRequest([SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK => '']),
-                'response' => new Response(),
-            ],
-            [
-                'request' => self::getRequest([SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK => true]),
-                'response' => new Response(),
-            ],
-            [
-                'request' => self::getRequest([SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK => '/lorem/ipsum/dolor-sit/amet']),
-                'response' => (new Response())->setStatusCode(Response::HTTP_MOVED_PERMANENTLY),
-            ],
+        yield 'request request response' => [
+            'request' => self::getRequest([]),
+            'response' => new Response(),
+        ];
+        yield 'request request response variant 2' => [
+            'request' => self::getRequest([SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK => '']),
+            'response' => new Response(),
+        ];
+        yield 'request request response variant 3' => [
+            'request' => self::getRequest([SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK => true]),
+            'response' => new Response(),
+        ];
+        yield 'request request response variant 4' => [
+            'request' => self::getRequest([SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK => '/lorem/ipsum/dolor-sit/amet']),
+            'response' => (new Response())->setStatusCode(Response::HTTP_MOVED_PERMANENTLY),
         ];
     }
 

@@ -438,11 +438,9 @@ class PromotionItemBuilderTest extends TestCase
      */
     public static function getDefaultCurrencyDataProvider(): iterable
     {
-        yield from [
-            'absolute' => [PromotionDiscountEntity::TYPE_ABSOLUTE],
-            'fixed' => [PromotionDiscountEntity::TYPE_FIXED],
-            'fixed_unit' => [PromotionDiscountEntity::TYPE_FIXED_UNIT],
-        ];
+        yield 'absolute' => [PromotionDiscountEntity::TYPE_ABSOLUTE];
+        yield 'fixed' => [PromotionDiscountEntity::TYPE_FIXED];
+        yield 'fixed_unit' => [PromotionDiscountEntity::TYPE_FIXED_UNIT];
     }
 
     /**

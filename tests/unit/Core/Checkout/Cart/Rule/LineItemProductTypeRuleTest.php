@@ -150,12 +150,10 @@ class LineItemProductTypeRuleTest extends TestCase
      */
     public static function caseDataProvider(): iterable
     {
-        yield from [
-            'equal / match' => [ProductDefinition::TYPE_PHYSICAL, Rule::OPERATOR_EQ, ProductDefinition::TYPE_PHYSICAL, true],
-            'equal / no match' => [ProductDefinition::TYPE_PHYSICAL, Rule::OPERATOR_EQ, ProductDefinition::TYPE_DIGITAL, false],
-            'not equal / match' => [ProductDefinition::TYPE_PHYSICAL, Rule::OPERATOR_NEQ, ProductDefinition::TYPE_DIGITAL, true],
-            'not equal / no match' => [ProductDefinition::TYPE_DIGITAL, Rule::OPERATOR_NEQ, ProductDefinition::TYPE_DIGITAL, false],
-        ];
+        yield 'equal / match' => [ProductDefinition::TYPE_PHYSICAL, Rule::OPERATOR_EQ, ProductDefinition::TYPE_PHYSICAL, true];
+        yield 'equal / no match' => [ProductDefinition::TYPE_PHYSICAL, Rule::OPERATOR_EQ, ProductDefinition::TYPE_DIGITAL, false];
+        yield 'not equal / match' => [ProductDefinition::TYPE_PHYSICAL, Rule::OPERATOR_NEQ, ProductDefinition::TYPE_DIGITAL, true];
+        yield 'not equal / no match' => [ProductDefinition::TYPE_DIGITAL, Rule::OPERATOR_NEQ, ProductDefinition::TYPE_DIGITAL, false];
     }
 
     private function createLineItemWithProductType(string $type): LineItem

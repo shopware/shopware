@@ -221,11 +221,9 @@ class PromotionValidatorTest extends TestCase
      */
     public static function invalidProvider(): iterable
     {
-        yield from [
-            'negative percentage' => ['percentage', -0.01],
-            'percentage over 100' => ['percentage', 100.01],
-            'negative absolute' => ['absolute', -0.01],
-        ];
+        yield 'negative percentage' => ['percentage', -0.01];
+        yield 'percentage over 100' => ['percentage', 100.01];
+        yield 'negative absolute' => ['absolute', -0.01];
     }
 
     /**
@@ -272,12 +270,10 @@ class PromotionValidatorTest extends TestCase
      */
     public static function validProvider(): iterable
     {
-        yield from [
-            'zero percentage' => ['percentage', -0.00],
-            '100 percentage' => ['percentage', 100.00],
-            'zero absolute' => ['absolute', 0.00],
-            'positive absolute' => ['absolute', 260.00],
-        ];
+        yield 'zero percentage' => ['percentage', -0.00];
+        yield '100 percentage' => ['percentage', 100.00];
+        yield 'zero absolute' => ['absolute', 0.00];
+        yield 'positive absolute' => ['absolute', 260.00];
     }
 
     /**

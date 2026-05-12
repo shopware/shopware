@@ -167,31 +167,29 @@ class SeoUrlUpdaterTest extends TestCase
     }
 
     /**
-     * @return iterable<int, array{translations: list<string>, pathInfo: non-empty-string}>
+     * @return iterable<string, array{translations: list<string>, pathInfo: non-empty-string}>
      */
     public static function seoLanguageDataProvider(): iterable
     {
-        yield from [
-            [
-                // All translations available > expected to use child translation
-                'translations' => [self::DEFAULT, self::PARENT, self::CHILD],
-                'pathInfo' => self::CHILD,
-            ],
-            [
-                // Parent translation missing > expected to use child translation
-                'translations' => [self::DEFAULT, self::CHILD],
-                'pathInfo' => self::CHILD,
-            ],
-            [
-                // Child translation missing > expected to use parent translation
-                'translations' => [self::DEFAULT, self::PARENT],
-                'pathInfo' => self::PARENT,
-            ],
-            [
-                // Parent and child translations missing > expected to use default translation
-                'translations' => [self::DEFAULT],
-                'pathInfo' => self::DEFAULT,
-            ],
+        yield 'seo language all translations available expected to use child path info' => [
+            // All translations available > expected to use child translation
+            'translations' => [self::DEFAULT, self::PARENT, self::CHILD],
+            'pathInfo' => self::CHILD,
+        ];
+        yield 'seo language parent translation missing expected to use child path info' => [
+            // Parent translation missing > expected to use child translation
+            'translations' => [self::DEFAULT, self::CHILD],
+            'pathInfo' => self::CHILD,
+        ];
+        yield 'seo language child translation missing expected to use parent path info' => [
+            // Child translation missing > expected to use parent translation
+            'translations' => [self::DEFAULT, self::PARENT],
+            'pathInfo' => self::PARENT,
+        ];
+        yield 'seo language parent and child translations missing expected to path info' => [
+            // Parent and child translations missing > expected to use default translation
+            'translations' => [self::DEFAULT],
+            'pathInfo' => self::DEFAULT,
         ];
     }
 }

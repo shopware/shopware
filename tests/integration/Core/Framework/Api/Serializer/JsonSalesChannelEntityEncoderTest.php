@@ -34,18 +34,16 @@ class JsonSalesChannelEntityEncoderTest extends TestCase
     use KernelTestBehaviour;
 
     /**
-     * @return iterable<int, array<int, bool|\DateTime|float|int|string|null>>
+     * @return iterable<string, array<int, bool|\DateTime|float|int|string|null>>
      */
     public static function emptyInputProvider(): iterable
     {
-        yield from [
-            [null],
-            ['string'],
-            [1],
-            [false],
-            [new \DateTime()],
-            [1.1],
-        ];
+        yield 'empty input null' => [null];
+        yield 'empty input string' => ['string'];
+        yield 'empty input 1' => [1];
+        yield 'empty input false' => [false];
+        yield 'empty input date time' => [new \DateTime()];
+        yield 'empty input 1 point 1' => [1.1];
     }
 
     /**
@@ -68,15 +66,13 @@ class JsonSalesChannelEntityEncoderTest extends TestCase
     }
 
     /**
-     * @return iterable<int, array{class-string<EntityDefinition>, SerializationFixture}>
+     * @return iterable<string, array{class-string<EntityDefinition>, SerializationFixture}>
      */
     public static function complexStructsProvider(): iterable
     {
-        yield from [
-            [MediaDefinition::class, new TestBasicStruct()],
-            [MediaDefinition::class, new TestBasicWithToOneRelationship()],
-            [MediaDefinition::class, new TestCollectionWithToOneRelationship()],
-        ];
+        yield 'complex structs media definition test basic struct' => [MediaDefinition::class, new TestBasicStruct()];
+        yield 'complex structs media definition test basic with to one' => [MediaDefinition::class, new TestBasicWithToOneRelationship()];
+        yield 'complex structs media definition test collection with to one' => [MediaDefinition::class, new TestCollectionWithToOneRelationship()];
     }
 
     /**

@@ -315,23 +315,21 @@ class RegisterRouteTest extends TestCase
     }
 
     /**
-     * @return iterable<int, array{array{array{domain: string, expectDomain: string}}, array{array{domain: string, expectDomain: string}}}>
+     * @return iterable<string, array{array{array{domain: string, expectDomain: string}}, array{array{domain: string, expectDomain: string}}}>
      */
     public static function registerWithDomainAndLeadingSlashProvider(): iterable
     {
-        yield from [
-            // test without leading slash
-            [
-                ['domain' => 'http://my-evil-page', 'expectDomain' => 'http://my-evil-page'],
-            ],
-            // test with leading slash
-            [
-                ['domain' => 'http://my-evil-page/', 'expectDomain' => 'http://my-evil-page'],
-            ],
-            // test with double leading slash
-            [
-                ['domain' => 'http://my-evil-page//', 'expectDomain' => 'http://my-evil-page'],
-            ],
+        // test without leading slash
+        yield 'register with domain and leading slash without leading slash' => [
+            ['domain' => 'http://my-evil-page', 'expectDomain' => 'http://my-evil-page'],
+        ];
+        // test with leading slash
+        yield 'register with domain and leading slash with leading slash' => [
+            ['domain' => 'http://my-evil-page/', 'expectDomain' => 'http://my-evil-page'],
+        ];
+        // test with double leading slash
+        yield 'register with domain and leading slash with double leading slash' => [
+            ['domain' => 'http://my-evil-page//', 'expectDomain' => 'http://my-evil-page'],
         ];
     }
 
@@ -649,71 +647,80 @@ class RegisterRouteTest extends TestCase
     }
 
     /**
-     * @return iterable<int, array{isCustomerScoped: bool, hasGlobalAccount: bool, hasBoundAccount: bool, requestOnSameSalesChannel:bool, expectedStatus: int}>
+     * @return iterable<string, array{isCustomerScoped: bool, hasGlobalAccount: bool, hasBoundAccount: bool, requestOnSameSalesChannel:bool, expectedStatus: int}>
      */
     public static function customerBoundToSalesChannelProvider(): iterable
     {
-        yield from [[
-            'isCustomerScoped' => true,
-            'hasGlobalAccount' => false,
-            'hasBoundAccount' => true, // Account which has bound_sales_channel_id not null
-            'requestOnSameSalesChannel' => true,
-            'expectedStatus' => 400, // Email existed status
-        ], [
-            'isCustomerScoped' => true,
-            'hasGlobalAccount' => false,
-            'hasBoundAccount' => true,
-            'requestOnSameSalesChannel' => false,
-            'expectedStatus' => 200, // Success status
-        ], [
-            'isCustomerScoped' => true,
-            'hasGlobalAccount' => true, // Account which has bound_sales_channel_id = null
-            'hasBoundAccount' => false,
-            'requestOnSameSalesChannel' => true,
-            'expectedStatus' => 400,
-        ], [
-            'isCustomerScoped' => true,
-            'hasGlobalAccount' => true,
-            'hasBoundAccount' => false,
-            'requestOnSameSalesChannel' => false,
-            'expectedStatus' => 400,
-        ], [
-            'isCustomerScoped' => true,
-            'hasGlobalAccount' => false,
-            'hasBoundAccount' => false,
-            'requestOnSameSalesChannel' => true,
-            'expectedStatus' => 200,
-        ], [
-            'isCustomerScoped' => false,
-            'hasGlobalAccount' => false,
-            'hasBoundAccount' => true,
-            'requestOnSameSalesChannel' => true,
-            'expectedStatus' => 400,
-        ], [
-            'isCustomerScoped' => false,
-            'hasGlobalAccount' => false,
-            'hasBoundAccount' => true,
-            'requestOnSameSalesChannel' => false,
-            'expectedStatus' => 400,
-        ], [
-            'isCustomerScoped' => false,
-            'hasGlobalAccount' => true,
-            'hasBoundAccount' => false,
-            'requestOnSameSalesChannel' => true,
-            'expectedStatus' => 400,
-        ], [
-            'isCustomerScoped' => false,
-            'hasGlobalAccount' => true,
-            'hasBoundAccount' => false,
-            'requestOnSameSalesChannel' => false,
-            'expectedStatus' => 400,
-        ], [
-            'isCustomerScoped' => false,
-            'hasGlobalAccount' => false,
-            'hasBoundAccount' => false,
-            'requestOnSameSalesChannel' => true,
-            'expectedStatus' => 200,
-        ]];
+        yield 'customer bound to sales channel is customer scoped has global account has' => [
+        'isCustomerScoped' => true,
+        'hasGlobalAccount' => false,
+        'hasBoundAccount' => true, // Account which has bound_sales_channel_id not null
+        'requestOnSameSalesChannel' => true,
+        'expectedStatus' => 400, // Email existed status
+    ];
+        yield 'customer bound to sales channel is customer scoped has global account has variant 2' => [
+        'isCustomerScoped' => true,
+        'hasGlobalAccount' => false,
+        'hasBoundAccount' => true,
+        'requestOnSameSalesChannel' => false,
+        'expectedStatus' => 200, // Success status
+    ];
+        yield 'customer bound to sales channel is customer scoped has global account account' => [
+        'isCustomerScoped' => true,
+        'hasGlobalAccount' => true, // Account which has bound_sales_channel_id = null
+        'hasBoundAccount' => false,
+        'requestOnSameSalesChannel' => true,
+        'expectedStatus' => 400,
+    ];
+        yield 'customer bound to sales channel is customer scoped has global account has variant 3' => [
+        'isCustomerScoped' => true,
+        'hasGlobalAccount' => true,
+        'hasBoundAccount' => false,
+        'requestOnSameSalesChannel' => false,
+        'expectedStatus' => 400,
+    ];
+        yield 'customer bound to sales channel is customer scoped has global account has variant 4' => [
+        'isCustomerScoped' => true,
+        'hasGlobalAccount' => false,
+        'hasBoundAccount' => false,
+        'requestOnSameSalesChannel' => true,
+        'expectedStatus' => 200,
+    ];
+        yield 'customer bound to sales channel is customer scoped has global account has variant 5' => [
+        'isCustomerScoped' => false,
+        'hasGlobalAccount' => false,
+        'hasBoundAccount' => true,
+        'requestOnSameSalesChannel' => true,
+        'expectedStatus' => 400,
+    ];
+        yield 'customer bound to sales channel is customer scoped has global account has variant 6' => [
+        'isCustomerScoped' => false,
+        'hasGlobalAccount' => false,
+        'hasBoundAccount' => true,
+        'requestOnSameSalesChannel' => false,
+        'expectedStatus' => 400,
+    ];
+        yield 'customer bound to sales channel is customer scoped has global account has variant 7' => [
+        'isCustomerScoped' => false,
+        'hasGlobalAccount' => true,
+        'hasBoundAccount' => false,
+        'requestOnSameSalesChannel' => true,
+        'expectedStatus' => 400,
+    ];
+        yield 'customer bound to sales channel is customer scoped has global account has variant 8' => [
+        'isCustomerScoped' => false,
+        'hasGlobalAccount' => true,
+        'hasBoundAccount' => false,
+        'requestOnSameSalesChannel' => false,
+        'expectedStatus' => 400,
+    ];
+        yield 'customer bound to sales channel is customer scoped has global account has variant 9' => [
+        'isCustomerScoped' => false,
+        'hasGlobalAccount' => false,
+        'hasBoundAccount' => false,
+        'requestOnSameSalesChannel' => true,
+        'expectedStatus' => 200,
+    ];
     }
 
     public function testRegistrationWithAllowedAccountType(): void

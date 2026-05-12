@@ -62,10 +62,8 @@ class Migration1732608755MigrateNavigationSettingsForProductSliderTest extends T
      */
     public static function productSliderConfigDataProvider(): iterable
     {
-        yield from [
-            'config had navigation' => [true],
-            'config had no navigation' => [false],
-        ];
+        yield 'config had navigation' => [true];
+        yield 'config had no navigation' => [false];
     }
 
     /**

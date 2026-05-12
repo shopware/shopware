@@ -104,17 +104,15 @@ class ListFieldSerializerTest extends TestCase
     }
 
     /**
-     * @return iterable<int, array{0: ListField, 1: string|null, 2: array<mixed>|null}>
+     * @return iterable<string, array{0: ListField, 1: string|null, 2: array<mixed>|null}>
      */
     public static function decodeProvider(): iterable
     {
-        yield from [
-            [new ListField('data', 'data'), Json::encode(['foo' => 'bar']), ['bar']],
-            [new ListField('data', 'data'), Json::encode([0 => 'bar', 1 => 'foo']), ['bar', 'foo']],
-            [new ListField('data', 'data'), Json::encode(['foo' => 1]), [1]],
-            [new ListField('data', 'data'), Json::encode(['foo' => 5.3]), [5.3]],
-            [new ListField('data', 'data'), Json::encode(['foo' => ['bar' => 'baz']]), [['bar' => 'baz']]],
-            [new ListField('data', 'data'), null, null],
-        ];
+        yield 'decode list field json encode bar' => [new ListField('data', 'data'), Json::encode(['foo' => 'bar']), ['bar']];
+        yield 'decode list field json encode bar foo' => [new ListField('data', 'data'), Json::encode([0 => 'bar', 1 => 'foo']), ['bar', 'foo']];
+        yield 'decode list field json encode 1' => [new ListField('data', 'data'), Json::encode(['foo' => 1]), [1]];
+        yield 'decode list field json encode 5 3' => [new ListField('data', 'data'), Json::encode(['foo' => 5.3]), [5.3]];
+        yield 'decode list field json encode bar baz' => [new ListField('data', 'data'), Json::encode(['foo' => ['bar' => 'baz']]), [['bar' => 'baz']]];
+        yield 'decode list field null null' => [new ListField('data', 'data'), null, null];
     }
 }

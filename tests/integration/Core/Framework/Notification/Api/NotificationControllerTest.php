@@ -106,12 +106,10 @@ class NotificationControllerTest extends TestCase
      */
     public static function saveNotificationProvider(): iterable
     {
-        yield from [
-            ['integration', 'success', 'This is a notification', false, ['cache:clear'], true],
-            ['integration', '', 'This is a notification', false, ['cache:clear'], false],
-            ['integration', 'success', '', false, ['cache:clear'], false],
-            ['browser', 'success', 'This is a notification', true, [], true],
-        ];
+        yield 'save notification integration success this is a notification false cache clear' => ['integration', 'success', 'This is a notification', false, ['cache:clear'], true];
+        yield 'save notification integration this is a notification false cache clear' => ['integration', '', 'This is a notification', false, ['cache:clear'], false];
+        yield 'save notification integration success false cache clear false' => ['integration', 'success', '', false, ['cache:clear'], false];
+        yield 'save notification browser success this is a notification true true' => ['browser', 'success', 'This is a notification', true, [], true];
     }
 
     /**
@@ -162,10 +160,8 @@ class NotificationControllerTest extends TestCase
      */
     public static function getNotificationProvider(): iterable
     {
-        yield from [
-            [true, [], null, 1],
-            [false, ['cache:clear'], ['cache:clear'], 1],
-            [false, ['cache:clear'], [], 0],
-        ];
+        yield 'notification true null 1' => [true, [], null, 1];
+        yield 'notification false cache clear cache clear 1' => [false, ['cache:clear'], ['cache:clear'], 1];
+        yield 'notification false cache clear 0' => [false, ['cache:clear'], [], 0];
     }
 }

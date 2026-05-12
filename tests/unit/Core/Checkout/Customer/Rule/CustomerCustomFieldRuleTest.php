@@ -209,13 +209,11 @@ class CustomerCustomFieldRuleTest extends TestCase
      */
     public static function getStringRuleValueWhichShouldBeConsideredAsTrueProvider(): iterable
     {
-        yield from [
-            ['yes'],
-            ['True'],
-            ['1'],
-            ['true'],
-            ['yes '],
-        ];
+        yield 'string rule value which should be considered as true yes' => ['yes'];
+        yield 'string rule value which should be considered as true true' => ['True'];
+        yield 'string rule value which should be considered as true 1' => ['1'];
+        yield 'string rule value which should be considered as true true variant 2' => ['true'];
+        yield 'string rule value which should be considered as true yes variant 2' => ['yes '];
     }
 
     /**
@@ -223,14 +221,12 @@ class CustomerCustomFieldRuleTest extends TestCase
      */
     public static function getStringRuleValueWhichShouldBeConsideredAsFalseProvider(): iterable
     {
-        yield from [
-            ['no'],
-            ['False'],
-            ['0'],
-            ['false'],
-            ['no '],
-            ['some string'],
-        ];
+        yield 'string rule value which should be considered as false no' => ['no'];
+        yield 'string rule value which should be considered as false false' => ['False'];
+        yield 'string rule value which should be considered as false 0' => ['0'];
+        yield 'string rule value which should be considered as false false variant 2' => ['false'];
+        yield 'string rule value which should be considered as false no variant 2' => ['no '];
+        yield 'string rule value which should be considered as false some string' => ['some string'];
     }
 
     /**

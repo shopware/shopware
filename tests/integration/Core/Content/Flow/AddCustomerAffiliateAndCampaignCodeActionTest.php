@@ -86,44 +86,42 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
     }
 
     /**
-     * @return iterable<int, mixed>
+     * @return iterable<string, mixed>
      */
     public static function createDataProvider(): iterable
     {
-        yield from [
-            // existed data / update data / expect data
+        // existed data / update data / expect data
+        yield 'create affiliate code value 11111 upsert false campaign affiliate code 11111 campaign' => [
+            [],
             [
-                [],
-                [
-                    'affiliateCode' => ['value' => '11111', 'upsert' => false],
-                    'campaignCode' => ['value' => '22222', 'upsert' => false],
-                ],
-                ['affiliateCode' => '11111', 'campaignCode' => '22222'],
+                'affiliateCode' => ['value' => '11111', 'upsert' => false],
+                'campaignCode' => ['value' => '22222', 'upsert' => false],
             ],
+            ['affiliateCode' => '11111', 'campaignCode' => '22222'],
+        ];
+        yield 'create affiliate code 11111 campaign code 22222 affiliate code value 33333 upsert' => [
+            ['affiliateCode' => '11111', 'campaignCode' => '22222'],
             [
-                ['affiliateCode' => '11111', 'campaignCode' => '22222'],
-                [
-                    'affiliateCode' => ['value' => '33333', 'upsert' => false],
-                    'campaignCode' => ['value' => '33333', 'upsert' => false],
-                ],
-                ['affiliateCode' => '11111', 'campaignCode' => '22222'],
+                'affiliateCode' => ['value' => '33333', 'upsert' => false],
+                'campaignCode' => ['value' => '33333', 'upsert' => false],
             ],
+            ['affiliateCode' => '11111', 'campaignCode' => '22222'],
+        ];
+        yield 'create affiliate code 11111 campaign code 22222 affiliate code value 33333 upsert variant 2' => [
+            ['affiliateCode' => '11111', 'campaignCode' => '22222'],
             [
-                ['affiliateCode' => '11111', 'campaignCode' => '22222'],
-                [
-                    'affiliateCode' => ['value' => '33333', 'upsert' => false],
-                    'campaignCode' => ['value' => '33333', 'upsert' => true],
-                ],
-                ['affiliateCode' => '11111', 'campaignCode' => '33333'],
+                'affiliateCode' => ['value' => '33333', 'upsert' => false],
+                'campaignCode' => ['value' => '33333', 'upsert' => true],
             ],
+            ['affiliateCode' => '11111', 'campaignCode' => '33333'],
+        ];
+        yield 'create affiliate code 11111 campaign code 22222 affiliate code value 33333 upsert variant 3' => [
+            ['affiliateCode' => '11111', 'campaignCode' => '22222'],
             [
-                ['affiliateCode' => '11111', 'campaignCode' => '22222'],
-                [
-                    'affiliateCode' => ['value' => '33333', 'upsert' => true],
-                    'campaignCode' => ['value' => '33333', 'upsert' => true],
-                ],
-                ['affiliateCode' => '33333', 'campaignCode' => '33333'],
+                'affiliateCode' => ['value' => '33333', 'upsert' => true],
+                'campaignCode' => ['value' => '33333', 'upsert' => true],
             ],
+            ['affiliateCode' => '33333', 'campaignCode' => '33333'],
         ];
     }
 }

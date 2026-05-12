@@ -714,31 +714,29 @@ class EntityDispatchServiceTest extends TestCase
         $now = new \DateTimeImmutable();
         $lastConsentDate = new \DateTimeImmutable('2023-07-25T07:00:19.803422+0000');
 
-        yield from [
-            'Consent was never given' => [
-                'isConsentGiven' => false,
-                'lastConsentDate' => null,
-                'now' => $now,
-                'expectedLastRunDate' => null,
-            ],
-            'Consent was revoked' => [
-                'isConsentGiven' => false,
-                'lastConsentDate' => $lastConsentDate,
-                'now' => $now,
-                'expectedLastRunDate' => $lastConsentDate,
-            ],
-            'Consent is given and was never revoked before' => [
-                'isConsentGiven' => true,
-                'lastConsentDate' => null,
-                'now' => $now,
-                'expectedLastRunDate' => $now,
-            ],
-            'Consent is given but was revoked in the past' => [
-                'isConsentGiven' => true,
-                'lastConsentDate' => $lastConsentDate,
-                'now' => $now,
-                'expectedLastRunDate' => $now,
-            ],
+        yield 'Consent was never given' => [
+            'isConsentGiven' => false,
+            'lastConsentDate' => null,
+            'now' => $now,
+            'expectedLastRunDate' => null,
+        ];
+        yield 'Consent was revoked' => [
+            'isConsentGiven' => false,
+            'lastConsentDate' => $lastConsentDate,
+            'now' => $now,
+            'expectedLastRunDate' => $lastConsentDate,
+        ];
+        yield 'Consent is given and was never revoked before' => [
+            'isConsentGiven' => true,
+            'lastConsentDate' => null,
+            'now' => $now,
+            'expectedLastRunDate' => $now,
+        ];
+        yield 'Consent is given but was revoked in the past' => [
+            'isConsentGiven' => true,
+            'lastConsentDate' => $lastConsentDate,
+            'now' => $now,
+            'expectedLastRunDate' => $now,
         ];
     }
 

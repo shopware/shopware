@@ -601,7 +601,8 @@ class ThumbnailServiceTest extends TestCase
      */
     public static function strictModeConditionsProvider(): iterable
     {
-        yield from [[true], [false]];
+        yield 'strict mode conditions true' => [true];
+        yield 'strict mode conditions false' => [false];
     }
 
     #[DataProvider('strictModeConditionsProvider')]

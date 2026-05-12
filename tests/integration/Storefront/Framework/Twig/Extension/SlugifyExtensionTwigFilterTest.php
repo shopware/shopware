@@ -21,18 +21,16 @@ class SlugifyExtensionTwigFilterTest extends TestCase
     }
 
     /**
-     * @return iterable<int, array{0: string, 1: string}>
+     * @return iterable<string, array{0: string, 1: string}>
      */
     public static function sampleAnchorIdProvider(): iterable
     {
-        yield from [
-            ['', ''],
-            ['Hello', 'Hello'],
-            ['Hello World', 'Hello-World'],
-            ['Hëllö Wörld', 'Helloe-Woerld'],
-            ['Schokolade in Maßen verzehren', 'Schokolade-in-Massen-verzehren'],
-            ['Je détest les caractères spéciaux', 'Je-detest-les-caracteres-speciaux'],
-        ];
+        yield 'sample anchor id scenario 1' => ['', ''];
+        yield 'sample anchor id hello hello' => ['Hello', 'Hello'];
+        yield 'sample anchor id hello world hello world' => ['Hello World', 'Hello-World'];
+        yield 'sample anchor id h ll w rld helloe woerld' => ['Hëllö Wörld', 'Helloe-Woerld'];
+        yield 'sample anchor id schokolade in ma en verzehren schokolade in massen verzehren' => ['Schokolade in Maßen verzehren', 'Schokolade-in-Massen-verzehren'];
+        yield 'sample anchor id je d test les caract je detest les caracteres' => ['Je détest les caractères spéciaux', 'Je-detest-les-caracteres-speciaux'];
     }
 
     private function renderTestTemplate(?string $input): string

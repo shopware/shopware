@@ -377,16 +377,14 @@ class SetPaymentOrderRouteTest extends TestCase
      */
     public static function requestDataProvider(): iterable
     {
-        yield from [
-            'empty' => [
-                self::getRequest([]),
-            ],
-            'invalid payment method' => [
-                self::getRequest(['paymentMethodId' => 'some payment method id']),
-            ],
-            'invalid order' => [
-                self::getRequest(['paymentMethodId' => Uuid::randomHex(), 'orderId' => 'some order id']),
-            ],
+        yield 'empty' => [
+            self::getRequest([]),
+        ];
+        yield 'invalid payment method' => [
+            self::getRequest(['paymentMethodId' => 'some payment method id']),
+        ];
+        yield 'invalid order' => [
+            self::getRequest(['paymentMethodId' => Uuid::randomHex(), 'orderId' => 'some order id']),
         ];
     }
 

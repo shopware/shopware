@@ -69,9 +69,7 @@ class PluginZipDetectorTest extends TestCase
      */
     public static function archiveProvider(): iterable
     {
-        yield from [
-            ['SwagFashionTheme.zip', 'plugin'],
-            ['App.zip', 'app'],
-        ];
+        yield 'archive swag fashion theme zip plugin' => ['SwagFashionTheme.zip', 'plugin'];
+        yield 'archive app zip app' => ['App.zip', 'app'];
     }
 }

@@ -95,15 +95,13 @@ class LongTextFieldTest extends TestCase
      */
     public static function longTextFieldDataProvider(): iterable
     {
-        yield from [
-            'String values are passed through' => ['test12-B', 'test12-B', [new Required()]],
-            'Null is allowed without required flag' => [null, null, []],
-            'Sanitation can be turned off' => ['<test>', '<test>', [new Required(), new AllowHtml(false)]],
-            'Empty string is treated as null without AllowEmpty flag' => ['', null, []],
-            'Empty string is passed through with AllowEmptyFlag' => ['', '', [new AllowEmptyString()]],
-            'Empty string is allowed with Required and AllowEmpty flags' => ['', '', [new Required(), new AllowEmptyString()]],
-            'Html content is sanitized' => ['<script></script>test12-B', 'test12-B', [new Required(), new AllowHtml()]],
-        ];
+        yield 'String values are passed through' => ['test12-B', 'test12-B', [new Required()]];
+        yield 'Null is allowed without required flag' => [null, null, []];
+        yield 'Sanitation can be turned off' => ['<test>', '<test>', [new Required(), new AllowHtml(false)]];
+        yield 'Empty string is treated as null without AllowEmpty flag' => ['', null, []];
+        yield 'Empty string is passed through with AllowEmptyFlag' => ['', '', [new AllowEmptyString()]];
+        yield 'Empty string is allowed with Required and AllowEmpty flags' => ['', '', [new Required(), new AllowEmptyString()]];
+        yield 'Html content is sanitized' => ['<script></script>test12-B', 'test12-B', [new Required(), new AllowHtml()]];
     }
 
     private function getWriteParameterBagMock(): WriteParameterBag

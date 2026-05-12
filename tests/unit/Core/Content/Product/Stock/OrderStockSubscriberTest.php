@@ -405,19 +405,17 @@ class OrderStockSubscriberTest extends TestCase
      */
     public static function orderStateTransitionProvider(): iterable
     {
-        yield from [
-            'order-cancelled' => [
-                'fromStateName' => OrderStates::STATE_OPEN,
-                'toStateName' => OrderStates::STATE_CANCELLED,
-                'quantityBefore' => 10,
-                'quantityAfter' => 0,
-            ],
-            'order-reopened' => [
-                'fromStateName' => OrderStates::STATE_CANCELLED,
-                'toStateName' => OrderStates::STATE_OPEN,
-                'quantityBefore' => 0,
-                'quantityAfter' => 10,
-            ],
+        yield 'order-cancelled' => [
+            'fromStateName' => OrderStates::STATE_OPEN,
+            'toStateName' => OrderStates::STATE_CANCELLED,
+            'quantityBefore' => 10,
+            'quantityAfter' => 0,
+        ];
+        yield 'order-reopened' => [
+            'fromStateName' => OrderStates::STATE_CANCELLED,
+            'toStateName' => OrderStates::STATE_OPEN,
+            'quantityBefore' => 0,
+            'quantityAfter' => 10,
         ];
     }
 

@@ -105,15 +105,13 @@ class ThemeCreateCommandTest extends TestCase
     }
 
     /**
-     * @return iterable<int, array<string, string>>
+     * @return iterable<string, array<string, string>>
      */
     public static function commandFailsWithWrongNameDataProvider(): iterable
     {
-        yield from [
-            ['name' => 'abc', 'expectedMessage' => 'The name must start with an uppercase character'],
-            ['name' => 'Abc', 'expectedMessage' => 'Theme name is too short (min 4 characters), contains invalid characters'],
-            ['name' => '1Digital', 'expectedMessage' => 'The name must start with an uppercase character'],
-        ];
+        yield 'command fails with wrong name name expected message' => ['name' => 'abc', 'expectedMessage' => 'The name must start with an uppercase character'];
+        yield 'command fails with wrong name name expected message variant 2' => ['name' => 'Abc', 'expectedMessage' => 'Theme name is too short (min 4 characters), contains invalid characters'];
+        yield 'command fails with wrong name name expected message variant 3' => ['name' => '1Digital', 'expectedMessage' => 'The name must start with an uppercase character'];
     }
 
     private function removeTheme(): bool

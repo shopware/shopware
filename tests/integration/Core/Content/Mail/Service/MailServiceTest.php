@@ -101,18 +101,16 @@ class MailServiceTest extends TestCase
     }
 
     /**
-     * @return iterable<int, mixed[]>
+     * @return iterable<string, mixed[]>
      */
     public static function senderEmailDataProvider(): iterable
     {
-        yield from [
-            ['basic@example.com', 'basic@example.com', null, null],
-            ['config@example.com', null, 'config@example.com', null],
-            ['basic@example.com', 'basic@example.com', 'config@example.com', null],
-            ['data@example.com', 'basic@example.com', 'config@example.com', 'data@example.com'],
-            ['data@example.com', 'basic@example.com', null, 'data@example.com'],
-            ['data@example.com', null, 'config@example.com', 'data@example.com'],
-        ];
+        yield 'sender email basic example com basic example com null null' => ['basic@example.com', 'basic@example.com', null, null];
+        yield 'sender email config example com null config example com null' => ['config@example.com', null, 'config@example.com', null];
+        yield 'sender email basic example com basic example com config example com' => ['basic@example.com', 'basic@example.com', 'config@example.com', null];
+        yield 'sender email data example com basic example com config example com' => ['data@example.com', 'basic@example.com', 'config@example.com', 'data@example.com'];
+        yield 'sender email data example com basic example com null data example com' => ['data@example.com', 'basic@example.com', null, 'data@example.com'];
+        yield 'sender email data example com null config example com data example com' => ['data@example.com', null, 'config@example.com', 'data@example.com'];
     }
 
     #[DataProvider('senderEmailDataProvider')]

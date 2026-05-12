@@ -46,21 +46,19 @@ class SystemConfigServiceTest extends TestCase
     }
 
     /**
-     * @return iterable<int, array{mixed}>
+     * @return iterable<string, array{mixed}>
      */
     public static function differentTypesProvider(): iterable
     {
-        yield from [
-            [true],
-            [false],
-            [null],
-            [0],
-            [1234],
-            [1243.42314],
-            [''],
-            ['test'],
-            [['foo' => 'bar']],
-        ];
+        yield 'different types true' => [true];
+        yield 'different types false' => [false];
+        yield 'different types null' => [null];
+        yield 'different types 0' => [0];
+        yield 'different types 1234' => [1234];
+        yield 'different types 1243 point 42314' => [1243.42314];
+        yield 'different types scenario 7' => [''];
+        yield 'different types test' => ['test'];
+        yield 'different types foo bar' => [['foo' => 'bar']];
     }
 
     /**
@@ -75,21 +73,19 @@ class SystemConfigServiceTest extends TestCase
     }
 
     /**
-     * @return iterable<int, array{mixed, string}>
+     * @return iterable<string, array{mixed, string}>
      */
     public static function getStringProvider(): iterable
     {
-        yield from [
-            [true, '1'],
-            [false, ''],
-            [null, ''],
-            [0, '0'],
-            [1234, '1234'],
-            [1243.42314, '1243.42314'],
-            ['', ''],
-            ['test', 'test'],
-            [['foo' => 'bar'], ''],
-        ];
+        yield 'string true 1' => [true, '1'];
+        yield 'string false' => [false, ''];
+        yield 'string null' => [null, ''];
+        yield 'string 0 0' => [0, '0'];
+        yield 'string 1234 1234' => [1234, '1234'];
+        yield 'string 1243 point 42314 1243 42314' => [1243.42314, '1243.42314'];
+        yield 'string scenario 7' => ['', ''];
+        yield 'string test test' => ['test', 'test'];
+        yield 'string foo bar' => [['foo' => 'bar'], ''];
     }
 
     /**
@@ -107,21 +103,19 @@ class SystemConfigServiceTest extends TestCase
     }
 
     /**
-     * @return iterable<int, array{mixed, int}>
+     * @return iterable<string, array{mixed, int}>
      */
     public static function getIntProvider(): iterable
     {
-        yield from [
-            [true, 1],
-            [false, 0],
-            [null, 0],
-            [0, 0],
-            [1234, 1234],
-            [1243.42314, 1243],
-            ['', 0],
-            ['test', 0],
-            [['foo' => 'bar'], 0],
-        ];
+        yield 'int true 1' => [true, 1];
+        yield 'int false 0' => [false, 0];
+        yield 'int null 0' => [null, 0];
+        yield 'int 0 0' => [0, 0];
+        yield 'int 1234 1234' => [1234, 1234];
+        yield 'int 1243 point 42314 1243' => [1243.42314, 1243];
+        yield 'int 0' => ['', 0];
+        yield 'int test 0' => ['test', 0];
+        yield 'int foo bar 0' => [['foo' => 'bar'], 0];
     }
 
     /**
@@ -139,21 +133,19 @@ class SystemConfigServiceTest extends TestCase
     }
 
     /**
-     * @return iterable<int, array{mixed, float}>
+     * @return iterable<string, array{mixed, float}>
      */
     public static function getFloatProvider(): iterable
     {
-        yield from [
-            [true, 1],
-            [false, 0],
-            [null, 0],
-            [0, 0],
-            [1234, 1234],
-            [1243.42314, 1243.42314],
-            ['', 0],
-            ['test', 0],
-            [['foo' => 'bar'], 0],
-        ];
+        yield 'float true 1' => [true, 1];
+        yield 'float false 0' => [false, 0];
+        yield 'float null 0' => [null, 0];
+        yield 'float 0 0' => [0, 0];
+        yield 'float 1234 1234' => [1234, 1234];
+        yield 'float 1243 point 42314 1243 point 42314' => [1243.42314, 1243.42314];
+        yield 'float 0' => ['', 0];
+        yield 'float test 0' => ['test', 0];
+        yield 'float foo bar 0' => [['foo' => 'bar'], 0];
     }
 
     /**
@@ -171,22 +163,20 @@ class SystemConfigServiceTest extends TestCase
     }
 
     /**
-     * @return iterable<int, array{mixed, bool}>
+     * @return iterable<string, array{mixed, bool}>
      */
     public static function getBoolProvider(): iterable
     {
-        yield from [
-            [true, true],
-            [false, false],
-            [null, false],
-            [0, false],
-            [1234, true],
-            [1243.42314, true],
-            ['', false],
-            ['test', true],
-            [['foo' => 'bar'], true],
-            [[], false],
-        ];
+        yield 'bool true true' => [true, true];
+        yield 'bool false false' => [false, false];
+        yield 'bool null false' => [null, false];
+        yield 'bool 0 false' => [0, false];
+        yield 'bool 1234 true' => [1234, true];
+        yield 'bool 1243 point 42314 true' => [1243.42314, true];
+        yield 'bool false' => ['', false];
+        yield 'bool test true' => ['test', true];
+        yield 'bool foo bar true' => [['foo' => 'bar'], true];
+        yield 'bool false variant 2' => [[], false];
     }
 
     /**

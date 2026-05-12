@@ -236,12 +236,10 @@ class ProductBoxCmsElementResolverTest extends TestCase
      */
     public static function enrichDataProvider(): iterable
     {
-        yield from [
-            [false, false, 1],
-            [false, true, 1],
-            [true, false, 1],
-            [true, true, 1],
-            [true, true, 0],
-        ];
+        yield 'enrich false false 1' => [false, false, 1];
+        yield 'enrich false true 1' => [false, true, 1];
+        yield 'enrich true false 1' => [true, false, 1];
+        yield 'enrich true true 1' => [true, true, 1];
+        yield 'enrich true true 0' => [true, true, 0];
     }
 }

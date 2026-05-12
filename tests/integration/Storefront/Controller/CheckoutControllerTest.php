@@ -359,172 +359,170 @@ class CheckoutControllerTest extends TestCase
         static::assertNotNull($paidInAdvancePaymentMethodId, 'Paid in advance payment method not found');
         static::assertNotNull($invoicePaymentMethodId, 'Invoice payment method not found');
 
-        yield from [
-            // One shipping method blocked is expected to be switched
-            [
-                new ErrorCollection(
-                    [
-                        new ShippingMethodChangedError(
-                            oldShippingMethodId: $standardShippingMethodId,
-                            oldShippingMethodName: 'Standard',
-                            newShippingMethodId: $expressShippingMethodId,
-                            newShippingMethodName: 'Express',
-                            reason: 'foo',
-                        ),
-                    ]
-                ),
+        // One shipping method blocked is expected to be switched
+        yield 'error one shipping method blocked is expected to be switched' => [
+            new ErrorCollection(
                 [
-                    \sprintf(self::SHIPPING_METHOD_CHANGED_ERROR_CONTENT, 'Standard', 'Express'),
-                ],
+                    new ShippingMethodChangedError(
+                        oldShippingMethodId: $standardShippingMethodId,
+                        oldShippingMethodName: 'Standard',
+                        newShippingMethodId: $expressShippingMethodId,
+                        newShippingMethodName: 'Express',
+                        reason: 'foo',
+                    ),
+                ]
+            ),
+            [
+                \sprintf(self::SHIPPING_METHOD_CHANGED_ERROR_CONTENT, 'Standard', 'Express'),
             ],
-            // All shipping methods blocked expected to stay blocked
-            [
-                new ErrorCollection(
-                    [
-                        new ShippingMethodChangedError(
-                            oldShippingMethodId: $standardShippingMethodId,
-                            oldShippingMethodName: 'Standard',
-                            newShippingMethodId: $expressShippingMethodId,
-                            newShippingMethodName: 'Express',
-                            reason: 'foo',
-                        ),
-                        new ShippingMethodChangedError(
-                            oldShippingMethodId: $expressShippingMethodId,
-                            oldShippingMethodName: 'Express',
-                            newShippingMethodId: $standardShippingMethodId,
-                            newShippingMethodName: 'Standard',
-                            reason: 'foo',
-                        ),
-                    ]
-                ),
+        ];
+        // All shipping methods blocked expected to stay blocked
+        yield 'error all shipping methods blocked expected to stay blocked' => [
+            new ErrorCollection(
                 [
-                    \sprintf(self::SHIPPING_METHOD_BLOCKED_ERROR_CONTENT, 'Express'),
-                ],
-                false,
-                true,
+                    new ShippingMethodChangedError(
+                        oldShippingMethodId: $standardShippingMethodId,
+                        oldShippingMethodName: 'Standard',
+                        newShippingMethodId: $expressShippingMethodId,
+                        newShippingMethodName: 'Express',
+                        reason: 'foo',
+                    ),
+                    new ShippingMethodChangedError(
+                        oldShippingMethodId: $expressShippingMethodId,
+                        oldShippingMethodName: 'Express',
+                        newShippingMethodId: $standardShippingMethodId,
+                        newShippingMethodName: 'Standard',
+                        reason: 'foo',
+                    ),
+                ]
+            ),
+            [
+                \sprintf(self::SHIPPING_METHOD_BLOCKED_ERROR_CONTENT, 'Express'),
             ],
-            // One payment method blocked is expected to be switched
-            [
-                new ErrorCollection(
-                    [
-                        new PaymentMethodChangedError(
-                            oldPaymentMethodId: $cashOnDeliveryPaymentMethodId,
-                            oldPaymentMethodName: 'Cash On Delivery',
-                            newPaymentMethodId: $paidInAdvancePaymentMethodId,
-                            newPaymentMethodName: 'Paid in advance',
-                            reason: 'bar',
-                        ),
-                    ]
-                ),
+            false,
+            true,
+        ];
+        // One payment method blocked is expected to be switched
+        yield 'error one payment method blocked is expected to be switched' => [
+            new ErrorCollection(
                 [
-                    \sprintf(self::PAYMENT_METHOD_CHANGED_ERROR_CONTENT, 'Cash on delivery', 'Paid in advance'),
-                ],
+                    new PaymentMethodChangedError(
+                        oldPaymentMethodId: $cashOnDeliveryPaymentMethodId,
+                        oldPaymentMethodName: 'Cash On Delivery',
+                        newPaymentMethodId: $paidInAdvancePaymentMethodId,
+                        newPaymentMethodName: 'Paid in advance',
+                        reason: 'bar',
+                    ),
+                ]
+            ),
+            [
+                \sprintf(self::PAYMENT_METHOD_CHANGED_ERROR_CONTENT, 'Cash on delivery', 'Paid in advance'),
             ],
-            // All payment methods blocked expected to stay blocked
-            [
-                new ErrorCollection(
-                    [
-                        new PaymentMethodChangedError(
-                            oldPaymentMethodId: $paidInAdvancePaymentMethodId,
-                            oldPaymentMethodName: 'Paid in advance',
-                            newPaymentMethodId: $invoicePaymentMethodId,
-                            newPaymentMethodName: 'Invoice',
-                            reason: 'bar',
-                        ),
-                        new PaymentMethodChangedError(
-                            oldPaymentMethodId: $invoicePaymentMethodId,
-                            oldPaymentMethodName: 'Invoice',
-                            newPaymentMethodId: $cashOnDeliveryPaymentMethodId,
-                            newPaymentMethodName: 'Cash On Delivery',
-                            reason: 'bar',
-                        ),
-                        new PaymentMethodChangedError(
-                            oldPaymentMethodId: $cashOnDeliveryPaymentMethodId,
-                            oldPaymentMethodName: 'Cash On Delivery',
-                            newPaymentMethodId: $paidInAdvancePaymentMethodId,
-                            newPaymentMethodName: 'Paid in advance',
-                            reason: 'bar',
-                        ),
-                    ]
-                ),
+        ];
+        // All payment methods blocked expected to stay blocked
+        yield 'error all payment methods blocked expected to stay blocked' => [
+            new ErrorCollection(
                 [
-                    \sprintf(self::PAYMENT_METHOD_BLOCKED_ERROR_CONTENT, 'Cash on delivery'),
-                ],
-                false,
-                true,
+                    new PaymentMethodChangedError(
+                        oldPaymentMethodId: $paidInAdvancePaymentMethodId,
+                        oldPaymentMethodName: 'Paid in advance',
+                        newPaymentMethodId: $invoicePaymentMethodId,
+                        newPaymentMethodName: 'Invoice',
+                        reason: 'bar',
+                    ),
+                    new PaymentMethodChangedError(
+                        oldPaymentMethodId: $invoicePaymentMethodId,
+                        oldPaymentMethodName: 'Invoice',
+                        newPaymentMethodId: $cashOnDeliveryPaymentMethodId,
+                        newPaymentMethodName: 'Cash On Delivery',
+                        reason: 'bar',
+                    ),
+                    new PaymentMethodChangedError(
+                        oldPaymentMethodId: $cashOnDeliveryPaymentMethodId,
+                        oldPaymentMethodName: 'Cash On Delivery',
+                        newPaymentMethodId: $paidInAdvancePaymentMethodId,
+                        newPaymentMethodName: 'Paid in advance',
+                        reason: 'bar',
+                    ),
+                ]
+            ),
+            [
+                \sprintf(self::PAYMENT_METHOD_BLOCKED_ERROR_CONTENT, 'Cash on delivery'),
             ],
-            // Standard shipping and payment method blocked expected to switch both
-            [
-                new ErrorCollection(
-                    [
-                        new ShippingMethodChangedError(
-                            oldShippingMethodId: $standardShippingMethodId,
-                            oldShippingMethodName: 'Standard',
-                            newShippingMethodId: $expressShippingMethodId,
-                            newShippingMethodName: 'Express',
-                            reason: 'foo',
-                        ),
-                        new PaymentMethodChangedError(
-                            oldPaymentMethodId: $cashOnDeliveryPaymentMethodId,
-                            oldPaymentMethodName: 'Cash On Delivery',
-                            newPaymentMethodId: $paidInAdvancePaymentMethodId,
-                            newPaymentMethodName: 'Paid in advance',
-                            reason: 'bar',
-                        ),
-                    ]
-                ),
+            false,
+            true,
+        ];
+        // Standard shipping and payment method blocked expected to switch both
+        yield 'error standard shipping and payment method blocked expected to switch both' => [
+            new ErrorCollection(
                 [
-                    \sprintf(self::SHIPPING_METHOD_CHANGED_ERROR_CONTENT, 'Standard', 'Express'),
-                    \sprintf(self::PAYMENT_METHOD_CHANGED_ERROR_CONTENT, 'Cash on delivery', 'Paid in advance'),
-                ],
+                    new ShippingMethodChangedError(
+                        oldShippingMethodId: $standardShippingMethodId,
+                        oldShippingMethodName: 'Standard',
+                        newShippingMethodId: $expressShippingMethodId,
+                        newShippingMethodName: 'Express',
+                        reason: 'foo',
+                    ),
+                    new PaymentMethodChangedError(
+                        oldPaymentMethodId: $cashOnDeliveryPaymentMethodId,
+                        oldPaymentMethodName: 'Cash On Delivery',
+                        newPaymentMethodId: $paidInAdvancePaymentMethodId,
+                        newPaymentMethodName: 'Paid in advance',
+                        reason: 'bar',
+                    ),
+                ]
+            ),
+            [
+                \sprintf(self::SHIPPING_METHOD_CHANGED_ERROR_CONTENT, 'Standard', 'Express'),
+                \sprintf(self::PAYMENT_METHOD_CHANGED_ERROR_CONTENT, 'Cash on delivery', 'Paid in advance'),
             ],
-            // None defaults blocked, should switch to defaults
-            [
-                new ErrorCollection(
-                    [
-                        new ShippingMethodChangedError(
-                            oldShippingMethodId: $expressShippingMethodId,
-                            oldShippingMethodName: 'Express',
-                            newShippingMethodId: $standardShippingMethodId,
-                            newShippingMethodName: 'Standard',
-                            reason: 'foo',
-                        ),
-                        new PaymentMethodChangedError(
-                            oldPaymentMethodId: $invoicePaymentMethodId,
-                            oldPaymentMethodName: 'Invoice',
-                            newPaymentMethodId: $paidInAdvancePaymentMethodId,
-                            newPaymentMethodName: 'Paid in advance',
-                            reason: 'bar',
-                        ),
-                    ]
-                ),
+        ];
+        // None defaults blocked, should switch to defaults
+        yield 'error none defaults blocked should switch to defaults' => [
+            new ErrorCollection(
                 [
-                    \sprintf(self::SHIPPING_METHOD_CHANGED_ERROR_CONTENT, 'Express', 'Standard'),
-                    \sprintf(self::PAYMENT_METHOD_CHANGED_ERROR_CONTENT, 'Invoice', 'Paid in advance'),
-                ],
-                true,
+                    new ShippingMethodChangedError(
+                        oldShippingMethodId: $expressShippingMethodId,
+                        oldShippingMethodName: 'Express',
+                        newShippingMethodId: $standardShippingMethodId,
+                        newShippingMethodName: 'Standard',
+                        reason: 'foo',
+                    ),
+                    new PaymentMethodChangedError(
+                        oldPaymentMethodId: $invoicePaymentMethodId,
+                        oldPaymentMethodName: 'Invoice',
+                        newPaymentMethodId: $paidInAdvancePaymentMethodId,
+                        newPaymentMethodName: 'Paid in advance',
+                        reason: 'bar',
+                    ),
+                ]
+            ),
+            [
+                \sprintf(self::SHIPPING_METHOD_CHANGED_ERROR_CONTENT, 'Express', 'Standard'),
+                \sprintf(self::PAYMENT_METHOD_CHANGED_ERROR_CONTENT, 'Invoice', 'Paid in advance'),
             ],
-            // Promotion not found
-            [
-                new ErrorCollection(
-                    [
-                        new PromotionNotFoundError('tn-08'),
-                    ]
-                ),
+            true,
+        ];
+        // Promotion not found
+        yield 'error promotion not found' => [
+            new ErrorCollection(
                 [
-                    self::PROMOTION_NOT_FOUND_ERROR_CONTENT,
-                ],
+                    new PromotionNotFoundError('tn-08'),
+                ]
+            ),
+            [
+                self::PROMOTION_NOT_FOUND_ERROR_CONTENT,
             ],
-            // Product out of stock
-            [
-                new ErrorCollection(
-                    [
-                        new ProductOutOfStockError('product id', 'Car'),
-                    ]
-                ),
+        ];
+        // Product out of stock
+        yield 'error product out of stock' => [
+            new ErrorCollection(
                 [
-                    self::PRODUCT_STOCK_REACHED_ERROR_CONTENT,
-                ],
+                    new ProductOutOfStockError('product id', 'Car'),
+                ]
+            ),
+            [
+                self::PRODUCT_STOCK_REACHED_ERROR_CONTENT,
             ],
         ];
     }

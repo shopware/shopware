@@ -96,12 +96,10 @@ class Migration1736824370MigrationMailTemplateForDocumentTest extends TestCase
      */
     public static function mailTypeProvider(): iterable
     {
-        yield from [
-            MailTemplateTypes::MAILTYPE_DOCUMENT_INVOICE => [MailTemplateTypes::MAILTYPE_DOCUMENT_INVOICE],
-            MailTemplateTypes::MAILTYPE_DOCUMENT_DELIVERY_NOTE => [MailTemplateTypes::MAILTYPE_DOCUMENT_DELIVERY_NOTE],
-            MailTemplateTypes::MAILTYPE_DOCUMENT_CREDIT_NOTE => [MailTemplateTypes::MAILTYPE_DOCUMENT_CREDIT_NOTE],
-            MailTemplateTypes::MAILTYPE_DOCUMENT_CANCELLATION_INVOICE => [MailTemplateTypes::MAILTYPE_DOCUMENT_CANCELLATION_INVOICE],
-        ];
+        yield MailTemplateTypes::MAILTYPE_DOCUMENT_INVOICE => [MailTemplateTypes::MAILTYPE_DOCUMENT_INVOICE];
+        yield MailTemplateTypes::MAILTYPE_DOCUMENT_DELIVERY_NOTE => [MailTemplateTypes::MAILTYPE_DOCUMENT_DELIVERY_NOTE];
+        yield MailTemplateTypes::MAILTYPE_DOCUMENT_CREDIT_NOTE => [MailTemplateTypes::MAILTYPE_DOCUMENT_CREDIT_NOTE];
+        yield MailTemplateTypes::MAILTYPE_DOCUMENT_CANCELLATION_INVOICE => [MailTemplateTypes::MAILTYPE_DOCUMENT_CANCELLATION_INVOICE];
     }
 
     private function executeMigration(): void

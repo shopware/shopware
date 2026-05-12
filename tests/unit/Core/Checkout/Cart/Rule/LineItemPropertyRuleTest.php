@@ -45,7 +45,7 @@ class LineItemPropertyRuleTest extends TestCase
     }
 
     /**
-     * @return iterable<array<CartRuleScopeCase>>
+     * @return iterable<string, array<CartRuleScopeCase>>
      */
     public static function cartRuleScopeProvider(): iterable
     {
@@ -78,7 +78,9 @@ class LineItemPropertyRuleTest extends TestCase
             new CartRuleScopeCase('Merge case', true, new LineItemPropertyRule(['green']), [$mergeCase]),
         ];
 
-        yield from array_map(static fn ($case) => [$case], $cases);
+        foreach ($cases as $case) {
+            yield \sprintf('%s %s', $case->description, $case->match ? 'matches' : 'does not match') => [$case];
+        }
     }
 
     /**

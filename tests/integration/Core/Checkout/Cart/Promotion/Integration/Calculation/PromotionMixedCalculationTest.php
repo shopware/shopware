@@ -324,8 +324,7 @@ class PromotionMixedCalculationTest extends TestCase
      */
     public static function groupPackageAndPickerProvider(): iterable
     {
-        yield from [
-            /*
+        yield /*
              * For every 4 items, get 1 first most expensive item
              * vertical => within each built group of items
              * max 6 items may be discounted, because only 5 groups may be built, max discounted items is set to 5
@@ -334,9 +333,9 @@ class PromotionMixedCalculationTest extends TestCase
              * discount: 10% off
              */
             'Vertical, most expensive #1' => [
-                -8.0, '1', '6', 10.0, 'PRICE_DESC', 'VERTICAL', 4, 'PRICE_ASC',
-            ],
-            /*
+            -8.0, '1', '6', 10.0, 'PRICE_DESC', 'VERTICAL', 4, 'PRICE_ASC',
+        ];
+        yield /*
              * For every 4 items, get 1 second most expensive item
              * vertical => within each built group of items
              * max 6 items may be discounted, because only 5 groups may be built, max discounted items is set to 5
@@ -345,9 +344,9 @@ class PromotionMixedCalculationTest extends TestCase
              * discount: 10% off
              */
             'Vertical, most expensive #2' => [
-                -8.0, '2', '6', 10.0, 'PRICE_DESC', 'VERTICAL', 4, 'PRICE_ASC',
-            ],
-            /*
+            -8.0, '2', '6', 10.0, 'PRICE_DESC', 'VERTICAL', 4, 'PRICE_ASC',
+        ];
+        yield /*
              * For every 4 items, get 1 third most expensive item
              * vertical => within each built group of items
              * groups are built sorted by cheapest items
@@ -356,9 +355,9 @@ class PromotionMixedCalculationTest extends TestCase
              * discount: 10% off
              */
             'Vertical, most expensive #3' => [
-                -7.0, '3', '6', 10.0, 'PRICE_DESC', 'VERTICAL', 4, 'PRICE_ASC',
-            ],
-            /*
+            -7.0, '3', '6', 10.0, 'PRICE_DESC', 'VERTICAL', 4, 'PRICE_ASC',
+        ];
+        yield /*
              * For every 4 items, get 1 forth most expensive item
              * vertical => within each built group of items
              * groups are built sorted by cheapest items
@@ -367,9 +366,9 @@ class PromotionMixedCalculationTest extends TestCase
              * discount: 10% off
              */
             'Vertical, most expensive #4' => [
-                -7.0, '4', '6', 10.0, 'PRICE_DESC', 'VERTICAL', 4, 'PRICE_ASC',
-            ],
-            /*
+            -7.0, '4', '6', 10.0, 'PRICE_DESC', 'VERTICAL', 4, 'PRICE_ASC',
+        ];
+        yield /*
              * For every 4 items, get 1 first most expensive item
              * horizontal => across all items
              * groups are built sorted by cheapest items
@@ -378,9 +377,9 @@ class PromotionMixedCalculationTest extends TestCase
              * discount: 10% off
              */
             'Horizontal, most expensive #1' => [
-                -10.0, '1', '6', 10.0, 'PRICE_DESC', 'HORIZONTAL', 4, 'PRICE_ASC',
-            ],
-            /*
+            -10.0, '1', '6', 10.0, 'PRICE_DESC', 'HORIZONTAL', 4, 'PRICE_ASC',
+        ];
+        yield /*
              * For every 4 items, get 1 second most expensive item
              * horizontal => across all items
              * groups are built sorted by cheapest items
@@ -389,9 +388,9 @@ class PromotionMixedCalculationTest extends TestCase
              * discount: 10% off
              */
             'Horizontal, most expensive #2' => [
-                -10.0, '2', '6', 10.0, 'PRICE_DESC', 'HORIZONTAL', 4, 'PRICE_ASC',
-            ],
-            /*
+            -10.0, '2', '6', 10.0, 'PRICE_DESC', 'HORIZONTAL', 4, 'PRICE_ASC',
+        ];
+        yield /*
              * For every 4 items, get 1 third most expensive item
              * horizontal => across all items
              * groups are built sorted by cheapest items
@@ -400,9 +399,9 @@ class PromotionMixedCalculationTest extends TestCase
              * discount: 10% off
              */
             'Horizontal, most expensive #3' => [
-                -5.0, '3', '6', 10.0, 'PRICE_DESC', 'HORIZONTAL', 4, 'PRICE_ASC',
-            ],
-            /*
+            -5.0, '3', '6', 10.0, 'PRICE_DESC', 'HORIZONTAL', 4, 'PRICE_ASC',
+        ];
+        yield /*
              * For every 4 items, get 1 forth most expensive item
              * horizontal => across all items
              * groups are built sorted by cheapest items
@@ -411,9 +410,9 @@ class PromotionMixedCalculationTest extends TestCase
              * discount: 10% off
              */
             'Horizontal, most expensive #4' => [
-                -5.0, '4', '6', 10.0, 'PRICE_DESC', 'HORIZONTAL', 4, 'PRICE_ASC',
-            ],
-            /*
+            -5.0, '4', '6', 10.0, 'PRICE_DESC', 'HORIZONTAL', 4, 'PRICE_ASC',
+        ];
+        yield /*
              * For every 4 items, get 1 first cheapest item
              * vertical => within each built group of items
              * groups are built sorted by cheapest items
@@ -422,9 +421,9 @@ class PromotionMixedCalculationTest extends TestCase
              * discount: 10% off
              */
             'Vertical, cheapest #1' => [
-                -7.0, '1', '6', 10.0, 'PRICE_ASC', 'VERTICAL', 4, 'PRICE_ASC',
-            ],
-            /*
+            -7.0, '1', '6', 10.0, 'PRICE_ASC', 'VERTICAL', 4, 'PRICE_ASC',
+        ];
+        yield /*
              * For every 4 items, get 1 second cheapest item
              * vertical => within each built group of items
              * groups are built sorted by cheapest items
@@ -433,9 +432,9 @@ class PromotionMixedCalculationTest extends TestCase
              * discount: 10% off
              */
             'Vertical, cheapest #2' => [
-                -7.0, '2', '6', 10.0, 'PRICE_ASC', 'VERTICAL', 4, 'PRICE_ASC',
-            ],
-            /*
+            -7.0, '2', '6', 10.0, 'PRICE_ASC', 'VERTICAL', 4, 'PRICE_ASC',
+        ];
+        yield /*
              * For every 4 items, get 1 third cheapest item
              * vertical => within each built group of items
              * groups are built sorted by cheapest items
@@ -444,9 +443,9 @@ class PromotionMixedCalculationTest extends TestCase
              * discount: 10% off
              */
             'Vertical, cheapest #3' => [
-                -8.0, '3', '6', 10.0, 'PRICE_ASC', 'VERTICAL', 4, 'PRICE_ASC',
-            ],
-            /*
+            -8.0, '3', '6', 10.0, 'PRICE_ASC', 'VERTICAL', 4, 'PRICE_ASC',
+        ];
+        yield /*
              * For every 4 items, get 1 forth cheapest item
              * vertical => within each built group of items
              * groups are built sorted by cheapest items
@@ -455,9 +454,9 @@ class PromotionMixedCalculationTest extends TestCase
              * discount: 10% off
              */
             'Vertical, cheapest #4' => [
-                -8.0, '4', '6', 10.0, 'PRICE_ASC', 'VERTICAL', 4, 'PRICE_ASC',
-            ],
-            /*
+            -8.0, '4', '6', 10.0, 'PRICE_ASC', 'VERTICAL', 4, 'PRICE_ASC',
+        ];
+        yield /*
              * For every 4 items, get 1 first cheapest item
              * horizontal => across all items
              * groups are built sorted by cheapest items
@@ -466,9 +465,9 @@ class PromotionMixedCalculationTest extends TestCase
              * discount: 10% off
              */
             'Horizontal, cheapest #1' => [
-                -5.0, '1', '6', 10.0, 'PRICE_ASC', 'HORIZONTAL', 4, 'PRICE_ASC',
-            ],
-            /*
+            -5.0, '1', '6', 10.0, 'PRICE_ASC', 'HORIZONTAL', 4, 'PRICE_ASC',
+        ];
+        yield /*
              * For every 4 items, get 1 second cheapest item
              * horizontal => across all items
              * groups are built sorted by cheapest items
@@ -477,9 +476,9 @@ class PromotionMixedCalculationTest extends TestCase
              * discount: 10% off
              */
             'Horizontal, cheapest #2' => [
-                -5.0, '2', '6', 10.0, 'PRICE_ASC', 'HORIZONTAL', 4, 'PRICE_ASC',
-            ],
-            /*
+            -5.0, '2', '6', 10.0, 'PRICE_ASC', 'HORIZONTAL', 4, 'PRICE_ASC',
+        ];
+        yield /*
              * For every 4 items, get 1 third cheapest item
              * horizontal => across all items
              * groups are built sorted by cheapest items
@@ -488,9 +487,9 @@ class PromotionMixedCalculationTest extends TestCase
              * discount: 10% off
              */
             'Horizontal, cheapest #3' => [
-                -10.0, '3', '6', 10.0, 'PRICE_ASC', 'HORIZONTAL', 4, 'PRICE_ASC',
-            ],
-            /*
+            -10.0, '3', '6', 10.0, 'PRICE_ASC', 'HORIZONTAL', 4, 'PRICE_ASC',
+        ];
+        yield /*
              * For every 4 items, get 1 forth cheapest item
              * horizontal => across all items
              * groups are built sorted by cheapest items
@@ -499,9 +498,9 @@ class PromotionMixedCalculationTest extends TestCase
              * discount: 10% off
              */
             'Horizontal, cheapest #4' => [
-                -10.0, '4', '6', 10.0, 'PRICE_ASC', 'HORIZONTAL', 4, 'PRICE_ASC',
-            ],
-            /*
+            -10.0, '4', '6', 10.0, 'PRICE_ASC', 'HORIZONTAL', 4, 'PRICE_ASC',
+        ];
+        yield /*
              * For every 5 items, get 1 first most expensive item
              * vertical => within each built group of items
              * groups are built sorted by cheapest items
@@ -510,9 +509,9 @@ class PromotionMixedCalculationTest extends TestCase
              * discount: 10% off
              */
             'Vertical, most expensive #5' => [
-                -1.0, '1', '1', 10.0, 'PRICE_DESC', 'VERTICAL', 5, 'PRICE_ASC',
-            ],
-            /*
+            -1.0, '1', '1', 10.0, 'PRICE_DESC', 'VERTICAL', 5, 'PRICE_ASC',
+        ];
+        yield /*
              * For every 5 items, get 1 first most expensive item
              * vertical => within each built group of items
              * groups are built sorted by cheapest items
@@ -521,9 +520,9 @@ class PromotionMixedCalculationTest extends TestCase
              * discount: 10% off
              */
             'Vertical, cheapest #5' => [
-                -1.0, '1', '1', 10.0, 'PRICE_ASC', 'VERTICAL', 5, 'PRICE_ASC',
-            ],
-            /*
+            -1.0, '1', '1', 10.0, 'PRICE_ASC', 'VERTICAL', 5, 'PRICE_ASC',
+        ];
+        yield /*
              * For every 5 items, get 1 first most expensive item
              * horizontal => across all items
              * groups are built sorted by cheapest items
@@ -532,9 +531,9 @@ class PromotionMixedCalculationTest extends TestCase
              * discount: 10% off
              */
             'Horizontal, most expensive #5' => [
-                -2.0, '1', '1', 10.0, 'PRICE_DESC', 'HORIZONTAL', 5, 'PRICE_ASC',
-            ],
-            /*
+            -2.0, '1', '1', 10.0, 'PRICE_DESC', 'HORIZONTAL', 5, 'PRICE_ASC',
+        ];
+        yield /*
              * For every 5 items, get 1 first cheapest item
              * horizontal => across all items
              * groups are built sorted by cheapest items
@@ -543,9 +542,9 @@ class PromotionMixedCalculationTest extends TestCase
              * discount: 10% off
              */
             'Horizontal, cheapest #5' => [
-                -1.0, '1', '1', 10.0, 'PRICE_ASC', 'HORIZONTAL', 5, 'PRICE_ASC',
-            ],
-            /*
+            -1.0, '1', '1', 10.0, 'PRICE_ASC', 'HORIZONTAL', 5, 'PRICE_ASC',
+        ];
+        yield /*
              * For every 5 items, get 1 first most expensive item
              * vertical => within each built group of items
              * groups are built sorted by cheapest items
@@ -554,9 +553,9 @@ class PromotionMixedCalculationTest extends TestCase
              * discount: 10% off
              */
             'Vertical, most expensive #6' => [
-                -6.0, '1', 'ALL', 10.0, 'PRICE_DESC', 'VERTICAL', 5, 'PRICE_ASC',
-            ],
-            /*
+            -6.0, '1', 'ALL', 10.0, 'PRICE_DESC', 'VERTICAL', 5, 'PRICE_ASC',
+        ];
+        yield /*
              * For every 5 items, get 1 first cheapest item
              * vertical => within each built group of items
              * groups are built sorted by cheapest items
@@ -565,9 +564,9 @@ class PromotionMixedCalculationTest extends TestCase
              * discount: 10% off
              */
             'Vertical, cheapest #6' => [
-                -6.0, '1', 'ALL', 10.0, 'PRICE_ASC', 'VERTICAL', 5, 'PRICE_ASC',
-            ],
-            /*
+            -6.0, '1', 'ALL', 10.0, 'PRICE_ASC', 'VERTICAL', 5, 'PRICE_ASC',
+        ];
+        yield /*
              * For every 5 items, get 1 first most expensive item
              * horizontal => across all items
              * groups are built sorted by cheapest items
@@ -576,9 +575,9 @@ class PromotionMixedCalculationTest extends TestCase
              * discount: 10% off
              */
             'Horizontal, most expensive #6' => [
-                -8.0, '1', 'ALL', 10.0, 'PRICE_DESC', 'HORIZONTAL', 5, 'PRICE_ASC',
-            ],
-            /*
+            -8.0, '1', 'ALL', 10.0, 'PRICE_DESC', 'HORIZONTAL', 5, 'PRICE_ASC',
+        ];
+        yield /*
              * For every 5 items, get 1 first cheapest item
              * horizontal => across all items
              * groups are built sorted by cheapest items
@@ -587,9 +586,9 @@ class PromotionMixedCalculationTest extends TestCase
              * discount: 10% off
              */
             'Horizontal, cheapest #6' => [
-                -4.0, '1', 'ALL', 10.0, 'PRICE_ASC', 'HORIZONTAL', 5, 'PRICE_ASC',
-            ],
-            /*
+            -4.0, '1', 'ALL', 10.0, 'PRICE_ASC', 'HORIZONTAL', 5, 'PRICE_ASC',
+        ];
+        yield /*
              * Edge case for 'Vertical, most expensive #5' (here: group sorting desc)
              * For every 5 items, get 1 first most expensive item
              * vertical => within each built group of items
@@ -599,9 +598,9 @@ class PromotionMixedCalculationTest extends TestCase
              * discount: 10% off
              */
             'Vertical, most expensive #5-1' => [
-                -2.0, '1', '1', 10.0, 'PRICE_DESC', 'VERTICAL', 5, 'PRICE_DESC',
-            ],
-            /*
+            -2.0, '1', '1', 10.0, 'PRICE_DESC', 'VERTICAL', 5, 'PRICE_DESC',
+        ];
+        yield /*
              * Edge case for 'Vertical, cheapest #5-1' (here: group sorting desc)
              * For every 5 items, get 1 first most expensive item
              * vertical => within each built group of items
@@ -611,8 +610,7 @@ class PromotionMixedCalculationTest extends TestCase
              * discount: 10% off
              */
             'Vertical, cheapest #5-1' => [
-                -2.0, '1', '1', 10.0, 'PRICE_ASC', 'VERTICAL', 5, 'PRICE_DESC',
-            ],
+            -2.0, '1', '1', 10.0, 'PRICE_ASC', 'VERTICAL', 5, 'PRICE_DESC',
         ];
     }
 

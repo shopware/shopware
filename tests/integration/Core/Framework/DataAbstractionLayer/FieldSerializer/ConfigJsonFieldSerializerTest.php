@@ -54,21 +54,19 @@ class ConfigJsonFieldSerializerTest extends TestCase
     }
 
     /**
-     * @return iterable<int, list<string|int|float|false|array<string, mixed>|list<int>|null>>
+     * @return iterable<string, list<string|int|float|false|array<string, mixed>|list<int>|null>>
      */
     public static function serializerProvider(): iterable
     {
-        yield from [
-            ['string'],
-            [11234],
-            [11234.123243],
-            [['foo' => 'sadfsadf', 'bar' => ['a' => 1234]]],
-            [[1, 2, 3]],
-            [null],
-            [false],
-            [0],
-            [''],
-        ];
+        yield 'serializer string' => ['string'];
+        yield 'serializer 11234' => [11234];
+        yield 'serializer 11234 point 123243' => [11234.123243];
+        yield 'serializer foo sadfsadf bar a 1234' => [['foo' => 'sadfsadf', 'bar' => ['a' => 1234]]];
+        yield 'serializer 1 2 3' => [[1, 2, 3]];
+        yield 'serializer null' => [null];
+        yield 'serializer false' => [false];
+        yield 'serializer 0' => [0];
+        yield 'serializer scenario 9' => [''];
     }
 
     /**

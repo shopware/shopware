@@ -73,22 +73,20 @@ class ArrayWriterTest extends TestCase
      */
     public static function dumpProvider(): iterable
     {
-        yield from [
-            'short' => [
-                ['foo' => 'bar', 'baz' => ''],
-                false,
-                "<?php declare(strict_types=1);\n\nreturn [\n    'foo' => 'bar',\n    'baz' => '',\n];\n",
-            ],
-            'long-empty' => [
-                ['foo' => ''],
-                true,
-                "<?php declare(strict_types=1);\n\nreturn [\n    'foo' => '',\n];\n",
-            ],
-            'long-nonempty' => [
-                ['foo' => "bar\nline2"],
-                true,
-                "<?php declare(strict_types=1);\n\nreturn [\n    'foo' => <<<'EOD'\nbar\nline2\nEOD\n    ,\n];\n",
-            ],
+        yield 'short' => [
+            ['foo' => 'bar', 'baz' => ''],
+            false,
+            "<?php declare(strict_types=1);\n\nreturn [\n    'foo' => 'bar',\n    'baz' => '',\n];\n",
+        ];
+        yield 'long-empty' => [
+            ['foo' => ''],
+            true,
+            "<?php declare(strict_types=1);\n\nreturn [\n    'foo' => '',\n];\n",
+        ];
+        yield 'long-nonempty' => [
+            ['foo' => "bar\nline2"],
+            true,
+            "<?php declare(strict_types=1);\n\nreturn [\n    'foo' => <<<'EOD'\nbar\nline2\nEOD\n    ,\n];\n",
         ];
     }
 

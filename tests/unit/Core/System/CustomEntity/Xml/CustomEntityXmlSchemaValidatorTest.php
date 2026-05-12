@@ -58,67 +58,65 @@ class CustomEntityXmlSchemaValidatorTest extends TestCase
      */
     public static function xmlProvider(): iterable
     {
-        yield from [
-            'custom-fields-aware-but-no-label' => [
-                <<<'XML'
-                <entity custom-fields-aware="true">
-                    <fields>
-                        <string name="id"/>
-                        <string name="name" translatable="true" />
-                    </fields>
-                </entity>
-                XML,
-                CustomEntityException::class,
-                'Entity must have a label property when it is custom field aware',
-            ],
-            'custom-fields-aware-non-existent-label-prop' => [
-                <<<'XML'
-                <entity custom-fields-aware="true" label-property="label">
-                    <fields>
-                        <string name="id"/>
-                        <string name="name" translatable="true" />
-                    </fields>
-                </entity>
-                XML,
-                CustomEntityException::class,
-                'Entity label_property "label" is not defined in fields',
-            ],
-            'custom-fields-aware-non-string-label-prop' => [
-                <<<'XML'
-                <entity custom-fields-aware="true" label-property="name">
-                    <fields>
-                        <string name="id"/>
-                        <int name="name" translatable="true" />
-                    </fields>
-                </entity>
-                XML,
-                CustomEntityException::class,
-                'Entity label_property "name" must be a string field',
-            ],
-            'cascade-delete-to-core-table' => [
-                <<<'XML'
-                <entity name="ce_test">
-                    <fields>
-                        <string name="id"/>
-                        <one-to-many name="products" reference="product" on-delete="cascade"/>
-                    </fields>
-                </entity>
-                XML,
-                \RuntimeException::class,
-                'Cascade delete and referencing core tables are not allowed, field products',
-            ],
-            'reverse-required-to-core-table' => [
-                <<<'XML'
-                <entity name="ce_test">
-                    <fields>
-                        <string name="id"/>
-                        <one-to-many name="products" reference="product" on-delete="set-null" reverse-required="true" />
-                    </fields>
-                </entity>
-                XML,
-                \RuntimeException::class,
-                'Reverse required when referencing core tables is not allowed, field products',
-            ],
+        yield 'custom-fields-aware-but-no-label' => [
+            <<<'XML'
+            <entity custom-fields-aware="true">
+                <fields>
+                    <string name="id"/>
+                    <string name="name" translatable="true" />
+                </fields>
+            </entity>
+            XML,
+            CustomEntityException::class,
+            'Entity must have a label property when it is custom field aware',
+        ];
+        yield 'custom-fields-aware-non-existent-label-prop' => [
+            <<<'XML'
+            <entity custom-fields-aware="true" label-property="label">
+                <fields>
+                    <string name="id"/>
+                    <string name="name" translatable="true" />
+                </fields>
+            </entity>
+            XML,
+            CustomEntityException::class,
+            'Entity label_property "label" is not defined in fields',
+        ];
+        yield 'custom-fields-aware-non-string-label-prop' => [
+            <<<'XML'
+            <entity custom-fields-aware="true" label-property="name">
+                <fields>
+                    <string name="id"/>
+                    <int name="name" translatable="true" />
+                </fields>
+            </entity>
+            XML,
+            CustomEntityException::class,
+            'Entity label_property "name" must be a string field',
+        ];
+        yield 'cascade-delete-to-core-table' => [
+            <<<'XML'
+            <entity name="ce_test">
+                <fields>
+                    <string name="id"/>
+                    <one-to-many name="products" reference="product" on-delete="cascade"/>
+                </fields>
+            </entity>
+            XML,
+            \RuntimeException::class,
+            'Cascade delete and referencing core tables are not allowed, field products',
+        ];
+        yield 'reverse-required-to-core-table' => [
+            <<<'XML'
+            <entity name="ce_test">
+                <fields>
+                    <string name="id"/>
+                    <one-to-many name="products" reference="product" on-delete="set-null" reverse-required="true" />
+                </fields>
+            </entity>
+            XML,
+            \RuntimeException::class,
+            'Reverse required when referencing core tables is not allowed, field products',
         ];
     }
 }

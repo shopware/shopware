@@ -329,182 +329,180 @@ class ProductListingCmsElementResolverTest extends TestCase
         $sizeId = Uuid::randomHex();
         $textileId = Uuid::randomHex();
 
-        yield from [
+        yield 'filters manufacturer filter true price filter true rating filters value null property' => [
             [
-                [
-                    'manufacturer-filter' => true,
-                    'price-filter' => true,
-                    'rating-filter' => true,
-                    'shipping-free-filter' => true,
-                    'property-filter' => true,
-                    'property-whitelist' => [],
-                ],
-                [
-                    'filters' => [
-                        'value' => null,
-                    ],
-                    'propertyWhitelist' => null,
-                ],
+                'manufacturer-filter' => true,
+                'price-filter' => true,
+                'rating-filter' => true,
+                'shipping-free-filter' => true,
+                'property-filter' => true,
+                'property-whitelist' => [],
             ],
             [
-                [
-                    'manufacturer-filter' => false,
-                    'price-filter' => false,
-                    'rating-filter' => false,
-                    'shipping-free-filter' => false,
-                    'property-filter' => false,
-                    'property-whitelist' => [],
+                'filters' => [
+                    'value' => null,
                 ],
-                [
-                    'filters' => [
-                        'value' => 'invalid-filter',
-                    ],
-                    'propertyWhitelist' => null,
-                ],
+                'propertyWhitelist' => null,
+            ],
+        ];
+        yield 'filters manufacturer filter false price filter false rating filters value invalid filter' => [
+            [
+                'manufacturer-filter' => false,
+                'price-filter' => false,
+                'rating-filter' => false,
+                'shipping-free-filter' => false,
+                'property-filter' => false,
+                'property-whitelist' => [],
             ],
             [
-                [
-                    'manufacturer-filter' => true,
-                    'price-filter' => false,
-                    'rating-filter' => true,
-                    'shipping-free-filter' => false,
-                    'property-filter' => false,
-                    'property-whitelist' => [],
+                'filters' => [
+                    'value' => 'invalid-filter',
                 ],
-                [
-                    'filters' => [
-                        'value' => 'invalid-filter,manufacturer-filter,rating-filter',
-                    ],
-                    'propertyWhitelist' => null,
-                ],
+                'propertyWhitelist' => null,
+            ],
+        ];
+        yield 'filters manufacturer filter true price filter false rating filters value invalid filter' => [
+            [
+                'manufacturer-filter' => true,
+                'price-filter' => false,
+                'rating-filter' => true,
+                'shipping-free-filter' => false,
+                'property-filter' => false,
+                'property-whitelist' => [],
             ],
             [
-                [
-                    'manufacturer-filter' => true,
-                    'price-filter' => true,
-                    'rating-filter' => true,
-                    'shipping-free-filter' => true,
-                    'property-filter' => true,
-                    'property-whitelist' => [],
+                'filters' => [
+                    'value' => 'invalid-filter,manufacturer-filter,rating-filter',
                 ],
-                [
-                    'filters' => [
-                        'value' => 'manufacturer-filter,price-filter,rating-filter,property-filter,shipping-free-filter',
-                    ],
-                    'propertyWhitelist' => ['value' => []],
-                ],
+                'propertyWhitelist' => null,
+            ],
+        ];
+        yield 'filters manufacturer filter true price filter true rating filters value manufacturer filter' => [
+            [
+                'manufacturer-filter' => true,
+                'price-filter' => true,
+                'rating-filter' => true,
+                'shipping-free-filter' => true,
+                'property-filter' => true,
+                'property-whitelist' => [],
             ],
             [
-                [
-                    'manufacturer-filter' => false,
-                    'price-filter' => true,
-                    'rating-filter' => true,
-                    'shipping-free-filter' => true,
-                    'property-filter' => true,
-                    'property-whitelist' => [],
+                'filters' => [
+                    'value' => 'manufacturer-filter,price-filter,rating-filter,property-filter,shipping-free-filter',
                 ],
-                [
-                    'filters' => [
-                        'value' => 'price-filter,rating-filter,property-filter,shipping-free-filter',
-                    ],
-                    'propertyWhitelist' => ['value' => []],
-                ],
+                'propertyWhitelist' => ['value' => []],
+            ],
+        ];
+        yield 'filters manufacturer filter false price filter true rating filters value price filter' => [
+            [
+                'manufacturer-filter' => false,
+                'price-filter' => true,
+                'rating-filter' => true,
+                'shipping-free-filter' => true,
+                'property-filter' => true,
+                'property-whitelist' => [],
             ],
             [
-                [
-                    'manufacturer-filter' => false,
-                    'price-filter' => false,
-                    'rating-filter' => true,
-                    'shipping-free-filter' => true,
-                    'property-filter' => true,
-                    'property-whitelist' => [],
+                'filters' => [
+                    'value' => 'price-filter,rating-filter,property-filter,shipping-free-filter',
                 ],
-                [
-                    'filters' => [
-                        'value' => 'rating-filter,property-filter,shipping-free-filter',
-                    ],
-                    'propertyWhitelist' => ['value' => []],
-                ],
+                'propertyWhitelist' => ['value' => []],
+            ],
+        ];
+        yield 'filters manufacturer filter false price filter false rating filters value rating filter' => [
+            [
+                'manufacturer-filter' => false,
+                'price-filter' => false,
+                'rating-filter' => true,
+                'shipping-free-filter' => true,
+                'property-filter' => true,
+                'property-whitelist' => [],
             ],
             [
-                [
-                    'manufacturer-filter' => false,
-                    'price-filter' => false,
-                    'rating-filter' => false,
-                    'shipping-free-filter' => true,
-                    'property-filter' => true,
-                    'property-whitelist' => [],
+                'filters' => [
+                    'value' => 'rating-filter,property-filter,shipping-free-filter',
                 ],
-                [
-                    'filters' => [
-                        'value' => 'property-filter,shipping-free-filter',
-                    ],
-                    'propertyWhitelist' => ['value' => []],
-                ],
+                'propertyWhitelist' => ['value' => []],
+            ],
+        ];
+        yield 'filters manufacturer filter false price filter false rating filters value property filter' => [
+            [
+                'manufacturer-filter' => false,
+                'price-filter' => false,
+                'rating-filter' => false,
+                'shipping-free-filter' => true,
+                'property-filter' => true,
+                'property-whitelist' => [],
             ],
             [
-                [
-                    'manufacturer-filter' => false,
-                    'price-filter' => false,
-                    'rating-filter' => false,
-                    'shipping-free-filter' => false,
-                    'property-filter' => true,
-                    'property-whitelist' => [],
+                'filters' => [
+                    'value' => 'property-filter,shipping-free-filter',
                 ],
-                [
-                    'filters' => [
-                        'value' => 'property-filter',
-                    ],
-                    'propertyWhitelist' => ['value' => []],
-                ],
+                'propertyWhitelist' => ['value' => []],
+            ],
+        ];
+        yield 'filters manufacturer filter false price filter false rating filters value property filter variant 2' => [
+            [
+                'manufacturer-filter' => false,
+                'price-filter' => false,
+                'rating-filter' => false,
+                'shipping-free-filter' => false,
+                'property-filter' => true,
+                'property-whitelist' => [],
             ],
             [
-                [
-                    'manufacturer-filter' => false,
-                    'price-filter' => false,
-                    'rating-filter' => false,
-                    'shipping-free-filter' => false,
-                    'property-filter' => false,
-                    'property-whitelist' => [],
+                'filters' => [
+                    'value' => 'property-filter',
                 ],
-                [
-                    'filters' => [
-                        'value' => '',
-                    ],
-                    'propertyWhitelist' => ['value' => []],
-                ],
+                'propertyWhitelist' => ['value' => []],
+            ],
+        ];
+        yield 'filters manufacturer filter false price filter false rating filters value property whitelist' => [
+            [
+                'manufacturer-filter' => false,
+                'price-filter' => false,
+                'rating-filter' => false,
+                'shipping-free-filter' => false,
+                'property-filter' => false,
+                'property-whitelist' => [],
             ],
             [
-                [
-                    'manufacturer-filter' => false,
-                    'price-filter' => false,
-                    'rating-filter' => false,
-                    'shipping-free-filter' => false,
-                    'property-filter' => false,
-                    'property-whitelist' => [$sizeId, $textileId],
+                'filters' => [
+                    'value' => '',
                 ],
-                [
-                    'filters' => [
-                        'value' => '',
-                    ],
-                    'propertyWhitelist' => ['value' => [$sizeId, $textileId]],
-                ],
+                'propertyWhitelist' => ['value' => []],
+            ],
+        ];
+        yield 'filters manufacturer filter false price filter false rating filters value property whitelist variant 2' => [
+            [
+                'manufacturer-filter' => false,
+                'price-filter' => false,
+                'rating-filter' => false,
+                'shipping-free-filter' => false,
+                'property-filter' => false,
+                'property-whitelist' => [$sizeId, $textileId],
             ],
             [
-                [
-                    'manufacturer-filter' => false,
-                    'price-filter' => false,
-                    'rating-filter' => false,
-                    'shipping-free-filter' => false,
-                    'property-filter' => true,
-                    'property-whitelist' => [],
+                'filters' => [
+                    'value' => '',
                 ],
-                [
-                    'filters' => [
-                        'value' => 'property-filter',
-                    ],
-                    'propertyWhitelist' => ['value' => [$sizeId, $textileId]],
+                'propertyWhitelist' => ['value' => [$sizeId, $textileId]],
+            ],
+        ];
+        yield 'filters manufacturer filter false price filter false rating filters value property filter variant 3' => [
+            [
+                'manufacturer-filter' => false,
+                'price-filter' => false,
+                'rating-filter' => false,
+                'shipping-free-filter' => false,
+                'property-filter' => true,
+                'property-whitelist' => [],
+            ],
+            [
+                'filters' => [
+                    'value' => 'property-filter',
                 ],
+                'propertyWhitelist' => ['value' => [$sizeId, $textileId]],
             ],
         ];
     }

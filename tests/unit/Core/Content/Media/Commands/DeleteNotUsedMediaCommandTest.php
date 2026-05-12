@@ -68,10 +68,8 @@ class DeleteNotUsedMediaCommandTest extends TestCase
      */
     public static function limitOffsetProvider(): iterable
     {
-        yield from [
-            'zero-offset' => [10, 0],
-            'mid-offset' => [10, 5],
-        ];
+        yield 'zero-offset' => [10, 0];
+        yield 'mid-offset' => [10, 5];
     }
 
     public function testExecuteWithoutConfirmDoesNotPerformDelete(): void

@@ -89,11 +89,9 @@ class CurrencyFormatterTest extends TestCase
      */
     public static function formattingParameterProvider(): iterable
     {
-        yield from [
-            [71.01, 2, 'es-ES', ',', 'EUR', '€'],
-            [7.10, 2, 'cs-CZ', ',', 'CZK', 'Kč'],
-            [0.71, 3, 'en-GB', '.', 'GBP', '£'],
-        ];
+        yield 'formatting parameter 71 point 01 2 es es eur' => [71.01, 2, 'es-ES', ',', 'EUR', '€'];
+        yield 'formatting parameter 7 point 10 2 cs cz czk k' => [7.10, 2, 'cs-CZ', ',', 'CZK', 'Kč'];
+        yield 'formatting parameter 0 point 71 3 en gb gbp' => [0.71, 3, 'en-GB', '.', 'GBP', '£'];
     }
 
     private function createContext(int $decimals): Context

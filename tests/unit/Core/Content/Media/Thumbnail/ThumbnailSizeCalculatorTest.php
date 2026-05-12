@@ -38,29 +38,27 @@ class ThumbnailSizeCalculatorTest extends TestCase
     }
 
     /**
-     * @return iterable<int, array{0: ImageSize, 1: ImageSize, 2: ImageSize}>
+     * @return iterable<string, array{0: ImageSize, 1: ImageSize, 2: ImageSize}>
      */
     public static function thumbnailSizeProvider(): iterable
     {
-        yield from [
-            // image size, preferred size, expected size
-            [['width' => 2000, 'height' => 1000], ['width' => 800, 'height' => 600], ['width' => 800, 'height' => 400]],
-            [['width' => 2000, 'height' => 1000], ['width' => 600, 'height' => 800], ['width' => 600, 'height' => 300]],
-            [['width' => 2000, 'height' => 1000], ['width' => 800, 'height' => 800], ['width' => 800, 'height' => 400]],
-            [['width' => 1000, 'height' => 2000], ['width' => 800, 'height' => 600], ['width' => 300, 'height' => 600]],
-            [['width' => 1000, 'height' => 2000], ['width' => 600, 'height' => 800], ['width' => 400, 'height' => 800]],
-            [['width' => 1000, 'height' => 2000], ['width' => 800, 'height' => 800], ['width' => 400, 'height' => 800]],
-            [['width' => 1000, 'height' => 1000], ['width' => 800, 'height' => 600], ['width' => 600, 'height' => 600]],
-            [['width' => 1000, 'height' => 1000], ['width' => 600, 'height' => 800], ['width' => 600, 'height' => 600]],
-            [['width' => 1000, 'height' => 1000], ['width' => 800, 'height' => 800], ['width' => 800, 'height' => 800]],
-            [['width' => 1200, 'height' => 1000], ['width' => 800, 'height' => 600], ['width' => 720, 'height' => 600]],
-            [['width' => 1200, 'height' => 1000], ['width' => 600, 'height' => 800], ['width' => 600, 'height' => 500]],
-            [['width' => 1200, 'height' => 1000], ['width' => 800, 'height' => 800], ['width' => 800, 'height' => 667]],
-            [['width' => 1000, 'height' => 1200], ['width' => 800, 'height' => 600], ['width' => 500, 'height' => 600]],
-            [['width' => 1000, 'height' => 1200], ['width' => 600, 'height' => 800], ['width' => 600, 'height' => 720]],
-            [['width' => 1000, 'height' => 1200], ['width' => 800, 'height' => 800], ['width' => 667, 'height' => 800]],
-            [['width' => 1560, 'height' => 723], ['width' => 730, 'height' => 500], ['width' => 730, 'height' => 338]],
-            [['width' => 723, 'height' => 1560], ['width' => 730, 'height' => 500], ['width' => 232, 'height' => 500]],
-        ];
+        // image size, preferred size, expected size
+        yield 'thumbnail size image size preferred size expected size' => [['width' => 2000, 'height' => 1000], ['width' => 800, 'height' => 600], ['width' => 800, 'height' => 400]];
+        yield 'thumbnail size width 2000 height 1000 width 600 height 800' => [['width' => 2000, 'height' => 1000], ['width' => 600, 'height' => 800], ['width' => 600, 'height' => 300]];
+        yield 'thumbnail size width 2000 height 1000 width 800 height 800' => [['width' => 2000, 'height' => 1000], ['width' => 800, 'height' => 800], ['width' => 800, 'height' => 400]];
+        yield 'thumbnail size width 1000 height 2000 width 800 height 600' => [['width' => 1000, 'height' => 2000], ['width' => 800, 'height' => 600], ['width' => 300, 'height' => 600]];
+        yield 'thumbnail size width 1000 height 2000 width 600 height 800' => [['width' => 1000, 'height' => 2000], ['width' => 600, 'height' => 800], ['width' => 400, 'height' => 800]];
+        yield 'thumbnail size width 1000 height 2000 width 800 height 800' => [['width' => 1000, 'height' => 2000], ['width' => 800, 'height' => 800], ['width' => 400, 'height' => 800]];
+        yield 'thumbnail size width 1000 height 1000 width 800 height 600' => [['width' => 1000, 'height' => 1000], ['width' => 800, 'height' => 600], ['width' => 600, 'height' => 600]];
+        yield 'thumbnail size width 1000 height 1000 width 600 height 800' => [['width' => 1000, 'height' => 1000], ['width' => 600, 'height' => 800], ['width' => 600, 'height' => 600]];
+        yield 'thumbnail size width 1000 height 1000 width 800 height 800' => [['width' => 1000, 'height' => 1000], ['width' => 800, 'height' => 800], ['width' => 800, 'height' => 800]];
+        yield 'thumbnail size width 1200 height 1000 width 800 height 600' => [['width' => 1200, 'height' => 1000], ['width' => 800, 'height' => 600], ['width' => 720, 'height' => 600]];
+        yield 'thumbnail size width 1200 height 1000 width 600 height 800' => [['width' => 1200, 'height' => 1000], ['width' => 600, 'height' => 800], ['width' => 600, 'height' => 500]];
+        yield 'thumbnail size width 1200 height 1000 width 800 height 800' => [['width' => 1200, 'height' => 1000], ['width' => 800, 'height' => 800], ['width' => 800, 'height' => 667]];
+        yield 'thumbnail size width 1000 height 1200 width 800 height 600' => [['width' => 1000, 'height' => 1200], ['width' => 800, 'height' => 600], ['width' => 500, 'height' => 600]];
+        yield 'thumbnail size width 1000 height 1200 width 600 height 800' => [['width' => 1000, 'height' => 1200], ['width' => 600, 'height' => 800], ['width' => 600, 'height' => 720]];
+        yield 'thumbnail size width 1000 height 1200 width 800 height 800' => [['width' => 1000, 'height' => 1200], ['width' => 800, 'height' => 800], ['width' => 667, 'height' => 800]];
+        yield 'thumbnail size width 1560 height 723 width 730 height 500' => [['width' => 1560, 'height' => 723], ['width' => 730, 'height' => 500], ['width' => 730, 'height' => 338]];
+        yield 'thumbnail size width 723 height 1560 width 730 height 500' => [['width' => 723, 'height' => 1560], ['width' => 730, 'height' => 500], ['width' => 232, 'height' => 500]];
     }
 }

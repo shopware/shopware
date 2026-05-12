@@ -391,35 +391,30 @@ class TranslatorTest extends TestCase
     }
 
     /**
-     * @return iterable<int, array{string, string, int, string}>
+     * @return iterable<string, array{string, string, int, string}>
      */
     public static function pluralTranslationProvider(): iterable
     {
-        yield from [
-            // Test English plural rules
-            ['There are 0 apples', 'There is one apple|There are %count% apples', 0, 'en-GB'],
-            ['There is one apple', 'There is one apple|There are %count% apples', 1, 'en-GB'],
-            ['There are 2 apples', 'There is one apple|There are %count% apples', 2, 'en-GB'],
-            ['There are 21 apples', 'There is one apple|There are %count% apples', 21, 'en-GB'],
-
-            ['There are 0 apples', 'There is one apple|There are %count% apples', 0, 'en_GB'],
-            ['There is one apple', 'There is one apple|There are %count% apples', 1, 'en_GB'],
-            ['There are 2 apples', 'There is one apple|There are %count% apples', 2, 'en_GB'],
-            ['There are 21 apples', 'There is one apple|There are %count% apples', 21, 'en_GB'],
-
-            // Test Ukrainian plural rules
-            ['0 яблук', '%count% яблуко|%count% яблука|%count% яблук', 0, 'uk-UA'],
-            ['1 яблуко', '%count% яблуко|%count% яблука|%count% яблук', 1, 'uk-UA'],
-            ['2 яблука', '%count% яблуко|%count% яблука|%count% яблук', 2, 'uk-UA'],
-            ['5 яблук', '%count% яблуко|%count% яблука|%count% яблук', 5, 'uk-UA'],
-            ['21 яблуко', '%count% яблуко|%count% яблука|%count% яблук', 21, 'uk-UA'],
-
-            ['0 яблук', '%count% яблуко|%count% яблука|%count% яблук', 0, 'uk_UA'],
-            ['1 яблуко', '%count% яблуко|%count% яблука|%count% яблук', 1, 'uk_UA'],
-            ['2 яблука', '%count% яблуко|%count% яблука|%count% яблук', 2, 'uk_UA'],
-            ['5 яблук', '%count% яблуко|%count% яблука|%count% яблук', 5, 'uk_UA'],
-            ['21 яблуко', '%count% яблуко|%count% яблука|%count% яблук', 21, 'uk_UA'],
-        ];
+        // Test English plural rules
+        yield 'plural translation english plural rules' => ['There are 0 apples', 'There is one apple|There are %count% apples', 0, 'en-GB'];
+        yield 'plural translation there is one apple there is one apple there' => ['There is one apple', 'There is one apple|There are %count% apples', 1, 'en-GB'];
+        yield 'plural translation there are 2 apples there is one apple there' => ['There are 2 apples', 'There is one apple|There are %count% apples', 2, 'en-GB'];
+        yield 'plural translation there are 21 apples there is one apple there' => ['There are 21 apples', 'There is one apple|There are %count% apples', 21, 'en-GB'];
+        yield 'plural translation there are 0 apples there is one apple there' => ['There are 0 apples', 'There is one apple|There are %count% apples', 0, 'en_GB'];
+        yield 'plural translation there is one apple there is one apple there variant 2' => ['There is one apple', 'There is one apple|There are %count% apples', 1, 'en_GB'];
+        yield 'plural translation there are 2 apples there is one apple there variant 2' => ['There are 2 apples', 'There is one apple|There are %count% apples', 2, 'en_GB'];
+        yield 'plural translation there are 21 apples there is one apple there variant 2' => ['There are 21 apples', 'There is one apple|There are %count% apples', 21, 'en_GB'];
+        // Test Ukrainian plural rules
+        yield 'plural translation ukrainian plural rules' => ['0 яблук', '%count% яблуко|%count% яблука|%count% яблук', 0, 'uk-UA'];
+        yield 'plural translation 1 count count count 1 uk ua' => ['1 яблуко', '%count% яблуко|%count% яблука|%count% яблук', 1, 'uk-UA'];
+        yield 'plural translation 2 count count count 2 uk ua' => ['2 яблука', '%count% яблуко|%count% яблука|%count% яблук', 2, 'uk-UA'];
+        yield 'plural translation 5 count count count 5 uk ua' => ['5 яблук', '%count% яблуко|%count% яблука|%count% яблук', 5, 'uk-UA'];
+        yield 'plural translation 21 count count count 21 uk ua' => ['21 яблуко', '%count% яблуко|%count% яблука|%count% яблук', 21, 'uk-UA'];
+        yield 'plural translation 0 count count count 0 uk ua' => ['0 яблук', '%count% яблуко|%count% яблука|%count% яблук', 0, 'uk_UA'];
+        yield 'plural translation 1 count count count 1 uk ua variant 2' => ['1 яблуко', '%count% яблуко|%count% яблука|%count% яблук', 1, 'uk_UA'];
+        yield 'plural translation 2 count count count 2 uk ua variant 2' => ['2 яблука', '%count% яблуко|%count% яблука|%count% яблук', 2, 'uk_UA'];
+        yield 'plural translation 5 count count count 5 uk ua variant 2' => ['5 яблук', '%count% яблуко|%count% яблука|%count% яблук', 5, 'uk_UA'];
+        yield 'plural translation 21 count count count 21 uk ua variant 2' => ['21 яблуко', '%count% яблуко|%count% яблука|%count% яблук', 21, 'uk_UA'];
     }
 
     private function switchDefaultLanguage(): void

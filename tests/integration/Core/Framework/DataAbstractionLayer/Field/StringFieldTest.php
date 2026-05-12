@@ -69,23 +69,21 @@ class StringFieldTest extends TestCase
     }
 
     /**
-     * @return iterable<int, array{string, bool|string|null, ?string, list<Flag>}>
+     * @return iterable<string, array{string, bool|string|null, ?string, list<Flag>}>
      */
     public static function stringFieldDataProvider(): iterable
     {
-        yield from [
-            ['writeException', '<test>', 'This value should not be blank.', [new Required()]],
-            ['writeException', null, 'This value should not be blank.', [new Required()]],
-            ['writeException', '', 'This value should not be blank.', [new Required()]],
-            ['writeException', true, 'This value should be of type string.', [new Required()]],
-            ['assertion', 'test12-B', 'test12-B', [new Required()]],
-            ['assertion', null, null, []],
-            ['assertion', '<test>', '<test>', [new Required(), new AllowHtml(false)]],
-            ['assertion', '', null, []],
-            ['assertion', '', '', [new AllowEmptyString()]],
-            ['assertion', '', '', [new Required(), new AllowEmptyString()]],
-            ['assertion', '<script></script>test12-B', 'test12-B', [new Required(), new AllowHtml()]],
-        ];
+        yield 'string field write exception test this value should not be' => ['writeException', '<test>', 'This value should not be blank.', [new Required()]];
+        yield 'string field write exception null this value should not be' => ['writeException', null, 'This value should not be blank.', [new Required()]];
+        yield 'string field write exception this value should not be required' => ['writeException', '', 'This value should not be blank.', [new Required()]];
+        yield 'string field write exception true this value should be of' => ['writeException', true, 'This value should be of type string.', [new Required()]];
+        yield 'string field assertion test12 b test12 b required' => ['assertion', 'test12-B', 'test12-B', [new Required()]];
+        yield 'string field assertion null null' => ['assertion', null, null, []];
+        yield 'string field assertion test test required allow html false' => ['assertion', '<test>', '<test>', [new Required(), new AllowHtml(false)]];
+        yield 'string field assertion null' => ['assertion', '', null, []];
+        yield 'string field assertion allow empty string' => ['assertion', '', '', [new AllowEmptyString()]];
+        yield 'string field assertion required allow empty string' => ['assertion', '', '', [new Required(), new AllowEmptyString()]];
+        yield 'string field assertion script script test12 b test12 b required allow html' => ['assertion', '<script></script>test12-B', 'test12-B', [new Required(), new AllowHtml()]];
     }
 
     private function getWriteParameterBagMock(): WriteParameterBag

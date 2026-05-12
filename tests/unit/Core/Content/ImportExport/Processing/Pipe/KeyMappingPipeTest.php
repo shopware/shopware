@@ -38,41 +38,39 @@ class KeyMappingPipeTest extends TestCase
      */
     public static function simpleMappingProvider(): iterable
     {
-        yield from [
-            [
-                'input' => [],
-                'expectedOutput' => [
-                    'bar' => '',
-                    'x' => '',
-                ],
+        yield 'simple mapping input expected output' => [
+            'input' => [],
+            'expectedOutput' => [
+                'bar' => '',
+                'x' => '',
             ],
-            [
-                'input' => [
-                    'foo' => 1234,
-                ],
-                'expectedOutput' => [
-                    'bar' => 1234,
-                    'x' => '',
-                ],
+        ];
+        yield 'simple mapping input expected output variant 2' => [
+            'input' => [
+                'foo' => 1234,
             ],
-            [
-                'input' => [
-                    'a' => 1234,
-                ],
-                'expectedOutput' => [
-                    'bar' => '',
-                    'x' => 1234,
-                ],
+            'expectedOutput' => [
+                'bar' => 1234,
+                'x' => '',
             ],
-            [
-                'input' => [
-                    'foo' => 'test',
-                    'a' => 0.1234,
-                ],
-                'expectedOutput' => [
-                    'bar' => 'test',
-                    'x' => 0.1234,
-                ],
+        ];
+        yield 'simple mapping input expected output variant 3' => [
+            'input' => [
+                'a' => 1234,
+            ],
+            'expectedOutput' => [
+                'bar' => '',
+                'x' => 1234,
+            ],
+        ];
+        yield 'simple mapping input expected output variant 4' => [
+            'input' => [
+                'foo' => 'test',
+                'a' => 0.1234,
+            ],
+            'expectedOutput' => [
+                'bar' => 'test',
+                'x' => 0.1234,
             ],
         ];
     }
@@ -110,58 +108,56 @@ class KeyMappingPipeTest extends TestCase
      */
     public static function nestedProvider(): iterable
     {
-        yield from [
-            [
-                'input' => [],
-                'expectedOutput' => [
-                    'bar' => '',
-                    'x_n' => '',
-                    'x_y_z1' => '',
-                    'x_y_z2' => '',
+        yield 'nested input expected output' => [
+            'input' => [],
+            'expectedOutput' => [
+                'bar' => '',
+                'x_n' => '',
+                'x_y_z1' => '',
+                'x_y_z2' => '',
+            ],
+        ];
+        yield 'nested input expected output variant 2' => [
+            'input' => [
+                'foo' => 0.123,
+            ],
+            'expectedOutput' => [
+                'bar' => 0.123,
+                'x_n' => '',
+                'x_y_z1' => '',
+                'x_y_z2' => '',
+            ],
+        ];
+        yield 'nested input expected output variant 3' => [
+            'input' => [
+                'foo' => 0.123,
+                'a' => [
+                    'n' => 'test',
                 ],
             ],
-            [
-                'input' => [
-                    'foo' => 0.123,
-                ],
-                'expectedOutput' => [
-                    'bar' => 0.123,
-                    'x_n' => '',
-                    'x_y_z1' => '',
-                    'x_y_z2' => '',
-                ],
+            'expectedOutput' => [
+                'bar' => 0.123,
+                'x_n' => 'test',
+                'x_y_z1' => '',
+                'x_y_z2' => '',
             ],
-            [
-                'input' => [
-                    'foo' => 0.123,
-                    'a' => [
-                        'n' => 'test',
+        ];
+        yield 'nested input expected output variant 4' => [
+            'input' => [
+                'foo' => 0.123,
+                'a' => [
+                    'n' => 'test',
+                    'b' => [
+                        'c1' => 1,
+                        'c2' => 2,
                     ],
                 ],
-                'expectedOutput' => [
-                    'bar' => 0.123,
-                    'x_n' => 'test',
-                    'x_y_z1' => '',
-                    'x_y_z2' => '',
-                ],
             ],
-            [
-                'input' => [
-                    'foo' => 0.123,
-                    'a' => [
-                        'n' => 'test',
-                        'b' => [
-                            'c1' => 1,
-                            'c2' => 2,
-                        ],
-                    ],
-                ],
-                'expectedOutput' => [
-                    'bar' => 0.123,
-                    'x_n' => 'test',
-                    'x_y_z1' => 1,
-                    'x_y_z2' => 2,
-                ],
+            'expectedOutput' => [
+                'bar' => 0.123,
+                'x_n' => 'test',
+                'x_y_z1' => 1,
+                'x_y_z2' => 2,
             ],
         ];
     }

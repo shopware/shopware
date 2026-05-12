@@ -36,33 +36,31 @@ class HoneypotCaptchaTest extends TestCase
     }
 
     /**
-     * @return iterable<int, array{0: Request, 1: bool}>
+     * @return iterable<string, array{0: Request, 1: bool}>
      */
     public static function requestDataProvider(): iterable
     {
-        yield from [
-            [
-                self::getRequest(),
-                self::IS_VALID,
-            ],
-            [
-                self::getRequest([
-                    HoneypotCaptcha::CAPTCHA_REQUEST_PARAMETER => null,
-                ]),
-                self::IS_VALID,
-            ],
-            [
-                self::getRequest([
-                    HoneypotCaptcha::CAPTCHA_REQUEST_PARAMETER => '',
-                ]),
-                self::IS_VALID,
-            ],
-            [
-                self::getRequest([
-                    HoneypotCaptcha::CAPTCHA_REQUEST_PARAMETER => 'something',
-                ]),
-                self::IS_INVALID,
-            ],
+        yield 'request get request is valid' => [
+            self::getRequest(),
+            self::IS_VALID,
+        ];
+        yield 'request get request is valid variant 2' => [
+            self::getRequest([
+                HoneypotCaptcha::CAPTCHA_REQUEST_PARAMETER => null,
+            ]),
+            self::IS_VALID,
+        ];
+        yield 'request get request is valid variant 3' => [
+            self::getRequest([
+                HoneypotCaptcha::CAPTCHA_REQUEST_PARAMETER => '',
+            ]),
+            self::IS_VALID,
+        ];
+        yield 'request get request is invalid' => [
+            self::getRequest([
+                HoneypotCaptcha::CAPTCHA_REQUEST_PARAMETER => 'something',
+            ]),
+            self::IS_INVALID,
         ];
     }
 

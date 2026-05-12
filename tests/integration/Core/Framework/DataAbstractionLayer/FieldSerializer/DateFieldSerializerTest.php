@@ -55,28 +55,26 @@ class DateFieldSerializerTest extends TestCase
     }
 
     /**
-     * @return iterable<int, array<int, array<int, \DateTime>>>
+     * @return iterable<string, array<int, array<int, \DateTime>>>
      */
     public static function serializerProvider(): iterable
     {
-        yield from [
+        yield 'serializer date time 2020 05 15 00 date' => [
             [
-                [
-                    new \DateTime('2020-05-15 00:00:00', new \DateTimeZone('UTC')),
-                    new \DateTime('2020-05-15 00:00:00', new \DateTimeZone('UTC')),
-                ],
+                new \DateTime('2020-05-15 00:00:00', new \DateTimeZone('UTC')),
+                new \DateTime('2020-05-15 00:00:00', new \DateTimeZone('UTC')),
             ],
+        ];
+        yield 'serializer date time 2099 05 18 00 date' => [
             [
-                [
-                    new \DateTime('2099-05-18 00:00:00', new \DateTimeZone('UTC')),
-                    new \DateTime('2099-05-18 00:00:00', new \DateTimeZone('UTC')),
-                ],
+                new \DateTime('2099-05-18 00:00:00', new \DateTimeZone('UTC')),
+                new \DateTime('2099-05-18 00:00:00', new \DateTimeZone('UTC')),
             ],
+        ];
+        yield 'serializer date time 2020 05 15 22 date' => [
             [
-                [
-                    new \DateTime('2020-05-15 22:00:00', new \DateTimeZone('EDT')),
-                    new \DateTime('2020-05-16 00:00:00', new \DateTimeZone('UTC')),
-                ],
+                new \DateTime('2020-05-15 22:00:00', new \DateTimeZone('EDT')),
+                new \DateTime('2020-05-16 00:00:00', new \DateTimeZone('UTC')),
             ],
         ];
     }

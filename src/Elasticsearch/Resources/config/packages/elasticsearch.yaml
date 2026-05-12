@@ -215,12 +215,12 @@ elasticsearch:
                 type: custom
                 tokenizer: whitespace
                 char_filter: ['sw_unit_glue']
-                filter: ['sw_word_delimiter_filter', 'flatten_graph', 'lowercase', 'sw_length_min', 'remove_duplicates']
+                filter: ['sw_word_delimiter_filter', 'flatten_graph', 'lowercase', 'sw_length_min', 'sw_decimal_normalize_token', 'remove_duplicates']
             sw_whitespace_word_delimiter_search_analyzer:
                 type: custom
                 tokenizer: whitespace
                 char_filter: ['sw_unit_glue']
-                filter: ['sw_word_delimiter_filter', 'lowercase', 'sw_length_min', 'remove_duplicates', 'sw_unique_filter']
+                filter: ['sw_word_delimiter_filter', 'lowercase', 'sw_length_min', 'sw_decimal_normalize_token', 'remove_duplicates', 'sw_unique_filter']
             sw_ngram_analyzer:
                 type: custom
                 tokenizer: whitespace
@@ -233,12 +233,12 @@ elasticsearch:
                 type: custom
                 tokenizer: whitespace
                 char_filter: ['sw_unit_glue']
-                filter: ['sw_word_delimiter_filter', 'flatten_graph', 'lowercase', 'sw_length_min', 'remove_duplicates', 'sw_english_stop_filter']
+                filter: ['sw_word_delimiter_filter', 'flatten_graph', 'lowercase', 'sw_length_min', 'sw_decimal_normalize_token', 'remove_duplicates', 'sw_english_stop_filter']
             sw_english_word_delimiter_search_analyzer:
                 type: custom
                 tokenizer: whitespace
                 char_filter: ['sw_unit_glue']
-                filter: ['sw_word_delimiter_filter', 'lowercase', 'sw_length_min', 'remove_duplicates', 'sw_english_stop_filter', 'sw_unique_filter']
+                filter: ['sw_word_delimiter_filter', 'lowercase', 'sw_length_min', 'sw_decimal_normalize_token', 'remove_duplicates', 'sw_english_stop_filter', 'sw_unique_filter']
             sw_german_analyzer:
                 type: custom
                 tokenizer: whitespace
@@ -247,12 +247,12 @@ elasticsearch:
                 type: custom
                 tokenizer: whitespace
                 char_filter: ['sw_decimal_normalize', 'sw_unit_glue']
-                filter: ['sw_word_delimiter_filter', 'flatten_graph', 'lowercase', 'sw_length_min', 'remove_duplicates', 'sw_german_stop_filter']
+                filter: ['sw_word_delimiter_filter', 'flatten_graph', 'lowercase', 'sw_length_min', 'sw_decimal_normalize_token', 'remove_duplicates', 'sw_german_stop_filter']
             sw_german_word_delimiter_search_analyzer:
                 type: custom
                 tokenizer: whitespace
                 char_filter: ['sw_decimal_normalize', 'sw_unit_glue']
-                filter: ['sw_word_delimiter_filter', 'lowercase', 'sw_length_min', 'remove_duplicates', 'sw_german_stop_filter', 'sw_unique_filter']
+                filter: ['sw_word_delimiter_filter', 'lowercase', 'sw_length_min', 'sw_decimal_normalize_token', 'remove_duplicates', 'sw_german_stop_filter', 'sw_unique_filter']
         filter:
             sw_ngram_filter:
                 type: ngram
@@ -270,6 +270,40 @@ elasticsearch:
             sw_length_min:
                 type: length
                 min: 2
+            # Token-level decimal normalization: for any token containing a
+            # digit run followed by a pure-zero fraction (e.g. "5.0", "5.00"
+            # inside the welded "5.0mm"), emit the integer prefix as an
+            # additional sibling token. `preserve_original: true` keeps the
+            # original token alongside the capture so compressed-form queries
+            # still match the verbatim glued form.
+            #
+            # The effect is that "5.0", "5.00", "5.000", etc. — and the
+            # corresponding glued forms "5.0mm", "5.00mm", … — all share a
+            # common standalone token (the integer part), so customer queries
+            # using different trailing-zero conventions cross-match.
+            # Discrimination is preserved: "5.0mm" emits "5"; "6.0mm" emits
+            # "6"; mixed-fraction tokens like "5.5mm" or "5.15mm" don't
+            # match the pattern, so they retain their distinct identity.
+            #
+            # Runs after `sw_length_min` so the emitted single-digit capture
+            # survives the length floor (the floor only applies to tokens
+            # entering this filter, not to tokens it emits afterward).
+            sw_decimal_normalize_token:
+                type: pattern_capture
+                preserve_original: true
+                patterns:
+                    # Pure-zero fraction → integer canonical: "5.0", "5.00",
+                    # "5.000" all emit "5". Bridges trailing-zero precision
+                    # variants of the same whole number.
+                    - '(\d+)\.0+(?=\D|$)'
+                    # Non-zero fraction with trailing zeros → trimmed
+                    # canonical: "3.30" → "3.3", "5.150" → "5.15",
+                    # "1.0500" → "1.05". Bridges trailing-zero precision
+                    # variants of the same decimal value, preserving the
+                    # last non-zero digit. Doesn't trigger on "5.5" or
+                    # "5.15" (no trailing zeros to trim) or "5.0" (no
+                    # non-zero digit before the zeros).
+                    - '(\d+\.\d*[1-9])0+(?=\D|$)'
             sw_unique_filter:
                 type: unique
                 only_on_same_position: false

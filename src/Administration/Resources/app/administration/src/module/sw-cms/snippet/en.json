@@ -652,6 +652,9 @@
       "productName": {
         "label": "Product Name"
       },
+      "categoryName": {
+        "label": "Category Name"
+      },
       "html": {
         "label": "HTML",
         "labelContent": "Content",

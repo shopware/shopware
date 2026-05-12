@@ -125,5 +125,9 @@
 
             <tag name="shopware.cms.data_resolver"/>
         </service>
+
+        <service id="Shopware\Core\Content\Category\Cms\CategoryNameCmsElementResolver">
+            <tag name="shopware.cms.data_resolver"/>
+        </service>
     </services>
 </container>

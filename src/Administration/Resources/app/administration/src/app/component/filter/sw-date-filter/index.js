@@ -98,7 +98,7 @@ Component.register('sw-date-filter', {
         },
 
         userTimeZone() {
-            return Shopware.Store.get('session').currentUser?.timeZone ?? 'UTC';
+            return Shopware.State.get('session').currentUser?.timeZone ?? 'UTC';
         },
     },
 

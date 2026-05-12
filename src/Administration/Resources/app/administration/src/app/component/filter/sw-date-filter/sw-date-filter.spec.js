@@ -52,7 +52,7 @@ describe('src/app/component/filter/sw-date-filter', () => {
     });
 
     beforeEach(() => {
-        Shopware.Store.get('session').setCurrentUser({ timeZone: 'UTC' });
+        Shopware.State.commit('setCurrentUser', { timeZone: 'UTC' });
     });
 
     afterAll(() => {
@@ -119,7 +119,7 @@ describe('src/app/component/filter/sw-date-filter', () => {
                 }),
             ],
             {
-                from: '2021-01-19',
+                from: '2021-01-19T00:00:00.000Z',
                 to: '2021-01-25T23:59:59.000Z',
                 timeframe: 'custom',
             },
@@ -127,7 +127,7 @@ describe('src/app/component/filter/sw-date-filter', () => {
     });
 
     it('should emit user timezone aware criteria for date ranges', async () => {
-        Shopware.Store.get('session').setCurrentUser({ timeZone: 'Europe/Berlin' });
+        Shopware.State.commit('setCurrentUser', { timeZone: 'Europe/Berlin' });
 
         const wrapper = await createWrapper();
 

@@ -40,7 +40,7 @@ class Migration1778573083ConvertCategoryNameBlockToDedicatedElementTest extends 
 
         static::assertNotEmpty($blocks);
         foreach ($blocks as $block) {
-            static::assertSame('category-name', $block['type']);
+            static::assertSame('category-heading', $block['type']);
 
             $slot = $this->connection->fetchAssociative(
                 'SELECT slot.id, slot.type, translation.config
@@ -103,7 +103,7 @@ class Migration1778573083ConvertCategoryNameBlockToDedicatedElementTest extends 
 
         static::assertNotEmpty($blocks);
         foreach ($blocks as $block) {
-            static::assertSame('category-name', $block['type']);
+            static::assertSame('category-heading', $block['type']);
         }
     }
 }

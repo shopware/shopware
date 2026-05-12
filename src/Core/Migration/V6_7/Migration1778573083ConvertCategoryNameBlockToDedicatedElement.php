@@ -77,7 +77,7 @@ class Migration1778573083ConvertCategoryNameBlockToDedicatedElement extends Migr
 
             $connection->executeStatement(
                 'UPDATE cms_block SET type = :newType WHERE id = :id',
-                ['newType' => 'category-name', 'id' => $block['id']]
+                ['newType' => 'category-heading', 'id' => $block['id']]
             );
 
             $connection->executeStatement(

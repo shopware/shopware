@@ -127,7 +127,7 @@ class InstallTranslationCommand extends Command
         ksort($choices);
 
         $question = new ChoiceQuestion(
-            'Select one or more locales to install (comma-separated keys, e.g. "de-AT,fr-FR")',
+            'Select one or more locales to install (comma-separated locale codes, e.g. "de-AT,fr-FR")',
             $choices,
         );
         $question->setMultiselect(true);

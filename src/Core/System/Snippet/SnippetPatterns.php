@@ -17,7 +17,7 @@ final class SnippetPatterns
      * translatability audits) — not for real customer-facing content.
      *
      * Maps each pseudo-locale code to its display name. ICU/CLDR resolution
-     * (e.g. "ach" → "Acoli") is intentionally bypassed because these locales are
+     * (e.g. "ach" → "Acholi") is intentionally bypassed because these locales are
      * placeholders, not real languages.
      *
      * @var array<string, string>

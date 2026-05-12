@@ -7,6 +7,8 @@ use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRouteResponse;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @codeCoverageIgnore
+ *
  * @internal
  */
 #[Package('checkout')]

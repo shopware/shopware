@@ -186,25 +186,25 @@ class FloatComparatorTest extends TestCase
      */
     public static function lessThanDataProvider(): iterable
     {
-        yield 'less than 1 2 true' => [1, 2, true];
-        yield 'less than 1 1 point 0001 true' => [1, 1.0001, true];
-        yield 'less than 0 0 point 00001 true' => [0, 0.00001, true];
-        yield 'less than 0 0 point 1 true' => [0 - 0.1, 0.1, true];
-        yield 'less than 42 point 000001 42 point 00001 true' => [42.000001, 42.00001, true];
+        yield 'integer one is less than integer two' => [1, 2, true];
+        yield 'decimal difference above epsilon is treated as less than' => [1, 1.0001, true];
+        yield 'zero is less than a positive value above epsilon' => [0, 0.00001, true];
+        yield 'computed negative value is less than positive decimal value' => [0 - 0.1, 0.1, true];
+        yield 'smaller fractional value is less than larger fractional value' => [42.000001, 42.00001, true];
         yield 'integer zero is not less than itself' => [0, 0, false];
         yield 'integer value is not less than itself' => [42, 42, false];
         yield 'float one is not less than itself' => [1.0, 1.0, false];
         yield 'float zero is not less than itself' => [0.0, 0.0, false];
         yield 'zero is not less than zero with decimal input' => [0.0, 0.0, false];
-        yield 'less than 8 1 point 6 false' => [8 - 6.4, 1.6, false];
-        yield 'less than 1 point 6 8 false' => [1.6, 8 - 6.4, false];
-        yield 'less than 1 point 00001 1 false' => [1.00001, 1, false];
-        yield 'less than 0 point 00001 0 false' => [0.00001, 0, false];
-        yield 'less than 0 point 0001 0 point 0001 false' => [0.0001, 0.0001, false];
-        yield 'less than 0 point 1 0 false' => [0.1 + 0.2 - 0.3, 0, false];
-        yield 'less than 0 point 3 0 point 1 false' => [0.3, 0.1 + 0.2, false];
-        yield 'less than 0 point 4 0 point 1 false' => [0.4 - 0.1, 0.1 + 0.2, false];
-        yield 'less than 0 point 1 0 point 1 false' => [0.1 + 0.1 + 0.1, 0.1 + 0.2, false];
+        yield 'computed decimal equal within epsilon is not less than exact decimal' => [8 - 6.4, 1.6, false];
+        yield 'exact decimal is not less than computed decimal equal within epsilon' => [1.6, 8 - 6.4, false];
+        yield 'larger decimal value is not less than smaller integer value' => [1.00001, 1, false];
+        yield 'positive decimal value is not less than zero' => [0.00001, 0, false];
+        yield 'same small decimal value is not less than itself' => [0.0001, 0.0001, false];
+        yield 'floating point zero result is not less than zero' => [0.1 + 0.2 - 0.3, 0, false];
+        yield 'decimal value equal within epsilon is not less than summed decimals' => [0.3, 0.1 + 0.2, false];
+        yield 'computed decimal value equal within epsilon is not less than summed decimals' => [0.4 - 0.1, 0.1 + 0.2, false];
+        yield 'repeated addition equal within epsilon is not less than summed decimals' => [0.1 + 0.1 + 0.1, 0.1 + 0.2, false];
     }
 
     #[DataProvider('greaterThanDataProvider')]

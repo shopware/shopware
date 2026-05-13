@@ -24,7 +24,7 @@ class BundleConfigGeneratorTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->fixturePath = __DIR__ . '/../../../../../src/Core/Framework/Test/Plugin/_fixture/';
+        $this->fixturePath = __DIR__ . '/../../../../../tests/integration/Core/Framework/Plugin/_fixtures/';
         $this->configGenerator = static::getContainer()->get(BundleConfigGenerator::class);
     }
 
@@ -66,7 +66,7 @@ class BundleConfigGeneratorTest extends TestCase
 
         // Style files can and need only be imported if storefront is installed
         if (static::getContainer()->has(StorefrontPluginRegistry::class)) {
-            $appPath = 'src/Core/Framework/Test/Plugin/_fixture/apps/theme/';
+            $appPath = 'tests/integration/Core/Framework/Plugin/_fixtures/apps/theme/';
             $expectedStyles = [
                 $appPath . 'Resources/app/storefront/src/scss/base.scss',
                 $appPath . 'Resources/app/storefront/src/scss/overrides.scss',

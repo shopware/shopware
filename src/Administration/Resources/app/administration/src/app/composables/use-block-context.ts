@@ -4,8 +4,10 @@
 import { reactive, type Slot } from 'vue';
 
 const blockContext: Record<string, Slot[]> = reactive({});
+// Stores v-if chain results per block instance during one render pass.
 const legacyConditionContext: Record<string, boolean[]> = {};
 
+// Drops stale chains if no v-else consumes them in the same tick.
 function scheduleLegacyConditionCleanup(blockName: string, chain: boolean[]): void {
     queueMicrotask(() => {
         if (legacyConditionContext[blockName] === chain) {
@@ -65,7 +67,6 @@ function legacyElseIf(blockName: string, expression: unknown): boolean {
     const previousConditionMatched = chain.some(Boolean);
 
     chain.push(!previousConditionMatched && result);
-    scheduleLegacyConditionCleanup(blockName, chain);
 
     return !previousConditionMatched && result;
 }

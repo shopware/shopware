@@ -37,7 +37,7 @@ use Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Permission\Permissions;
 use Shopware\Core\Framework\App\Template\TemplateCollection;
-use Shopware\Core\Framework\App\Validation\Error\AppNameError;
+use Shopware\Core\Framework\App\Validation\Error\ConfigurationError;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -315,7 +315,7 @@ class AppLifecycleTest extends TestCase
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withInvalidConfig/manifest.xml');
 
-        $this->expectExceptionObject(AppException::invalidConfiguration('withInvalidConfig', new AppNameError('')));
+        $this->expectExceptionObject(AppException::invalidConfiguration('withInvalidConfig', new ConfigurationError(['test'])));
         $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
     }
 

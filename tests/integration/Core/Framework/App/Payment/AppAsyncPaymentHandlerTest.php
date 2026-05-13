@@ -5,7 +5,6 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Payment;
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2;
 use Shopware\Core\Checkout\Payment\Cart\Token\PaymentToken;
@@ -125,12 +124,13 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $json = \json_encode($response, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($json);
 
-        $this->appendNewResponse(new Response(200, [], $json));
+        $mockResponse = new Response(200, [], $json);
+        $this->appendNewResponse($mockResponse);
 
         $this->expectExceptionObject(new ServerException(
             'Could not verify the authenticity of the response',
             static::createStub(RequestInterface::class),
-            static::createStub(ResponseInterface::class)
+            $mockResponse
         ));
         $this->paymentProcessor->pay($orderId, new Request(), $salesChannelContext);
     }
@@ -148,12 +148,13 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $json = \json_encode($response, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($json);
 
-        $this->appendNewResponse(new Response(200, ['shopware-app-signature' => 'invalid'], $json));
+        $mockResponse = new Response(200, ['shopware-app-signature' => 'invalid'], $json);
+        $this->appendNewResponse($mockResponse);
 
         $this->expectExceptionObject(new ServerException(
             'Could not verify the authenticity of the response',
             static::createStub(RequestInterface::class),
-            static::createStub(ResponseInterface::class)
+            $mockResponse
         ));
         $this->paymentProcessor->pay($orderId, new Request(), $salesChannelContext);
     }
@@ -177,12 +178,13 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $this->createTransaction($orderId, $paymentMethodId);
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
-        $this->appendNewResponse(new Response(500));
+        $mockResponse = new Response(500);
+        $this->appendNewResponse($mockResponse);
 
         $this->expectExceptionObject(new ServerException(
             'Could not verify the authenticity of the response',
             static::createStub(RequestInterface::class),
-            static::createStub(ResponseInterface::class)
+            $mockResponse
         ));
         $this->paymentProcessor->pay($orderId, new Request(), $salesChannelContext);
     }
@@ -224,12 +226,13 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $json = \json_encode($response, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($json);
 
-        $this->appendNewResponse(new Response(200, ['shopware-app-signature' => 'invalid'], $json));
+        $mockResponse = new Response(200, ['shopware-app-signature' => 'invalid'], $json);
+        $this->appendNewResponse($mockResponse);
 
         $this->expectExceptionObject(new ServerException(
             'Could not verify the authenticity of the response',
             static::createStub(RequestInterface::class),
-            static::createStub(ResponseInterface::class)
+            $mockResponse
         ));
         try {
             // @deprecated tag:v6.8.0 - replace following line with:
@@ -277,12 +280,13 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $json = \json_encode($response, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($json);
 
-        $this->appendNewResponse(new Response(200, [], $json));
+        $mockResponse = new Response(200, [], $json);
+        $this->appendNewResponse($mockResponse);
 
         $this->expectExceptionObject(new ServerException(
             'Could not verify the authenticity of the response',
             static::createStub(RequestInterface::class),
-            static::createStub(ResponseInterface::class)
+            $mockResponse
         ));
         try {
             // @deprecated tag:v6.8.0 - replace following line with:
@@ -318,12 +322,13 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         $data = $this->prepareTransaction();
 
-        $this->appendNewResponse(new Response(500));
+        $mockResponse = new Response(500);
+        $this->appendNewResponse($mockResponse);
 
         $this->expectExceptionObject(new ServerException(
             'Could not verify the authenticity of the response',
             static::createStub(RequestInterface::class),
-            static::createStub(ResponseInterface::class)
+            $mockResponse
         ));
         try {
             // @deprecated tag:v6.8.0 - replace following line with:

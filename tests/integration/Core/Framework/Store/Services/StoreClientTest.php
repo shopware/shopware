@@ -268,7 +268,7 @@ class StoreClientTest extends TestCase
         $this->getStoreRequestHandler()->append(new Response(400, [], \json_encode($errorInfo, \JSON_THROW_ON_ERROR)));
 
         $this->expectExceptionObject(StoreException::storeError(new ClientException(
-            'Client error: `POST https://api.shopware.com/swplatform/pluginlicenses/123/cancel` resulted in a `400 Bad Request` response',
+            'Client error: `POST /swplatform/pluginlicenses/123/cancel',
             static::createStub(RequestInterface::class),
             static::createStub(ResponseInterface::class)
         )));

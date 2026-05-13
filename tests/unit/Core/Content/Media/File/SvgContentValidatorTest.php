@@ -364,6 +364,254 @@ SVG);
         }
     }
 
+    /**
+     * Regression coverage for real-world plugin payment icons (Apple Pay, card,
+     * PUI, SEPA) that previously broke after the strict SVG allowlist landed.
+     */
+    public function testRealWorldPaymentIconsPassValidation(): void
+    {
+        $applePay = $this->createSvgFile(<<<'SVG'
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" display="none">
+    <path d="M5 10h10v2H5z"/>
+</svg>
+SVG);
+
+        $card = $this->createSvgFile(<<<'SVG'
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+    <path clip-rule="evenodd" fill-rule="evenodd" d="M0 0h20v20H0z"/>
+</svg>
+SVG);
+
+        try {
+            $this->validator->validate($applePay);
+            $this->validator->validate($card);
+
+            static::assertSame('svg', $applePay->getFileExtension());
+            static::assertSame('svg', $card->getFileExtension());
+        } finally {
+            unlink($applePay->getFileName());
+            unlink($card->getFileName());
+        }
+    }
+
+    public function testSvgWithSymbolAndMarkerPassesValidation(): void
+    {
+        $file = $this->createSvgFile(<<<'SVG'
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+    <defs>
+        <symbol id="dot" viewBox="0 0 2 2"><circle cx="1" cy="1" r="1"/></symbol>
+        <marker id="arrow" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0 0L6 3L0 6z"/>
+        </marker>
+    </defs>
+    <use href="#dot" x="0" y="0"/>
+    <line x1="0" y1="10" x2="20" y2="10" stroke="black" marker-end="url(#arrow)"/>
+</svg>
+SVG);
+
+        try {
+            $this->validator->validate($file);
+
+            static::assertSame('svg', $file->getFileExtension());
+        } finally {
+            unlink($file->getFileName());
+        }
+    }
+
+    public function testSvgWithImageReferencingLocalFragmentPassesValidation(): void
+    {
+        $file = $this->createSvgFile(<<<'SVG'
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+    <defs>
+        <symbol id="icon" viewBox="0 0 1 1"><rect width="1" height="1"/></symbol>
+    </defs>
+    <image href="#icon" width="10" height="10"/>
+</svg>
+SVG);
+
+        try {
+            $this->validator->validate($file);
+
+            static::assertSame('svg', $file->getFileExtension());
+        } finally {
+            unlink($file->getFileName());
+        }
+    }
+
+    public function testSvgWithAnchorAndLangAttributesPassesValidation(): void
+    {
+        $file = $this->createSvgFile(<<<'SVG'
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" lang="en" xml:lang="en" viewBox="0 0 20 20">
+    <defs>
+        <symbol id="dot"><circle cx="1" cy="1" r="1"/></symbol>
+    </defs>
+    <a href="#dot"><rect width="10" height="10"/></a>
+    <a xlink:href="#dot"><circle cx="15" cy="5" r="3"/></a>
+</svg>
+SVG);
+
+        try {
+            $this->validator->validate($file);
+
+            static::assertSame('svg', $file->getFileExtension());
+        } finally {
+            unlink($file->getFileName());
+        }
+    }
+
+    #[DataProvider('anchorElementBypassAttemptsProvider')]
+    public function testAnchorElementDoesNotBypassReferenceChecks(string $svgContent): void
+    {
+        $file = $this->createSvgFile($svgContent);
+
+        try {
+            $this->expectException(MediaException::class);
+            $this->expectExceptionMessage('SVG files with active content are not allowed.');
+
+            $this->validator->validate($file);
+        } finally {
+            unlink($file->getFileName());
+        }
+    }
+
+    public static function anchorElementBypassAttemptsProvider(): \Generator
+    {
+        yield 'anchor with external href' => [
+            <<< 'SVG'
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"><a href="https://attacker.invalid"><rect width="10" height="10"/></a></svg>
+SVG,
+        ];
+
+        yield 'anchor with javascript pseudo scheme' => [
+            <<< 'SVG'
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"><a href="javascript:alert(1)"><rect width="10" height="10"/></a></svg>
+SVG,
+        ];
+
+        yield 'anchor with data uri' => [
+            <<< 'SVG'
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><a xlink:href="data:image/svg+xml;base64,PHN2Zy8+"><rect width="10" height="10"/></a></svg>
+SVG,
+        ];
+    }
+
+    public function testSvgWithAriaAttributesPassesValidation(): void
+    {
+        $file = $this->createSvgFile(<<<'SVG'
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="logo" aria-labelledby="t" aria-describedby="d" aria-hidden="false">
+    <title id="t">Logo</title>
+    <desc id="d">An accessible logo</desc>
+    <rect width="10" height="10"/>
+</svg>
+SVG);
+
+        try {
+            $this->validator->validate($file);
+
+            static::assertSame('svg', $file->getFileExtension());
+        } finally {
+            unlink($file->getFileName());
+        }
+    }
+
+    public function testSvgWithPresentationAttributesPassesValidation(): void
+    {
+        $file = $this->createSvgFile(<<<'SVG'
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
+    <rect width="10" height="10"
+          color="red"
+          visibility="visible"
+          overflow="hidden"
+          pointer-events="none"
+          shape-rendering="geometricPrecision"
+          vector-effect="non-scaling-stroke"
+          paint-order="stroke fill"
+          transform-origin="center"
+          stroke-miterlimit="4"
+          text-rendering="optimizeLegibility"
+          image-rendering="auto"
+          color-interpolation="sRGB"
+          color-interpolation-filters="linearRGB"/>
+</svg>
+SVG);
+
+        try {
+            $this->validator->validate($file);
+
+            static::assertSame('svg', $file->getFileExtension());
+        } finally {
+            unlink($file->getFileName());
+        }
+    }
+
+    /**
+     * The expanded attribute allowlist must not weaken the universal value checks.
+     * Even on freshly allowed attributes, external url() refs and event handlers
+     * must still be rejected.
+     */
+    #[DataProvider('newlyAllowedAttributesDoNotBypassValueChecksProvider')]
+    public function testNewlyAllowedAttributesDoNotBypassValueChecks(string $svgContent): void
+    {
+        $file = $this->createSvgFile($svgContent);
+
+        try {
+            $this->expectException(MediaException::class);
+            $this->expectExceptionMessage('SVG files with active content are not allowed.');
+
+            $this->validator->validate($file);
+        } finally {
+            unlink($file->getFileName());
+        }
+    }
+
+    public static function newlyAllowedAttributesDoNotBypassValueChecksProvider(): \Generator
+    {
+        yield 'cursor with external url' => [
+            <<< 'SVG'
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"><rect cursor="url(https://attacker.invalid/cursor.png), auto"/></svg>
+SVG,
+        ];
+
+        yield 'filter with external url' => [
+            <<< 'SVG'
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"><rect filter="url(https://attacker.invalid/filter)"/></svg>
+SVG,
+        ];
+
+        yield 'marker-end with external url' => [
+            <<< 'SVG'
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="0" x2="10" y2="0" stroke="black" marker-end="url(https://attacker.invalid/arrow)"/></svg>
+SVG,
+        ];
+
+        yield 'event handler on newly allowlisted-capable element (image)' => [
+            <<< 'SVG'
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"><image href="#x" onload="alert(1)"/></svg>
+SVG,
+        ];
+
+        yield 'image element with external href' => [
+            <<< 'SVG'
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"><image href="https://attacker.invalid/leak.png"/></svg>
+SVG,
+        ];
+    }
+
     public function testMerchantCanExtendAllowlistViaConfiguration(): void
     {
         $validator = $this->createValidator(

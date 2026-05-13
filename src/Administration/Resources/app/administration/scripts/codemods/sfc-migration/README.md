@@ -49,37 +49,38 @@ my-component/
 
 ## What gets converted automatically
 
-| Options API | Composition API output |
-|---|---|
-| `props` | `defineProps(…)` |
-| `emits` array/object form | `defineEmits(…)` |
-| `inheritAttrs: false` | `defineOptions({ inheritAttrs: false })` |
-| `name` | `defineOptions({ name })` |
-| `data()` / `data: () => ({ … })` | `ref(…)` inside `createExtendableSetup` |
-| `computed` | `computed(…)` inside `createExtendableSetup` |
-| `inject` array/object form | `inject(…)` inside `createExtendableSetup` |
-| `watch` method/object/string-handler form | `watch(…)` inside `createExtendableSetup` |
-| `methods` | plain functions inside `createExtendableSetup` |
-| `created` | runs directly in setup (equivalent behaviour) |
-| other lifecycle hooks | `onMounted`, `onBeforeUnmount`, etc. |
-| `this.$emit` | `emit(…)` |
-| `this.$router` / `this.$route` | `useRouter()` / `useRoute()` |
-| `this.$slots` | `useSlots()` |
-| `this.$nextTick` | `nextTick(…)` |
-| `this.$tc` / `this.$t` | `useI18n().tc` / `.t` |
-| `this.$refs.name` | `const name = ref(null)` |
-| Twig `{% extends '…' %}` | removed from the generated Vue template |
-| Twig `{# comments #}` | `<!-- HTML comments -->` |
+| Options API                               | Composition API output                         |
+| ----------------------------------------- | ---------------------------------------------- |
+| `props`                                   | `defineProps(…)`                               |
+| `emits` array/object form                 | `defineEmits(…)`                               |
+| `inheritAttrs: false`                     | `defineOptions({ inheritAttrs: false })`       |
+| `name`                                    | `defineOptions({ name })`                      |
+| `data()` / `data: () => ({ … })`          | `ref(…)` inside `createExtendableSetup`        |
+| `computed`                                | `computed(…)` inside `createExtendableSetup`   |
+| `inject` array/object form                | `inject(…)` inside `createExtendableSetup`     |
+| `watch` method/object/string-handler form | `watch(…)` inside `createExtendableSetup`      |
+| `methods`                                 | plain functions inside `createExtendableSetup` |
+| `created`                                 | runs directly in setup (equivalent behaviour)  |
+| other lifecycle hooks                     | `onMounted`, `onBeforeUnmount`, etc.           |
+| `this.$emit`                              | `emit(…)`                                      |
+| `this.$router` / `this.$route`            | `useRouter()` / `useRoute()`                   |
+| `this.$slots`                             | `useSlots()`                                   |
+| `this.$nextTick`                          | `nextTick(…)`                                  |
+| `this.$tc` / `this.$t`                    | `useI18n().tc` / `.t`                          |
+| `this.$refs.name`                         | `const name = ref(null)`                       |
+| Twig `{# comments #}`                     | `<!-- HTML comments -->`                       |
+
+Template transformation only supports Twig block tags (`{% block %}`, `{% endblock %}`, `{% parent %}`) and Twig comments. Templates containing Twig `{% extends '…' %}` fail the migration and must be handled manually before running the codemod.
 
 ## Migration outcomes
 
 Each component is classified into one of three states:
 
-| Status | Meaning | Output |
-|---|---|---|
-| `fully-migrated` | Full `<script setup>` with `createExtendableSetup` | `.vue` file written |
-| `partially-migrated` | Soft blocker found (mixins, `extends`) — Options API kept in plain `<script>` | `.vue` file written, manual follow-up required |
-| `not-migratable` | Hard blocker found (`render()`) — cannot be automatically converted | No file written |
+| Status               | Meaning                                                                                           | Output                                         |
+| -------------------- | ------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| `fully-migrated`     | Full `<script setup>` with `createExtendableSetup`                                                | `.vue` file written                            |
+| `partially-migrated` | Soft blocker found (mixins, `Shopware.Component.extend()`) — Options API kept in plain `<script>` | `.vue` file written, manual follow-up required |
+| `not-migratable`     | Hard blocker found (`render()`) — cannot be automatically converted                               | No file written                                |
 
 ## Programmatic API
 
@@ -92,7 +93,7 @@ if (result.status === 'fully-migrated') {
     fs.writeFileSync('my-component.vue', result.sfc);
 }
 
-// result.blockers — list of detected blockers (e.g. ['mixins', 'extends'])
+// result.blockers — list of detected blockers (e.g. ['mixins', 'extends (parent: sw-button)'])
 ```
 
 ## ⚠ Destructive Operations
@@ -103,6 +104,7 @@ component that produces a `.vue` file — including **partially-migrated** compo
 (those with unresolved blockers that still use Options API).
 
 Before using `--delete-originals`:
+
 1. Commit or stash all current changes to git.
 2. Run with `--dry-run` first to review what would be written.
 3. Verify the generated `.vue` files and replacement `index.js` entry points are correct before deletion.
@@ -114,22 +116,23 @@ After running the codemod, search for `TODO` comments in the generated files:
 - **`this.$el`** — no direct equivalent; replaced with `/* TODO: $el */ getCurrentInstance()?.proxy?.$el`.
   The migration summary prints a `⚠` warning line for every component containing this pattern.
   Two cases arise:
+    1. **Root element access in setup / lifecycle hooks** — prefer a template ref on the root element:
+        ```html
+        <template>
+            <div ref="rootEl">…</div>
+        </template>
+        ```
+        ```ts
+        const rootEl = ref<HTMLElement | null>(null);
+        onMounted(() => {
+            rootEl.value?.focus();
+        });
+        ```
+    2. **Dynamic DOM access inside methods** — `getCurrentInstance()?.proxy?.$el` is a valid transitional
+       bridge, but note that `getCurrentInstance()` returns `null` when called outside of the synchronous
+       setup phase. If the method runs after setup completes, store the element in a template ref instead.
 
-  1. **Root element access in setup / lifecycle hooks** — prefer a template ref on the root element:
-     ```html
-     <template>
-       <div ref="rootEl">…</div>
-     </template>
-     ```
-     ```ts
-     const rootEl = ref<HTMLElement | null>(null);
-     onMounted(() => { rootEl.value?.focus(); });
-     ```
-  2. **Dynamic DOM access inside methods** — `getCurrentInstance()?.proxy?.$el` is a valid transitional
-     bridge, but note that `getCurrentInstance()` returns `null` when called outside of the synchronous
-     setup phase. If the method runs after setup completes, store the element in a template ref instead.
-
-- **Partially migrated components** — mixins and `extends` must be manually inlined
+- **Partially migrated components** — mixins and `Shopware.Component.extend()` must be manually inlined
 - **Render functions** — must be rewritten as templates by hand
 
 ## Manual migration: `extends`-based components
@@ -153,50 +156,50 @@ Automatic inlining is out of scope for this codemod because it requires resolvin
    or the object passed to `Shopware.Component.register()` / `Shopware.Component.extend()`. Merge the parent's
    `props`, `data`, `computed`, `methods`, and lifecycle hooks into the child, following
    [Vue 2's option merging strategy](https://v2.vuejs.org/v2/guide/mixins.html#Option-Merging):
-   - `data`: deep-merged (child wins on conflict)
-   - `methods` / `computed`: child overrides parent
-   - lifecycle hooks: both run (parent first)
+    - `data`: deep-merged (child wins on conflict)
+    - `methods` / `computed`: child overrides parent
+    - lifecycle hooks: both run (parent first)
 
 3. **Replace `.extend()` with `.register()`** using the merged options object:
 
-   ```js
-   // Before
-   Shopware.Component.extend('sw-extended-button', 'sw-button', {
-       data() { return { extraLabel: 'Extended' }; },
-       methods: { getLabel() { return this.extraLabel; } },
-   });
+    ```js
+    // Before
+    Shopware.Component.extend('sw-extended-button', 'sw-button', {
+        data() { return { extraLabel: 'Extended' }; },
+        methods: { getLabel() { return this.extraLabel; } },
+    });
 
-   // After — parent options manually merged in
-   Shopware.Component.register('sw-extended-button', {
-       // copied from sw-button/index.js
-       props: { /* parent props */ },
-       computed: { /* parent computed */ },
-       data() { return { /* parent data */, extraLabel: 'Extended' }; },
-       methods: {
-           /* parent methods */
-           getLabel() { return this.extraLabel; },
-       },
-   });
-   ```
+    // After — parent options manually merged in
+    Shopware.Component.register('sw-extended-button', {
+        // copied from sw-button/index.js
+        props: { /* parent props */ },
+        computed: { /* parent computed */ },
+        data() { return { /* parent data */, extraLabel: 'Extended' }; },
+        methods: {
+            /* parent methods */
+            getLabel() { return this.extraLabel; },
+        },
+    });
+    ```
 
 4. **Re-run the codemod** — the component should now be classified as `fully-migratable`
    (unless other blockers remain).
 
-   ```bash
-   npm run codemod:sfc-migration -- --write path/to/sw-extended-button
-   ```
+    ```bash
+    npm run codemod:sfc-migration -- --write path/to/sw-extended-button
+    ```
 
 ## Known Limitations
 
 The following Options API features are **not automatically converted**. After migration,
 search your codebase for the `TODO:` comments the codemod inserts, and resolve each one manually.
 
-| Feature | Behavior | How to fix |
-|---------|----------|-----------|
-| `provide` | Drops with TODO comment | Add `provide(key, value)` calls manually in setup |
-| `components` | Drops silently | Verify components are globally registered; remove if so |
-| `directives` | Drops with TODO comment | Register directives globally or inline in setup |
-| `beforeCreate` | Drops with TODO comment | Move logic to top of `<script setup>` |
-| `this.$store` | Inserts TODO comment | Migrate Vuex access to a composable |
-| `this.$parent` / `this.$root` | Inserts TODO comment | Refactor to avoid parent traversal |
-| Nested watch path `'a.b'` | Leaves a TODO comment and skips the watcher | Write watcher manually |
+| Feature                       | Behavior                                    | How to fix                                              |
+| ----------------------------- | ------------------------------------------- | ------------------------------------------------------- |
+| `provide`                     | Drops with TODO comment                     | Add `provide(key, value)` calls manually in setup       |
+| `components`                  | Drops silently                              | Verify components are globally registered; remove if so |
+| `directives`                  | Drops with TODO comment                     | Register directives globally or inline in setup         |
+| `beforeCreate`                | Drops with TODO comment                     | Move logic to top of `<script setup>`                   |
+| `this.$store`                 | Inserts TODO comment                        | Migrate Vuex access to a composable                     |
+| `this.$parent` / `this.$root` | Inserts TODO comment                        | Refactor to avoid parent traversal                      |
+| Nested watch path `'a.b'`     | Leaves a TODO comment and skips the watcher | Write watcher manually                                  |

@@ -4,15 +4,16 @@
  * is a single fixed token that never nests inside JS expressions.
  */
 
-const EXTENDS_RE = /\{%\s*extends\s+["'][^"']+["']\s*%\}/;
+const EXTENDS_RE = /\{%\s*extends\b[\s\S]*?%\}/;
 const TWIG_COMMENT_RE = /\{#([\s\S]*?)#\}/g;
 const ESLINT_DISABLE_TWIG = '<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->';
 const BLOCK_START_LINE_RE = /\{%\s*block\s+([^%\s}]+)\s*%\}/;
 const BLOCK_END_LINE_RE = /\{%\s*endblock(?:\s+\w+)?\s*%\}/;
 const PARENT_LINE_RE = /\{[{%]\s*parent\(?\)?\s*[%}]\}/;
+const UNSUPPORTED_EXTENDS_ERROR = 'Twig extends is not supported by the SFC migration codemod.';
 
 function isTwigBlockMigrationLine(line: string): boolean {
-    return EXTENDS_RE.test(line) || BLOCK_START_LINE_RE.test(line) || BLOCK_END_LINE_RE.test(line) || PARENT_LINE_RE.test(line);
+    return BLOCK_START_LINE_RE.test(line) || BLOCK_END_LINE_RE.test(line) || PARENT_LINE_RE.test(line);
 }
 
 /**
@@ -21,7 +22,7 @@ function isTwigBlockMigrationLine(line: string): boolean {
  * - `{% block name %}` → `<sw-block name="name" :data="$dataScope">`
  * - `{% endblock %}`  → `</sw-block>`
  * - `{{ parent() }}`  → `<sw-block-parent/>`
- * - `{% extends '…' %}` lines are removed entirely
+ * - `{% extends '…' %}` throws because template inheritance is unsupported
  * - Accompanying eslint-disable-next-line comments are removed
  * - Plain HTML / Vue expressions pass through unchanged
  */
@@ -32,34 +33,29 @@ export function transformTemplate(twigContent: string): { template: string; useD
 
     const hasTwigBlocks = BLOCK_START_LINE_RE.test(twigContent);
 
+    if (EXTENDS_RE.test(twigContent)) {
+        throw new Error(UNSUPPORTED_EXTENDS_ERROR);
+    }
+
     let body = twigContent;
 
     // Convert Twig comments to HTML comments regardless of block usage
     body = body.replace(TWIG_COMMENT_RE, (_, content) => `<!--${content}-->`);
 
-    const cleanedLines = body
-        .split('\n')
-        .filter((line, index, lines) => {
-            if (EXTENDS_RE.test(line)) {
-                return false;
-            }
+    const cleanedLines = body.split('\n').filter((line, index, lines) => {
+        const trimmed = line.trim();
+        const nextLine = lines[index + 1] ?? '';
+        const previousLine = lines[index - 1] ?? '';
 
-            const trimmed = line.trim();
-            const nextLine = lines[index + 1] ?? '';
-            const previousLine = lines[index - 1] ?? '';
+        if (
+            trimmed === ESLINT_DISABLE_TWIG &&
+            (isTwigBlockMigrationLine(nextLine) || isTwigBlockMigrationLine(previousLine))
+        ) {
+            return false;
+        }
 
-            if (
-                trimmed === ESLINT_DISABLE_TWIG
-                && (
-                    isTwigBlockMigrationLine(nextLine)
-                    || isTwigBlockMigrationLine(previousLine)
-                )
-            ) {
-                return false;
-            }
-
-            return true;
-        });
+        return true;
+    });
 
     body = cleanedLines.join('\n');
 

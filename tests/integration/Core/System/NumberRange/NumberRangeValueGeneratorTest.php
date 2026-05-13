@@ -17,7 +17,6 @@ use Shopware\Core\System\NumberRange\NumberRangeCollection;
 use Shopware\Core\System\NumberRange\ValueGenerator\AbstractNumberRangeValueGenerator;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGenerator;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -140,9 +139,10 @@ class NumberRangeValueGeneratorTest extends TestCase
         static::assertSame('10002', $realGenerator->previewPatternByNumberRangeId($salesChannelNumberRangeId, '{n}', 0));
     }
 
-    #[DisabledFeatures(['v6.8.0.0'])]
     public function testDeprecatedPreviewPatternByTypeStillUsesGlobalNumberRangeState(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         /** @var AbstractNumberRangeValueGenerator $realGenerator */
         $realGenerator = static::getContainer()->get(AbstractNumberRangeValueGenerator::class);
 
@@ -155,9 +155,7 @@ class NumberRangeValueGeneratorTest extends TestCase
         $this->setNumberRangeState($salesChannelNumberRangeId, 10000);
 
         static::assertSame('10001', $realGenerator->getValue('customer', $this->context, TestDefaults::SALES_CHANNEL));
-        $preview = Feature::silent('v6.8.0.0', fn (): string => $realGenerator->previewPattern('customer', '{n}', 0));
-
-        static::assertSame('10001', $preview);
+        static::assertSame('10001', $realGenerator->previewPattern('customer', '{n}', 0));
     }
 
     private function setupDatabase(): void

@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\System\NumberRange\Api;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\Api\NumberRangeController;
@@ -84,10 +83,8 @@ class NumberRangeControllerTest extends TestCase
         $valueGenerator->expects($this->never())
             ->method('previewPattern');
 
-        Feature::fake(['v6.8.0.0'], function () use ($valueGenerator): void {
-            $this->expectException(FeatureException::class);
+        $this->expectException(FeatureException::class);
 
-            (new NumberRangeController($valueGenerator))->previewPattern('customer', new Request());
-        });
+        (new NumberRangeController($valueGenerator))->previewPattern('customer', new Request());
     }
 }

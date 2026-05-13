@@ -113,6 +113,8 @@ class NumberRangeValueGenerator extends AbstractNumberRangeValueGenerator implem
      */
     private function getConfiguration(string $definition, ?string $salesChannelId): array
     {
+        // @deprecated tag:v6.8.0 - When getPreview is removed, this method will expect a sales channel id.
+        // The else case can be removed then.
         if ($salesChannelId) {
             /** @var array{id: string, pattern: string, start: int}|false $config */
             $config = $this->connection->fetchAssociative('

@@ -8,6 +8,7 @@ const { ShopwareSetupTransformError } = require('./utils/transform-error');
  * @typedef {import('./utils/shopware-setup-block').ShopwareSetupBlock} ShopwareSetupBlock
  * @typedef {import('./script-analyzer').ShopwareSetupScriptAnalysis} ShopwareSetupScriptAnalysis
  * @typedef {import('./script-analyzer').PublicEntry} PublicEntry
+ * @typedef {import('./script-analyzer').OverrideEntry} OverrideEntry
  * @typedef {PublicEntry['key']} PublicKey
  */
 
@@ -106,16 +107,17 @@ function getTakenNames(analysis) {
 /**
  * Indexes public entries by local binding and rejects duplicate local exposure.
  *
- * @param {PublicEntry[]} publicEntries
+ * @param {PublicEntry[] | OverrideEntry[]} publicEntries
+ * @param {'swDefinePublic' | 'swDefineOverride'} macroName
  * @returns {Map<string, PublicEntry>}
  */
-function createPublicEntryByLocalNameMap(publicEntries) {
+function createEntryByLocalNameMap(publicEntries, macroName) {
     const publicEntryByLocalName = new Map();
 
     publicEntries.forEach((entry) => {
         if (publicEntryByLocalName.has(entry.localName)) {
             throw new ShopwareSetupTransformError(
-                `Local binding "${entry.localName}" cannot be listed multiple times in swDefinePublic().`,
+                `Local binding "${entry.localName}" cannot be listed multiple times in ${macroName}().`,
                 0,
             );
         }
@@ -180,19 +182,41 @@ function buildBaseReturn(analysis) {
 }
 
 /**
- * Builds the override callback payload from top-level runtime bindings.
+ * Builds the override callback payload from declared replacements and template-used private aliases.
  *
  * @param {ShopwareSetupScriptAnalysis} analysis
  * @returns {string}
  */
 function buildOverrideReturn(analysis) {
-    if (analysis.runtimeBindings.length === 0) {
+    createEntryByLocalNameMap(analysis.overrideEntries, 'swDefineOverride');
+
+    const overrideProperties = analysis.overrideEntries.map((entry) => {
+        if (entry.key.type === 'identifier' && entry.key.value === entry.localName) {
+            return entry.localName;
+        }
+
+        return `${formatPropertyKey(entry.key)}: ${entry.localName}`;
+    });
+    const privateProperties = Array.from(analysis.overridePrivateAliases.entries()).map(
+        ([
+            localName,
+            privateAlias,
+        ]) => {
+            return `${privateAlias}: ${localName}`;
+        },
+    );
+    const properties = [
+        ...overrideProperties,
+        ...privateProperties,
+    ];
+
+    if (properties.length === 0) {
         return 'return {};';
     }
 
     return [
         'return {',
-        ...analysis.runtimeBindings.map((binding) => `    ${binding.name},`),
+        ...properties.map((property) => `    ${property},`),
         '};',
     ].join('\n');
 }
@@ -207,7 +231,7 @@ function buildOverrideReturn(analysis) {
 function buildBaseScript(block, analysis) {
     const takenNames = getTakenNames(analysis);
     const setupBindingsName = makeUniqueName('__shopwareSetupBindings', takenNames);
-    const publicEntryByLocalName = createPublicEntryByLocalNameMap(analysis.publicEntries);
+    const publicEntryByLocalName = createEntryByLocalNameMap(analysis.publicEntries, 'swDefinePublic');
     const destructureEntries = analysis.runtimeBindings.map((binding) => {
         return formatDestructureEntry(binding.name, publicEntryByLocalName.get(binding.name));
     });
@@ -270,8 +294,12 @@ function buildOverrideScript(block, analysis) {
         `        Shopware.Component.overrideComponentSetup()('${escapeSingleQuoted(block.componentName)}', (${previousStateName}, ${propsName}, ${contextName}) => {`,
         indent(body, 12),
         '        });',
-        '',
-        '        return () => null;',
+        ...(block.template
+            ? []
+            : [
+                  '',
+                  '        return () => null;',
+              ]),
         '    },',
         '};',
         '</script>',

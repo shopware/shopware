@@ -4,6 +4,7 @@
 
 const { parseShopwareSetupSfc } = require('./sfc-parser');
 const { analyzeShopwareSetupScript } = require('./script-analyzer');
+const { analyzeOverrideTemplate } = require('./template-analyzer');
 const { lowerShopwareSetupBlock } = require('./lower');
 const { ShopwareSetupTransformError } = require('./utils/transform-error');
 
@@ -33,6 +34,21 @@ function withBlockOffset(error, block) {
 }
 
 /**
+ * Applies non-overlapping source edits from the end of the file to the beginning.
+ *
+ * @param {string} source
+ * @param {{ start: number, end: number, replacement: string }[]} edits
+ * @returns {string}
+ */
+function applySourceEdits(source, edits) {
+    return [...edits]
+        .sort((a, b) => b.start - a.start)
+        .reduce((code, edit) => {
+            return `${code.slice(0, edit.start)}${edit.replacement}${code.slice(edit.end)}`;
+        }, source);
+}
+
+/**
  * Converts a Shopware setup SFC into plain Vue-compatible code before Vue compiles it.
  *
  * @param {string} source
@@ -48,6 +64,10 @@ function transformShopwareSetupSfc(source, filename = 'anonymous.vue') {
 
     let analysis;
     let replacement;
+    let templateAnalysis = {
+        edits: [],
+        privateAliases: new Map(),
+    };
 
     try {
         analysis = analyzeShopwareSetupScript(block.content, {
@@ -55,13 +75,27 @@ function transformShopwareSetupSfc(source, filename = 'anonymous.vue') {
             lang: block.lang,
             scriptOffset: block.contentStart,
         });
+        if (block.mode === 'override') {
+            templateAnalysis = analyzeOverrideTemplate(block, analysis);
+            analysis.overridePrivateAliases = templateAnalysis.privateAliases;
+        }
+
         replacement = lowerShopwareSetupBlock(block, analysis);
     } catch (error) {
         throw withBlockOffset(error, block);
     }
 
+    const code = applySourceEdits(source, [
+        ...templateAnalysis.edits,
+        {
+            start: block.start,
+            end: block.end,
+            replacement,
+        },
+    ]);
+
     return {
-        code: `${source.slice(0, block.start)}${replacement}${source.slice(block.end)}`,
+        code,
         map: null,
         mode: block.mode,
         filename,

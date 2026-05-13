@@ -1,10 +1,11 @@
-import type { ComputedRef, Reactive, Ref, ToRefs } from 'vue';
+import type { ComputedRef, Reactive, Ref, ShallowUnwrapRef, ToRefs } from 'vue';
 import {
     computed,
     getCurrentInstance as vueGetCurrentInstance,
     isReactive,
     isReadonly,
     isRef,
+    proxyRefs,
     reactive,
     toRefs,
     watch,
@@ -68,6 +69,12 @@ declare global {
  */
 type ComponentInstanceWithSetupContext = ComponentInternalInstance & {
     setupContext: SetupContext;
+};
+
+const scriptSetupDataScopeKey = '__shopwareSetupDataScope' as const;
+
+type ScriptSetupExtendableState<TState extends object> = ToRefs<Reactive<TState>> & {
+    readonly [scriptSetupDataScopeKey]: ShallowUnwrapRef<ToRefs<Reactive<TState>>>;
 };
 
 /**
@@ -423,19 +430,35 @@ export function createScriptSetupExtendableComponent<
             public?: Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]>;
             private?: TPrivateSetupResult;
         },
-    ): ToRefs<Reactive<Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]> & TPrivateSetupResult>> {
+    ): ScriptSetupExtendableState<Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]> & TPrivateSetupResult> {
         const instance = getCurrentInstance();
         const props = (instance?.props ?? {}) as TProps;
         const context = getComponentContext() as TContext;
 
-        return createExtendableSetup(
+        const state = createExtendableSetup(
             {
                 name,
                 props,
                 context,
             },
             () => setup({ props, context }),
-        );
+        ) as ScriptSetupExtendableState<
+            Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]> & TPrivateSetupResult
+        >;
+
+        Object.defineProperty(state, scriptSetupDataScopeKey, {
+            value: proxyRefs(state),
+            enumerable: false,
+        });
+
+        if (instance) {
+            Object.defineProperty(instance, scriptSetupDataScopeKey, {
+                value: state[scriptSetupDataScopeKey],
+                configurable: true,
+            });
+        }
+
+        return state;
     };
 }
 

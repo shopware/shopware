@@ -6,6 +6,7 @@
 The Composition API Extension System is the next-generation mechanism for extending Vue components in the Shopware 6 Administration. It replaces the legacy Component Factory override system with a type-safe, reactive, non-invasive approach based on Vue 3 Composition API.
 
 **Source files:**
+
 - `src/app/adapter/composition-extension-system.ts` — `createExtendableSetup`, `overrideComponentSetup`, `_overridesMap`
 - `src/app/adapter/options-composition-shim.ts` — backward-compatibility layer for Options API overrides
 
@@ -46,10 +47,10 @@ flowchart TD
 
 ### Key data structures
 
-| Symbol | Type | Description |
-|---|---|---|
-| `_overridesMap` | `reactive({ [name]: Array<OverrideFn> })` | Central reactive registry mapping each component name to its ordered list of override functions |
-| `ComponentPublicApiMapping` | Global TypeScript interface | Maps component names to their typed public API shapes; extended by component authors |
+| Symbol                      | Type                                      | Description                                                                                     |
+| --------------------------- | ----------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `_overridesMap`             | `reactive({ [name]: Array<OverrideFn> })` | Central reactive registry mapping each component name to its ordered list of override functions |
+| `ComponentPublicApiMapping` | Global TypeScript interface               | Maps component names to their typed public API shapes; extended by component authors            |
 
 ---
 
@@ -74,21 +75,24 @@ function createExtendableSetup<
         props: PROPS;
         context?: CONTEXT;
     },
-    originalSetup: (props: PROPS, context: CONTEXT) => {
+    originalSetup: (
+        props: PROPS,
+        context: CONTEXT,
+    ) => {
         public?: SETUP_RESULT;
         private?: PRIVATE_SETUP_RESULT;
     },
-): ToRefs<Reactive<SETUP_RESULT & PRIVATE_SETUP_RESULT>>
+): ToRefs<Reactive<SETUP_RESULT & PRIVATE_SETUP_RESULT>>;
 ```
 
 ### Parameters
 
-| Parameter | Description |
-|---|---|
-| `options.name` | Component name key — must match a key in `ComponentPublicApiMapping` |
-| `options.props` | The props object passed into the Vue `setup()` function |
+| Parameter         | Description                                                             |
+| ----------------- | ----------------------------------------------------------------------- |
+| `options.name`    | Component name key — must match a key in `ComponentPublicApiMapping`    |
+| `options.props`   | The props object passed into the Vue `setup()` function                 |
 | `options.context` | Optional; automatically resolved from `getCurrentInstance()` if omitted |
-| `originalSetup` | The component's own setup logic; must return `{ public?, private? }` |
+| `originalSetup`   | The component's own setup logic; must return `{ public?, private? }`    |
 
 ### Return value
 
@@ -102,27 +106,24 @@ The `originalSetup` callback splits its return value into two buckets:
 - **`private`** — internal state that is not part of the public extension API. Accessible in overrides under `previousState._private`.
 
 ```typescript
-return createExtendableSetup(
-    { name: 'sw-my-component', props },
-    (props) => {
-        const title = ref('Hello');
-        const internalId = ref<string | null>(null);
+return createExtendableSetup({ name: 'sw-my-component', props }, (props) => {
+    const title = ref('Hello');
+    const internalId = ref<string | null>(null);
 
-        return {
-            public: { title },      // accessible as previousState.title
-            private: { internalId }, // accessible as previousState._private.internalId
-        };
-    },
-);
+    return {
+        public: { title }, // accessible as previousState.title
+        private: { internalId }, // accessible as previousState._private.internalId
+    };
+});
 ```
 
 ### Error conditions
 
-| Condition | Logged as |
-|---|---|
-| `originalSetup` returns neither `public` nor `private` | `console.error` — returns `{}` |
-| `originalSetup` returns a key other than `public` or `private` | `console.error` |
-| `originalSetup` includes a prop key in its return value | `console.error` — that key is deleted from the result |
+| Condition                                                      | Logged as                                             |
+| -------------------------------------------------------------- | ----------------------------------------------------- |
+| `originalSetup` returns neither `public` nor `private`         | `console.error` — returns `{}`                        |
+| `originalSetup` returns a key other than `public` or `private` | `console.error`                                       |
+| `originalSetup` includes a prop key in its return value        | `console.error` — that key is deleted from the result |
 
 ### Registering the TypeScript type
 
@@ -161,10 +162,7 @@ Plugin authors use this function to register a Composition API override for a sp
 ### Signature
 
 ```typescript
-function overrideComponentSetup(): (
-    componentName: keyof ComponentPublicApiMapping,
-    override: OverrideFn,
-) => void
+function overrideComponentSetup(): (componentName: keyof ComponentPublicApiMapping, override: OverrideFn) => void;
 ```
 
 ### Usage
@@ -177,23 +175,23 @@ Shopware.Component.overrideComponentSetup()('sw-my-component', (previousState, p
 
 ### Override function arguments
 
-| Argument | Type | Description |
-|---|---|---|
+| Argument        | Type                                             | Description                                                                                                                                                                                                               |
+| --------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `previousState` | `ComponentPublicApiMapping[name] & { _private }` | Shallow copy of the component's current state after all previous overrides have been applied. Public keys are at the top level; private keys are under `_private`. Refs are **not** unwrapped — access `.value` directly. |
-| `props` | Component props (readonly) | The current prop values. Cannot be returned in the override result. |
-| `context` | `SetupContext` | Vue setup context: `attrs`, `slots`, `emit`, `expose`. |
+| `props`         | Component props (readonly)                       | The current prop values. Cannot be returned in the override result.                                                                                                                                                       |
+| `context`       | `SetupContext`                                   | Vue setup context: `attrs`, `slots`, `emit`, `expose`.                                                                                                                                                                    |
 
 ### Override return types
 
 The override function returns a plain object. Each key in the result is merged back into the component state according to the following rules:
 
-| Return value type | Merge behavior |
-|---|---|
-| Plain `ref` (non-computed, non-readonly) | 2-way sync (`syncRef`) with the existing state ref. Both the override ref and the original ref stay in sync. |
-| Readonly `computed` ref | Replaces the existing property in `reactiveWrappedState` directly. |
-| Writable `computed` ref (has `.effect`) | Wrapped in a new `computed({ get, set })` and assigned to `reactiveWrappedState`. |
-| `reactive` object | Merged via `Object.assign` into the existing reactive value. The new object must contain **all keys** of the original (recursive check). |
-| `function` | Replaces the existing function directly. |
+| Return value type                        | Merge behavior                                                                                                                           |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Plain `ref` (non-computed, non-readonly) | 2-way sync (`syncRef`) with the existing state ref. Both the override ref and the original ref stay in sync.                             |
+| Readonly `computed` ref                  | Replaces the existing property in `reactiveWrappedState` directly.                                                                       |
+| Writable `computed` ref (has `.effect`)  | Wrapped in a new `computed({ get, set })` and assigned to `reactiveWrappedState`.                                                        |
+| `reactive` object                        | Merged via `Object.assign` into the existing reactive value. The new object must contain **all keys** of the original (recursive check). |
+| `function`                               | Replaces the existing function directly.                                                                                                 |
 
 Returning a key that matches a component **prop** name logs `console.error` and is ignored.
 
@@ -229,7 +227,7 @@ swDefinePublic({
 </script>
 ```
 
-Override mode uses `sw-override` for the component it extends. `previousState` is the current public state after earlier overrides have run, `props` and `context` mirror the normal setup inputs, and `doubled` becomes the override payload returned to the extension runtime.
+Override mode uses `sw-override` for the component it extends. `previousState` is the current public state after earlier overrides have run, `props` and `context` mirror the normal setup inputs, and `swDefineOverride({...})` declares the override payload returned to the extension runtime.
 
 ```vue
 <script setup lang="ts" sw-override="sw-example-component">
@@ -240,6 +238,10 @@ const props = useSwProps();
 const context = useSwContext();
 
 const doubled = computed(() => previousState.count.value * 2);
+
+swDefineOverride({
+    doubled,
+});
 </script>
 ```
 
@@ -247,9 +249,9 @@ const doubled = computed(() => previousState.count.value * 2);
 
 Shopware setup SFCs use transform-injected helper functions instead of broad runtime globals:
 
-| Mode | Helpers |
-|---|---|
-| Base | `useSwProps()`, `useSwContext()` |
+| Mode     | Helpers                                                  |
+| -------- | -------------------------------------------------------- |
+| Base     | `useSwProps()`, `useSwContext()`                         |
 | Override | `useSwPreviousState()`, `useSwProps()`, `useSwContext()` |
 
 `swDefinePublic({...})` is the only public marker in base mode. It accepts stable object-literal keys only:
@@ -258,6 +260,15 @@ Shopware setup SFCs use transform-injected helper functions instead of broad run
 swDefinePublic({ count });
 swDefinePublic({ count: localCount });
 swDefinePublic({ 'count': localCount });
+```
+
+`swDefineOverride({...})` is required in override mode and accepts the same static object-literal forms:
+
+```text
+swDefineOverride({});
+swDefineOverride({ count });
+swDefineOverride({ count: localCount });
+swDefineOverride({ 'count': localCount });
 ```
 
 ---
@@ -337,19 +348,19 @@ When merging mixins, existing (component-level) inject entries win over mixin in
 
 ### Lifecycle hook mapping
 
-| Options API hook | Composition API equivalent | Notes |
-|---|---|---|
-| `beforeCreate` | — (called immediately) | Runs synchronously during `setup()` |
-| `created` | — (called immediately) | Runs synchronously during `setup()` |
-| `beforeMount` | `onBeforeMount` | |
-| `mounted` | `onMounted` | |
-| `beforeUpdate` | `onBeforeUpdate` | |
-| `updated` | `onUpdated` | |
-| `beforeUnmount` | `onBeforeUnmount` | |
-| `unmounted` | `onUnmounted` | |
-| `activated` | `onActivated` | |
-| `deactivated` | `onDeactivated` | |
-| `errorCaptured` | `onErrorCaptured` | |
+| Options API hook | Composition API equivalent | Notes                               |
+| ---------------- | -------------------------- | ----------------------------------- |
+| `beforeCreate`   | — (called immediately)     | Runs synchronously during `setup()` |
+| `created`        | — (called immediately)     | Runs synchronously during `setup()` |
+| `beforeMount`    | `onBeforeMount`            |                                     |
+| `mounted`        | `onMounted`                |                                     |
+| `beforeUpdate`   | `onBeforeUpdate`           |                                     |
+| `updated`        | `onUpdated`                |                                     |
+| `beforeUnmount`  | `onBeforeUnmount`          |                                     |
+| `unmounted`      | `onUnmounted`              |                                     |
+| `activated`      | `onActivated`              |                                     |
+| `deactivated`    | `onDeactivated`            |                                     |
+| `errorCaptured`  | `onErrorCaptured`          |                                     |
 
 **Mixin hooks** are registered before component-level hooks, matching Vue's native merge strategy.
 
@@ -358,41 +369,42 @@ When merging mixins, existing (component-level) inject entries win over mixin in
 Because `createExtendableSetup` processes the component override registry asynchronously (via an async IIFE), overrides may be applied after the component's `setup()` has already returned. In this case `getCurrentInstance()` returns `null` inside the shim.
 
 Behavior for late-applied overrides:
+
 - `beforeCreate`, `created` — called immediately (they are setup-phase hooks anyway)
 - `beforeMount`, `mounted` — called immediately (the component is already mounted)
 - `beforeUnmount`, `unmounted`, and other future hooks — **cannot be registered**; a `console.warn` is logged and those handlers are skipped
 
 ### Supported features summary
 
-| Feature | Supported | Notes |
-|---|---|---|
-| `data` | Yes | Keys become refs |
-| `methods` | Yes | Bound to `this` proxy |
-| `computed` (getter) | Yes | |
-| `computed` (getter + setter) | Yes | |
-| `watch` (function handler) | Yes | |
-| `watch` (object with options) | Yes | `immediate`, `deep`, `flush` respected |
-| `watch` (string method name) | Yes | Method resolved from `this` proxy |
-| `watch` (dot-notation path) | No | Warning logged, watcher skipped |
-| `inject` (array) | Yes | |
-| `inject` (object) | Yes | |
-| `mixins` | Yes | Depth-first merge |
-| All lifecycle hooks | Yes | See mapping table above |
-| `$super` (methods) | Yes | |
-| `$super` (computed) | Yes | Returns `.value` of the ref |
-| Vue instance props (`$emit`, `$t`, …) | Yes | Forwarded via `getCurrentInstance` |
+| Feature                               | Supported | Notes                                  |
+| ------------------------------------- | --------- | -------------------------------------- |
+| `data`                                | Yes       | Keys become refs                       |
+| `methods`                             | Yes       | Bound to `this` proxy                  |
+| `computed` (getter)                   | Yes       |                                        |
+| `computed` (getter + setter)          | Yes       |                                        |
+| `watch` (function handler)            | Yes       |                                        |
+| `watch` (object with options)         | Yes       | `immediate`, `deep`, `flush` respected |
+| `watch` (string method name)          | Yes       | Method resolved from `this` proxy      |
+| `watch` (dot-notation path)           | No        | Warning logged, watcher skipped        |
+| `inject` (array)                      | Yes       |                                        |
+| `inject` (object)                     | Yes       |                                        |
+| `mixins`                              | Yes       | Depth-first merge                      |
+| All lifecycle hooks                   | Yes       | See mapping table above                |
+| `$super` (methods)                    | Yes       |                                        |
+| `$super` (computed)                   | Yes       | Returns `.value` of the ref            |
+| Vue instance props (`$emit`, `$t`, …) | Yes       | Forwarded via `getCurrentInstance`     |
 
 ### Unsupported options
 
-| Option | Level | Behavior |
-|---|---|---|
-| `components` | `console.warn` | Ignored |
-| `directives` | `console.warn` | Ignored |
-| `provide` | `console.warn` | Ignored |
-| `template` | `console.warn` | Ignored |
-| `extends` | `console.warn` | Ignored |
-| `inheritAttrs` | `console.warn` | Ignored |
-| `emits` | `console.warn` | Ignored |
+| Option                            | Level           | Behavior                          |
+| --------------------------------- | --------------- | --------------------------------- |
+| `components`                      | `console.warn`  | Ignored                           |
+| `directives`                      | `console.warn`  | Ignored                           |
+| `provide`                         | `console.warn`  | Ignored                           |
+| `template`                        | `console.warn`  | Ignored                           |
+| `extends`                         | `console.warn`  | Ignored                           |
+| `inheritAttrs`                    | `console.warn`  | Ignored                           |
+| `emits`                           | `console.warn`  | Ignored                           |
 | `render` (custom render function) | `console.error` | Component will not work correctly |
 
 ---

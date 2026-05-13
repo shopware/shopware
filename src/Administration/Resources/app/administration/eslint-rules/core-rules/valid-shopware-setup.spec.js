@@ -45,6 +45,7 @@ swDefinePublic({ count });
             code: `<script setup lang="ts" sw-override="sw-my-component">
 const previousState = useSwPreviousState();
 const doubled: number = previousState.count.value * 2;
+swDefineOverride({ doubled });
 </script>`,
         },
     ],
@@ -79,6 +80,7 @@ swDefinePublic({ [dynamicKey]: count });
             code: `<script setup sw-override="sw-my-component">
 const count = 1;
 swDefinePublic({ count });
+swDefineOverride({ count });
 </script>`,
             errors: [
                 {

@@ -30,6 +30,8 @@ const { ShopwareSetupTransformError } = require('./utils/transform-error');
  * @property {{ type: 'identifier' | 'string', value: string }} key
  * @property {string} localName
  *
+ * @typedef {PublicEntry} OverrideEntry
+ *
  * @typedef {object} ShopwareSetupScriptAnalysis
  * @property {ImportBlock[]} imports
  * @property {string} body
@@ -37,6 +39,8 @@ const { ShopwareSetupTransformError } = require('./utils/transform-error');
  * @property {Set<string>} runtimeBindingNames
  * @property {Set<string>} importedBindings
  * @property {PublicEntry[]} publicEntries
+ * @property {OverrideEntry[]} overrideEntries
+ * @property {Map<string, string>} overridePrivateAliases
  */
 
 const UNSUPPORTED_VUE_MACROS = new Set([
@@ -51,11 +55,14 @@ const UNSUPPORTED_VUE_MACROS = new Set([
 
 const BASE_HELPERS = new Set([
     'swDefinePublic',
+    'swDefineOverride',
     'useSwProps',
     'useSwContext',
 ]);
 
 const OVERRIDE_HELPERS = new Set([
+    'swDefinePublic',
+    'swDefineOverride',
     'useSwPreviousState',
     'useSwProps',
     'useSwContext',
@@ -194,9 +201,10 @@ function walk(node, visitor, ancestors = []) {
  * @param {BabelFile} ast
  * @param {number} scriptOffset
  * @param {Set<CallExpression>} topLevelPublicCalls
+ * @param {Set<CallExpression>} topLevelOverrideCalls
  * @returns {void}
  */
-function assertNoUnsupportedSyntax(ast, scriptOffset, topLevelPublicCalls) {
+function assertNoUnsupportedSyntax(ast, scriptOffset, topLevelPublicCalls, topLevelOverrideCalls) {
     walk(ast.program, (node, ancestors) => {
         // Reject unsupported Vue macros:
         //  Vue only treats these calls as compiler macros in supported top-level setup positions.
@@ -247,6 +255,19 @@ function assertNoUnsupportedSyntax(ast, scriptOffset, topLevelPublicCalls) {
         ) {
             throw new ShopwareSetupTransformError(
                 'swDefinePublic() must be called once at the top level of a base Shopware setup block.',
+                scriptOffset + getNodeRange(node, scriptOffset).start,
+            );
+        }
+
+        // Ensure swDefineOverride() is only called at top level
+        if (
+            node.type === 'CallExpression' &&
+            node.callee.type === 'Identifier' &&
+            node.callee.name === 'swDefineOverride' &&
+            !topLevelOverrideCalls.has(node)
+        ) {
+            throw new ShopwareSetupTransformError(
+                'swDefineOverride() must be called once at the top level of an override Shopware setup block.',
                 scriptOffset + getNodeRange(node, scriptOffset).start,
             );
         }
@@ -412,12 +433,13 @@ function collectRuntimeBinding(statement, runtimeBindings, runtimeBindingNames, 
  *
  * @param {ObjectProperty} property
  * @param {number} scriptOffset
+ * @param {'swDefinePublic' | 'swDefineOverride'} macroName
  * @returns {PublicEntry['key']}
  */
-function getPublicKey(property, scriptOffset) {
+function getStaticMacroKey(property, scriptOffset, macroName) {
     if (property.computed) {
         throw new ShopwareSetupTransformError(
-            'Computed keys in swDefinePublic() are intentionally unsupported because transform, lint, and type layers need a stable compile-time key.',
+            `Computed keys in ${macroName}() are intentionally unsupported because transform, lint, and type layers need a stable compile-time key.`,
             scriptOffset + getNodeRange(property, scriptOffset).start,
         );
     }
@@ -437,7 +459,7 @@ function getPublicKey(property, scriptOffset) {
     }
 
     throw new ShopwareSetupTransformError(
-        'swDefinePublic() only supports identifier keys and string-literal keys.',
+        `${macroName}() only supports identifier keys and string-literal keys.`,
         scriptOffset + getNodeRange(property.key, scriptOffset).start,
     );
 }
@@ -447,12 +469,13 @@ function getPublicKey(property, scriptOffset) {
  *
  * @param {CallExpression} callNode
  * @param {number} scriptOffset
+ * @param {'swDefinePublic' | 'swDefineOverride'} macroName
  * @returns {ObjectExpression}
  */
-function assertSingleArgument(callNode, scriptOffset) {
+function assertSingleArgument(callNode, scriptOffset, macroName) {
     if (callNode.arguments.length !== 1 || callNode.arguments[0].type !== 'ObjectExpression') {
         throw new ShopwareSetupTransformError(
-            'swDefinePublic() requires exactly one object-literal argument.',
+            `${macroName}() requires exactly one object-literal argument.`,
             scriptOffset + getNodeRange(callNode, scriptOffset).start,
         );
     }
@@ -465,33 +488,35 @@ function assertSingleArgument(callNode, scriptOffset) {
  *
  * @param {ExpressionStatement & { expression: CallExpression }} statement
  * @param {number} scriptOffset
+ * @param {'swDefinePublic' | 'swDefineOverride'} macroName
+ * @param {'public' | 'override'} entryType
  * @returns {PublicEntry[]}
  */
-function extractPublicMarker(statement, scriptOffset) {
+function extractStaticObjectMarker(statement, scriptOffset, macroName, entryType) {
     const callNode = statement.expression;
-    const publicObject = assertSingleArgument(callNode, scriptOffset);
+    const publicObject = assertSingleArgument(callNode, scriptOffset, macroName);
     const seenKeys = new Set();
 
     return publicObject.properties.map((property) => {
         if (property.type === 'SpreadElement') {
             throw new ShopwareSetupTransformError(
-                'Spread properties are not supported inside swDefinePublic().',
+                `Spread properties are not supported inside ${macroName}().`,
                 scriptOffset + getNodeRange(property, scriptOffset).start,
             );
         }
 
         if (property.type !== 'ObjectProperty') {
             throw new ShopwareSetupTransformError(
-                'swDefinePublic() only supports plain object properties.',
+                `${macroName}() only supports plain object properties.`,
                 scriptOffset + getNodeRange(property, scriptOffset).start,
             );
         }
 
-        const key = getPublicKey(property, scriptOffset);
+        const key = getStaticMacroKey(property, scriptOffset, macroName);
 
         if (seenKeys.has(key.value)) {
             throw new ShopwareSetupTransformError(
-                `Duplicate public Shopware setup binding key "${key.value}".`,
+                `Duplicate ${entryType} Shopware setup binding key "${key.value}".`,
                 scriptOffset + getNodeRange(property, scriptOffset).start,
             );
         }
@@ -500,7 +525,7 @@ function extractPublicMarker(statement, scriptOffset) {
 
         if (property.value.type !== 'Identifier') {
             throw new ShopwareSetupTransformError(
-                'swDefinePublic() values must be local identifiers.',
+                `${macroName}() values must be local identifiers.`,
                 scriptOffset + getNodeRange(property.value, scriptOffset).start,
             );
         }
@@ -583,20 +608,21 @@ function assertReservedMacroNames(bindings, mode, scriptOffset) {
  * @param {Set<string>} runtimeBindingNames
  * @param {Set<string>} importedBindings
  * @param {number} scriptOffset
+ * @param {'swDefinePublic' | 'swDefineOverride'} macroName
  * @returns {void}
  */
-function assertPublicEntries(publicEntries, runtimeBindingNames, importedBindings, scriptOffset) {
+function assertStaticObjectEntries(publicEntries, runtimeBindingNames, importedBindings, scriptOffset, macroName) {
     publicEntries.forEach((entry) => {
         if (importedBindings.has(entry.localName)) {
             throw new ShopwareSetupTransformError(
-                `Imported binding "${entry.localName}" cannot be exposed with swDefinePublic().`,
+                `Imported binding "${entry.localName}" cannot be exposed with ${macroName}().`,
                 scriptOffset,
             );
         }
 
         if (!runtimeBindingNames.has(entry.localName)) {
             throw new ShopwareSetupTransformError(
-                `swDefinePublic() references unknown local binding "${entry.localName}".`,
+                `${macroName}() references unknown local binding "${entry.localName}".`,
                 scriptOffset,
             );
         }
@@ -636,7 +662,9 @@ function analyzeShopwareSetupScript(script, options) {
     const runtimeBindings = [];
     const runtimeBindingNames = new Set();
     const publicMarkerStatements = [];
+    const overrideMarkerStatements = [];
     const topLevelPublicCalls = new Set();
+    const topLevelOverrideCalls = new Set();
 
     ast.program.body.forEach((statement) => {
         if (statement.type === 'ImportDeclaration') {
@@ -651,15 +679,28 @@ function analyzeShopwareSetupScript(script, options) {
             return;
         }
 
+        if (isStatementCompilerMacro(statement, 'swDefineOverride')) {
+            overrideMarkerStatements.push(statement);
+            topLevelOverrideCalls.add(statement.expression);
+            return;
+        }
+
         collectRuntimeBinding(statement, runtimeBindings, runtimeBindingNames, scriptOffset, mode);
     });
 
-    assertNoUnsupportedSyntax(ast, scriptOffset, topLevelPublicCalls);
+    assertNoUnsupportedSyntax(ast, scriptOffset, topLevelPublicCalls, topLevelOverrideCalls);
 
     if (mode === 'override' && publicMarkerStatements.length > 0) {
         throw new ShopwareSetupTransformError(
             'swDefinePublic() is only valid in base Shopware setup blocks.',
             scriptOffset + getNodeRange(publicMarkerStatements[0], scriptOffset).start,
+        );
+    }
+
+    if (mode === 'base' && overrideMarkerStatements.length > 0) {
+        throw new ShopwareSetupTransformError(
+            'swDefineOverride() is only valid in override Shopware setup blocks.',
+            scriptOffset + getNodeRange(overrideMarkerStatements[0], scriptOffset).start,
         );
     }
 
@@ -670,10 +711,31 @@ function analyzeShopwareSetupScript(script, options) {
         );
     }
 
-    const publicEntries =
-        publicMarkerStatements.length > 0 ? extractPublicMarker(publicMarkerStatements[0], scriptOffset) : [];
+    if (overrideMarkerStatements.length > 1) {
+        throw new ShopwareSetupTransformError(
+            'Only one swDefineOverride() call is allowed in an override Shopware setup block.',
+            scriptOffset + getNodeRange(overrideMarkerStatements[1], scriptOffset).start,
+        );
+    }
 
-    assertPublicEntries(publicEntries, runtimeBindingNames, importedBindings, scriptOffset);
+    if (mode === 'override' && overrideMarkerStatements.length !== 1) {
+        throw new ShopwareSetupTransformError(
+            'swDefineOverride() must be called exactly once at the top level of an override Shopware setup block.',
+            scriptOffset,
+        );
+    }
+
+    const publicEntries =
+        publicMarkerStatements.length > 0
+            ? extractStaticObjectMarker(publicMarkerStatements[0], scriptOffset, 'swDefinePublic', 'public')
+            : [];
+    const overrideEntries =
+        overrideMarkerStatements.length > 0
+            ? extractStaticObjectMarker(overrideMarkerStatements[0], scriptOffset, 'swDefineOverride', 'override')
+            : [];
+
+    assertStaticObjectEntries(publicEntries, runtimeBindingNames, importedBindings, scriptOffset, 'swDefinePublic');
+    assertStaticObjectEntries(overrideEntries, runtimeBindingNames, importedBindings, scriptOffset, 'swDefineOverride');
 
     const importedBindingsAsObjects = Array.from(importedBindings).map((name) => ({
         name,
@@ -694,11 +756,14 @@ function analyzeShopwareSetupScript(script, options) {
         body: removeRanges(script, [
             ...imports.map((importNode) => getNodeRange(importNode, scriptOffset)),
             ...publicMarkerStatements.map((statement) => getNodeRange(statement, scriptOffset)),
+            ...overrideMarkerStatements.map((statement) => getNodeRange(statement, scriptOffset)),
         ]),
         runtimeBindings,
         runtimeBindingNames,
         importedBindings,
         publicEntries,
+        overrideEntries,
+        overridePrivateAliases: new Map(),
     };
 }
 

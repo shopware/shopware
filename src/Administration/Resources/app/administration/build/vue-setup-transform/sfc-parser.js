@@ -44,7 +44,16 @@ function parseShopwareSetupSfc(source, filename = 'anonymous.vue') {
         );
     }
 
-    return shopwareSetupBlock;
+    return {
+        ...shopwareSetupBlock,
+        template: parsed.descriptor.template
+            ? {
+                  content: parsed.descriptor.template.content,
+                  contentStart: parsed.descriptor.template.loc.start.offset,
+              }
+            : null,
+        filename,
+    };
 }
 
 module.exports = {

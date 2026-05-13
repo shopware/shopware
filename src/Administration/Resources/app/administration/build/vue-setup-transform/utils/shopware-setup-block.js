@@ -11,6 +11,8 @@ const { ShopwareSetupTransformError } = require('./transform-error');
  *     mode: 'base' | 'override',
  *     componentName: string,
  *     lang: string | null,
+ *     template: { content: string, contentStart: number } | null,
+ *     filename: string,
  * }} ShopwareSetupBlock
  */
 

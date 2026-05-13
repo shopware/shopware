@@ -145,6 +145,10 @@ const props = useSwProps();
 const context = useSwContext();
 
 const doubled = computed(() => previousState.count.value * 2);
+
+swDefineOverride({
+    doubled,
+});
 </script>`;
 
         const expected = `<script>
@@ -179,6 +183,7 @@ export default {
     it('transforms sw-override blocks in .override.vue files', () => {
         const source = `<script setup sw-override="sw-my-component">
 const count = 1;
+swDefineOverride({ count });
 </script>`;
 
         const result = transformOrFail(source, 'component-name.override.vue');
@@ -193,12 +198,233 @@ const count = 1;
 import { computed } from 'vue';
 
 const doubled = computed(() => 2);
+
+swDefineOverride({
+    doubled,
+});
 </script>`;
 
         const result = transformOrFail(source, 'component.override.vue').code;
 
         expect(result).toContain('return {\n                doubled,\n            };');
         expect(result).not.toContain('computed,');
+    });
+
+    it('uses swDefineOverride() as the explicit override payload and keeps unused local state private', () => {
+        const source = `<script setup sw-override="sw-my-component">
+import { computed, ref } from 'vue';
+
+const previousState = useSwPreviousState();
+const body = computed(() => previousState.body.value);
+const localInfo = ref('only for script logic');
+const localHeadline = computed(() => localInfo.value);
+const localFooter = computed(() => localInfo.value);
+
+swDefineOverride({
+    body,
+    headline: localHeadline,
+    'footer-text': localFooter,
+});
+</script>`;
+
+        const result = transformOrFail(source, 'explicit-payload.override.vue').code;
+
+        expect(result).toContain(
+            "return {\n                body,\n                headline: localHeadline,\n                'footer-text': localFooter,\n            };",
+        );
+        expect(result).not.toContain('__swOverride_');
+        expect(result).not.toContain('localInfo,');
+    });
+
+    it('returns template-used override-local state through deterministic private aliases', () => {
+        const source = `<template>
+<sw-block extends="sw_example_component_body">
+    <p>{{ body }}</p>
+    <small>{{ info }}</small>
+</sw-block>
+</template>
+<script setup lang="ts" sw-override="sw-example-component">
+import { computed, ref } from 'vue';
+
+const previousState = useSwPreviousState();
+const info = ref('local');
+const unused = ref('not exposed');
+const body = computed(() => previousState.body.value + info.value);
+
+swDefineOverride({
+    body,
+});
+</script>`;
+
+        const result = transformOrFail(source, 'src/plugin/sw-example-component.override.vue').code;
+        const privateAlias = result.match(/__swOverride_[a-f0-9]{5}_info/)?.[0];
+
+        expect(privateAlias).toBeDefined();
+        expect(result).toContain(
+            `<sw-block extends="sw_example_component_body" #default="{ body, ${privateAlias}: info }">`,
+        );
+        expect(result).toContain(`return {\n                body,\n                ${privateAlias}: info,\n            };`);
+        expect(result).not.toContain('__swOverride_00000_unused');
+        expect(result).not.toContain('unused,');
+    });
+
+    it('merges private aliases into existing object default slot scopes', () => {
+        const source = `<template>
+<sw-block extends="sw_example_component_body" #default="{ body, ...previousState }">
+    <p>{{ body }}</p>
+    <small>{{ info }}</small>
+</sw-block>
+</template>
+<script setup sw-override="sw-example-component">
+const body = 1;
+const info = 2;
+
+swDefineOverride({
+    body,
+});
+</script>`;
+
+        const result = transformOrFail(source, 'object-slot.override.vue').code;
+        const privateAlias = result.match(/__swOverride_[a-f0-9]{5}_info/)?.[0];
+
+        expect(privateAlias).toBeDefined();
+        expect(result).toContain(`#default="{ body, ${privateAlias}: info, ...previousState }"`);
+    });
+
+    it('merges private aliases into existing identifier default slot scopes', () => {
+        const source = `<template>
+<sw-block extends="sw_example_component_body" #default="previousState">
+    <small>{{ info }}</small>
+</sw-block>
+</template>
+<script setup sw-override="sw-example-component">
+const info = 2;
+
+swDefineOverride({});
+</script>`;
+
+        const result = transformOrFail(source, 'identifier-slot.override.vue').code;
+        const privateAlias = result.match(/__swOverride_[a-f0-9]{5}_info/)?.[0];
+
+        expect(privateAlias).toBeDefined();
+        expect(result).toContain(`#default="{ ${privateAlias}: info, ...previousState }"`);
+    });
+
+    it('adds private aliases to a default slot without an existing expression', () => {
+        const source = `<template>
+<sw-block extends="sw_example_component_body" #default>
+    <small>{{ info }}</small>
+</sw-block>
+</template>
+<script setup sw-override="sw-example-component">
+const info = 2;
+
+swDefineOverride({});
+</script>`;
+
+        const result = transformOrFail(source, 'empty-slot.override.vue').code;
+        const privateAlias = result.match(/__swOverride_[a-f0-9]{5}_info/)?.[0];
+
+        expect(privateAlias).toBeDefined();
+        expect(result).toContain(`#default="{ ${privateAlias}: info }"`);
+    });
+
+    it('detects override-local template references in Vue expression positions', () => {
+        const source = `<template>
+<sw-block extends="sw_example_component_body">
+    <p v-if="visible">{{ info }}</p>
+    <button
+        @[eventName]="track(info)"
+        :title="info"
+        :[dynamicProp]="info"
+        :info
+        v-bind="{ info, label: infoLabel }"
+    />
+    <span v-for="item in items">{{ item }}{{ info }}</span>
+</sw-block>
+</template>
+<script setup sw-override="sw-example-component">
+const visible = true;
+const info = 'local';
+const eventName = 'click';
+const track = () => {};
+const dynamicProp = 'title';
+const infoLabel = 'label';
+const items = [];
+
+swDefineOverride({});
+</script>`;
+
+        const result = transformOrFail(source, 'template-references.override.vue').code;
+
+        [
+            'visible',
+            'info',
+            'eventName',
+            'track',
+            'dynamicProp',
+            'infoLabel',
+            'items',
+        ].forEach((name) => {
+            const privateAlias = result.match(new RegExp(`__swOverride_[a-f0-9]{5}_${name}`))?.[0];
+
+            expect(privateAlias).toBeDefined();
+            expect(result).toContain(`${privateAlias}: ${name}`);
+        });
+
+        expect(result).not.toMatch(/__swOverride_[a-f0-9]{5}_item(?![A-Za-z0-9_$])/);
+    });
+
+    it('ignores template identifiers that are not override-local setup references', () => {
+        const source = `<template>
+<sw-block
+    extends="sw_example_component_body"
+    class="info"
+    data-label="track"
+    #default="{ providedInfo }"
+>
+    plain info text
+    <p>{{ providedInfo }}</p>
+    <p>{{ previousState.body }}</p>
+    <p>{{ [1].map((info) => info).join(',') }}</p>
+    <p>{{ ({ info: localInfo }) => localInfo }}</p>
+    <p>{{ ({ info: 'static key only' }) }}</p>
+</sw-block>
+</template>
+<script setup sw-override="sw-example-component">
+const previousState = useSwPreviousState();
+const info = 'local';
+const track = () => {};
+
+swDefineOverride({});
+</script>`;
+
+        const result = transformOrFail(source, 'ignored-template-references.override.vue').code;
+
+        expect(result).not.toContain('__swOverride_');
+        expect(result).toContain('return {};');
+    });
+
+    it('does not expose override-local state when an existing default slot scope shadows it', () => {
+        const source = `<template>
+<sw-block
+    extends="sw_example_component_body"
+    #default="{ info }"
+>
+    <small>{{ info }}</small>
+</sw-block>
+</template>
+<script setup sw-override="sw-example-component">
+const info = 'local';
+
+swDefineOverride({});
+</script>`;
+
+        const result = transformOrFail(source, 'shadowed-slot-scope.override.vue').code;
+
+        expect(result).toContain('#default="{ info }"');
+        expect(result).not.toContain('__swOverride_');
+        expect(result).toContain('return {};');
     });
 
     it('ignores plain native script setup blocks', () => {
@@ -406,6 +632,74 @@ ${publicMarker}
 </script>`;
 
         expect(() => transformShopwareSetupSfc(source, 'public.vue')).toThrow(expectedMessage);
+    });
+
+    it.each([
+        [
+            'swDefineOverride({ [dynamicKey]: count });',
+            'Computed keys in swDefineOverride() are intentionally unsupported',
+        ],
+        [
+            'swDefineOverride({ ...overrideState });',
+            'Spread properties are not supported inside swDefineOverride().',
+        ],
+        [
+            'swDefineOverride(overrideState);',
+            'swDefineOverride() requires exactly one object-literal argument.',
+        ],
+        [
+            'if (true) { swDefineOverride({ count }); }',
+            'swDefineOverride() must be called once at the top level',
+        ],
+        [
+            'swDefineOverride({ count, count });',
+            'Duplicate override Shopware setup binding key "count".',
+        ],
+    ])('rejects invalid swDefineOverride usage: %s', (overrideMarker, expectedMessage) => {
+        const source = `<script setup sw-override="sw-my-component">
+const count = 1;
+${overrideMarker}
+</script>`;
+
+        expect(() => transformShopwareSetupSfc(source, 'override.vue')).toThrow(expectedMessage);
+    });
+
+    it('requires swDefineOverride() in override mode', () => {
+        const source = `<script setup sw-override="sw-my-component">
+const count = 1;
+</script>`;
+
+        expect(() => transformShopwareSetupSfc(source, 'missing-override.vue')).toThrow(
+            'swDefineOverride() must be called exactly once at the top level of an override Shopware setup block.',
+        );
+    });
+
+    it('rejects swDefineOverride() in base mode', () => {
+        const source = `<script setup sw-component="sw-my-component">
+const count = 1;
+swDefineOverride({ count });
+</script>`;
+
+        expect(() => transformShopwareSetupSfc(source, 'base-override.vue')).toThrow(
+            'swDefineOverride() is only valid in override Shopware setup blocks.',
+        );
+    });
+
+    it('rejects imported and unknown swDefineOverride() bindings', () => {
+        const source = `<script setup sw-override="sw-my-component">
+import { computed } from 'vue';
+
+const count = 1;
+
+swDefineOverride({
+    imported: computed,
+    missing,
+});
+</script>`;
+
+        expect(() => transformShopwareSetupSfc(source, 'override-import.vue')).toThrow(
+            'Imported binding "computed" cannot be exposed with swDefineOverride().',
+        );
     });
 
     it('ignores fake Shopware setup script tags in non-top-level contexts', () => {

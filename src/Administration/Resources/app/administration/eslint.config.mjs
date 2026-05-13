@@ -287,6 +287,7 @@ export default [
             },
             globals: {
                 swDefinePublic: 'readonly',
+                swDefineOverride: 'readonly',
                 useSwPreviousState: 'readonly',
                 useSwProps: 'readonly',
                 useSwContext: 'readonly',

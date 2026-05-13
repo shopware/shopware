@@ -28,6 +28,10 @@ import { computed } from 'vue';
 
 const previousState = useSwPreviousState();
 const doubled = computed(() => previousState.count.value * 2);
+
+swDefineOverride({
+    doubled,
+});
 </script>
 ```
 
@@ -39,7 +43,7 @@ The preprocessor runs before Vue compiles the SFC. Base components are lowered t
 
 Base mode is auto-private by default. Supported top-level local runtime bindings become private state unless they are listed in `swDefinePublic({...})`. Public state is the public override API surface. Private state is still normal component/template state; it is only hidden from the top-level public override API and remains available to overrides through `_private`.
 
-Override mode returns supported top-level local runtime bindings as the override payload. Imports stay as imports and are never returned automatically.
+Override mode requires `swDefineOverride({...})`. Only bindings listed there replace base state. Override-local bindings are returned under deterministic private aliases only when they are referenced inside `<sw-block extends>` template content, and the transform merges those aliases into the block's default slot scope.
 
 Runtime inputs are explicit composable-style accessors:
 
@@ -48,9 +52,9 @@ Runtime inputs are explicit composable-style accessors:
 
 These are transform-injected local helpers, not broad runtime globals.
 
-## Public Marker
+## Setup Macros
 
-`swDefinePublic({...})` is the only public marker in base mode.
+`swDefinePublic({...})` is the public marker in base mode.
 
 Supported:
 
@@ -69,6 +73,27 @@ swDefinePublic(state);
 ```
 
 Computed public keys are intentionally unsupported because transform, lint, and type layers need a stable compile-time key.
+
+`swDefineOverride({...})` is the override payload marker in override mode.
+
+Supported:
+
+```text
+swDefineOverride({});
+swDefineOverride({ count });
+swDefineOverride({ count: localCount });
+swDefineOverride({ 'count': localCount });
+```
+
+Rejected:
+
+```ts
+swDefineOverride({ [dynamicKey]: count });
+swDefineOverride({ ...state });
+swDefineOverride(state);
+```
+
+Override mode requires exactly one top-level `swDefineOverride({...})` call. Template-only overrides use `swDefineOverride({})`.
 
 ## Not Native Setup Semantics
 
@@ -89,6 +114,7 @@ The transform rejects these cases loudly:
 - Vue macros: `defineProps()`, `defineEmits()`, `defineExpose()`, `defineOptions()`, `defineSlots()`, `defineModel()`, `withDefaults()`
 - Top-level `await`
 - Non-top-level, duplicate, spread, computed-key, or non-object-literal `swDefinePublic()` usage
+- Missing, non-top-level, duplicate, spread, computed-key, or non-object-literal `swDefineOverride()` usage in override mode
 - Unsupported top-level declaration shapes such as destructuring declarations
 - Additional `<script>` blocks next to Shopware setup blocks
 

@@ -26,7 +26,6 @@ use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
 use Shopware\Core\Framework\App\Event\Hooks\AppDeletedHook;
 use Shopware\Core\Framework\App\Event\Hooks\AppInstalledHook;
 use Shopware\Core\Framework\App\Event\Hooks\AppUpdatedHook;
-use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Flow\Event\Event;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
@@ -38,6 +37,7 @@ use Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Permission\Permissions;
 use Shopware\Core\Framework\App\Template\TemplateCollection;
+use Shopware\Core\Framework\App\Validation\Error\AppNameError;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -315,8 +315,7 @@ class AppLifecycleTest extends TestCase
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withInvalidConfig/manifest.xml');
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('Configuration of app "withInvalidConfig" is invalid');
+        $this->expectExceptionObject(AppException::invalidConfiguration('withInvalidConfig', new AppNameError('')));
         $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
     }
 
@@ -378,7 +377,7 @@ class AppLifecycleTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withoutDescription/manifest.xml');
         $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
 
-        $this->expectException(AppAlreadyInstalledException::class);
+        $this->expectExceptionObject(AppException::alreadyInstalled($manifest->getMetadata()->getName()));
         $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
     }
 
@@ -1463,8 +1462,7 @@ class AppLifecycleTest extends TestCase
 
     public function testInstallAppWithFeaturesThatRequireSecretButNoSecretThrowsExceptionInDevEnv(): void
     {
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('App "test" could not be installed/updated because it uses features Admin Modules, Payment Methods, Tax providers and Webhooks but has no secret');
+        $this->expectExceptionObject(AppException::appSecretRequiredForFeatures('test', ['Admin Modules', 'Payment Methods', 'Tax providers', 'Webhooks']));
 
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/featuresRequiringSecret/manifest-1.1.xml');
 
@@ -1486,8 +1484,7 @@ class AppLifecycleTest extends TestCase
 
         $updatedManifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/featuresRequiringSecret/manifest-1.1.xml');
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('App "test" could not be installed/updated because it uses features Admin Modules, Payment Methods, Tax providers and Webhooks but has no secret');
+        $this->expectExceptionObject(AppException::appSecretRequiredForFeatures('test', ['Admin Modules', 'Payment Methods', 'Tax providers', 'Webhooks']));
         $appLifeCycle->update(
             $updatedManifest,
             new AppUpdateParameters(),

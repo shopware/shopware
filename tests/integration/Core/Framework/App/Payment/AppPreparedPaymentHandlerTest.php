@@ -4,6 +4,8 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Payment;
 
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Psr7\Response;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payment\Response\ValidateResponse;
@@ -108,8 +110,11 @@ class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         $this->appendNewResponse(new Response(200, [], $json));
 
-        $this->expectException(ServerException::class);
-        $this->expectExceptionMessage('Could not verify the authenticity of the response');
+        $this->expectExceptionObject(new ServerException(
+            'Could not verify the authenticity of the response',
+            static::createStub(RequestInterface::class),
+            static::createStub(ResponseInterface::class)
+        ));
         $this->paymentProcessor->validate($cart, new RequestDataBag(), $salesChannelContext);
     }
 
@@ -126,8 +131,11 @@ class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         $this->appendNewResponse(new Response(200, ['shopware-app-signature' => 'invalid'], $json));
 
-        $this->expectException(ServerException::class);
-        $this->expectExceptionMessage('Could not verify the authenticity of the response');
+        $this->expectExceptionObject(new ServerException(
+            'Could not verify the authenticity of the response',
+            static::createStub(RequestInterface::class),
+            static::createStub(ResponseInterface::class)
+        ));
         $this->paymentProcessor->validate($cart, new RequestDataBag(), $salesChannelContext);
     }
 
@@ -140,8 +148,11 @@ class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 
         $this->appendNewResponse(new Response(500));
 
-        $this->expectException(ServerException::class);
-        $this->expectExceptionMessage('Could not verify the authenticity of the response');
+        $this->expectExceptionObject(new ServerException(
+            'Could not verify the authenticity of the response',
+            static::createStub(RequestInterface::class),
+            static::createStub(ResponseInterface::class)
+        ));
         $this->paymentProcessor->validate($cart, new RequestDataBag(), $salesChannelContext);
     }
 }

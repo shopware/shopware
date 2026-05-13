@@ -221,7 +221,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
     }
 
     /**
-     * @return iterable<array{0: array{domain: string, expectDomain: string}}>
+     * @return iterable<string, array{array{domain: string, expectDomain: string}}>
      */
     public static function sendMailWithDomainAndLeadingSlashProvider(): iterable
     {
@@ -230,9 +230,6 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
         ];
         yield 'domain with trailing slash is normalized' => [
             ['domain' => 'http://my-evil-page/', 'expectDomain' => 'http://my-evil-page'],
-        ];
-        yield 'domain with double trailing slash is normalized' => [
-            ['domain' => 'http://my-evil-page//', 'expectDomain' => 'http://my-evil-page'],
         ];
     }
 

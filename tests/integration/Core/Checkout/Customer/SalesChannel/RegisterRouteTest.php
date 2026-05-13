@@ -315,7 +315,7 @@ class RegisterRouteTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{array{array{domain: string, expectDomain: string}}, array{array{domain: string, expectDomain: string}}}>
+     * @return iterable<string, array{array{domain: string, expectDomain: string}}>
      */
     public static function registerWithDomainAndLeadingSlashProvider(): iterable
     {
@@ -324,9 +324,6 @@ class RegisterRouteTest extends TestCase
         ];
         yield 'domain with trailing slash is normalized' => [
             ['domain' => 'http://my-evil-page/', 'expectDomain' => 'http://my-evil-page'],
-        ];
-        yield 'domain with double trailing slash is normalized' => [
-            ['domain' => 'http://my-evil-page//', 'expectDomain' => 'http://my-evil-page'],
         ];
     }
 

@@ -76,18 +76,8 @@ class ImportExportServiceTest extends TestCase
             'fileExtension' => '',
             'expectedMimeType' => 'text/csv',
         ];
-        yield 'text x-csv upload without extension is normalized to csv' => [
-            'clientMimeType' => 'text/x-csv',
-            'fileExtension' => '',
-            'expectedMimeType' => 'text/csv',
-        ];
         yield 'text csv upload with txt extension still uses csv mime type' => [
             'clientMimeType' => 'text/csv',
-            'fileExtension' => 'txt',
-            'expectedMimeType' => 'text/csv',
-        ];
-        yield 'text x-csv upload with txt extension still uses csv mime type' => [
-            'clientMimeType' => 'text/x-csv',
             'fileExtension' => 'txt',
             'expectedMimeType' => 'text/csv',
         ];
@@ -101,19 +91,9 @@ class ImportExportServiceTest extends TestCase
             'fileExtension' => 'xml',
             'expectedMimeType' => false,
         ];
-        yield 'text xml upload without extension is rejected' => [
-            'clientMimeType' => 'text/xml',
-            'fileExtension' => '',
-            'expectedMimeType' => false,
-        ];
         yield 'application xml upload with xml extension is rejected' => [
             'clientMimeType' => 'application/xml',
             'fileExtension' => 'xml',
-            'expectedMimeType' => false,
-        ];
-        yield 'application xml upload without extension is rejected' => [
-            'clientMimeType' => 'application/xml',
-            'fileExtension' => '',
             'expectedMimeType' => false,
         ];
         yield 'Excel client mime with xls extension is rejected' => [

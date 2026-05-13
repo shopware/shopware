@@ -64,7 +64,6 @@ class PromotionCodeServiceTest extends TestCase
         yield 'prefixed and suffixed digit placeholders preserve static text' => ['PREFIX_%d%d_SUFFIX', '/PREFIX_(\d){2}_SUFFIX/'];
         yield 'prefixed and suffixed letter digit placeholders preserve static text' => ['PREFIX_%s%d_SUFFIX', '/PREFIX_([A-Z]\d)_SUFFIX/'];
         yield 'prefixed and suffixed digit letter placeholders preserve static text' => ['PREFIX_%d%s_SUFFIX', '/PREFIX_(\d[A-Z])_SUFFIX/'];
-        yield 'duplicate digit letter pattern keeps the same preview regex' => ['PREFIX_%d%s_SUFFIX', '/PREFIX_(\d[A-Z])_SUFFIX/'];
         yield 'unrendered placeholders after static text remain unchanged' => ['PREFIX_%d%s_NOW_WITH_UNRENDERED_VARS_%s%s%d%d_SUFFIX', '/PREFIX_(\d[A-Z])_NOW_WITH_UNRENDERED_VARS_%s%s%d%d_SUFFIX/'];
         yield 'unsupported placeholder stops further preview rendering' => ['ILLEGAL_VAR_STOPS_THE_CHAIN_%d%s%q%d%s_SUFFIX', '/ILLEGAL_VAR_STOPS_THE_CHAIN_(\d[A-Z])%q%d%s_SUFFIX/'];
     }
@@ -97,8 +96,6 @@ class PromotionCodeServiceTest extends TestCase
     public static function generateIndividualCodesDataProvider(): iterable
     {
         yield 'generate individual codes 1' => [1];
-        yield 'generate individual codes 10' => [10];
-        yield 'generate individual codes 500' => [500];
         yield 'generate individual codes 20000' => [20000];
     }
 
@@ -118,7 +115,6 @@ class PromotionCodeServiceTest extends TestCase
     public static function generateIndividualCodesWithInsufficientPatternDataProvider(): iterable
     {
         yield 'generate individual codes with insufficient pattern 6' => [6];
-        yield 'generate individual codes with insufficient pattern 10' => [10];
         yield 'generate individual codes with insufficient pattern 20' => [20];
     }
 

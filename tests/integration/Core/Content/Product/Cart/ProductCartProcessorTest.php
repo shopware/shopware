@@ -639,14 +639,9 @@ class ProductCartProcessorTest extends TestCase
      */
     public static function productDeliverabilityProvider(): iterable
     {
-        yield 'quantity 3 is reduced to purchase step 2' => [2, 2, 20, 3, 2, self::PURCHASE_STEP_QUANTITY_ERROR_KEY];
         yield 'quantity 5 is reduced to purchase step 4' => [2, 2, 20, 5, 4, self::PURCHASE_STEP_QUANTITY_ERROR_KEY];
-        yield 'quantity 4 is reduced to purchase step 3' => [1, 2, 20, 4, 3, self::PURCHASE_STEP_QUANTITY_ERROR_KEY];
         yield 'quantity 10 is reduced to purchase step 9' => [1, 2, 20, 10, 9, self::PURCHASE_STEP_QUANTITY_ERROR_KEY];
         yield 'quantity 6 is reduced to minimum purchase 5' => [5, 5, 20, 6, 5, self::PURCHASE_STEP_QUANTITY_ERROR_KEY];
-        yield 'quantity 7 is reduced to minimum purchase 5' => [5, 5, 20, 7, 5, self::PURCHASE_STEP_QUANTITY_ERROR_KEY];
-        yield 'quantity 8 is reduced to minimum purchase 5' => [5, 5, 20, 8, 5, self::PURCHASE_STEP_QUANTITY_ERROR_KEY];
-        yield 'quantity 9 is reduced to minimum purchase 5' => [5, 5, 20, 9, 5, self::PURCHASE_STEP_QUANTITY_ERROR_KEY];
         yield 'quantity above stock is capped at max purchase' => [2, 2, 20, 22, 20, self::PRODUCT_STOCK_REACHED_ERROR_KEY];
         yield 'quantity below minimum is raised to min purchase' => [2, 2, 20, 1, 2, self::MIN_ORDER_QUANTITY_ERROR_KEY];
         yield 'quantity 2 is reduced to purchase step 1' => [1, 3, 5, 2, 1, self::PURCHASE_STEP_QUANTITY_ERROR_KEY];

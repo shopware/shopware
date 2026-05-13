@@ -194,7 +194,6 @@ class FloatComparatorTest extends TestCase
         yield 'less than 0 0 false' => [0, 0, false];
         yield 'less than 42 42 false' => [42, 42, false];
         yield 'less than 1 point 0 1 point 0 false' => [1.0, 1.0, false];
-        yield 'less than 0 point 0 0 point 0 false' => [0.0, 0.0, false];
         yield 'zero is not less than zero with decimal input' => [0.0, 0.0, false];
         yield 'less than 8 1 point 6 false' => [8 - 6.4, 1.6, false];
         yield 'less than 1 point 6 8 false' => [1.6, 8 - 6.4, false];

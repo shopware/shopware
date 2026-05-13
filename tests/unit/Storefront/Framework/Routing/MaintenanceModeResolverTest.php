@@ -116,10 +116,6 @@ class MaintenanceModeResolverTest extends TestCase
             self::getRequest(false, false, false, false, true, true),
             true,
         ];
-        yield 'maintenance mode is active, sales channel requested, client-ip' => [
-            self::getRequest(false, false, false, false, true, true),
-            true,
-        ];
         yield 'maintenance mode is active, sales channel requested, whitelisted client ip' => [
             self::getRequest(false, false, false, false, true, true, ['192.168.2.16', '192.168.1.16']),
             false,
@@ -129,10 +125,6 @@ class MaintenanceModeResolverTest extends TestCase
             true,
         ];
         yield 'maintenance mode is active, sales channel requested, proxy' => [
-            self::getRequest(true, false, false, false, true, true),
-            true,
-        ];
-        yield 'maintenance mode is active, sales channel requested, proxy, client-ip' => [
             self::getRequest(true, false, false, false, true, true),
             true,
         ];

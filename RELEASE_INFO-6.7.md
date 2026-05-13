@@ -69,6 +69,8 @@ The old `pluginTranslationExists(Plugin $plugin)` is deprecated and will be remo
 
 `TestBootstrapper::addActivePlugins()` can now be used with Composer-managed plugins installed below `vendor/`.
 Plugins no longer need to be copied into `custom/plugins` or `custom/static-plugins` just to be installed and activated during test bootstrap.
+When `TestBootstrapper::getPluginPath()` or `getClassLoader()` is used without bootstrapping the full application, local plugins below `custom/plugins` and `custom/static-plugins` are still resolved from the filesystem.
+This keeps static analysis and other tooling that only needs plugin paths or `autoload-dev` registration working without a database-backed kernel.
 
 ### Requirement-aware plugin installation order
 

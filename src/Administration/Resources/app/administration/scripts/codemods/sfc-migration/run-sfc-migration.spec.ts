@@ -432,6 +432,46 @@ describe('runMigration — not-migratable (render function)', () => {
     });
 });
 
+describe('runMigration — not-migratable (unsupported twig template)', () => {
+    let tmpDir: string;
+    let componentDir: string;
+
+    beforeEach(() => {
+        tmpDir = createTempDir();
+        componentDir = makeComponent(
+            tmpDir,
+            'sw-extends-component',
+            readFixture('simple-component.index.js'),
+            "{% extends 'bar' %}{% block foo %}<div>content</div>{% endblock %}",
+        );
+    });
+
+    afterEach(() => {
+        rmSync(tmpDir, { recursive: true, force: true });
+    });
+
+    it('increments notMigratable count without incrementing errors', () => {
+        const { stats } = runMigration(tmpDir, { dryRun: false });
+
+        expect(stats.notMigratable).toBe(1);
+        expect(stats.errors).toBe(0);
+    });
+
+    it('does not write a .vue file even in write mode', () => {
+        runMigration(tmpDir, { dryRun: false });
+
+        expect(existsSync(join(componentDir, 'sw-extends-component.vue'))).toBe(false);
+    });
+
+    it('report line contains not-migratable with the twig blocker', () => {
+        const { report } = runMigration(tmpDir, { dryRun: false });
+
+        expect(report[0]).toContain('not-migratable');
+        expect(report[0]).toContain('twig extends');
+        expect(report[0]).not.toContain('ERROR');
+    });
+});
+
 describe('runMigration — overwrite protection', () => {
     let tmpDir: string;
     let componentDir: string;

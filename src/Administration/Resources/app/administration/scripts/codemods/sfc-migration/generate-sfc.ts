@@ -1,4 +1,4 @@
-import { transformTemplate } from './transform-template';
+import { TemplateTransformError, transformTemplate } from './transform-template';
 import { transformScript } from './transform-script';
 
 // ---------------------------------------------------------------------------
@@ -37,7 +37,18 @@ export interface MergeResult {
 export function mergeComponentFiles(twigContent: string, jsContent: string): MergeResult {
     // Determine useDataScope before calling transformScript so reactive is
     // included in the vue import block, not appended after it.
-    const { template: templateSection, useDataScope } = transformTemplate(twigContent);
+    let templateSection: string;
+    let useDataScope: boolean;
+
+    try {
+        ({ template: templateSection, useDataScope } = transformTemplate(twigContent));
+    } catch (err) {
+        if (err instanceof TemplateTransformError) {
+            return { sfc: '', status: 'not-migratable', blockers: err.blockers, warnings: [] };
+        }
+
+        throw err;
+    }
 
     const scriptResult = transformScript(jsContent, useDataScope);
 
@@ -48,11 +59,19 @@ export function mergeComponentFiles(twigContent: string, jsContent: string): Mer
     const scriptWrapper = scriptResult.scriptType === 'setup' ? '<script setup>' : '<script>';
 
     if (scriptResult.status === 'partially-migratable') {
-        const sfc = [templateSection, '', `${scriptWrapper}\n${scriptResult.script}\n</script>`].join('\n');
+        const sfc = [
+            templateSection,
+            '',
+            `${scriptWrapper}\n${scriptResult.script}\n</script>`,
+        ].join('\n');
         return { sfc, status: 'partially-migrated', blockers: scriptResult.blockers, warnings: [] };
     }
 
-    const sfc = [templateSection, '', `${scriptWrapper}\n${scriptResult.script}\n</script>`].join('\n');
+    const sfc = [
+        templateSection,
+        '',
+        `${scriptWrapper}\n${scriptResult.script}\n</script>`,
+    ].join('\n');
     const warnings = sfc.includes('TODO: $el')
         ? ['$el usage detected — replace with a template ref or verify getCurrentInstance() call context']
         : [];

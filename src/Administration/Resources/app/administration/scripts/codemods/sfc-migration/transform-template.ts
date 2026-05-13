@@ -10,10 +10,30 @@ const ESLINT_DISABLE_TWIG = '<!-- eslint-disable-next-line sw-deprecation-rules/
 const BLOCK_START_LINE_RE = /\{%\s*block\s+([^%\s}]+)\s*%\}/;
 const BLOCK_END_LINE_RE = /\{%\s*endblock(?:\s+\w+)?\s*%\}/;
 const PARENT_LINE_RE = /\{[{%]\s*parent\(?\)?\s*[%}]\}/;
+const TWIG_SYNTAX_RE = /\{%\s*(?:block|endblock|extends)\b|\{[{%]\s*parent\(?\)?\s*[%}]\}/;
+const UNSUPPORTED_TEMPLATE_ERROR = 'Twig template is not supported by the SFC migration codemod.';
 const UNSUPPORTED_EXTENDS_ERROR = 'Twig extends is not supported by the SFC migration codemod.';
+const UNSUPPORTED_EXTENDS_BLOCKER = 'twig extends';
+const UNSUPPORTED_COMMENT_SYNTAX_BLOCKER = 'twig syntax inside comment';
+
+export class TemplateTransformError extends Error {
+    public constructor(
+        public readonly blockers: string[],
+        message = UNSUPPORTED_TEMPLATE_ERROR,
+    ) {
+        super(message);
+        this.name = 'TemplateTransformError';
+    }
+}
 
 function isTwigBlockMigrationLine(line: string): boolean {
     return BLOCK_START_LINE_RE.test(line) || BLOCK_END_LINE_RE.test(line) || PARENT_LINE_RE.test(line);
+}
+
+function hasTwigSyntaxInComment(twigContent: string): boolean {
+    TWIG_COMMENT_RE.lastIndex = 0;
+
+    return Array.from(twigContent.matchAll(TWIG_COMMENT_RE)).some((match) => TWIG_SYNTAX_RE.test(match[1] ?? ''));
 }
 
 /**
@@ -33,8 +53,12 @@ export function transformTemplate(twigContent: string): { template: string; useD
 
     const hasTwigBlocks = BLOCK_START_LINE_RE.test(twigContent);
 
+    if (hasTwigSyntaxInComment(twigContent)) {
+        throw new TemplateTransformError([UNSUPPORTED_COMMENT_SYNTAX_BLOCKER]);
+    }
+
     if (EXTENDS_RE.test(twigContent)) {
-        throw new Error(UNSUPPORTED_EXTENDS_ERROR);
+        throw new TemplateTransformError([UNSUPPORTED_EXTENDS_BLOCKER], UNSUPPORTED_EXTENDS_ERROR);
     }
 
     let body = twigContent;

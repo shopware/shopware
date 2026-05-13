@@ -11,7 +11,7 @@ Administration pull requests are often reviewed by people who do not have the sa
 
 ## Decision
 
-Administration pull requests must be prepared for review from a third-person perspective:
+Administration pull requests must be prepared for reviewers who do not share the author's context:
 
 * **Review your PR diff:** Authors review their own diff before requesting review and check whether the PR is understandable, sufficiently scoped, and small enough.
 * **Explain the area:** PR descriptions explain the affected area when the change touches a niche or non-obvious feature. They should link existing documentation or briefly describe the relevant concept.

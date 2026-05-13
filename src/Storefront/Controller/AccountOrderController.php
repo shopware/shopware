@@ -28,6 +28,8 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Event\RouteRequest\CancelOrderRouteRequestEvent;
 use Shopware\Storefront\Event\RouteRequest\HandlePaymentMethodRouteRequestEvent;
 use Shopware\Storefront\Event\RouteRequest\SetPaymentOrderRouteRequestEvent;
+use Shopware\Storefront\Framework\Routing\RequestTransformer;
+use Shopware\Storefront\Framework\Routing\Router;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoadedHook;
 use Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoader;
@@ -306,7 +308,7 @@ class AccountOrderController extends StorefrontController
     )]
     public function updateOrder(string $orderId, Request $request, SalesChannelContext $context): Response
     {
-        $finishUrl = $this->generateUrl('frontend.checkout.finish.page', [
+        $finishUrl = $this->generateStorefrontPath($request, 'frontend.checkout.finish.page', [
             'orderId' => $orderId,
             'changedPayment' => true,
         ]);
@@ -338,7 +340,7 @@ class AccountOrderController extends StorefrontController
             );
         }
 
-        $errorUrl = $this->generateUrl('frontend.account.edit-order.page', ['orderId' => $orderId]);
+        $errorUrl = $this->generateStorefrontPath($request, 'frontend.account.edit-order.page', ['orderId' => $orderId]);
 
         $setPaymentRequestData = array_merge($request->request->all(), ['orderId' => $orderId]);
         $setPaymentRequest = $request->duplicate(null, $setPaymentRequestData);
@@ -372,9 +374,18 @@ class AccountOrderController extends StorefrontController
             );
         }
 
-        return $response ?? $this->redirectToRoute(
-            'frontend.checkout.finish.page',
-            ['orderId' => $orderId, 'changedPayment' => true]
-        );
+        return $response ?? $this->redirect($finishUrl);
+    }
+
+    /**
+     * @param array<string, mixed> $parameters
+     */
+    private function generateStorefrontPath(Request $request, string $route, array $parameters = []): string
+    {
+        $storefrontUrl = $request->attributes->get(RequestTransformer::STOREFRONT_URL);
+        $storefrontPath = \is_string($storefrontUrl) ? parse_url($storefrontUrl, \PHP_URL_PATH) : null;
+        $pathPrefix = \is_string($storefrontPath) ? rtrim($storefrontPath, '/') : '';
+
+        return $pathPrefix . $this->generateUrl($route, $parameters, Router::PATH_INFO);
     }
 }

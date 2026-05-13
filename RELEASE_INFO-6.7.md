@@ -49,10 +49,21 @@ Third-party developers should add this flag to media associations that store tec
 State machine transitions now acquire a short-lived lock per entity and context version while the current state is read and the transition history is written.
 This prevents concurrent calls to `StateMachineRegistry::transition()` from creating duplicate history entries for the same entity transition.
 Extensions that use the registry automatically benefit from the lock; direct SQL or DBAL writes to state fields remain outside this protection.
+
 ### Deprecation of RegisterScheduleTaskMessage
 
 The `RegisterScheduleTaskMessage` class and the accompanying message handler `RegisterScheduledTaskHandler` is deprecated and will be removed in Shopware 6.8.0.0, as the message wasn't dispatched anymore.
 If you dispatched that message manually, you should call the `TaskScheduler::registerTask()` method directly instead.
+
+### Plugin snippet files are no longer silently dropped when any translation is installed
+
+Plugin snippet files (`.json` files shipped in `Resources/snippet/`) were being skipped for **all** locales as soon as a core translation for **any single locale** was installed via the translation installer.
+Installing `pl-PL` for one plugin would cause `de-DE`, `en-GB`, and every other locale to lose that plugin's translations entirely, even though no core translation for those locales existed.
+
+The guard in `SnippetFileLoader` now checks whether a core translation exists for the **specific locale** being loaded, not for the plugin as a whole.
+
+If you have decorated `AbstractTranslationLoader`, override the new `pluginTranslationExistsForLocale(Plugin $plugin, string $locale): bool` method to provide locale-aware behaviour.
+The old `pluginTranslationExists(Plugin $plugin)` is deprecated and will be removed in v6.8.0.
 
 ### Composer-managed plugins in `TestBootstrapper::addActivePlugins()`
 

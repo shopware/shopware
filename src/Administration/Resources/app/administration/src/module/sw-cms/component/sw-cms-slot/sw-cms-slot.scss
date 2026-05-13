@@ -150,6 +150,10 @@
                 right: 0;
                 left: 0;
                 margin: auto;
+
+                [data-theme="dark"] & {
+                    background: #000000bd;
+                }
             }
 
             &.element-selection__overlay-action-favorite {

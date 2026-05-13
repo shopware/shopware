@@ -91,7 +91,7 @@ Module.register('sw-sales-channel', {
     description: 'The module for managing Sales Channels.',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: 'var(--color-green-500)',
+    color: 'var(--color-module-green-500)',
     icon: 'solid-server',
     entity: 'sales_channel',
 

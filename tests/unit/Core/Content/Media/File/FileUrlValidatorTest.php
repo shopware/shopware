@@ -27,6 +27,7 @@ class FileUrlValidatorTest extends TestCase
     public static function fileSourceProvider(): iterable
     {
         yield 'reserved IPv4' => ['https://127.0.0.1', false];
+        yield 'reserved IPv4 hostname' => ['https://localhost', false];
         yield 'converted reserved IPv4' => ['https://0:0:0:0:0:FFFF:7F00:0001', false];
         yield 'reserved IPv4 mapped to IPv6' => ['https://[0:0:0:0:0:FFFF:127.0.0.1]', false];
         yield 'reserved IPv6' => ['https://FE80::', false];

@@ -39,9 +39,9 @@ To partly comply with old behaviour, primary deliveries are ordered first and pr
 
 ## Type-based number range preview Admin API removed
 
-The type-based Admin API number range preview route `/api/_action/number-range/preview-pattern/{type}` is removed for persisted number-range previews.
-It only resolves global number ranges and cannot preview non-global number range state.
-When previewing or editing an existing number range, call `/api/_action/number-range/{numberRangeId}/preview-pattern` with the concrete `number_range.id` instead.
+The type-based Admin API number range preview route `/api/_action/number-range/preview-pattern/{type}` has been removed.
+It resolved number ranges only by technical type and could only preview global number range state.
+When previewing or editing an existing persisted number range, call `/api/_action/number-range/{numberRangeId}/preview-pattern` with the concrete `number_range.id` instead.
 
 The allocation route `/api/_action/number-range/reserve/{type}` is unchanged and should still be used when reserving the next number for a business context.
 
@@ -115,12 +115,13 @@ The `/api/_action/mail-template/validate` route has been removed without replace
 `Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface` is removed.
 Use `Shopware\Core\System\NumberRange\ValueGenerator\AbstractNumberRangeValueGenerator` instead.
 
-If you implemented or decorated the old interface, update your service to extend `AbstractNumberRangeValueGenerator`.
+If your extension implemented the old interface, update the service to extend `AbstractNumberRangeValueGenerator`.
 Implement `getValue()` for actual number allocation and `previewPatternByNumberRangeId()` for persisted number-range previews.
-Decorators should implement `getDecorated()` and forward the new id-based preview method to the decorated service where appropriate.
+
+If your extension decorates the number range value generator, decorate `AbstractNumberRangeValueGenerator`, implement `getDecorated()`, and forward `getValue()` and `previewPatternByNumberRangeId()` to the decorated service where appropriate.
 
 The type-based `previewPattern()` method is removed.
-Replace calls to `previewPattern($type, ...)` with `previewPatternByNumberRangeId($numberRangeId, ...)` when previewing an existing number range.
+Replace calls to `previewPattern($type, ...)` with `previewPatternByNumberRangeId($numberRangeId, ...)` when previewing or editing an existing number range.
 
 ## Changed behaviour of default fields in EntityDefinition
 

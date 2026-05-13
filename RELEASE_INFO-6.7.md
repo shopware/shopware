@@ -9,7 +9,8 @@
 The Admin API now supports previewing a persisted number range by id via `/api/_action/number-range/{numberRangeId}/preview-pattern`.
 Use this route when editing an existing number range, because it reads the state for the concrete `number_range.id`.
 
-The previous type-based preview route `/api/_action/number-range/preview-pattern/{type}` remains available in 6.7 for backwards compatibility, but is deprecated for persisted number-range previews because it can only resolve global number ranges and does not support non-global number ranges.
+The previous type-based preview route `/api/_action/number-range/preview-pattern/{type}` remains available in 6.7 for backwards compatibility, but is deprecated and will be removed in 6.8.
+It can only resolve global number ranges and therefore does not support non-global number range state.
 The allocation route `/api/_action/number-range/reserve/{type}` is unchanged.
 
 ### Mail template preview and send routes support richer rendering context
@@ -36,10 +37,11 @@ Arbitrary unknown top-level keys are still forwarded for backwards compatibility
 ### Number range value generator interface deprecated
 
 `NumberRangeValueGeneratorInterface` is deprecated in favor of `AbstractNumberRangeValueGenerator`.
-Custom number range value generator implementations and decorators should extend the abstract class, implement `previewPatternByNumberRangeId()`, and continue using `getValue()` for actual number allocation.
+Custom number range value generator implementations and decorators should extend the abstract class instead.
+Implement `previewPatternByNumberRangeId()` for persisted number-range previews and continue using `getValue()` for actual number allocation.
 
-The type-based `previewPattern()` method is deprecated and should no longer be used by new code.
-Use `previewPatternByNumberRangeId()` when previewing a persisted number range.
+The type-based `previewPattern()` method remains available for backwards compatibility in 6.7, but is deprecated and will be removed in 6.8.
+Use `previewPatternByNumberRangeId()` when previewing or editing an existing number range.
 
 ### Backward compatible invalid locales
 

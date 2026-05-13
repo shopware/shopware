@@ -29,4 +29,11 @@ class LanguageTest extends TestCase
         static::assertSame('en-GB', $language->locale);
         static::assertSame('English', $language->name);
     }
+
+    public function testCreateLanguageWithAllowedPseudoLocale(): void
+    {
+        $language = new Language('ach-UG', 'Acholi (Pseudo Language)');
+        static::assertSame('ach-UG', $language->locale);
+        static::assertSame('Acholi (Pseudo Language)', $language->name);
+    }
 }

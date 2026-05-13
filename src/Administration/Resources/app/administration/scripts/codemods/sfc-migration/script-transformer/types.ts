@@ -16,6 +16,11 @@ export interface DataProp {
     valueText: string;
 }
 
+export interface ExtractDataPropsResult {
+    dataProps: DataProp[];
+    unsupportedEntries: string[];
+}
+
 export interface InjectProp {
     localName: string;
     sourceKey: string;

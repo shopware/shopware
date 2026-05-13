@@ -1,10 +1,10 @@
 import type { ObjectLiteralExpression } from 'ts-morph';
 import { SyntaxKind } from 'ts-morph';
-import type { DataProp } from './types';
+import type { DataProp, ExtractDataPropsResult } from './types';
 
-export function extractDataProps(optionsObj: ObjectLiteralExpression): DataProp[] {
+export function extractDataProps(optionsObj: ObjectLiteralExpression): ExtractDataPropsResult {
     const dataProp = optionsObj.getProperty('data');
-    if (!dataProp) return [];
+    if (!dataProp) return { dataProps: [], unsupportedEntries: [] };
 
     let returnExpr: ObjectLiteralExpression | undefined;
 
@@ -34,14 +34,37 @@ export function extractDataProps(optionsObj: ObjectLiteralExpression): DataProp[
         }
     }
 
-    if (!returnExpr) return [];
+    if (!returnExpr) return { dataProps: [], unsupportedEntries: [] };
 
-    return returnExpr
-        .getProperties()
-        .filter((p) => p.isKind(SyntaxKind.PropertyAssignment))
-        .map((p) => p.asKindOrThrow(SyntaxKind.PropertyAssignment))
-        .map((p) => ({
-            name: p.getName(),
-            valueText: p.getInitializer()?.getText() ?? 'undefined',
-        }));
+    const dataProps: DataProp[] = [];
+    const unsupportedEntries: string[] = [];
+
+    returnExpr.getProperties().forEach((p) => {
+        if (p.isKind(SyntaxKind.PropertyAssignment)) {
+            const prop = p.asKindOrThrow(SyntaxKind.PropertyAssignment);
+
+            dataProps.push({
+                name: prop.getName(),
+                valueText: prop.getInitializer()?.getText() ?? 'undefined',
+            });
+            return;
+        }
+
+        if (p.isKind(SyntaxKind.ShorthandPropertyAssignment)) {
+            unsupportedEntries.push(`${p.getName()}: shorthand data entries must be migrated manually`);
+            return;
+        }
+
+        if (p.isKind(SyntaxKind.SpreadAssignment)) {
+            unsupportedEntries.push(`${p.getText()}: spread data entries must be migrated manually`);
+            return;
+        }
+
+        unsupportedEntries.push(`${p.getText()}: unsupported data entry`);
+    });
+
+    return {
+        dataProps,
+        unsupportedEntries,
+    };
 }

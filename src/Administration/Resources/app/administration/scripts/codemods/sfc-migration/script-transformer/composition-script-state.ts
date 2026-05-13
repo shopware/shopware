@@ -69,7 +69,7 @@ export function collectCompositionScriptState(
     useDataScope: boolean,
 ): CompositionScriptState {
     const { injectProps, unsupportedEntries: unsupportedInjectEntries } = extractInjectProps(optionsObj);
-    const dataProps = extractDataProps(optionsObj);
+    const { dataProps, unsupportedEntries: unsupportedDataEntries } = extractDataProps(optionsObj);
     const { computedProps, unsupportedEntries: unsupportedComputedEntries } = extractComputedProps(optionsObj);
     const { watchProps, unsupportedEntries: unsupportedWatchEntries } = extractWatchProps(optionsObj);
     const methodProps = extractMethodProps(optionsObj);
@@ -107,6 +107,12 @@ export function collectCompositionScriptState(
         manualMigrationReasons.push(reason);
         todoComments.push(`// TODO: migrate data entry manually: ${sanitizeTodoCommentText(reason)}`);
         return false;
+    });
+
+    unsupportedDataEntries.forEach((entry) => {
+        const reason = `data: ${sanitizeTodoCommentText(entry)}`;
+        manualMigrationReasons.push(reason);
+        todoComments.push(`// TODO: migrate data entry manually: ${sanitizeTodoCommentText(reason)}`);
     });
 
     const supportedComputedProps = computedProps.filter((prop) => {

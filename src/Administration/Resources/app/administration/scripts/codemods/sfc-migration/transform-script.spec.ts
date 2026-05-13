@@ -613,6 +613,35 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     });
 
     // -------------------------------------------------------------------------
+    it('surfaces unsupported shorthand and spread data entries with TODO comments', () => {
+        const js = `const title = 'External title';
+        const args = { count: 1 };
+
+        Shopware.Component.register('sw-test', {
+            template,
+            data() {
+                return {
+                    title,
+                    ...args,
+                    regular: 'kept',
+                };
+            },
+        });`;
+        const result = transformScript(js);
+
+        expect(result.status).toBe('partially-migratable');
+        expect(result.blockers).toContain('data: title: shorthand data entries must be migrated manually');
+        expect(result.blockers).toContain('data: ...args: spread data entries must be migrated manually');
+        expect(result.script).toContain(
+            'TODO: migrate data entry manually: data: title: shorthand data entries must be migrated manually',
+        );
+        expect(result.script).toContain(
+            'TODO: migrate data entry manually: data: ...args: spread data entries must be migrated manually',
+        );
+        expect(result.script).toContain("const regular = ref('kept');");
+    });
+
+    // -------------------------------------------------------------------------
     it('surfaces unsupported watch entries with a TODO comment instead of silently dropping them', () => {
         const js = `Shopware.Component.register('sw-test', {
             template,

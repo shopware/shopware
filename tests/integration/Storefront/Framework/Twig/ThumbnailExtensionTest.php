@@ -123,6 +123,43 @@ class ThumbnailExtensionTest extends TestCase
     }
 
     /**
+     * @throws SyntaxError
+     * @throws \Throwable
+     * @throws Exception
+     * @throws RuntimeError
+     * @throws LoaderError
+     */
+    public function testSwThumbnailsRendersSizesAttrWithValueForEveryBreakpoint(): void
+    {
+        $result = $this->renderTemplate('@Storefront/storefront/thumbnail-with-columns.html.twig', [
+            'media' => $this->createExampleMediaWithThumbnails([280, 400, 800, 1920]),
+            'context' => Generator::generateSalesChannelContext(),
+        ]);
+
+        // Regression test for https://github.com/shopware/shopware/issues/16710:
+        // every breakpoint declared in the auto-generated sizes attribute must carry
+        // a non-empty size value. Before the fix the xxl entry was missing from the
+        // sizes map and produced "(min-width: ...px) ," — an empty value followed by
+        // a comma — in the rendered output.
+        static::assertMatchesRegularExpression('/\ssizes="(?P<sizes>[^"]+)"/', $result, 'sizes attribute is missing');
+        preg_match('/\ssizes="(?P<sizes>[^"]+)"/', $result, $matches);
+        $sizes = $matches['sizes'];
+
+        $entries = array_map('trim', explode(',', $sizes));
+        // 6 breakpoint entries (xs..xxl) + 1 fallback entry
+        static::assertCount(7, $entries, sprintf('Expected 7 sizes entries, got %d: %s', \count($entries), $sizes));
+
+        // The 6 breakpoint entries must each have a non-empty value after the media query.
+        for ($i = 0; $i < 6; ++$i) {
+            static::assertMatchesRegularExpression(
+                '/^\(min-width:[^)]*\)\s+\S+/',
+                $entries[$i],
+                sprintf('Sizes entry #%d has an empty value: "%s"', $i, $entries[$i])
+            );
+        }
+    }
+
+    /**
      * @param array<string, mixed> $data
      *
      * @throws SyntaxError

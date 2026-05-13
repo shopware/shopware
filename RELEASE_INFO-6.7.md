@@ -121,12 +121,6 @@ When merchants rename a media file, its URL automatically updates so they can do
 
 ## Storefront
 
-### CMS product sliders now protect referenced dynamic product groups
-
-Deleting a dynamic product group that is still referenced by a CMS product slider now returns a restrict-delete violation.
-This also includes product slider configurations overridden on products, categories, landing pages, and sales channel home pages.
-Storefront rendering now ignores stale product-slider product stream references instead of failing the whole CMS page if inconsistent data already exists.
-
 ## App System
 
 ## Hosting & Configuration

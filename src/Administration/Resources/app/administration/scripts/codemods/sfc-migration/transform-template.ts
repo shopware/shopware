@@ -46,7 +46,7 @@ function hasTwigSyntaxInComment(twigContent: string): boolean {
  * - Accompanying eslint-disable-next-line comments are removed
  * - Plain HTML / Vue expressions pass through unchanged
  */
-export function transformTemplate(twigContent: string): { template: string; useDataScope: boolean } {
+export function transformTemplate(twigContent: string): { template: string } {
     const BLOCK_START_RE = /\{%\s*block\s+([^%\s}]+)\s*%\}/g;
     const BLOCK_END_RE = /\{%\s*endblock(?:\s+\w+)?\s*%\}/g;
     const PARENT_RE = /\{[{%]\s*parent\(?\)?\s*[%}]\}/g;
@@ -93,6 +93,5 @@ export function transformTemplate(twigContent: string): { template: string; useD
     }
 
     const transformed = `<template>\n${body}\n</template>`;
-    const useDataScope = transformed.includes('$dataScope');
-    return { template: transformed, useDataScope };
+    return { template: transformed };
 }

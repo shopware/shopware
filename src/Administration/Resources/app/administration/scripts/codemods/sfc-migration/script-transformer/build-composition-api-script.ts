@@ -7,9 +7,8 @@ export function buildCompositionApiScript(
     optionsObj: ObjectLiteralExpression,
     registration: ComponentRegistration,
     sourceFile: SourceFile,
-    useDataScope: boolean,
 ): { script: string; publicNames: string[]; manualMigrationReasons: string[] } {
-    const state = collectCompositionScriptState(optionsObj, registration, sourceFile, useDataScope);
+    const state = collectCompositionScriptState(optionsObj, registration, sourceFile);
 
     return {
         script: emitCompositionApiScript(state),

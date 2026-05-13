@@ -6,7 +6,7 @@ export interface TransformScriptResult {
     scriptType: 'setup' | 'options';
     status: MigrationStatus;
     blockers: string[];
-    /** Names exposed in the `public:` return of createExtendableSetup — used by generate-sfc to build $dataScope. */
+    /** Names exposed in the `public:` return of createExtendableSetup. */
     publicNames: string[];
 }
 

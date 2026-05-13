@@ -13,7 +13,6 @@ export function emitCompositionApiScript(state: CompositionScriptState): string 
     emitComposableDeclarations(lines, state);
     emitTemplateRefs(lines, state);
     emitCreateExtendableSetup(lines, state);
-    emitDataScope(lines, state);
 
     return lines.join('\n');
 }
@@ -253,13 +252,4 @@ function emitCreateExtendableSetup(lines: string[], state: CompositionScriptStat
     lines.push('        };');
     lines.push('    },');
     lines.push(');');
-}
-
-function emitDataScope(lines: string[], state: CompositionScriptState): void {
-    const { publicNames, useDataScope } = state;
-
-    if (useDataScope) {
-        lines.push('');
-        lines.push(`const $dataScope = reactive({ ${publicNames.join(', ')} });`);
-    }
 }

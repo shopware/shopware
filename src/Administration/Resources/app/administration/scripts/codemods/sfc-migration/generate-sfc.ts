@@ -35,13 +35,10 @@ export interface MergeResult {
  * The `<template>` section always precedes `<script …>` in the output.
  */
 export function mergeComponentFiles(twigContent: string, jsContent: string): MergeResult {
-    // Determine useDataScope before calling transformScript so reactive is
-    // included in the vue import block, not appended after it.
     let templateSection: string;
-    let useDataScope: boolean;
 
     try {
-        ({ template: templateSection, useDataScope } = transformTemplate(twigContent));
+        ({ template: templateSection } = transformTemplate(twigContent));
     } catch (err) {
         if (err instanceof TemplateTransformError) {
             return { sfc: '', status: 'not-migratable', blockers: err.blockers, warnings: [] };
@@ -50,7 +47,7 @@ export function mergeComponentFiles(twigContent: string, jsContent: string): Mer
         throw err;
     }
 
-    const scriptResult = transformScript(jsContent, useDataScope);
+    const scriptResult = transformScript(jsContent);
 
     if (scriptResult.status === 'not-migratable') {
         return { sfc: '', status: 'not-migratable', blockers: scriptResult.blockers, warnings: [] };

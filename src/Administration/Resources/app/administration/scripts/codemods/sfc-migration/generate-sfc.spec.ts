@@ -123,11 +123,10 @@ describe('scripts/codemods/sfc-migration/generate-sfc', () => {
             expect(result.sfc).toContain('public:');
         });
 
-        it('defines $dataScope after createExtendableSetup so <sw-block> can pass reactive state to overrides', () => {
-            expect(result.sfc).toContain('const $dataScope = reactive({');
-            expect(result.sfc).toContain('acl,');
-            expect(result.sfc).toContain('title,');
-            expect(result.sfc).toContain('onAction,');
+        it('passes the global $dataScope to <sw-block> without generating a local data scope', () => {
+            expect(result.sfc).toContain('<sw-block name="sw_block_card" :data="$dataScope">');
+            expect(result.sfc).not.toContain('const $dataScope =');
+            expect(result.sfc).not.toMatch(/import\s*\{[^}]*reactive[^}]*\}\s*from\s*['"]vue['"]/);
         });
 
         it('does not define $dataScope for components without twig blocks', () => {

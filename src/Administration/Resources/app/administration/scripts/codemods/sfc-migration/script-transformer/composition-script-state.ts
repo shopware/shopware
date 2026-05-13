@@ -59,14 +59,12 @@ export interface CompositionScriptState {
     propNames: Set<string>;
     injectNames: Set<string>;
     manualMigrationReasons: string[];
-    useDataScope: boolean;
 }
 
 export function collectCompositionScriptState(
     optionsObj: ObjectLiteralExpression,
     registration: ComponentRegistration,
     sourceFile: SourceFile,
-    useDataScope: boolean,
 ): CompositionScriptState {
     const { injectProps, unsupportedEntries: unsupportedInjectEntries } = extractInjectProps(optionsObj);
     const { dataProps, unsupportedEntries: unsupportedDataEntries } = extractDataProps(optionsObj);
@@ -227,7 +225,6 @@ export function collectCompositionScriptState(
     if (usedComposables.needsSlots) vueImports.push('useSlots');
     if (usedComposables.needsAttrs) vueImports.push('useAttrs');
     if (hasDirectThisPropertyUsage(allSnippets, '$el')) vueImports.push('getCurrentInstance');
-    if (useDataScope) vueImports.push('reactive');
 
     const regularHooks = lifecycleHooks.filter((h) => h.compositionName !== null);
     vueImports.push(...new Set(regularHooks.map((h) => h.compositionName as string)));
@@ -288,6 +285,5 @@ export function collectCompositionScriptState(
         propNames,
         injectNames,
         manualMigrationReasons,
-        useDataScope,
     };
 }

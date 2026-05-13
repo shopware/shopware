@@ -1357,31 +1357,19 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     });
 
     // -------------------------------------------------------------------------
-    describe('block-component with useDataScope=true: reactive is in the vue import, not appended', () => {
+    describe('block-component data scope handling', () => {
         let result: ReturnType<typeof transformScript>;
 
         beforeAll(() => {
-            result = transformScript(readFixture('block-component.index.js'), true);
+            result = transformScript(readFixture('block-component.index.js'));
         });
 
-        it('includes reactive in the vue import line', () => {
-            expect(result.script).toMatch(/import\s*\{[^}]*reactive[^}]*\}\s*from\s*['"]vue['"]/);
+        it('does not import reactive for data-scope generation', () => {
+            expect(result.script).not.toMatch(/import\s*\{[^}]*reactive[^}]*\}\s*from\s*['"]vue['"]/);
         });
 
-        it('does not have a second standalone import for reactive', () => {
-            const importMatches = result.script.match(/import\s*\{[^}]*\}\s*from\s*['"]vue['"]/g) ?? [];
-            expect(importMatches).toHaveLength(1);
-        });
-
-        it('emits $dataScope const after the createExtendableSetup closing paren', () => {
-            // Find the closing ); of createExtendableSetup by locating the setup
-            // call start and then the first ); that follows its callback.
-            const setupCallIdx = result.script.indexOf('createExtendableSetup(');
-            // The last ); before the $dataScope line is the one closing createExtendableSetup.
-            const dataScopeIdx = result.script.indexOf('const $dataScope = reactive(');
-            const setupCloseIdx = result.script.lastIndexOf(');', dataScopeIdx);
-            expect(setupCallIdx).toBeGreaterThan(-1);
-            expect(dataScopeIdx).toBeGreaterThan(setupCloseIdx);
+        it('does not emit a local $dataScope variable', () => {
+            expect(result.script).not.toContain('const $dataScope =');
         });
     });
 });

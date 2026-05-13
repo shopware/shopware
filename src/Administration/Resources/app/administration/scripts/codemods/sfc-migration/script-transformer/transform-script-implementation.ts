@@ -5,7 +5,7 @@ import { detectBlockers } from './extract-component-options';
 import { analyzeUnsupportedInjectEntries } from './extract-inject';
 import type { TransformScriptResult } from './types';
 
-export function transformScript(jsContent: string, useDataScope = false): TransformScriptResult {
+export function transformScript(jsContent: string): TransformScriptResult {
     const sourceFile = parseSource(jsContent);
     const registration = findComponentRegistration(sourceFile);
     const optionsObj = registration?.optionsObject;
@@ -44,7 +44,6 @@ export function transformScript(jsContent: string, useDataScope = false): Transf
         optionsObj,
         registration,
         sourceFile,
-        useDataScope,
     );
     return {
         script,

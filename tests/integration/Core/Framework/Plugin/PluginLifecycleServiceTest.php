@@ -2,7 +2,9 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Plugin;
 
+use Composer\Factory;
 use Composer\IO\NullIO;
+use Composer\Semver\Constraint\Constraint;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -27,8 +29,8 @@ use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginService;
-use Shopware\Core\Framework\Plugin\Requirement\Exception\MissingRequirementException;
 use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackException;
+use Shopware\Core\Framework\Plugin\Requirement\Exception\VersionMismatchException;
 use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
@@ -446,9 +448,14 @@ class PluginLifecycleServiceTest extends TestCase
 
         $pluginEntity = $this->installNotSupportedPlugin(self::NOT_SUPPORTED_VERSION_PLUGIN_NAME);
 
+        $projectDir = static::getContainer()->getParameter('kernel.project_dir');
+        \assert(\is_string($projectDir));
+        $rootComposer = Factory::create(new NullIO(), $projectDir . '/composer.json');
+        $installedVersionString = (new Constraint('==', $rootComposer->getPackage()->getVersion()))->getPrettyString();
+
         $this->expectExceptionObject(new RequirementStackException(
             'activate',
-            new MissingRequirementException('shopware/core', '<6.0')
+            new VersionMismatchException('shopware/core', '<6.0', $installedVersionString)
         ));
         $this->pluginLifecycleService->activatePlugin($pluginEntity, $this->context);
     }

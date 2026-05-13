@@ -18,6 +18,8 @@ function parseWatchBooleanOption(
 
     const initializerText = optionProp.asKindOrThrow(SyntaxKind.PropertyAssignment).getInitializer()?.getText();
 
+    // Runtime expressions can depend on component state or imports. Preserve
+    // semantics by requiring manual review instead of guessing a static value.
     if (initializerText === 'true') {
         return { value: true };
     }
@@ -82,9 +84,9 @@ export function extractWatchProps(optionsObj: ObjectLiteralExpression): ExtractW
             }
 
             const deepProp = innerObj.getProperty('deep');
-            const immediProp = innerObj.getProperty('immediate');
+            const immediateProp = innerObj.getProperty('immediate');
             const deepOption = parseWatchBooleanOption('deep', deepProp);
-            const immediateOption = parseWatchBooleanOption('immediate', immediProp);
+            const immediateOption = parseWatchBooleanOption('immediate', immediateProp);
             const unsupportedOptionReasons = [
                 deepOption.unsupportedReason,
                 immediateOption.unsupportedReason,

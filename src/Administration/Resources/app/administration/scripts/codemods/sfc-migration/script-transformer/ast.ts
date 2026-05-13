@@ -2,6 +2,11 @@ import type { CallExpression, PropertyAccessExpression, SourceFile } from 'ts-mo
 import { Node, Project, ScriptKind, SyntaxKind } from 'ts-morph';
 import type { CodeSnippet, ComponentRegistration, RewriteSnippetKind } from './types';
 
+/**
+ * Parses snippets that are not complete JavaScript programs. The wrapper gives
+ * ts-morph valid syntax while snippetStart/snippetEnd keep offsets translatable
+ * back to the original method body or expression text.
+ */
 export function createWrappedSnippetSource(
     text: string,
     kind: RewriteSnippetKind,
@@ -102,7 +107,8 @@ export function extractModuleLevelCode(sourceFile: SourceFile, registration: Com
     for (const stmt of sourceFile.getStatements()) {
         if (stmt.getStart() >= registerPos) break;
 
-        // Drop `import template from '…'`
+        // Keep side-effect imports and constants before registration, but drop
+        // the old Twig import because the template now lives inside the SFC.
         if (stmt.isKind(SyntaxKind.ImportDeclaration)) {
             const imp = stmt.asKindOrThrow(SyntaxKind.ImportDeclaration);
             const defaultImport = imp.getDefaultImport()?.getText();

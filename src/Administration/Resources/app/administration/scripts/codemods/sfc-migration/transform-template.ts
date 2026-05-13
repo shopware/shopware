@@ -33,6 +33,9 @@ function isTwigBlockMigrationLine(line: string): boolean {
 function hasTwigSyntaxInComment(twigContent: string): boolean {
     TWIG_COMMENT_RE.lastIndex = 0;
 
+    // Comments are converted before block replacements. A commented-out Twig
+    // block would otherwise become an HTML comment and then be migrated into
+    // real <sw-block> markup inside that comment.
     return Array.from(twigContent.matchAll(TWIG_COMMENT_RE)).some((match) => TWIG_SYNTAX_RE.test(match[1] ?? ''));
 }
 
@@ -58,6 +61,9 @@ export function transformTemplate(twigContent: string): { template: string } {
     }
 
     if (EXTENDS_RE.test(twigContent)) {
+        // Resolving Twig inheritance would require loading parent templates and
+        // merging block overrides. This codemod only transforms one component
+        // directory at a time, so inherited templates need manual migration.
         throw new TemplateTransformError([UNSUPPORTED_EXTENDS_BLOCKER], UNSUPPORTED_EXTENDS_ERROR);
     }
 
@@ -71,6 +77,8 @@ export function transformTemplate(twigContent: string): { template: string } {
         const nextLine = lines[index + 1] ?? '';
         const previousLine = lines[index - 1] ?? '';
 
+        // These disables targeted Twig syntax that no longer exists after
+        // migration; keeping them would suppress linting for the next Vue line.
         if (
             trimmed === ESLINT_DISABLE_TWIG &&
             (isTwigBlockMigrationLine(nextLine) || isTwigBlockMigrationLine(previousLine))

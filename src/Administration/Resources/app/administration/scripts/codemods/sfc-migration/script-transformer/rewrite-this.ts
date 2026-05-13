@@ -17,10 +17,15 @@ export function buildWatchSource(name: string, propNames: Set<string>, injectNam
     }
 
     if (name === '$route') {
+        // The route object keeps its identity across navigations. Watch a
+        // snapshot so changes trigger and Vue still provides distinct to/from
+        // values to the handler.
         return `({ ...route, params: { ...route.params }, query: { ...route.query } })`;
     }
 
     if (injectNames.has(name)) {
+        // inject() can return a plain service or a Ref; unref() tracks both
+        // forms when the injected value is used as a watch source.
         return `unref(${name})`;
     }
 
@@ -134,6 +139,9 @@ export function rewriteThisInBody(bodyText: string, ctx: RewriteContext, kind: R
             };
         })
         .filter(isDefined)
+        // Replace longest nested accesses first. For example, `this.$refs.foo`
+        // should become `foo.value` once, not receive a second replacement for
+        // the inner `this.$refs` access.
         .sort((a, b) => b.start - a.start || b.end - a.end);
 
     let result = bodyText;
@@ -183,8 +191,13 @@ function buildThisReplacement(node: PropertyAccessExpression, ctx: RewriteContex
         case '$t':
             return 't';
         case '$el':
+            // There is no setup-safe equivalent for root DOM access; this is a
+            // transitional bridge that must be reviewed after generation.
             return '/* TODO: $el */ getCurrentInstance()?.proxy?.$el';
         case '$store':
+            // Vuex access needs a store-specific Pinia/composable migration.
+            // Throwing prevents generated code from silently shipping with a
+            // non-functional placeholder.
             return "/* TODO: migrate $store to composable */\n        (() => { throw new Error('$store used here — replace with the appropriate Pinia store or composable before shipping'); })()";
         case '$parent':
             return '/* TODO: $parent */ undefined';

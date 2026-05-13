@@ -273,6 +273,9 @@ function writeMigrationOutput(
 
     writeFileSync(context.vuePath, result.sfc, 'utf-8');
 
+    // Partially migrated SFCs are review artifacts until their blockers are
+    // resolved. Keep the original entry point active so mixins/extends backoff
+    // components do not change runtime behavior under --delete-originals.
     if (!options.deleteOriginals || result.status !== 'fully-migrated') {
         return true;
     }

@@ -128,6 +128,9 @@ function emitCreateExtendableSetup(lines: string[], state: CompositionScriptStat
         unsupportedWatchEntries,
     } = state;
 
+    // createExtendableSetup is the Shopware compatibility layer for
+    // overrideComponentSetup. Only names returned under `public` are available
+    // to templates and downstream overrides.
     if (publicNames.length > 0) {
         lines.push('const {');
         publicNames.forEach((n) => lines.push(`    ${n},`));
@@ -186,6 +189,9 @@ function emitCreateExtendableSetup(lines: string[], state: CompositionScriptStat
 
     supportedMethodProps.forEach(({ name, paramsText, bodyText, isAsync, rawText }) => {
         if (rawText !== undefined) {
+            // Property-assignment methods often wrap callbacks in helpers such
+            // as debounce(). Preserve the wrapper expression instead of
+            // flattening it into a plain arrow method.
             let rewritten = rewriteThisInBody(rawText, ctx, 'expression');
             rewritten = rewritten.replace(/\bfunction\s+\w*\s*\(([^)]*)\)\s*\{/g, '($1) => {');
             lines.push(`        const ${name} = ${rewritten};`);
@@ -230,6 +236,9 @@ function emitCreateExtendableSetup(lines: string[], state: CompositionScriptStat
 
     const createdHooks = lifecycleHooks.filter((h) => h.compositionName === null);
     if (createdHooks.length > 0) {
+        // created() has no Composition API hook. Running it directly inside
+        // setup preserves its pre-mount timing; async created() stays
+        // fire-and-forget so setup itself does not become async.
         for (const hook of createdHooks) {
             const body = rewriteThisInBody(hook.bodyText, ctx);
             if (hook.isAsync) {

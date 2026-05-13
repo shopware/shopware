@@ -113,6 +113,8 @@ export function extractInjectProps(optionsObj: ObjectLiteralExpression): Extract
                 localName,
                 sourceKey: fromValue ?? localName,
                 defaultValueText: defaultMethod ? serializeMethodLikeFunction(defaultMethod) : defaultInitializer?.getText(),
+                // Vue inject() treats function defaults as values unless the
+                // third argument marks them as factories.
                 treatDefaultAsFactory:
                     defaultInitializer?.isKind(SyntaxKind.ArrowFunction) ||
                     defaultInitializer?.isKind(SyntaxKind.FunctionExpression) ||

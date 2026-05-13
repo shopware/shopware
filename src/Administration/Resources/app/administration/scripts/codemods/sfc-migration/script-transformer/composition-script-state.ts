@@ -149,6 +149,9 @@ export function collectCompositionScriptState(
 
     const ctx: RewriteContext = { propNames, dataNames, computedNames, methodNames, injectNames };
 
+    // These snippets are the only source ranges that will be emitted into
+    // setup. They drive import detection, template refs, inferred emits, and
+    // `this.` rewriting without touching strings or comments elsewhere.
     const allSnippets: CodeSnippet[] = [
         ...supportedDataProps.map((p) => ({ text: p.valueText, kind: 'expression' as const })),
         ...supportedComputedProps.flatMap((p) =>
@@ -185,6 +188,9 @@ export function collectCompositionScriptState(
             return false;
         }
 
+        // Vue 2 accepted string paths in watch definitions. In Composition API
+        // we can only generate a safe source when that path maps to a prop,
+        // data ref, computed ref, or inject declared by this codemod.
         const isKnownWatchTarget =
             propNames.has(watchProp.name) ||
             dataNames.has(watchProp.name) ||
@@ -236,6 +242,9 @@ export function collectCompositionScriptState(
         ...supportedMethodProps.map((p) => p.name),
     ];
 
+    // These options can affect runtime registration or lifecycle order. The
+    // generated setup code is still useful, but a successful-looking migration
+    // would be misleading without explicit manual follow-up markers.
     if (optionsObj.getProperty('provide')) {
         manualMigrationReasons.push('provide option requires manual migration');
         todoComments.push('// TODO: migrate `provide` manually — map each key to provide(key, value) calls');

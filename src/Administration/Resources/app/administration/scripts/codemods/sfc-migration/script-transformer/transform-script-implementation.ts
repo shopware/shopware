@@ -24,10 +24,16 @@ export function transformScript(jsContent: string): TransformScriptResult {
     const unsupportedInjectAnalysis = analyzeUnsupportedInjectEntries(optionsObj);
 
     if (blockers.includes('render function')) {
+        // render() owns the component output. Combining it with the migrated
+        // Twig template would either be ignored by Vue or change rendering
+        // semantics, so the component must be rewritten by hand first.
         return { script: '', scriptType: 'options', status: 'not-migratable', blockers, publicNames: [] };
     }
 
     if (blockers.length > 0 || unsupportedInjectAnalysis.reasons.length > 0) {
+        // Unsupported inject shapes are a full backoff case: methods may depend
+        // on `this.<injectName>`, and converting only the supported pieces would
+        // leave unresolved instance access inside setup code.
         return {
             script: buildOptionsApiBackoff(sourceFile),
             scriptType: 'options',

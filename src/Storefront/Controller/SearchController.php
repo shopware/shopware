@@ -170,6 +170,11 @@ class SearchController extends StorefrontController
             return null;
         }
 
+        $search = mb_strtolower(trim($search));
+        if ($search === '') {
+            return null;
+        }
+
         foreach ($this->redirectOnSingleHitFields as $field) {
             if (!$product->has($field)) {
                 continue;
@@ -180,7 +185,7 @@ class SearchController extends StorefrontController
                 continue;
             }
 
-            if ($search === mb_strtolower($value)) {
+            if ($search === mb_strtolower(trim($value))) {
                 return $this->redirectToRoute('frontend.detail.page', ['productId' => $product->getId()]);
             }
         }

@@ -288,14 +288,34 @@ class SearchControllerTest extends TestCase
             'sw-100',
         ];
 
+        yield 'productNumber matches search term in original casing' => [
+            static fn (ProductEntity $p) => $p->setProductNumber('SW-100'),
+            'SW-100',
+        ];
+
+        yield 'productNumber matches search term with surrounding whitespace' => [
+            static fn (ProductEntity $p) => $p->setProductNumber('SW-100'),
+            '  SW-100  ',
+        ];
+
         yield 'ean' => [
             static fn (ProductEntity $p) => $p->setEan('4006381333931'),
             '4006381333931',
         ];
 
+        yield 'ean matches search term with alphabetic characters' => [
+            static fn (ProductEntity $p) => $p->setEan('BC1010'),
+            'bc1010',
+        ];
+
         yield 'manufacturerNumber' => [
             static fn (ProductEntity $p) => $p->setManufacturerNumber('MPN-XYZ'),
             'mpn-xyz',
+        ];
+
+        yield 'manufacturerNumber matches search term in original casing' => [
+            static fn (ProductEntity $p) => $p->setManufacturerNumber('MPN-XYZ'),
+            'MPN-XYZ',
         ];
     }
 

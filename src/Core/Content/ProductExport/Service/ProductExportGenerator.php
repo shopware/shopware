@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Adapter\Twig\TwigVariableParserFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\SalesChannelRepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
@@ -116,6 +117,11 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
 
         foreach ($associations as $association) {
             $criteria->addAssociation($association);
+        }
+
+        if ($criteria->hasAssociation('categories')) {
+            $criteria->getAssociation('categories')
+                ->addFilter(new EqualsFilter('active', true));
         }
 
         $this->eventDispatcher->dispatch(

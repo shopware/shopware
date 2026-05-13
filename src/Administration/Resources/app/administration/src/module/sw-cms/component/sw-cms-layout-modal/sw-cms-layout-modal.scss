@@ -6,7 +6,7 @@
         grid-template-columns: 1fr 1fr;
         gap: 24px;
         padding: 24px 30px;
-        border-bottom: 1px solid $color-gray-300;
+        border-bottom: 1px solid var(--color-border-primary-default);
 
         .sw-cms-layout-modal__actions-sorting {
             display: grid;
@@ -20,15 +20,15 @@
             height: 36px;
             line-height: 33px;
             text-align: center;
-            color: $color-darkgray-200;
-            border: 1px solid $color-gray-300;
+            color: var(--color-text-primary-default);
+            border: 1px solid var(--color-border-primary-default);
             border-radius: 4px;
-            background: $color-white;
+            background: var(--color-elevation-surface-raised);
             cursor: pointer;
 
             &:hover {
-                color: $color-shopware-brand-500;
-                border-color: $color-shopware-brand-500;
+                color: var(--color-text-brand-default);
+                border-color: var(--color-border-brand-default);
             }
         }
 
@@ -54,7 +54,7 @@
             position: relative;
 
             &.is--selected .sw-cms-list-item {
-                border-color: $color-shopware-brand-500;
+                border-color: var(--color-border-brand-default);
             }
 
             .mt-field--checkbox {

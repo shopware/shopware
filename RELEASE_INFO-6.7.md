@@ -68,6 +68,16 @@ The command does not reload Composer's autoloader while it is running.
 If installing one plugin also installs new PHP packages, plugins installed afterwards in the same command cannot use those packages yet.
 Run those installs in separate CLI calls when a plugin depends on code that another plugin adds through Composer during installation.
 
+### Listing configured translations via `translation:list`
+
+A new `translation:list` console command prints every locale configured for `translation:install` / `translation:update`, including its localized name, English name, and the timestamp of the last installed Crowdin snapshot.
+`translation:install` without `--all` or `--locales` now drops into an interactive multi-select prompt with autocompletion over the available locale codes, instead of throwing an exception.
+
+### Support for pseudo-locales in `translation:install`
+
+The new `SnippetPatterns::ALLOWED_PSEUDO_LOCALES` and `SnippetPatterns::PSEUDO_LOCALE_TERRITORY` constants register Crowdin pseudo-languages (e.g. `ach-UG`) as valid translation targets for in-context proofreading and translatability audits.
+Pseudo-locales bypass Symfony Intl validation in `Language::validateLocale` and `TranslationLoader::getLocalePath`, and a missing `locale` entity is auto-created on install with a display name from the constant map and a fixed `Pseudo Language` territory.
+
 ## Administration
 
 ### Mail template preview is now sales-channel-aware and uses isolated HTML rendering

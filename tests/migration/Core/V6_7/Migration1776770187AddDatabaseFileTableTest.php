@@ -30,7 +30,7 @@ class Migration1776770187AddDatabaseFileTableTest extends TestCase
 
     public function testGetCreationTimestamp(): void
     {
-        static::assertSame(1776770187, (new Migration1776770187AddDatabaseFileTable())->getCreationTimestamp());
+        static::assertSame(1776770187, (new Migration1776770187AddDocumentFileTable())->getCreationTimestamp());
     }
 
     public function testMigration(): void

@@ -64,7 +64,7 @@ class Migration1726557614FixProductComparisonIdealoWithHtmlFormatTest extends Te
     }
 
     /**
-     * @return iterable<string, array{array{array{oldTemplate: 'do_not_update_for_modified_template', expectedTemplate: 'do_not_update_for_modified_template'}}, array{array{oldTemplate: string, expectedTemplate: string}}}>
+     * @return iterable<string, array{array{oldTemplate: string, expectedTemplate: string}}>
      */
     public static function dataProvider(): iterable
     {

@@ -48,8 +48,11 @@ class Migration1746176773AddIntegrationIdStateHistoryTest extends TestCase
 
     private function revertMigration(Connection $connection): void
     {
-        if (TableHelper::indexExists($connection, 'state_machine_history', 'integration_id')) {
+        if (TableHelper::foreignKeyExists($connection, 'state_machine_history', 'fk.state_machine_history.integration_id')) {
             $connection->executeStatement('ALTER TABLE `state_machine_history` DROP FOREIGN KEY `fk.state_machine_history.integration_id`');
+        }
+
+        if (TableHelper::columnExists($connection, 'state_machine_history', 'integration_id')) {
             $connection->executeStatement('ALTER TABLE `state_machine_history` DROP COLUMN `integration_id`');
         }
     }

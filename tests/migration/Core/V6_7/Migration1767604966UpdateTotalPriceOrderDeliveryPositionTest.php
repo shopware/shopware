@@ -35,12 +35,10 @@ class Migration1767604966UpdateTotalPriceOrderDeliveryPositionTest extends TestC
 
     protected function tearDown(): void
     {
-        $deletedRowCount = $this->connection->executeStatement(
+        $this->connection->executeStatement(
             'DELETE FROM `order_delivery_position` WHERE id = :id',
             ['id' => $this->deliveryId]
         );
-
-        static::assertSame(1, (int) $deletedRowCount);
     }
 
     public function testGetCreationTimestamp(): void

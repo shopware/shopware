@@ -214,7 +214,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
     }
 
     /**
-     * @return non-empty-iterable<string, array{EntityWriteResult, bool}>
+     * @return \Generator<string, array{EntityWriteResult, bool}>
      */
     public static function itemCreatedProvider(): iterable
     {

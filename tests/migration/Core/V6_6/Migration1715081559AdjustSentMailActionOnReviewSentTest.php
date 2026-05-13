@@ -28,14 +28,14 @@ class Migration1715081559AdjustSentMailActionOnReviewSentTest extends TestCase
         $this->migration = new Migration1715081559AdjustSentMailActionOnReviewSent();
     }
 
-    /**
-     * @param array<string, mixed>|null $expectedConfig
-     */
     public function testGetCreationTimestamp(): void
     {
         static::assertSame(1715081559, (new Migration1715081559AdjustSentMailActionOnReviewSent())->getCreationTimestamp());
     }
 
+    /**
+     * @param array<string, mixed>|null $expectedConfig
+     */
     #[DataProvider('flowSequences')]
     public function testMigration(?string $actionName, ?string $config, ?array $expectedConfig): void
     {

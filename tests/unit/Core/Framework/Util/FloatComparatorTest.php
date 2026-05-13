@@ -195,7 +195,6 @@ class FloatComparatorTest extends TestCase
         yield 'integer value is not less than itself' => [42, 42, false];
         yield 'float one is not less than itself' => [1.0, 1.0, false];
         yield 'float zero is not less than itself' => [0.0, 0.0, false];
-        yield 'zero is not less than zero with decimal input' => [0.0, 0.0, false];
         yield 'computed decimal equal within epsilon is not less than exact decimal' => [8 - 6.4, 1.6, false];
         yield 'exact decimal is not less than computed decimal equal within epsilon' => [1.6, 8 - 6.4, false];
         yield 'larger decimal value is not less than smaller integer value' => [1.00001, 1, false];

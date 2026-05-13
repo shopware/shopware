@@ -111,6 +111,7 @@ class AdminSearcher
         }
 
         $query = $this->paginate($query, $criteria->getLimit(), $criteria->getOffset());
+        $query->setTrackTotalHits($criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_EXACT);
 
         $this->esHelper->addQueries($definition, $criteria, $query, $context);
         $this->esHelper->addPostFilters($definition, $criteria, $query, $context);
@@ -125,7 +126,6 @@ class AdminSearcher
         $request = [
             'index' => $this->adminEsHelper->getIndex($indexer->getName()),
             'search_type' => $this->searchType,
-            'track_total_hits' => $criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_EXACT,
             'body' => $query,
         ];
 

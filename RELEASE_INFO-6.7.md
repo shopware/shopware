@@ -67,6 +67,29 @@ Affected commands:
 - `bin/console sales-channel:list --output json` → `bin/console sales-channel:list --format json`
 
 `system:config:get` and `system:check` already use `--format` and are unchanged. The `--json` option of `system:config:set` controls input value parsing (not output formatting) and is unaffected.
+### Composer-managed plugins in `TestBootstrapper::addActivePlugins()`
+
+`TestBootstrapper::addActivePlugins()` can now be used with Composer-managed plugins installed below `vendor/`.
+Plugins no longer need to be copied into `custom/plugins` or `custom/static-plugins` just to be installed and activated during test bootstrap.
+
+### Requirement-aware plugin installation order
+
+`plugin:install` now orders the selected plugins by their Composer plugin requirements before installation.
+When one selected plugin requires another selected plugin package, the required plugin is installed first.
+This ordering only applies to plugins that are known before the command starts.
+The command does not reload Composer's autoloader while it is running.
+If installing one plugin also installs new PHP packages, plugins installed afterwards in the same command cannot use those packages yet.
+Run those installs in separate CLI calls when a plugin depends on code that another plugin adds through Composer during installation.
+
+### Listing configured translations via `translation:list`
+
+A new `translation:list` console command prints every locale configured for `translation:install` / `translation:update`, including its localized name, English name, and the timestamp of the last installed Crowdin snapshot.
+`translation:install` without `--all` or `--locales` now drops into an interactive multi-select prompt with autocompletion over the available locale codes, instead of throwing an exception.
+
+### Support for pseudo-locales in `translation:install`
+
+The new `SnippetPatterns::ALLOWED_PSEUDO_LOCALES` and `SnippetPatterns::PSEUDO_LOCALE_TERRITORY` constants register Crowdin pseudo-languages (e.g. `ach-UG`) as valid translation targets for in-context proofreading and translatability audits.
+Pseudo-locales bypass Symfony Intl validation in `Language::validateLocale` and `TranslationLoader::getLocalePath`, and a missing `locale` entity is auto-created on install with a display name from the constant map and a fixed `Pseudo Language` territory.
 
 ## Administration
 
@@ -105,6 +128,9 @@ The Administration sidebar off-canvas now closes reliably on very small viewport
 
 Switch and checkbox fields in theme configuration now render and handle inheritance consistently. Before they wouldn't have shown the inheritance switch.
 Also the checkbox field is now positionally aligned with the other components.
+
+### Resolving download errors by renaming media
+When merchants rename a media file, its URL automatically updates so they can download it without issues.
 
 ## Storefront
 
@@ -911,6 +937,15 @@ The heartbeat is emitted by a recurrent scheduled task on a weekly basis, so app
 No additional ACL privileges are required for this event.
 
 ## Hosting & Configuration
+
+### OpenSearch PHP client updated to 2.6
+
+Shopware now uses `opensearch-project/opensearch-php` `^2.6.0` and `shyim/opensearch-php-dsl` `^1.1.4` (PR #15832).
+The Elasticsearch integration was migrated to the newer OpenSearch client transport for regular single-host configurations, and query generation now uses newer DSL APIs for tracked totals, result collapsing, and nested sorting.
+
+Existing installations that configure a single OpenSearch endpoint via `OPENSEARCH_URL` or `ADMIN_OPENSEARCH_URL` do not need to change their configuration.
+Comma-separated multiple-host values still work in 6.7 through the legacy OpenSearch client builder, but this fallback is deprecated and will be removed in 6.8.
+If you currently configure multiple OpenSearch nodes directly, switch to a single load-balanced OpenSearch endpoint before upgrading to 6.8.
 
 ### Feature flag for enabling OpenSearch globally in the Admin API
 

@@ -1527,6 +1527,27 @@ If you are still using any of these options in your configuration, you can safel
 OpenSearch 1.x reached end of life on 06 May 2025 is no longer supported.
 Please update OpenSearch to the latest supported Version.
 
+## Removed comma-separated multiple OpenSearch hosts
+
+Shopware no longer supports configuring multiple OpenSearch hosts as a comma-separated list in `OPENSEARCH_URL` or `ADMIN_OPENSEARCH_URL`.
+This configuration path used the deprecated OpenSearch PHP `ClientBuilder` host pool and was only kept temporarily in 6.7 for backwards compatibility while Shopware moved to the newer OpenSearch PHP client transport.
+
+Before:
+
+```dotenv
+OPENSEARCH_URL=http://opensearch-1:9200,http://opensearch-2:9200
+ADMIN_OPENSEARCH_URL=http://opensearch-1:9200,http://opensearch-2:9200
+```
+
+After:
+
+```dotenv
+OPENSEARCH_URL=http://opensearch.example.internal:9200
+ADMIN_OPENSEARCH_URL=http://opensearch.example.internal:9200
+```
+
+If you need failover or load distribution across multiple OpenSearch nodes, expose them through a single load-balanced endpoint and configure that endpoint in Shopware.
+
 ## Changed default Elasticsearch shard and replica counts for Admin ES
 
 The default values for `SHOPWARE_ADMIN_ES_NUMBER_OF_SHARDS` and `SHOPWARE_ADMIN_ES_NUMBER_OF_REPLICAS` changed from `3` to empty (meaning Elasticsearch defaults are used). If you relied on the previous defaults, set these environment variables explicitly in your `.env` file:

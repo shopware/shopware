@@ -23,4 +23,13 @@ class TelemetryExceptionTest extends TestCase
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
         static::assertSame('Unknown label "invalid_label" for metric "http.requests". The label must be declared in the metric definition.', $exception->getMessage());
     }
+
+    public function testInstrumentWithoutMetricOrSpan(): void
+    {
+        $exception = TelemetryException::instrumentWithoutMetricOrSpan();
+
+        static::assertSame('TELEMETRY__INSTRUMENT_WITHOUT_METRIC_OR_SPAN', $exception->getErrorCode());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        static::assertSame('Telemetry::instrument() was called without a DurationMetric or a Span. Provide at least one — otherwise call the callback directly.', $exception->getMessage());
+    }
 }

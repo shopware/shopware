@@ -18,6 +18,8 @@ class TelemetryException extends HttpException
 {
     public const UNKNOWN_LABEL_NAME = 'TELEMETRY__UNKNOWN_METRIC_LABEL';
 
+    public const INSTRUMENT_WITHOUT_METRIC_OR_SPAN = 'TELEMETRY__INSTRUMENT_WITHOUT_METRIC_OR_SPAN';
+
     public static function metricNotSupported(
         Metric $metric,
         MetricTransportInterface $transport
@@ -49,6 +51,18 @@ class TelemetryException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::UNKNOWN_LABEL_NAME,
             \sprintf('Unknown label "%s" for metric "%s". The label must be declared in the metric definition.', $labelName, $metricName),
+        );
+    }
+
+    /**
+     * @internal
+     */
+    public static function instrumentWithoutMetricOrSpan(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INSTRUMENT_WITHOUT_METRIC_OR_SPAN,
+            'Telemetry::instrument() was called without a DurationMetric or a Span. Provide at least one — otherwise call the callback directly.',
         );
     }
 }

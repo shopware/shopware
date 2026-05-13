@@ -371,12 +371,12 @@ class Telemetry
     public function instrument(
         \Closure $callback,
         ?DurationMetric $metric = null,
-        ?SpanOptions $span = null,
+        ?Span $span = null,
     ): mixed;
 }
 ```
 
-`DurationMetric` and `SpanOptions` are simple value objects (additional properties may be added later):
+`DurationMetric` and `Span` are simple value objects (additional properties may be added later):
 
 ```php
 final class DurationMetric
@@ -387,7 +387,7 @@ final class DurationMetric
     ) {}
 }
 
-final class SpanOptions
+final class Span
 {
     public function __construct(
         public readonly string $name,
@@ -404,7 +404,7 @@ Usage covers all combinations through a single method:
 $this->telemetry->instrument(
     callback: fn() => $this->processPayment($order),
     metric: new DurationMetric('payment.process.duration', ['method' => 'card']),
-    span: new SpanOptions('payment-processing'),
+    span: new Span('payment-processing'),
 );
 
 // duration metric only, no span
@@ -416,7 +416,7 @@ $this->telemetry->instrument(
 // span only, no metric
 $this->telemetry->instrument(
     callback: fn() => $this->warmCache(),
-    span: new SpanOptions('cache-warmup', category: 'cache'),
+    span: new Span('cache-warmup', category: 'cache'),
 );
 
 // regular (non-duration) metric
@@ -469,7 +469,7 @@ $this->telemetry->emit(new ConfiguredMetric('order.placed.count', 1, ['channel' 
   - For measuring operation duration: use `Telemetry::instrument()` with a `DurationMetric`. Duration
     is always emitted in milliseconds. Define the metric as a histogram in YAML config (gauge will always store only
     last emitted value during collection interval).
-  - For profiler spans without a metric: use `Telemetry::instrument()` with only `SpanOptions` set.
+  - For profiler spans without a metric: use `Telemetry::instrument()` with only `Span` set.
     Do not call `Profiler::trace()` directly in new code — routing through `Telemetry` keeps call
     sites testable and provides a migration path for when `Profiler` becomes injectable.
 - **Operators**:

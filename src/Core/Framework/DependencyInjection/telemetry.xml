@@ -15,6 +15,11 @@
             <argument>%shopware.telemetry.metrics.enabled%</argument>
         </service>
 
+        <service id="Shopware\Core\Framework\Telemetry\Telemetry">
+            <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\Meter"/>
+            <argument>%env(APP_ENV)%</argument>
+        </service>
+
         <service id="Shopware\Core\Framework\Telemetry\Metrics\MetricLabelProcessor">
             <argument>%shopware.telemetry.metrics.replace_unknown_label_values_with%</argument>
             <argument type="service" id="logger"/>

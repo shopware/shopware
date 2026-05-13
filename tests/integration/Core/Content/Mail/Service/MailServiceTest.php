@@ -109,6 +109,8 @@ class MailServiceTest extends TestCase
         yield 'configured sender is used when basic sender is missing' => ['config@example.com', null, 'config@example.com', null];
         yield 'basic sender has priority over configured sender' => ['basic@example.com', 'basic@example.com', 'config@example.com', null];
         yield 'mail data sender has priority over basic and configured sender' => ['data@example.com', 'basic@example.com', 'config@example.com', 'data@example.com'];
+        yield 'mail data sender has priority over basic sender' => ['data@example.com', 'basic@example.com', null, 'data@example.com'];
+        yield 'mail data sender has priority over configured sender' => ['data@example.com', null, 'config@example.com', 'data@example.com'];
     }
 
     #[DataProvider('senderEmailDataProvider')]

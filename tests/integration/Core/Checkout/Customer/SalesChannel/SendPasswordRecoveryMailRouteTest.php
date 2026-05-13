@@ -231,6 +231,9 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
         yield 'domain with trailing slash is normalized' => [
             ['domain' => 'http://my-evil-page/', 'expectDomain' => 'http://my-evil-page'],
         ];
+        yield 'domain with double trailing slash is normalized' => [
+            ['domain' => 'http://my-evil-page//', 'expectDomain' => 'http://my-evil-page'],
+        ];
     }
 
     private function addDomain(string $url): void

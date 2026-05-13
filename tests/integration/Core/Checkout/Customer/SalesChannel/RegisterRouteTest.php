@@ -325,6 +325,9 @@ class RegisterRouteTest extends TestCase
         yield 'domain with trailing slash is normalized' => [
             ['domain' => 'http://my-evil-page/', 'expectDomain' => 'http://my-evil-page'],
         ];
+        yield 'domain with double trailing slash is normalized' => [
+            ['domain' => 'http://my-evil-page//', 'expectDomain' => 'http://my-evil-page'],
+        ];
     }
 
     public function testDoubleOptin(): void

@@ -49,7 +49,6 @@ class Migration1717573310ImportExportTechnicalNameRequiredTest extends TestCase
     protected function setUp(): void
     {
         $this->connection = static::getContainer()->get(Connection::class);
-        $this->connection->executeStatement('ALTER TABLE `import_export_profile` MODIFY COLUMN `technical_name` VARCHAR(255) NULL');
     }
 
     protected function tearDown(): void
@@ -65,6 +64,8 @@ class Migration1717573310ImportExportTechnicalNameRequiredTest extends TestCase
 
     public function testUpdateSetTechnicalNameRequired(): void
     {
+        $this->makeTechnicalNameNullable();
+
         $migration = new Migration1717573310ImportExportTechnicalNameRequired();
         $migration->update($this->connection);
         $migration->update($this->connection);
@@ -79,6 +80,8 @@ class Migration1717573310ImportExportTechnicalNameRequiredTest extends TestCase
     #[DataProvider('importExportProfilesDataProvider')]
     public function testUpdateGeneratesTechnicalNames(array $datas): void
     {
+        $this->makeTechnicalNameNullable();
+
         // Insert default data at the start to ensure the migration has a clean state
         // a previous migration test already manipulated the data
         if (!self::$hasDefaultProfiles) {
@@ -227,5 +230,10 @@ class Migration1717573310ImportExportTechnicalNameRequiredTest extends TestCase
         static::assertCount(12, $rows);
 
         self::$hasDefaultProfiles = true;
+    }
+
+    private function makeTechnicalNameNullable(): void
+    {
+        $this->connection->executeStatement('ALTER TABLE `import_export_profile` MODIFY COLUMN `technical_name` VARCHAR(255) NULL');
     }
 }

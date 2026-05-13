@@ -37,7 +37,7 @@ class Migration1736831335AddGenerateDocumentTypesForDocumentConfigTest extends T
         $this->executeMigration();
 
         $documentBaseConfig = $this->connection->fetchAssociative(
-            <<<SQL
+            <<<'SQL'
                 SELECT * FROM document_base_config
                 JOIN `document_type` ON `document_base_config`.`document_type_id` = `document_type`.`id`
                 WHERE `document_type`.`technical_name` = :technicalName;
@@ -57,7 +57,7 @@ class Migration1736831335AddGenerateDocumentTypesForDocumentConfigTest extends T
     private function setDefaultDocumentConfigValues(): void
     {
         $this->connection->fetchAssociative(
-            <<<SQL
+            <<<'SQL'
             UPDATE `document_base_config`
             SET `config` = :config
             WHERE `document_type_id` = (SELECT `id` FROM `document_type` WHERE `technical_name` = :technicalName);

@@ -20,13 +20,6 @@ class Migration1716968180AddAppSourceConfigTest extends TestCase
     protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
-
-        try {
-            $this->connection->executeStatement(
-                'ALTER TABLE `app` DROP COLUMN `source_config`;'
-            );
-        } catch (\Throwable) {
-        }
     }
 
     public function testGetCreationTimestamp(): void
@@ -36,6 +29,8 @@ class Migration1716968180AddAppSourceConfigTest extends TestCase
 
     public function testMigration(): void
     {
+        $this->dropSourceConfigColumn();
+
         static::assertFalse(TableHelper::columnExists($this->connection, 'app', 'source_config'));
 
         $migration = new Migration1716968180AddAppSourceConfig();
@@ -43,5 +38,15 @@ class Migration1716968180AddAppSourceConfigTest extends TestCase
         $migration->update($this->connection);
 
         static::assertTrue(TableHelper::columnExists($this->connection, 'app', 'source_config'));
+    }
+
+    private function dropSourceConfigColumn(): void
+    {
+        try {
+            $this->connection->executeStatement(
+                'ALTER TABLE `app` DROP COLUMN `source_config`;'
+            );
+        } catch (\Throwable) {
+        }
     }
 }

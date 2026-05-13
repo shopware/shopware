@@ -20,13 +20,6 @@ class Migration1713345551AddAppManagedColumnTest extends TestCase
     protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
-
-        try {
-            $this->connection->executeStatement(
-                'ALTER TABLE `app` DROP COLUMN `self_managed`;'
-            );
-        } catch (\Throwable) {
-        }
     }
 
     public function testGetCreationTimestamp(): void
@@ -36,6 +29,8 @@ class Migration1713345551AddAppManagedColumnTest extends TestCase
 
     public function testMigration(): void
     {
+        $this->dropSelfManagedColumn();
+
         static::assertFalse(TableHelper::columnExists($this->connection, 'app', 'self_managed'));
 
         $migration = new Migration1713345551AddAppManagedColumn();
@@ -43,5 +38,15 @@ class Migration1713345551AddAppManagedColumnTest extends TestCase
         $migration->update($this->connection);
 
         static::assertTrue(TableHelper::columnExists($this->connection, 'app', 'self_managed'));
+    }
+
+    private function dropSelfManagedColumn(): void
+    {
+        try {
+            $this->connection->executeStatement(
+                'ALTER TABLE `app` DROP COLUMN `self_managed`;'
+            );
+        } catch (\Throwable) {
+        }
     }
 }

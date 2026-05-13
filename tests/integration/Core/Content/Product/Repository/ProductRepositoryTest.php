@@ -2605,8 +2605,7 @@ class ProductRepositoryTest extends TestCase
             'tax' => ['name' => 'tax', 'taxRate' => 15],
         ];
 
-        $this->expectException(DuplicateProductNumberException::class);
-        $this->expectExceptionMessage('Product with number "' . $productNumber . '" already exists.');
+        $this->expectExceptionObject(new DuplicateProductNumberException($productNumber));
 
         $this->repository->create([$data], Context::createDefaultContext());
     }

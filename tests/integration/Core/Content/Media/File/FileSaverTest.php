@@ -268,8 +268,7 @@ class FileSaverTest extends TestCase
 
     public function testPersistFileToMediaThrowsExceptionOnDuplicateFileName(): void
     {
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('A file with the name "pngFileWithExtension.png" already exists.');
+        $this->expectExceptionObject(MediaException::duplicatedMediaFileName('pngFileWithExtension', 'png'));
 
         $context = Context::createDefaultContext();
 
@@ -374,8 +373,7 @@ class FileSaverTest extends TestCase
         $path = $png->getPath();
         $this->getPublicFilesystem()->write($path, 'some content');
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('The provided file name is too long, the maximum length is 255 characters.');
+        $this->expectExceptionObject(MediaException::fileNameTooLong(255));
 
         $this->fileSaver->persistFileToMedia(
             $mediaFile,
@@ -388,8 +386,7 @@ class FileSaverTest extends TestCase
     public function testRenameMediaThrowsExceptionIfMediaDoesNotExist(): void
     {
         $id = Uuid::randomHex();
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage(MediaException::mediaNotFound($id)->getMessage());
+        $this->expectExceptionObject(MediaException::mediaNotFound($id));
 
         $context = Context::createDefaultContext();
         $this->fileSaver->renameMedia($id, 'new file destination', $context);
@@ -399,8 +396,7 @@ class FileSaverTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage(MediaException::missingFile($id)->getMessage());
+        $this->expectExceptionObject(MediaException::missingFile($id));
 
         $context = Context::createDefaultContext();
 
@@ -436,8 +432,7 @@ class FileSaverTest extends TestCase
 
         $this->mediaRepository->create($data, $context);
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('A file with the name "original_media.png" already exists.');
+        $this->expectExceptionObject(MediaException::duplicatedMediaFileName('original_media', 'png'));
 
         $this->fileSaver->renameMedia($ids->get('old'), 'original_media', $context);
     }
@@ -671,8 +666,7 @@ class FileSaverTest extends TestCase
     {
         $png = $this->getPng();
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage(MediaException::couldNotRenameFile($png->getId(), (string) $png->getFileName())->getMessage());
+        $this->expectExceptionObject(MediaException::couldNotRenameFile($png->getId(), (string) $png->getFileName()));
 
         $context = Context::createDefaultContext();
         $this->setFixtureContext($context);
@@ -726,8 +720,7 @@ class FileSaverTest extends TestCase
         $mediaId = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage(MediaException::fileExtensionNotSupported($mediaId, 'php')->getMessage());
+        $this->expectExceptionObject(MediaException::fileExtensionNotSupported($mediaId, 'php'));
 
         $this->mediaRepository->create(
             [

@@ -153,8 +153,7 @@ class ThumbnailServiceTest extends TestCase
 
         $this->getPublicFilesystem()->write($filePath, 'this is the content of the file, which is not a image');
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage(MediaException::thumbnailNotSupported($media->getId())->getMessage());
+        $this->expectExceptionObject(MediaException::thumbnailNotSupported($media->getId()));
         $this->thumbnailService->updateThumbnails(
             $media,
             $this->context,

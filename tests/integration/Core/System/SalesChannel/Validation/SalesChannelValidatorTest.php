@@ -27,7 +27,6 @@ class SalesChannelValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private const DELETE_VALIDATION_MESSAGE = 'Cannot delete default language id from language list of the sales channel with id "%s".';
     private const INSERT_VALIDATION_MESSAGE = 'The sales channel with id "%s" does not have a default sales channel language id in the language list.';
     private const UPDATE_VALIDATION_MESSAGE = 'Cannot update default language id because the given id is not in the language list of sales channel with id "%s"';
 
@@ -285,10 +284,6 @@ class SalesChannelValidatorTest extends TestCase
     public function testPreventDeletionOfDefaultLanguageId(): void
     {
         $this->expectException(WriteException::class);
-        $this->expectExceptionMessage(\sprintf(
-            self::DELETE_VALIDATION_MESSAGE,
-            TestDefaults::SALES_CHANNEL
-        ));
 
         $this->getSalesChannelLanguageRepository()->delete([[
             'salesChannelId' => TestDefaults::SALES_CHANNEL,

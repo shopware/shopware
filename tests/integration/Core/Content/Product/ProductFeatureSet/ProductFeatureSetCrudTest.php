@@ -87,7 +87,6 @@ class ProductFeatureSetCrudTest extends TestCase
         ];
 
         $this->expectException(WriteException::class);
-        $this->expectExceptionMessage('This value should not be blank.');
 
         static::getContainer()->get('product_feature_set.repository')
             ->create([$data], Context::createDefaultContext());

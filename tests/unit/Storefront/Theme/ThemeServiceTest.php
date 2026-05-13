@@ -548,8 +548,7 @@ class ThemeServiceTest extends TestCase
             )
         );
 
-        $this->expectException(ThemeException::class);
-        $this->expectExceptionMessage(\sprintf('Could not find theme with id "%s"', $themeId));
+        $this->expectExceptionObject(ThemeException::couldNotFindThemeById($themeId));
 
         $this->themeService->updateTheme($themeId, null, null, $this->context);
     }
@@ -609,8 +608,7 @@ class ThemeServiceTest extends TestCase
             )
         );
 
-        $this->expectException(ThemeException::class);
-        $this->expectExceptionMessage(\sprintf('Could not find theme with id "%s"', $themeId));
+        $this->expectExceptionObject(ThemeException::couldNotFindThemeById($themeId));
         $this->themeService->resetTheme($themeId, $this->context);
     }
 

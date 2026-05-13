@@ -16,8 +16,9 @@ use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader;
-use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
+use Shopware\Core\Content\Media\Upload\MediaFileCleanupService;
+use Shopware\Core\Content\Media\Upload\MediaFileExtensionValidator;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -582,6 +583,90 @@ class FileSaverTest extends TestCase
         static::assertTrue($this->getPublicFilesystem()->has($location));
     }
 
+    public function testRenameMediaRenamesWithMultipleThumbnailsSharingPath(): void
+    {
+        $context = Context::createDefaultContext();
+        $id = Uuid::randomHex();
+        $thumbnail1Id = Uuid::randomHex();
+        $thumbnail2Id = Uuid::randomHex();
+
+        $data = [
+            'id' => $id,
+            'fileName' => 'testRenameMediaRenamesOldFileAndThumbnails',
+            'fileExtension' => 'png',
+            'path' => 'media/test.png',
+            'thumbnails' => [
+                [
+                    'id' => $thumbnail1Id,
+                    'width' => 100,
+                    'height' => 100,
+                    'highDpi' => false,
+                    'mediaThumbnailSize' => [
+                        'width' => 100,
+                        'height' => 100,
+                    ],
+                ],
+                [
+                    'id' => $thumbnail2Id,
+                    'width' => 100,
+                    'height' => 100,
+                    'highDpi' => false,
+                    'mediaThumbnailSize' => [
+                        'width' => 111,
+                        'height' => 111,
+                    ],
+                ],
+            ],
+        ];
+
+        $this->mediaRepository->create([$data], $context);
+
+        $png = $this->mediaRepository->search(new Criteria([$id]), $context)->get($id);
+        static::assertInstanceOf(MediaEntity::class, $png);
+
+        $dispatcher = static::getContainer()->get('event_dispatcher');
+        $dispatcher->dispatch(new UpdateMediaPathEvent([$png->getId()]));
+        $dispatcher->dispatch(new UpdateThumbnailPathEvent([$thumbnail1Id]));
+        $dispatcher->dispatch(new UpdateThumbnailPathEvent([$thumbnail2Id]));
+
+        static::getContainer()->get(MediaIndexer::class)->handle(new MediaIndexingMessage([$png->getId()]));
+
+        $png = $this->mediaRepository->search(new Criteria([$png->getId()]), $context)->get($png->getId());
+        static::assertInstanceOf(MediaEntity::class, $png);
+
+        static::assertNotNull($png->getThumbnails());
+        static::assertCount(2, $png->getThumbnails());
+
+        $this->getPublicFilesystem()->write($png->getPath(), 'test file content');
+
+        static::assertNotNull($png->getThumbnails()->first()?->getPath());
+        static::assertNotNull($png->getThumbnails()->last()?->getPath());
+        static::assertNotSame($png->getThumbnails()->first()->getId(), $png->getThumbnails()->last()->getId());
+        static::assertSame($png->getThumbnails()->first()->getPath(), $png->getThumbnails()->last()->getPath());
+        $oldThumbnailPath = $png->getThumbnails()->first()->getPath();
+
+        $this->getPublicFilesystem()->write($oldThumbnailPath, 'test file content');
+
+        $this->fileSaver->renameMedia($png->getId(), 'new destination', $context);
+
+        static::assertFalse($this->getPublicFilesystem()->has($oldThumbnailPath));
+
+        $updatedMedia = $this->mediaRepository->search(new Criteria([$png->getId()]), $context)->get($png->getId());
+
+        static::assertNotNull($updatedMedia?->getThumbnails());
+        static::assertCount(2, $updatedMedia->getThumbnails());
+
+        static::assertNotNull($updatedMedia->getThumbnails()->first()?->getPath());
+        static::assertNotNull($updatedMedia->getThumbnails()->last()?->getPath());
+        static::assertNotSame($updatedMedia->getThumbnails()->first()->getId(), $updatedMedia->getThumbnails()->last()->getId());
+        static::assertSame($updatedMedia->getThumbnails()->first()->getPath(), $updatedMedia->getThumbnails()->last()->getPath());
+
+        $newThumbnailPath = $updatedMedia->getThumbnails()->first()->getPath();
+        static::assertNotSame($oldThumbnailPath, $newThumbnailPath);
+
+        static::assertTrue($this->getPublicFilesystem()->has($newThumbnailPath));
+    }
+
     public function testRenameMediaMakesRollbackOnFailure(): void
     {
         $png = $this->getPng();
@@ -604,23 +689,17 @@ class FileSaverTest extends TestCase
             ->method('update')
             ->willThrowException(new \Exception());
 
-        $allowed = static::getContainer()->getParameter('shopware.filesystem.allowed_extensions');
-        $allowedPrivate = static::getContainer()->getParameter('shopware.filesystem.private_allowed_extensions');
-        static::assertIsList($allowedPrivate);
-
         $fileSaverWithFailingRepository = new FileSaver(
             $repositoryMock,
             static::getContainer()->get('shopware.filesystem.public'),
             static::getContainer()->get('shopware.filesystem.private'),
-            static::getContainer()->get(ThumbnailService::class),
             static::getContainer()->get(MetadataLoader::class),
             static::getContainer()->get(TypeDetector::class),
-            static::getContainer()->get('messenger.default_bus'),
             static::getContainer()->get('event_dispatcher'),
             static::getContainer()->get(MediaLocationBuilder::class),
             static::getContainer()->get(AbstractMediaPathStrategy::class),
-            $allowed,
-            $allowedPrivate
+            static::getContainer()->get(MediaFileCleanupService::class),
+            static::getContainer()->get(MediaFileExtensionValidator::class),
         );
 
         $mediaPath = $png->getPath();

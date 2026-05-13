@@ -683,6 +683,36 @@ class SearchCasesTest extends TestCase
             'term' => 'Bohrcraft DIN 340 3.3',
             'expectedFirst' => 'j6-target',
         ];
+
+        // customSearchKeywords length normalization. Merchants treat this field
+        // as a free-form curated bag of search hints; without `sw_length_norm`
+        // (b=0.75) on the `.search` subfield, a long bag of 10+ keywords gets a
+        // TF-concentration bonus that pushes diluted listings ahead of focused
+        // ones on the same matching token. Both products share the same single
+        // matching token ("bohrcraft"); only document length differs.
+        //
+        // Without lengthNorm: the diluted product wins because BM25 with b=0
+        // does not penalise long fields, and the matching term frequency 1/10
+        // is treated like 1/1 in the focused doc.
+        // With lengthNorm  (PR #16497, `buildTextFieldConfig(lengthNorm: true)`
+        // on customSearchKeywords): the focused doc wins because the diluted
+        // doc's length penalty outweighs its TF parity.
+        $ids = new IdsCollection();
+        yield 'lengthNorm: focused customSearchKeywords outranks diluted list on shared token' => [
+            'ids' => $ids,
+            'products' => [
+                self::productWithKeywords($ids, 'k1-focused', 'DE-K1-1', 'Drill A', ['bohrcraft']),
+                self::productWithKeywords($ids, 'k1-diluted', 'DE-K1-2', 'Drill B', [
+                    'bohrcraft', 'drill', 'tool', 'hammer', 'saw',
+                    'wrench', 'pliers', 'set', 'kit', 'professional',
+                ]),
+            ],
+            'searchFields' => ['customSearchKeywords'],
+            'searchScores' => ['customSearchKeywords' => 1000],
+            'minScore' => null,
+            'term' => 'bohrcraft',
+            'expectedFirst' => 'k1-focused',
+        ];
     }
 
     protected function getDiContainer(): ContainerInterface

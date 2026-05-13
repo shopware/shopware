@@ -6,6 +6,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @experimental feature:TELEMETRY_METRICS stableVersion:v6.8.0
+ *
+ * @codeCoverageIgnore - value object
  */
 #[Package('framework')]
 final readonly class DurationMetric

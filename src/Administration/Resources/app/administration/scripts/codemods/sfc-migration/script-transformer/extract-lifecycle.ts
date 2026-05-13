@@ -27,13 +27,23 @@ export function extractLifecycleHooks(optionsObj: ObjectLiteralExpression): Life
 
         // `created` has no Composition API equivalent — its body is emitted directly in setup()
         if (hookName === 'created') {
-            result.push({ hookName, compositionName: null, bodyText: method.getBodyText() ?? '' });
+            result.push({
+                hookName,
+                compositionName: null,
+                bodyText: method.getBodyText() ?? '',
+                isAsync: method.isAsync(),
+            });
             continue;
         }
 
         const compositionName = LIFECYCLE_MAP[hookName];
         if (compositionName) {
-            result.push({ hookName, compositionName, bodyText: method.getBodyText() ?? '' });
+            result.push({
+                hookName,
+                compositionName,
+                bodyText: method.getBodyText() ?? '',
+                isAsync: method.isAsync(),
+            });
         }
     }
 

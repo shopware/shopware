@@ -88,6 +88,7 @@ export interface LifecycleHook {
     /** null means "run directly in setup" (i.e. created) */
     compositionName: string | null;
     bodyText: string;
+    isAsync: boolean;
 }
 
 export type RewriteSnippetKind = 'body' | 'expression';

@@ -1,5 +1,6 @@
 import { TemplateTransformError, transformTemplate } from './transform-template';
 import { transformScript } from './transform-script';
+import type { MergeStatus } from './types';
 
 // ---------------------------------------------------------------------------
 // Public types

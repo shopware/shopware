@@ -232,14 +232,21 @@ function emitCreateExtendableSetup(lines: string[], state: CompositionScriptStat
     if (createdHooks.length > 0) {
         for (const hook of createdHooks) {
             const body = rewriteThisInBody(hook.bodyText, ctx);
-            lines.push(indentBlock(body.trim(), 8));
+            if (hook.isAsync) {
+                lines.push('        void (async () => {');
+                lines.push(indentBlock(body.trim(), 12));
+                lines.push('        })();');
+            } else {
+                lines.push(indentBlock(body.trim(), 8));
+            }
         }
         lines.push('');
     }
 
-    for (const { compositionName, bodyText } of regularHooks) {
+    for (const { compositionName, bodyText, isAsync } of regularHooks) {
         const body = rewriteThisInBody(bodyText, ctx);
-        lines.push(`        ${compositionName}(() => {`);
+        const asyncPrefix = isAsync ? 'async ' : '';
+        lines.push(`        ${compositionName}(${asyncPrefix}() => {`);
         lines.push(indentBlock(body, 12));
         lines.push(`        });`);
     }

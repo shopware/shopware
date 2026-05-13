@@ -13,7 +13,7 @@
  *   --write            Write .vue files to disk
  *   --force            Overwrite existing .vue files (default: skip if already exists)
  *   --delete-originals Replace the source index.js with an SFC entry point and delete .html.twig
- *                      (only applies to fully- and partially-migrated components in --write mode)
+ *                      (only applies to fully-migrated components in --write mode)
  *
  * Examples:
  *   npm run codemod:sfc-migration -- src/app/component/base/sw-button
@@ -23,7 +23,7 @@
  */
 
 import { existsSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
 import commandLineArgs from 'command-line-args';
 import getUsage from 'command-line-usage';
 import { globSync } from 'glob';
@@ -113,7 +113,7 @@ const cliOptionDefinitions: CliOptionDefinition[] = [
     {
         name: 'delete-originals',
         type: Boolean,
-        description: 'Replace source index.js with an SFC entry point and delete .html.twig.',
+        description: 'Replace source index.js and delete .html.twig for fully migrated components.',
     },
     {
         name: 'path',
@@ -215,12 +215,8 @@ export function normaliseJsContent(jsContent: string, componentName: string): st
     );
 }
 
-function buildIndexShim(componentName: string, sfc: string): string {
+function buildIndexShim(componentName: string): string {
     const vueImportPath = `./${componentName}.vue`;
-
-    if (/Shopware\.Component\.(register|extend)\s*\(/.test(sfc)) {
-        return `import ${quoteJsString(vueImportPath)};\n`;
-    }
 
     return [
         `import component from ${quoteJsString(vueImportPath)};`,
@@ -230,18 +226,29 @@ function buildIndexShim(componentName: string, sfc: string): string {
     ].join('\n');
 }
 
-function replaceOriginalsWithEntryPoint(indexPath: string, twigPath: string, componentName: string, sfc: string): void {
-    writeFileSync(indexPath, buildIndexShim(componentName, sfc), 'utf-8');
+function formatReportPath(filePath: string): string {
+    const relativePath = relative(process.cwd(), filePath).replaceAll('\\', '/');
+
+    if (relativePath === '') {
+        return '.';
+    }
+
+    return relativePath.startsWith('.') ? relativePath : `./${relativePath}`;
+}
+
+function replaceOriginalsWithEntryPoint(indexPath: string, twigPath: string, componentName: string): void {
+    writeFileSync(indexPath, buildIndexShim(componentName), 'utf-8');
     rmSync(twigPath);
 }
 
 function reportSkippedTwig(indexPath: string, twigCandidates: string[], stats: RunStats, report: string[]): void {
     stats.skipped++;
+    const displayIndexPath = formatReportPath(indexPath);
 
     const skipMessage =
         twigCandidates.length > 1
-            ? `SKIP (ambiguous twig)  ${indexPath} [${twigCandidates.join(', ')}]`
-            : `SKIP (no twig)  ${indexPath}`;
+            ? `SKIP (ambiguous twig)  ${displayIndexPath} [${twigCandidates.join(', ')}]`
+            : `SKIP (no twig)  ${displayIndexPath}`;
 
     report.push(skipMessage);
 }
@@ -259,21 +266,21 @@ function writeMigrationOutput(
 
     if (!options.force && existsSync(context.vuePath)) {
         stats.skippedExisting++;
-        report.push(`SKIP (already exists)  ${context.vuePath}`);
+        report.push(`SKIP (already exists)  ${formatReportPath(context.vuePath)}`);
 
         return false;
     }
 
     writeFileSync(context.vuePath, result.sfc, 'utf-8');
 
-    if (!options.deleteOriginals) {
+    if (!options.deleteOriginals || result.status !== 'fully-migrated') {
         return true;
     }
 
-    replaceOriginalsWithEntryPoint(context.indexPath, context.twigPath, context.componentName, result.sfc);
+    replaceOriginalsWithEntryPoint(context.indexPath, context.twigPath, context.componentName);
     stats.deletedOriginals++;
-    report.push(`  replaced entrypoint  ${context.indexPath}`);
-    report.push(`  deleted original     ${context.twigPath}`);
+    report.push(`  replaced entrypoint  ${formatReportPath(context.indexPath)}`);
+    report.push(`  deleted original     ${formatReportPath(context.twigPath)}`);
 
     return true;
 }
@@ -297,7 +304,7 @@ function reportFullyMigrated(
     report: string[],
 ): void {
     stats.fullyMigrated++;
-    report.push(`✓  fully-migrated        ${getDryRunPrefix(options)}${context.vuePath}`);
+    report.push(`✓  fully-migrated        ${getDryRunPrefix(options)}${formatReportPath(context.vuePath)}`);
     reportWarnings(result.warnings, stats, report);
 }
 
@@ -323,13 +330,20 @@ function reportPartiallyMigrated(
     report: string[],
 ): void {
     stats.partiallyMigrated++;
-    report.push(`~  partially-migrated  [${result.blockers.join(', ')}]  ${getDryRunPrefix(options)}${context.vuePath}`);
+    report.push(
+        `~  partially-migrated  [${result.blockers.join(', ')}]  ${getDryRunPrefix(options)}${formatReportPath(context.vuePath)}`,
+    );
+    if (options.deleteOriginals && !options.dryRun) {
+        report.push(
+            '   ⚠  kept originals because partial migration requires manual follow-up before replacing the entrypoint',
+        );
+    }
     reportExtendsBlocker(result.blockers, stats, report);
 }
 
 function reportNotMigratable(context: MigrationContext, result: MergeResult, stats: RunStats, report: string[]): void {
     stats.notMigratable++;
-    report.push(`✗  not-migratable      [${result.blockers.join(', ')}]  ${context.indexPath}`);
+    report.push(`✗  not-migratable      [${result.blockers.join(', ')}]  ${formatReportPath(context.indexPath)}`);
 }
 
 function handleMigrationResult(
@@ -414,7 +428,7 @@ export function runMigration(targetDir: string, options: RunOptions): RunResult 
             handleMigrationResult(context, result, runOptions, stats, report);
         } catch (err) {
             stats.errors = (stats.errors ?? 0) + 1;
-            report.push(`ERROR  ${indexPath}: ${err instanceof Error ? err.message : String(err)}`);
+            report.push(`ERROR  ${formatReportPath(indexPath)}: ${err instanceof Error ? err.message : String(err)}`);
         }
     }
 

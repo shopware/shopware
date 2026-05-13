@@ -229,6 +229,29 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     });
 
     // -------------------------------------------------------------------------
+    describe('async-lifecycle-component: preserves async lifecycle hook bodies', () => {
+        let result: ReturnType<typeof transformScript>;
+
+        beforeAll(() => {
+            result = transformScript(readFixture('async-lifecycle-component.index.js'));
+        });
+
+        it('reports status fully-migratable', () => {
+            expect(result.status).toBe('fully-migratable');
+        });
+
+        it('emits async callbacks for Composition API lifecycle hooks', () => {
+            expect(result.script).toContain('onMounted(async () => {');
+            expect(result.script).toContain('await loadData();');
+        });
+
+        it('wraps async created() logic in an async setup IIFE', () => {
+            expect(result.script).toContain('void (async () => {');
+            expect(result.script).toContain('await bootstrap();');
+        });
+    });
+
+    // -------------------------------------------------------------------------
     describe('module-level-component: preserves module-level code (scss import, const declarations)', () => {
         let result: ReturnType<typeof transformScript>;
 

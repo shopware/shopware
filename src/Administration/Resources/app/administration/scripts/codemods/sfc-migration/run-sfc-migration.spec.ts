@@ -275,6 +275,59 @@ describe('runMigration — dry-run (default)', () => {
     });
 });
 
+describe('runMigration — report paths', () => {
+    let originalCwd: string;
+    let tmpDir: string;
+
+    beforeEach(() => {
+        originalCwd = process.cwd();
+        tmpDir = createTempDir();
+        process.chdir(tmpDir);
+        tmpDir = process.cwd();
+    });
+
+    afterEach(() => {
+        process.chdir(originalCwd);
+        rmSync(tmpDir, { recursive: true, force: true });
+    });
+
+    it('prints component report paths relative to the current working directory', () => {
+        makeComponent(
+            join(tmpDir, 'src/module/sw-dashboard/page'),
+            'sw-dashboard-index',
+            'const config = {};',
+            '<div class="sw-dashboard-index"></div>',
+        );
+        makeComponent(join(tmpDir, 'src/module'), 'sw-customer', readFixture('simple-component.index.js'));
+        makeComponent(
+            join(tmpDir, 'src/module/sw-customer/view'),
+            'sw-customer-detail-order',
+            readFixture('simple-component.index.js'),
+            readFixture('simple-component.html.twig'),
+        );
+        makeComponent(
+            join(tmpDir, 'src/module/sw-customer/view'),
+            'sw-customer-detail-addresses',
+            readFixture('mixin-component.index.js'),
+            '<div class="sw-customer-detail-addresses"></div>',
+        );
+
+        const { report } = runMigration(join(tmpDir, 'src/module'), { dryRun: true });
+
+        expect(report).toContain(
+            '✗  not-migratable      [no options object found]  ./src/module/sw-dashboard/page/sw-dashboard-index/index.js',
+        );
+        expect(report).toContain('SKIP (no twig)  ./src/module/sw-customer/index.js');
+        expect(report).toContain(
+            '✓  fully-migrated        [DRY RUN] Would write: ./src/module/sw-customer/view/sw-customer-detail-order/sw-customer-detail-order.vue',
+        );
+        expect(report).toContain(
+            '~  partially-migrated  [mixins]  [DRY RUN] Would write: ./src/module/sw-customer/view/sw-customer-detail-addresses/sw-customer-detail-addresses.vue',
+        );
+        expect(report.join('\n')).not.toContain(tmpDir);
+    });
+});
+
 describe('runMigration — write mode', () => {
     let tmpDir: string;
     let componentDir: string;
@@ -739,18 +792,27 @@ describe('runMigration — delete-originals (partially-migrated)', () => {
         rmSync(tmpDir, { recursive: true, force: true });
     });
 
-    it('replaces index.js with a side-effect SFC entry point and deletes twig for a partially-migrated component', () => {
+    it('keeps originals for a partially-migrated component', () => {
         runMigration(tmpDir, { dryRun: false, deleteOriginals: true });
-        expect(existsSync(join(componentDir, 'sw-mixin-list.html.twig'))).toBe(false);
+        expect(existsSync(join(componentDir, 'sw-mixin-list.html.twig'))).toBe(true);
+        expect(existsSync(join(componentDir, 'sw-mixin-list.vue'))).toBe(true);
 
         const entrypoint = readFileSync(join(componentDir, 'index.js'), 'utf-8');
-        expect(entrypoint).toBe("import './sw-mixin-list.vue';\n");
+        expect(entrypoint).toBe(readFixture('mixin-component.index.js'));
     });
 
-    it('increments deletedOriginals stat for partially-migrated component', () => {
+    it('does not increment deletedOriginals stat for partially-migrated component', () => {
         const { stats } = runMigration(tmpDir, { dryRun: false, deleteOriginals: true });
-        expect(stats.deletedOriginals).toBe(1);
+        expect(stats.deletedOriginals).toBe(0);
         expect(stats.partiallyMigrated).toBe(1);
+    });
+
+    it('reports that originals were kept for manual follow-up', () => {
+        const { report } = runMigration(tmpDir, { dryRun: false, deleteOriginals: true });
+
+        expect(report).toContain(
+            '   ⚠  kept originals because partial migration requires manual follow-up before replacing the entrypoint',
+        );
     });
 });
 

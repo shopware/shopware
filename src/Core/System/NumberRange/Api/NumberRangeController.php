@@ -50,10 +50,13 @@ class NumberRangeController extends AbstractController
             Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', '/api/_action/number-range/{numberRangeId}/preview-pattern')
         );
 
-        $generatedNumber = $this->valueGenerator->previewPattern(
-            $type,
-            $request->query->has('pattern') ? (string) $request->query->get('pattern') : null,
-            (int) $request->query->get('start')
+        $generatedNumber = Feature::silent(
+            'v6.8.0.0',
+            fn (): string => $this->valueGenerator->previewPattern(
+                $type,
+                $request->query->has('pattern') ? (string) $request->query->get('pattern') : null,
+                (int) $request->query->get('start')
+            )
         );
 
         return new JsonResponse([

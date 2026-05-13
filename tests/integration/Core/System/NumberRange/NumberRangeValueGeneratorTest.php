@@ -17,6 +17,7 @@ use Shopware\Core\System\NumberRange\NumberRangeCollection;
 use Shopware\Core\System\NumberRange\ValueGenerator\AbstractNumberRangeValueGenerator;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGenerator;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -139,10 +140,9 @@ class NumberRangeValueGeneratorTest extends TestCase
         static::assertSame('10002', $realGenerator->previewPatternByNumberRangeId($salesChannelNumberRangeId, '{n}', 0));
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testDeprecatedPreviewPatternByTypeStillUsesGlobalNumberRangeState(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         /** @var AbstractNumberRangeValueGenerator $realGenerator */
         $realGenerator = static::getContainer()->get(AbstractNumberRangeValueGenerator::class);
 
@@ -155,7 +155,9 @@ class NumberRangeValueGeneratorTest extends TestCase
         $this->setNumberRangeState($salesChannelNumberRangeId, 10000);
 
         static::assertSame('10001', $realGenerator->getValue('customer', $this->context, TestDefaults::SALES_CHANNEL));
-        static::assertSame('10001', $realGenerator->previewPattern('customer', '{n}', 0));
+        $preview = Feature::silent('v6.8.0.0', fn (): string => $realGenerator->previewPattern('customer', '{n}', 0));
+
+        static::assertSame('10001', $preview);
     }
 
     private function setupDatabase(): void
@@ -221,11 +223,14 @@ SQL;
 
     private function setNumberRangeState(string $numberRangeId, int $lastValue): void
     {
-        $this->connection->insert('number_range_state', [
+        $this->connection->executeStatement('
+            INSERT INTO `number_range_state` (`id`, `number_range_id`, `last_value`, `created_at`)
+            VALUES (:id, :numberRangeId, :lastValue, :createdAt)
+        ', [
             'id' => Uuid::randomBytes(),
-            'number_range_id' => Uuid::fromHexToBytes($numberRangeId),
-            'last_value' => $lastValue,
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'numberRangeId' => Uuid::fromHexToBytes($numberRangeId),
+            'lastValue' => $lastValue,
+            'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }
 }

@@ -150,6 +150,39 @@ class NumberRangeValueGeneratorTest extends TestCase
         static::assertSame('ABC10', $generator->previewPatternByNumberRangeId($numberRangeId));
     }
 
+    public function testPreviewPatternByNumberRangeIdUsesOverrides(): void
+    {
+        $numberRangeId = Uuid::randomHex();
+
+        $incrPattern = $this->createMock(ValueGeneratorPatternIncrement::class);
+        $incrPattern->method('getPatternId')->willReturn('n');
+        $incrPattern->expects($this->once())
+            ->method('generate')
+            ->with(
+                static::callback(static fn (array $config): bool => $config['id'] === $numberRangeId && $config['pattern'] === 'ORD-{n}' && $config['start'] === 42),
+                [],
+                true
+            )
+            ->willReturn('42');
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('fetchAssociative')
+            ->willReturn([
+                'id' => $numberRangeId,
+                'pattern' => 'ABC{n}',
+                'start' => '10',
+            ]);
+
+        $generator = new NumberRangeValueGenerator(
+            new ValueGeneratorPatternRegistry([$incrPattern]),
+            new EventDispatcher(),
+            $connection,
+        );
+
+        static::assertSame('ORD-42', $generator->previewPatternByNumberRangeId($numberRangeId, 'ORD-{n}', 42));
+    }
+
     public function testPreviewPatternByNumberRangeIdThrowsForMissingNumberRange(): void
     {
         $numberRangeId = Uuid::randomHex();

@@ -55,6 +55,8 @@ class HtmlRendererTest extends TestCase
 
     protected function setUp(): void
     {
+        $this->context = Context::createDefaultContext();
+
         $shippingAddressId = Uuid::randomHex();
         $additionalAddress = [
             'id' => $shippingAddressId,
@@ -77,8 +79,6 @@ class HtmlRendererTest extends TestCase
                 ),
             ],
         );
-
-        $this->context = $this->salesChannelContext->getContext();
 
         $this->renderer = static::getContainer()->get(HtmlRenderer::class);
         $this->orderRepository = static::getContainer()->get('order.repository');

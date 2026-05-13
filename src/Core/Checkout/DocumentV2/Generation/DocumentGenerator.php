@@ -32,7 +32,7 @@ final readonly class DocumentGenerator
         private DocumentDataProviderRegistry $documentDataProviderRegistry,
         private DocumentRendererRegistry $documentRendererRegistry,
         private DocumentNumberGenerator $documentNumberGenerator,
-        private DocumentEntityPersister $documentEntityPersister,
+        private DocumentPersister $documentPersister,
         private DocumentDependencyResolver $dependencyResolver,
         private EntityRepository $orderRepository,
     ) {
@@ -48,7 +48,7 @@ final readonly class DocumentGenerator
      *
      * @throws DocumentV2Exception
      */
-    public function generate(DocumentGenerationRequest $generationRequest): DocumentEntity
+    public function generate(DocumentGenerationRequest $generationRequest, Context $apiContext): DocumentEntity
     {
         $this->validateGenerationRequest($generationRequest);
 
@@ -69,20 +69,31 @@ final readonly class DocumentGenerator
             $provider->enrichOrderCriteria($criteria);
         }
 
-        $orderVersionContext = $this->createOrderVersionContext($generationRequest);
+        [$orderVersionContext, $languageAwareContext] = $this->createGenerationContexts(
+            $generationRequest,
+            $apiContext,
+        );
 
         $order = $this->loadOrder(
             $criteria,
+            $generationRequest->orderId,
             $orderVersionContext,
-            $generationRequest->orderId
         );
 
         $documentNumber = $generationRequest->documentNumber ?? $this->documentNumberGenerator->generate(
             $generationRequest,
             $order,
+            $apiContext,
         );
 
-        $providerData = $this->collectProviderData($providers, $order, $generationRequest);
+        $generationRequest = $generationRequest->withDocumentNumber($documentNumber);
+
+        $providerData = $this->collectProviderData(
+            $providers,
+            $order,
+            $generationRequest,
+            $languageAwareContext,
+        );
 
         $renderState = new RenderState();
         $renderInput = new RenderInput(
@@ -101,31 +112,18 @@ final readonly class DocumentGenerator
             $result = $renderer->renderToString(
                 $renderInput,
                 $renderState,
+                $languageAwareContext,
             );
 
             $renderState->add($result);
         }
 
-        $persistedFiles = [];
-
-        foreach ($requestedFormats as $format) {
-            $renderer = $this->documentRendererRegistry->getRenderer(
-                $format,
-                $generationRequest->documentType,
-            );
-
-            $mediaId = $renderer->persistToFile(
-                $renderInput,
-                $renderState->require($format)
-            );
-
-            $persistedFiles[$format] = $mediaId;
-        }
-
-        return $this->documentEntityPersister->persist(
+        return $this->documentPersister->persist(
             $generationRequest,
             $renderInput,
-            $persistedFiles,
+            $renderState,
+            $requestedFormats,
+            $apiContext,
         );
     }
 
@@ -137,7 +135,8 @@ final readonly class DocumentGenerator
     private function collectProviderData(
         array $providers,
         OrderEntity $order,
-        DocumentGenerationRequest $generationRequest
+        DocumentGenerationRequest $generationRequest,
+        Context $context,
     ): array {
         $data = [];
 
@@ -145,6 +144,7 @@ final readonly class DocumentGenerator
             $data[$provider->getKey()] = $provider->provideRenderingData(
                 $order,
                 $generationRequest,
+                $context,
             );
         }
 
@@ -153,27 +153,37 @@ final readonly class DocumentGenerator
 
     /**
      * @throws DocumentV2Exception
+     *
+     * @return array{0: Context, 1: Context}
      */
-    private function createOrderVersionContext(DocumentGenerationRequest $generationRequest): Context
-    {
-        $orderContext = $generationRequest->apiContext
-            ->createWithVersionId($generationRequest->orderVersionId);
+    private function createGenerationContexts(
+        DocumentGenerationRequest $generationRequest,
+        Context $apiContext,
+    ): array {
+        $orderVersionContext = $apiContext->createWithVersionId($generationRequest->orderVersionId);
+        $languageAwareContext = clone $apiContext;
 
-        $orderLanguageId = $this->loadOrderLanguageId($generationRequest);
+        $orderLanguageId = $this->loadOrderLanguageId($generationRequest, $orderVersionContext);
 
-        $orderContext->assign([
+        $langChain = [
             'languageIdChain' => array_values(array_unique(array_filter(
-                [$orderLanguageId, ...$orderContext->getLanguageIdChain()]
+                [$orderLanguageId, ...$apiContext->getLanguageIdChain()]
             ))),
-        ]);
+        ];
 
-        return $orderContext;
+        $orderVersionContext->assign($langChain);
+        $languageAwareContext->assign($langChain);
+
+        return [
+            $orderVersionContext,
+            $languageAwareContext,
+        ];
     }
 
     /**
      * @throws DocumentV2Exception
      */
-    private function loadOrder(Criteria $criteria, Context $orderVersionContext, string $orderId): OrderEntity
+    private function loadOrder(Criteria $criteria, string $orderId, Context $orderVersionContext): OrderEntity
     {
         $criteria->setTitle('document-v2-generator::load-order');
 
@@ -192,25 +202,23 @@ final readonly class DocumentGenerator
     /**
      * @throws DocumentV2Exception
      */
-    private function loadOrderLanguageId(DocumentGenerationRequest $generationRequest): string
+    private function loadOrderLanguageId(DocumentGenerationRequest $generationRequest, Context $context): string
     {
         $criteria = (new Criteria([$generationRequest->orderId]))
             ->setTitle('document-v2-generator::load-order-language')
             ->addFields(['languageId']);
 
-        $context = $generationRequest->apiContext
-            ->createWithVersionId($generationRequest->orderVersionId);
+        $languageId = $this->orderRepository
+            ->search($criteria, $context)
+            ->getEntities()
+            ->first()
+            ?->get('languageId');
 
-        $order = $this->orderRepository->search(
-            $criteria,
-            $context,
-        )->getEntities()->first();
-
-        if (!$order instanceof OrderEntity) {
+        if (!\is_string($languageId)) {
             throw DocumentV2Exception::orderNotFound($generationRequest->orderId);
         }
 
-        return $order->getLanguageId();
+        return $languageId;
     }
 
     /**

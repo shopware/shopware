@@ -3,8 +3,8 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Framework\Indexing;
 
 use OpenSearch\Client;
-use OpenSearch\Common\Exceptions\BadRequest400Exception;
-use OpenSearch\Common\Exceptions\Missing404Exception;
+use OpenSearch\Exception\BadRequestHttpException;
+use OpenSearch\Exception\NotFoundHttpException;
 use OpenSearch\Namespaces\IndicesNamespace;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -18,7 +18,6 @@ use Shopware\Elasticsearch\Framework\Indexing\IndexMappingUpdater;
 use Shopware\Elasticsearch\Framework\SystemUpdateListener;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
 use Shopware\Elasticsearch\Product\ElasticsearchProductException;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -133,7 +132,7 @@ class IndexMappingUpdaterTest extends TestCase
                 'body' => [
                     'foo' => '1',
                 ],
-            ])->willThrowException(new BadRequest400Exception('can\'t merge a non object mapping [completion] with an object mapping', Response::HTTP_BAD_REQUEST));
+            ])->willThrowException(new BadRequestHttpException('can\'t merge a non object mapping [completion] with an object mapping'));
 
         $client
             ->method('indices')
@@ -192,7 +191,7 @@ class IndexMappingUpdaterTest extends TestCase
                 'body' => [
                     'foo' => '1',
                 ],
-            ])->willThrowException(new Missing404Exception('no such index [index]', Response::HTTP_NOT_FOUND));
+            ])->willThrowException(new NotFoundHttpException('no such index [index]'));
 
         $client
             ->method('indices')
@@ -204,7 +203,7 @@ class IndexMappingUpdaterTest extends TestCase
             ->willReturn(['foo' => '1']);
 
         $elasticsearchHelper->expects($this->once())->method('logAndThrowException')->with(
-            static::callback(static function (Missing404Exception $exception) {
+            static::callback(static function (NotFoundHttpException $exception) {
                 return $exception->getMessage() === 'no such index [index]';
             }),
         );
@@ -246,7 +245,7 @@ class IndexMappingUpdaterTest extends TestCase
                 'body' => [
                     'foo' => '1',
                 ],
-            ])->willThrowException(new BadRequest400Exception('Mapper for [name.01985ba1826270e4b8ea5da15a05c7bf.search] conflicts with existing mapper:\n\tCannot update parameter [analyzer] from [sw_czech_analyzer] to [sw_whitespace_analyzer].', Response::HTTP_BAD_REQUEST));
+            ])->willThrowException(new BadRequestHttpException('Mapper for [name.01985ba1826270e4b8ea5da15a05c7bf.search] conflicts with existing mapper:\n\tCannot update parameter [analyzer] from [sw_czech_analyzer] to [sw_whitespace_analyzer].'));
 
         $client
             ->method('indices')

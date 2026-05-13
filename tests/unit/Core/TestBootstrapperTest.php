@@ -9,6 +9,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Kernel;
@@ -63,6 +64,74 @@ class TestBootstrapperTest extends TestCase
         $activePlugins = (new \ReflectionProperty($testBootstrapper, 'activePlugins'))->getValue($testBootstrapper);
 
         static::assertSame(['Test'], $activePlugins);
+    }
+
+    public function testGetClassLoaderRegistersActivePluginAutoloadDev(): void
+    {
+        $previousKernel = KernelLifecycleAccessor::currentKernel();
+        $projectDir = __DIR__ . '/_fixtures/TestBootstrapper/project';
+        $pluginPath = 'vendor/store.shopware.com/swagcmselements';
+        $pluginDir = $projectDir . '/' . $pluginPath;
+
+        $pluginLoader = new StaticKernelPluginLoader(new ClassLoader(), null, [
+            [
+                'name' => 'SwagCmsElements',
+                'baseClass' => 'SwagCmsElements\\SwagCmsElements',
+                'active' => true,
+                'path' => $pluginPath,
+                'version' => '1.0.0',
+                'autoload' => [],
+                'managedByComposer' => true,
+                'composerName' => 'store.shopware.com/swagcmselements',
+            ],
+        ]);
+
+        $kernel = $this->createMock(Kernel::class);
+        $kernel->method('getPluginLoader')->willReturn($pluginLoader);
+
+        KernelLifecycleAccessor::setKernel($kernel);
+
+        try {
+            $classLoader = (new TestBootstrapper())
+                ->setProjectDir($projectDir)
+                ->addActivePlugins('SwagCmsElements')
+                ->getClassLoader();
+
+            static::assertSame([$pluginDir . '/tests/'], $classLoader->getPrefixesPsr4()['SwagCmsElements\\Tests\\']);
+        } finally {
+            KernelLifecycleAccessor::setKernel($previousKernel);
+        }
+    }
+
+    public function testGetPluginPathFindsPluginFromKernelPluginLoader(): void
+    {
+        $previousKernel = KernelLifecycleAccessor::currentKernel();
+        $projectDir = __DIR__ . '/_fixtures/TestBootstrapper/project';
+        $vendorPluginPath = 'vendor/store.shopware.com/swagcmselements';
+
+        $pluginLoader = new StaticKernelPluginLoader(new ClassLoader(), null, [
+            [
+                'name' => 'SwagCmsElements',
+                'baseClass' => 'SwagCmsElements\\SwagCmsElements',
+                'active' => true,
+                'path' => $vendorPluginPath,
+                'version' => '1.0.0',
+                'autoload' => [],
+                'managedByComposer' => true,
+                'composerName' => 'store.shopware.com/swagcmselements',
+            ],
+        ]);
+
+        $kernel = $this->createMock(Kernel::class);
+        $kernel->method('getPluginLoader')->willReturn($pluginLoader);
+
+        KernelLifecycleAccessor::setKernel($kernel);
+
+        try {
+            static::assertSame($projectDir . '/' . $vendorPluginPath, (new TestBootstrapper())->setProjectDir($projectDir)->getPluginPath('SwagCmsElements'));
+        } finally {
+            KernelLifecycleAccessor::setKernel($previousKernel);
+        }
     }
 
     public function testBootstrapShutsDownKernelBeforeReturning(): void

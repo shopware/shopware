@@ -112,10 +112,11 @@ jobs:
           echo 'EOF' >> $GITHUB_OUTPUT
 
   phpunit:
-    name: "${{ matrix.php}} ${{ matrix.test.testsuite }}${{ matrix.test.path }} ${{ matrix.db }} ${{ matrix.opensearch != 'opensearchproject/opensearch:3' && matrix.opensearch || '' }}"
+    name: "${{ matrix.php}} ${{ matrix.test.testsuite }}${{ matrix.test.path }} ${{ matrix.db }} ${{ matrix.opensearch != 'opensearchproject/opensearch:3' && matrix.opensearch || '' }}${{ matrix.phpunit == '12' && ' [PHPUnit 12 preview]' || '' }}"
     needs:
       - phpunit-matrix
     runs-on: ubuntu-24.04
+    continue-on-error: ${{ matrix.phpunit == '12' }}
     strategy: ${{ fromJson(needs.phpunit-matrix.outputs.matrix) }}
     env:
       APP_ENV: test
@@ -175,6 +176,10 @@ jobs:
                 sleep 2
                 tries=$((tries + 1))
             done
+
+      - name: Force PHPUnit 12 (preview, non-blocking)
+        if: ${{ matrix.phpunit == '12' }}
+        run: composer update phpunit/phpunit:^12.0 --with-all-dependencies
 
       - name: Start Webserver
         run: symfony server:start -d

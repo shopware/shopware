@@ -56,6 +56,23 @@ if ($nightly) {
         'db' => 'mysql:8.0',
         'opensearch' => 'opensearchproject/opensearch:1',
     ];
+
+    // PHPUnit 12 preview — non-blocking (handled by continue-on-error in the workflow).
+    // Pinned to PHP 8.3 (well-supported by both PHPUnit 11 and 12) so failures are
+    // attributable to PHPUnit 12 rather than PHP version drift.
+    $phpunit12Tests = $matrix['matrix']['test'];
+    // The unit suite is not part of the integration matrix by default — add it here
+    // so the PHPUnit 12 preview covers it (most PHPUnit-12-specific deprecations land in unit tests).
+    $phpunit12Tests[] = ['testsuite' => 'unit'];
+    foreach ($phpunit12Tests as $test) {
+        $matrix['matrix']['include'][] = [
+            'test' => $test,
+            'php' => '8.3',
+            'db' => 'mysql:8.0',
+            'opensearch' => 'opensearchproject/opensearch:3',
+            'phpunit' => '12',
+        ];
+    }
 }
 
 echo \json_encode($matrix, \JSON_THROW_ON_ERROR);

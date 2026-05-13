@@ -127,7 +127,7 @@ class DeliveryCalculator
                 new ShippingMethodBlockedError(
                     id: $shippingMethod->getId(),
                     name: (string) $shippingMethod->getTranslation('name'),
-                    reason: 'no shipping costs found',
+                    reason: ShippingMethodBlockedError::REASON_NO_SHIPPING_COSTS_FOUND,
                 )
             );
 

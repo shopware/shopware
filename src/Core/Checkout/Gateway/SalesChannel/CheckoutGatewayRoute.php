@@ -83,7 +83,7 @@ class CheckoutGatewayRoute extends AbstractCheckoutGatewayRoute
                     new ShippingMethodBlockedError(
                         id: $shippingMethod->getId(),
                         name: (string) $shippingMethod->getTranslation('name'),
-                        reason: 'not allowed',
+                        reason: ShippingMethodBlockedError::REASON_NOT_ALLOWED,
                     )
                 );
             }

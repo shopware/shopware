@@ -18,6 +18,7 @@ use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Cart\RuleLoader;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
@@ -28,6 +29,7 @@ use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
+use Shopware\Core\System\SalesChannel\Context\LanguageInfo;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -185,5 +187,79 @@ class CartRuleLoaderTest extends TestCase
         $cart = new Cart('test');
         $cart->setRuleIds($ruleIds);
         $cartRuleLoader->loadByCart($salesChannelContext, $cart, new CartBehavior());
+    }
+
+    public function testTranslatesReasonedCartErrors(): void
+    {
+        $customer = new CustomerEntity();
+        $customer->setId('test-id');
+        $customer->setAccountType(CustomerEntity::ACCOUNT_TYPE_PRIVATE);
+
+        $country = new CountryEntity();
+        $country->setId(Generator::COUNTRY);
+        $country->setCustomerTax(new TaxFreeConfig());
+
+        $salesChannelContext = Generator::generateSalesChannelContext(
+            customer: $customer,
+            languageInfo: new LanguageInfo('German', 'de-DE'),
+            country: $country,
+        );
+
+        $cart = new Cart('test');
+        $processedCart = new Cart('processed');
+        $processedCart->getErrors()->add(new ShippingMethodBlockedError(
+            id: 'shipping-method-id',
+            name: 'Standard',
+            reason: ShippingMethodBlockedError::REASON_RULE_NOT_MATCHING_OR_INACTIVE,
+        ));
+
+        $processor = $this->createMock(Processor::class);
+        $processor
+            ->method('process')
+            ->willReturn($processedCart);
+
+        $ruleLoader = $this->createMock(RuleLoader::class);
+        $ruleLoader
+            ->expects($this->once())
+            ->method('load')
+            ->with($salesChannelContext->getContext())
+            ->willReturn(new RuleCollection());
+
+        $translator = $this->createMock(AbstractTranslator::class);
+        $translator
+            ->expects($this->once())
+            ->method('trans')
+            ->willReturnCallback(static function (string $id, array $parameters, ?string $domain, ?string $locale) use ($salesChannelContext): string {
+                static::assertNull($domain);
+                static::assertSame($salesChannelContext->getLanguageInfo()->localeCode, $locale);
+                static::assertSame('checkout.shipping-method-blocked-rule-not-matching-or-inactive', $id);
+                static::assertSame([
+                    '%id%' => 'shipping-method-id',
+                    '%name%' => 'Standard',
+                    '%reason%' => ShippingMethodBlockedError::REASON_RULE_NOT_MATCHING_OR_INACTIVE,
+                ], $parameters);
+
+                return 'Versandart "Standard" nicht verfügbar. Grund: Regel trifft nicht zu oder ist inaktiv';
+            });
+
+        $cartRuleLoader = new CartRuleLoader(
+            $this->createMock(AbstractCartPersister::class),
+            $processor,
+            new NullLogger(),
+            $this->createMock(CacheInterface::class),
+            $ruleLoader,
+            $this->createMock(TaxDetector::class),
+            $this->createMock(Connection::class),
+            $this->createMock(CartFactory::class),
+            new ExtensionDispatcher($this->createMock(EventDispatcherInterface::class)),
+            $translator,
+        );
+
+        $result = $cartRuleLoader->loadByCart($salesChannelContext, $cart, new CartBehavior());
+
+        static::assertSame(
+            'Versandart "Standard" nicht verfügbar. Grund: Regel trifft nicht zu oder ist inaktiv',
+            $result->getCart()->getErrors()->first()?->getTranslatedMessage(),
+        );
     }
 }

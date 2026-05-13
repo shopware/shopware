@@ -3,7 +3,12 @@
  */
 import { mount } from '@vue/test-utils';
 
-async function createWrapper() {
+async function createWrapper(
+    numberRangeService = {
+        previewPattern: jest.fn(() => Promise.resolve({ number: 1337 })),
+        previewPatternByNumberRangeId: jest.fn(() => Promise.resolve({ number: 1337 })),
+    },
+) {
     return mount(
         await wrapTestComponent('sw-settings-number-range-create', {
             sync: true,
@@ -14,9 +19,7 @@ async function createWrapper() {
                     $route: { params: { id: '1a' } },
                 },
                 provide: {
-                    numberRangeService: {
-                        previewPattern: () => Promise.resolve({ number: 1337 }),
-                    },
+                    numberRangeService,
                     repositoryFactory: {
                         create: () => ({
                             create: () =>
@@ -62,7 +65,13 @@ async function createWrapper() {
                     'mt-card': {
                         template: '<div class="mt-card"><slot /></div>',
                     },
-
+                    'mt-text-field': {
+                        template: '<div class="sw-field" :name="name"></div>',
+                        props: [
+                            'disabled',
+                            'name',
+                        ],
+                    },
                     'sw-text-field': {
                         template: '<div class="sw-field"></div>',
                         props: ['disabled'],
@@ -135,5 +144,30 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-crea
         await selectType.trigger('change', { technicalName: 'product' });
         await flushPromises();
         expect(wrapper.vm.isShowProductWarning).toBe(true);
+    });
+
+    it('should hide current number and preview fields', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.vm.showNumberRangeStateFields).toBe(false);
+        expect(wrapper.find('[name="sw-field--state"]').exists()).toBe(false);
+        expect(wrapper.find('[name="sw-field--preview"]').exists()).toBe(false);
+    });
+
+    it('should not preview draft number range state', async () => {
+        const numberRangeService = {
+            previewPattern: jest.fn(() => Promise.resolve({ number: 1337 })),
+            previewPatternByNumberRangeId: jest.fn(() => Promise.resolve({ number: 1337 })),
+        };
+
+        const wrapper = await createWrapper(numberRangeService);
+        await flushPromises();
+
+        await wrapper.vm.getPreview();
+        await wrapper.vm.getState();
+
+        expect(numberRangeService.previewPattern).not.toHaveBeenCalled();
+        expect(numberRangeService.previewPatternByNumberRangeId).not.toHaveBeenCalled();
     });
 });

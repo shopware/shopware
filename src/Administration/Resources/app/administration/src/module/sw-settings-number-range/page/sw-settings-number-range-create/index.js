@@ -58,6 +58,10 @@ export default {
         disableNumberRangeTypeSelect() {
             return false;
         },
+
+        showNumberRangeStateFields() {
+            return false;
+        },
     },
 
     methods: {
@@ -80,7 +84,6 @@ export default {
             this.numberRange.type.global = this.hasProductNumberRange;
 
             this.$super('createdComponent');
-            this.getPreview();
             this.splitPattern();
             this.onChangePattern();
             this.numberRange.isLoading = false;

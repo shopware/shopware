@@ -4,6 +4,14 @@
 
 ## API
 
+### Number range previews can target a concrete number range
+
+The Admin API now supports previewing a persisted number range by id via `/api/_action/number-range/{numberRangeId}/preview-pattern`.
+Use this route when editing an existing number range, because it reads the state for the concrete `number_range.id`.
+
+The previous type-based preview route `/api/_action/number-range/preview-pattern/{type}` remains available in 6.7 for backwards compatibility, but is deprecated for persisted number-range previews because it can only resolve global number ranges and does not support non-global number ranges.
+The allocation route `/api/_action/number-range/reserve/{type}` is unchanged.
+
 ### Mail template preview and send routes support richer rendering context
 
 The mail template Admin API now exposes dedicated preview and send routes:
@@ -24,6 +32,14 @@ The `/api/_action/mail-template/send` payload now also has a first-class `extens
 Arbitrary unknown top-level keys are still forwarded for backwards compatibility in 6.7, but they are deprecated and will stop being forwarded in Shopware 6.8.
 
 ## Core
+
+### Number range value generator interface deprecated
+
+`NumberRangeValueGeneratorInterface` is deprecated in favor of `AbstractNumberRangeValueGenerator`.
+Custom number range value generator implementations and decorators should extend the abstract class, implement `previewPatternByNumberRangeId()`, and continue using `getValue()` for actual number allocation.
+
+The type-based `previewPattern()` method is deprecated and should no longer be used by new code.
+Use `previewPatternByNumberRangeId()` when previewing a persisted number range.
 
 ### Backward compatible invalid locales
 

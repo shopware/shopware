@@ -1,10 +1,9 @@
 import type { ArrowFunction, FunctionExpression } from 'ts-morph';
 import { SyntaxKind } from 'ts-morph';
-import type { WatchProp } from './types';
 
 export function extractInlineFunctionHandler(
     handler: ArrowFunction | FunctionExpression,
-): Pick<WatchProp, 'paramsText' | 'bodyText' | 'isAsync'> {
+): { paramsText: string; bodyText: string; isAsync: boolean } {
     const body = handler.getBody();
 
     return {

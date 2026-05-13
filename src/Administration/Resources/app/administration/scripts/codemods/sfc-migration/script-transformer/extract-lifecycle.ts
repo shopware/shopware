@@ -7,6 +7,7 @@ const LIFECYCLE_MAP: Record<string, string> = {
     beforeMount: 'onBeforeMount',
     beforeUnmount: 'onBeforeUnmount',
     unmounted: 'onUnmounted',
+    // Vue 2 legacy names kept for components that haven't fully adopted Vue 3 naming
     beforeDestroy: 'onBeforeUnmount',
     destroyed: 'onUnmounted',
     updated: 'onUpdated',
@@ -24,6 +25,7 @@ export function extractLifecycleHooks(optionsObj: ObjectLiteralExpression): Life
         const method = prop.asKindOrThrow(SyntaxKind.MethodDeclaration);
         const hookName = method.getName();
 
+        // `created` has no Composition API equivalent — its body is emitted directly in setup()
         if (hookName === 'created') {
             result.push({ hookName, compositionName: null, bodyText: method.getBodyText() ?? '' });
             continue;

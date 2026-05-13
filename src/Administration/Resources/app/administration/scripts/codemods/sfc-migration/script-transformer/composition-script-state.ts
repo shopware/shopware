@@ -264,7 +264,7 @@ export function collectCompositionScriptState(
         emitsDefinition,
         effectiveEmitsKeys,
         inheritAttrs,
-        ...(componentNameValue !== undefined ? { componentNameValue } : {}),
+        componentNameValue,
         moduleLevelCode,
         todoComments,
         supportedInjectProps,

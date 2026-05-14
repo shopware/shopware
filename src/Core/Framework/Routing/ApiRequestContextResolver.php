@@ -106,20 +106,14 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
     {
         $parameters = [];
 
-        if ($request->headers->has(PlatformRequest::HEADER_LANGUAGE_ID)) {
-            $langHeader = $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID);
-
-            if ($langHeader !== null) {
-                $parameters['languageId'] = $langHeader;
-            }
+        $languageId = self::nonEmptyHeader($request, PlatformRequest::HEADER_LANGUAGE_ID);
+        if ($languageId !== null) {
+            $parameters['languageId'] = $languageId;
         }
 
-        if ($request->headers->has(PlatformRequest::HEADER_CURRENCY_ID)) {
-            $currencyHeader = $request->headers->get(PlatformRequest::HEADER_CURRENCY_ID);
-
-            if ($currencyHeader !== null) {
-                $parameters['currencyId'] = $currencyHeader;
-            }
+        $currencyId = self::nonEmptyHeader($request, PlatformRequest::HEADER_CURRENCY_ID);
+        if ($currencyId !== null) {
+            $parameters['currencyId'] = $currencyId;
         }
 
         if ($request->headers->has(PlatformRequest::HEADER_INHERITANCE)) {
@@ -129,10 +123,22 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         return $parameters;
     }
 
+    /**
+     * Returns the header value, treating an empty string the same as a missing header.
+     * An empty value must not override the system default or be forwarded as an id,
+     * see https://github.com/shopware/shopware/issues/16778.
+     */
+    private static function nonEmptyHeader(Request $request, string $header): ?string
+    {
+        $value = $request->headers->get($header);
+
+        return ($value === null || $value === '') ? null : $value;
+    }
+
     private function resolveContextSource(Request $request): ContextSource
     {
         if ($userId = $request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_USER_ID)) {
-            $appIntegrationId = $request->headers->get(PlatformRequest::HEADER_APP_INTEGRATION_ID);
+            $appIntegrationId = self::nonEmptyHeader($request, PlatformRequest::HEADER_APP_INTEGRATION_ID);
 
             // The app integration id header is only to be used by a privileged user
             if ($this->userAppIntegrationHeaderPrivileged($userId, $appIntegrationId)) {
@@ -160,7 +166,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         if ($keyOrigin === 'integration') {
             $integrationId = $this->getIntegrationIdByAccessKey($clientId);
 
-            $userId = $request->headers->get(PlatformRequest::HEADER_APP_USER_ID);
+            $userId = self::nonEmptyHeader($request, PlatformRequest::HEADER_APP_USER_ID);
 
             if ($userId !== null && !$this->userAppIntegrationHeaderPrivileged($userId, $integrationId)) {
                 $userId = null;

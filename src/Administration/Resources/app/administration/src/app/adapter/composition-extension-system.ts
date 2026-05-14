@@ -426,13 +426,23 @@ export function createScriptSetupExtendableComponent<
         TPrivateSetupResult extends object = object,
     >(
         name: TComponentName,
-        setup: (bindings: { props: TProps; context: TContext }) => {
+        propsOrSetup:
+            | TProps
+            | ((bindings: { props: TProps; context: TContext }) => {
+                  public?: Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]>;
+                  private?: TPrivateSetupResult;
+              }),
+        maybeSetup?: (bindings: { props: TProps; context: TContext }) => {
             public?: Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]>;
             private?: TPrivateSetupResult;
         },
     ): ScriptSetupExtendableState<Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]> & TPrivateSetupResult> {
         const instance = getCurrentInstance();
-        const props = (instance?.props ?? {}) as TProps;
+        const setup = (maybeSetup ?? propsOrSetup) as (bindings: { props: TProps; context: TContext }) => {
+            public?: Exact<TSetupResult, ComponentPublicApiMapping[TComponentName]>;
+            private?: TPrivateSetupResult;
+        };
+        const props = (maybeSetup ? propsOrSetup : (instance?.props ?? {})) as TProps;
         const context = getComponentContext() as TContext;
 
         const state = createExtendableSetup(

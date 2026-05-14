@@ -102,7 +102,8 @@ Shopware setup blocks differ from native Vue `<script setup>` in v1:
 - Author code is lowered into Shopware base/override callback contracts.
 - Base public/private state is explicit Shopware extension state, not native setup return behavior.
 - Override SFCs register with `overrideComponentSetup(...)` at import time.
-- `defineProps()` and other Vue macros are not supported in Shopware setup blocks.
+- Base components may use `defineProps(...)`; the declaration is hoisted once and original calls are replaced with the props object passed into the extendable setup runtime.
+- Other Vue macros are not supported in Shopware setup blocks.
 - Top-level `await` is not supported.
 
 ## Unsupported in v1
@@ -111,11 +112,12 @@ The transform rejects these cases loudly:
 
 - Script languages other than `js`, `jsx`, `ts`, and `tsx`
 - Bound `sw-component` or `sw-override` attributes
-- Vue macros: `defineProps()`, `defineEmits()`, `defineExpose()`, `defineOptions()`, `defineSlots()`, `defineModel()`, `withDefaults()`
+- Vue macros except supported base `defineProps()`: `defineEmits()`, `defineExpose()`, `defineOptions()`, `defineSlots()`, `defineModel()`, `withDefaults()`
+- `defineProps()` in override mode, or more than one `defineProps()` call
 - Top-level `await`
 - Non-top-level, duplicate, spread, computed-key, or non-object-literal `swDefinePublic()` usage
 - Missing, non-top-level, duplicate, spread, computed-key, or non-object-literal `swDefineOverride()` usage in override mode
-- Unsupported top-level declaration shapes such as destructuring declarations
+- Unsupported top-level declaration shapes such as destructuring declarations, except declarations that read from `defineProps()`
 - Additional `<script>` blocks next to Shopware setup blocks
 
 Malformed or unclosed SFC sections are left to Vue's compiler parser. If `@vue/compiler-sfc` reports SFC parse errors, the Shopware setup preprocessor skips transformation so Vue can present the primary parse error first.
@@ -141,7 +143,7 @@ Direct oxlint support is not part of v1. oxlint has JavaScript plugin support fo
 
 ## Proposals
 
-Full macro support could be added by mapping selected Vue macros to explicit Shopware equivalents. For example, `defineProps()` would need a clear integration point with normal SFC prop declarations and `useSwProps()`, without making props part of the public/private state return.
+Full macro support could be added by mapping more Vue macros to explicit Shopware equivalents. `defineProps()` is currently supported for base components by hoisting one props declaration and replacing the original call inside the extendable setup callback.
 
 Top-level await could be supported only if the extension runtime becomes async-first for both base setup and override application. Until that runtime contract changes, v1 keeps top-level setup synchronous.
 
@@ -149,6 +151,6 @@ Top-level await could be supported only if the extension runtime becomes async-f
 
 Open design questions should be recorded here:
 
-- How should prop declarations be authored for pure Shopware setup SFC base components without reintroducing unsupported Vue macros?
+- Should `defineProps()` support be expanded to `withDefaults()`?
 - Should string-literal public keys that are not valid JavaScript identifiers receive a documented template aliasing convention?
 - Which future Volar plugin API version should be treated as the minimum supported editor integration target?

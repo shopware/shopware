@@ -111,10 +111,9 @@ const {
     internalThing,
     'foo': foo2,
 } = Shopware.Component.createScriptSetupExtendableComponent()('sw-my-component', (__shopwareSetupBindings) => {
-    const useSwProps = () => __shopwareSetupBindings.props;
     const useSwContext = () => __shopwareSetupBindings.context;
 
-    const props = useSwProps();
+    const props = __shopwareSetupBindings.props;
     const count = ref(props.initialCount ?? 0);
     const doubled = computed(() => count.value * 2);
     const internalThing = ref('secret');
@@ -178,6 +177,86 @@ export default {
 </script>`;
 
         expect(transformOrFail(source, 'component.override.vue').code).toBe(expected);
+    });
+
+    it('keeps base defineProps() outside the extendable setup callback and passes props into the bridge', () => {
+        const source = `<template><div>{{ count }}</div></template>
+<script setup lang="ts" sw-component="sw-my-component">
+import { ref } from 'vue';
+
+const props = defineProps<{
+    initialCount?: number;
+}>();
+const count = ref(props.initialCount ?? 0);
+
+swDefinePublic({
+    count,
+});
+</script>`;
+
+        const result = transformOrFail(source, 'base-props.vue').code;
+
+        expect(result).toContain(`const props = defineProps<{
+    initialCount?: number;
+}>();`);
+        expect(result).toContain(
+            "Shopware.Component.createScriptSetupExtendableComponent()('sw-my-component', props, (__shopwareSetupBindings) => {",
+        );
+        expect(result).toContain('const props = __shopwareSetupBindings.props;');
+        expect(result).toContain('const count = ref(props.initialCount ?? 0);');
+        expect(result).not.toContain('const useSwProps =');
+        expect(result.indexOf('const props = defineProps')).toBeLessThan(
+            result.indexOf('Shopware.Component.createScriptSetupExtendableComponent()'),
+        );
+    });
+
+    it('replaces defineProps() destructuring inside the extendable setup callback', () => {
+        const source = `<script setup sw-component="sw-my-component">
+const { initialCount = 0 } = defineProps();
+const count = initialCount;
+
+swDefinePublic({
+    count,
+});
+</script>`;
+
+        const result = transformOrFail(source, 'base-destructured-props.vue').code;
+
+        expect(result).toContain('const props = defineProps();');
+        expect(result).toContain('const { initialCount = 0 } = __shopwareSetupBindings.props;');
+    });
+
+    it('replaces base useSwProps() calls instead of injecting a helper', () => {
+        const source = `<script setup sw-component="sw-my-component">
+const props = useSwProps();
+const count = props.initialCount ?? 0;
+
+swDefinePublic({
+    count,
+});
+</script>`;
+
+        const result = transformOrFail(source, 'base-use-sw-props.vue').code;
+
+        expect(result).toContain('const props = __shopwareSetupBindings.props;');
+        expect(result).not.toContain('const useSwProps =');
+    });
+
+    it('rewrites props access by source ranges instead of placeholder string replacement', () => {
+        const source = `<script setup sw-component="sw-my-component">
+const props = defineProps();
+const literal = '__SHOPWARE_SETUP_DEFINE_PROPS__ __SHOPWARE_SETUP_USE_SW_PROPS__';
+const count = props.initialCount ?? literal.length;
+
+swDefinePublic({
+    count,
+});
+</script>`;
+
+        const result = transformOrFail(source, 'base-props-placeholder-literal.vue').code;
+
+        expect(result).toContain("const literal = '__SHOPWARE_SETUP_DEFINE_PROPS__ __SHOPWARE_SETUP_USE_SW_PROPS__';");
+        expect(result).toContain('const props = __shopwareSetupBindings.props;');
     });
 
     it('transforms sw-override blocks in .override.vue files', () => {
@@ -481,10 +560,6 @@ const count = 1;
 
     it.each([
         [
-            'defineProps()',
-            'Vue macro defineProps() is not supported inside Shopware setup blocks.',
-        ],
-        [
             'defineEmits()',
             'Vue macro defineEmits() is not supported inside Shopware setup blocks.',
         ],
@@ -515,6 +590,17 @@ const count = 1;
 </script>`;
 
         expect(() => transformShopwareSetupSfc(source, 'macro.vue')).toThrow(expectedMessage);
+    });
+
+    it('rejects defineProps() in override mode', () => {
+        const source = `<script setup sw-override="sw-my-component">
+const props = defineProps();
+swDefineOverride({});
+</script>`;
+
+        expect(() => transformShopwareSetupSfc(source, 'override-props.vue')).toThrow(
+            'defineProps() is only supported in base Shopware setup blocks.',
+        );
     });
 
     it('rejects top-level await', () => {

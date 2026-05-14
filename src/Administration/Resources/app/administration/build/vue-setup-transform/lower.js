@@ -92,6 +92,66 @@ function makeUniqueName(baseName, takenNames) {
 }
 
 /**
+ * Removes macro/import ranges and replaces selected expressions in the code that moves into the runtime callback.
+ *
+ * @param {string} source
+ * @param {{ start: number, end: number }[]} removals
+ * @param {({ start: number, end: number } & { replacement: string })[]} [replacements]
+ * @returns {string}
+ */
+function transformRanges(source, removals, replacements = []) {
+    const sortedRanges = [
+        ...removals.map((range) => ({
+            ...range,
+            replacement: '',
+        })),
+        ...replacements,
+    ].sort((a, b) => {
+        if (a.start === b.start) {
+            return b.end - a.end;
+        }
+
+        return a.start - b.start;
+    });
+    let cursor = 0;
+    let output = '';
+
+    sortedRanges.forEach((range) => {
+        if (range.start < cursor) {
+            return;
+        }
+
+        output += source.slice(cursor, range.start);
+        output += range.replacement;
+        cursor = range.end;
+    });
+
+    output += source.slice(cursor);
+
+    return output.trim();
+}
+
+/**
+ * Applies analyzer-provided source ranges to produce the callback body.
+ *
+ * @param {ShopwareSetupScriptAnalysis} analysis
+ * @param {string | null} propsExpression
+ * @returns {string}
+ */
+function buildCallbackBody(analysis, propsExpression) {
+    return transformRanges(
+        analysis.source,
+        analysis.bodyRemovals,
+        propsExpression
+            ? analysis.propsAccessReplacements.map((range) => ({
+                  ...range,
+                  replacement: propsExpression,
+              }))
+            : [],
+    );
+}
+
+/**
  * Collects names that generated helpers must not reuse.
  *
  * @param {ShopwareSetupScriptAnalysis} analysis
@@ -231,15 +291,16 @@ function buildOverrideReturn(analysis) {
 function buildBaseScript(block, analysis) {
     const takenNames = getTakenNames(analysis);
     const setupBindingsName = makeUniqueName('__shopwareSetupBindings', takenNames);
+    const propsName = analysis.defineProps ? makeUniqueName('props', takenNames) : null;
     const publicEntryByLocalName = createEntryByLocalNameMap(analysis.publicEntries, 'swDefinePublic');
     const destructureEntries = analysis.runtimeBindings.map((binding) => {
         return formatDestructureEntry(binding.name, publicEntryByLocalName.get(binding.name));
     });
+    const callbackBody = buildCallbackBody(analysis, `${setupBindingsName}.props`);
     const body = [
-        `const useSwProps = () => ${setupBindingsName}.props;`,
         `const useSwContext = () => ${setupBindingsName}.context;`,
         '',
-        analysis.body,
+        callbackBody,
         '',
         buildBaseReturn(analysis),
     ].join('\n');
@@ -248,9 +309,15 @@ function buildBaseScript(block, analysis) {
         `<script${block.passthroughAttributesSource}>`,
         ...analysis.imports.map((importBlock) => importBlock.code),
         ...(analysis.imports.length > 0 ? [''] : []),
+        ...(analysis.defineProps
+            ? [
+                  `const ${propsName} = ${analysis.defineProps.code};`,
+                  '',
+              ]
+            : []),
         'const {',
         ...destructureEntries.map((entry) => `    ${entry},`),
-        `} = Shopware.Component.createScriptSetupExtendableComponent()('${escapeSingleQuoted(block.componentName)}', (${setupBindingsName}) => {`,
+        `} = Shopware.Component.createScriptSetupExtendableComponent()('${escapeSingleQuoted(block.componentName)}', ${propsName ? `${propsName}, ` : ''}(${setupBindingsName}) => {`,
         indent(body),
         '});',
         '</script>',
@@ -275,12 +342,13 @@ function buildOverrideScript(block, analysis) {
         'sw-component',
         'sw-override',
     ]);
+    const callbackBody = buildCallbackBody(analysis, null);
     const body = [
         `const useSwPreviousState = () => ${previousStateName};`,
         `const useSwProps = () => ${propsName};`,
         `const useSwContext = () => ${contextName};`,
         '',
-        analysis.body,
+        callbackBody,
         '',
         buildOverrideReturn(analysis),
     ].join('\n');

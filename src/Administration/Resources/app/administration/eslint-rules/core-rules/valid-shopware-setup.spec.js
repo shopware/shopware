@@ -41,6 +41,30 @@ swDefinePublic({ count });
 </script>`,
         },
         {
+            filename: 'base-props.vue',
+            code: `<script setup lang="ts" sw-component="sw-my-component">
+const props = defineProps<{ initialCount?: number }>();
+const count = props.initialCount ?? 0;
+swDefinePublic({ count });
+</script>`,
+        },
+        {
+            filename: 'base-bare-props.vue',
+            code: `<script setup sw-component="sw-my-component">
+defineProps();
+const count = 1;
+swDefinePublic({ count });
+</script>`,
+        },
+        {
+            filename: 'base-destructured-props.vue',
+            code: `<script setup sw-component="sw-my-component">
+const { initialCount = 0 } = defineProps();
+const count = initialCount;
+swDefinePublic({ count });
+</script>`,
+        },
+        {
             filename: 'override.vue',
             code: `<script setup lang="ts" sw-override="sw-my-component">
 const previousState = useSwPreviousState();
@@ -52,13 +76,14 @@ swDefineOverride({ doubled });
 
     invalid: [
         {
-            filename: 'macro.vue',
-            code: `<script setup sw-component="sw-my-component">
+            filename: 'override-props.vue',
+            code: `<script setup sw-override="sw-my-component">
 const props = defineProps();
+swDefineOverride({});
 </script>`,
             errors: [
                 {
-                    message: 'Vue macro defineProps() is not supported inside Shopware setup blocks.',
+                    message: 'defineProps() is only supported in base Shopware setup blocks.',
                 },
             ],
         },

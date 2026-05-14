@@ -33,18 +33,20 @@ const { ShopwareSetupTransformError } = require('./utils/transform-error');
  * @typedef {PublicEntry} OverrideEntry
  *
  * @typedef {object} ShopwareSetupScriptAnalysis
+ * @property {string} source
  * @property {ImportBlock[]} imports
- * @property {string} body
+ * @property {SourceRange[]} bodyRemovals
+ * @property {SourceRange[]} propsAccessReplacements
  * @property {RuntimeBinding[]} runtimeBindings
  * @property {Set<string>} runtimeBindingNames
  * @property {Set<string>} importedBindings
  * @property {PublicEntry[]} publicEntries
  * @property {OverrideEntry[]} overrideEntries
+ * @property {{ code: string, ranges: SourceRange[] } | null} defineProps
  * @property {Map<string, string>} overridePrivateAliases
  */
 
 const UNSUPPORTED_VUE_MACROS = new Set([
-    'defineProps',
     'defineEmits',
     'defineExpose',
     'defineOptions',
@@ -400,6 +402,10 @@ function collectRuntimeBinding(statement, runtimeBindings, runtimeBindingNames, 
         }
 
         statement.declarations.forEach((declaration) => {
+            if (isPropsInputDeclaration(declaration)) {
+                return;
+            }
+
             assertIdentifierPattern(declaration.id, scriptOffset);
 
             if (isRuntimeInputAlias(declaration, mode)) {
@@ -557,28 +563,6 @@ function getImportRangesAndCode(script, imports, scriptOffset) {
 }
 
 /**
- * Removes imports and public markers from the code that moves into the runtime callback.
- *
- * @param {string} script
- * @param {SourceRange[]} ranges
- * @returns {string}
- */
-function removeRanges(script, ranges) {
-    const sortedRanges = [...ranges].sort((a, b) => a.start - b.start);
-    let cursor = 0;
-    let output = '';
-
-    sortedRanges.forEach((range) => {
-        output += script.slice(cursor, range.start);
-        cursor = range.end;
-    });
-
-    output += script.slice(cursor);
-
-    return output.trim();
-}
-
-/**
  * Prevents user bindings from shadowing generated composable-style helper names.
  *
  * @param {RuntimeBinding[]} bindings
@@ -646,6 +630,31 @@ function isStatementCompilerMacro(statement, macroName) {
 }
 
 /**
+ * Detects a compiler macro call expression.
+ *
+ * @param {BabelNode} node
+ * @param {string} name
+ * @returns {node is CallExpression}
+ */
+function isCompilerMacroCall(node, name) {
+    return node.type === 'CallExpression' && node.callee.type === 'Identifier' && node.callee.name === name;
+}
+
+/**
+ * Checks whether a variable declaration reads props through a supported props helper/macro.
+ *
+ * @param {VariableDeclarator} declaration
+ * @returns {boolean}
+ */
+function isPropsInputDeclaration(declaration) {
+    return (
+        declaration.init?.type === 'CallExpression' &&
+        declaration.init.callee.type === 'Identifier' &&
+        (declaration.init.callee.name === 'defineProps' || declaration.init.callee.name === 'useSwProps')
+    );
+}
+
+/**
  * Produces the semantic model used by the lowering step.
  *
  * @param {string} script
@@ -663,6 +672,8 @@ function analyzeShopwareSetupScript(script, options) {
     const runtimeBindingNames = new Set();
     const publicMarkerStatements = [];
     const overrideMarkerStatements = [];
+    const definePropsCalls = [];
+    const useSwPropsCalls = [];
     const topLevelPublicCalls = new Set();
     const topLevelOverrideCalls = new Set();
 
@@ -688,7 +699,31 @@ function analyzeShopwareSetupScript(script, options) {
         collectRuntimeBinding(statement, runtimeBindings, runtimeBindingNames, scriptOffset, mode);
     });
 
+    walk(ast.program, (node) => {
+        if (isCompilerMacroCall(node, 'defineProps')) {
+            definePropsCalls.push(node);
+        }
+
+        if (mode === 'base' && isCompilerMacroCall(node, 'useSwProps')) {
+            useSwPropsCalls.push(node);
+        }
+    });
+
     assertNoUnsupportedSyntax(ast, scriptOffset, topLevelPublicCalls, topLevelOverrideCalls);
+
+    if (mode === 'override' && definePropsCalls.length > 0) {
+        throw new ShopwareSetupTransformError(
+            'defineProps() is only supported in base Shopware setup blocks.',
+            scriptOffset + getNodeRange(definePropsCalls[0], scriptOffset).start,
+        );
+    }
+
+    if (definePropsCalls.length > 1) {
+        throw new ShopwareSetupTransformError(
+            'Only one defineProps() call is allowed in a base Shopware setup block.',
+            scriptOffset + getNodeRange(definePropsCalls[1], scriptOffset).start,
+        );
+    }
 
     if (mode === 'override' && publicMarkerStatements.length > 0) {
         throw new ShopwareSetupTransformError(
@@ -751,18 +786,36 @@ function analyzeShopwareSetupScript(script, options) {
         scriptOffset,
     );
 
+    const bodyRemovals = [
+        ...imports.map((importNode) => getNodeRange(importNode, scriptOffset)),
+        ...publicMarkerStatements.map((statement) => getNodeRange(statement, scriptOffset)),
+        ...overrideMarkerStatements.map((statement) => getNodeRange(statement, scriptOffset)),
+    ];
+    const propsAccessReplacements = [
+        ...definePropsCalls,
+        ...useSwPropsCalls,
+    ].map((call) => getNodeRange(call, scriptOffset));
+
     return {
+        source: script,
         imports: getImportRangesAndCode(script, imports, scriptOffset),
-        body: removeRanges(script, [
-            ...imports.map((importNode) => getNodeRange(importNode, scriptOffset)),
-            ...publicMarkerStatements.map((statement) => getNodeRange(statement, scriptOffset)),
-            ...overrideMarkerStatements.map((statement) => getNodeRange(statement, scriptOffset)),
-        ]),
+        bodyRemovals,
+        propsAccessReplacements,
         runtimeBindings,
         runtimeBindingNames,
         importedBindings,
         publicEntries,
         overrideEntries,
+        defineProps:
+            definePropsCalls.length > 0
+                ? {
+                      code: script.slice(
+                          getNodeRange(definePropsCalls[0], scriptOffset).start,
+                          getNodeRange(definePropsCalls[0], scriptOffset).end,
+                      ),
+                      ranges: definePropsCalls.map((call) => getNodeRange(call, scriptOffset)),
+                  }
+                : null,
         overridePrivateAliases: new Map(),
     };
 }

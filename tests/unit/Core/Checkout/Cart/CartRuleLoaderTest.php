@@ -189,7 +189,7 @@ class CartRuleLoaderTest extends TestCase
         $cartRuleLoader->loadByCart($salesChannelContext, $cart, new CartBehavior());
     }
 
-    public function testTranslatesReasonedCartErrors(): void
+    public function testTranslatesCartErrorsWithSalesChannelLocale(): void
     {
         $customer = new CustomerEntity();
         $customer->setId('test-id');
@@ -232,14 +232,14 @@ class CartRuleLoaderTest extends TestCase
             ->willReturnCallback(static function (string $id, array $parameters, ?string $domain, ?string $locale) use ($salesChannelContext): string {
                 static::assertNull($domain);
                 static::assertSame($salesChannelContext->getLanguageInfo()->localeCode, $locale);
-                static::assertSame('checkout.shipping-method-blocked-rule-not-matching-or-inactive', $id);
+                static::assertSame('checkout.shipping-method-blocked', $id);
                 static::assertSame([
                     '%id%' => 'shipping-method-id',
                     '%name%' => 'Standard',
                     '%reason%' => ShippingMethodBlockedError::REASON_RULE_NOT_MATCHING_OR_INACTIVE,
                 ], $parameters);
 
-                return 'Versandart "Standard" nicht verfügbar. Grund: Regel trifft nicht zu oder ist inaktiv';
+                return 'Die Versandart "Standard" ist für Ihren aktuellen Warenkorb gesperrt.';
             });
 
         $cartRuleLoader = new CartRuleLoader(
@@ -258,7 +258,7 @@ class CartRuleLoaderTest extends TestCase
         $result = $cartRuleLoader->loadByCart($salesChannelContext, $cart, new CartBehavior());
 
         static::assertSame(
-            'Versandart "Standard" nicht verfügbar. Grund: Regel trifft nicht zu oder ist inaktiv',
+            'Die Versandart "Standard" ist für Ihren aktuellen Warenkorb gesperrt.',
             $result->getCart()->getErrors()->first()?->getTranslatedMessage(),
         );
     }

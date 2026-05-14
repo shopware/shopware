@@ -228,7 +228,7 @@ class CheckoutGatewayRouteTest extends TestCase
         $error = $result->getErrors()->last();
 
         static::assertNotNull($error);
-        static::assertSame('shipping-method-blocked-not-allowed', $error->getMessageKey());
+        static::assertSame('shipping-method-blocked', $error->getMessageKey());
         static::assertSame('Shipping method Foo not available. Reason: not allowed', $error->getMessage());
     }
 

@@ -18,15 +18,6 @@ class ShippingMethodBlockedError extends Error
     private const KEY = 'shipping-method-blocked';
 
     /**
-     * @var array<string, string>
-     */
-    private const MESSAGE_KEYS_BY_REASON = [
-        self::REASON_NO_SHIPPING_COSTS_FOUND => self::KEY . '-no-shipping-costs-found',
-        self::REASON_NOT_ALLOWED => self::KEY . '-not-allowed',
-        self::REASON_RULE_NOT_MATCHING_OR_INACTIVE => self::KEY . '-rule-not-matching-or-inactive',
-    ];
-
-    /**
      * @deprecated tag:v6.8.0 - reason:parameter-type-change - The order of parameters will be changed to: $id, $name, $reason
      * @deprecated tag:v6.8.0 - reason:parameter-type-change - $id will be of type string
      * @deprecated tag:v6.8.0 - reason:parameter-type-change - $reason will be of type string
@@ -110,10 +101,6 @@ class ShippingMethodBlockedError extends Error
 
     public function getMessageKey(): string
     {
-        if ($this->reason === null) {
-            return self::KEY;
-        }
-
-        return self::MESSAGE_KEYS_BY_REASON[$this->reason] ?? self::KEY . '-with-reason';
+        return self::KEY;
     }
 }

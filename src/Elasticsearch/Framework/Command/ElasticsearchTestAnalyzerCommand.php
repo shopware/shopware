@@ -80,6 +80,63 @@ class ElasticsearchTestAnalyzerCommand extends Command
     }
 
     /**
+     * @deprecated tag:v6.8.0 - reason:becomes-internal - No longer used by the command. The analyzer list is now built from `elasticsearch.analysis.analyzer` (custom) and the built-in default/language analyzers via internal helpers. Will be removed.
+     *
+     * @return array<string, array<string>>
+     */
+    protected function getAnalyzers(): array
+    {
+        return [
+            'Default analyzers' => [
+                'standard',
+                'simple',
+                'whitespace',
+                'stop',
+                'keyword',
+                'pattern',
+                'fingerprint',
+            ],
+            'Custom analyzers' => [],
+            'Default language analyzers' => [
+                'arabic',
+                'armenian',
+                'basque',
+                'bengali',
+                'brazilian',
+                'bulgarian',
+                'catalan',
+                'cjk',
+                'czech',
+                'danish',
+                'dutch',
+                'english',
+                'finnish',
+                'french',
+                'galician',
+                'german',
+                'greek',
+                'hindi',
+                'hungarian',
+                'indonesian',
+                'irish',
+                'italian',
+                'latvian',
+                'lithuanian',
+                'norwegian',
+                'persian',
+                'portuguese',
+                'romanian',
+                'russian',
+                'sorani',
+                'spanish',
+                'swedish',
+                'turkish',
+                'thai',
+            ],
+        ];
+    }
+
+    /**
      * Builds the table sections, each entry being an _analyze request body keyed by display name.
      *
      * @return array<string, array<string, array<string, mixed>>>

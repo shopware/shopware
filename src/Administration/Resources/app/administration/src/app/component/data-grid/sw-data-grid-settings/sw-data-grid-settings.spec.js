@@ -224,6 +224,7 @@ describe('components/data-grid/sw-data-grid-settings', () => {
             const settings = await createSettingsWrapper({ $te, $t });
 
             Shopware.Context.app.fallbackLocale = '';
+            $te.mockClear();
 
             expect(settings.vm.getColumnLabel({ label: 'sw-grid.column.name' })).toBe('sw-grid.column.name');
             expect($te).toHaveBeenCalledTimes(1);

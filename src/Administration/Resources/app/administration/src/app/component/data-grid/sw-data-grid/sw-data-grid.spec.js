@@ -1234,6 +1234,7 @@ describe('components/data-grid/sw-data-grid', () => {
             const wrapper = await createWrapperWithI18n({ $te, $t });
 
             Shopware.Context.app.fallbackLocale = '';
+            $te.mockClear();
 
             const result = wrapper.vm.getColumnLabel({ label: 'sw-grid.column.name' });
 

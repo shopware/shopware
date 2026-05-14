@@ -144,6 +144,14 @@ The set of fields that trigger the redirect is configurable via the `shopware.st
 Any string-valued property declared on `ProductEntity` may be configured — unknown or non-string properties are skipped.
 Set the parameter to a narrower list (for example `['productNumber']`) to restore the previous behaviour.
 
+### Thumbnail `sizes` attribute now emits a value for the XXL breakpoint
+
+The auto-generated `sizes` attribute produced by `thumbnail.html.twig` now includes a value for the XXL breakpoint.
+Previously the rendered output contained an empty entry (`(min-width: 1400px) ,`) because `xxl` was added to the breakpoint map in 6.7.6.0 without a matching entry in the sizes map, so browsers silently ignored the broken descriptor and fell back to the next entry.
+
+The `xxl` key is now the open-ended top (`container / columns`), and `xl` is now a closed range bounded by `breakpoint.xxl - 1`, consistent with the pattern already used by the smaller breakpoints (`md`, `lg`).
+Templates that pass a manual `sizes` map to `sw_thumbnails` and rely on the previous missing-`xxl` fallback should add a corresponding `xxl` entry to keep parity.
+
 ## App System
 
 ## Hosting & Configuration

@@ -573,6 +573,25 @@ export default {
             ];
         },
 
+        getColumnLabel(column) {
+            const label = column.label;
+
+            if (!label) {
+                return '';
+            }
+
+            if (this.$te(label)) {
+                return this.$t(label);
+            }
+
+            const fallbackLocale = Shopware.Context.app.fallbackLocale;
+            if (fallbackLocale && this.$te(label, fallbackLocale)) {
+                return this.$t(label, fallbackLocale);
+            }
+
+            return label;
+        },
+
         getRowClasses(item, itemIndex) {
             return [
                 {

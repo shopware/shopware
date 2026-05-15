@@ -146,7 +146,7 @@ function buildCallbackBody(analysis, setupBindingsName) {
             ? analysis.setupInputReplacements.map((range) => ({
                   ...range,
                   replacement:
-                      range.kind === 'props' ? `${setupBindingsName}.props` : `${setupBindingsName}.context.emit`,
+                      range.kind === 'props' ? `(${setupBindingsName}.props)` : `(${setupBindingsName}.context.emit)`,
               }))
             : [],
     );

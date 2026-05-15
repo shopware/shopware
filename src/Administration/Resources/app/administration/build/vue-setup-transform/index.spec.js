@@ -113,7 +113,7 @@ const {
 } = Shopware.Component.createScriptSetupExtendableComponent()('sw-my-component', (__shopwareSetupBindings) => {
     const useSwContext = () => __shopwareSetupBindings.context;
 
-    const props = __shopwareSetupBindings.props;
+    const props = (__shopwareSetupBindings.props);
     const count = ref(props.initialCount ?? 0);
     const doubled = computed(() => count.value * 2);
     const internalThing = ref('secret');
@@ -202,7 +202,7 @@ swDefinePublic({
         expect(result).toContain(
             "Shopware.Component.createScriptSetupExtendableComponent()('sw-my-component', props, (__shopwareSetupBindings) => {",
         );
-        expect(result).toContain('const props = __shopwareSetupBindings.props;');
+        expect(result).toContain('const props = (__shopwareSetupBindings.props);');
         expect(result).toContain('const count = ref(props.initialCount ?? 0);');
         expect(result).not.toContain('const useSwProps =');
         expect(result.indexOf('const props = defineProps')).toBeLessThan(
@@ -223,7 +223,7 @@ swDefinePublic({
         const result = transformOrFail(source, 'base-destructured-props.vue').code;
 
         expect(result).toContain('const props = defineProps();');
-        expect(result).toContain('const { initialCount = 0 } = __shopwareSetupBindings.props;');
+        expect(result).toContain('const { initialCount = 0 } = (__shopwareSetupBindings.props);');
     });
 
     it('keeps base withDefaults(defineProps()) outside the extendable setup callback', () => {
@@ -254,7 +254,7 @@ swDefinePublic({
         expect(result).toContain(
             "Shopware.Component.createScriptSetupExtendableComponent()('sw-my-component', props, (__shopwareSetupBindings) => {",
         );
-        expect(result).toContain('const props = __shopwareSetupBindings.props;');
+        expect(result).toContain('const props = (__shopwareSetupBindings.props);');
         expect(result).toContain('const count = props.initialCount;');
         expect(result.match(/defineProps/g)).toHaveLength(1);
         expect(result.match(/withDefaults/g)).toHaveLength(1);
@@ -281,7 +281,7 @@ swDefinePublic({
 }>(), {
     initialCount: 3,
 });`);
-        expect(result).toContain('const { initialCount } = __shopwareSetupBindings.props;');
+        expect(result).toContain('const { initialCount } = (__shopwareSetupBindings.props);');
         expect(result.match(/defineProps/g)).toHaveLength(1);
         expect(result.match(/withDefaults/g)).toHaveLength(1);
     });
@@ -326,7 +326,7 @@ swDefinePublic({
         expect(result).toContain(`const emit = defineEmits<{
     save: [id: string];
 }>();`);
-        expect(result).toContain('const emit = __shopwareSetupBindings.context.emit;');
+        expect(result).toContain('const emit = (__shopwareSetupBindings.context.emit);');
         expect(result).toContain("emit('save', '123');");
         expect(result).toContain('private: {\n            save,\n        }');
         expect(result.match(/defineEmits/g)).toHaveLength(1);
@@ -348,13 +348,13 @@ swDefinePublic({ count });
 
         expect(transformOrFail(arraySource, 'base-emits-array.vue').code).toContain("const emit = defineEmits(['save']);");
         expect(transformOrFail(arraySource, 'base-emits-array.vue').code).toContain(
-            'const emit = __shopwareSetupBindings.context.emit;',
+            'const emit = (__shopwareSetupBindings.context.emit);',
         );
         expect(transformOrFail(objectSource, 'base-emits-object.vue').code).toContain(`const emit = defineEmits({
     save: (id) => Boolean(id),
 });`);
         expect(transformOrFail(objectSource, 'base-emits-object.vue').code).toContain(
-            'const emit = __shopwareSetupBindings.context.emit;',
+            'const emit = (__shopwareSetupBindings.context.emit);',
         );
     });
 
@@ -383,7 +383,7 @@ swDefinePublic({
 
         const result = transformOrFail(source, 'base-use-sw-props.vue').code;
 
-        expect(result).toContain('const props = __shopwareSetupBindings.props;');
+        expect(result).toContain('const props = (__shopwareSetupBindings.props);');
         expect(result).not.toContain('const useSwProps =');
     });
 
@@ -401,7 +401,7 @@ swDefinePublic({
         const result = transformOrFail(source, 'base-props-placeholder-literal.vue').code;
 
         expect(result).toContain("const literal = '__SHOPWARE_SETUP_DEFINE_PROPS__ __SHOPWARE_SETUP_USE_SW_PROPS__';");
-        expect(result).toContain('const props = __shopwareSetupBindings.props;');
+        expect(result).toContain('const props = (__shopwareSetupBindings.props);');
     });
 
     it('transforms sw-override blocks in .override.vue files', () => {

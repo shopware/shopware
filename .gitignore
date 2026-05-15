@@ -130,6 +130,7 @@ app/config/parameters.yml
 # AI/LLM Documentation
 CLAUDE.md
 GEMINI.md
+/docs/superpowers
 
 /dev-ops/check_requirements.php
 /performance/_fixtures.php

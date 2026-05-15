@@ -12,15 +12,14 @@ use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
-use Shopware\Core\Checkout\DocumentV2\Renderer\HtmlRenderer;
+use Shopware\Core\Checkout\DocumentV2\Renderer\XmlRenderer;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
 use Shopware\Core\Checkout\DocumentV2\Twig\DocumentTemplateRenderer;
-use Shopware\Core\Checkout\DocumentV2\Twig\PaginationCounter;
-use Shopware\Core\Checkout\DocumentV2\Twig\TemplateContext;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\TypeCode;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\MonetarySummationView;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\TradePartyView;
+use Shopware\Core\Checkout\DocumentV2\Zugferd\XmlFormatter;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
@@ -35,10 +34,10 @@ use Twig\Environment;
  * @internal
  */
 #[Package('after-sales')]
-#[CoversClass(HtmlRenderer::class)]
-class HtmlRendererTest extends TestCase
+#[CoversClass(XmlRenderer::class)]
+class XmlRendererTest extends TestCase
 {
-    private const HTML_TEMPLATE_PATH = '@Framework/documents/invoice.html.twig';
+    private const ZUGFERD_TEMPLATE_PATH = '@Framework/documents/zugferd/invoice.xml.twig';
 
     public function testConfig(): void
     {
@@ -47,65 +46,72 @@ class HtmlRendererTest extends TestCase
             $this->createMock(Environment::class),
         );
 
-        static::assertSame(DocumentFormat::HTML->value, $renderer->getFormat());
+        static::assertSame(DocumentFormat::ZUGFERD_XML->value, $renderer->getFormat());
         static::assertSame([DocumentType::INVOICE->value], $renderer->getDocumentTypes());
     }
 
     public function testRenderToString(): void
     {
-        $rendered = '<html>rendered</html>';
+        $rendered = '<root/>';
 
-        $renderData = $this->createRenderData(
-            filenamePrefix: 'invoice_',
-            custom: ['test' => 1],
-        );
+        $renderData = $this->createRenderData(filenamePrefix: 'zugferd_invoice_');
 
         $finder = $this->createMock(TemplateFinder::class);
         $finder->expects($this->once())
             ->method('find')
-            ->with(self::HTML_TEMPLATE_PATH)
-            ->willReturn(self::HTML_TEMPLATE_PATH);
+            ->with(self::ZUGFERD_TEMPLATE_PATH)
+            ->willReturn(self::ZUGFERD_TEMPLATE_PATH);
 
         $env = $this->createMock(Environment::class);
         $env->expects($this->once())
             ->method('render')
             ->with(
-                self::HTML_TEMPLATE_PATH,
-                static::callback(function (array $parameters): bool {
-                    static::assertArrayHasKey('config', $parameters);
-                    static::assertInstanceOf(TemplateContext::class, $parameters['config']);
-                    static::assertSame('html', $parameters['config']->fileType);
-                    static::assertSame(1000, $parameters['config']->itemsPerPage);
-                    static::assertSame(['test' => 1], $parameters['config']->custom);
-
-                    static::assertArrayHasKey('counter', $parameters);
-                    static::assertInstanceOf(PaginationCounter::class, $parameters['counter']);
+                self::ZUGFERD_TEMPLATE_PATH,
+                static::callback(function (array $parameters) use ($renderData): bool {
+                    static::assertArrayHasKey('renderData', $parameters);
+                    static::assertSame($renderData, $parameters['renderData']);
 
                     return true;
-                })
+                }),
             )
             ->willReturn($rendered);
-
-        $input = new RenderInput(
-            DocumentType::INVOICE->value,
-            $renderData->documentNumber,
-            $this->createOrder(),
-            [InvoiceDataProvider::KEY => $renderData],
-        );
 
         $renderer = $this->createRenderer($finder, $env);
 
         $result = $renderer->renderToString(
-            $input,
+            $this->createInput($renderData),
             new RenderState(),
             Context::createDefaultContext(),
         );
 
-        static::assertSame(DocumentFormat::HTML->value, $result->format);
-        static::assertSame($rendered, $result->content);
-        static::assertSame('html', $result->fileExtension);
-        static::assertSame('text/html', $result->mimeType);
-        static::assertSame('invoice_12345', $result->fileName);
+        static::assertSame(DocumentFormat::ZUGFERD_XML->value, $result->format);
+        static::assertStringContainsString('<?xml version="1.0" encoding="UTF-8"?>', $result->content);
+        static::assertStringContainsString('<root/>', $result->content);
+        static::assertSame('xml', $result->fileExtension);
+        static::assertSame('application/xml', $result->mimeType);
+        static::assertSame('zugferd_invoice_12345', $result->fileName);
+    }
+
+    public function testRenderToStringThrowsWhenTemplateProducesMalformedXml(): void
+    {
+        $renderData = $this->createRenderData();
+
+        $finder = $this->createMock(TemplateFinder::class);
+        $finder->method('find')->willReturn(self::ZUGFERD_TEMPLATE_PATH);
+
+        $env = $this->createMock(Environment::class);
+        $env->method('render')->willReturn('<root><unclosed></root>');
+
+        $renderer = $this->createRenderer($finder, $env);
+
+        static::expectException(DocumentV2Exception::class);
+        static::expectExceptionMessage('Generated XML is malformed');
+
+        $renderer->renderToString(
+            $this->createInput($renderData),
+            new RenderState(),
+            Context::createDefaultContext(),
+        );
     }
 
     public function testShouldThrowIfRenderDataCantBeFound(): void
@@ -133,9 +139,9 @@ class HtmlRendererTest extends TestCase
         );
     }
 
-    private function createRenderer(TemplateFinder $finder, Environment $env): HtmlRenderer
+    private function createRenderer(TemplateFinder $finder, Environment $env): XmlRenderer
     {
-        return new HtmlRenderer(
+        return new XmlRenderer(
             new DocumentTemplateRenderer(
                 $finder,
                 $env,
@@ -143,6 +149,7 @@ class HtmlRendererTest extends TestCase
                 $this->createMock(AbstractSalesChannelContextFactory::class),
                 'rootDir',
             ),
+            new XmlFormatter(),
         );
     }
 
@@ -156,13 +163,18 @@ class HtmlRendererTest extends TestCase
         return $order;
     }
 
-    /**
-     * @param array<string, mixed> $custom
-     */
-    private function createRenderData(
-        ?string $filenamePrefix = null,
-        array $custom = [],
-    ): InvoiceRenderData {
+    private function createInput(InvoiceRenderData $data): RenderInput
+    {
+        return new RenderInput(
+            DocumentType::INVOICE->value,
+            '12345',
+            $this->createOrder(),
+            [InvoiceDataProvider::KEY => $data],
+        );
+    }
+
+    private function createRenderData(?string $filenamePrefix = null): InvoiceRenderData
+    {
         return new InvoiceRenderData(
             config: new DocumentConfig(
                 pageSize: 'a4',
@@ -177,6 +189,15 @@ class HtmlRendererTest extends TestCase
                 'city',
                 new CountryEntity()
             ),
+            display: new DocumentDisplayOptions(),
+            documentDate: 'date',
+            documentNumber: '12345',
+            documentComment: null,
+            templatePaths: [
+                DocumentFormat::ZUGFERD_XML->value => self::ZUGFERD_TEMPLATE_PATH,
+            ],
+            typeCode: TypeCode::INVOICE,
+            buyerReference: '10000',
             buyer: new TradePartyView(
                 id: null,
                 name: '',
@@ -189,15 +210,6 @@ class HtmlRendererTest extends TestCase
                 countryIso: null,
                 email: null,
             ),
-            templatePaths: [
-                DocumentFormat::HTML->value => self::HTML_TEMPLATE_PATH,
-            ],
-            display: new DocumentDisplayOptions(),
-            documentDate: 'date',
-            documentNumber: '12345',
-            documentComment: null,
-            typeCode: TypeCode::INVOICE,
-            buyerReference: '10000',
             deliveryDate: null,
             lineItems: [],
             allowanceCharges: [],
@@ -206,7 +218,6 @@ class HtmlRendererTest extends TestCase
             paymentMeans: null,
             paymentDueDate: null,
             intraCommunityDelivery: false,
-            custom: $custom,
         );
     }
 }

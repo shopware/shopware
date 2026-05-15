@@ -11,7 +11,7 @@ use Shopware\Core\System\Country\CountryEntity;
  * @internal
  */
 #[Package('after-sales')]
-final readonly class CompanyInfo
+final readonly class DocumentCompanyInfo
 {
     public function __construct(
         public string $companyName,

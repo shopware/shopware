@@ -10,27 +10,27 @@ use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderResult;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
 use Shopware\Core\Checkout\DocumentV2\Twig\DocumentTemplateRenderer;
-use Shopware\Core\Checkout\DocumentV2\Twig\PaginationCounter;
-use Shopware\Core\Checkout\DocumentV2\Twig\TemplateContext;
+use Shopware\Core\Checkout\DocumentV2\Zugferd\XmlFormatter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Renders the HTML representation of a document via {@see DocumentTemplateRenderer}.
+ * Renders a document into XRechnung 3.0 (CII) XML.
  *
- * Wraps the provider's {@see InvoiceRenderData} in a {@see TemplateContext} together with
- * format-specific overrides (`fileType`, `itemsPerPage`) so the underlying render data stays
- * untouched for any renderer running after this one.
+ * Data + math live in {@see InvoiceDataProvider}; the same DTO feeds the HTML and Zugferd
+ * renderers. After Twig produces the raw markup it is piped through {@see XmlFormatter} for
+ * deterministic pretty-printing + well-formedness validation.
  *
  * @internal
  */
 #[Package('after-sales')]
-final readonly class HtmlRenderer extends AbstractDocumentRenderer
+final readonly class XmlRenderer extends AbstractDocumentRenderer
 {
-    final public const FORMAT = DocumentFormat::HTML;
+    final public const FORMAT = DocumentFormat::ZUGFERD_XML;
 
     public function __construct(
         private DocumentTemplateRenderer $documentTemplateRenderer,
+        private XmlFormatter $xmlFormatter,
     ) {
     }
 
@@ -50,35 +50,26 @@ final readonly class HtmlRenderer extends AbstractDocumentRenderer
     {
         $renderData = $input->requireData(
             InvoiceDataProvider::KEY,
-            InvoiceRenderData::class
-        );
-
-        $configuration = new TemplateContext(
-            $renderData,
-            fileType: self::FORMAT->fileExtension(),
-            itemsPerPage: 1000,
+            InvoiceRenderData::class,
         );
 
         $template = $renderData->templatePathFor(self::FORMAT->value);
 
-        $content = $this->documentTemplateRenderer->render(
+        $raw = $this->documentTemplateRenderer->render(
             $template,
             $input,
             $context,
-            [
-                'config' => $configuration,
-                'counter' => new PaginationCounter(),
-            ],
+            ['renderData' => $renderData],
         );
 
-        $fileStem = $renderData->config->buildFileStem($renderData->documentNumber);
+        $content = $this->xmlFormatter->format($raw);
 
         return new RenderResult(
-            self::FORMAT->value,
-            $content,
-            $fileStem,
-            self::FORMAT->fileExtension(),
-            self::FORMAT->mimeType(),
+            format: self::FORMAT->value,
+            content: $content,
+            fileName: $renderData->config->buildFileStem($renderData->documentNumber),
+            fileExtension: self::FORMAT->fileExtension(),
+            mimeType: self::FORMAT->mimeType(),
         );
     }
 }

@@ -60,13 +60,13 @@ class DocumentTemplateRendererTest extends TestCase
         $finder->expects($this->once())->method('reset');
         $finder->expects($this->once())
             ->method('find')
-            ->willReturn(DocumentType::INVOICE->templatePath());
+            ->willReturn('path');
 
         $env = $this->createMock(Environment::class);
         $env->expects($this->once())
             ->method('render')
             ->with(
-                DocumentType::INVOICE->templatePath(),
+                'path',
                 static::callback(function (array $parameters) use ($order) {
                     return $parameters['order'] === $order
                         && $parameters['documentNumber'] === '12345'
@@ -92,7 +92,7 @@ class DocumentTemplateRendererTest extends TestCase
         );
 
         $result = $renderer->render(
-            DocumentType::INVOICE->templatePath(),
+            'path',
             $input,
             $context,
         );

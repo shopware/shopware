@@ -1,0 +1,7 @@
+<ram:ApplicableTradeTax>
+    <ram:CalculatedAmount>{{ tax.calculatedAmount|zugferd_decimal }}</ram:CalculatedAmount>
+    <ram:TypeCode>VAT</ram:TypeCode>
+    <ram:BasisAmount>{{ tax.basisAmount|zugferd_decimal }}</ram:BasisAmount>
+    <ram:CategoryCode>{{ tax.taxCategory.value }}</ram:CategoryCode>
+    <ram:RateApplicablePercent>{{ tax.taxRate|zugferd_decimal }}</ram:RateApplicablePercent>
+</ram:ApplicableTradeTax>

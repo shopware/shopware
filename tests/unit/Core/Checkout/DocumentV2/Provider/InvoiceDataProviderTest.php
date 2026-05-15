@@ -5,6 +5,10 @@ namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Provider;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
@@ -12,21 +16,25 @@ use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseCon
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfigLoader;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
+use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Country\CountryEntity;
+use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -45,7 +53,7 @@ class InvoiceDataProviderTest extends TestCase
     {
         $provider = $this->createProvider();
 
-        static::assertSame(InvoiceDataProvider::KEY, $provider->getKey());
+        static::assertSame('invoice', $provider->getKey());
         static::assertSame([DocumentType::INVOICE->value], $provider->getDocumentTypes());
     }
 
@@ -62,10 +70,10 @@ class InvoiceDataProviderTest extends TestCase
                 'language',
                 'addresses',
                 'orderCustomer',
+                'lineItems',
                 'deliveries',
                 'primaryOrderTransaction',
                 'primaryOrderDelivery',
-                'lineItems',
                 'transactions',
             ],
             \array_keys($criteria->getAssociations()),
@@ -108,7 +116,7 @@ class InvoiceDataProviderTest extends TestCase
     ): void {
         $provider = $this->createProvider(
             $config,
-            $this->validatorWithViolations($vatViolationCount)
+            $this->createValidatorWithViolations($vatViolationCount)
         );
 
         $request = new DocumentGenerationRequest(
@@ -132,17 +140,123 @@ class InvoiceDataProviderTest extends TestCase
         static::assertSame($expectedIntraCommunityDelivery, $result->intraCommunityDelivery);
     }
 
+    public function testProvideRenderingDataDerivesPaymentDueDateFromDocumentDate(): void
+    {
+        $provider = $this->createProvider(['paymentDueDate' => '+30 days']);
+
+        $order = self::createOrder();
+        $request = new DocumentGenerationRequest(
+            $order->getId(),
+            $order->getVersionId() ?? Uuid::randomHex(),
+            DocumentType::INVOICE,
+            [DocumentFormat::PDF],
+            '12345',
+            documentDate: '2026-05-05T12:00:00+00:00',
+        );
+
+        $result = $provider->provideRenderingData($order, $request, Context::createDefaultContext());
+
+        static::assertEquals(
+            new \DateTimeImmutable('2026-06-04T12:00:00+00:00'),
+            $result->paymentDueDate,
+        );
+    }
+
+    public function testProvideRenderingDataReturnsNullPaymentDueDateForInvalidDocumentDate(): void
+    {
+        $provider = $this->createProvider(['paymentDueDate' => '+30 days']);
+
+        $order = self::createOrder();
+        $request = new DocumentGenerationRequest(
+            $order->getId(),
+            $order->getVersionId() ?? Uuid::randomHex(),
+            DocumentType::INVOICE,
+            [DocumentFormat::PDF],
+            '12345',
+            documentDate: 'not-a-date',
+        );
+
+        $result = $provider->provideRenderingData($order, $request, Context::createDefaultContext());
+
+        static::assertNull($result->paymentDueDate);
+    }
+
+    public function testProvideRenderingDataThrowsWhenDocumentNumberMissing(): void
+    {
+        $provider = $this->createProvider();
+        $order = self::createOrder();
+        $request = new DocumentGenerationRequest(
+            $order->getId(),
+            $order->getVersionId() ?? Uuid::randomHex(),
+            DocumentType::INVOICE,
+            [DocumentFormat::PDF],
+            documentNumber: null,
+            documentDate: '2026-05-05T12:00:00+00:00',
+        );
+
+        static::expectExceptionObject(DocumentV2Exception::missingDocumentNumber(DocumentType::INVOICE->value));
+
+        $provider->provideRenderingData($order, $request, Context::createDefaultContext());
+    }
+
+    public function testProvideRenderingDataResolvesDeliveryDateFromDeliveriesWhenV68IsInactive(): void
+    {
+        if (Feature::isActive('v6.8.0.0')) {
+            static::markTestSkipped('v6.7 fallback branch is only exercised when v6.8.0.0 is inactive.');
+        }
+
+        $provider = $this->createProvider();
+        $order = self::createOrder(
+            country: self::createCountry(companyTaxEnabled: true, isEu: true),
+            skipPrimaryDelivery: true,
+        );
+        $request = new DocumentGenerationRequest(
+            $order->getId(),
+            $order->getVersionId() ?? Uuid::randomHex(),
+            DocumentType::INVOICE,
+            [DocumentFormat::PDF],
+            '12345',
+            documentDate: '2026-05-05T12:00:00+00:00',
+        );
+
+        $result = $provider->provideRenderingData($order, $request, Context::createDefaultContext());
+
+        static::assertEquals(new \DateTimeImmutable('2026-05-15'), $result->deliveryDate);
+    }
+
+    public function testProvideRenderingDataConvertsMutableShippingDateToImmutable(): void
+    {
+        $provider = $this->createProvider();
+        $order = self::createOrder(
+            country: self::createCountry(companyTaxEnabled: true, isEu: true),
+            shippingDateLatest: new \DateTime('2026-05-15'),
+        );
+        $request = new DocumentGenerationRequest(
+            $order->getId(),
+            $order->getVersionId() ?? Uuid::randomHex(),
+            DocumentType::INVOICE,
+            [DocumentFormat::PDF],
+            '12345',
+            documentDate: '2026-05-05T12:00:00+00:00',
+        );
+
+        $result = $provider->provideRenderingData($order, $request, Context::createDefaultContext());
+
+        static::assertInstanceOf(\DateTimeImmutable::class, $result->deliveryDate);
+        static::assertEquals(new \DateTimeImmutable('2026-05-15'), $result->deliveryDate);
+    }
+
     public static function provideRenderingData(): iterable
     {
         $flag = ['displayAdditionalNoteDelivery' => true];
         $business = CustomerEntity::ACCOUNT_TYPE_BUSINESS;
 
-        $validEuCountry = self::buildCountry(
+        $validEuCountry = self::createCountry(
             companyTaxEnabled: true,
             isEu: true
         );
 
-        $validEuCountryNoPatternCheck = self::buildCountry(
+        $validEuCountryNoPatternCheck = self::createCountry(
             companyTaxEnabled: true,
             isEu: true,
             checkVatIdPattern: false
@@ -150,13 +264,13 @@ class InvoiceDataProviderTest extends TestCase
 
         yield 'intra false - displayAdditionalNoteDelivery flag not set' => [
             'config' => [],
-            'order' => self::buildOrder(),
+            'order' => self::createOrder(),
             'expectedIntraCommunityDelivery' => false,
         ];
 
         yield 'intra false - displayAdditionalNoteDelivery flag explicitly false' => [
             'config' => ['displayAdditionalNoteDelivery' => false],
-            'order' => self::buildOrder(
+            'order' => self::createOrder(
                 accountType: $business,
                 country: $validEuCountry,
                 vatIds: ['DE123456789']
@@ -166,19 +280,19 @@ class InvoiceDataProviderTest extends TestCase
 
         yield 'intra false - flag set, customer is not business' => [
             'config' => $flag,
-            'order' => self::buildOrder(),
+            'order' => self::createOrder(),
             'expectedIntraCommunityDelivery' => false,
         ];
 
         yield 'intra false - business customer, order has no deliveries' => [
             'config' => $flag,
-            'order' => self::buildOrder(accountType: $business),
+            'order' => self::createOrder(accountType: $business),
             'expectedIntraCommunityDelivery' => false,
         ];
 
         yield 'intra false - delivery exists but shipping address has no country' => [
             'config' => $flag,
-            'order' => self::buildOrder(
+            'order' => self::createOrder(
                 accountType: $business,
                 deliveryWithoutCountry: true
             ),
@@ -187,9 +301,9 @@ class InvoiceDataProviderTest extends TestCase
 
         yield 'intra false - country is non-EU' => [
             'config' => $flag,
-            'order' => self::buildOrder(
+            'order' => self::createOrder(
                 accountType: $business,
-                country: self::buildCountry(
+                country: self::createCountry(
                     companyTaxEnabled: true,
                     isEu: false
                 ),
@@ -199,9 +313,9 @@ class InvoiceDataProviderTest extends TestCase
 
         yield 'intra false - EU country but companyTax disabled' => [
             'config' => $flag,
-            'order' => self::buildOrder(
+            'order' => self::createOrder(
                 accountType: $business,
-                country: self::buildCountry(
+                country: self::createCountry(
                     companyTaxEnabled: false,
                     isEu: true
                 ),
@@ -211,7 +325,7 @@ class InvoiceDataProviderTest extends TestCase
 
         yield 'intra true - country has checkVatIdPattern disabled, validator skipped' => [
             'config' => $flag,
-            'order' => self::buildOrder(
+            'order' => self::createOrder(
                 accountType: $business,
                 country: $validEuCountryNoPatternCheck,
             ),
@@ -220,7 +334,7 @@ class InvoiceDataProviderTest extends TestCase
 
         yield 'intra false - all preconditions met but customer has no vatIds' => [
             'config' => $flag,
-            'order' => self::buildOrder(
+            'order' => self::createOrder(
                 accountType: $business,
                 country: $validEuCountry
             ),
@@ -229,7 +343,7 @@ class InvoiceDataProviderTest extends TestCase
 
         yield 'intra false - vatIds present but validator finds violations' => [
             'config' => $flag,
-            'order' => self::buildOrder(
+            'order' => self::createOrder(
                 accountType: $business,
                 country: $validEuCountry,
                 vatIds: ['INVALID']
@@ -240,7 +354,7 @@ class InvoiceDataProviderTest extends TestCase
 
         yield 'intra true - all preconditions met and vatId validates cleanly' => [
             'config' => $flag,
-            'order' => self::buildOrder(
+            'order' => self::createOrder(
                 accountType: $business,
                 country: $validEuCountry,
                 vatIds: ['DE123456789']
@@ -270,7 +384,7 @@ class InvoiceDataProviderTest extends TestCase
         /** @var StaticEntityRepository<DocumentBaseConfigCollection> $documentConfigRepository */
         $documentConfigRepository = new StaticEntityRepository(
             [new DocumentBaseConfigCollection([
-                $this->buildBaseConfig($config),
+                $this->createBaseConfig($config),
             ])],
             new DocumentBaseConfigDefinition(),
         );
@@ -289,7 +403,7 @@ class InvoiceDataProviderTest extends TestCase
     /**
      * @param array<string, mixed> $config
      */
-    private function buildBaseConfig(array $config): DocumentBaseConfigEntity
+    private function createBaseConfig(array $config): DocumentBaseConfigEntity
     {
         $entity = new DocumentBaseConfigEntity();
         $entity->setUniqueIdentifier(Uuid::randomHex());
@@ -310,7 +424,7 @@ class InvoiceDataProviderTest extends TestCase
         return $entity;
     }
 
-    private function validatorWithViolations(int $count): ValidatorInterface
+    private function createValidatorWithViolations(int $count): ValidatorInterface
     {
         $violations = [];
 
@@ -335,31 +449,61 @@ class InvoiceDataProviderTest extends TestCase
     /**
      * @param list<string>|null $vatIds
      */
-    private static function buildOrder(
+    private static function createOrder(
         ?string $accountType = null,
         ?CountryEntity $country = null,
         ?array $vatIds = null,
         bool $deliveryWithoutCountry = false,
+        ?\DateTimeInterface $shippingDateLatest = null,
+        bool $skipPrimaryDelivery = false,
     ): OrderEntity {
         $order = new OrderEntity();
         $order->setId(Uuid::randomHex());
         $order->setVersionId(Uuid::randomHex());
         $order->setSalesChannelId(Uuid::randomHex());
+        $billingAddressId = Uuid::randomHex();
+        $order->setBillingAddressId($billingAddressId);
+        $order->setLineItems(new OrderLineItemCollection());
+        $order->setPrice(new CartPrice(0.0, 0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET));
+        $order->setAmountTotal(0.0);
+        $order->setAmountNet(0.0);
+
+        $currency = new CurrencyEntity();
+        $currency->setUniqueIdentifier(Uuid::randomHex());
+        $currency->setIsoCode('EUR');
+        $order->setCurrency($currency);
+
+        $billingCountry = new CountryEntity();
+        $billingCountry->setUniqueIdentifier(Uuid::randomHex());
+        $billingCountry->setIso('DE');
+
+        $billingAddress = new OrderAddressEntity();
+        $billingAddress->setUniqueIdentifier($billingAddressId);
+        $billingAddress->setId($billingAddressId);
+        $billingAddress->setCountry($billingCountry);
+        $billingAddress->setStreet('');
+        $billingAddress->setZipcode('');
+        $billingAddress->setCity('');
+        $order->setBillingAddress($billingAddress);
+
+        $orderCustomer = new OrderCustomerEntity();
+        $orderCustomer->setUniqueIdentifier(Uuid::randomHex());
+        $orderCustomer->setFirstName('Max');
+        $orderCustomer->setLastName('Mustermann');
+        $orderCustomer->setEmail('');
+        $orderCustomer->setCustomerNumber('');
 
         if ($accountType !== null) {
             $customer = new CustomerEntity();
             $customer->setAccountType($accountType);
-
-            $orderCustomer = new OrderCustomerEntity();
-            $orderCustomer->setUniqueIdentifier(Uuid::randomHex());
             $orderCustomer->setCustomer($customer);
-
-            if ($vatIds !== null) {
-                $orderCustomer->setVatIds($vatIds);
-            }
-
-            $order->setOrderCustomer($orderCustomer);
         }
+
+        if ($vatIds !== null) {
+            $orderCustomer->setVatIds($vatIds);
+        }
+
+        $order->setOrderCustomer($orderCustomer);
 
         if ($country !== null || $deliveryWithoutCountry) {
             $address = new OrderAddressEntity();
@@ -372,15 +516,20 @@ class InvoiceDataProviderTest extends TestCase
             $delivery = new OrderDeliveryEntity();
             $delivery->setUniqueIdentifier(Uuid::randomHex());
             $delivery->setShippingOrderAddress($address);
+            $delivery->setShippingDateLatest($shippingDateLatest ?? new \DateTimeImmutable('2026-05-15'));
+            $delivery->setShippingCosts(new CalculatedPrice(0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
             $order->setDeliveries(new OrderDeliveryCollection([$delivery]));
-            $order->setPrimaryOrderDelivery($delivery);
+
+            if (!$skipPrimaryDelivery) {
+                $order->setPrimaryOrderDelivery($delivery);
+            }
         }
 
         return $order;
     }
 
-    private static function buildCountry(
+    private static function createCountry(
         bool $companyTaxEnabled,
         bool $isEu,
         bool $checkVatIdPattern = true,

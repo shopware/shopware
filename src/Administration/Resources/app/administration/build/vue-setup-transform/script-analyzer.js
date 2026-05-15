@@ -21,7 +21,7 @@ const { ShopwareSetupTransformError } = require('./utils/transform-error');
  * @property {number} end
  *
  * @typedef {SourceRange & { code: string }} ImportBlock
- * @typedef {SourceRange & { kind: 'props' | 'emits' }} SetupInputReplacement
+ * @typedef {SourceRange & { kind: 'props' | 'emits' | 'slots' }} SetupInputReplacement
  *
  * @typedef {object} RuntimeBinding
  * @property {string} name
@@ -45,13 +45,13 @@ const { ShopwareSetupTransformError } = require('./utils/transform-error');
  * @property {OverrideEntry[]} overrideEntries
  * @property {{ code: string, macroName: 'defineProps' | 'withDefaults', ranges: SourceRange[] } | null} propsMacro
  * @property {{ code: string, macroName: 'defineEmits', ranges: SourceRange[] } | null} emitsMacro
+ * @property {{ code: string, macroName: 'defineSlots', ranges: SourceRange[] } | null} slotsMacro
+ * @property {{ code: string, macroName: 'defineOptions', ranges: SourceRange[] } | null} optionsMacro
  * @property {Map<string, string>} overridePrivateAliases
  */
 
 const UNSUPPORTED_VUE_MACROS = new Set([
     'defineExpose',
-    'defineOptions',
-    'defineSlots',
     'defineModel',
 ]);
 
@@ -59,6 +59,8 @@ const BASE_HELPERS = new Set([
     'swDefinePublic',
     'swDefineOverride',
     'defineEmits',
+    'defineOptions',
+    'defineSlots',
     'withDefaults',
     'useSwProps',
     'useSwContext',
@@ -68,6 +70,8 @@ const OVERRIDE_HELPERS = new Set([
     'swDefinePublic',
     'swDefineOverride',
     'defineEmits',
+    'defineOptions',
+    'defineSlots',
     'useSwPreviousState',
     'withDefaults',
     'useSwProps',
@@ -677,6 +681,7 @@ function isSetupInputDeclaration(declaration) {
         declaration.init.callee.type === 'Identifier' &&
         (declaration.init.callee.name === 'defineProps' ||
             declaration.init.callee.name === 'defineEmits' ||
+            declaration.init.callee.name === 'defineSlots' ||
             declaration.init.callee.name === 'withDefaults' ||
             declaration.init.callee.name === 'useSwProps')
     );
@@ -702,6 +707,9 @@ function analyzeShopwareSetupScript(script, options) {
     const overrideMarkerStatements = [];
     const definePropsCalls = [];
     const defineEmitsCalls = [];
+    const defineSlotsCalls = [];
+    const defineOptionsCalls = [];
+    const defineOptionsStatements = [];
     const withDefaultsCalls = [];
     const useSwPropsCalls = [];
     const topLevelPublicCalls = new Set();
@@ -726,6 +734,11 @@ function analyzeShopwareSetupScript(script, options) {
             return;
         }
 
+        if (isStatementCompilerMacro(statement, 'defineOptions')) {
+            defineOptionsStatements.push(statement);
+            return;
+        }
+
         collectRuntimeBinding(statement, runtimeBindings, runtimeBindingNames, scriptOffset, mode);
     });
 
@@ -736,6 +749,14 @@ function analyzeShopwareSetupScript(script, options) {
 
         if (isCompilerMacroCall(node, 'defineEmits')) {
             defineEmitsCalls.push(node);
+        }
+
+        if (isCompilerMacroCall(node, 'defineSlots')) {
+            defineSlotsCalls.push(node);
+        }
+
+        if (isCompilerMacroCall(node, 'defineOptions')) {
+            defineOptionsCalls.push(node);
         }
 
         if (isWithDefaultsCall(node)) {
@@ -792,6 +813,51 @@ function analyzeShopwareSetupScript(script, options) {
         throw new ShopwareSetupTransformError(
             'Only one defineEmits() call is allowed in a base Shopware setup block.',
             scriptOffset + getNodeRange(emitsMacroCalls[1], scriptOffset).start,
+        );
+    }
+
+    const slotsMacroCalls = [...defineSlotsCalls].sort(
+        (a, b) => getNodeRange(a, scriptOffset).start - getNodeRange(b, scriptOffset).start,
+    );
+
+    if (mode === 'override' && slotsMacroCalls.length > 0) {
+        throw new ShopwareSetupTransformError(
+            'defineSlots() is only supported in base Shopware setup blocks.',
+            scriptOffset + getNodeRange(slotsMacroCalls[0], scriptOffset).start,
+        );
+    }
+
+    if (slotsMacroCalls.length > 1) {
+        throw new ShopwareSetupTransformError(
+            'Only one defineSlots() call is allowed in a base Shopware setup block.',
+            scriptOffset + getNodeRange(slotsMacroCalls[1], scriptOffset).start,
+        );
+    }
+
+    const topLevelDefineOptionsCalls = new Set(defineOptionsStatements.map((statement) => statement.expression));
+
+    defineOptionsCalls.forEach((call) => {
+        if (topLevelDefineOptionsCalls.has(call)) {
+            return;
+        }
+
+        throw new ShopwareSetupTransformError(
+            'defineOptions() must be called once at the top level of a base Shopware setup block.',
+            scriptOffset + getNodeRange(call, scriptOffset).start,
+        );
+    });
+
+    if (mode === 'override' && defineOptionsStatements.length > 0) {
+        throw new ShopwareSetupTransformError(
+            'defineOptions() is only supported in base Shopware setup blocks.',
+            scriptOffset + getNodeRange(defineOptionsStatements[0], scriptOffset).start,
+        );
+    }
+
+    if (defineOptionsStatements.length > 1) {
+        throw new ShopwareSetupTransformError(
+            'Only one defineOptions() call is allowed in a base Shopware setup block.',
+            scriptOffset + getNodeRange(defineOptionsStatements[1], scriptOffset).start,
         );
     }
 
@@ -858,6 +924,7 @@ function analyzeShopwareSetupScript(script, options) {
 
     const bodyRemovals = [
         ...imports.map((importNode) => getNodeRange(importNode, scriptOffset)),
+        ...defineOptionsStatements.map((statement) => getNodeRange(statement, scriptOffset)),
         ...publicMarkerStatements.map((statement) => getNodeRange(statement, scriptOffset)),
         ...overrideMarkerStatements.map((statement) => getNodeRange(statement, scriptOffset)),
     ];
@@ -874,9 +941,15 @@ function analyzeShopwareSetupScript(script, options) {
             ...getNodeRange(call, scriptOffset),
             kind: 'emits',
         })),
+        ...slotsMacroCalls.map((call) => ({
+            ...getNodeRange(call, scriptOffset),
+            kind: 'slots',
+        })),
     ];
     const propsMacroCall = propsMacroCalls[0];
     const emitsMacroCall = emitsMacroCalls[0];
+    const slotsMacroCall = slotsMacroCalls[0];
+    const optionsMacroStatement = defineOptionsStatements[0];
 
     return {
         source: script,
@@ -911,6 +984,32 @@ function analyzeShopwareSetupScript(script, options) {
                       macroName: 'defineEmits',
                       ranges: [
                           getNodeRange(emitsMacroCall, scriptOffset),
+                      ],
+                  }
+                : null,
+        slotsMacro:
+            slotsMacroCall
+                ? {
+                      code: script.slice(
+                          getNodeRange(slotsMacroCall, scriptOffset).start,
+                          getNodeRange(slotsMacroCall, scriptOffset).end,
+                      ),
+                      macroName: 'defineSlots',
+                      ranges: [
+                          getNodeRange(slotsMacroCall, scriptOffset),
+                      ],
+                  }
+                : null,
+        optionsMacro:
+            optionsMacroStatement
+                ? {
+                      code: script.slice(
+                          getNodeRange(optionsMacroStatement, scriptOffset).start,
+                          getNodeRange(optionsMacroStatement, scriptOffset).end,
+                      ),
+                      macroName: 'defineOptions',
+                      ranges: [
+                          getNodeRange(optionsMacroStatement, scriptOffset),
                       ],
                   }
                 : null,

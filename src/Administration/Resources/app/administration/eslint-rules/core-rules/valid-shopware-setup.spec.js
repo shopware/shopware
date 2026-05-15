@@ -83,6 +83,22 @@ swDefinePublic({ count });
 </script>`,
         },
         {
+            filename: 'base-slots.vue',
+            code: `<script setup lang="ts" sw-component="sw-my-component">
+const slots = defineSlots<{ default(props: { count: number }): unknown }>();
+const count = slots.default ? 1 : 0;
+swDefinePublic({ count });
+</script>`,
+        },
+        {
+            filename: 'base-options.vue',
+            code: `<script setup sw-component="sw-my-component">
+defineOptions({ inheritAttrs: false });
+const count = 1;
+swDefinePublic({ count });
+</script>`,
+        },
+        {
             filename: 'override.vue',
             code: `<script setup lang="ts" sw-override="sw-my-component">
 const previousState = useSwPreviousState();
@@ -128,6 +144,30 @@ swDefineOverride({});
             errors: [
                 {
                     message: 'defineEmits() is only supported in base Shopware setup blocks.',
+                },
+            ],
+        },
+        {
+            filename: 'override-slots.vue',
+            code: `<script setup sw-override="sw-my-component">
+const slots = defineSlots();
+swDefineOverride({});
+</script>`,
+            errors: [
+                {
+                    message: 'defineSlots() is only supported in base Shopware setup blocks.',
+                },
+            ],
+        },
+        {
+            filename: 'override-options.vue',
+            code: `<script setup sw-override="sw-my-component">
+defineOptions({ inheritAttrs: false });
+swDefineOverride({});
+</script>`,
+            errors: [
+                {
+                    message: 'defineOptions() is only supported in base Shopware setup blocks.',
                 },
             ],
         },

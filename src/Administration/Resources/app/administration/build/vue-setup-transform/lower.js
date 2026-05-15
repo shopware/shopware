@@ -145,8 +145,11 @@ function buildCallbackBody(analysis, setupBindingsName) {
         setupBindingsName
             ? analysis.setupInputReplacements.map((range) => ({
                   ...range,
-                  replacement:
-                      range.kind === 'props' ? `(${setupBindingsName}.props)` : `(${setupBindingsName}.context.emit)`,
+                  replacement: {
+                      props: `(${setupBindingsName}.props)`,
+                      emits: `(${setupBindingsName}.context.emit)`,
+                      slots: `(${setupBindingsName}.context.slots)`,
+                  }[range.kind],
               }))
             : [],
     );
@@ -294,6 +297,7 @@ function buildBaseScript(block, analysis) {
     const setupBindingsName = makeUniqueName('__shopwareSetupBindings', takenNames);
     const propsName = analysis.propsMacro ? makeUniqueName('props', takenNames) : null;
     const emitName = analysis.emitsMacro ? makeUniqueName('emit', takenNames) : null;
+    const slotsName = analysis.slotsMacro ? makeUniqueName('slots', takenNames) : null;
     const publicEntryByLocalName = createEntryByLocalNameMap(analysis.publicEntries, 'swDefinePublic');
     const destructureEntries = analysis.runtimeBindings.map((binding) => {
         return formatDestructureEntry(binding.name, publicEntryByLocalName.get(binding.name));
@@ -320,6 +324,18 @@ function buildBaseScript(block, analysis) {
         ...(analysis.emitsMacro
             ? [
                   `const ${emitName} = ${analysis.emitsMacro.code};`,
+                  '',
+              ]
+            : []),
+        ...(analysis.slotsMacro
+            ? [
+                  `const ${slotsName} = ${analysis.slotsMacro.code};`,
+                  '',
+              ]
+            : []),
+        ...(analysis.optionsMacro
+            ? [
+                  analysis.optionsMacro.code,
                   '',
               ]
             : []),

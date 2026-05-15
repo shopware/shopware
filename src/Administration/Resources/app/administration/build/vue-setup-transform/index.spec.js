@@ -371,6 +371,104 @@ swDefinePublic({ count });
         );
     });
 
+    it('keeps base defineSlots() outside the extendable setup callback and replaces it with context.slots', () => {
+        const source = `<script setup lang="ts" sw-component="sw-my-component">
+const slots = defineSlots<{
+    default(props: { count: number }): unknown;
+}>();
+
+function renderDefaultSlot() {
+    return slots.default?.({ count: 1 });
+}
+
+const count = 1;
+
+swDefinePublic({
+    count,
+});
+</script>`;
+
+        const result = transformOrFail(source, 'base-slots.vue').code;
+
+        expect(result).toContain(`const slots = defineSlots<{
+    default(props: { count: number }): unknown;
+}>();`);
+        expect(result).toContain('const slots = (__shopwareSetupBindings.context.slots);');
+        expect(result).toContain('return slots.default?.({ count: 1 });');
+        expect(result).toContain('private: {\n            renderDefaultSlot,\n        }');
+        expect(result.match(/defineSlots/g)).toHaveLength(1);
+    });
+
+    it('replaces defineSlots() destructuring inside the extendable setup callback', () => {
+        const source = `<script setup sw-component="sw-my-component">
+const { default: defaultSlot } = defineSlots();
+const count = defaultSlot ? 1 : 0;
+
+swDefinePublic({
+    count,
+});
+</script>`;
+
+        const result = transformOrFail(source, 'base-destructured-slots.vue').code;
+
+        expect(result).toContain('const slots = defineSlots();');
+        expect(result).toContain('const { default: defaultSlot } = (__shopwareSetupBindings.context.slots);');
+    });
+
+    it('keeps base defineOptions() outside the extendable setup callback', () => {
+        const source = `<script setup sw-component="sw-my-component">
+defineOptions({
+    inheritAttrs: false,
+});
+
+const count = 1;
+
+swDefinePublic({
+    count,
+});
+</script>`;
+
+        const result = transformOrFail(source, 'base-options.vue').code;
+
+        expect(result).toContain(`defineOptions({
+    inheritAttrs: false,
+});`);
+        expect(result.indexOf('defineOptions({')).toBeLessThan(
+            result.indexOf('Shopware.Component.createScriptSetupExtendableComponent()'),
+        );
+        expect(result).not.toContain(`(__shopwareSetupBindings) => {
+    const useSwContext = () => __shopwareSetupBindings.context;
+
+    defineOptions`);
+        expect(result.match(/defineOptions/g)).toHaveLength(1);
+    });
+
+    it('rejects duplicate base defineSlots() declarations', () => {
+        const source = `<script setup sw-component="sw-my-component">
+const slots = defineSlots();
+const otherSlots = defineSlots();
+const count = 1;
+swDefinePublic({ count });
+</script>`;
+
+        expect(() => transformShopwareSetupSfc(source, 'base-duplicate-slots.vue')).toThrow(
+            'Only one defineSlots() call is allowed in a base Shopware setup block.',
+        );
+    });
+
+    it('rejects duplicate base defineOptions() declarations', () => {
+        const source = `<script setup sw-component="sw-my-component">
+defineOptions({ inheritAttrs: false });
+defineOptions({ name: 'sw-my-component' });
+const count = 1;
+swDefinePublic({ count });
+</script>`;
+
+        expect(() => transformShopwareSetupSfc(source, 'base-duplicate-options.vue')).toThrow(
+            'Only one defineOptions() call is allowed in a base Shopware setup block.',
+        );
+    });
+
     it('replaces base useSwProps() calls instead of injecting a helper', () => {
         const source = `<script setup sw-component="sw-my-component">
 const props = useSwProps();
@@ -710,14 +808,6 @@ swDefineOverride({ count });
             'Vue macro defineExpose() is not supported inside Shopware setup blocks.',
         ],
         [
-            'defineOptions()',
-            'Vue macro defineOptions() is not supported inside Shopware setup blocks.',
-        ],
-        [
-            'defineSlots()',
-            'Vue macro defineSlots() is not supported inside Shopware setup blocks.',
-        ],
-        [
             'defineModel()',
             'Vue macro defineModel() is not supported inside Shopware setup blocks.',
         ],
@@ -762,6 +852,42 @@ swDefineOverride({});
 
         expect(() => transformShopwareSetupSfc(source, 'override-emits.vue')).toThrow(
             'defineEmits() is only supported in base Shopware setup blocks.',
+        );
+    });
+
+    it('rejects defineSlots() in override mode', () => {
+        const source = `<script setup lang="ts" sw-override="sw-my-component">
+const slots = defineSlots();
+swDefineOverride({});
+</script>`;
+
+        expect(() => transformShopwareSetupSfc(source, 'override-slots.vue')).toThrow(
+            'defineSlots() is only supported in base Shopware setup blocks.',
+        );
+    });
+
+    it('rejects defineOptions() in override mode', () => {
+        const source = `<script setup lang="ts" sw-override="sw-my-component">
+defineOptions({ inheritAttrs: false });
+swDefineOverride({});
+</script>`;
+
+        expect(() => transformShopwareSetupSfc(source, 'override-options.vue')).toThrow(
+            'defineOptions() is only supported in base Shopware setup blocks.',
+        );
+    });
+
+    it('rejects nested defineOptions()', () => {
+        const source = `<script setup sw-component="sw-my-component">
+if (true) {
+    defineOptions({ inheritAttrs: false });
+}
+const count = 1;
+swDefinePublic({ count });
+</script>`;
+
+        expect(() => transformShopwareSetupSfc(source, 'nested-options.vue')).toThrow(
+            'defineOptions() must be called once at the top level of a base Shopware setup block.',
         );
     });
 

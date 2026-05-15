@@ -10,6 +10,11 @@ use Shopware\Core\Framework\Rule\DateRangeRule;
 use Shopware\Core\Framework\Rule\RuleException;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Test\Assert\Serialization;
+use Symfony\Component\Validator\Constraints\DateTime as DateTimeConstraint;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\NotNull;
+use Symfony\Component\Validator\Constraints\Timezone;
+use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Validation;
 
 /**
@@ -348,6 +353,47 @@ class DateRangeRuleTest extends TestCase
 
         static::assertCount(0, $validator->validate($data['fromDate'], $constraints['fromDate']));
         static::assertCount(0, $validator->validate($data['toDate'], $constraints['toDate']));
+    }
+
+    public function testGetConstraints(): void
+    {
+        $constraints = (new DateRangeRule())->getConstraints();
+
+        static::assertEquals([
+            'fromDate' => [new NotBlank(), new DateTimeConstraint(format: 'Y-m-d\TH:i:s')],
+            'toDate' => [new NotBlank(), new DateTimeConstraint(format: 'Y-m-d\TH:i:s')],
+            'useTime' => [new NotNull(), new Type('bool')],
+            'timezone' => [new Timezone()],
+        ], $constraints);
+    }
+
+    #[DataProvider('invalidConstraintValuesProvider')]
+    public function testConstraintsRejectInvalidValues(string $property, mixed $value, string $expectedCode): void
+    {
+        $constraints = (new DateRangeRule())->getConstraints();
+        $validator = Validation::createValidator();
+
+        $violations = $validator->validate($value, $constraints[$property]);
+
+        static::assertCount(1, $violations);
+        $violation = $violations->get(0);
+        static::assertSame($expectedCode, $violation->getCode());
+    }
+
+    /**
+     * @return \Generator<string, array{string, mixed, string}>
+     */
+    public static function invalidConstraintValuesProvider(): \Generator
+    {
+        yield 'missing fromDate' => ['fromDate', null, NotBlank::IS_BLANK_ERROR];
+        yield 'missing toDate' => ['toDate', null, NotBlank::IS_BLANK_ERROR];
+        yield 'invalid fromDate format' => ['fromDate', 'Invalid', DateTimeConstraint::INVALID_FORMAT_ERROR];
+        yield 'invalid boolean fromDate format' => ['fromDate', true, DateTimeConstraint::INVALID_FORMAT_ERROR];
+        yield 'invalid toDate format' => ['toDate', 'Invalid', DateTimeConstraint::INVALID_FORMAT_ERROR];
+        yield 'invalid boolean toDate format' => ['toDate', true, DateTimeConstraint::INVALID_FORMAT_ERROR];
+        yield 'missing useTime' => ['useTime', null, NotNull::IS_NULL_ERROR];
+        yield 'invalid useTime type' => ['useTime', 'true', Type::INVALID_TYPE_ERROR];
+        yield 'invalid timezone' => ['timezone', 'Invalid/Timezone', Timezone::TIMEZONE_IDENTIFIER_ERROR];
     }
 
     public function testAssignWithStringDatesConvertsToDateTime(): void

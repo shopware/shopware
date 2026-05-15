@@ -232,7 +232,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
         }
 
         foreach ($theme->getConfigValues() as $fieldName => $configValue) {
-            if (isset($configValue['value'])) {
+            if (\array_key_exists('value', $configValue)) {
                 $configuredTheme['fields'][$fieldName]['value'] = $configValue['value'];
             }
         }

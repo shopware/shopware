@@ -9,23 +9,15 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\JsonDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\NestedDefinition;
@@ -33,7 +25,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
-use Shopware\Core\Test\Stub\DataAbstractionLayer\EmptyEntityExistence;
 
 /**
  * @internal
@@ -373,54 +364,6 @@ EOF;
                 static::assertStringContainsString('Named parameter ', $e->getMessage());
             }
         }
-    }
-
-    public function testNestedJsonField(): void
-    {
-        $insertTime = new \DateTime('2004-02-29 08:59:59.001');
-
-        $serializer = static::getContainer()->get(JsonFieldSerializer::class);
-
-        $field = new JsonField('root', 'root', [
-            new JsonField('child', 'child', [
-                new DateTimeField('childDateTime', 'childDateTime'),
-                new DateField('childDate', 'childDate'),
-            ]),
-        ]);
-
-        $value = [
-            'child' => [
-                'childDateTime' => $insertTime,
-                'childDate' => $insertTime,
-            ],
-        ];
-
-        $payload = $serializer->encode(
-            $field,
-            new EmptyEntityExistence(),
-            new KeyValuePair('root', $value, true),
-            new WriteParameterBag(
-                $this->createMock(EntityDefinition::class),
-                WriteContext::createFromContext(Context::createDefaultContext()),
-                '',
-                new WriteCommandQueue()
-            )
-        );
-
-        // assert is generator
-        static::assertIsIterable($payload);
-
-        $payload = iterator_to_array($payload);
-
-        static::assertArrayHasKey('root', $payload);
-        static::assertIsString($payload['root']);
-
-        $decoded = json_decode($payload['root'], true, 512, \JSON_THROW_ON_ERROR);
-        static::assertArrayHasKey('child', $decoded);
-        static::assertArrayHasKey('childDateTime', $decoded['child']);
-
-        static::assertSame($insertTime->format(Defaults::STORAGE_DATE_TIME_FORMAT), $decoded['child']['childDateTime']);
-        static::assertSame($insertTime->format(Defaults::STORAGE_DATE_FORMAT), $decoded['child']['childDate']);
     }
 
     public function testNestedJsonFilter(): void

@@ -1,8 +1,30 @@
 {% block element_image %}
     {% set config = element.fieldConfig.elements %}
-    {% set isCover = element.translated.config.displayMode.value == 'cover' %}
+    {% set displayMode = element.translated.config.displayMode.value %}
+    {% set isCover = displayMode == 'cover' %}
+    {% set isStretch = displayMode == 'stretch' %}
+    {% set wrapperClasses = ['cms-element-' ~ element.type] %}
 
-    <div class="cms-element-{{ element.type }}{% if config.verticalAlign.value and not isCover %} d-flex has-vertical-alignment{% endif %}{% if config.horizontalAlign.value == "center" and not isCover %} justify-content-center{% elseif config.horizontalAlign.value == "flex-end" and not isCover %} justify-content-end{% else %} justify-content-start{% endif %}">
+    {% if isStretch %}
+        {% set wrapperClasses = wrapperClasses|merge(['is-stretch']) %}
+    {% endif %}
+
+    {% if config.verticalAlign.value and not isCover %}
+        {% set wrapperClasses = wrapperClasses|merge(['d-flex', 'has-vertical-alignment']) %}
+    {% endif %}
+
+    {# stretch fills the slot width — horizontal align is a no-op #}
+    {% if not isCover and not isStretch %}
+        {% if config.horizontalAlign.value == 'center' %}
+            {% set wrapperClasses = wrapperClasses|merge(['justify-content-center']) %}
+        {% elseif config.horizontalAlign.value == 'flex-end' %}
+            {% set wrapperClasses = wrapperClasses|merge(['justify-content-end']) %}
+        {% else %}
+            {% set wrapperClasses = wrapperClasses|merge(['justify-content-start']) %}
+        {% endif %}
+    {% endif %}
+
+    <div class="{{ wrapperClasses|join(' ') }}">
         {% block element_product_slider_alignment %}
             {% if config.verticalAlign.value and not isCover %}
                 <div class="cms-element-alignment{% if config.verticalAlign.value == "center" %} align-self-center{% elseif config.verticalAlign.value == "flex-end" %} align-self-end{% else %} align-self-start{% endif %}">
@@ -25,9 +47,20 @@
                                         {% set attributes = attributes|merge({ 'data-object-fit': element.translated.config.displayMode.value }) %}
                                     {% endif %}
 
-                                    {% sw_thumbnails 'cms-image-thumbnails' with {
-                                        media: element.data.media
-                                    } %}
+                                    {% if displayMode == 'standard' and element.data.media.metaData.width is defined %}
+                                        {% set attributes = attributes|merge({
+                                            'width': element.data.media.metaData.width
+                                        }) %}
+                                        {% sw_thumbnails 'cms-image-thumbnails' with {
+                                            media: element.data.media,
+                                            sizes: { default: element.data.media.metaData.width ~ 'px' },
+                                            loadOriginalImage: true
+                                        } %}
+                                    {% else %}
+                                        {% sw_thumbnails 'cms-image-thumbnails' with {
+                                            media: element.data.media
+                                        } %}
+                                    {% endif %}
                                 {% endblock %}
                             </div>
                         {% endif %}

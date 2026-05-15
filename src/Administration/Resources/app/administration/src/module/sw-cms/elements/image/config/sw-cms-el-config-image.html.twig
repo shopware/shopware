@@ -98,7 +98,7 @@
         v-model:value="element.config.horizontalAlign.value"
         :label="$tc('sw-cms.elements.general.config.label.horizontalAlign')"
         :placeholder="$tc('sw-cms.elements.general.config.label.horizontalAlign')"
-        :disabled="element.config.displayMode.value === 'cover'"
+        :disabled="['cover', 'stretch'].includes(element.config.displayMode.value)"
     >
         <option value="flex-start">
             {{ $tc('sw-cms.elements.general.config.label.horizontalAlignLeft') }}

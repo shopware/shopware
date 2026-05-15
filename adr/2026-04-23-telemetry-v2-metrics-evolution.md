@@ -277,80 +277,6 @@ Plugins needing a different frequency register their own Shopware scheduled task
   - The scheduled task gives predictable load and timeout-safe scrapes at the cost of staleness
     up to the task interval — acceptable for business or information metrics.
 
-## Reiterated decisions:
-
-### 1. Keep `emit(ConfiguredMetric)` as the Meter API
-
-The existing single-method Meter API is preserved. The `Meter::emit(ConfiguredMetric)` pattern is intentional:
-- Small interface: One method, one extension point. Transports implement one thing.
-- Lazy evaluation: The closure in `ConfiguredMetric.value` defers expensive computation until the Meter
-  confirms the metric is enabled. The caller says "here's how to compute this value", the Meter decides
-  whether to compute it. This keeps the enabled-check centralized in the abstraction rather than scattered
-  across emitters.
-- Central config lookup: All metrics go through the same path — config check, enabled check, label filtering.
-- Operator control: Enable/disable per metric in YAML without code changes.
-
-The trade-off is that call sites are less self-documenting — developer can't tell without checking config whether
-an emission is a counter or histogram.
-
-**Considered alternative — typed Meter methods (`counter()`, `gauge()`, `histogram()`, `upDownCounter()`):**
-- Self-documenting call sites.
-- Can enforce value constraints (counters reject negative values).
-- But increases the interface surface (4+ methods instead of 1). Every new metric type = new method
-  on the interface and every transport.
-- Config lookup is still needed for enabled check, label filtering, description, unit — so the typed
-  method just skips type resolution.
-- Closures support for lazy evaluation becomes repetitive: each method would need `int|float|\Closure` for the
-  value parameter.
-
-**Considered alternative — static factory methods on `ConfiguredMetric` (`ConfiguredMetric::counter(...)`):**
-- Better readability at the call site.
-- But static calls are harder to test.
-- The benefit is marginal given the type is declared in YAML config.
-
-### 2. Keep `MetricTransportFactoryInterface`
-
-The factory pattern is preserved. It serves a legitimate purpose: transports like OpenTelemetry require metric
-instruments (especially histograms with custom bucket boundaries from `parameters`) to be pre-configured at
-construction time, before any `emit()` call. The factory receives the full `TransportConfig` (all metric definitions)
-at construction, enabling this pre-configuration stage.
-
-**Considered alternative — remove factory, tag transport services directly:**
-- Simpler: one less interface.
-- But the transport still needs access to the full metric catalog at construction time for
-  pre-configuration. This would require injecting `TransportConfig` via DI constructor, which is
-  equivalent to the factory but less explicit about the "create and configure" lifecycle stage.
-
-### 3. Metric storage is a transport concern
-
-Core provides no metric storage abstraction (no `MetricStorageInterface`, no APCu/Redis adapters).
-Push transports forward metrics to a collector. Pull transports persist values across PHP requests
-using their own storage (e.g. `promphp/prometheus_client_php` with Redis or APCu backends).
-
-**Considered alternative — core provides `MetricStorageInterface` with APCu/Redis implementations:**
-- Would let multiple pull transports share storage logic.
-- But APCu is not available in all environments.
-- `promphp/prometheus_client_php` already provides mature APCu and Redis adapters.
-- Adding storage to the framework violates goal to have minimal abstraction.
-- Only useful for pull transports — push transports don't need it.
-
-### 4. Keep `MeterProvider` static accessor
-
-`MeterProvider` (static service locator, bound at `Framework::boot()`) is required by `RetryableQuery`
-and `RetryableTransaction` (static code that cannot receive DI). Until those callers are refactored,
-`MeterProvider` is the only way to instrument them.
-
-### 5. Clean up configuration
-
-| Key | Action |
-|-----|--------|
-| `enabled` | Wire to `Meter::emit()` early return + compiler pass |
-| `namespace` | Wire to `TransportConfig`, passed to transport factories |
-| `replace_unknown_label_values_with` | Wire to label value replacement logic (default: `'other'`) |
-| `allow_unknown_labels` | Remove — superseded by per-label name validation |
-| `allow_unknown_label_values` | Remove — superseded by per-label value policies |
-| `enable_internal_metrics` | Remove — per-metric `enabled` is sufficient |
-
 ### 6. Unified instrumentation via `Telemetry` class
 
 Measuring how long an operation takes and emitting it as a histogram metric is a recurring pattern
@@ -446,10 +372,84 @@ $this->telemetry->emit(new ConfiguredMetric('order.placed.count', 1, ['channel' 
 - Adding spans will blur Meter responsibility area.
 
 **Considered alternative — add metric emission directly to `Profiler::trace()`:**
-  - Zero migration: existing call sites add an optional parameter.
-  - But `Profiler` is static (no DI), so it would need `MeterProvider` (static accessor) to reach
-    `Meter`, also not possible to inject.
-  - Blurred responsibility after adding metrics.
+- Zero migration: existing call sites add an optional parameter.
+- But `Profiler` is static (no DI), so it would need `MeterProvider` (static accessor) to reach
+  `Meter`, also not possible to inject.
+- Blurred responsibility after adding metrics.
+
+## Reiterated decisions:
+
+### 1. Keep `emit(ConfiguredMetric)` as the Meter API
+
+The existing single-method Meter API is preserved. The `Meter::emit(ConfiguredMetric)` pattern is intentional:
+- Small interface: One method, one extension point. Transports implement one thing.
+- Lazy evaluation: The closure in `ConfiguredMetric.value` defers expensive computation until the Meter
+  confirms the metric is enabled. The caller says "here's how to compute this value", the Meter decides
+  whether to compute it. This keeps the enabled-check centralized in the abstraction rather than scattered
+  across emitters.
+- Central config lookup: All metrics go through the same path — config check, enabled check, label filtering.
+- Operator control: Enable/disable per metric in YAML without code changes.
+
+The trade-off is that call sites are less self-documenting — developer can't tell without checking config whether
+an emission is a counter or histogram.
+
+**Considered alternative — typed Meter methods (`counter()`, `gauge()`, `histogram()`, `upDownCounter()`):**
+- Self-documenting call sites.
+- Can enforce value constraints (counters reject negative values).
+- But increases the interface surface (4+ methods instead of 1). Every new metric type = new method
+  on the interface and every transport.
+- Config lookup is still needed for enabled check, label filtering, description, unit — so the typed
+  method just skips type resolution.
+- Closures support for lazy evaluation becomes repetitive: each method would need `int|float|\Closure` for the
+  value parameter.
+
+**Considered alternative — static factory methods on `ConfiguredMetric` (`ConfiguredMetric::counter(...)`):**
+- Better readability at the call site.
+- But static calls are harder to test.
+- The benefit is marginal given the type is declared in YAML config.
+
+### 2. Keep `MetricTransportFactoryInterface`
+
+The factory pattern is preserved. It serves a legitimate purpose: transports like OpenTelemetry require metric
+instruments (especially histograms with custom bucket boundaries from `parameters`) to be pre-configured at
+construction time, before any `emit()` call. The factory receives the full `TransportConfig` (all metric definitions)
+at construction, enabling this pre-configuration stage.
+
+**Considered alternative — remove factory, tag transport services directly:**
+- Simpler: one less interface.
+- But the transport still needs access to the full metric catalog at construction time for
+  pre-configuration. This would require injecting `TransportConfig` via DI constructor, which is
+  equivalent to the factory but less explicit about the "create and configure" lifecycle stage.
+
+### 3. Metric storage is a transport concern
+
+Core provides no metric storage abstraction (no `MetricStorageInterface`, no APCu/Redis adapters).
+Push transports forward metrics to a collector. Pull transports persist values across PHP requests
+using their own storage (e.g. `promphp/prometheus_client_php` with Redis or APCu backends).
+
+**Considered alternative — core provides `MetricStorageInterface` with APCu/Redis implementations:**
+- Would let multiple pull transports share storage logic.
+- But APCu is not available in all environments.
+- `promphp/prometheus_client_php` already provides mature APCu and Redis adapters.
+- Adding storage to the framework violates goal to have minimal abstraction.
+- Only useful for pull transports — push transports don't need it.
+
+### 4. Keep `MeterProvider` static accessor
+
+`MeterProvider` (static service locator, bound at `Framework::boot()`) is required by `RetryableQuery`
+and `RetryableTransaction` (static code that cannot receive DI). Until those callers are refactored,
+`MeterProvider` is the only way to instrument them.
+
+### 5. Clean up configuration
+
+| Key | Action |
+|-----|--------|
+| `enabled` | Wire to `Meter::emit()` early return + compiler pass |
+| `namespace` | Wire to `TransportConfig`, passed to transport factories |
+| `replace_unknown_label_values_with` | Wire to label value replacement logic (default: `'other'`) |
+| `allow_unknown_labels` | Remove — superseded by per-label name validation |
+| `allow_unknown_label_values` | Remove — superseded by per-label value policies |
+| `enable_internal_metrics` | Remove — per-metric `enabled` is sufficient |
 
 ## Consequences
 

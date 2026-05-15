@@ -226,6 +226,84 @@ swDefinePublic({
         expect(result).toContain('const { initialCount = 0 } = __shopwareSetupBindings.props;');
     });
 
+    it('keeps base withDefaults(defineProps()) outside the extendable setup callback', () => {
+        const source = `<script setup lang="ts" sw-component="sw-my-component">
+const props = withDefaults(defineProps<{
+    initialCount?: number;
+    labels?: string[];
+}>(), {
+    initialCount: 3,
+    labels: () => ['main'],
+});
+const count = props.initialCount;
+
+swDefinePublic({
+    count,
+});
+</script>`;
+
+        const result = transformOrFail(source, 'base-props-with-defaults.vue').code;
+
+        expect(result).toContain(`const props = withDefaults(defineProps<{
+    initialCount?: number;
+    labels?: string[];
+}>(), {
+    initialCount: 3,
+    labels: () => ['main'],
+});`);
+        expect(result).toContain(
+            "Shopware.Component.createScriptSetupExtendableComponent()('sw-my-component', props, (__shopwareSetupBindings) => {",
+        );
+        expect(result).toContain('const props = __shopwareSetupBindings.props;');
+        expect(result).toContain('const count = props.initialCount;');
+        expect(result.match(/defineProps/g)).toHaveLength(1);
+        expect(result.match(/withDefaults/g)).toHaveLength(1);
+    });
+
+    it('replaces withDefaults() destructuring inside the extendable setup callback', () => {
+        const source = `<script setup lang="ts" sw-component="sw-my-component">
+const { initialCount } = withDefaults(defineProps<{
+    initialCount?: number;
+}>(), {
+    initialCount: 3,
+});
+const count = initialCount;
+
+swDefinePublic({
+    count,
+});
+</script>`;
+
+        const result = transformOrFail(source, 'base-destructured-props-with-defaults.vue').code;
+
+        expect(result).toContain(`const props = withDefaults(defineProps<{
+    initialCount?: number;
+}>(), {
+    initialCount: 3,
+});`);
+        expect(result).toContain('const { initialCount } = __shopwareSetupBindings.props;');
+        expect(result.match(/defineProps/g)).toHaveLength(1);
+        expect(result.match(/withDefaults/g)).toHaveLength(1);
+    });
+
+    it('rejects multiple base props macro declarations', () => {
+        const source = `<script setup lang="ts" sw-component="sw-my-component">
+const props = defineProps<{ count?: number }>();
+const propsWithDefaults = withDefaults(defineProps<{ label?: string }>(), {
+    label: 'fallback',
+});
+const count = props.count ?? propsWithDefaults.label.length;
+
+swDefinePublic({
+    count,
+});
+</script>`;
+
+        expect(() => transformShopwareSetupSfc(source, 'base-duplicate-props-macros.vue')).toThrow(
+            'Only one props declaration macro is allowed in a base Shopware setup block.',
+        );
+    });
+
     it('replaces base useSwProps() calls instead of injecting a helper', () => {
         const source = `<script setup sw-component="sw-my-component">
 const props = useSwProps();
@@ -340,7 +418,7 @@ swDefineOverride({
 
         expect(privateAlias).toBeDefined();
         expect(result).toContain(
-            `<sw-block extends="sw_example_component_body" #default="{ body, ${privateAlias}: info }">`,
+            `<sw-block extends="sw_example_component_body" #default="{ ${privateAlias}: info, body }">`,
         );
         expect(result).toContain(`return {\n                body,\n                ${privateAlias}: info,\n            };`);
         expect(result).not.toContain('__swOverride_00000_unused');
@@ -549,6 +627,7 @@ const count = 1;
     it('preserves override script attributes that do not belong to the Shopware transform', () => {
         const source = `<script setup lang="ts" sw-override="sw-my-component" future-flag>
 const count = 1;
+swDefineOverride({ count });
 </script>`;
 
         const result = transformOrFail(source, 'override-passthrough-attributes.vue').code;
@@ -579,10 +658,6 @@ const count = 1;
             'defineModel()',
             'Vue macro defineModel() is not supported inside Shopware setup blocks.',
         ],
-        [
-            'withDefaults()',
-            'Vue macro withDefaults() is not supported inside Shopware setup blocks.',
-        ],
     ])('rejects unsupported Vue macro %s', (macro, expectedMessage) => {
         const source = `<script setup sw-component="sw-my-component">
 ${macro};
@@ -600,6 +675,19 @@ swDefineOverride({});
 
         expect(() => transformShopwareSetupSfc(source, 'override-props.vue')).toThrow(
             'defineProps() is only supported in base Shopware setup blocks.',
+        );
+    });
+
+    it('rejects withDefaults() in override mode', () => {
+        const source = `<script setup lang="ts" sw-override="sw-my-component">
+const props = withDefaults(defineProps<{ label?: string }>(), {
+    label: 'fallback',
+});
+swDefineOverride({});
+</script>`;
+
+        expect(() => transformShopwareSetupSfc(source, 'override-props-with-defaults.vue')).toThrow(
+            'withDefaults() is only supported in base Shopware setup blocks.',
         );
     });
 

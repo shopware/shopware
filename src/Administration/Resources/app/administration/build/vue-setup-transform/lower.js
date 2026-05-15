@@ -291,7 +291,7 @@ function buildOverrideReturn(analysis) {
 function buildBaseScript(block, analysis) {
     const takenNames = getTakenNames(analysis);
     const setupBindingsName = makeUniqueName('__shopwareSetupBindings', takenNames);
-    const propsName = analysis.defineProps ? makeUniqueName('props', takenNames) : null;
+    const propsName = analysis.propsMacro ? makeUniqueName('props', takenNames) : null;
     const publicEntryByLocalName = createEntryByLocalNameMap(analysis.publicEntries, 'swDefinePublic');
     const destructureEntries = analysis.runtimeBindings.map((binding) => {
         return formatDestructureEntry(binding.name, publicEntryByLocalName.get(binding.name));
@@ -309,9 +309,9 @@ function buildBaseScript(block, analysis) {
         `<script${block.passthroughAttributesSource}>`,
         ...analysis.imports.map((importBlock) => importBlock.code),
         ...(analysis.imports.length > 0 ? [''] : []),
-        ...(analysis.defineProps
+        ...(analysis.propsMacro
             ? [
-                  `const ${propsName} = ${analysis.defineProps.code};`,
+                  `const ${propsName} = ${analysis.propsMacro.code};`,
                   '',
               ]
             : []),

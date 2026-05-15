@@ -42,7 +42,7 @@ const { ShopwareSetupTransformError } = require('./utils/transform-error');
  * @property {Set<string>} importedBindings
  * @property {PublicEntry[]} publicEntries
  * @property {OverrideEntry[]} overrideEntries
- * @property {{ code: string, ranges: SourceRange[] } | null} defineProps
+ * @property {{ code: string, macroName: 'defineProps' | 'withDefaults', ranges: SourceRange[] } | null} propsMacro
  * @property {Map<string, string>} overridePrivateAliases
  */
 
@@ -52,12 +52,12 @@ const UNSUPPORTED_VUE_MACROS = new Set([
     'defineOptions',
     'defineSlots',
     'defineModel',
-    'withDefaults',
 ]);
 
 const BASE_HELPERS = new Set([
     'swDefinePublic',
     'swDefineOverride',
+    'withDefaults',
     'useSwProps',
     'useSwContext',
 ]);
@@ -66,6 +66,7 @@ const OVERRIDE_HELPERS = new Set([
     'swDefinePublic',
     'swDefineOverride',
     'useSwPreviousState',
+    'withDefaults',
     'useSwProps',
     'useSwContext',
 ]);
@@ -641,6 +642,27 @@ function isCompilerMacroCall(node, name) {
 }
 
 /**
+ * Checks whether `inner` is fully covered by `outer`.
+ *
+ * @param {SourceRange} outer
+ * @param {SourceRange} inner
+ * @returns {boolean}
+ */
+function containsRange(outer, inner) {
+    return outer.start <= inner.start && inner.end <= outer.end;
+}
+
+/**
+ * Detects `withDefaults(...)` call expressions. The Vue compiler validates the nested defineProps() shape later.
+ *
+ * @param {BabelNode} node
+ * @returns {node is CallExpression}
+ */
+function isWithDefaultsCall(node) {
+    return isCompilerMacroCall(node, 'withDefaults');
+}
+
+/**
  * Checks whether a variable declaration reads props through a supported props helper/macro.
  *
  * @param {VariableDeclarator} declaration
@@ -650,7 +672,9 @@ function isPropsInputDeclaration(declaration) {
     return (
         declaration.init?.type === 'CallExpression' &&
         declaration.init.callee.type === 'Identifier' &&
-        (declaration.init.callee.name === 'defineProps' || declaration.init.callee.name === 'useSwProps')
+        (declaration.init.callee.name === 'defineProps' ||
+            declaration.init.callee.name === 'withDefaults' ||
+            declaration.init.callee.name === 'useSwProps')
     );
 }
 
@@ -673,6 +697,7 @@ function analyzeShopwareSetupScript(script, options) {
     const publicMarkerStatements = [];
     const overrideMarkerStatements = [];
     const definePropsCalls = [];
+    const withDefaultsCalls = [];
     const useSwPropsCalls = [];
     const topLevelPublicCalls = new Set();
     const topLevelOverrideCalls = new Set();
@@ -704,6 +729,10 @@ function analyzeShopwareSetupScript(script, options) {
             definePropsCalls.push(node);
         }
 
+        if (isWithDefaultsCall(node)) {
+            withDefaultsCalls.push(node);
+        }
+
         if (mode === 'base' && isCompilerMacroCall(node, 'useSwProps')) {
             useSwPropsCalls.push(node);
         }
@@ -711,17 +740,31 @@ function analyzeShopwareSetupScript(script, options) {
 
     assertNoUnsupportedSyntax(ast, scriptOffset, topLevelPublicCalls, topLevelOverrideCalls);
 
-    if (mode === 'override' && definePropsCalls.length > 0) {
+    const withDefaultsRanges = withDefaultsCalls.map((call) => getNodeRange(call, scriptOffset));
+    const standaloneDefinePropsCalls = definePropsCalls.filter((call) => {
+        const definePropsRange = getNodeRange(call, scriptOffset);
+
+        return !withDefaultsRanges.some((withDefaultsRange) => containsRange(withDefaultsRange, definePropsRange));
+    });
+    const propsMacroCalls = [
+        ...withDefaultsCalls,
+        ...standaloneDefinePropsCalls,
+    ].sort((a, b) => getNodeRange(a, scriptOffset).start - getNodeRange(b, scriptOffset).start);
+
+    if (mode === 'override' && propsMacroCalls.length > 0) {
+        const firstPropsMacro = propsMacroCalls[0];
+        const macroName = isWithDefaultsCall(firstPropsMacro) ? 'withDefaults' : 'defineProps';
+
         throw new ShopwareSetupTransformError(
-            'defineProps() is only supported in base Shopware setup blocks.',
-            scriptOffset + getNodeRange(definePropsCalls[0], scriptOffset).start,
+            `${macroName}() is only supported in base Shopware setup blocks.`,
+            scriptOffset + getNodeRange(firstPropsMacro, scriptOffset).start,
         );
     }
 
-    if (definePropsCalls.length > 1) {
+    if (propsMacroCalls.length > 1) {
         throw new ShopwareSetupTransformError(
-            'Only one defineProps() call is allowed in a base Shopware setup block.',
-            scriptOffset + getNodeRange(definePropsCalls[1], scriptOffset).start,
+            'Only one props declaration macro is allowed in a base Shopware setup block.',
+            scriptOffset + getNodeRange(propsMacroCalls[1], scriptOffset).start,
         );
     }
 
@@ -792,9 +835,10 @@ function analyzeShopwareSetupScript(script, options) {
         ...overrideMarkerStatements.map((statement) => getNodeRange(statement, scriptOffset)),
     ];
     const propsAccessReplacements = [
-        ...definePropsCalls,
+        ...propsMacroCalls,
         ...useSwPropsCalls,
     ].map((call) => getNodeRange(call, scriptOffset));
+    const propsMacroCall = propsMacroCalls[0];
 
     return {
         source: script,
@@ -806,14 +850,17 @@ function analyzeShopwareSetupScript(script, options) {
         importedBindings,
         publicEntries,
         overrideEntries,
-        defineProps:
-            definePropsCalls.length > 0
+        propsMacro:
+            propsMacroCall
                 ? {
                       code: script.slice(
-                          getNodeRange(definePropsCalls[0], scriptOffset).start,
-                          getNodeRange(definePropsCalls[0], scriptOffset).end,
+                          getNodeRange(propsMacroCall, scriptOffset).start,
+                          getNodeRange(propsMacroCall, scriptOffset).end,
                       ),
-                      ranges: definePropsCalls.map((call) => getNodeRange(call, scriptOffset)),
+                      macroName: isWithDefaultsCall(propsMacroCall) ? 'withDefaults' : 'defineProps',
+                      ranges: [
+                          getNodeRange(propsMacroCall, scriptOffset),
+                      ],
                   }
                 : null,
         overridePrivateAliases: new Map(),

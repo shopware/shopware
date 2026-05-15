@@ -65,6 +65,16 @@ swDefinePublic({ count });
 </script>`,
         },
         {
+            filename: 'base-props-with-defaults.vue',
+            code: `<script setup lang="ts" sw-component="sw-my-component">
+const props = withDefaults(defineProps<{ initialCount?: number }>(), {
+    initialCount: 1,
+});
+const count = props.initialCount;
+swDefinePublic({ count });
+</script>`,
+        },
+        {
             filename: 'override.vue',
             code: `<script setup lang="ts" sw-override="sw-my-component">
 const previousState = useSwPreviousState();
@@ -84,6 +94,20 @@ swDefineOverride({});
             errors: [
                 {
                     message: 'defineProps() is only supported in base Shopware setup blocks.',
+                },
+            ],
+        },
+        {
+            filename: 'override-props-with-defaults.vue',
+            code: `<script setup lang="ts" sw-override="sw-my-component">
+const props = withDefaults(defineProps<{ label?: string }>(), {
+    label: 'fallback',
+});
+swDefineOverride({});
+</script>`,
+            errors: [
+                {
+                    message: 'withDefaults() is only supported in base Shopware setup blocks.',
                 },
             ],
         },

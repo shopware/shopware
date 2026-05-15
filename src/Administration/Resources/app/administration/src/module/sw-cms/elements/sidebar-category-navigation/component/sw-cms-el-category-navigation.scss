@@ -1,17 +1,15 @@
-@import "~scss/variables";
-
 .sw-cms-el-category-navigation {
     width: 100%;
-    border: 1px solid #dadee5;
+    border: 1px solid var(--color-border-primary-default);
     border-radius: 4px;
-    background: $color-white;
+    background: var(--color-elevation-surface-raised);
     padding: 10px;
 
     .sw-cms-el-category-placeholder-listing div {
         margin: 15px 30px;
         height: 1.5em;
         border-radius: 4px;
-        background-color: $color-gray-100;
+        background-color: var(--color-background-secondary-default);
 
         &.sw-cms-el-category-navigation__placeholder--subcategory {
             margin: 15px 30px 15px 70px;
@@ -21,7 +19,7 @@
     hr {
         max-width: 90%;
         margin: 10px auto;
-        border: 1px solid $color-gray-300;
+        border: 1px solid var(--color-border-primary-default);
     }
 
     h2 {

@@ -5,11 +5,14 @@ namespace Shopware\Tests\Unit\Core\Checkout\Order\SalesChannel;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\RuleLoaderResult;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -26,6 +29,7 @@ use Shopware\Core\Checkout\Order\SalesChannel\SetPaymentOrderRoute;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
+use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -59,6 +63,7 @@ class SetPaymentOrderRouteTest extends TestCase
             $this->createMock(EntityRepository::class),
             $this->createMock(OrderConverter::class),
             $this->createMock(CartRuleLoader::class),
+            $this->createMock(CartService::class),
             $this->createMock(EventDispatcherInterface::class),
             $this->createMock(InitialStateIdLoader::class),
             $this->createMock(AbstractCheckoutGatewayRoute::class)
@@ -76,6 +81,7 @@ class SetPaymentOrderRouteTest extends TestCase
             $this->createMock(EntityRepository::class),
             $this->createMock(OrderConverter::class),
             $this->createMock(CartRuleLoader::class),
+            $this->createMock(CartService::class),
             $this->createMock(EventDispatcherInterface::class),
             $this->createMock(InitialStateIdLoader::class),
             $this->createMock(AbstractCheckoutGatewayRoute::class)
@@ -116,6 +122,7 @@ class SetPaymentOrderRouteTest extends TestCase
             $staticRepository,
             $this->createMock(OrderConverter::class),
             $this->createMock(CartRuleLoader::class),
+            $this->createMock(CartService::class),
             $this->createMock(EventDispatcherInterface::class),
             $this->createMock(InitialStateIdLoader::class),
             $gatewayRoute
@@ -165,6 +172,7 @@ class SetPaymentOrderRouteTest extends TestCase
             $staticRepository,
             $this->createMock(OrderConverter::class),
             $this->createMock(CartRuleLoader::class),
+            $this->createMock(CartService::class),
             $this->createMock(EventDispatcherInterface::class),
             $this->createMock(InitialStateIdLoader::class),
             $gatewayRoute
@@ -247,6 +255,7 @@ class SetPaymentOrderRouteTest extends TestCase
             $staticRepository,
             $orderConverter,
             $this->createMock(CartRuleLoader::class),
+            $this->createMock(CartService::class),
             $this->createMock(EventDispatcherInterface::class),
             $this->createMock(InitialStateIdLoader::class),
             $gatewayRoute
@@ -336,10 +345,6 @@ class SetPaymentOrderRouteTest extends TestCase
         );
 
         $gatewayRoute = $this->createMock(AbstractCheckoutGatewayRoute::class);
-        $gatewayRoute
-            ->expects($this->once())
-            ->method('load')
-            ->willReturn($response);
 
         $orderService = $this->createMock(OrderService::class);
         $orderService
@@ -351,17 +356,46 @@ class SetPaymentOrderRouteTest extends TestCase
         $customer->setId(Uuid::randomHex());
         $context = Generator::generateSalesChannelContext(customer: $customer);
 
+        $gatewayRoute
+            ->expects($this->once())
+            ->method('load')
+            ->with(
+                static::callback(static fn (Request $request): bool => $request->attributes->getAlnum('orderId') === $order->getId()),
+                static::callback(static fn (Cart $cart): bool => $cart->getToken() === $context->getToken()),
+                $context
+            )
+            ->willReturn($response);
+
         $orderConverter = $this->createMock(OrderConverter::class);
         $orderConverter
             ->expects($this->once())
             ->method('assembleSalesChannelContext')
             ->willReturn($context);
+        $orderConverter
+            ->expects($this->exactly(2))
+            ->method('convertToCart')
+            ->willReturnOnConsecutiveCalls(
+                new Cart('converted-order-token'),
+                new Cart('converted-order-token')
+            );
+
+        $cartService = $this->createMock(CartService::class);
+        $cartService
+            ->expects($this->once())
+            ->method('setCart')
+            ->with(static::callback(static fn (Cart $cart): bool => $cart->getToken() === $context->getToken()));
+
+        $cartRuleLoader = $this->createMock(CartRuleLoader::class);
+        $cartRuleLoader
+            ->method('loadByCart')
+            ->willReturnCallback(static fn (SalesChannelContext $context, Cart $cart): RuleLoaderResult => new RuleLoaderResult($cart, new RuleCollection()));
 
         $paymentOrderRoute = new SetPaymentOrderRoute(
             $orderService,
             $orderRepository,
             $orderConverter,
-            $this->createMock(CartRuleLoader::class),
+            $cartRuleLoader,
+            $cartService,
             $this->createMock(EventDispatcherInterface::class),
             $this->createMock(InitialStateIdLoader::class),
             $gatewayRoute

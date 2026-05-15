@@ -75,6 +75,14 @@ swDefinePublic({ count });
 </script>`,
         },
         {
+            filename: 'base-emits.vue',
+            code: `<script setup lang="ts" sw-component="sw-my-component">
+const emit = defineEmits<{ save: [id: string] }>();
+const count = 1;
+swDefinePublic({ count });
+</script>`,
+        },
+        {
             filename: 'override.vue',
             code: `<script setup lang="ts" sw-override="sw-my-component">
 const previousState = useSwPreviousState();
@@ -108,6 +116,18 @@ swDefineOverride({});
             errors: [
                 {
                     message: 'withDefaults() is only supported in base Shopware setup blocks.',
+                },
+            ],
+        },
+        {
+            filename: 'override-emits.vue',
+            code: `<script setup sw-override="sw-my-component">
+const emit = defineEmits(['save']);
+swDefineOverride({});
+</script>`,
+            errors: [
+                {
+                    message: 'defineEmits() is only supported in base Shopware setup blocks.',
                 },
             ],
         },

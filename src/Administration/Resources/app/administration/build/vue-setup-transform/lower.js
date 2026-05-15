@@ -135,17 +135,18 @@ function transformRanges(source, removals, replacements = []) {
  * Applies analyzer-provided source ranges to produce the callback body.
  *
  * @param {ShopwareSetupScriptAnalysis} analysis
- * @param {string | null} propsExpression
+ * @param {string | null} setupBindingsName
  * @returns {string}
  */
-function buildCallbackBody(analysis, propsExpression) {
+function buildCallbackBody(analysis, setupBindingsName) {
     return transformRanges(
         analysis.source,
         analysis.bodyRemovals,
-        propsExpression
-            ? analysis.propsAccessReplacements.map((range) => ({
+        setupBindingsName
+            ? analysis.setupInputReplacements.map((range) => ({
                   ...range,
-                  replacement: propsExpression,
+                  replacement:
+                      range.kind === 'props' ? `${setupBindingsName}.props` : `${setupBindingsName}.context.emit`,
               }))
             : [],
     );
@@ -292,11 +293,12 @@ function buildBaseScript(block, analysis) {
     const takenNames = getTakenNames(analysis);
     const setupBindingsName = makeUniqueName('__shopwareSetupBindings', takenNames);
     const propsName = analysis.propsMacro ? makeUniqueName('props', takenNames) : null;
+    const emitName = analysis.emitsMacro ? makeUniqueName('emit', takenNames) : null;
     const publicEntryByLocalName = createEntryByLocalNameMap(analysis.publicEntries, 'swDefinePublic');
     const destructureEntries = analysis.runtimeBindings.map((binding) => {
         return formatDestructureEntry(binding.name, publicEntryByLocalName.get(binding.name));
     });
-    const callbackBody = buildCallbackBody(analysis, `${setupBindingsName}.props`);
+    const callbackBody = buildCallbackBody(analysis, setupBindingsName);
     const body = [
         `const useSwContext = () => ${setupBindingsName}.context;`,
         '',
@@ -312,6 +314,12 @@ function buildBaseScript(block, analysis) {
         ...(analysis.propsMacro
             ? [
                   `const ${propsName} = ${analysis.propsMacro.code};`,
+                  '',
+              ]
+            : []),
+        ...(analysis.emitsMacro
+            ? [
+                  `const ${emitName} = ${analysis.emitsMacro.code};`,
                   '',
               ]
             : []),

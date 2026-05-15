@@ -304,6 +304,73 @@ swDefinePublic({
         );
     });
 
+    it('keeps base defineEmits() outside the extendable setup callback and replaces it with context.emit', () => {
+        const source = `<script setup lang="ts" sw-component="sw-my-component">
+const emit = defineEmits<{
+    save: [id: string];
+}>();
+
+function save() {
+    emit('save', '123');
+}
+
+const count = 1;
+
+swDefinePublic({
+    count,
+});
+</script>`;
+
+        const result = transformOrFail(source, 'base-emits.vue').code;
+
+        expect(result).toContain(`const emit = defineEmits<{
+    save: [id: string];
+}>();`);
+        expect(result).toContain('const emit = __shopwareSetupBindings.context.emit;');
+        expect(result).toContain("emit('save', '123');");
+        expect(result).toContain('private: {\n            save,\n        }');
+        expect(result.match(/defineEmits/g)).toHaveLength(1);
+    });
+
+    it('supports runtime array and object defineEmits() declarations', () => {
+        const arraySource = `<script setup sw-component="sw-my-component">
+const emit = defineEmits(['save']);
+const count = 1;
+swDefinePublic({ count });
+</script>`;
+        const objectSource = `<script setup sw-component="sw-my-component">
+const emit = defineEmits({
+    save: (id) => Boolean(id),
+});
+const count = 1;
+swDefinePublic({ count });
+</script>`;
+
+        expect(transformOrFail(arraySource, 'base-emits-array.vue').code).toContain("const emit = defineEmits(['save']);");
+        expect(transformOrFail(arraySource, 'base-emits-array.vue').code).toContain(
+            'const emit = __shopwareSetupBindings.context.emit;',
+        );
+        expect(transformOrFail(objectSource, 'base-emits-object.vue').code).toContain(`const emit = defineEmits({
+    save: (id) => Boolean(id),
+});`);
+        expect(transformOrFail(objectSource, 'base-emits-object.vue').code).toContain(
+            'const emit = __shopwareSetupBindings.context.emit;',
+        );
+    });
+
+    it('rejects duplicate base defineEmits() declarations', () => {
+        const source = `<script setup sw-component="sw-my-component">
+const emit = defineEmits(['save']);
+const otherEmit = defineEmits(['cancel']);
+const count = 1;
+swDefinePublic({ count });
+</script>`;
+
+        expect(() => transformShopwareSetupSfc(source, 'base-duplicate-emits.vue')).toThrow(
+            'Only one defineEmits() call is allowed in a base Shopware setup block.',
+        );
+    });
+
     it('replaces base useSwProps() calls instead of injecting a helper', () => {
         const source = `<script setup sw-component="sw-my-component">
 const props = useSwProps();
@@ -639,10 +706,6 @@ swDefineOverride({ count });
 
     it.each([
         [
-            'defineEmits()',
-            'Vue macro defineEmits() is not supported inside Shopware setup blocks.',
-        ],
-        [
             'defineExpose()',
             'Vue macro defineExpose() is not supported inside Shopware setup blocks.',
         ],
@@ -688,6 +751,17 @@ swDefineOverride({});
 
         expect(() => transformShopwareSetupSfc(source, 'override-props-with-defaults.vue')).toThrow(
             'withDefaults() is only supported in base Shopware setup blocks.',
+        );
+    });
+
+    it('rejects defineEmits() in override mode', () => {
+        const source = `<script setup lang="ts" sw-override="sw-my-component">
+const emit = defineEmits(['save']);
+swDefineOverride({});
+</script>`;
+
+        expect(() => transformShopwareSetupSfc(source, 'override-emits.vue')).toThrow(
+            'defineEmits() is only supported in base Shopware setup blocks.',
         );
     });
 

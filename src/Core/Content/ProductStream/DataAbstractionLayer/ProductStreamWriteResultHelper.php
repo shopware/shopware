@@ -34,39 +34,38 @@ final class ProductStreamWriteResultHelper
         $streamIds = [];
 
         foreach ($event->getWriteResults() as $writeResult) {
-            $streamId = self::resolveStreamId($writeResult);
-            if ($streamId === null) {
-                continue;
+            foreach (self::collectStreamIds($writeResult) as $streamId) {
+                $streamIds[$streamId] = true;
             }
-
-            $streamIds[$streamId] = true;
         }
 
         return array_keys($streamIds);
     }
 
-    private static function resolveStreamId(EntityWriteResult $writeResult): ?string
+    /**
+     * @return list<string>
+     */
+    private static function collectStreamIds(EntityWriteResult $writeResult): array
     {
-        $payload = $writeResult->getPayload();
+        $ids = [];
 
-        $streamId = self::normalizeStreamId(
+        $payload = $writeResult->getPayload();
+        $payloadId = self::normalizeStreamId(
             $payload['productStreamId'] ?? $payload['product_stream_id'] ?? null
         );
-
-        if ($streamId !== null) {
-            return $streamId;
+        if ($payloadId !== null) {
+            $ids[] = $payloadId;
         }
 
-        $existence = $writeResult->getExistence();
-        if ($existence === null) {
-            return null;
-        }
-
-        $state = $existence->getState();
-
-        return self::normalizeStreamId(
+        $state = $writeResult->getExistence()?->getState();
+        $stateId = self::normalizeStreamId(
             $state['product_stream_id'] ?? $state['productStreamId'] ?? null
         );
+        if ($stateId !== null) {
+            $ids[] = $stateId;
+        }
+
+        return $ids;
     }
 
     private static function normalizeStreamId(mixed $streamId): ?string

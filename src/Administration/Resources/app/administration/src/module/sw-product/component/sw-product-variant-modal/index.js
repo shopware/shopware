@@ -139,8 +139,11 @@ export default {
             criteria.addAssociation('tax');
 
             if (this.searchTerm) {
-                // Split each word for search
-                const terms = this.searchTerm.split(' ');
+                // Split each word for search; drop empty entries from leading,
+                // trailing or repeated spaces, otherwise they build a `contains`
+                // filter with an empty value and the API rejects the whole query
+                // with FRAMEWORK__INVALID_FILTER_QUERY.
+                const terms = this.searchTerm.split(' ').filter((term) => term !== '');
 
                 // Create query for each single word
                 terms.forEach((term) => {

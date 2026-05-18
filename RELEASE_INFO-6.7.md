@@ -6,6 +6,11 @@
 
 ## Core
 
+### MySQL enum columns are validated by DAL tooling
+
+Shopware DBAL connections now map MySQL `enum` columns to Doctrine `string` fields centrally.
+This lets `dal:validate` inspect tables with enum-backed columns and report real entity or schema issues instead of skipping validation for those tables.
+
 ### Backward compatible invalid locales
 
 Added and deprecated `BackwardCompatibleNumberFormatter` to temporarily allow invalid locale strings without throwing exceptions in PHP >=8.4. It will be removed in Shopware 6.8.

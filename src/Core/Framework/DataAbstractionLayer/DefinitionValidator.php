@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
@@ -227,16 +226,8 @@ class DefinitionValidator
             }
         }
 
-        try {
-            $tableSchemas = $this->connection->createSchemaManager()->listTables();
-            $violations = array_merge_recursive($violations, $this->findNotRegisteredTables($tableSchemas));
-        } catch (Exception $e) {
-            // DBAL 3.x does not support enum types, we need to skip validation for now
-            // will be fixed with DBAL >= 4.2 in shopware 6.7
-            if (!str_contains($e->getMessage(), 'Unknown database type enum requested')) {
-                throw $e;
-            }
-        }
+        $tableSchemas = $this->connection->createSchemaManager()->listTables();
+        $violations = array_merge_recursive($violations, $this->findNotRegisteredTables($tableSchemas));
 
         return array_filter($violations);
     }
@@ -478,17 +469,7 @@ class DefinitionValidator
     {
         $violations = [];
 
-        try {
-            $columns = $this->connection->createSchemaManager()->listTableColumns($translationDefinition->getEntityName());
-        } catch (Exception $e) {
-            // DBAL 3.x does not support enum types, we need to skip validation for now
-            // will be fixed with DBAL >= 4.2 in shopware 6.7
-            if (str_contains($e->getMessage(), 'Unknown database type enum requested')) {
-                return [];
-            }
-
-            throw $e;
-        }
+        $columns = $this->connection->createSchemaManager()->listTableColumns($translationDefinition->getEntityName());
 
         $translatedFields = $translationDefinition->getParentDefinition()
             ->getFields()
@@ -916,17 +897,7 @@ class DefinitionValidator
      */
     private function validateSchema(EntityDefinition $definition): array
     {
-        try {
-            $columns = $this->connection->createSchemaManager()->listTableColumns($definition->getEntityName());
-        } catch (Exception $e) {
-            // DBAL 3.x does not support enum types, we need to skip validation for now
-            // will be fixed with DBAL >= 4.2 in shopware 6.7
-            if (str_contains($e->getMessage(), 'Unknown database type enum requested')) {
-                return [];
-            }
-
-            throw $e;
-        }
+        $columns = $this->connection->createSchemaManager()->listTableColumns($definition->getEntityName());
 
         $violations = [];
         $mappedFieldNames = [];
@@ -971,17 +942,7 @@ class DefinitionValidator
      */
     private function validateColumn(EntityDefinition $definition): array
     {
-        try {
-            $columns = $this->connection->createSchemaManager()->listTableColumns($definition->getEntityName());
-        } catch (Exception $e) {
-            // DBAL 3.x does not support enum types, we need to skip validation for now
-            // will be fixed with DBAL >= 4.2 in shopware 6.7
-            if (str_contains($e->getMessage(), 'Unknown database type enum requested')) {
-                return [];
-            }
-
-            throw $e;
-        }
+        $columns = $this->connection->createSchemaManager()->listTableColumns($definition->getEntityName());
 
         $notices = [];
 

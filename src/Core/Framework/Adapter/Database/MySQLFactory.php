@@ -23,7 +23,7 @@ class MySQLFactory
     public static function create(array $middlewares = []): Connection
     {
         $config = (new Configuration())
-            ->setMiddlewares($middlewares);
+            ->setMiddlewares(array_merge([new MySQLEnumTypeMappingMiddleware()], $middlewares));
 
         $url = (string) EnvironmentHelper::getVariable('DATABASE_URL', getenv('DATABASE_URL'));
         if ($url === '') {

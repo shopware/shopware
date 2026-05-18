@@ -268,6 +268,9 @@ class ProductEntity extends Entity implements \Stringable
      */
     protected array $states = [];
 
+    /**
+     * @internal
+     */
     private ?ClockInterface $clock = null;
 
     public function __construct()

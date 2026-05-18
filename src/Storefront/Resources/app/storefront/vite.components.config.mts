@@ -98,9 +98,9 @@ export default defineConfig(async ({ command }): Promise<UserConfig> => {
             componentMapPlugin(),
             devImportMapPlugin(projectRoot, scssLoadPaths),
             devServerNoticePlugin(),
+            scopedSubpathExportsPlugin(path.resolve(import.meta.dirname, 'node_modules')),
             extensionModuleResolverPlugin(projectRoot),
             plainCssShimPlugin(plainCssShims),
-            scopedSubpathExportsPlugin(path.resolve(import.meta.dirname, 'node_modules')),
             themeScssWatcherPlugin(projectRoot),
         ],
         resolve: {

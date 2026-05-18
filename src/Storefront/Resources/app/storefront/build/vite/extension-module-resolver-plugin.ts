@@ -174,6 +174,11 @@ export function extensionModuleResolverPlugin(projectRoot: string): Plugin {
             }
 
             for (const { resolveFromExtension, nodeModulesPath } of applicableResolvers) {
+                const fallbackResolved = resolvePackageEntryFromNodeModules(nodeModulesPath, id);
+                if (fallbackResolved) {
+                    return fallbackResolved;
+                }
+
                 try {
                     const resolved = resolveFromExtension(id);
 
@@ -184,10 +189,7 @@ export function extensionModuleResolverPlugin(projectRoot: string): Plugin {
 
                     return resolved;
                 } catch {
-                    const fallbackResolved = resolvePackageEntryFromNodeModules(nodeModulesPath, id);
-                    if (fallbackResolved) {
-                        return fallbackResolved;
-                    }
+                    // Keep trying other resolvers.
                 }
             }
 

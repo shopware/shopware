@@ -6,12 +6,16 @@ import { createRequire } from 'node:module';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 const require = createRequire(import.meta.url);
-const { getNpmInstallCommand, shouldAllowInstallScripts } = require('./build-components.js') as {
+const { getNpmInstallCommand, shouldAllowInstallScripts, shouldInstallNpmDependencies } = require('./build-components.js') as {
     getNpmInstallCommand: (
         storefrontAppDir: string,
         env?: Record<string, string | undefined>
     ) => { cmd: string; args: string[]; scriptsAllowed: boolean };
     shouldAllowInstallScripts: (env?: Record<string, string | undefined>) => boolean;
+    shouldInstallNpmDependencies: (
+        storefrontAppDir: string,
+        env?: Record<string, string | undefined>
+    ) => boolean;
 };
 
 describe('build-components npm install policy', () => {
@@ -72,5 +76,26 @@ describe('build-components npm install policy', () => {
         expect(shouldAllowInstallScripts({ ALLOW_EXTENSION_INSTALL_SCRIPTS: 'true' })).toBe(false);
         expect(shouldAllowInstallScripts({ ALLOW_EXTENSION_INSTALL_SCRIPTS: '0' })).toBe(false);
         expect(shouldAllowInstallScripts({})).toBe(false);
+    });
+
+    it('skips dependency install when node_modules already exists', () => {
+        const storefrontAppDir = path.join(fixtureRoot, 'with-node-modules');
+        fs.mkdirSync(path.join(storefrontAppDir, 'node_modules'), { recursive: true });
+
+        expect(shouldInstallNpmDependencies(storefrontAppDir, {})).toBe(false);
+    });
+
+    it('installs dependencies when node_modules is missing', () => {
+        const storefrontAppDir = path.join(fixtureRoot, 'without-node-modules');
+        fs.mkdirSync(storefrontAppDir, { recursive: true });
+
+        expect(shouldInstallNpmDependencies(storefrontAppDir, {})).toBe(true);
+    });
+
+    it('allows forcing dependency install via env', () => {
+        const storefrontAppDir = path.join(fixtureRoot, 'forced-install');
+        fs.mkdirSync(path.join(storefrontAppDir, 'node_modules'), { recursive: true });
+
+        expect(shouldInstallNpmDependencies(storefrontAppDir, { FORCE_COMPONENT_DEP_INSTALL: '1' })).toBe(true);
     });
 });

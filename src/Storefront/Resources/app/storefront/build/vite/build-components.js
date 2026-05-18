@@ -78,6 +78,14 @@ function getNpmInstallCommand(storefrontAppDir, env = process.env) {
     };
 }
 
+function shouldInstallNpmDependencies(storefrontAppDir, env = process.env) {
+    if (env.FORCE_COMPONENT_DEP_INSTALL === '1') {
+        return true;
+    }
+
+    return !fs.existsSync(path.join(storefrontAppDir, 'node_modules'));
+}
+
 // ---------------------------------------------------------------------------
 // Rollup/Vite plugins (plain JS — inlined to avoid env-var-based config files)
 // ---------------------------------------------------------------------------
@@ -296,17 +304,24 @@ async function main() {
             }
         }
 
-        // npm install/ci if the bundle has its own package.json.
+        // Install dependencies only when missing. This keeps local builds fast
+        // and avoids transient "module not found" IDE diagnostics while npm ci
+        // replaces node_modules. Opt-in FORCE_COMPONENT_DEP_INSTALL=1 can
+        // enforce reinstall in CI or recovery scenarios.
         // Always include dev dependencies explicitly so build tooling (e.g. Vite)
         // is available even when NODE_ENV=production is set in the parent shell.
         if (fs.existsSync(path.join(storefrontAppDir, 'package.json'))) {
-            const npmInstall = getNpmInstallCommand(storefrontAppDir);
-            const scriptPolicy = npmInstall.scriptsAllowed
-                ? 'lifecycle scripts enabled'
-                : 'lifecycle scripts disabled';
+            if (shouldInstallNpmDependencies(storefrontAppDir)) {
+                const npmInstall = getNpmInstallCommand(storefrontAppDir);
+                const scriptPolicy = npmInstall.scriptsAllowed
+                    ? 'lifecycle scripts enabled'
+                    : 'lifecycle scripts disabled';
 
-            console.log(`  ${npmInstall.cmd} ${npmInstall.args.join(' ')} in ${storefrontAppDir} (${scriptPolicy})`);
-            await spawnAsync(npmInstall.cmd, npmInstall.args, { cwd: storefrontAppDir });
+                console.log(`  ${npmInstall.cmd} ${npmInstall.args.join(' ')} in ${storefrontAppDir} (${scriptPolicy})`);
+                await spawnAsync(npmInstall.cmd, npmInstall.args, { cwd: storefrontAppDir });
+            } else {
+                console.log(`  skipping npm install in ${storefrontAppDir} (node_modules already present)`);
+            }
         }
 
         // Bundle with a custom Vite config — honour it via configFile.
@@ -461,6 +476,7 @@ module.exports = {
     extensionNodeModulesPlugin,
     getNpmInstallCommand,
     main,
+    shouldInstallNpmDependencies,
     shouldAllowInstallScripts,
     spawnAsync,
 };

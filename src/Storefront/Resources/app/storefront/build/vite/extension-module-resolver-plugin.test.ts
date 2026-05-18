@@ -85,6 +85,46 @@ describe('extensionModuleResolverPlugin', () => {
         expect(resolved).toBe(path.join(packageRoot, 'index.js'));
     });
 
+    it('prefers exports.import over require/main entries', () => {
+        const extensionBase = path.join('custom/plugins/TestPluginImportCondition');
+        const componentsRoot = path.join(fixtureRoot, extensionBase, 'Resources/views/components');
+        const storefrontSrc = path.join(fixtureRoot, extensionBase, 'Resources/app/storefront/src');
+        const packageRoot = path.join(fixtureRoot, extensionBase, 'Resources/app/storefront/node_modules/test-import-condition');
+
+        fs.mkdirSync(componentsRoot, { recursive: true });
+        fs.mkdirSync(storefrontSrc, { recursive: true });
+        fs.mkdirSync(packageRoot, { recursive: true });
+        fs.mkdirSync(path.join(packageRoot, 'esm'), { recursive: true });
+        fs.mkdirSync(path.join(packageRoot, 'cjs'), { recursive: true });
+
+        fs.mkdirSync(path.join(fixtureRoot, 'var'), { recursive: true });
+        fs.writeFileSync(path.join(fixtureRoot, 'var/plugins.json'), JSON.stringify({
+            TestPluginImportCondition: {
+                basePath: extensionBase,
+                storefront: { path: 'Resources/app/storefront/src' },
+            },
+        }));
+
+        fs.writeFileSync(path.join(packageRoot, 'package.json'), JSON.stringify({
+            exports: {
+                '.': {
+                    import: './esm/index.js',
+                    require: './cjs/index.cjs',
+                },
+            },
+            main: './cjs/index.cjs',
+        }));
+        fs.writeFileSync(path.join(packageRoot, 'esm/index.js'), 'export default "esm";');
+        fs.writeFileSync(path.join(packageRoot, 'cjs/index.cjs'), 'module.exports = "cjs";');
+
+        const plugin = extensionModuleResolverPlugin(fixtureRoot);
+        const resolveId = resolveHook(plugin.resolveId) as ((...args: unknown[]) => unknown) | undefined;
+
+        const resolved = resolveId?.call({}, 'test-import-condition', undefined, { isEntry: false });
+
+        expect(resolved).toBe(path.join(packageRoot, 'esm/index.js'));
+    });
+
     it('does not resolve for non-component importers', () => {
         const extensionBase = path.join('custom/plugins/TestPluginScoped');
         const componentsRoot = path.join(fixtureRoot, extensionBase, 'Resources/views/components');

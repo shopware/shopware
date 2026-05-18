@@ -25,6 +25,11 @@ class Migration1733136208AddH1ToCmsCategoryListingTest extends TestCase
         $this->connection = static::getContainer()->get(Connection::class);
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1733136208, (new Migration1733136208AddH1ToCmsCategoryListing())->getCreationTimestamp());
+    }
+
     public function testMigrationAddsH1ToDefaultListingLayout(): void
     {
         $this->rollback();

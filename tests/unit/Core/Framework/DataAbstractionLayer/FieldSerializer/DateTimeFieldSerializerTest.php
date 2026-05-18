@@ -60,17 +60,17 @@ class DateTimeFieldSerializerTest extends TestCase
      */
     public static function dateTimeProvider(): iterable
     {
-        yield 'utc date time' => [
+        yield 'midnight UTC date time is stored unchanged' => [
             new \DateTimeImmutable('2020-05-15 00:00:00', new \DateTimeZone('UTC')),
             '2020-05-15 00:00:00.000',
         ];
 
-        yield 'future utc date time' => [
+        yield 'future UTC date time is stored unchanged' => [
             new \DateTimeImmutable('2099-05-18 00:00:00', new \DateTimeZone('UTC')),
             '2099-05-18 00:00:00.000',
         ];
 
-        yield 'timezone converts to utc' => [
+        yield 'New York date time is converted to UTC storage time' => [
             new \DateTimeImmutable('2020-05-15 22:00:00', new \DateTimeZone('America/New_York')),
             '2020-05-16 02:00:00.000',
         ];
@@ -81,17 +81,17 @@ class DateTimeFieldSerializerTest extends TestCase
      */
     public static function dateTimeStringProvider(): iterable
     {
-        yield 'utc offset' => [
+        yield 'UTC offset string is stored unchanged' => [
             '2020-05-15T00:00:00+0000',
             '2020-05-15 00:00:00.000',
         ];
 
-        yield 'positive offset' => [
+        yield 'positive offset string is converted to previous UTC day' => [
             '2020-05-15T00:00:00+0200',
             '2020-05-14 22:00:00.000',
         ];
 
-        yield 'later positive offset' => [
+        yield 'late positive offset string is converted to UTC time' => [
             '2020-05-15T22:00:00+0400',
             '2020-05-15 18:00:00.000',
         ];

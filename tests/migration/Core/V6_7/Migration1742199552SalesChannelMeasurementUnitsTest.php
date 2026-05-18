@@ -21,25 +21,17 @@ class Migration1742199552SalesChannelMeasurementUnitsTest extends TestCase
     protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
-
-        // Remove the column if it exists to ensure clean test state
-        $exists = $this->connection->fetchOne(
-            'SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = :table AND COLUMN_NAME = :column AND TABLE_SCHEMA = DATABASE()',
-            ['table' => 'sales_channel', 'column' => 'measurement_units']
-        );
-
-        if ((int) $exists > 0) {
-            $this->connection->executeStatement('ALTER TABLE `sales_channel` DROP COLUMN `measurement_units`');
-        }
     }
 
     public function testGetCreationTimestamp(): void
     {
-        static::assertEquals('1742199552', (new Migration1742199552SalesChannelMeasurementUnits())->getCreationTimestamp());
+        static::assertSame(1742199552, (new Migration1742199552SalesChannelMeasurementUnits())->getCreationTimestamp());
     }
 
     public function testMigration(): void
     {
+        $this->dropMeasurementUnitsColumn();
+
         $migration = new Migration1742199552SalesChannelMeasurementUnits();
 
         // Check column doesn't exist initially
@@ -59,5 +51,17 @@ class Migration1742199552SalesChannelMeasurementUnitsTest extends TestCase
             ['table' => 'sales_channel', 'column' => 'measurement_units']
         );
         static::assertEquals(1, $exists);
+    }
+
+    private function dropMeasurementUnitsColumn(): void
+    {
+        $exists = $this->connection->fetchOne(
+            'SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = :table AND COLUMN_NAME = :column AND TABLE_SCHEMA = DATABASE()',
+            ['table' => 'sales_channel', 'column' => 'measurement_units']
+        );
+
+        if ((int) $exists > 0) {
+            $this->connection->executeStatement('ALTER TABLE `sales_channel` DROP COLUMN `measurement_units`');
+        }
     }
 }

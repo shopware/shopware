@@ -11,9 +11,15 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConstraints;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
 use Shopware\Core\System\Currency\Rule\CurrencyRule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
+use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
@@ -37,6 +43,41 @@ class CurrencyRuleTest extends TestCase
             'operator' => RuleConstraints::uuidOperators(false),
             'currencyIds' => RuleConstraints::uuids(),
         ], $rule->getConstraints());
+    }
+
+    public function testConstraintsRejectEmptyCurrencyIds(): void
+    {
+        $violations = $this->validateConstraint('currencyIds', []);
+
+        $this->assertViolationCode($violations, NotBlank::IS_BLANK_ERROR);
+    }
+
+    public function testConstraintsRejectStringCurrencyIds(): void
+    {
+        $violations = $this->validateConstraint('currencyIds', '0915d54fbf80423c917c61ad5a391b48');
+
+        $this->assertViolationCode($violations, Type::INVALID_TYPE_ERROR);
+    }
+
+    public function testConstraintsRejectInvalidArrayCurrencyIds(): void
+    {
+        $violations = $this->validateConstraint('currencyIds', [true, 3, null, '0915d54fbf80423c917c61ad5a391b48']);
+
+        $this->assertViolationCode($violations, ArrayOfUuid::INVALID_TYPE_CODE, 3);
+    }
+
+    public function testConstraintsRejectInvalidCurrencyIdsUuid(): void
+    {
+        $violations = $this->validateConstraint('currencyIds', ['Invalid', '1234abcd']);
+
+        $this->assertViolationCode($violations, ArrayOfUuid::INVALID_TYPE_CODE, 2);
+    }
+
+    public function testConstraintsAcceptValidCurrencyIds(): void
+    {
+        $violations = $this->validateConstraint('currencyIds', [Uuid::randomHex(), Uuid::randomHex()]);
+
+        static::assertCount(0, $violations);
     }
 
     public function testGetConfig(): void
@@ -185,5 +226,19 @@ class CurrencyRuleTest extends TestCase
         $cart = new Cart('bar');
 
         return new CartRuleScope($cart, $salesChannelContext);
+    }
+
+    private function validateConstraint(string $field, mixed $value): ConstraintViolationListInterface
+    {
+        return Validation::createValidator()->validate($value, (new CurrencyRule())->getConstraints()[$field]);
+    }
+
+    private function assertViolationCode(ConstraintViolationListInterface $violations, string $expectedCode, int $expectedCount = 1): void
+    {
+        static::assertCount($expectedCount, $violations);
+
+        foreach ($violations as $violation) {
+            static::assertSame($expectedCode, $violation->getCode());
+        }
     }
 }

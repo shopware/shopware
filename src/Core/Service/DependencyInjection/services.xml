@@ -127,8 +127,13 @@
             <argument type="service" id="app.repository"/>
             <argument type="service" id="logger"/>
             <argument type="service" id="Shopware\Core\Service\ServiceClientFactory"/>
+            <argument type="service" id="event_dispatcher"/>
 
             <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Service\ServiceHookableEventDescriber">
+            <tag name="shopware.hookable_event.describer"/>
         </service>
 
         <service id="Shopware\Core\Service\Permission\PermissionsService">

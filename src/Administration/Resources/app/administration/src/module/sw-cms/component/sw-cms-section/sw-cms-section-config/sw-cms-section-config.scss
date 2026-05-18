@@ -1,5 +1,3 @@
-@import "~scss/variables";
-
 .sw-cms-section-config {
     padding: 25px;
 
@@ -8,7 +6,7 @@
     }
 
     .sw-media-upload-v2 .sw-media-upload-v2__dropzone {
-        border: 1px solid $color-gray-300;
+        border: 1px solid var(--color-border-primary-default);
     }
 }
 
@@ -16,7 +14,7 @@
     display: grid;
     grid-template-columns: 50% 50%;
     list-style: none;
-    border-bottom: 1px solid $color-gray-300;
+    border-bottom: 1px solid var(--color-border-primary-default);
     padding-bottom: 24px;
     margin-bottom: 16px;
 
@@ -26,19 +24,19 @@
             opacity: 0.3;
 
             &.is--danger .mt-icon {
-                color: $color-crimson-200;
+                color: var(--color-text-critical-default);
             }
 
             &.is--danger:hover {
-                color: $color-menu-start;
+                color: var(--color-text-primary-default);
             }
 
             .mt-icon {
-                color: $color-shopware-brand-200;
+                color: var(--color-icon-brand-default);
             }
 
             &:hover {
-                color: $color-menu-start;
+                color: var(--color-text-primary-default);
             }
         }
     }
@@ -48,21 +46,21 @@
 
         &.is--danger {
             .mt-icon {
-                color: $color-crimson-500;
+                color: var(--color-icon-critical-default);
             }
 
             &:hover {
-                color: $color-crimson-500;
+                color: var(--color-text-critical-default);
             }
         }
 
         &:hover {
-            color: $color-shopware-brand-500;
+            color: var(--color-text-brand-default);
         }
     }
 
     .mt-icon {
-        color: $color-shopware-brand-500;
+        color: var(--color-icon-brand-default);
         margin-right: 20px;
         position: relative;
         top: -2px;

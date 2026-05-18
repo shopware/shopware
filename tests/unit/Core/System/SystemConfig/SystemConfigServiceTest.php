@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
+use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Webhook\Hookable;
 use Shopware\Core\System\SystemConfig\AbstractSystemConfigLoader;
 use Shopware\Core\System\SystemConfig\Event\BeforeSystemConfigMultipleChangedEvent;
@@ -134,6 +135,41 @@ class SystemConfigServiceTest extends TestCase
         $result = $configService->getDomain('foo.bar');
 
         static::assertSame(['foo.bar.key1' => 'value1'], $result);
+    }
+
+    public function testGetDomainRejectsEmptyDomain(): void
+    {
+        $this->expectExceptionObject(SystemConfigException::invalidDomain('Empty domain'));
+
+        $this->configService->getDomain('');
+    }
+
+    public function testGetDomainRejectsOnlySpacesDomain(): void
+    {
+        $this->expectExceptionObject(SystemConfigException::invalidDomain('Empty domain'));
+
+        $this->configService->getDomain('     ');
+    }
+
+    public function testSetRejectsEmptyKey(): void
+    {
+        $this->expectExceptionObject(SystemConfigException::invalidKey('key may not be empty'));
+
+        $this->configService->set('', 'throws error');
+    }
+
+    public function testSetRejectsOnlySpacesKey(): void
+    {
+        $this->expectExceptionObject(SystemConfigException::invalidKey('key may not be empty'));
+
+        $this->configService->set('          ', 'throws error');
+    }
+
+    public function testSetRejectsInvalidSalesChannelId(): void
+    {
+        $this->expectException(InvalidUuidException::class);
+
+        $this->configService->set('foo.bar', 'test', 'invalid uuid');
     }
 
     public function testSetMultiForwardsSilentToHook(): void

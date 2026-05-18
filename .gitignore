@@ -37,6 +37,10 @@ yalc.lock
 .aiderignore
 .kite/
 .codewhispererignore
+.chunkhound*
+
+# GIT worktrees
+.worktrees
 
 # Composer
 /composer.phar

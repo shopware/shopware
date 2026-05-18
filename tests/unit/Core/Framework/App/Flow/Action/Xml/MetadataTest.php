@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Flow\Action\Xml;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Flow\Action\Xml\Metadata;
-use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * @internal
@@ -15,40 +14,64 @@ class MetadataTest extends TestCase
 {
     public function testFromXml(): void
     {
-        $document = XmlUtils::loadFile(
-            __DIR__ . '/../../../_fixtures/Resources/flow.xml',
-            __DIR__ . '/../../../../../../../../src/Core/Framework/App/Flow/Schema/flow-1.0.xsd'
+        $metadata = Metadata::fromXml(self::loadElement(<<<'XML'
+<meta>
+    <name>mail.send</name>
+    <badge>app</badge>
+    <label>Send mail</label>
+    <label lang="de-DE">Mail senden</label>
+    <headline>Mail</headline>
+    <headline lang="de-DE">Mail DE</headline>
+    <description>Send mail to customer</description>
+    <description lang="de-DE">Mail an Kunden senden</description>
+    <url>https://example.com/flow-action</url>
+    <icon>resource/mail</icon>
+    <sw-icon>sw-mail</sw-icon>
+    <requirements>order</requirements>
+    <requirements>customer</requirements>
+    <delayable>true</delayable>
+</meta>
+XML));
+
+        static::assertSame(
+            [
+                'label' => [
+                    'en-GB' => 'Send mail',
+                    'de-DE' => 'Mail senden',
+                ],
+                'description' => [
+                    'en-GB' => 'Send mail to customer',
+                    'de-DE' => 'Mail an Kunden senden',
+                ],
+                'name' => 'mail.send',
+                'url' => 'https://example.com/flow-action',
+                'requirements' => ['order', 'customer'],
+                'icon' => 'resource/mail',
+                'swIcon' => 'sw-mail',
+                'headline' => [
+                    'en-GB' => 'Mail',
+                    'de-DE' => 'Mail DE',
+                ],
+                'delayable' => true,
+                'badge' => 'app',
+            ],
+            $metadata->toArray('en-GB')
         );
-        $actions = $document->getElementsByTagName('flow-actions')->item(0);
-        static::assertNotNull($actions);
-        $action = $actions->getElementsByTagName('flow-action')->item(0);
-        static::assertNotNull($action);
-        $meta = $action->getElementsByTagName('meta')->item(0);
-        static::assertNotNull($meta);
+        static::assertSame('mail.send', $metadata->getName());
+        static::assertSame('https://example.com/flow-action', $metadata->getUrl());
+        static::assertSame(['order', 'customer'], $metadata->getRequirements());
+        static::assertSame('resource/mail', $metadata->getIcon());
+        static::assertSame('sw-mail', $metadata->getSwIcon());
+        static::assertTrue($metadata->getDelayable());
+        static::assertSame('app', $metadata->getBadge());
+    }
 
-        $expected = [
-            'label' => [
-                'en-GB' => 'First action app',
-                'de-DE' => 'First action app DE',
-            ],
-            'description' => [
-                'en-GB' => 'First action app description',
-                'de-DE' => 'First action app description DE',
-            ],
-            'name' => 'abc.cde.ccc',
-            'url' => 'https://example.xyz',
-            'requirements' => ['order', 'customer'],
-            'icon' => 'resource/pencil',
-            'swIcon' => 'sw-pencil',
-            'headline' => [
-                'en-GB' => 'Headline for action',
-                'de-DE' => 'Überschrift für Aktion',
-            ],
-            'delayable' => true,
-            'badge' => 'abc',
-        ];
+    private static function loadElement(string $xml): \DOMElement
+    {
+        $document = new \DOMDocument();
+        static::assertTrue($document->loadXML($xml));
+        static::assertInstanceOf(\DOMElement::class, $document->documentElement);
 
-        $metaData = Metadata::fromXml($meta);
-        static::assertSame($expected, $metaData->toArray('en-GB'));
+        return $document->documentElement;
     }
 }

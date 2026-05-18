@@ -7,7 +7,7 @@
     align-items: center;
     align-content: stretch;
     padding: 0;
-    color: $color-darkgray-200;
+    color: var(--color-text-primary-default);
     border-radius: 2px;
 
     &.has--text {
@@ -52,8 +52,8 @@
     }
 
     .sw-cms-product-box-preview__action {
-        background: $color-gray-300;
-        color: $color-darkgray-200;
+        background: var(--color-background-tertiary-default);
+        color: var(--color-text-primary-default);
         border-radius: 3px;
         text-align: center;
         font-size: $font-size-xxs;

@@ -34,7 +34,7 @@
 
         .sw-category-entry-point-modal__desc-headline.is--empty,
         .sw-category-entry-point-modal__desc-subheadline.is--empty {
-            color: $color-gray-500;
+            color: var(--color-text-secondary-default);
         }
 
         .sw-category-entry-point-modal__desc-info {
@@ -52,7 +52,7 @@
             display: flex;
             align-items: center;
             justify-content: flex-end;
-            color: $color-shopware-brand-500;
+            color: var(--color-text-brand-default);
             text-decoration: none;
             font-size: $font-size-xs;
             margin-top: 8px;

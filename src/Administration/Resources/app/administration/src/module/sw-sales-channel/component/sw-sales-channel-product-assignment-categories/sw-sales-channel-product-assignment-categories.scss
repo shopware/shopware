@@ -17,9 +17,9 @@
         width: 100%;
         height: 550px;
         z-index: 20;
-        border: 1px solid $color-gray-100;
-        box-shadow: 0 3px 6px 0 $color-gray-300;
-        background-color: $color-white;
+        border: 1px solid var(--color-border-primary-default);
+        box-shadow: 0 3px 6px 0 var(--color-elevation-shadow-default);
+        background-color: var(--color-elevation-surface-raised);
     }
 
     .sw-tree {
@@ -50,11 +50,11 @@
         }
 
         li.sw-sales-channel-product-assignment-categories__search-result:hover {
-            background-color: lighten($color-shopware-brand-500, 40);
+            background-color: var(--color-background-brand-default);
         }
 
         li.sw-sales-channel-product-assignment-categories__search-result.is--focus {
-            background-color: lighten($color-shopware-brand-500, 40);
+            background-color: var(--color-background-brand-default);
         }
 
         li .sw-sales-channel-product-assignment-categories__search-results-checkbox {

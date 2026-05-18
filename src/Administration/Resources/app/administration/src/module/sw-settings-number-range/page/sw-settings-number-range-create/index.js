@@ -76,6 +76,7 @@ export default {
             } else {
                 this.numberRange = this.numberRangeRepository.create();
             }
+            this.numberRangeId = this.numberRange.id;
             this.numberRange.start = 1;
             this.numberRange.global = false;
             this.numberRange.pattern = '';

@@ -10,6 +10,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
         viewer: {
             privileges: [
                 'product:read',
+                'product_translation:read',
                 'product_download:read',
                 'product_media:read',
                 'product_manufacturer:read',

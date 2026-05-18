@@ -18,8 +18,5 @@ import { runNpmAudit } from '../../../../../../.github/bin/js/run-npm-audit.ts';
  */
 runNpmAudit({
     ignoredGHSAs: [
-        'https://github.com/advisories/GHSA-2g4f-4pwh-qvx6', // ajv ReDoS with $data option, moderate severity, devDep only (jest/webpack), no safe override without semver major
-        'https://github.com/advisories/GHSA-5j98-mcp5-4vw2', // glob CLI command injection via -c/--cmd, high severity, devDep only (jest/test-exclude), not exploitable via programmatic usage
-        'https://github.com/advisories/GHSA-xxjr-mmjv-4gpg', // lodash Prototype Pollution in _.unset/_.omit, moderate severity, devDep only, no fix available for 4.x
     ],
 });

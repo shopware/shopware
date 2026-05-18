@@ -436,6 +436,7 @@
             <argument type="service" id="product.repository"/>
             <argument type="service" id="messenger.default_bus"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater"/>
+            <argument type="service" id="language.repository"/>
             <argument>%shopware.product_stream.indexing%</argument>
             <tag name="shopware.entity_indexer"/>
         </service>

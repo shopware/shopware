@@ -28,6 +28,7 @@ class FileUrlValidatorTest extends TestCase
     {
         return [
             'reserved IPv4' => ['https://127.0.0.1', false],
+            'reserved IPv4 hostname' => ['https://localhost', false],
             'converted reserved IPv4' => ['https://0:0:0:0:0:FFFF:7F00:0001', false],
             'reserved IPv4 mapped to IPv6' => ['https://[0:0:0:0:0:FFFF:127.0.0.1]', false],
             'reserved IPv6' => ['https://FE80::', false],

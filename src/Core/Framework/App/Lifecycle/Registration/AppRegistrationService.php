@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal only for use by the app-system
@@ -26,6 +27,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class AppRegistrationService
 {
+    private readonly ClockInterface $clock;
+
     /**
      * @param EntityRepository<AppCollection> $appRepository
      */
@@ -36,8 +39,9 @@ class AppRegistrationService
         private readonly string $shopUrl,
         private readonly ShopIdProvider $shopIdProvider,
         private readonly string $shopwareVersion,
-        private readonly ClockInterface $clock,
+        ?ClockInterface $clock = null,
     ) {
+        $this->clock = $clock ?? new NativeClock();
     }
 
     public function registerApp(Manifest $manifest, string $id, #[\SensitiveParameter] string $secretAccessKey, Context $context): void

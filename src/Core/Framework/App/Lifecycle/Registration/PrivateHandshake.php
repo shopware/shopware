@@ -7,6 +7,7 @@ use GuzzleHttp\Psr7\Uri;
 use Psr\Clock\ClockInterface;
 use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal only for use by the app-system
@@ -14,6 +15,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class PrivateHandshake implements AppHandshakeInterface
 {
+    private readonly ClockInterface $clock;
+
     public function __construct(
         private readonly string $shopUrl,
         #[\SensitiveParameter]
@@ -22,10 +25,11 @@ class PrivateHandshake implements AppHandshakeInterface
         private readonly string $appName,
         private readonly string $shopId,
         private readonly string $shopwareVersion,
-        private readonly ClockInterface $clock,
         #[\SensitiveParameter]
         private readonly ?string $currentAppSecret = null,
+        ?ClockInterface $clock = null,
     ) {
+        $this->clock = $clock ?? new NativeClock();
     }
 
     public function assembleRequest(): RequestInterface

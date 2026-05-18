@@ -12,12 +12,15 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextTokenChangeEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('framework')]
 class SalesChannelContextPersister
 {
     private readonly string $lifetimeInterval;
+
+    private readonly ClockInterface $clock;
 
     /**
      * @internal
@@ -26,10 +29,11 @@ class SalesChannelContextPersister
         private readonly Connection $connection,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AbstractCartPersister $cartPersister,
-        private readonly ClockInterface $clock,
         ?string $lifetimeInterval = 'P1D',
+        ?ClockInterface $clock = null,
     ) {
         $this->lifetimeInterval = $lifetimeInterval ?? 'P1D';
+        $this->clock = $clock ?? new NativeClock();
     }
 
     /**

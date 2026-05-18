@@ -37,8 +37,8 @@ class FinishControllerTest extends TestCase
                 $this->systemLocker,
                 new Client(),
                 'https://www.shopware.com',
-                new NativeClock(),
                 'admin',
+                new NativeClock(),
             ])
             ->onlyMethods(['renderInstaller'])
             ->getMock();
@@ -158,8 +158,8 @@ class FinishControllerTest extends TestCase
             $this->systemLocker,
             $client,
             $appUrl,
-            new NativeClock(),
             $adminPathName,
+            new NativeClock(),
         );
     }
 }

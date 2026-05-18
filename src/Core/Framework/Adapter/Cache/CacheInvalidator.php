@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Util\Backtrace\BacktraceCollector;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\Cache\Psr16Cache;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -25,6 +26,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class CacheInvalidator
 {
     private readonly CacheInterface $httpCacheStore;
+
+    private readonly ClockInterface $clock;
 
     /**
      * @internal
@@ -42,10 +45,11 @@ class CacheInvalidator
         private readonly bool $useDelayedCache,
         private readonly bool $tagInvalidationLogEnabled,
         private readonly BacktraceCollector $backtraceCollector,
-        private readonly ClockInterface $clock,
         private readonly ?AbstractReverseProxyGateway $reverseProxyGateway = null,
+        ?ClockInterface $clock = null,
     ) {
         $this->httpCacheStore = new Psr16Cache($httpCacheStore);
+        $this->clock = $clock ?? new NativeClock();
     }
 
     /**

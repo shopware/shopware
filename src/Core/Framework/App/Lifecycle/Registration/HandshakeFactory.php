@@ -63,8 +63,8 @@ readonly class HandshakeFactory
                 $metadata->getName(),
                 $shopId,
                 $this->shopwareVersion,
-                $this->clock,
                 $currentAppSecret,
+                $this->clock,
             );
         }
 
@@ -75,8 +75,8 @@ readonly class HandshakeFactory
             $shopId,
             $this->storeClient,
             $this->shopwareVersion,
-            $this->clock,
             $currentAppSecret,
+            $this->clock,
         );
     }
 }

@@ -42,7 +42,6 @@
 
         <!-- UrlProviders -->
         <service id="Shopware\Core\Content\Sitemap\Provider\HomeUrlProvider">
-            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <tag name="shopware.sitemap_url_provider"/>
         </service>
 

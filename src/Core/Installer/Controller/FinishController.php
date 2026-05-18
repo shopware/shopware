@@ -7,6 +7,7 @@ use GuzzleHttp\Exception\TransferException;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Finish\SystemLocker;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,13 +21,16 @@ class FinishController extends InstallerController
 {
     private const COMPLETION_PARAMETER = 'completed';
 
+    private readonly ClockInterface $clock;
+
     public function __construct(
         private readonly SystemLocker $systemLocker,
         private readonly Client $client,
         private readonly string $appUrl,
-        private readonly ClockInterface $clock,
         private readonly string $adminPathName = 'admin',
+        ?ClockInterface $clock = null,
     ) {
+        $this->clock = $clock ?? new NativeClock();
     }
 
     #[Route(path: '/installer/finish', name: 'installer.finish', methods: ['GET'])]

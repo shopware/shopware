@@ -30,6 +30,7 @@ use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
@@ -38,6 +39,8 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Package('checkout')]
 class OrderRoute extends AbstractOrderRoute
 {
+    private readonly ClockInterface $clock;
+
     /**
      * @internal
      *
@@ -51,9 +54,10 @@ class OrderRoute extends AbstractOrderRoute
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AccountService $accountService,
         private readonly GuestAuthenticator $guestAuthenticator,
-        private readonly ClockInterface $clock,
         private readonly int $deepLinkExpireDays = 30,
+        ?ClockInterface $clock = null,
     ) {
+        $this->clock = $clock ?? new NativeClock();
     }
 
     public function getDecorated(): AbstractOrderRoute

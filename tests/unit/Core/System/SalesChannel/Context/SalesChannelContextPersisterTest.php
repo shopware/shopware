@@ -43,8 +43,8 @@ class SalesChannelContextPersisterTest extends TestCase
             $connection,
             $this->createMock(EventDispatcherInterface::class),
             $this->createMock(CartPersister::class),
-            new NativeClock(),
             'P1D', // 1 day expiration is the default value
+            new NativeClock(),
         );
     }
 

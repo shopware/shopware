@@ -40,7 +40,7 @@ class SalesChannelContextPersisterTest extends TestCase
     {
         $this->connection = static::getContainer()->get(Connection::class);
         $eventDispatcher = new EventDispatcher();
-        $this->contextPersister = new SalesChannelContextPersister($this->connection, $eventDispatcher, static::getContainer()->get(CartPersister::class), new NativeClock());
+        $this->contextPersister = new SalesChannelContextPersister($this->connection, $eventDispatcher, static::getContainer()->get(CartPersister::class));
     }
 
     public function testLoad(): void
@@ -359,8 +359,8 @@ class SalesChannelContextPersisterTest extends TestCase
             $this->connection,
             $this->createMock(EventDispatcher::class),
             static::getContainer()->get(CartPersister::class),
-            new NativeClock(),
             $lifeTimeInterval,
+            new NativeClock(),
         );
         $token = Uuid::randomHex();
 

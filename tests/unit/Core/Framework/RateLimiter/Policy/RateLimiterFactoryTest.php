@@ -40,8 +40,8 @@ class RateLimiterFactoryTest extends TestCase
             ],
             $this->createMock(StorageInterface::class),
             $this->createMock(SystemConfigService::class),
-            new MockClock(),
             $this->createMock(LockFactory::class),
+            new MockClock(),
         );
 
         static::assertInstanceOf(TimeBackoffLimiter::class, $factory->create('example'));
@@ -59,8 +59,8 @@ class RateLimiterFactoryTest extends TestCase
             ],
             $this->createMock(StorageInterface::class),
             $this->createMock(SystemConfigService::class),
-            new MockClock(),
             $this->createMock(LockFactory::class),
+            new MockClock(),
         );
 
         static::assertInstanceOf(TokenBucketLimiter::class, $factory->create('example'));
@@ -89,8 +89,8 @@ class RateLimiterFactoryTest extends TestCase
             ],
             $this->createMock(StorageInterface::class),
             $this->createMock(SystemConfigService::class),
-            new MockClock(),
             $this->createMock(LockFactory::class),
+            new MockClock(),
         );
 
         static::assertInstanceOf(TokenBucketLimiter::class, $factory->create('example'));
@@ -108,8 +108,8 @@ class RateLimiterFactoryTest extends TestCase
             ],
             $this->createMock(StorageInterface::class),
             $this->createMock(SystemConfigService::class),
-            new MockClock(),
             $this->createMock(LockFactory::class),
+            new MockClock(),
         );
         static::assertInstanceOf(SlidingWindowLimiter::class, $factory->create('example_1'));
         static::assertInstanceOf(SlidingWindowLimiter::class, $factory->create('example_2'));

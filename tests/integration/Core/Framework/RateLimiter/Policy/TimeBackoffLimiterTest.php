@@ -65,8 +65,8 @@ class TimeBackoffLimiterTest extends TestCase
             $this->config,
             new CacheStorage(new ArrayAdapter()),
             $this->createMock(SystemConfigService::class),
-            new NativeClock(),
             $this->createMock(LockFactory::class),
+            new NativeClock(),
         );
 
         $this->limiter = $factory->create('example');

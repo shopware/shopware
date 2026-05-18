@@ -34,7 +34,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\Clock\MockClock;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -55,8 +54,7 @@ class OrderRouteTest extends TestCase
             $this->createMock(RateLimiter::class),
             $this->createMock(EventDispatcherInterface::class),
             $this->createMock(AccountService::class),
-            new GuestAuthenticator(),
-            new MockClock()
+            new GuestAuthenticator()
         );
 
         $route->load(new Request(), $this->createMock(SalesChannelContext::class), new Criteria());
@@ -106,8 +104,7 @@ class OrderRouteTest extends TestCase
             $this->createMock(RateLimiter::class),
             $eventDispatcher,
             $this->createMock(AccountService::class),
-            new GuestAuthenticator(),
-            new MockClock()
+            new GuestAuthenticator()
         );
 
         $responseOrder = $route->load(new Request(), $context, new Criteria())->getOrders()->first();
@@ -190,8 +187,7 @@ class OrderRouteTest extends TestCase
             $this->createMock(RateLimiter::class),
             $eventDispatcher,
             $accountService,
-            new GuestAuthenticator(),
-            new MockClock()
+            new GuestAuthenticator()
         );
 
         $criteria = new Criteria();
@@ -240,8 +236,7 @@ class OrderRouteTest extends TestCase
             $this->createMock(RateLimiter::class),
             $this->createMock(EventDispatcherInterface::class),
             $this->createMock(AccountService::class),
-            new GuestAuthenticator(),
-            new MockClock()
+            new GuestAuthenticator()
         );
 
         $route->load(new Request(), $this->createMock(SalesChannelContext::class), (new Criteria())->addFilter($filter));
@@ -310,7 +305,6 @@ class OrderRouteTest extends TestCase
             $this->createMock(EventDispatcherInterface::class),
             $this->createMock(AccountService::class),
             new GuestAuthenticator(),
-            new MockClock(),
             $expireDays
         );
 

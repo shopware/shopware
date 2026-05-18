@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Policy\SystemConfigLimiter;
 use Shopware\Core\Framework\RateLimiter\Policy\TimeBackoffLimiter;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\NoLock;
 use Symfony\Component\RateLimiter\LimiterInterface;
@@ -29,6 +30,8 @@ use Symfony\Component\RateLimiter\Storage\StorageInterface;
 #[Package('framework')]
 class RateLimiterFactory
 {
+    private readonly ClockInterface $clock;
+
     /**
      * @internal
      *
@@ -38,9 +41,10 @@ class RateLimiterFactory
         private array $config,
         private readonly StorageInterface $storage,
         private readonly SystemConfigService $systemConfigService,
-        private readonly ClockInterface $clock,
         private readonly ?LockFactory $lockFactory = null,
+        ?ClockInterface $clock = null,
     ) {
+        $this->clock = $clock ?? new NativeClock();
     }
 
     public function create(?string $key = null): LimiterInterface
@@ -62,13 +66,13 @@ class RateLimiterFactory
 
             \assert($this->config['reset'] instanceof \DateInterval);
 
-            return new TimeBackoffLimiter($id, $limits, $this->config['reset'], $this->storage, $this->clock, $lock);
+            return new TimeBackoffLimiter($id, $limits, $this->config['reset'], $this->storage, $lock, $this->clock);
         }
 
         if ($this->config['policy'] === 'system_config' && isset($this->config['limits']) && isset($this->config['reset'])) {
             \assert($this->config['reset'] instanceof \DateInterval);
 
-            return new SystemConfigLimiter($this->systemConfigService, $id, $this->config['limits'], $this->config['reset'], $this->storage, $this->clock, $lock);
+            return new SystemConfigLimiter($this->systemConfigService, $id, $this->config['limits'], $this->config['reset'], $this->storage, $lock, $this->clock);
         }
 
         // prevent symfony errors due to customized values

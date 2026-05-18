@@ -67,9 +67,9 @@
             <argument type="service" id="logger"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="messenger.default_bus"/>
-            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <argument type="string">%product_export.stale_min_seconds%</argument>
             <argument type="string">%product_export.stale_interval_factor%</argument>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <tag name="messenger.message_handler"/>
         </service>
 

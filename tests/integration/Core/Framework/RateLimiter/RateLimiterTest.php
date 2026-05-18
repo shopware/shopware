@@ -431,8 +431,8 @@ class RateLimiterTest extends TestCase
             $config,
             new CacheStorage(new ArrayAdapter()),
             $this->createMock(SystemConfigService::class),
-            new NativeClock(),
             $this->createMock(LockFactory::class),
+            new NativeClock(),
         );
 
         static::assertInstanceOf(NoLimiter::class, $factory->create('example'));
@@ -552,7 +552,6 @@ class RateLimiterTest extends TestCase
                     $limitOneConfig + ['id' => $name],
                     new CacheStorage(new ArrayAdapter()),
                     static::createStub(SystemConfigService::class),
-                    new NativeClock()
                 ));
             }
         }

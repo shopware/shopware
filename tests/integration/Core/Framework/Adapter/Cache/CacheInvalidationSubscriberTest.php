@@ -17,7 +17,6 @@ use Shopware\Core\Framework\Util\Backtrace\BacktraceCollector;
 use Shopware\Core\Framework\Util\Backtrace\Frame;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
-use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -57,8 +56,7 @@ class CacheInvalidationSubscriberTest extends TestCase
             false,
             false,
             true,
-            $this->backtraceCollector,
-            new NativeClock(),
+            $this->backtraceCollector
         );
 
         $this->cacheInvalidationSubscriber = new CacheInvalidationSubscriber(

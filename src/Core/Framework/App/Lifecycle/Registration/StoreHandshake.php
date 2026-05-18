@@ -10,6 +10,7 @@ use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\StoreClient;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal only for use by the app-system
@@ -21,6 +22,8 @@ class StoreHandshake implements AppHandshakeInterface
 
     private const SBP_EXCEPTION_NO_LICENSE = 'ShopwarePlatformException-16';
 
+    private readonly ClockInterface $clock;
+
     public function __construct(
         private readonly string $shopUrl,
         private readonly string $appEndpoint,
@@ -28,10 +31,11 @@ class StoreHandshake implements AppHandshakeInterface
         private readonly string $shopId,
         private readonly StoreClient $storeClient,
         private readonly string $shopwareVersion,
-        private readonly ClockInterface $clock,
         #[\SensitiveParameter]
         private readonly ?string $currentAppSecret = null,
+        ?ClockInterface $clock = null,
     ) {
+        $this->clock = $clock ?? new NativeClock();
     }
 
     public function assembleRequest(): RequestInterface

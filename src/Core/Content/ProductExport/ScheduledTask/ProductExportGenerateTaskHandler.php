@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -32,11 +33,11 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
         LoggerInterface $logger,
         private readonly Connection $connection,
         private readonly MessageBusInterface $messageBus,
-        ClockInterface $clock,
         private readonly int $staleMinSeconds = 300,
         private readonly float $staleIntervalFactor = 2.0,
+        ?ClockInterface $clock = null,
     ) {
-        parent::__construct($scheduledTaskRepository, $logger, $clock);
+        parent::__construct($scheduledTaskRepository, $logger, $clock ?? new NativeClock());
     }
 
     public function run(): void

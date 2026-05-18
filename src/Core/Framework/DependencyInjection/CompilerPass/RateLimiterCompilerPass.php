@@ -39,8 +39,8 @@ class RateLimiterCompilerPass implements CompilerPassInterface
 
             $def->addArgument($cacheDef);
             $def->addArgument(new Reference(SystemConfigService::class));
-            $def->addArgument(new Reference(ClockInterface::class));
             $def->addArgument(new Reference($config['lock_factory']));
+            $def->addArgument(new Reference(ClockInterface::class));
 
             $rateLimiter->addMethodCall('registerLimiterFactory', [$name, $def]);
         }

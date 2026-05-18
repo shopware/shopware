@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\RateLimiter\Policy;
 
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Lock\LockInterface;
 use Symfony\Component\Lock\NoLock;
 use Symfony\Component\RateLimiter\Exception\ReserveNotSupportedException;
@@ -26,6 +27,8 @@ class TimeBackoffLimiter implements LimiterInterface
 
     private readonly int $reset;
 
+    private readonly ClockInterface $clock;
+
     /**
      * @param list<TimeBackoffLimit> $limits
      */
@@ -34,13 +37,14 @@ class TimeBackoffLimiter implements LimiterInterface
         private readonly array $limits,
         \DateInterval $reset,
         StorageInterface $storage,
-        private readonly ClockInterface $clock,
         ?LockInterface $lock = new NoLock(),
+        ?ClockInterface $clock = null,
     ) {
         $this->id = $id;
         $this->reset = TimeUtil::dateIntervalToSeconds($reset);
         $this->storage = $storage;
         $this->lock = $lock;
+        $this->clock = $clock ?? new NativeClock();
     }
 
     public function reserve(int $tokens = 1, ?float $maxTime = null): Reservation

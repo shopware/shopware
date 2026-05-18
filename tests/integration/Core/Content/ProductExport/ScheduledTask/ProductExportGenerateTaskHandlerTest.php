@@ -25,7 +25,6 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
-use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -161,8 +160,7 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
             static::getContainer()->get('scheduled_task.repository'),
             $this->createMock(LoggerInterface::class),
             static::getContainer()->get(Connection::class),
-            static::getContainer()->get('messenger.default_bus'),
-            new NativeClock()
+            static::getContainer()->get('messenger.default_bus')
         );
     }
 

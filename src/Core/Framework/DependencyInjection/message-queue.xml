@@ -73,8 +73,6 @@
             <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Adapter\Messenger\Middleware\QueuedTimeMiddleware">
-            <argument type="service" id="Psr\Clock\ClockInterface"/>
-        </service>
+        <service id="Shopware\Core\Framework\Adapter\Messenger\Middleware\QueuedTimeMiddleware"/>
     </services>
 </container>

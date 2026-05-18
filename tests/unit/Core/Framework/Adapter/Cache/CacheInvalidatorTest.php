@@ -56,8 +56,7 @@ class CacheInvalidatorTest extends TestCase
             false,
             true,
             true,
-            $this->createMock(BacktraceCollector::class),
-            new NativeClock()
+            $this->createMock(BacktraceCollector::class)
         );
 
         $invalidator->invalidate([]);
@@ -97,8 +96,7 @@ class CacheInvalidatorTest extends TestCase
             false,
             true,
             true,
-            $this->createBacktraceCollectorMock('Foo', 'a'),
-            new NativeClock()
+            $this->createBacktraceCollectorMock('Foo', 'a')
         );
 
         $invalidator->invalidate(['foo'], true);
@@ -138,8 +136,7 @@ class CacheInvalidatorTest extends TestCase
             false,
             false,
             true,
-            $this->createBacktraceCollectorMock('Foo', 'a'),
-            new NativeClock()
+            $this->createBacktraceCollectorMock('Foo', 'a')
         );
 
         $invalidator->invalidate(['foo']);
@@ -174,8 +171,7 @@ class CacheInvalidatorTest extends TestCase
             false,
             true,
             false,
-            $this->createMock(BacktraceCollector::class),
-            new NativeClock()
+            $this->createMock(BacktraceCollector::class)
         );
 
         $invalidator->invalidate(['foo']);
@@ -203,8 +199,7 @@ class CacheInvalidatorTest extends TestCase
             false,
             true,
             true,
-            $this->createMock(BacktraceCollector::class),
-            new NativeClock()
+            $this->createMock(BacktraceCollector::class)
         );
 
         $invalidator->invalidate(['foo']);
@@ -235,8 +230,7 @@ class CacheInvalidatorTest extends TestCase
             false,
             false,
             true,
-            $this->createMock(BacktraceCollector::class),
-            new NativeClock()
+            $this->createMock(BacktraceCollector::class)
         );
 
         $invalidator->invalidateExpired();
@@ -286,8 +280,8 @@ class CacheInvalidatorTest extends TestCase
             false,
             true,
             $this->createBacktraceCollectorMock(CacheInvalidationSubscriber::class, 'invalidatePropertyFilters'),
-            new NativeClock(),
-            $reverseProxyGateway
+            $reverseProxyGateway,
+            new NativeClock()
         );
 
         $invalidator->invalidateExpired();
@@ -325,8 +319,7 @@ class CacheInvalidatorTest extends TestCase
             true,
             true,
             true,
-            $this->createBacktraceCollectorMock(CacheInvalidationSubscriber::class, 'invalidatePropertyFilters'),
-            new NativeClock()
+            $this->createBacktraceCollectorMock(CacheInvalidationSubscriber::class, 'invalidatePropertyFilters')
         );
 
         $invalidator->invalidate(['foo'], true);
@@ -363,8 +356,7 @@ class CacheInvalidatorTest extends TestCase
             true,
             true,
             true,
-            $this->createBacktraceCollectorMock(),
-            new NativeClock()
+            $this->createBacktraceCollectorMock()
         );
 
         $invalidator->invalidate(['foo'], true);
@@ -389,8 +381,7 @@ class CacheInvalidatorTest extends TestCase
             false,
             true,
             true,
-            $this->createMock(BacktraceCollector::class),
-            new NativeClock()
+            $this->createMock(BacktraceCollector::class)
         );
 
         $invalidator->invalidate(['foo']);
@@ -430,8 +421,7 @@ class CacheInvalidatorTest extends TestCase
             false,
             true,
             true,
-            $this->createMock(BacktraceCollector::class),
-            new NativeClock()
+            $this->createMock(BacktraceCollector::class)
         );
 
         $invalidator->invalidate(['foo']);
@@ -469,8 +459,7 @@ class CacheInvalidatorTest extends TestCase
             false,
             true,
             true,
-            $this->createMock(BacktraceCollector::class),
-            new NativeClock()
+            $this->createMock(BacktraceCollector::class)
         );
 
         $invalidator->invalidate(['foo']);

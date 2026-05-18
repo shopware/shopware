@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Kernel;
-use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -34,7 +33,7 @@ class StoreHandshakeTest extends TestCase
             ->method('signPayloadWithAppSecret')
             ->willReturn('1234');
 
-        $handshake = new StoreHandshake($shopUrl, $appEndpoint, '', $shopId, $storeClientMock, Kernel::SHOPWARE_FALLBACK_VERSION, new NativeClock());
+        $handshake = new StoreHandshake($shopUrl, $appEndpoint, '', $shopId, $storeClientMock, Kernel::SHOPWARE_FALLBACK_VERSION);
 
         $request = $handshake->assembleRequest();
         static::assertStringStartsWith($appEndpoint, (string) $request->getUri());
@@ -74,7 +73,7 @@ class StoreHandshakeTest extends TestCase
             ->with($shopId . $shopUrl . $appName, $appName)
             ->willReturn('1234');
 
-        $handshake = new StoreHandshake($shopUrl, $appEndpoint, $appName, $shopId, $storeClientMock, Kernel::SHOPWARE_FALLBACK_VERSION, new NativeClock());
+        $handshake = new StoreHandshake($shopUrl, $appEndpoint, $appName, $shopId, $storeClientMock, Kernel::SHOPWARE_FALLBACK_VERSION);
 
         static::assertSame('1234', $handshake->fetchAppProof());
     }
@@ -99,8 +98,7 @@ class StoreHandshakeTest extends TestCase
             'TestApp',
             'my-shop-id',
             $storeClient,
-            Kernel::SHOPWARE_FALLBACK_VERSION,
-            new NativeClock()
+            Kernel::SHOPWARE_FALLBACK_VERSION
         );
 
         static::expectException(AppException::class);

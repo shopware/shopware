@@ -246,8 +246,8 @@
             <argument type="service" id="Shopware\Core\Installer\Finish\SystemLocker"/>
             <argument type="service" id="GuzzleHttp\Client"/>
             <argument type="string">%env(string:APP_URL)%</argument>
-            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <argument type="string">%env(string:SHOPWARE_ADMINISTRATION_PATH_NAME)%</argument>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

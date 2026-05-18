@@ -145,8 +145,8 @@ class SystemConfigLimiterTest extends TestCase
             $this->config,
             $cacheStorage,
             $systemConfig,
-            new MockClock(),
             $this->createMock(LockFactory::class),
+            new MockClock(),
         );
 
         return $factory->create('example');

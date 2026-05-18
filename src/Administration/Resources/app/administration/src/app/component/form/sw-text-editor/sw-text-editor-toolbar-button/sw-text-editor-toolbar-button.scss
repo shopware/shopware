@@ -9,15 +9,6 @@
     align-items: center;
     justify-content: center;
 
-    &.is--active {
-        color: var(--color-icon-brand-default);
-    }
-
-    &.is--disabled {
-        color: var(--color-icon-secondary-default);
-        cursor: initial;
-    }
-
     .sw-text-editor-toolbar-button__icon {
         display: flex;
         align-items: center;
@@ -25,7 +16,16 @@
         width: 100%;
         cursor: pointer;
 
-        &:hover {
+        &.is--active {
+            color: var(--color-icon-brand-default);
+        }
+
+        &.is--disabled {
+            color: var(--color-icon-secondary-disabled);
+            cursor: initial;
+        }
+
+        &:not(.is--disabled):hover {
             color: var(--color-icon-brand-default);
         }
 

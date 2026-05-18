@@ -1,0 +1,127 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Migration\Core\V6_7;
+
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception\DriverException;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Util\Database\TableHelper;
+use Shopware\Core\Migration\V6_7\Migration1756305375AddCategoriesIndexToProduct;
+
+/**
+ * @internal
+ *
+ * Regression coverage for issue #13039 (Cannot drop index '<unknown key name>'
+ * when creating the product categories index on MySQL 8.4+ via the
+ * restrict_fk_on_non_standard_key guard introduced by MySQL bug #118151).
+ *
+ * The bug only fires on MySQL 8.4+ when a child table holds a foreign key
+ * referencing a non-standard (non-PK / non-unique) key on `product`. The
+ * fixture below creates that condition with a temporary child table.
+ */
+#[CoversClass(Migration1756305375AddCategoriesIndexToProduct::class)]
+class Migration1756305375AddCategoriesIndexToProductMysql84Test extends TestCase
+{
+    private const NON_STD_CHILD_TABLE = '_t_nonstd_fk_child_for_13039';
+
+    private Connection $connection;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->connection = KernelLifecycleManager::getConnection();
+        $this->skipUnlessMysql84WithFkGuardOn();
+        $this->dropCategoriesIndexIfExists();
+        $this->createNonStandardChildFk();
+    }
+
+    protected function tearDown(): void
+    {
+        $this->dropNonStandardChildFk();
+        parent::tearDown();
+    }
+
+    /**
+     * Regression witness: with a non-standard child FK in place, a plain
+     * CREATE INDEX on `product` must fail with the issue #13039 error. If
+     * this test passes (no exception), the local environment can no longer
+     * reproduce the bug — the fix oracle below is meaningless without it.
+     */
+    public function testRawCreateIndexReproducesIssue13039(): void
+    {
+        $this->expectException(DriverException::class);
+        $this->expectExceptionMessageMatches('/needed in a foreign key constraint/i');
+
+        $this->connection->executeStatement('CREATE INDEX `_repro_idx` ON `product` (`categories`)');
+    }
+
+    /**
+     * Fix oracle: with the same fixture, the actual migration must complete
+     * because the FK guard is relaxed for its session.
+     */
+    public function testMigrationSucceedsDespiteNonStandardChildFk(): void
+    {
+        (new Migration1756305375AddCategoriesIndexToProduct())->update($this->connection);
+
+        static::assertTrue(TableHelper::indexExists($this->connection, 'product', 'idx.product.categories'));
+        static::assertSame(
+            '1',
+            (string) $this->connection->fetchOne('SELECT @@SESSION.restrict_fk_on_non_standard_key'),
+            'Migration must restore the FK guard to its previous (ON) state'
+        );
+    }
+
+    private function skipUnlessMysql84WithFkGuardOn(): void
+    {
+        $version = (string) $this->connection->fetchOne('SELECT VERSION()');
+        if (stripos($version, 'mariadb') !== false) {
+            static::markTestSkipped('MariaDB has no restrict_fk_on_non_standard_key — bug only manifests on MySQL 8.4+');
+        }
+        if (version_compare($version, '8.4.0', '<')) {
+            static::markTestSkipped("MySQL {$version} does not enforce restrict_fk_on_non_standard_key");
+        }
+        $guard = (string) $this->connection->fetchOne('SELECT @@GLOBAL.restrict_fk_on_non_standard_key');
+        if ($guard !== '1') {
+            static::markTestSkipped('Global restrict_fk_on_non_standard_key is OFF — repro requires guard ON');
+        }
+    }
+
+    private function createNonStandardChildFk(): void
+    {
+        $this->dropNonStandardChildFk();
+
+        $childTable = self::NON_STD_CHILD_TABLE;
+        $this->connection->executeStatement('SET SESSION restrict_fk_on_non_standard_key = OFF');
+        $this->connection->executeStatement(\sprintf(
+            'CREATE TABLE `%s` (
+                `id` BINARY(16) NOT NULL,
+                `tax_id` BINARY(16) NULL,
+                PRIMARY KEY (`id`),
+                CONSTRAINT `fk._t_nonstd_fk_child_13039.tax_id`
+                    FOREIGN KEY (`tax_id`) REFERENCES `product` (`tax_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci',
+            $childTable
+        ));
+        $this->connection->executeStatement('SET SESSION restrict_fk_on_non_standard_key = ON');
+    }
+
+    private function dropNonStandardChildFk(): void
+    {
+        $this->connection->executeStatement(\sprintf(
+            'DROP TABLE IF EXISTS `%s`',
+            self::NON_STD_CHILD_TABLE
+        ));
+    }
+
+    private function dropCategoriesIndexIfExists(): void
+    {
+        if (TableHelper::indexExists($this->connection, 'product', 'idx.product.categories')) {
+            $this->connection->executeStatement('DROP INDEX `idx.product.categories` ON `product`');
+        }
+        if (TableHelper::indexExists($this->connection, 'product', '_repro_idx')) {
+            $this->connection->executeStatement('DROP INDEX `_repro_idx` ON `product`');
+        }
+    }
+}

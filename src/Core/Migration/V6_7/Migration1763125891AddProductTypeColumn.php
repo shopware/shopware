@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Util\Database\TableHelper;
+use Shopware\Core\Migration\Traits\RelaxesNonStandardFkGuardTrait;
 
 /**
  * @internal
@@ -13,6 +14,8 @@ use Shopware\Core\Framework\Util\Database\TableHelper;
 #[Package('inventory')]
 class Migration1763125891AddProductTypeColumn extends MigrationStep
 {
+    use RelaxesNonStandardFkGuardTrait;
+
     public function getCreationTimestamp(): int
     {
         return 1763125891;
@@ -20,21 +23,11 @@ class Migration1763125891AddProductTypeColumn extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        // MySQL 8.4 introduced `restrict_fk_on_non_standard_key` (default ON) which
-        // refuses ALTER TABLE on a parent table when any child FK references a
-        // non-standard key. Older shops carry such drifted FKs from past migrations
-        // and we cannot safely repair them here. Relax the guard for this session
-        // only — see issue #16240 and MySQL bug #118151. On MariaDB and MySQL <8.4
-        // the variable does not exist; the SELECT throws and the migration runs
-        // unchanged.
-        $previousGuard = null;
-        try {
-            $previousGuard = (int) $connection->fetchOne('SELECT @@SESSION.restrict_fk_on_non_standard_key');
-            $connection->executeStatement('SET SESSION restrict_fk_on_non_standard_key = OFF');
-        } catch (\Throwable) {
-        }
-
-        try {
+        // ALTER TABLE on `product` can fail on MySQL 8.4 if a child table holds
+        // a non-standard FK against it — see issue #16240 / MySQL bug #118151.
+        // The trait relaxes `restrict_fk_on_non_standard_key` for this session
+        // only; on MariaDB / MySQL <8.4 it is a no-op.
+        $this->runWithRelaxedNonStandardFkGuard($connection, function (Connection $connection): void {
             if (!TableHelper::columnExists($connection, 'product', 'type')) {
                 $this->addColumn(
                     $connection,
@@ -63,13 +56,6 @@ class Migration1763125891AddProductTypeColumn extends MigrationStep
                      LIMIT {$batchSize};"
                 );
             } while ($affected > 0);
-        } finally {
-            if ($previousGuard !== null) {
-                $connection->executeStatement(\sprintf(
-                    'SET SESSION restrict_fk_on_non_standard_key = %d',
-                    $previousGuard
-                ));
-            }
-        }
+        });
     }
 }

@@ -4,9 +4,14 @@
 import { config, mount } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
 
-async function createWrapper() {
+async function createWrapper(viewportWidth = 1920) {
     delete config.global.mocks.$router;
     delete config.global.mocks.$route;
+    Object.defineProperty(window, 'innerWidth', {
+        configurable: true,
+        writable: true,
+        value: viewportWidth,
+    });
 
     const router = createRouter({
         history: createWebHashHistory(),
@@ -52,8 +57,9 @@ describe('src/app/asyncComponent/sidebar/sw-help-sidebar', () => {
     let wrapper;
 
     beforeEach(async () => {
-        wrapper = await createWrapper();
         Shopware.Store.get('adminHelpCenter').showHelpSidebar = true;
+        Shopware.Store.get('adminHelpCenter').showShortcutModal = false;
+        wrapper = await createWrapper();
     });
 
     it('should be able to open the help sidebar', async () => {
@@ -73,12 +79,23 @@ describe('src/app/asyncComponent/sidebar/sw-help-sidebar', () => {
         expect(wrapper.find('.sw-help-sidebar').exists()).toBeFalsy();
     });
 
-    it('should be able to open the shortcut modal', async () => {
+    it('should be able to open the shortcut modal on tablet viewports', async () => {
+        wrapper.unmount();
+        wrapper = await createWrapper(768);
+
         expect(wrapper.find('.sw-help-sidebar').exists()).toBeTruthy();
 
         await wrapper.find('.sw-help-sidebar__shortcut-button').trigger('click');
 
         expect(Shopware.Store.get('adminHelpCenter').showShortcutModal).toBeTruthy();
+    });
+
+    it('should hide the shortcut button on mobile viewports', async () => {
+        wrapper.unmount();
+        wrapper = await createWrapper(500);
+
+        expect(wrapper.find('.sw-help-sidebar').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-help-sidebar__shortcut-button').exists()).toBeFalsy();
     });
 
     it('should close the sidebar if the user clicks outside of the sidebar', async () => {

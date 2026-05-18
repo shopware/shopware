@@ -82,7 +82,10 @@
                 </div>
             </div>
 
-            <div class="sw-help-sidebar__footer">
+            <div
+                v-if="showShortcutButton"
+                class="sw-help-sidebar__footer"
+            >
                 <div class="sw-help-sidebar__shortcut">
                     <mt-button
                         v-tooltip="{

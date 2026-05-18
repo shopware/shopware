@@ -1,6 +1,8 @@
 import template from './sw-help-sidebar.html.twig';
 import './sw-help-sidebar.scss';
 
+const MOBILE_VIEWPORT_WIDTH = 500;
+
 /**
  * @description Displays the help sidebar
  *
@@ -12,6 +14,14 @@ export default Shopware.Component.wrapComponentConfig({
     template,
 
     inject: ['shortcutService'],
+
+    data(): {
+        viewportWidth: number;
+    } {
+        return {
+            viewportWidth: window.innerWidth,
+        };
+    },
 
     props: {
         /**
@@ -32,6 +42,10 @@ export default Shopware.Component.wrapComponentConfig({
     computed: {
         showHelpSidebar(): boolean {
             return Shopware.Store.get('adminHelpCenter').showHelpSidebar;
+        },
+
+        showShortcutButton(): boolean {
+            return this.viewportWidth > MOBILE_VIEWPORT_WIDTH;
         },
     },
 

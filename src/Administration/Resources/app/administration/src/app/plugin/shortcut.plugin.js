@@ -11,8 +11,16 @@ export default {
     install(Vue) {
         let activeShortcuts = [];
 
+        function areShortcutsDisabled() {
+            return Shopware.Service('shortcutService')?.isShortcutsDisabled?.() === true;
+        }
+
         const handleKeyDownDebounce = util.debounce(function handleKeyDown(event) {
             if (event.constructor !== KeyboardEvent && window.Cypress === undefined) {
+                return;
+            }
+
+            if (areShortcutsDisabled()) {
                 return;
             }
 

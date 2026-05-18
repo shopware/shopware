@@ -14,6 +14,9 @@ use Symfony\Component\Messenger\Stamp\ReceivedStamp;
 #[Package('framework')]
 class QueuedTimeMiddleware implements MiddlewareInterface
 {
+    /**
+     * @internal
+     */
     // @TODO clock-bc: review public ctor change for BC
     public function __construct(
         private readonly ClockInterface $clock = new NativeClock(),

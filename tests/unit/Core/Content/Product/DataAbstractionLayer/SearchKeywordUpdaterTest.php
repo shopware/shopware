@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Symfony\Component\Clock\MockClock;
 
 /**
  * @internal
@@ -31,6 +32,7 @@ class SearchKeywordUpdaterTest extends TestCase
             $languageRepository,
             $productRepository,
             $analyzer,
+            new MockClock(),
             false
         );
 

@@ -11,6 +11,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Installer\Controller\FinishController;
 use Shopware\Core\Installer\Finish\SystemLocker;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -156,7 +157,8 @@ class FinishControllerTest extends TestCase
             $this->systemLocker,
             $client,
             $appUrl,
-            $adminPathName
+            new NativeClock(),
+            $adminPathName,
         );
     }
 }

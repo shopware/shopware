@@ -10,6 +10,7 @@ use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleEntity;
 use Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeEntity;
 use Shopware\Core\System\Tax\TaxRuleType\EntireCountryRuleTypeFilter;
+use Symfony\Component\Clock\MockClock;
 
 /**
  * @internal
@@ -27,7 +28,7 @@ class EntireCountryRuleTypeFilterTest extends TestCase
         $rule->setActiveFrom(new \DateTime('2020-01-01'));
         $rule->setType($type);
 
-        $filter = new EntireCountryRuleTypeFilter();
+        $filter = new EntireCountryRuleTypeFilter(new MockClock());
         static::assertFalse($filter->match($rule, null, new ShippingLocation(new CountryEntity(), null, null)));
     }
 
@@ -41,7 +42,7 @@ class EntireCountryRuleTypeFilterTest extends TestCase
         $rule->setType($type);
         $rule->setCountryId('other-country-id');
 
-        $filter = new EntireCountryRuleTypeFilter();
+        $filter = new EntireCountryRuleTypeFilter(new MockClock());
         static::assertFalse($filter->match($rule, null, new ShippingLocation($this->getCountry(), null, null)));
     }
 
@@ -55,7 +56,7 @@ class EntireCountryRuleTypeFilterTest extends TestCase
         $rule->setType($type);
         $rule->setCountryId('country-id');
 
-        $filter = new EntireCountryRuleTypeFilter();
+        $filter = new EntireCountryRuleTypeFilter(new MockClock());
         static::assertFalse($filter->match($rule, null, new ShippingLocation($this->getCountry(), null, null)));
     }
 
@@ -69,7 +70,7 @@ class EntireCountryRuleTypeFilterTest extends TestCase
         $rule->setType($type);
         $rule->setCountryId('country-id');
 
-        $filter = new EntireCountryRuleTypeFilter();
+        $filter = new EntireCountryRuleTypeFilter(new MockClock());
         static::assertTrue($filter->match($rule, null, new ShippingLocation($this->getCountry(), null, null)));
     }
 
@@ -82,7 +83,7 @@ class EntireCountryRuleTypeFilterTest extends TestCase
         $rule->setType($type);
         $rule->setCountryId('country-id');
 
-        $filter = new EntireCountryRuleTypeFilter();
+        $filter = new EntireCountryRuleTypeFilter(new MockClock());
         static::assertTrue($filter->match($rule, null, new ShippingLocation($this->getCountry(), null, null)));
     }
 

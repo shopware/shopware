@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Integration\IntegrationCollection;
 use Shopware\Core\System\Integration\IntegrationEntity;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -72,7 +73,8 @@ class AppSecretRotationServiceTest extends TestCase
             $this->sourceResolver,
             $this->messageBus,
             $this->logger,
-            $this->manifestFactory
+            $this->manifestFactory,
+            new NativeClock()
         );
     }
 

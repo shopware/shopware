@@ -68,7 +68,7 @@ class RateLimiterFactory
         if ($this->config['policy'] === 'system_config' && isset($this->config['limits']) && isset($this->config['reset'])) {
             \assert($this->config['reset'] instanceof \DateInterval);
 
-            return new SystemConfigLimiter($this->systemConfigService, $id, $this->config['limits'], $this->config['reset'], $this->storage, $lock);
+            return new SystemConfigLimiter($this->systemConfigService, $id, $this->config['limits'], $this->config['reset'], $this->storage, $this->clock, $lock);
         }
 
         // prevent symfony errors due to customized values

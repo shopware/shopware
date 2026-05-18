@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseHelper\AssertResponseHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -405,6 +406,7 @@ class DownloadServiceTest extends TestCase
             $logger,
             $localDownloadStrategy,
             $localPathPrefix,
+            new NativeClock()
         );
     }
 

@@ -275,14 +275,14 @@ class ProductEntity extends Entity implements \Stringable
         $this->prices = new ProductPriceCollection();
     }
 
-    public function setClock(ClockInterface $clock): void
-    {
-        $this->clock = $clock;
-    }
-
     public function __toString(): string
     {
         return (string) ($this->getTranslation('name') ?? $this->getName());
+    }
+
+    public function setClock(ClockInterface $clock): void
+    {
+        $this->clock = $clock;
     }
 
     public function getProductReviews(): ?ProductReviewCollection

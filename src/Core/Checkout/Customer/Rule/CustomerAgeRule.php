@@ -21,6 +21,9 @@ class CustomerAgeRule extends Rule
 {
     final public const RULE_NAME = 'customerAge';
 
+    /**
+     * @internal
+     */
     // @TODO clock-bc: rule ctor — clock with NativeClock default
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,

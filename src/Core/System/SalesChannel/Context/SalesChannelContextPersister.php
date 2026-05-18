@@ -26,8 +26,8 @@ class SalesChannelContextPersister
         private readonly Connection $connection,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AbstractCartPersister $cartPersister,
-        ?string $lifetimeInterval = 'P1D',
         private readonly ClockInterface $clock,
+        ?string $lifetimeInterval = 'P1D',
     ) {
         $this->lifetimeInterval = $lifetimeInterval ?? 'P1D';
     }

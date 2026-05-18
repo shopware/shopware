@@ -36,6 +36,7 @@ use Shopware\Core\Framework\Webhook\Service\WebhookRequest;
 use Shopware\Core\Framework\Webhook\Webhook;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Contracts\EventDispatcher\Event;
 
@@ -474,7 +475,8 @@ class WebhookManagerTest extends TestCase
             $this->bus,
             'https://example.com',
             '0.0.0',
-            $isAdminWorkerEnabled
+            $isAdminWorkerEnabled,
+            new NativeClock()
         );
     }
 

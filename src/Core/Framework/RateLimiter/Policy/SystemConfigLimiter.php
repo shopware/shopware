@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Framework\RateLimiter\Policy;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Lock\LockInterface;
+use Symfony\Component\Lock\NoLock;
 use Symfony\Component\RateLimiter\Storage\StorageInterface;
 
 #[Package('framework')]
@@ -19,7 +21,8 @@ class SystemConfigLimiter extends TimeBackoffLimiter
         array $limits,
         \DateInterval $reset,
         StorageInterface $storage,
-        ?LockInterface $lock = null
+        ClockInterface $clock,
+        ?LockInterface $lock = new NoLock(),
     ) {
         foreach ($limits as $idx => $limit) {
             if (!isset($limit['domain'])) {
@@ -32,6 +35,6 @@ class SystemConfigLimiter extends TimeBackoffLimiter
         }
 
         /** @var list<array{limit: int, interval: string}> $limits */
-        parent::__construct($id, $limits, $reset, $storage, $lock);
+        parent::__construct($id, $limits, $reset, $storage, $clock, $lock);
     }
 }

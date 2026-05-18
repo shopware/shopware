@@ -22,8 +22,9 @@ class ActiveDateRange extends MultiFilter
      * or ending date, or a valid and active date range.
      */
     // @TODO clock-bc: review public ctor change for BC
-    public function __construct(ClockInterface $clock = new NativeClock())
+    public function __construct(?ClockInterface $clock = null)
     {
+        $clock ??= new NativeClock();
         $today = $clock->now()->setTimezone(new \DateTimeZone('UTC'));
 
         $todayStart = $today->format('Y-m-d H:i:s');

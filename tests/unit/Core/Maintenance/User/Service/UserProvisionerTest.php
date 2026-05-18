@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\MaintenanceException;
 use Shopware\Core\Maintenance\User\Service\UserProvisioner;
 use Shopware\Core\Test\Stub\Doctrine\FakeQueryBuilder;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -50,7 +51,7 @@ class UserProvisionerTest extends TestCase
             'admin' => false,
         ];
 
-        $provisioner = new UserProvisioner($connection);
+        $provisioner = new UserProvisioner($connection, new NativeClock());
         $provisioner->provision('admin', 'shopware', $user);
     }
 
@@ -71,7 +72,7 @@ class UserProvisionerTest extends TestCase
             'admin' => false,
         ];
 
-        $provisioner = new UserProvisioner($connection);
+        $provisioner = new UserProvisioner($connection, new NativeClock());
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('User with username "admin" already exists.');
         $provisioner->provision('admin', 'shopware', $user);
@@ -96,7 +97,7 @@ class UserProvisionerTest extends TestCase
             'admin' => false,
         ];
 
-        $provisioner = new UserProvisioner($connection);
+        $provisioner = new UserProvisioner($connection, new NativeClock());
         $this->expectException(MaintenanceException::class);
         $this->expectExceptionMessage('The password must have at least 8 characters.');
         $provisioner->provision('admin', 'short', $user);

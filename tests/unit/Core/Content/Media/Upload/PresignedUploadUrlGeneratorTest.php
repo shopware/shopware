@@ -12,6 +12,7 @@ use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Upload\PresignedUploadUrlGenerator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
@@ -37,6 +38,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
             $this->mediaPathStrategy,
             ['type' => 'amazon-s3', 'config' => ['bucket' => 'test', 'region' => 'eu-west-1']],
             new NullLogger(),
+            new MockClock(),
             enabled: false,
         );
 
@@ -50,6 +52,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
             $this->mediaPathStrategy,
             ['type' => 'local'],
             new NullLogger(),
+            new MockClock(),
         );
 
         static::assertTrue($generator->isEnabled());
@@ -68,6 +71,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
                 ],
             ],
             new NullLogger(),
+            new MockClock(),
         );
 
         static::assertTrue($generator->isEnabled());
@@ -90,6 +94,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
                 ],
             ],
             new NullLogger(),
+            new MockClock(),
         );
 
         static::assertTrue($generator->isSupported());
@@ -108,6 +113,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
                 ],
             ],
             new NullLogger(),
+            new MockClock(),
         );
 
         static::assertTrue($generator->isSupported());
@@ -127,6 +133,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
                 ],
             ],
             new NullLogger(),
+            new MockClock(),
         );
 
         static::assertTrue($generator->isSupported());
@@ -145,6 +152,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
                 ],
             ],
             new NullLogger(),
+            new MockClock(),
         );
 
         static::assertTrue($generator->isSupported());
@@ -162,6 +170,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
                 'config' => 'invalid',
             ],
             new NullLogger(),
+            new MockClock(),
         );
     }
 
@@ -179,6 +188,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
                 ],
             ],
             new NullLogger(),
+            new MockClock(),
         );
     }
 
@@ -196,6 +206,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
                 ],
             ],
             new NullLogger(),
+            new MockClock(),
         );
     }
 
@@ -218,6 +229,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
                 ],
             ],
             new NullLogger(),
+            new MockClock(),
         );
     }
 
@@ -227,6 +239,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
             $this->mediaPathStrategy,
             ['type' => 'local'],
             new NullLogger(),
+            new MockClock(),
             enabled: false,
         );
 
@@ -249,6 +262,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
             $this->mediaPathStrategy,
             ['type' => 'local'],
             new NullLogger(),
+            new MockClock(),
         );
 
         $location = new MediaLocationStruct(
@@ -276,6 +290,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
                 ],
             ],
             new NullLogger(),
+            new MockClock(),
         );
 
         $location = new MediaLocationStruct(
@@ -303,6 +318,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
                 ],
             ],
             new NullLogger(),
+            new MockClock(),
         );
 
         $location = new MediaLocationStruct(
@@ -336,6 +352,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
                 ],
             ],
             new NullLogger(),
+            new MockClock(),
         );
 
         $location = new MediaLocationStruct(
@@ -357,6 +374,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
             $this->mediaPathStrategy,
             ['type' => 'local'],
             new NullLogger(),
+            new MockClock(),
         );
 
         static::assertNull($generator->getFileMetadata('media/ab/cd/test.jpg'));
@@ -384,6 +402,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
                 ],
             ],
             new NullLogger(),
+            new MockClock(),
             httpClient: $httpClient,
         );
 

@@ -64,7 +64,7 @@ return static function (ContainerConfigurator $container): void {
         ->class(DatabaseLog::class)
         ->args([
             new Reference(Connection::class),
-            new Reference(\Psr\Clock\ClockInterface::class),
+            new Reference(ClockInterface::class),
         ]);
 
     $services->set(ConsentChangedSubscriber::class)

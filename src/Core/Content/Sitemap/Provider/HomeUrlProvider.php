@@ -16,6 +16,9 @@ class HomeUrlProvider extends AbstractUrlProvider
     final public const CHANGE_FREQ = 'daily';
     final public const PRIORITY = 1.0;
 
+    /**
+     * @internal
+     */
     // @TODO clock-bc: review public ctor change for BC
     public function __construct(
         private readonly ClockInterface $clock = new NativeClock(),

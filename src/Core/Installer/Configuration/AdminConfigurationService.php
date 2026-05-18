@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Controller\ShopConfigurationController;
 use Shopware\Core\Maintenance\User\Service\UserProvisioner;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -20,7 +21,7 @@ class AdminConfigurationService
      */
     public function createAdmin(array $user, Connection $connection): void
     {
-        $userProvisioner = new UserProvisioner($connection);
+        $userProvisioner = new UserProvisioner($connection, new NativeClock());
         $userProvisioner->provision(
             $user['username'],
             $user['password'],

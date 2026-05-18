@@ -11,6 +11,7 @@ use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleEntity;
 use Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeEntity;
 use Shopware\Core\System\Tax\TaxRuleType\IndividualStatesRuleTypeFilter;
+use Symfony\Component\Clock\MockClock;
 
 /**
  * @internal
@@ -28,7 +29,7 @@ class IndividualStatesRuleTypeFilterTest extends TestCase
         $rule->setActiveFrom(new \DateTime('2020-01-01'));
         $rule->setType($type);
 
-        $filter = new IndividualStatesRuleTypeFilter();
+        $filter = new IndividualStatesRuleTypeFilter(new MockClock());
         static::assertFalse($filter->match($rule, null, new ShippingLocation(new CountryEntity(), null, null)));
     }
 
@@ -42,7 +43,7 @@ class IndividualStatesRuleTypeFilterTest extends TestCase
         $rule->setType($type);
         $rule->setCountryId('other-country-id');
 
-        $filter = new IndividualStatesRuleTypeFilter();
+        $filter = new IndividualStatesRuleTypeFilter(new MockClock());
         static::assertFalse($filter->match($rule, null, new ShippingLocation($this->getCountry(), null, null)));
     }
 
@@ -57,7 +58,7 @@ class IndividualStatesRuleTypeFilterTest extends TestCase
         $rule->setCountryId('other-country-id');
         $rule->setData(['states' => ['state-id']]);
 
-        $filter = new IndividualStatesRuleTypeFilter();
+        $filter = new IndividualStatesRuleTypeFilter(new MockClock());
         static::assertFalse($filter->match($rule, null, new ShippingLocation($this->getCountry(), $this->getState(), null)));
     }
 
@@ -72,7 +73,7 @@ class IndividualStatesRuleTypeFilterTest extends TestCase
         $rule->setCountryId('country-id');
         $rule->setData(['states' => ['other-state-id']]);
 
-        $filter = new IndividualStatesRuleTypeFilter();
+        $filter = new IndividualStatesRuleTypeFilter(new MockClock());
         static::assertFalse($filter->match($rule, null, new ShippingLocation($this->getCountry(), $this->getState(), null)));
     }
 
@@ -87,7 +88,7 @@ class IndividualStatesRuleTypeFilterTest extends TestCase
         $rule->setCountryId('country-id');
         $rule->setData(['states' => ['state-id']]);
 
-        $filter = new IndividualStatesRuleTypeFilter();
+        $filter = new IndividualStatesRuleTypeFilter(new MockClock());
         static::assertFalse($filter->match($rule, null, new ShippingLocation($this->getCountry(), $this->getState(), null)));
     }
 
@@ -102,7 +103,7 @@ class IndividualStatesRuleTypeFilterTest extends TestCase
         $rule->setCountryId('country-id');
         $rule->setData(['states' => ['state-id']]);
 
-        $filter = new IndividualStatesRuleTypeFilter();
+        $filter = new IndividualStatesRuleTypeFilter(new MockClock());
         static::assertTrue($filter->match($rule, null, new ShippingLocation($this->getCountry(), $this->getState(), null)));
     }
 
@@ -116,7 +117,7 @@ class IndividualStatesRuleTypeFilterTest extends TestCase
         $rule->setCountryId('country-id');
         $rule->setData(['states' => ['state-id']]);
 
-        $filter = new IndividualStatesRuleTypeFilter();
+        $filter = new IndividualStatesRuleTypeFilter(new MockClock());
         static::assertTrue($filter->match($rule, null, new ShippingLocation($this->getCountry(), $this->getState(), null)));
     }
 

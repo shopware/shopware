@@ -10,6 +10,9 @@ use Symfony\Component\Clock\NativeClock;
 #[Package('checkout')]
 class PromotionDateTimeService implements PromotionDateTimeServiceInterface
 {
+    /**
+     * @internal
+     */
     // @TODO clock-bc: review public ctor change for BC
     public function __construct(
         private readonly ClockInterface $clock = new NativeClock(),

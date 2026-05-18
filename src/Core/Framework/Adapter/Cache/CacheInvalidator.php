@@ -42,8 +42,8 @@ class CacheInvalidator
         private readonly bool $useDelayedCache,
         private readonly bool $tagInvalidationLogEnabled,
         private readonly BacktraceCollector $backtraceCollector,
-        private readonly ?AbstractReverseProxyGateway $reverseProxyGateway,
         private readonly ClockInterface $clock,
+        private readonly ?AbstractReverseProxyGateway $reverseProxyGateway = null,
     ) {
         $this->httpCacheStore = new Psr16Cache($httpCacheStore);
     }

@@ -16,6 +16,7 @@ use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\Cache\CacheItem;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -50,7 +51,8 @@ class CacheStoreTest extends TestCase
             [],
             $this->createMock(CacheTagCollector::class),
             false,
-            new CollectingMessageBus()
+            new CollectingMessageBus(),
+            new NativeClock()
         );
 
         $store->lock($request);
@@ -83,7 +85,8 @@ class CacheStoreTest extends TestCase
             [],
             $this->createMock(CacheTagCollector::class),
             false,
-            new CollectingMessageBus()
+            new CollectingMessageBus(),
+            new NativeClock()
         );
 
         $store->write($request, $response);
@@ -112,7 +115,8 @@ class CacheStoreTest extends TestCase
             [],
             $this->createMock(CacheTagCollector::class),
             false,
-            new CollectingMessageBus()
+            new CollectingMessageBus(),
+            new NativeClock()
         );
 
         $store->write($request, $response);
@@ -145,7 +149,8 @@ class CacheStoreTest extends TestCase
             [],
             $collector,
             true,
-            new CollectingMessageBus()
+            new CollectingMessageBus(),
+            new NativeClock()
         );
 
         $key = $store->write($request, $response);
@@ -190,7 +195,8 @@ class CacheStoreTest extends TestCase
             [],
             $collector,
             true,
-            new CollectingMessageBus()
+            new CollectingMessageBus(),
+            new NativeClock()
         );
 
         $key = $store->write($request, $response);
@@ -236,7 +242,8 @@ class CacheStoreTest extends TestCase
             [],
             $collector,
             false,
-            new CollectingMessageBus()
+            new CollectingMessageBus(),
+            new NativeClock()
         );
 
         $key = $store->write($request, $response);
@@ -279,7 +286,8 @@ class CacheStoreTest extends TestCase
             [],
             $collector,
             false,
-            new CollectingMessageBus()
+            new CollectingMessageBus(),
+            new NativeClock()
         );
 
         $key = $store->write($request, $response);
@@ -339,7 +347,8 @@ class CacheStoreTest extends TestCase
             [],
             $this->createMock(CacheTagCollector::class),
             true,
-            $bus
+            $bus,
+            new NativeClock()
         );
 
         $result = $store->lookup($request);
@@ -388,7 +397,8 @@ class CacheStoreTest extends TestCase
             [],
             $this->createMock(CacheTagCollector::class),
             true,
-            $bus
+            $bus,
+            new NativeClock()
         );
 
         $result = $store->lookup($request);
@@ -440,7 +450,8 @@ class CacheStoreTest extends TestCase
             [],
             $this->createMock(CacheTagCollector::class),
             true,
-            $bus
+            $bus,
+            new NativeClock()
         );
 
         $result = $store->lookup($request);
@@ -491,7 +502,8 @@ class CacheStoreTest extends TestCase
             [],
             $this->createMock(CacheTagCollector::class),
             true,
-            $bus
+            $bus,
+            new NativeClock()
         );
 
         $result = $store->lookup($request);
@@ -535,7 +547,8 @@ class CacheStoreTest extends TestCase
             [],
             $this->createMock(CacheTagCollector::class),
             true,
-            $bus
+            $bus,
+            new NativeClock()
         );
 
         static::assertNull($store->lookup($request));

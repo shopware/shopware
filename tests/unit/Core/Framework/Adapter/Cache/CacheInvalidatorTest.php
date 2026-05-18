@@ -18,6 +18,7 @@ use Shopware\Core\PlatformRequest;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -56,7 +57,7 @@ class CacheInvalidatorTest extends TestCase
             true,
             true,
             $this->createMock(BacktraceCollector::class),
-            null
+            new NativeClock()
         );
 
         $invalidator->invalidate([]);
@@ -97,7 +98,7 @@ class CacheInvalidatorTest extends TestCase
             true,
             true,
             $this->createBacktraceCollectorMock('Foo', 'a'),
-            null
+            new NativeClock()
         );
 
         $invalidator->invalidate(['foo'], true);
@@ -138,7 +139,7 @@ class CacheInvalidatorTest extends TestCase
             false,
             true,
             $this->createBacktraceCollectorMock('Foo', 'a'),
-            null
+            new NativeClock()
         );
 
         $invalidator->invalidate(['foo']);
@@ -174,7 +175,7 @@ class CacheInvalidatorTest extends TestCase
             true,
             false,
             $this->createMock(BacktraceCollector::class),
-            null
+            new NativeClock()
         );
 
         $invalidator->invalidate(['foo']);
@@ -203,7 +204,7 @@ class CacheInvalidatorTest extends TestCase
             true,
             true,
             $this->createMock(BacktraceCollector::class),
-            null
+            new NativeClock()
         );
 
         $invalidator->invalidate(['foo']);
@@ -235,7 +236,7 @@ class CacheInvalidatorTest extends TestCase
             false,
             true,
             $this->createMock(BacktraceCollector::class),
-            null
+            new NativeClock()
         );
 
         $invalidator->invalidateExpired();
@@ -285,6 +286,7 @@ class CacheInvalidatorTest extends TestCase
             false,
             true,
             $this->createBacktraceCollectorMock(CacheInvalidationSubscriber::class, 'invalidatePropertyFilters'),
+            new NativeClock(),
             $reverseProxyGateway
         );
 
@@ -324,7 +326,7 @@ class CacheInvalidatorTest extends TestCase
             true,
             true,
             $this->createBacktraceCollectorMock(CacheInvalidationSubscriber::class, 'invalidatePropertyFilters'),
-            null
+            new NativeClock()
         );
 
         $invalidator->invalidate(['foo'], true);
@@ -362,7 +364,7 @@ class CacheInvalidatorTest extends TestCase
             true,
             true,
             $this->createBacktraceCollectorMock(),
-            null
+            new NativeClock()
         );
 
         $invalidator->invalidate(['foo'], true);
@@ -388,7 +390,7 @@ class CacheInvalidatorTest extends TestCase
             true,
             true,
             $this->createMock(BacktraceCollector::class),
-            null
+            new NativeClock()
         );
 
         $invalidator->invalidate(['foo']);
@@ -429,7 +431,7 @@ class CacheInvalidatorTest extends TestCase
             true,
             true,
             $this->createMock(BacktraceCollector::class),
-            null
+            new NativeClock()
         );
 
         $invalidator->invalidate(['foo']);
@@ -468,7 +470,7 @@ class CacheInvalidatorTest extends TestCase
             true,
             true,
             $this->createMock(BacktraceCollector::class),
-            null
+            new NativeClock()
         );
 
         $invalidator->invalidate(['foo']);

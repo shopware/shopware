@@ -29,6 +29,7 @@ use Shopware\Elasticsearch\Admin\AdminSearchRegistry;
 use Shopware\Elasticsearch\Admin\Indexer\AbstractAdminIndexer;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -66,7 +67,8 @@ class AdminSearchRegistryTest extends TestCase
             $this->createMock(LoggerInterface::class),
             [],
             [],
-            'test'
+            'test',
+            new NativeClock()
         );
         $indexers = $registry->getIndexers();
 
@@ -98,7 +100,8 @@ class AdminSearchRegistryTest extends TestCase
             $this->createMock(LoggerInterface::class),
             [],
             [],
-            'test'
+            'test',
+            new NativeClock()
         );
 
         $properties = [
@@ -135,7 +138,8 @@ class AdminSearchRegistryTest extends TestCase
             $this->createMock(LoggerInterface::class),
             [],
             [],
-            'test'
+            'test',
+            new NativeClock()
         );
         $this->expectException(ElasticsearchException::class);
         $registry->getIndexer('test');
@@ -154,7 +158,8 @@ class AdminSearchRegistryTest extends TestCase
             $this->createMock(LoggerInterface::class),
             [],
             [],
-            'test'
+            'test',
+            new NativeClock()
         );
         $indexer = $registry->getIndexer('promotion');
 
@@ -195,7 +200,8 @@ class AdminSearchRegistryTest extends TestCase
             $this->createMock(LoggerInterface::class),
             [],
             [],
-            'test'
+            'test',
+            new NativeClock()
         );
 
         $registry->iterate(new AdminIndexingBehavior(false));
@@ -232,7 +238,8 @@ class AdminSearchRegistryTest extends TestCase
             $this->createMock(LoggerInterface::class),
             ['settings' => $constructorConfig],
             [],
-            'test'
+            'test',
+            new NativeClock()
         );
 
         $registry->iterate(new AdminIndexingBehavior(true));
@@ -284,7 +291,8 @@ class AdminSearchRegistryTest extends TestCase
             $this->createMock(LoggerInterface::class),
             [],
             [],
-            'test'
+            'test',
+            new NativeClock()
         );
 
         $calledStartEvent = false;
@@ -382,7 +390,8 @@ class AdminSearchRegistryTest extends TestCase
             $this->createMock(LoggerInterface::class),
             [],
             [],
-            'test'
+            'test',
+            new NativeClock()
         );
 
         $index->refresh(new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([
@@ -427,7 +436,8 @@ class AdminSearchRegistryTest extends TestCase
             $this->createMock(LoggerInterface::class),
             [],
             [],
-            'test'
+            'test',
+            new NativeClock()
         );
 
         $index->__invoke(new AdminSearchIndexingMessage(
@@ -468,7 +478,8 @@ class AdminSearchRegistryTest extends TestCase
             $logger,
             [],
             [],
-            'test'
+            'test',
+            new NativeClock()
         );
 
         $index->refresh(new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([
@@ -505,7 +516,8 @@ class AdminSearchRegistryTest extends TestCase
             $this->createMock(LoggerInterface::class),
             [],
             [],
-            'test'
+            'test',
+            new NativeClock()
         );
 
         $index->refresh(new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([
@@ -566,7 +578,8 @@ class AdminSearchRegistryTest extends TestCase
             $this->createMock(LoggerInterface::class),
             [],
             [],
-            'test'
+            'test',
+            new NativeClock()
         );
 
         $index->__invoke(new AdminSearchIndexingMessage(
@@ -624,7 +637,8 @@ class AdminSearchRegistryTest extends TestCase
             $this->createMock(LoggerInterface::class),
             [],
             [],
-            'test'
+            'test',
+            new NativeClock()
         );
 
         $this->expectException(ElasticsearchException::class);

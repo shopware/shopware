@@ -22,9 +22,9 @@ class PrivateHandshake implements AppHandshakeInterface
         private readonly string $appName,
         private readonly string $shopId,
         private readonly string $shopwareVersion,
-        #[\SensitiveParameter]
-        private readonly ?string $currentAppSecret,
         private readonly ClockInterface $clock,
+        #[\SensitiveParameter]
+        private readonly ?string $currentAppSecret = null,
     ) {
     }
 

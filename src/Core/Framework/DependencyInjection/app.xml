@@ -187,12 +187,8 @@
             <argument type="service" id="app.repository"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Template\TemplateStateService"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Payment\PaymentMethodStateService"/>
             <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister"/>
+            <argument type="tagged_iterator" tag="shopware.app_lifecycle.persister"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper" public="true">
@@ -211,15 +207,6 @@
 
             <tag name="kernel.reset" method="reset"/>
             <tag name="kernel.event_listener" event="console.terminate" method="reset"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\App\Template\TemplateStateService" public="true">
-            <argument type="service" id="app_template.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\App\Payment\PaymentMethodStateService">
-            <argument type="service" id="payment_method.repository"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Payment\Payload\PaymentPayloadService">

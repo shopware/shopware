@@ -35,11 +35,11 @@ class ScriptPersister implements PersisterInterface
         $this->updateScripts($context->app->getId(), $context->context);
     }
 
-    public function activateAppScripts(string $appId, Context $context): void
+    public function activate(AppEntity $app, Context $context): void
     {
         $criteria = new Criteria();
         $criteria->setTitle('app-scripts::activate');
-        $criteria->addFilter(new EqualsFilter('appId', $appId));
+        $criteria->addFilter(new EqualsFilter('appId', $app->getId()));
         $criteria->addFilter(new EqualsFilter('active', false));
 
         $scriptIds = $this->scriptRepository->searchIds($criteria, $context)->getIds();
@@ -49,11 +49,11 @@ class ScriptPersister implements PersisterInterface
         $this->scriptRepository->update($updateSet, $context);
     }
 
-    public function deactivateAppScripts(string $appId, Context $context): void
+    public function deactivate(AppEntity $app, Context $context): void
     {
         $criteria = new Criteria();
         $criteria->setTitle('app-scripts::deactivate');
-        $criteria->addFilter(new EqualsFilter('appId', $appId));
+        $criteria->addFilter(new EqualsFilter('appId', $app->getId()));
         $criteria->addFilter(new EqualsFilter('active', true));
 
         $scriptIds = $this->scriptRepository->searchIds($criteria, $context)->getIds();

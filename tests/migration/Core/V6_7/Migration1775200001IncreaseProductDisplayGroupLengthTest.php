@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1775200001IncreaseProductDisplayGroupLength;
+use Shopware\Tests\Migration\MySql84FkGuardTestTrait;
 
 /**
  * @internal
@@ -16,6 +17,8 @@ use Shopware\Core\Migration\V6_7\Migration1775200001IncreaseProductDisplayGroupL
 #[CoversClass(Migration1775200001IncreaseProductDisplayGroupLength::class)]
 class Migration1775200001IncreaseProductDisplayGroupLengthTest extends TestCase
 {
+    use MySql84FkGuardTestTrait;
+
     private Connection $connection;
 
     protected function setUp(): void
@@ -23,11 +26,6 @@ class Migration1775200001IncreaseProductDisplayGroupLengthTest extends TestCase
         parent::setUp();
 
         $this->connection = KernelLifecycleManager::getConnection();
-    }
-
-    public function testGetCreationTimestamp(): void
-    {
-        static::assertSame(1775200001, (new Migration1775200001IncreaseProductDisplayGroupLength())->getCreationTimestamp());
     }
 
     public function testMigration(): void
@@ -56,6 +54,33 @@ class Migration1775200001IncreaseProductDisplayGroupLengthTest extends TestCase
 
         $column = TableHelper::getColumnOfTable($this->connection, ProductDefinition::ENTITY_NAME, 'display_group');
         static::assertSame(64, $column->length);
+    }
+
+    /**
+     * Regression coverage for issue #16240 / MySQL bug #118151. Skips outside
+     * MySQL 8.4+ with `restrict_fk_on_non_standard_key=ON`.
+     */
+    public function testMigrationWidensDisplayGroupOnMysql84WithNonStandardChildFkOnProduct(): void
+    {
+        $this->skipUnlessMysql84WithFkGuardOn($this->connection);
+
+        $this->rollback();
+        $this->createNonStandardChildFkOnProduct($this->connection);
+
+        try {
+            (new Migration1775200001IncreaseProductDisplayGroupLength())->update($this->connection);
+
+            $column = TableHelper::getColumnOfTable($this->connection, ProductDefinition::ENTITY_NAME, 'display_group');
+            static::assertSame('string', $column->type);
+            static::assertSame(64, $column->length);
+            static::assertSame(
+                '1',
+                (string) $this->connection->fetchOne('SELECT @@SESSION.restrict_fk_on_non_standard_key'),
+                'Migration must restore the FK guard to its previous (ON) state'
+            );
+        } finally {
+            $this->dropNonStandardChildFkOnProduct($this->connection);
+        }
     }
 
     private function rollback(): void

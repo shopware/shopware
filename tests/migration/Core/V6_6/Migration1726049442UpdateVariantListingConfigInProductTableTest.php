@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_6\Migration1726049442UpdateVariantListingConfigInProductTable;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Shopware\Tests\Migration\MySql84FkGuardTestTrait;
 
 /**
  * @internal
@@ -19,6 +20,8 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 #[CoversClass(Migration1726049442UpdateVariantListingConfigInProductTable::class)]
 class Migration1726049442UpdateVariantListingConfigInProductTableTest extends TestCase
 {
+    use MySql84FkGuardTestTrait;
+
     private Connection $connection;
 
     private IdsCollection $ids;
@@ -130,6 +133,38 @@ class Migration1726049442UpdateVariantListingConfigInProductTableTest extends Te
         );
         static::assertIsString($displayGroup);
         static::assertSame(64, \strlen($displayGroup));
+    }
+
+    /**
+     * Regression coverage for issue #16240 / MySQL bug #118151. The `ALTER
+     * TABLE product MODIFY display_group` inside the migration trips the
+     * MySQL guard when a child holds a non-standard FK on `product`. Skips
+     * outside MySQL 8.4+ with `restrict_fk_on_non_standard_key=ON`.
+     */
+    public function testMigrationWidensDisplayGroupOnMysql84WithNonStandardChildFkOnProduct(): void
+    {
+        $this->skipUnlessMysql84WithFkGuardOn($this->connection);
+
+        $this->connection->executeStatement('ALTER TABLE `product` MODIFY `display_group` VARCHAR(50) NULL');
+        $this->createProducts();
+        $this->createNonStandardChildFkOnProduct($this->connection);
+
+        try {
+            (new Migration1726049442UpdateVariantListingConfigInProductTable())->update($this->connection);
+
+            $column = $this->connection->fetchAssociative('SHOW COLUMNS FROM `product` LIKE :column', [
+                'column' => 'display_group',
+            ]);
+            static::assertIsArray($column);
+            static::assertSame('varchar(64)', strtolower((string) $column['Type']));
+            static::assertSame(
+                '1',
+                (string) $this->connection->fetchOne('SELECT @@SESSION.restrict_fk_on_non_standard_key'),
+                'Migration must restore the FK guard to its previous (ON) state'
+            );
+        } finally {
+            $this->dropNonStandardChildFkOnProduct($this->connection);
+        }
     }
 
     private function createProducts(): void

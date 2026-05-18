@@ -207,6 +207,7 @@ We added a new method to the Storefront plugin manager which allows to call a sp
 ```JavaScript
 window.PluginManager.callPluginMethod(pluginName, methodName, ...args)
 ```
+
 ### Single-hit search redirect now matches EAN and manufacturer number
 
 The storefront search already redirected to the product detail page when a search term exactly matched a product's number and produced a single result.

@@ -29,14 +29,17 @@ describe('src/module/sw-settings-services/service/shopware-services-service.ts',
             const shopwareServicesService = new ShopwareServicesService(client, loginService, systemConfigService);
 
             clientMock.onGet('service/list').reply(200, [
-                { name: 'Service1', active: true },
-                { name: 'Service2', active: false },
-                { name: 'Service3', active: true },
+                { name: 'Service1', active: true, requirements: ['service_consent'] },
+                { name: 'Service2', active: false, requirements: ['shopware_account'] },
+                { name: 'Service3', active: true, requirements: [] },
             ]);
 
             const installedServices = await shopwareServicesService.getInstalledServices();
 
             expect(installedServices).toHaveLength(3);
+            expect(installedServices[0].requirements).toEqual(['service_consent']);
+            expect(installedServices[1].requirements).toEqual(['shopware_account']);
+            expect(installedServices[2].requirements).toEqual([]);
             expect(clientMock.history.get).toHaveLength(1);
             expect(clientMock.history.get[0].headers['sw-language-id']).toBe(expectedLanguage);
         },

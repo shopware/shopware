@@ -23,6 +23,7 @@ export type ServiceDescription = {
     requested_privileges: string[];
     privileges: string[];
     domains: string[];
+    requirements: string[];
 };
 
 type ServiceConfigurationConfigValues = {

@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 /**
@@ -45,6 +46,9 @@ class Content extends Bundle
         $loader->load('landing_page.xml');
         $loader->load('flow.xml');
         $loader->load('measurement_system.xml');
+
+        $phpLoader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/ImportExportV2/DependencyInjection/'));
+        $phpLoader->load('import_export_v2.php');
 
         if ($container->getParameter('kernel.environment') === 'test') {
             $loader->load('media_test.xml');

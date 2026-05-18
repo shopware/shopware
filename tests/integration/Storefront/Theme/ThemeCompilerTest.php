@@ -46,6 +46,7 @@ use Shopware\Tests\Integration\Storefront\Theme\fixtures\SimplePlugin\SimplePlug
 use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
 
 /**
  * @internal
@@ -86,6 +87,10 @@ class ThemeCompilerTest extends TestCase
             $this->createMock(LoggerInterface::class),
             new MD5ThemePathBuilder(),
             static::getContainer()->get(ScssPhpCompiler::class),
+            $mockFilesystem,
+            $mockFilesystem,
+            new SymfonyFilesystem(),
+            static::getContainer()->getParameter('kernel.project_dir'),
         );
     }
 
@@ -453,6 +458,10 @@ PHP_EOL;
             $this->createMock(LoggerInterface::class),
             new MD5ThemePathBuilder(),
             static::getContainer()->get(ScssPhpCompiler::class),
+            $fs,
+            $fs,
+            new SymfonyFilesystem(),
+            $projectDir,
         );
 
         $exception = null;

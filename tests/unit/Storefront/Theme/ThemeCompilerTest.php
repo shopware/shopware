@@ -835,8 +835,13 @@ PHP_EOL,
             $this->logger,
             $this->pathBuilder,
             $this->scssPhpCompiler,
+            $this->filesystem,
+            $this->filesystem,
+            new SymfonyFilesystem(),
+            __DIR__,
             [],
-            false
+            false,
+            'public'
         );
     }
 }

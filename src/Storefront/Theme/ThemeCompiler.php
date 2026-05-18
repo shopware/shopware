@@ -26,6 +26,7 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Shopware\Storefront\Theme\Validator\SCSSValidator;
 use Symfony\Component\Asset\Package as AssetPackage;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
 use Symfony\Component\Finder\Exception\DirectoryNotFoundException;
 use Symfony\Component\Finder\Finder;
 
@@ -64,6 +65,10 @@ class ThemeCompiler implements ThemeCompilerInterface
         private readonly LoggerInterface $logger,
         private readonly AbstractThemePathBuilder $themePathBuilder,
         private readonly AbstractScssCompiler $scssCompiler,
+        private readonly FilesystemOperator $assetFilesystem,
+        private readonly FilesystemOperator $publicFilesystem,
+        private readonly SymfonyFilesystem $localFilesystem,
+        private readonly string $projectDir,
         private readonly array $customAllowedRegex = [],
         private readonly bool $validate = false,
         private readonly string $visibility = Visibility::PUBLIC,
@@ -224,16 +229,86 @@ class ThemeCompiler implements ThemeCompilerInterface
 
     protected function fetchPublicFile(string $url): string|false
     {
-        $context = stream_context_create([
-            'http' => [
-                'ignore_errors' => true,
-            ],
-            'https' => [
-                'ignore_errors' => true,
-            ],
-        ]);
+        $path = parse_url($url, \PHP_URL_PATH);
+        if (!\is_string($path) || $path === '') {
+            return false;
+        }
 
-        return @file_get_contents($url, false, $context);
+        foreach ($this->buildCandidatePaths($path) as $candidate) {
+            if ($candidate === '') {
+                continue;
+            }
+
+            try {
+                if ($this->assetFilesystem->fileExists($candidate)) {
+                    return $this->assetFilesystem->read($candidate);
+                }
+            } catch (\Throwable) {
+                // Try next filesystem fallback.
+            }
+
+            try {
+                if ($this->publicFilesystem->fileExists($candidate)) {
+                    return $this->publicFilesystem->read($candidate);
+                }
+            } catch (\Throwable) {
+                // Try next filesystem fallback.
+            }
+        }
+
+        foreach ($this->buildLocalCandidatePaths($path) as $localPath) {
+            if (!$this->localFilesystem->exists($localPath)) {
+                continue;
+            }
+
+            try {
+                return implode('', file($localPath) ?: []);
+            } catch (\Throwable) {
+                // Try next local path fallback.
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function buildCandidatePaths(string $path): array
+    {
+        $normalizedPath = ltrim($path, '/');
+        if ($normalizedPath === '') {
+            return [];
+        }
+
+        $candidates = [$normalizedPath];
+        $bundlesPos = strpos($normalizedPath, 'bundles/');
+
+        if ($bundlesPos !== false) {
+            $bundlesPath = substr($normalizedPath, $bundlesPos);
+            if ($bundlesPath !== '' && $bundlesPath !== $normalizedPath) {
+                $candidates[] = $bundlesPath;
+            }
+        }
+
+        return array_values(array_unique($candidates));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function buildLocalCandidatePaths(string $path): array
+    {
+        if ($this->projectDir === '') {
+            return [];
+        }
+
+        $candidates = [];
+        foreach ($this->buildCandidatePaths($path) as $relativePath) {
+            $candidates[] = $this->projectDir . '/public/' . $relativePath;
+        }
+
+        return array_values(array_unique($candidates));
     }
 
     /**

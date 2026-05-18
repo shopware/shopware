@@ -25,6 +25,7 @@ use Shopware\Tests\Integration\Storefront\Theme\fixtures\MockThemeVariablesSubsc
 use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
 
 /**
  * @internal
@@ -65,8 +66,13 @@ class ThemeCompilerEventSubscriberTest extends TestCase
             $this->createMock(LoggerInterface::class),
             new MD5ThemePathBuilder(),
             static::getContainer()->get(ScssPhpCompiler::class),
+            $this->filesystem,
+            $this->filesystem,
+            new SymfonyFilesystem(),
+            static::getContainer()->getParameter('kernel.project_dir'),
             [],
-            false
+            false,
+            'public'
         );
     }
 

@@ -21,6 +21,7 @@ use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
 
 /**
  * @internal
@@ -28,8 +29,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(ThemeCompiler::class)]
 class ThemeCompilerImportMapTest extends TestCase
 {
-    public static ?FilesystemOperator $buildMetaFilesystemForFetch = null;
-
     private Filesystem $tempFilesystem;
 
     private ThemeCompiler $compiler;
@@ -597,6 +596,53 @@ class ThemeCompilerImportMapTest extends TestCase
         );
     }
 
+    public function testBuildComponentImportMapPrefersAssetFilesystemOverPublicFilesystem(): void
+    {
+        $assetFilesystem = new Filesystem(new InMemoryFilesystemAdapter());
+        $publicFilesystem = new Filesystem(new InMemoryFilesystemAdapter());
+
+        $assetFilesystem->createDirectory('bundles/storefront/storefront/components/.vite');
+        $assetFilesystem->write(
+            'bundles/storefront/storefront/components/.vite/build-meta.json',
+            json_encode([
+                'manifest' => [
+                    '../../views/components/Sw/Prefer/Asset.js' => [
+                        'file' => 'Sw/Prefer/Asset-HASH.js',
+                        'name' => 'Sw/Prefer/Asset',
+                        'isEntry' => true,
+                    ],
+                ],
+                'vendorMap' => [],
+            ], \JSON_THROW_ON_ERROR)
+        );
+
+        $publicFilesystem->createDirectory('bundles/storefront/storefront/components/.vite');
+        $publicFilesystem->write(
+            'bundles/storefront/storefront/components/.vite/build-meta.json',
+            json_encode([
+                'manifest' => [
+                    '../../views/components/Sw/Prefer/Public.js' => [
+                        'file' => 'Sw/Prefer/Public-HASH.js',
+                        'name' => 'Sw/Prefer/Public',
+                        'isEntry' => true,
+                    ],
+                ],
+                'vendorMap' => [],
+            ], \JSON_THROW_ON_ERROR)
+        );
+
+        $compiler = $this->createCompilerForBundleBuildMeta(
+            [],
+            $assetFilesystem,
+            $publicFilesystem,
+        );
+
+        $result = $this->assertImportMap($compiler->buildComponentImportMap());
+
+        static::assertArrayHasKey('Sw:Prefer:Asset', $result['imports']);
+        static::assertArrayNotHasKey('Sw:Prefer:Public', $result['imports']);
+    }
+
     /**
      * @param array{imports: array<string, string>, scopes?: array<string, array<string, string>>, styles?: list<string>}|null $result
      *
@@ -613,8 +659,11 @@ class ThemeCompilerImportMapTest extends TestCase
     /**
      * @param array<string, UrlPackage> $packages
      */
-    private function createCompilerForBundleBuildMeta(array $packages = []): ThemeCompiler
-    {
+    private function createCompilerForBundleBuildMeta(
+        array $packages = [],
+        ?FilesystemOperator $assetFilesystem = null,
+        ?FilesystemOperator $publicFilesystem = null,
+    ): ThemeCompiler {
         $themePathBuilder = $this->createMock(MD5ThemePathBuilder::class);
         $themePathBuilder->method('assemblePath')->willReturn('theme-path');
         if ($packages === []) {
@@ -622,45 +671,28 @@ class ThemeCompilerImportMapTest extends TestCase
                 'public' => new UrlPackage('https://cdn.example.com', new EmptyVersionStrategy()),
             ];
         }
-        self::$buildMetaFilesystemForFetch = $this->tempFilesystem;
 
-        return new class($this->createMock(FilesystemOperator::class), $this->createMock(FilesystemOperator::class), new CopyBatchInputFactory(), $this->createMock(ThemeFileResolver::class), true, $this->createMock(EventDispatcherInterface::class), $this->createMock(ThemeFilesystemResolver::class), $packages, $this->createMock(CacheInvalidator::class), $this->createMock(LoggerInterface::class), $themePathBuilder, $this->createMock(ScssPhpCompiler::class), [], false, 'public') extends ThemeCompiler {
-            protected function fetchPublicFile(string $url): string|false
-            {
-                $buildMetaFilesystem = ThemeCompilerImportMapTest::$buildMetaFilesystemForFetch;
-                if (!$buildMetaFilesystem instanceof FilesystemOperator) {
-                    return false;
-                }
-
-                $path = parse_url($url, \PHP_URL_PATH);
-                if (!\is_string($path) || $path === '') {
-                    return false;
-                }
-
-                $path = ltrim($path, '/');
-                if ($path === '') {
-                    return false;
-                }
-
-                try {
-                    if (!$buildMetaFilesystem->fileExists($path)) {
-                        $bundlesPos = strpos($path, 'bundles/');
-                        if ($bundlesPos === false) {
-                            return false;
-                        }
-
-                        $path = substr($path, $bundlesPos);
-                        if ($path === '' || !$buildMetaFilesystem->fileExists($path)) {
-                            return false;
-                        }
-                    }
-
-                    return $buildMetaFilesystem->read($path);
-                } catch (\Throwable) {
-                    return false;
-                }
-            }
-        };
+        return new ThemeCompiler(
+            $this->createMock(FilesystemOperator::class),
+            $this->createMock(FilesystemOperator::class),
+            new CopyBatchInputFactory(),
+            $this->createMock(ThemeFileResolver::class),
+            true,
+            $this->createMock(EventDispatcherInterface::class),
+            $this->createMock(ThemeFilesystemResolver::class),
+            $packages,
+            $this->createMock(CacheInvalidator::class),
+            $this->createMock(LoggerInterface::class),
+            $themePathBuilder,
+            $this->createMock(ScssPhpCompiler::class),
+            $assetFilesystem ?? $this->tempFilesystem,
+            $publicFilesystem ?? $this->tempFilesystem,
+            new SymfonyFilesystem(),
+            __DIR__,
+            [],
+            false,
+            'public'
+        );
     }
 
     /**

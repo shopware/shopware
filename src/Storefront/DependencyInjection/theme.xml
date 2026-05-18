@@ -35,6 +35,10 @@
             <argument type="service" id="Psr\Log\LoggerInterface"/>
             <argument type="service" id="Shopware\Storefront\Theme\AbstractThemePathBuilder"/>
             <argument type="service" id="Shopware\Storefront\Theme\ScssPhpCompiler"/>
+            <argument type="service" id="shopware.filesystem.asset"/>
+            <argument type="service" id="shopware.filesystem.public"/>
+            <argument type="service" id="Symfony\Component\Filesystem\Filesystem"/>
+            <argument>%kernel.project_dir%</argument>
             <argument>%storefront.theme.allowed_scss_values%</argument>
             <argument>%storefront.theme.validate_on_compile%</argument>
             <argument>%shopware.filesystem.theme.visibility%</argument>

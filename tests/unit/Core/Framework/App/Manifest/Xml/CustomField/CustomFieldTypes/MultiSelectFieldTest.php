@@ -44,4 +44,45 @@ class MultiSelectFieldTest extends TestCase
             ],
         ], $multiSelectField->getOptions());
     }
+
+    public function testToEntityPayload(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/multi-select-field.xml');
+        static::assertNotNull($manifest->getCustomFields());
+
+        $multiSelectField = $manifest->getCustomFields()->getCustomFieldSets()[0]->getFields()[0];
+        static::assertInstanceOf(MultiSelectField::class, $multiSelectField);
+
+        static::assertEquals([
+            'name' => 'test_multi_select_field',
+            'type' => 'select',
+            'config' => [
+                'label' => [
+                    'en-GB' => 'Test multi-select field',
+                ],
+                'helpText' => [],
+                'customFieldPosition' => 1,
+                'placeholder' => [
+                    'en-GB' => 'Choose your options...',
+                ],
+                'componentName' => 'sw-multi-select',
+                'customFieldType' => 'select',
+                'options' => [
+                    [
+                        'label' => [
+                            'en-GB' => 'First',
+                            'de-DE' => 'Erster',
+                        ],
+                        'value' => 'first',
+                    ],
+                    [
+                        'label' => [
+                            'en-GB' => 'Second',
+                        ],
+                        'value' => 'second',
+                    ],
+                ],
+            ],
+        ], $multiSelectField->toEntityPayload());
+    }
 }

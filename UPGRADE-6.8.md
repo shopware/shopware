@@ -656,6 +656,28 @@ Removed the constants `Shopware\Core\Content\MailTemplate\MAIL_TEMPLATE_SALES_CH
 
 </details>
 
+## `AbstractTranslationLoader::pluginTranslationExists()` removed
+
+The locale-agnostic method `pluginTranslationExists(Plugin $plugin): bool` has been removed from `Shopware\Core\System\Snippet\Service\AbstractTranslationLoader`.
+
+If you have a decorator that extends `AbstractTranslationLoader`, remove your `pluginTranslationExists()` implementation and override the replacement method instead:
+
+ ```php
+ // Before
+ public function pluginTranslationExists(Plugin $plugin): bool
+ {
+     return $this->getDecorated()->pluginTranslationExists($plugin);
+ }
+
+ // After
+ public function pluginTranslationExistsForLocale(Plugin $plugin, string $locale): bool
+ {
+     return $this->getDecorated()->pluginTranslationExistsForLocale($plugin, $locale);
+ }
+ ```
+
+The new method receives the exact locale being loaded, so the check can be scoped to that locale rather than treating any installed locale as a reason to skip all local snippet files.
+
 # Administration
 
 <details>

@@ -24,6 +24,9 @@ class ServiceException extends HttpException
     public const SERVICE_MISSING_APP_VERSION_INFO = 'SERVICE__MISSING_APP_INFO';
     public const SERVICE_CANNOT_WRITE_APP = 'SERVICE__CANNOT_WRITE_APP';
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed with the legacy commercial license sync endpoint support.
+     */
     public const SERVICE_MISSING_APP_SECRET_INFO = 'SERVICE__MISSING_APP_SECRET_INFO';
 
     public const SERVICE_TOGGLE_ACTION_NOT_ALLOWED = 'SERVICE__TOGGLE_ACTION_NOT_ALLOWED';
@@ -146,6 +149,9 @@ class ServiceException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed with the legacy commercial license sync endpoint support.
+     */
     public static function missingAppSecretInfo(string $appId): self
     {
         return new self(

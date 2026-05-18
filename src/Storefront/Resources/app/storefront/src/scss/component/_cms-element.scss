@@ -44,6 +44,12 @@ General styling for cms elements
     .cms-image-link {
         display: block;
     }
+
+    &.is-stretch {
+        .cms-element-alignment {
+            width: 100%;
+        }
+    }
 }
 
 .cms-element-youtube-video {

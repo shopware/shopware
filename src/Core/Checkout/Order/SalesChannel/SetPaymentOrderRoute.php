@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
@@ -47,6 +48,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         private readonly AbstractPaymentMethodRoute $paymentRoute,
         private readonly OrderConverter $orderConverter,
         private readonly CartRuleLoader $cartRuleLoader,
+        private readonly CartService $cartService,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly InitialStateIdLoader $initialStateIdLoader
     ) {
@@ -71,7 +73,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
             [SalesChannelContextService::PAYMENT_METHOD_ID => $paymentMethodId]
         );
 
-        $this->validateRequest($context, $paymentMethodId);
+        $this->validateRequest($order, $context, $paymentMethodId);
 
         $this->validatePaymentState($order);
 
@@ -133,10 +135,16 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         $this->eventDispatcher->dispatch($event);
     }
 
-    private function validateRequest(SalesChannelContext $salesChannelContext, string $paymentMethodId): void
+    private function validateRequest(OrderEntity $order, SalesChannelContext $salesChannelContext, string $paymentMethodId): void
     {
         $paymentRequest = new Request();
         $paymentRequest->query->set('onlyAvailable', '1');
+        $paymentRequest->attributes->set('orderId', $order->getId());
+
+        $cart = $this->orderConverter->convertToCart($order, $salesChannelContext->getContext());
+        $cart->setToken($salesChannelContext->getToken());
+
+        $this->cartService->setCart($cart);
 
         $availablePayments = $this->paymentRoute->load($paymentRequest, $salesChannelContext, new Criteria());
 

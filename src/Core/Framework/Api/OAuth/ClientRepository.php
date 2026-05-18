@@ -16,6 +16,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class ClientRepository implements ClientRepositoryInterface
 {
     /**
+     * Bcrypt hash for a static dummy secret used to equalize timing when no client is found.
+     */
+    private const DUMMY_CLIENT_SECRET_HASH = '$2y$12$PVcA5R6ri9kS.7FnFUBRIOLwqU//bCicx5RFxwecAAccbmZ7V7PKu';
+
+    /**
      * @internal
      */
     public function __construct(private readonly Connection $connection)
@@ -34,8 +39,11 @@ class ClientRepository implements ClientRepositoryInterface
             }
 
             $values = $this->getByAccessKey($clientIdentifier);
+
             if (!$values) {
-                return false;
+                // Prevent client enumeration via timing attacks by always running password_verify().
+                $values = ['secret_access_key' => self::DUMMY_CLIENT_SECRET_HASH];
+                $clientSecret = 'invalid-secret-will-always-fail';
             }
 
             if (!password_verify($clientSecret, (string) $values['secret_access_key'])) {
@@ -67,6 +75,9 @@ class ClientRepository implements ClientRepositoryInterface
         $values = $this->getByAccessKey($clientIdentifier);
 
         if (!$values) {
+            // Prevent client enumeration via timing attacks by always running password_verify().
+            password_verify('invalid-secret-will-always-fail', self::DUMMY_CLIENT_SECRET_HASH);
+
             return null;
         }
 

@@ -120,7 +120,8 @@ class SalesChannelValidator implements EventSubscriberInterface
         $typeId = Uuid::fromBytesToHex($command->getPayload()['type_id']);
 
         return $typeId === Defaults::SALES_CHANNEL_TYPE_STOREFRONT
-            || $typeId === Defaults::SALES_CHANNEL_TYPE_API;
+            || $typeId === Defaults::SALES_CHANNEL_TYPE_API
+            || $typeId === Defaults::SALES_CHANNEL_TYPE_PRODUCT_COMPARISON;
     }
 
     private function handleSalesChannelLanguageMapping(Mapping $mapping, WriteCommand $command): void

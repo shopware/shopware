@@ -41,7 +41,7 @@ class ConfigExtension extends AbstractExtension
     }
 
     /**
-     * @param array<string, SalesChannelContext|string> $context
+     * @param array<string, mixed> $context
      *
      * @return string|bool|array<string, mixed>|float|int|null
      */
@@ -83,7 +83,9 @@ class ConfigExtension extends AbstractExtension
      */
     private function getThemeId(array $context): ?string
     {
-        return $context['themeId'] ?? null;
+        $themeId = $context['themeId'] ?? null;
+
+        return \is_string($themeId) ? $themeId : null;
     }
 
     /**

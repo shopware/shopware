@@ -18,8 +18,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataValidator;
-use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
+use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -36,11 +36,13 @@ class MailServiceTest extends TestCase
 
     public function testThrowSalesChannelNotFound(): void
     {
-        static::expectException(ConstraintViolationException::class);
+        $salesChannelId = Uuid::randomHex();
+
+        static::expectExceptionObject(SalesChannelException::noContextData($salesChannelId));
 
         $data = [
             'recipients' => ['foo@bar.de'],
-            'salesChannelId' => Uuid::randomHex(),
+            'salesChannelId' => $salesChannelId,
             'subject' => 'test',
             'senderName' => 'test',
             'contentHtml' => 'test',

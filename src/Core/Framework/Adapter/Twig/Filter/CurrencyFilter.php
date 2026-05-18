@@ -38,7 +38,7 @@ class CurrencyFilter extends AbstractExtension
      * @deprecated tag:v6.8.0 - arguments will be type-hinted - reason:becomes-internal
      *
      * @param array<string, mixed> $twigContext
-     * @param float $price
+     * @param float|null $price
      * @param string|null $currencyIsoCode
      * @param string|null $languageId
      *
@@ -48,6 +48,10 @@ class CurrencyFilter extends AbstractExtension
      */
     public function formatCurrency($twigContext, $price, $currencyIsoCode = null, $languageId = null, ?int $decimals = null)
     {
+        if ($price === null) {
+            $price = 0.0;
+        }
+
         $context = TwigContextHelper::getContext($twigContext);
         if (!$context instanceof Context) {
             if (isset($twigContext['testMode']) && $twigContext['testMode'] === true) {
@@ -71,10 +75,6 @@ class CurrencyFilter extends AbstractExtension
 
         if ($languageId === null) {
             $languageId = $context->getLanguageId();
-        }
-
-        if ($price === null) {
-            $price = 0.0;
         }
 
         return $this->currencyFormatter->formatCurrencyByLanguage($price, $currencyIsoCode, $languageId, $context, $decimals);

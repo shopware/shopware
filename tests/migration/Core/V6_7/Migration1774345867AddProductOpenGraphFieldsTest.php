@@ -84,7 +84,7 @@ class Migration1774345867AddProductOpenGraphFieldsTest extends TestCase
         $this->createNonStandardChildFkOnProduct($this->connection);
 
         try {
-            (new Migration1774345867AddProductOpenGraphFields())->update($this->connection);
+            $this->runMigrationViaRuntime($this->connection, new Migration1774345867AddProductOpenGraphFields());
 
             static::assertTrue(TableHelper::columnExists($this->connection, 'product', 'open_graph_media_id'));
             static::assertTrue(TableHelper::columnExists($this->connection, 'product', 'openGraphMedia'));
@@ -94,7 +94,7 @@ class Migration1774345867AddProductOpenGraphFieldsTest extends TestCase
             static::assertSame(
                 '1',
                 (string) $this->connection->fetchOne('SELECT @@SESSION.restrict_fk_on_non_standard_key'),
-                'Migration must restore the FK guard to its previous (ON) state'
+                'Runtime must restore the FK guard to its previous (ON) state'
             );
         } finally {
             $this->dropNonStandardChildFkOnProduct($this->connection);

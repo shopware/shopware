@@ -73,7 +73,7 @@ class Migration1775200001IncreaseProductDisplayGroupLengthTest extends TestCase
         $this->createNonStandardChildFkOnProduct($this->connection);
 
         try {
-            (new Migration1775200001IncreaseProductDisplayGroupLength())->update($this->connection);
+            $this->runMigrationViaRuntime($this->connection, new Migration1775200001IncreaseProductDisplayGroupLength());
 
             $column = TableHelper::getColumnOfTable($this->connection, ProductDefinition::ENTITY_NAME, 'display_group');
             static::assertSame('string', $column->type);
@@ -81,7 +81,7 @@ class Migration1775200001IncreaseProductDisplayGroupLengthTest extends TestCase
             static::assertSame(
                 '1',
                 (string) $this->connection->fetchOne('SELECT @@SESSION.restrict_fk_on_non_standard_key'),
-                'Migration must restore the FK guard to its previous (ON) state'
+                'Runtime must restore the FK guard to its previous (ON) state'
             );
         } finally {
             $this->dropNonStandardChildFkOnProduct($this->connection);

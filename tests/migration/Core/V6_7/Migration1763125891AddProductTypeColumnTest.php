@@ -72,7 +72,7 @@ class Migration1763125891AddProductTypeColumnTest extends TestCase
         $this->createNonStandardChildFkOnProduct($this->connection);
 
         try {
-            (new Migration1763125891AddProductTypeColumn())->update($this->connection);
+            $this->runMigrationViaRuntime($this->connection, new Migration1763125891AddProductTypeColumn());
 
             $typeColumn = TableHelper::getColumnOfTable($this->connection, 'product', 'type');
             static::assertSame('physical', $typeColumn->defaultValue);
@@ -80,7 +80,7 @@ class Migration1763125891AddProductTypeColumnTest extends TestCase
             static::assertSame(
                 '1',
                 (string) $this->connection->fetchOne('SELECT @@SESSION.restrict_fk_on_non_standard_key'),
-                'Migration must restore the FK guard to its previous (ON) state'
+                'Runtime must restore the FK guard to its previous (ON) state'
             );
         } finally {
             $this->dropNonStandardChildFkOnProduct($this->connection);

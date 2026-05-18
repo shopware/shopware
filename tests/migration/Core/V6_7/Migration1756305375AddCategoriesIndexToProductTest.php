@@ -68,13 +68,13 @@ class Migration1756305375AddCategoriesIndexToProductTest extends TestCase
         $this->createNonStandardChildFkOnProduct($this->connection);
 
         try {
-            (new Migration1756305375AddCategoriesIndexToProduct())->update($this->connection);
+            $this->runMigrationViaRuntime($this->connection, new Migration1756305375AddCategoriesIndexToProduct());
 
             static::assertTrue(TableHelper::indexExists($this->connection, 'product', 'idx.product.categories'));
             static::assertSame(
                 '1',
                 (string) $this->connection->fetchOne('SELECT @@SESSION.restrict_fk_on_non_standard_key'),
-                'Migration must restore the FK guard to its previous (ON) state'
+                'Runtime must restore the FK guard to its previous (ON) state'
             );
         } finally {
             $this->dropNonStandardChildFkOnProduct($this->connection);

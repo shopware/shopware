@@ -7,7 +7,6 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Util\Database\TableHelper;
-use Shopware\Core\Migration\Traits\RelaxesNonStandardFkGuardTrait;
 
 /**
  * @internal
@@ -15,8 +14,6 @@ use Shopware\Core\Migration\Traits\RelaxesNonStandardFkGuardTrait;
 #[Package('framework')]
 class Migration1775200001IncreaseProductDisplayGroupLength extends MigrationStep
 {
-    use RelaxesNonStandardFkGuardTrait;
-
     public function getCreationTimestamp(): int
     {
         return 1775200001;
@@ -39,10 +36,6 @@ class Migration1775200001IncreaseProductDisplayGroupLength extends MigrationStep
             return;
         }
 
-        // ALTER on `product` can fail on MySQL 8.4 if a child table holds a
-        // non-standard FK against it — see issue #16240 / MySQL bug #118151.
-        $this->runWithRelaxedNonStandardFkGuard($connection, function (Connection $connection): void {
-            $connection->executeStatement('ALTER TABLE `product` MODIFY `display_group` VARCHAR(64) NULL');
-        });
+        $connection->executeStatement('ALTER TABLE `product` MODIFY `display_group` VARCHAR(64) NULL');
     }
 }

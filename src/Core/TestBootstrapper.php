@@ -16,6 +16,7 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Dotenv\Dotenv;
+use Symfony\Component\Finder\Finder;
 
 #[Package('framework')]
 class TestBootstrapper
@@ -300,6 +301,18 @@ class TestBootstrapper
 
     public function getPluginPath(string $pluginName): ?string
     {
+        // Prefer the kernel plugin loader as it knows Composer-managed plugin paths once Shopware can access the kernel/database.
+        // Some tooling calls getPluginPath()/getClassLoader() without bootstrapping the application, so keep the legacy filesystem fallback for local plugins.
+        $pluginPath = $this->getPluginPathFromKernelPluginLoader($pluginName);
+        if ($pluginPath !== null) {
+            return $pluginPath;
+        }
+
+        return $this->getPluginPathFromFilesystem($pluginName);
+    }
+
+    private function getPluginPathFromKernelPluginLoader(string $pluginName): ?string
+    {
         try {
             $pluginInfos = $this->getKernel()->getPluginLoader()->getPluginInfos();
         } catch (\Throwable) {
@@ -312,6 +325,36 @@ class TestBootstrapper
             }
 
             return $this->getAbsolutePluginPath($pluginInfo['path']);
+        }
+
+        return null;
+    }
+
+    private function getPluginPathFromFilesystem(string $pluginName): ?string
+    {
+        $pluginDirectories = [
+            $this->getProjectDir() . '/custom/plugins',
+            $this->getProjectDir() . '/custom/static-plugins',
+        ];
+
+        $pluginDirectories = array_filter($pluginDirectories, \is_dir(...));
+        if ($pluginDirectories === []) {
+            return null;
+        }
+
+        $finder = (new Finder())->directories()->in($pluginDirectories)->depth('== 0')->sortByName();
+        foreach ($finder as $pluginDir) {
+            $pluginPath = $pluginDir->getPathname();
+
+            if (!is_file($pluginPath . '/composer.json')) {
+                continue;
+            }
+
+            if (!is_file($pluginPath . '/src/' . $pluginName . '.php')) {
+                continue;
+            }
+
+            return $pluginPath;
         }
 
         return null;

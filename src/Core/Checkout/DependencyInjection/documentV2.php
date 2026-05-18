@@ -2,8 +2,9 @@
 
 namespace Shopware\Core\Checkout\DependencyInjection;
 
-use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileDefinition;
+use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfigLoader;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentNumberGenerator;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentDependencyResolver;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
@@ -12,6 +13,7 @@ use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
 use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\DocumentV2\Renderer\HtmlRenderer;
+use Shopware\Core\Checkout\DocumentV2\Subscriber\DocumentBaseConfigSyncSubscriber;
 use Shopware\Core\Checkout\DocumentV2\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
@@ -34,6 +36,19 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(NumberRangeValueGeneratorInterface::class),
         ]);
+
+    $services->set(DocumentConfigLoader::class)
+        ->args([
+            service('document_base_config.repository'),
+            service('country.repository'),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(DocumentBaseConfigSyncSubscriber::class)
+        ->args([
+            service(Connection::class),
+        ])
+        ->tag('kernel.event_subscriber');
 
     $services->set(InvoiceDataProvider::class)
         ->public()

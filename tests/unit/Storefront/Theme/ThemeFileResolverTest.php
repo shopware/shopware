@@ -65,8 +65,12 @@ class ThemeFileResolverTest extends TestCase
 
         $resolver = new ThemeFileResolver(new ThemeFilesystemResolver($sourceResolver, $kernel));
 
-        $this->expectException(ThemeCompileException::class);
-        $this->expectExceptionMessage('Unable to resolve file "@MockStorefront/app/storefront/src/scss/does-not-exist.scss". File does not exist.');
+        $this->expectExceptionObject(
+            ThemeException::themeCompileException(
+                'ThemeWithBundleRelativeFiles',
+                'Unable to resolve file "@MockStorefront/app/storefront/src/scss/does-not-exist.scss". File does not exist.'
+            )
+        );
         $resolver->resolveStyleFiles($config, $configCollection, false);
     }
 
@@ -82,48 +86,64 @@ class ThemeFileResolverTest extends TestCase
         $resolver->resolveStyleFiles($config, new StorefrontPluginConfigurationCollection([$config]), false);
     }
 
-    public function testCollectConfigurationScriptFilesAddsEntryAtEndWhenIncludeComesFirst(): void
+    public function testResolveScriptFilesAddsOwnEntryAfterIncludedThemeWhenIncludeComesFirst(): void
     {
         $config = new StorefrontPluginConfiguration('TestTheme');
-        $config->setStorefrontEntryFilepath('/tmp/main-entry.js');
+        $ownEntry = tempnam(sys_get_temp_dir(), 'theme-file-resolver-own-entry-');
+        if ($ownEntry === false) {
+            static::fail('Could not create temporary file for own entry.');
+        }
+        $includedEntry = tempnam(sys_get_temp_dir(), 'theme-file-resolver-included-entry-');
+        if ($includedEntry === false) {
+            @unlink($ownEntry);
+            static::fail('Could not create temporary file for included entry.');
+        }
+
+        $config->setStorefrontEntryFilepath($ownEntry);
         $config->setScriptFiles(FileCollection::createFromArray(['@Storefront', '/tmp/should-be-skipped.js']));
 
-        $resolver = new ThemeFileResolver($this->createMock(ThemeFilesystemResolver::class));
-        $result = $this->callPrivate(
-            $resolver,
-            'collectConfigurationScriptFiles',
-            [$config, true]
-        );
+        $storefront = new StorefrontPluginConfiguration('Storefront');
+        $storefront->setStorefrontEntryFilepath($includedEntry);
+        $storefront->setScriptFiles(new FileCollection());
 
-        static::assertInstanceOf(FileCollection::class, $result);
-        static::assertSame(['@Storefront', '/tmp/main-entry.js'], $result->getFilepaths());
-        static::assertSame($config->getAssetName(), $result->first()?->assetName);
-        static::assertSame($config->getAssetName(), $result->last()?->assetName);
+        $filesystem = $this->createMock(\Shopware\Core\Framework\Util\Filesystem::class);
+        $filesystem->method('has')->willReturn(false);
+
+        $themeFilesystemResolver = $this->createMock(ThemeFilesystemResolver::class);
+        $themeFilesystemResolver->method('getFilesystemForStorefrontConfig')->willReturn($filesystem);
+
+        $resolver = new ThemeFileResolver($themeFilesystemResolver);
+        $configCollection = new StorefrontPluginConfigurationCollection([$config, $storefront]);
+
+        try {
+            $result = $resolver->resolveScriptFiles($config, $configCollection, true);
+
+            static::assertSame([$includedEntry, $ownEntry], $result->getFilepaths());
+            static::assertSame('storefront', $result->first()?->assetName);
+            static::assertSame($config->getAssetName(), $result->last()?->assetName);
+        } finally {
+            @unlink($ownEntry);
+            @unlink($includedEntry);
+        }
     }
 
-    public function testResolveReturnsEmptyCollectionWhenConfigurationWasAlreadyProcessed(): void
+    public function testResolveStyleFilesReturnsEmptyCollectionForCircularThemeIncludes(): void
     {
         $config = new StorefrontPluginConfiguration('TestTheme');
-        $config->setStyleFiles(FileCollection::createFromArray([__FILE__]));
+        $config->setStyleFiles(FileCollection::createFromArray(['@OtherTheme']));
         $config->setScriptFiles(new FileCollection());
 
+        $otherConfig = new StorefrontPluginConfiguration('OtherTheme');
+        $otherConfig->setStyleFiles(FileCollection::createFromArray(['@TestTheme']));
+        $otherConfig->setScriptFiles(new FileCollection());
+
         $resolver = new ThemeFileResolver($this->createMock(ThemeFilesystemResolver::class));
-        $result = $this->callPrivate(
-            $resolver,
-            'resolve',
-            [
-                ThemeFileResolver::STYLE_FILES,
-                $config,
-                new StorefrontPluginConfigurationCollection([$config]),
-                false,
-                static fn (StorefrontPluginConfiguration $configuration): FileCollection => $configuration->getStyleFiles(),
-                [],
-                [],
-                ['TestTheme' => true],
-            ]
+        $result = $resolver->resolveStyleFiles(
+            $config,
+            new StorefrontPluginConfigurationCollection([$config, $otherConfig]),
+            false
         );
 
-        static::assertInstanceOf(FileCollection::class, $result);
         static::assertCount(0, $result);
     }
 
@@ -133,32 +153,39 @@ class ThemeFileResolverTest extends TestCase
         $file = new File('app/storefront/src/scss/base.scss', ['vendor' => 'app/storefront/vendor']);
         $files = new FileCollection();
         $files->add($file);
+        $config->setStyleFiles($files);
 
-        $location = sys_get_temp_dir() . '/theme-file-resolver-' . uniqid('', true);
-        mkdir($location . '/Resources/app/storefront/src/scss', 0777, true);
-        mkdir($location . '/Resources/app/storefront/vendor', 0777, true);
-        file_put_contents($location . '/Resources/app/storefront/src/scss/base.scss', '');
+        $existingFilePath = tempnam(sys_get_temp_dir(), 'theme-file-resolver-');
+        if ($existingFilePath === false) {
+            static::fail('Could not create temporary file for test.');
+        }
 
-        $filesystem = new \Shopware\Core\Framework\Util\Filesystem($location);
+        $filesystem = $this->createMock(\Shopware\Core\Framework\Util\Filesystem::class);
+        $filesystem->method('has')->willReturnMap([
+            ['Resources', 'app/storefront/src/scss/base.scss', true],
+            ['Resources', 'app/storefront/vendor', true],
+        ]);
+        $filesystem->method('realpath')->willReturnMap([
+            ['Resources', 'app/storefront/src/scss/base.scss', $existingFilePath],
+            ['Resources', 'app/storefront/vendor', '/tmp/Resources/app/storefront/vendor'],
+        ]);
+
         $themeFilesystemResolver = $this->createMock(ThemeFilesystemResolver::class);
         $themeFilesystemResolver->method('getFilesystemForStorefrontConfig')->willReturn($filesystem);
 
         $resolver = new ThemeFileResolver($themeFilesystemResolver);
+        $configCollection = new StorefrontPluginConfigurationCollection([$config]);
 
         try {
-            $this->callPrivate($resolver, 'convertPathsToAbsolute', [$config, $files]);
+            $resolvedFiles = $resolver->resolveFiles($config, $configCollection, false);
 
-            static::assertStringEndsWith('/Resources/app/storefront/src/scss/base.scss', $file->getFilepath());
-            static::assertStringEndsWith('/Resources/app/storefront/vendor', $file->getResolveMapping()['vendor']);
+            static::assertSame([$existingFilePath], $resolvedFiles[ThemeFileResolver::STYLE_FILES]->getFilepaths());
+            static::assertSame(
+                ['vendor' => '/tmp/Resources/app/storefront/vendor'],
+                $resolvedFiles[ThemeFileResolver::STYLE_FILES]->getResolveMappings()
+            );
         } finally {
-            @unlink($location . '/Resources/app/storefront/src/scss/base.scss');
-            @rmdir($location . '/Resources/app/storefront/src/scss');
-            @rmdir($location . '/Resources/app/storefront/src');
-            @rmdir($location . '/Resources/app/storefront/vendor');
-            @rmdir($location . '/Resources/app/storefront');
-            @rmdir($location . '/Resources/app');
-            @rmdir($location . '/Resources');
-            @rmdir($location);
+            @unlink($existingFilePath);
         }
     }
 
@@ -859,16 +886,5 @@ class ThemeFileResolverTest extends TestCase
             __DIR__ . '/fixtures/MockStorefront/Resources/app/storefront/src/scss/base.scss',
             $result->first()?->getFilepath()
         );
-    }
-
-    /**
-     * @param list<mixed> $args
-     */
-    private function callPrivate(object $object, string $method, array $args = []): mixed
-    {
-        $reflection = new \ReflectionMethod($object, $method);
-        $reflection->setAccessible(true);
-
-        return $reflection->invokeArgs($object, $args);
     }
 }

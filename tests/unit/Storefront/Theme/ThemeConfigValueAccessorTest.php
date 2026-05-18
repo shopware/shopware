@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Theme;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Feature;
@@ -468,138 +469,24 @@ class ThemeConfigValueAccessorTest extends TestCase
         static::assertSame([], $accessor->getCssVarValues($this->createContext(), 'theme-id'));
     }
 
-    public function testGetCssVarValuesSkipsScssColorFunctionCalls(): void
-    {
-        // darken()/lighten()/etc. have no CSS equivalent. They must be filtered out
-        // rather than emitted as broken CSS.
+    /**
+     * @param array<string, array{type: string, scss?: bool}> $fields
+     * @param array<string, mixed> $resolvedValues
+     * @param array<string, string|int> $expected
+     */
+    #[DataProvider('cssVarExpressionCases')]
+    public function testGetCssVarValuesHandlesScssAndCssExpressions(
+        array $fields,
+        array $resolvedValues,
+        array $expected
+    ): void {
         $accessor = $this->createAccessorWithResolvedConfig(
-            fields: [
-                'darken-literal' => ['type' => 'color'],
-                'darken-var' => ['type' => 'color'],
-                'lighten-call' => ['type' => 'color'],
-                'hsl-with-scss-hue' => ['type' => 'color'],
-                'kept' => ['type' => 'color'],
-            ],
-            resolvedValues: [
-                'darken-literal' => 'darken(#0042a0, 5%)',
-                'darken-var' => 'darken($sw-color-brand-primary, 5%)',
-                'lighten-call' => 'lighten(#fff, 10%)',
-                'hsl-with-scss-hue' => 'hsl(hue($sw-border-color), 20%, 30%)',
-                'kept' => '#abcdef',
-            ],
+            fields: $fields,
+            resolvedValues: $resolvedValues,
         );
 
         static::assertSame(
-            ['kept' => '#abcdef'],
-            $accessor->getCssVarValues($this->createContext(), 'theme-id'),
-        );
-    }
-
-    public function testGetCssVarValuesKeepsCssNativeFunctionsIntact(): void
-    {
-        // rgb/rgba/hsl/calc/linear-gradient are valid CSS — they must pass through.
-        $accessor = $this->createAccessorWithResolvedConfig(
-            fields: [
-                'sw-rgba' => ['type' => 'color'],
-                'sw-calc' => ['type' => 'text'],
-                'sw-gradient' => ['type' => 'color'],
-            ],
-            resolvedValues: [
-                'sw-rgba' => 'rgba(0, 0, 0, 0.5)',
-                'sw-calc' => 'calc(100% - 16px)',
-                'sw-gradient' => 'linear-gradient(to bottom, #fff, #000)',
-            ],
-        );
-
-        static::assertSame(
-            [
-                'sw-rgba' => 'rgba(0, 0, 0, 0.5)',
-                'sw-calc' => 'calc(100% - 16px)',
-                'sw-gradient' => 'linear-gradient(to bottom, #fff, #000)',
-            ],
-            $accessor->getCssVarValues($this->createContext(), 'theme-id'),
-        );
-    }
-
-    public function testGetCssVarValuesConvertsBareScssVariableReferencesToCssVars(): void
-    {
-        // $sw-color-brand-primary is replaced with var(--sw-color-brand-primary)
-        // so components can reference theme values without SCSS.
-        $accessor = $this->createAccessorWithResolvedConfig(
-            fields: [
-                'sw-color-brand-secondary' => ['type' => 'color'],
-            ],
-            resolvedValues: [
-                'sw-color-brand-secondary' => '$sw-color-brand-primary',
-            ],
-        );
-
-        static::assertSame(
-            ['sw-color-brand-secondary' => 'var(--sw-color-brand-primary)'],
-            $accessor->getCssVarValues($this->createContext(), 'theme-id'),
-        );
-    }
-
-    public function testGetCssVarValuesSkipsScssVariableReferenceInsideFunctionCall(): void
-    {
-        // A `$var` inside a function that isn't in the deny-list (e.g. a custom
-        // SCSS function) cannot be safely emitted, so it is skipped entirely.
-        $accessor = $this->createAccessorWithResolvedConfig(
-            fields: [
-                'sw-complex' => ['type' => 'text'],
-            ],
-            resolvedValues: [
-                'sw-complex' => 'my-function($sw-color-brand-primary, 2)',
-            ],
-        );
-
-        static::assertSame([], $accessor->getCssVarValues($this->createContext(), 'theme-id'));
-    }
-
-    public function testGetCssVarValuesSkipsScssDirectiveExpressions(): void
-    {
-        $accessor = $this->createAccessorWithResolvedConfig(
-            fields: [
-                'sw-invalid-default' => ['type' => 'text'],
-                'sw-invalid-interpolation' => ['type' => 'text'],
-                'sw-invalid-at-rule' => ['type' => 'text'],
-                'sw-invalid-block' => ['type' => 'text'],
-            ],
-            resolvedValues: [
-                'sw-invalid-default' => '$sw-color-brand-primary !default',
-                'sw-invalid-interpolation' => '#{$sw-color-brand-primary}',
-                'sw-invalid-at-rule' => '@if $sw-color-brand-primary { color: red; }',
-                'sw-invalid-block' => '$sw-color-brand-primary; color: red',
-            ],
-        );
-
-        static::assertSame([], $accessor->getCssVarValues($this->createContext(), 'theme-id'));
-    }
-
-    public function testGetCssVarValuesConvertsSafeScssVariableExpressionToCssVars(): void
-    {
-        $accessor = $this->createAccessorWithResolvedConfig(
-            fields: [
-                'sw-spacing-expression' => ['type' => 'text'],
-                'sw-multi-var-addition' => ['type' => 'text'],
-                'sw-percent-expression' => ['type' => 'text'],
-                'sw-negative-expression' => ['type' => 'text'],
-            ],
-            resolvedValues: [
-                'sw-spacing-expression' => '$spacer * 2',
-                'sw-multi-var-addition' => '$spacer + $sw-gap',
-                'sw-percent-expression' => '$opacity * 100%',
-                'sw-negative-expression' => '$offset * -1',
-            ],
-        );
-
-        static::assertSame(
-            [
-                'sw-spacing-expression' => 'var(--spacer) * 2',
-                'sw-multi-var-addition' => 'var(--spacer) + var(--sw-gap)',
-                'sw-percent-expression' => 'var(--opacity) * 100%',
-                'sw-negative-expression' => 'var(--offset) * -1',
-            ],
+            $expected,
             $accessor->getCssVarValues($this->createContext(), 'theme-id'),
         );
     }
@@ -616,6 +503,109 @@ class ThemeConfigValueAccessorTest extends TestCase
         );
 
         static::assertSame([], $accessor->getCssVarValues($this->createContext(), 'theme-id'));
+    }
+
+    /**
+     * @return iterable<string, array{
+     *     0: array<string, array{type: string, scss?: bool}>,
+     *     1: array<string, mixed>,
+     *     2: array<string, string|int>
+     * }>
+     */
+    public static function cssVarExpressionCases(): iterable
+    {
+        yield 'skips_scss_color_functions_and_keeps_literal_color' => [
+            [
+                'darken-literal' => ['type' => 'color'],
+                'darken-var' => ['type' => 'color'],
+                'lighten-call' => ['type' => 'color'],
+                'hsl-with-scss-hue' => ['type' => 'color'],
+                'kept' => ['type' => 'color'],
+            ],
+            [
+                'darken-literal' => 'darken(#0042a0, 5%)',
+                'darken-var' => 'darken($sw-color-brand-primary, 5%)',
+                'lighten-call' => 'lighten(#fff, 10%)',
+                'hsl-with-scss-hue' => 'hsl(hue($sw-border-color), 20%, 30%)',
+                'kept' => '#abcdef',
+            ],
+            ['kept' => '#abcdef'],
+        ];
+
+        yield 'keeps_css_native_functions' => [
+            [
+                'sw-rgba' => ['type' => 'color'],
+                'sw-calc' => ['type' => 'text'],
+                'sw-gradient' => ['type' => 'color'],
+            ],
+            [
+                'sw-rgba' => 'rgba(0, 0, 0, 0.5)',
+                'sw-calc' => 'calc(100% - 16px)',
+                'sw-gradient' => 'linear-gradient(to bottom, #fff, #000)',
+            ],
+            [
+                'sw-rgba' => 'rgba(0, 0, 0, 0.5)',
+                'sw-calc' => 'calc(100% - 16px)',
+                'sw-gradient' => 'linear-gradient(to bottom, #fff, #000)',
+            ],
+        ];
+
+        yield 'converts_bare_scss_variable_to_css_var' => [
+            [
+                'sw-color-brand-secondary' => ['type' => 'color'],
+            ],
+            [
+                'sw-color-brand-secondary' => '$sw-color-brand-primary',
+            ],
+            ['sw-color-brand-secondary' => 'var(--sw-color-brand-primary)'],
+        ];
+
+        yield 'skips_scss_variable_inside_non_whitelisted_function' => [
+            [
+                'sw-complex' => ['type' => 'text'],
+            ],
+            [
+                'sw-complex' => 'my-function($sw-color-brand-primary, 2)',
+            ],
+            [],
+        ];
+
+        yield 'skips_scss_directive_expressions' => [
+            [
+                'sw-invalid-default' => ['type' => 'text'],
+                'sw-invalid-interpolation' => ['type' => 'text'],
+                'sw-invalid-at-rule' => ['type' => 'text'],
+                'sw-invalid-block' => ['type' => 'text'],
+            ],
+            [
+                'sw-invalid-default' => '$sw-color-brand-primary !default',
+                'sw-invalid-interpolation' => '#{$sw-color-brand-primary}',
+                'sw-invalid-at-rule' => '@if $sw-color-brand-primary { color: red; }',
+                'sw-invalid-block' => '$sw-color-brand-primary; color: red',
+            ],
+            [],
+        ];
+
+        yield 'converts_safe_scss_variable_expressions_to_css_vars' => [
+            [
+                'sw-spacing-expression' => ['type' => 'text'],
+                'sw-multi-var-addition' => ['type' => 'text'],
+                'sw-percent-expression' => ['type' => 'text'],
+                'sw-negative-expression' => ['type' => 'text'],
+            ],
+            [
+                'sw-spacing-expression' => '$spacer * 2',
+                'sw-multi-var-addition' => '$spacer + $sw-gap',
+                'sw-percent-expression' => '$opacity * 100%',
+                'sw-negative-expression' => '$offset * -1',
+            ],
+            [
+                'sw-spacing-expression' => 'var(--spacer) * 2',
+                'sw-multi-var-addition' => 'var(--spacer) + var(--sw-gap)',
+                'sw-percent-expression' => 'var(--opacity) * 100%',
+                'sw-negative-expression' => 'var(--offset) * -1',
+            ],
+        ];
     }
 
     /**

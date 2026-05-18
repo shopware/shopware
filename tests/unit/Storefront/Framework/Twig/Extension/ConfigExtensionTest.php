@@ -103,7 +103,7 @@ class ConfigExtensionTest extends TestCase
     {
         $extension = new ConfigExtension($this->createMock(TemplateConfigAccessor::class));
 
-        $this->expectException(StorefrontFrameworkException::class);
+        $this->expectExceptionObject(StorefrontFrameworkException::salesChannelContextObjectNotFound());
 
         $extension->theme([], 'color');
     }
@@ -112,7 +112,7 @@ class ConfigExtensionTest extends TestCase
     {
         $extension = new ConfigExtension($this->createMock(TemplateConfigAccessor::class));
 
-        $this->expectException(StorefrontFrameworkException::class);
+        $this->expectExceptionObject(StorefrontFrameworkException::salesChannelContextObjectNotFound());
 
         $extension->theme(['context' => 'not-a-context-object'], 'color');
     }
@@ -166,7 +166,7 @@ class ConfigExtensionTest extends TestCase
     {
         $extension = new ConfigExtension($this->createMock(TemplateConfigAccessor::class));
 
-        $this->expectException(StorefrontFrameworkException::class);
+        $this->expectExceptionObject(StorefrontFrameworkException::salesChannelContextObjectNotFound());
 
         $extension->themeCssVars([]);
     }

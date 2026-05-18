@@ -32,12 +32,15 @@ class ThemeCompilerImportMapTest extends TestCase
 
     private Filesystem $tempFilesystem;
 
+    private ThemeCompiler $compiler;
+
     protected function setUp(): void
     {
         $this->tempFilesystem = new Filesystem(new InMemoryFilesystemAdapter());
+        $this->compiler = $this->createCompilerForBundleBuildMeta();
     }
 
-    public function testReadBundleComponentManifestReadsFromBundleAssetsDirectory(): void
+    public function testBuildComponentImportMapReadsFromBundleAssetsDirectory(): void
     {
         $this->writeJson(
             'bundles/storefront/storefront/components/.vite/build-meta.json',
@@ -50,86 +53,109 @@ class ThemeCompilerImportMapTest extends TestCase
             ]
         );
 
-        $compiler = $this->createCompilerForBundleBuildMeta();
-        $result = $this->callPrivate($compiler, 'readBundleComponentManifest', ['Storefront']);
+        $result = $this->assertImportMap($this->compiler->buildComponentImportMap());
 
         static::assertSame(
-            [
-                'Example:Component' => [
-                    'bundle' => 'Storefront',
-                    'js' => '/bundles/storefront/storefront/components/Example/Component-HASH.js',
-                    'css' => ['/bundles/storefront/storefront/components/Example/Component-HASH.css'],
-                ],
-            ],
-            $result
+            'https://cdn.example.com/bundles/storefront/storefront/components/Example/Component-HASH.js',
+            $result['imports']['Example:Component']
+        );
+        static::assertSame(
+            ['https://cdn.example.com/bundles/storefront/storefront/components/Example/Component-HASH.css'],
+            $result['styles'] ?? []
         );
     }
 
-    public function testReadBundleBuildMetaContainsVendorMap(): void
+    public function testBuildComponentImportMapUsesBundleVendorMapForScopes(): void
     {
         $this->writeJson(
             'bundles/myextension/storefront/components/.vite/build-meta.json',
             ['manifest' => [], 'vendorMap' => ['@vendor/chunk' => 'vendor/chunk-HASH.js']]
         );
+        $collection = new StorefrontPluginConfigurationCollection([
+            new StorefrontPluginConfiguration('Storefront'),
+            new StorefrontPluginConfiguration('MyExtension'),
+        ]);
 
-        $compiler = $this->createCompilerForBundleBuildMeta();
-        $result = $this->callPrivate($compiler, 'readBundleBuildMeta', ['MyExtension']);
+        $result = $this->assertImportMap($this->compiler->buildComponentImportMap($collection));
 
         static::assertIsArray($result);
-        static::assertSame(['@vendor/chunk' => 'vendor/chunk-HASH.js'], $result['vendorMap']);
+        static::assertSame(
+            [
+                'https://cdn.example.com/bundles/myextension/storefront/components/MyExtension/' => [
+                    '@vendor/chunk' => 'https://cdn.example.com/bundles/myextension/storefront/components/vendor/chunk-HASH.js',
+                ],
+            ],
+            $result['scopes'] ?? []
+        );
     }
 
-    public function testReadBundleBuildMetaReturnsNullOnInvalidJson(): void
+    public function testBuildComponentImportMapSkipsBundleWhenBuildMetaJsonIsInvalid(): void
     {
         $path = 'bundles/brokenextension/storefront/components/.vite/build-meta.json';
         $this->tempFilesystem->createDirectory('bundles/brokenextension/storefront/components/.vite');
         $this->tempFilesystem->write($path, '{invalid json');
+        $collection = new StorefrontPluginConfigurationCollection([
+            new StorefrontPluginConfiguration('Storefront'),
+            new StorefrontPluginConfiguration('BrokenExtension'),
+        ]);
 
-        $compiler = $this->createCompilerForBundleBuildMeta();
-        $result = $this->callPrivate($compiler, 'readBundleBuildMeta', ['BrokenExtension']);
+        $result = $this->assertImportMap($this->compiler->buildComponentImportMap($collection));
 
-        static::assertNull($result);
+        static::assertIsArray($result);
+        static::assertArrayNotHasKey('BrokenExtension:Card', $result['imports']);
+        static::assertArrayNotHasKey('scopes', $result);
     }
 
-    public function testReadBundleBuildMetaFallsBackToEmptyArraysForInvalidStructure(): void
+    public function testBuildComponentImportMapFallsBackToEmptyArraysForInvalidBuildMetaStructure(): void
     {
         $this->writeJson(
             'bundles/invalidmeta/storefront/components/.vite/build-meta.json',
             ['manifest' => 'invalid', 'vendorMap' => 'invalid']
         );
+        $collection = new StorefrontPluginConfigurationCollection([
+            new StorefrontPluginConfiguration('Storefront'),
+            new StorefrontPluginConfiguration('InvalidMeta'),
+        ]);
 
-        $compiler = $this->createCompilerForBundleBuildMeta();
-        $result = $this->callPrivate($compiler, 'readBundleBuildMeta', ['InvalidMeta']);
+        $result = $this->assertImportMap($this->compiler->buildComponentImportMap($collection));
 
         static::assertIsArray($result);
-        static::assertSame([], $result['manifest']);
-        static::assertSame([], $result['vendorMap']);
+        static::assertArrayNotHasKey('InvalidMeta:Component', $result['imports']);
+        static::assertArrayNotHasKey('scopes', $result);
     }
 
-    public function testReadBundleBuildMetaUsesCache(): void
+    public function testBuildComponentImportMapUsesCachedBuildMeta(): void
     {
         $metaPath = 'bundles/cachedextension/storefront/components/.vite/build-meta.json';
         $this->writeJson(
             $metaPath,
             ['manifest' => [], 'vendorMap' => ['@cached/chunk' => 'vendor/chunk-one.js']]
         );
+        $collection = new StorefrontPluginConfigurationCollection([
+            new StorefrontPluginConfiguration('Storefront'),
+            new StorefrontPluginConfiguration('CachedExtension'),
+        ]);
 
-        $compiler = $this->createCompilerForBundleBuildMeta();
-        $firstResult = $this->callPrivate($compiler, 'readBundleBuildMeta', ['CachedExtension']);
+        $firstResult = $this->assertImportMap($this->compiler->buildComponentImportMap($collection));
 
         $this->writeJson(
             $metaPath,
             ['manifest' => [], 'vendorMap' => ['@cached/chunk' => 'vendor/chunk-two.js']]
         );
-        $secondResult = $this->callPrivate($compiler, 'readBundleBuildMeta', ['CachedExtension']);
-
-        static::assertIsArray($firstResult);
-        static::assertIsArray($secondResult);
-        static::assertSame('vendor/chunk-one.js', $firstResult['vendorMap']['@cached/chunk']);
-        static::assertSame('vendor/chunk-one.js', $secondResult['vendorMap']['@cached/chunk']);
+        $secondResult = $this->assertImportMap($this->compiler->buildComponentImportMap($collection));
+        static::assertArrayHasKey('scopes', $firstResult);
+        static::assertArrayHasKey('scopes', $secondResult);
+        static::assertSame(
+            'https://cdn.example.com/bundles/cachedextension/storefront/components/vendor/chunk-one.js',
+            $firstResult['scopes']['https://cdn.example.com/bundles/cachedextension/storefront/components/CachedExtension/']['@cached/chunk']
+        );
+        static::assertSame(
+            'https://cdn.example.com/bundles/cachedextension/storefront/components/vendor/chunk-one.js',
+            $secondResult['scopes']['https://cdn.example.com/bundles/cachedextension/storefront/components/CachedExtension/']['@cached/chunk']
+        );
     }
 
-    public function testCollectComponentManifestEntriesCollectsOnlyProvidedBundles(): void
+    public function testBuildComponentImportMapCollectsEntriesOnlyFromProvidedBundles(): void
     {
         $this->writeJson(
             'bundles/storefront/storefront/components/.vite/build-meta.json',
@@ -146,21 +172,19 @@ class ThemeCompilerImportMapTest extends TestCase
             ]
         );
 
-        $compiler = $this->createCompilerForBundleBuildMeta();
-        $result = $this->callPrivate($compiler, 'collectComponentManifestEntries', [['Storefront', 'MyExtension']]);
+        $collection = new StorefrontPluginConfigurationCollection([
+            new StorefrontPluginConfiguration('Storefront'),
+            new StorefrontPluginConfiguration('MyExtension'),
+        ]);
+        $result = $this->assertImportMap($this->compiler->buildComponentImportMap($collection));
 
         static::assertSame(
-            [
-                'Core:Button' => [
-                    'bundle' => 'Storefront',
-                    'js' => '/bundles/storefront/storefront/components/Core/Button-HASH.js',
-                ],
-                'MyExtension:Card' => [
-                    'bundle' => 'MyExtension',
-                    'js' => '/bundles/myextension/storefront/components/MyExtension/Card-HASH.js',
-                ],
-            ],
-            $result
+            'https://cdn.example.com/bundles/storefront/storefront/components/Core/Button-HASH.js',
+            $result['imports']['Core:Button']
+        );
+        static::assertSame(
+            'https://cdn.example.com/bundles/myextension/storefront/components/MyExtension/Card-HASH.js',
+            $result['imports']['MyExtension:Card']
         );
     }
 
@@ -185,8 +209,7 @@ class ThemeCompilerImportMapTest extends TestCase
             new StorefrontPluginConfiguration('Storefront'),
         ]);
 
-        $compiler = $this->createCompilerForBundleBuildMeta();
-        $result = $compiler->buildComponentImportMap($collection);
+        $result = $this->assertImportMap($this->compiler->buildComponentImportMap($collection));
 
         static::assertIsArray($result);
         static::assertArrayHasKey('imports', $result);
@@ -195,7 +218,7 @@ class ThemeCompilerImportMapTest extends TestCase
         static::assertArrayNotHasKey('InactiveApp:Card', $result['imports']);
     }
 
-    public function testReadBundleComponentManifestDeduplicatesCssAndSkipsInvalidEntries(): void
+    public function testBuildComponentImportMapDeduplicatesCssAndSkipsInvalidManifestEntries(): void
     {
         $this->writeJson(
             'bundles/myextension/storefront/components/.vite/build-meta.json',
@@ -226,19 +249,20 @@ class ThemeCompilerImportMapTest extends TestCase
             ]
         );
 
-        $compiler = $this->createCompilerForBundleBuildMeta();
-        $result = $this->callPrivate($compiler, 'readBundleComponentManifest', ['MyExtension']);
+        $collection = new StorefrontPluginConfigurationCollection([
+            new StorefrontPluginConfiguration('Storefront'),
+            new StorefrontPluginConfiguration('MyExtension'),
+        ]);
+        $result = $this->compiler->buildComponentImportMap($collection);
 
         static::assertIsArray($result);
         static::assertSame(
-            [
-                'MyExtension:Card' => [
-                    'bundle' => 'MyExtension',
-                    'js' => '/bundles/myextension/storefront/components/MyExtension/Card-HASH.js',
-                    'css' => ['/bundles/myextension/storefront/components/MyExtension/Card-HASH.css'],
-                ],
-            ],
-            $result
+            'https://cdn.example.com/bundles/myextension/storefront/components/MyExtension/Card-HASH.js',
+            $result['imports']['MyExtension:Card']
+        );
+        static::assertSame(
+            ['https://cdn.example.com/bundles/myextension/storefront/components/MyExtension/Card-HASH.css'],
+            $result['styles'] ?? []
         );
     }
 
@@ -440,8 +464,7 @@ class ThemeCompilerImportMapTest extends TestCase
             ]
         );
 
-        $compiler = $this->createCompilerForBundleBuildMeta();
-        $result = $compiler->buildComponentImportMap();
+        $result = $this->compiler->buildComponentImportMap();
 
         static::assertSame(
             [
@@ -453,48 +476,55 @@ class ThemeCompilerImportMapTest extends TestCase
         );
     }
 
-    public function testReadBundleBuildMetaReturnsNullIfNoMatchingAssetPackageExists(): void
+    public function testBuildComponentImportMapFallsBackToRelativeShopwarePathWithoutMatchingPackage(): void
     {
         $compiler = $this->createCompilerForBundleBuildMeta([
             'theme' => new UrlPackage('https://cdn.example.com/theme', new EmptyVersionStrategy()),
         ]);
 
-        $result = $this->callPrivate($compiler, 'readBundleBuildMeta', ['Storefront']);
-
-        static::assertNull($result);
+        static::assertSame(
+            [
+                'imports' => [
+                    'shopware' => '/bundles/storefront/storefront/shopware/shopware.js',
+                ],
+            ],
+            $compiler->buildComponentImportMap()
+        );
     }
 
-    public function testReadBundleBuildMetaReturnsNullForEmptyBuildMetaContent(): void
+    public function testBuildComponentImportMapIgnoresEmptyBuildMetaContent(): void
     {
         $path = 'bundles/storefront/storefront/components/.vite/build-meta.json';
         $this->tempFilesystem->createDirectory('bundles/storefront/storefront/components/.vite');
         $this->tempFilesystem->write($path, '');
 
-        $compiler = $this->createCompilerForBundleBuildMeta();
-        $result = $this->callPrivate($compiler, 'readBundleBuildMeta', ['Storefront']);
-
-        static::assertNull($result);
+        static::assertSame(
+            [
+                'imports' => [
+                    'shopware' => 'https://cdn.example.com/bundles/storefront/storefront/shopware/shopware.js',
+                ],
+            ],
+            $this->compiler->buildComponentImportMap()
+        );
     }
 
-    public function testReadBundleBuildMetaNormalizesScalarJsonToEmptyArrays(): void
+    public function testBuildComponentImportMapNormalizesScalarBuildMetaJsonToEmptyArrays(): void
     {
         $path = 'bundles/storefront/storefront/components/.vite/build-meta.json';
         $this->tempFilesystem->createDirectory('bundles/storefront/storefront/components/.vite');
         $this->tempFilesystem->write($path, '1');
 
-        $compiler = $this->createCompilerForBundleBuildMeta();
-        $result = $this->callPrivate($compiler, 'readBundleBuildMeta', ['Storefront']);
-
         static::assertSame(
             [
-                'manifest' => [],
-                'vendorMap' => [],
+                'imports' => [
+                    'shopware' => 'https://cdn.example.com/bundles/storefront/storefront/shopware/shopware.js',
+                ],
             ],
-            $result
+            $this->compiler->buildComponentImportMap()
         );
     }
 
-    public function testReadBundleComponentManifestReturnsNullWhenManifestIsEmpty(): void
+    public function testBuildComponentImportMapSkipsComponentImportsWhenManifestIsEmpty(): void
     {
         $this->writeJson(
             'bundles/emptyextension/storefront/components/.vite/build-meta.json',
@@ -504,27 +534,42 @@ class ThemeCompilerImportMapTest extends TestCase
             ]
         );
 
-        $compiler = $this->createCompilerForBundleBuildMeta();
-        $result = $this->callPrivate($compiler, 'readBundleComponentManifest', ['EmptyExtension']);
+        $collection = new StorefrontPluginConfigurationCollection([
+            new StorefrontPluginConfiguration('Storefront'),
+            new StorefrontPluginConfiguration('EmptyExtension'),
+        ]);
+        $result = $this->assertImportMap($this->compiler->buildComponentImportMap($collection));
 
-        static::assertNull($result);
+        static::assertArrayNotHasKey('EmptyExtension:Card', $result['imports']);
+        static::assertArrayHasKey('scopes', $result);
+        static::assertSame(
+            [
+                'https://cdn.example.com/bundles/emptyextension/storefront/components/EmptyExtension/' => [
+                    '@vendor/chunk' => 'https://cdn.example.com/bundles/emptyextension/storefront/components/vendor/chunk-HASH.js',
+                ],
+            ],
+            $result['scopes'] ?? []
+        );
     }
 
-    public function testGetAssetPackagesByKeyReturnsProvidedPackages(): void
+    public function testBuildComponentImportMapUsesProvidedAssetPackageKeys(): void
     {
         $compiler = $this->createCompilerForBundleBuildMeta([
             'public' => new UrlPackage('https://cdn.example.com/public', new EmptyVersionStrategy()),
             'asset' => new UrlPackage('https://cdn.example.com/asset', new EmptyVersionStrategy()),
         ]);
+        $collection = new StorefrontPluginConfigurationCollection([
+            new StorefrontPluginConfiguration('Storefront'),
+        ]);
 
-        $result = $this->callPrivate($compiler, 'getAssetPackagesByKey');
-
-        static::assertCount(2, $result);
-        static::assertArrayHasKey('public', $result);
-        static::assertArrayHasKey('asset', $result);
+        $result = $this->assertImportMap($compiler->buildComponentImportMap($collection));
+        static::assertSame(
+            'https://cdn.example.com/asset/bundles/storefront/storefront/shopware/shopware.js',
+            $result['imports']['shopware']
+        );
     }
 
-    public function testReadBundleBuildMetaResolvesVersionedPackagePath(): void
+    public function testBuildComponentImportMapResolvesVersionedPackagePath(): void
     {
         $versionedMeta = [
             'manifest' => [
@@ -545,11 +590,24 @@ class ThemeCompilerImportMapTest extends TestCase
         $compiler = $this->createCompilerForBundleBuildMeta([
             'global_asset' => new UrlPackage('https://cdn.example.com/_assets/v/123', new EmptyVersionStrategy()),
         ]);
-        $result = $this->callPrivate($compiler, 'readBundleBuildMeta', ['Storefront']);
+        $result = $this->assertImportMap($compiler->buildComponentImportMap());
+        static::assertSame(
+            'https://cdn.example.com/_assets/v/123/bundles/storefront/storefront/components/Sw/Custom/Test-HASH.js',
+            $result['imports']['Sw:Custom:Test']
+        );
+    }
 
+    /**
+     * @param array{imports: array<string, string>, scopes?: array<string, array<string, string>>, styles?: list<string>}|null $result
+     *
+     * @return array{imports: array<string, string>, scopes?: array<string, array<string, string>>, styles?: list<string>}
+     */
+    private function assertImportMap(?array $result): array
+    {
         static::assertIsArray($result);
-        static::assertSame($versionedMeta['manifest'], $result['manifest']);
-        static::assertSame([], $result['vendorMap']);
+        static::assertArrayHasKey('imports', $result);
+
+        return $result;
     }
 
     /**
@@ -603,17 +661,6 @@ class ThemeCompilerImportMapTest extends TestCase
                 }
             }
         };
-    }
-
-    /**
-     * @param list<mixed> $args
-     */
-    private function callPrivate(object $object, string $method, array $args = []): mixed
-    {
-        $reflection = new \ReflectionMethod($object, $method);
-        $reflection->setAccessible(true);
-
-        return $reflection->invokeArgs($object, $args);
     }
 
     /**

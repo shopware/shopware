@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Framework\Twig;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
@@ -16,54 +17,63 @@ use Shopware\Storefront\Theme\ThemeScripts;
 #[CoversClass(TemplateConfigAccessor::class)]
 class TemplateConfigAccessorTest extends TestCase
 {
+    private SystemConfigService&MockObject $systemConfigService;
+
+    private ThemeConfigValueAccessor&MockObject $themeConfigAccessor;
+
+    private ThemeScripts&MockObject $themeScripts;
+
+    private TemplateConfigAccessor $accessor;
+
+    protected function setUp(): void
+    {
+        $this->systemConfigService = $this->createMock(SystemConfigService::class);
+        $this->themeConfigAccessor = $this->createMock(ThemeConfigValueAccessor::class);
+        $this->themeScripts = $this->createMock(ThemeScripts::class);
+        $this->accessor = new TemplateConfigAccessor(
+            $this->systemConfigService,
+            $this->themeConfigAccessor,
+            $this->themeScripts,
+            'prod',
+        );
+    }
+
     public function testConfigReturnsStaticValueWithoutCallingSystemConfig(): void
     {
-        $systemConfigService = $this->createMock(SystemConfigService::class);
-        $systemConfigService->expects($this->never())->method('get');
+        $this->systemConfigService->expects($this->never())->method('get');
 
-        $accessor = $this->createAccessor(systemConfig: $systemConfigService);
-
-        static::assertSame(255, $accessor->config('seo.descriptionMaxLength', null));
-        static::assertSame('00B9A8636F954277AE424E6C1C36A1F5', $accessor->config('cms.revocationNoticeCmsPageId', null));
-        static::assertSame('00B9A8636F954277AE424E6C1C36A1F5', $accessor->config('cms.taxCmsPageId', null));
-        static::assertSame('00B9A8636F954277AE424E6C1C36A1F5', $accessor->config('cms.tosCmsPageId', null));
-        static::assertTrue($accessor->config('confirm.revocationNotice', null));
+        static::assertSame(255, $this->accessor->config('seo.descriptionMaxLength', null));
+        static::assertSame('00B9A8636F954277AE424E6C1C36A1F5', $this->accessor->config('cms.revocationNoticeCmsPageId', null));
+        static::assertSame('00B9A8636F954277AE424E6C1C36A1F5', $this->accessor->config('cms.taxCmsPageId', null));
+        static::assertSame('00B9A8636F954277AE424E6C1C36A1F5', $this->accessor->config('cms.tosCmsPageId', null));
+        static::assertTrue($this->accessor->config('confirm.revocationNotice', null));
     }
 
     public function testConfigFallsThroughToSystemConfigForNonStaticKey(): void
     {
-        $systemConfigService = $this->createMock(SystemConfigService::class);
-        $systemConfigService->expects($this->once())
+        $this->systemConfigService->expects($this->once())
             ->method('get')
             ->with('my.custom.key', 'sales-channel-id')
             ->willReturn('custom-value');
 
-        $accessor = $this->createAccessor(systemConfig: $systemConfigService);
-
-        static::assertSame('custom-value', $accessor->config('my.custom.key', 'sales-channel-id'));
+        static::assertSame('custom-value', $this->accessor->config('my.custom.key', 'sales-channel-id'));
     }
 
     public function testScriptsDelegatesToThemeScripts(): void
     {
-        $themeScripts = $this->createMock(ThemeScripts::class);
-        $themeScripts->method('getThemeScripts')->willReturn([
+        $this->themeScripts->method('getThemeScripts')->willReturn([
             'js/storefront/storefront.js',
             'js/app.js',
         ]);
 
-        $accessor = $this->createAccessor(themeScripts: $themeScripts);
-
-        static::assertSame(['js/storefront/storefront.js', 'js/app.js'], $accessor->scripts());
+        static::assertSame(['js/storefront/storefront.js', 'js/app.js'], $this->accessor->scripts());
     }
 
     public function testScriptsReturnsEmptyArrayWhenNoScripts(): void
     {
-        $themeScripts = $this->createMock(ThemeScripts::class);
-        $themeScripts->method('getThemeScripts')->willReturn([]);
+        $this->themeScripts->method('getThemeScripts')->willReturn([]);
 
-        $accessor = $this->createAccessor(themeScripts: $themeScripts);
-
-        static::assertSame([], $accessor->scripts());
+        static::assertSame([], $this->accessor->scripts());
     }
 
     public function testImportMapReturnsStoredMapDirectly(): void
@@ -77,10 +87,8 @@ class TemplateConfigAccessorTest extends TestCase
             ],
         ];
 
-        $themeScripts = $this->createMock(ThemeScripts::class);
-        $themeScripts->method('getImportMap')->willReturn($storedMap);
-
-        $result = $this->createAccessor(themeScripts: $themeScripts)->importMap();
+        $this->themeScripts->method('getImportMap')->willReturn($storedMap);
+        $result = $this->accessor->importMap();
 
         static::assertSame($storedMap, $result);
     }
@@ -100,20 +108,16 @@ class TemplateConfigAccessorTest extends TestCase
             ],
         ];
 
-        $themeScripts = $this->createMock(ThemeScripts::class);
-        $themeScripts->method('getImportMap')->willReturn($storedMap);
-
-        $result = $this->createAccessor(themeScripts: $themeScripts)->importMap();
+        $this->themeScripts->method('getImportMap')->willReturn($storedMap);
+        $result = $this->accessor->importMap();
 
         static::assertSame($storedMap, $result);
     }
 
     public function testImportMapReturnsEmptyImportsWhenNoBuildPresent(): void
     {
-        $themeScripts = $this->createMock(ThemeScripts::class);
-        $themeScripts->method('getImportMap')->willReturn(null);
-
-        $result = $this->createAccessor(themeScripts: $themeScripts)->importMap();
+        $this->themeScripts->method('getImportMap')->willReturn(null);
+        $result = $this->accessor->importMap();
 
         static::assertSame(['imports' => []], $result);
     }
@@ -122,15 +126,12 @@ class TemplateConfigAccessorTest extends TestCase
     {
         $context = Generator::generateSalesChannelContext();
 
-        $themeConfigAccessor = $this->createMock(ThemeConfigValueAccessor::class);
-        $themeConfigAccessor->expects($this->once())
+        $this->themeConfigAccessor->expects($this->once())
             ->method('get')
             ->with('my-theme-key', $context, 'theme-id-123')
             ->willReturn('#ff0000');
 
-        $accessor = $this->createAccessor(themeConfigAccessor: $themeConfigAccessor);
-
-        static::assertSame('#ff0000', $accessor->theme('my-theme-key', $context, 'theme-id-123'));
+        static::assertSame('#ff0000', $this->accessor->theme('my-theme-key', $context, 'theme-id-123'));
     }
 
     public function testImportMapPrefersDevImportMapWhenDevEnvAndFlagFilePresent(): void
@@ -140,11 +141,14 @@ class TemplateConfigAccessorTest extends TestCase
             'styles' => ['http://localhost:5176/@fs/foo.scss'],
         ];
 
-        $themeScripts = $this->createMock(ThemeScripts::class);
-        $themeScripts->method('getDevImportMap')->willReturn($devMap);
-        $themeScripts->expects($this->never())->method('getImportMap');
-
-        $accessor = $this->createAccessor(themeScripts: $themeScripts, kernelEnvironment: 'dev');
+        $this->themeScripts->method('getDevImportMap')->willReturn($devMap);
+        $this->themeScripts->expects($this->never())->method('getImportMap');
+        $accessor = new TemplateConfigAccessor(
+            $this->systemConfigService,
+            $this->themeConfigAccessor,
+            $this->themeScripts,
+            'dev',
+        );
 
         $result = $accessor->importMap();
 
@@ -162,11 +166,14 @@ class TemplateConfigAccessorTest extends TestCase
     {
         $storedMap = ['imports' => ['shopware' => '/bundles/storefront/storefront/shopware/shopware.js']];
 
-        $themeScripts = $this->createMock(ThemeScripts::class);
-        $themeScripts->method('getDevImportMap')->willReturn(null);
-        $themeScripts->method('getImportMap')->willReturn($storedMap);
-
-        $accessor = $this->createAccessor(themeScripts: $themeScripts, kernelEnvironment: 'dev');
+        $this->themeScripts->method('getDevImportMap')->willReturn(null);
+        $this->themeScripts->method('getImportMap')->willReturn($storedMap);
+        $accessor = new TemplateConfigAccessor(
+            $this->systemConfigService,
+            $this->themeConfigAccessor,
+            $this->themeScripts,
+            'dev',
+        );
 
         static::assertSame($storedMap, $accessor->importMap());
     }
@@ -177,11 +184,14 @@ class TemplateConfigAccessorTest extends TestCase
         // even if one exists on disk (stale file after a dev/prod switch).
         $storedMap = ['imports' => ['shopware' => '/bundles/storefront/storefront/shopware/shopware.js']];
 
-        $themeScripts = $this->createMock(ThemeScripts::class);
-        $themeScripts->expects($this->never())->method('getDevImportMap');
-        $themeScripts->method('getImportMap')->willReturn($storedMap);
-
-        $accessor = $this->createAccessor(themeScripts: $themeScripts, kernelEnvironment: 'prod');
+        $this->themeScripts->expects($this->never())->method('getDevImportMap');
+        $this->themeScripts->method('getImportMap')->willReturn($storedMap);
+        $accessor = new TemplateConfigAccessor(
+            $this->systemConfigService,
+            $this->themeConfigAccessor,
+            $this->themeScripts,
+            'prod',
+        );
 
         $result = $accessor->importMap();
 
@@ -191,41 +201,21 @@ class TemplateConfigAccessorTest extends TestCase
 
     public function testThemeCssVarsReturnsEmptyArrayWhenNoVars(): void
     {
-        $themeConfigAccessor = $this->createMock(ThemeConfigValueAccessor::class);
-        $themeConfigAccessor->method('getCssVarValues')->willReturn([]);
-
-        $accessor = $this->createAccessor(themeConfigAccessor: $themeConfigAccessor);
-
-        static::assertSame([], $accessor->themeCssVars(Generator::generateSalesChannelContext(), 'theme-id'));
+        $this->themeConfigAccessor->method('getCssVarValues')->willReturn([]);
+        static::assertSame([], $this->accessor->themeCssVars(Generator::generateSalesChannelContext(), 'theme-id'));
     }
 
     public function testThemeCssVarsDelegatesToAccessorWithContextAndThemeId(): void
     {
         $context = Generator::generateSalesChannelContext();
 
-        $themeConfigAccessor = $this->createMock(ThemeConfigValueAccessor::class);
-        $themeConfigAccessor->expects($this->once())
+        $this->themeConfigAccessor->expects($this->once())
             ->method('getCssVarValues')
             ->with($context, 'theme-id-abc')
             ->willReturn(['sw-color-brand-primary' => '#0042a0']);
 
-        $result = $this->createAccessor(themeConfigAccessor: $themeConfigAccessor)
-            ->themeCssVars($context, 'theme-id-abc');
+        $result = $this->accessor->themeCssVars($context, 'theme-id-abc');
 
         static::assertSame(['sw-color-brand-primary' => '#0042a0'], $result);
-    }
-
-    private function createAccessor(
-        ?SystemConfigService $systemConfig = null,
-        ?ThemeConfigValueAccessor $themeConfigAccessor = null,
-        ?ThemeScripts $themeScripts = null,
-        string $kernelEnvironment = 'prod',
-    ): TemplateConfigAccessor {
-        return new TemplateConfigAccessor(
-            $systemConfig ?? $this->createMock(SystemConfigService::class),
-            $themeConfigAccessor ?? $this->createMock(ThemeConfigValueAccessor::class),
-            $themeScripts ?? $this->createMock(ThemeScripts::class),
-            $kernelEnvironment,
-        );
     }
 }

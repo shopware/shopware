@@ -19,7 +19,6 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -27,20 +26,11 @@ use Symfony\Component\Filesystem\Filesystem;
 #[CoversClass(BundleConfigGenerator::class)]
 class BundleConfigGeneratorTest extends TestCase
 {
-    private Filesystem $filesystem;
-
     private string $projectDir;
 
     protected function setUp(): void
     {
-        $this->filesystem = new Filesystem();
-        $this->projectDir = sys_get_temp_dir() . '/bundle-config-generator-' . uniqid('', true);
-        $this->filesystem->mkdir($this->projectDir);
-    }
-
-    protected function tearDown(): void
-    {
-        $this->filesystem->remove($this->projectDir);
+        $this->projectDir = __DIR__ . '/fixtures/BundleConfigGenerator/project';
     }
 
     public function testConstructorThrowsException(): void
@@ -56,23 +46,12 @@ class BundleConfigGeneratorTest extends TestCase
     public function testGetConfigBuildsBundleAndAppConfigAndSkipsInactivePlugin(): void
     {
         $coreBundlePath = $this->projectDir . '/src/CoreBundle';
-        $this->createFile($coreBundlePath . '/Resources/theme.json');
-        $this->createFile($coreBundlePath . '/Resources/app/administration/src/main.js');
-        $this->createFile($coreBundlePath . '/Resources/app/administration/build/webpack.config.ts');
-        $this->createFile($coreBundlePath . '/Resources/app/storefront/src/main.ts');
-        $this->createFile($coreBundlePath . '/Resources/app/storefront/build/webpack.config.cts');
-        $this->createFile($coreBundlePath . '/Resources/views/components/Example/Card.scss');
 
         $activePluginPath = $this->projectDir . '/custom/plugins/ActivePlugin';
-        $this->createFile($activePluginPath . '/Resources/app/storefront/src/main.js');
 
         $inactivePluginPath = $this->projectDir . '/custom/plugins/InactivePlugin';
-        $this->createFile($inactivePluginPath . '/Resources/app/storefront/src/main.js');
 
         $appRelativePath = 'custom/apps/SwagDemoApp';
-        $appPath = $this->projectDir . '/' . $appRelativePath;
-        $this->createFile($appPath . '/Resources/theme.json');
-        $this->createFile($appPath . '/Resources/app/storefront/build/webpack.config.cjs');
 
         $coreBundle = new class($coreBundlePath) extends Bundle {
             public function __construct(private string $bundlePath)
@@ -191,11 +170,6 @@ class BundleConfigGeneratorTest extends TestCase
     public function testHasStorefrontComponentAssetsIgnoresNonBuildableFiles(): void
     {
         $bundlePath = $this->projectDir . '/custom/plugins/IgnoredAssets';
-        $this->createFile($bundlePath . '/Resources/views/components/node_modules/lib.js');
-        $this->createFile($bundlePath . '/Resources/views/components/Feature/node_modules/internal.ts');
-        $this->createFile($bundlePath . '/Resources/views/components/Feature/preview.stories.ts');
-        $this->createFile($bundlePath . '/Resources/views/components/Feature/card.test.js');
-        $this->createFile($bundlePath . '/Resources/views/components/Feature/readme.md');
 
         $bundle = new class($bundlePath) extends Bundle {
             public function __construct(private string $bundlePath)
@@ -236,12 +210,5 @@ class BundleConfigGeneratorTest extends TestCase
         $kernel->method('getBundles')->willReturn($bundles);
 
         return $kernel;
-    }
-
-    private function createFile(string $path, string $contents = ''): void
-    {
-        $directory = \dirname($path);
-        $this->filesystem->mkdir($directory);
-        $this->filesystem->dumpFile($path, $contents);
     }
 }

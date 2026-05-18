@@ -59,6 +59,8 @@ class AssetRegistrationCompilerPassTest extends TestCase
 
         // Must not throw
         (new AssetRegistrationCompilerPass())->process($container);
+
+        static::assertFalse($container->hasDefinition(ThemeCompiler::class));
     }
 
     private function createContainerWithAssets(): ContainerBuilder

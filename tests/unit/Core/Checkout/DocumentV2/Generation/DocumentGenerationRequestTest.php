@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -24,6 +25,7 @@ class DocumentGenerationRequestTest extends TestCase
             Uuid::randomHex(),
             DocumentType::INVOICE,
             [DocumentFormat::HTML],
+            documentDate: '2026-05-05T12:00:00+00:00',
         );
 
         static::assertNull($request->documentNumber);
@@ -31,6 +33,37 @@ class DocumentGenerationRequestTest extends TestCase
         $request = $request->withDocumentNumber('12345');
 
         static::assertSame('12345', $request->documentNumber);
+        static::assertSame('2026-05-05T12:00:00+00:00', $request->documentDate);
+    }
+
+    public function testDocumentDateDefaultsToNow(): void
+    {
+        $before = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+
+        $request = new DocumentGenerationRequest(
+            Uuid::randomHex(),
+            Uuid::randomHex(),
+            DocumentType::INVOICE,
+            [DocumentFormat::HTML],
+        );
+
+        $after = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+
+        static::assertGreaterThanOrEqual($before, $request->documentDate);
+        static::assertLessThanOrEqual($after, $request->documentDate);
+    }
+
+    public function testExplicitDocumentDateIsPreserved(): void
+    {
+        $request = new DocumentGenerationRequest(
+            Uuid::randomHex(),
+            Uuid::randomHex(),
+            DocumentType::INVOICE,
+            [DocumentFormat::HTML],
+            documentDate: '2026-05-05T12:00:00+00:00',
+        );
+
+        static::assertSame('2026-05-05T12:00:00+00:00', $request->documentDate);
     }
 
     public function testNormalization(): void

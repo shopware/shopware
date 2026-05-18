@@ -55,6 +55,11 @@ class Migration1673249981MigrateIsNewCustomerRuleTest extends TestCase
         ];
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1673249981, (new Migration1673249981MigrateIsNewCustomerRule())->getCreationTimestamp());
+    }
+
     public function testUpdate(): void
     {
         $this->addTestConditions();

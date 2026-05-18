@@ -74,79 +74,75 @@ class ViteFileAccessorDecoratorTest extends TestCase
     }
 
     /**
-     * @return list<array{string, string, bool}>
+     * @return iterable<string, array{string, string, bool}>
      */
-    public static function hasFileProvider(): array
+    public static function hasFileProvider(): iterable
     {
-        return [
-            [
-                '_default',
-                FileAccessor::ENTRYPOINTS,
-                true,
-            ],
-            [
-                '_default',
-                FileAccessor::MANIFEST,
-                true,
-            ],
-            [
-                'TestBundle',
-                FileAccessor::ENTRYPOINTS,
-                true,
-            ],
-            [
-                'TestBundle',
-                FileAccessor::MANIFEST,
-                true,
-            ],
-            [
-                'invalid',
-                FileAccessor::MANIFEST,
-                false,
-            ],
-            [
-                'invalid',
-                FileAccessor::ENTRYPOINTS,
-                false,
-            ],
-            [
-                'invalid',
-                '',
-                false,
-            ],
+        yield 'has file default file accessor entrypoints true' => [
+            '_default',
+            FileAccessor::ENTRYPOINTS,
+            true,
+        ];
+        yield 'has file default file accessor manifest true' => [
+            '_default',
+            FileAccessor::MANIFEST,
+            true,
+        ];
+        yield 'has file test bundle file accessor entrypoints true' => [
+            'TestBundle',
+            FileAccessor::ENTRYPOINTS,
+            true,
+        ];
+        yield 'has file test bundle file accessor manifest true' => [
+            'TestBundle',
+            FileAccessor::MANIFEST,
+            true,
+        ];
+        yield 'has file invalid file accessor manifest false' => [
+            'invalid',
+            FileAccessor::MANIFEST,
+            false,
+        ];
+        yield 'has file invalid file accessor entrypoints false' => [
+            'invalid',
+            FileAccessor::ENTRYPOINTS,
+            false,
+        ];
+        yield 'has file invalid false' => [
+            'invalid',
+            '',
+            false,
         ];
     }
 
     /**
-     * @return list<array{bool, string, string, string}>
+     * @return iterable<string, array{bool, string, string, string}>
      */
-    public static function getDataProvider(): array
+    public static function getDataProvider(): iterable
     {
-        return [
-            [
-                false,
-                '_default',
-                'administration',
-                'https:://shopware.com/bundles/administration/administration/assets/app.js',
-            ],
-            [
-                true,
-                '_default',
-                'administration',
-                'https:://shopware.com/bundles/administration/administration/assets/app.js',
-            ],
-            [
-                false,
-                'TestBundle',
-                'test-bundle',
-                'https:://shopware.com/bundles/test/administration/assets/app.js',
-            ],
-            [
-                true,
-                'TestBundle',
-                'test-bundle',
-                'https:://shopware.com/bundles/test/administration/assets/app.js',
-            ],
+        yield 'provider false default administration https shopware com bundles administration' => [
+            false,
+            '_default',
+            'administration',
+            'https:://shopware.com/bundles/administration/administration/assets/app.js',
+        ];
+        yield 'provider true default administration https shopware com bundles administration' => [
+            true,
+            '_default',
+            'administration',
+            'https:://shopware.com/bundles/administration/administration/assets/app.js',
+        ];
+        yield 'provider false test bundle test bundle https shopware com bundles test' => [
+            false,
+            'TestBundle',
+            'test-bundle',
+            'https:://shopware.com/bundles/test/administration/assets/app.js',
+        ];
+        yield 'provider true test bundle test bundle https shopware com bundles test' => [
+            true,
+            'TestBundle',
+            'test-bundle',
+            'https:://shopware.com/bundles/test/administration/assets/app.js',
         ];
     }
 

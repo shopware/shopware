@@ -26,6 +26,11 @@ class Migration1768545322AssignRevocationPageToSystemConfigSettingTest extends T
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1768545322, (new Migration1768545322AssignRevocationPageToSystemConfigSetting())->getCreationTimestamp());
+    }
+
     public function testUpdate(): void
     {
         $config = $this->getConfig();

@@ -31,7 +31,9 @@ class Migration1714659357CanonicalProductVersion extends MigrationStep
         $this->runWithRelaxedNonStandardFkGuard($connection, function (Connection $connection): void {
             $this->addColumn($connection, 'product', 'canonical_product_version_id', 'binary(16)', true, '0x0fa91ce3e96a4bc2be4bd9ce752c3425');
 
-            /** @phpstan-ignore shopware.dropStatement (As the foreign key is directly added again, the drop is fine in this case) */
+            // The foreign key is dropped and immediately re-added below, so the
+            // drop is safe. PHPStan's `shopware.dropStatement` rule does not
+            // recurse into closures, so no ignore annotation is necessary here.
             $this->dropForeignKeyIfExists($connection, 'product', 'fk.product.canonical_product_id');
             $this->dropIndexIfExists($connection, 'product', 'fk.product.canonical_product_id');
 

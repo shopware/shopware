@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Sitemap\Provider;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Sitemap\Struct\UrlResult;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -26,9 +27,16 @@ abstract class AbstractUrlProvider
      * @param list<string> $ids
      *
      * @return list<array{foreign_key: string, seo_path_info: string}>
+     *
+     * @deprecated tag:v6.8.0 - Will be removed without replacement
      */
     protected function getSeoUrls(array $ids, string $routeName, SalesChannelContext $context, Connection $connection): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, 'getSeoUrls', 'v6.8.0.0'),
+        );
+
         $sql = 'SELECT LOWER(HEX(foreign_key)) as foreign_key, seo_path_info
                     FROM seo_url WHERE foreign_key IN (:ids)
                      AND `seo_url`.`route_name` =:routeName

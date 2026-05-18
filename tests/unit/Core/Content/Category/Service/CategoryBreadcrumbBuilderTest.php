@@ -2,9 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Category\Service;
 
-use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Query\QueryBuilder;
-use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -15,7 +12,9 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Content\Seo\DTO\SeoUrl;
 use Shopware\Core\Content\Seo\MainCategory\MainCategoryCollection;
+use Shopware\Core\Content\Seo\UrlProvider\UrlProviderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -54,7 +53,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder(
             $this->getCategoryRepositoryMock([$categoryEntity], [$categoryEntity]),
             $this->getProductRepositoryMock([], []),
-            $this->getConnectionMock()
+            $this->getUrlProviderMock()
         );
 
         $product = $this->getProductEntity($streamIds, $categoryIds);
@@ -75,7 +74,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder(
             $this->getCategoryRepositoryMock([$categoryEntity], [$categoryEntity]),
             $this->getProductRepositoryMock([], []),
-            $this->getConnectionMock()
+            $this->getUrlProviderMock()
         );
         $product = $this->getProductEntity($streamIds, $categoryIds);
         $categoryEntity = $categoryBreadcrumbBuilder->getProductSeoCategory($product, $this->salesChannelContext);
@@ -90,7 +89,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder(
             $this->getCategoryRepositoryMock([], []),
             $this->getProductRepositoryMock([], []),
-            $this->getConnectionMock()
+            $this->getUrlProviderMock()
         );
 
         $product = $this->getProductEntity($streamIds, $categoryIds);
@@ -111,7 +110,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder(
             $this->getCategoryRepositoryMock([$categoryEntity], []),
             $this->getProductRepositoryMock([], []),
-            $this->getConnectionMock()
+            $this->getUrlProviderMock()
         );
         $product = $this->getProductEntity($streamIds, $categoryIds);
         $categoryEntity = $categoryBreadcrumbBuilder->getProductSeoCategory($product, $this->salesChannelContext);
@@ -131,7 +130,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder(
             $this->getCategoryRepositoryMock([$categoryEntity], []),
             $this->getProductRepositoryMock([], []),
-            $this->getConnectionMock()
+            $this->getUrlProviderMock()
         );
         $product = $this->getProductEntity($streamIds, []);
         $categoryEntity = $categoryBreadcrumbBuilder->getProductSeoCategory($product, $this->salesChannelContext);
@@ -151,7 +150,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder(
             $categoryRepositoryMock,
             $this->getProductRepositoryMock([], []),
-            $this->getConnectionMock()
+            $this->getUrlProviderMock()
         );
         $product = $this->getProductEntity([], $categoryIds);
 
@@ -208,7 +207,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder(
             $this->getCategoryRepositoryMock([$categoryEntityOne], [$categoryEntityOne]),
             $this->getProductRepositoryMock([], []),
-            $this->getConnectionMock()
+            $this->getUrlProviderMock()
         );
 
         $category = $categoryBreadcrumbBuilder->loadCategory('019192b9cd82711482744d7b456b6c01', $this->salesChannelContext->getContext());
@@ -242,7 +241,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder(
             $this->getCategoryRepositoryMock([$categoryEntityOne], [$categoryEntityOne]),
             $this->getProductRepositoryMock([], []),
-            $this->getConnectionMock()
+            $this->getUrlProviderMock()
         );
 
         $category = $categoryBreadcrumbBuilder->loadCategory('019192b9cd82711482744d7b456b6c02', $this->salesChannelContext->getContext());
@@ -256,6 +255,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         static::assertSame('Home sweet home', $firstBreadcrumb->name);
         static::assertSame('pathInfo/1', $firstBreadcrumb->path);
         static::assertCount(1, $firstBreadcrumb->seoUrls);
+        static::assertSame(['seoPathInfo' => '', 'pathInfo' => 'pathInfo/1', 'id' => '019192b9cd82711482744d7b456b6c12'], $firstBreadcrumb->seoUrls[0]);
     }
 
     public function testConvertCategoriesToBreadcrumbUrlsWithNoSeoUrls(): void
@@ -276,7 +276,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder(
             $this->getCategoryRepositoryMock([$categoryEntityOne], [$categoryEntityOne]),
             $this->getProductRepositoryMock([], []),
-            $this->getConnectionMock()
+            $this->getUrlProviderMock()
         );
 
         $category = $categoryBreadcrumbBuilder->loadCategory('019192b9cd82711482744d7b456b6c03', $this->salesChannelContext->getContext());
@@ -311,7 +311,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder(
             $this->getCategoryRepositoryMock([$categoryEntityOne], [$categoryEntityOne]),
             $this->getProductRepositoryMock([$product], [$product]),
-            $this->getConnectionMock()
+            $this->getUrlProviderMock()
         );
 
         $result = $categoryBreadcrumbBuilder->getProductBreadcrumbUrls($product->getId(), '', $this->salesChannelContext)->getElements();
@@ -335,44 +335,41 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder(
             $this->getCategoryRepositoryMock([], []),
             $this->getProductRepositoryMock([], []),
-            $this->getConnectionMock()
+            $this->getUrlProviderMock()
         );
         $result = $categoryBreadcrumbBuilder->getProductSeoCategory($productEntity, $this->salesChannelContext);
 
         static::assertNull($result);
     }
 
-    private function getConnectionMock(): Connection
+    private function getUrlProviderMock(): UrlProviderInterface
     {
-        $connection = $this->createMock(Connection::class);
-        $queryBuilder = $this->createMock(QueryBuilder::class);
-        $result = $this->createMock(Result::class);
-        $result->method('fetchAllAssociative')->willReturn(
+        $urlProvider = $this->createMock(UrlProviderInterface::class);
+
+        $urlProvider->method('getSeoUrls')->willReturn(
             [
-                [
-                    'categoryId' => '019192b9cd82711482744d7b456b6c01',
-                    'pathInfo' => 'pathInfo/1',
-                    'seoPathInfo' => 'seoPathInfo/1',
-                ],
-                [
-                    'categoryId' => '019192b9cd82711482744d7b456b6c02',
-                    'pathInfo' => 'pathInfo/1',
-                    'seoPathInfo' => '',
-                ],
-                [
-                    'categoryId' => '019192b9cd82711482744d7b456b6c03',
-                    'pathInfo' => 'navigation/1',
-                    'seoPathInfo' => '',
-                ],
+                '019192b9cd82711482744d7b456b6c01' => new SeoUrl(
+                    '019192b9cd82711482744d7b456b6c01',
+                    'seoPathInfo/1',
+                    'pathInfo/1',
+                    '019192b9cd82711482744d7b456b6c11',
+                ),
+                '019192b9cd82711482744d7b456b6c02' => new SeoUrl(
+                    '019192b9cd82711482744d7b456b6c02',
+                    '',
+                    'pathInfo/1',
+                    '019192b9cd82711482744d7b456b6c12',
+                ),
+                '019192b9cd82711482744d7b456b6c03' => new SeoUrl(
+                    '019192b9cd82711482744d7b456b6c03',
+                    '',
+                    'navigation/1',
+                    '019192b9cd82711482744d7b456b6c13',
+                ),
             ]
         );
 
-        $queryBuilder->method('select')->willReturnSelf();
-        $queryBuilder->method('executeQuery')->willReturn($result);
-
-        $connection->method('createQueryBuilder')->willReturn($queryBuilder);
-
-        return $connection;
+        return $urlProvider;
     }
 
     /**

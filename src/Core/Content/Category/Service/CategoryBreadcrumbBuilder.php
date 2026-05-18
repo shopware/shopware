@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Content\Category\Service;
 
-use Doctrine\DBAL\ArrayParameterType;
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Breadcrumb\BreadcrumbException;
 use Shopware\Core\Content\Breadcrumb\Struct\Breadcrumb;
 use Shopware\Core\Content\Breadcrumb\Struct\BreadcrumbCollection;
@@ -13,7 +11,10 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Content\Seo\DTO\SeoUrl;
 use Shopware\Core\Content\Seo\MainCategory\MainCategoryCollection;
+use Shopware\Core\Content\Seo\UrlProvider\UrlProviderInterface;
+use Shopware\Core\Content\Seo\UrlProvider\UrlType;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -25,7 +26,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -42,7 +42,7 @@ class CategoryBreadcrumbBuilder
     public function __construct(
         private readonly EntityRepository $categoryRepository,
         private readonly SalesChannelRepository $productRepository,
-        private readonly Connection $connection
+        private readonly ?UrlProviderInterface $urlProvider,
     ) {
     }
 
@@ -281,34 +281,20 @@ class CategoryBreadcrumbBuilder
     /**
      * @param array<string> $categoryIds
      *
-     * @return list<array<string, string|mixed>>
+     * @return list<SeoUrl>
      */
     private function loadSeoUrls(array $categoryIds, Context $context, SalesChannelEntity $salesChannel): array
     {
-        $query = $this->connection->createQueryBuilder();
-        $query->select(
-            'LOWER(HEX(id)) as id',
-            'LOWER(HEX(foreign_key)) as categoryId',
-            'path_info as pathInfo',
-            'seo_path_info as seoPathInfo',
-        );
-        $query->from('seo_url');
-        $query->where('seo_url.is_canonical = 1');
-        $query->andWhere('seo_url.route_name = :routeName');
-        $query->andWhere('seo_url.language_id = :languageId');
-        $query->andWhere('seo_url.sales_channel_id = :salesChannelId');
-        $query->andWhere('seo_url.foreign_key IN (:categoryIds)');
-        /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */
-        $query->setParameter('routeName', 'frontend.navigation.page');
-        $query->setParameter('languageId', Uuid::fromHexToBytes($context->getLanguageId()));
-        $query->setParameter('salesChannelId', Uuid::fromHexToBytes($salesChannel->getId()));
-        $query->setParameter('categoryIds', Uuid::fromHexToBytesList($categoryIds), ArrayParameterType::BINARY);
-
-        return $query->executeQuery()->fetchAllAssociative();
+        return $this->urlProvider?->getSeoUrls(
+            array_values($categoryIds),
+            UrlType::CATEGORY,
+            $context->getLanguageId(),
+            $salesChannel->getId()
+        ) ?? [];
     }
 
     /**
-     * @param list<array<string, string|mixed>> $seoUrls
+     * @param list<SeoUrl> $seoUrls
      */
     private function convertCategoriesToBreadcrumbUrls(CategoryCollection $categories, array $seoUrls): BreadcrumbCollection
     {
@@ -332,13 +318,15 @@ class CategoryBreadcrumbBuilder
 
             foreach ($categorySeoUrls as $categorySeoUrl) {
                 if ($categoryBreadcrumb->path === '') {
-                    $categoryBreadcrumb->path = (isset($categorySeoUrl['seoPathInfo']) && $categorySeoUrl['seoPathInfo'] !== '')
-                        ? $categorySeoUrl['seoPathInfo'] : $categorySeoUrl['pathInfo'];
+                    $categoryBreadcrumb->path = $categorySeoUrl->seoPathInfo !== ''
+                        ? $categorySeoUrl->seoPathInfo
+                        : $categorySeoUrl->pathInfo;
                 }
-                if ($categoryId === $categorySeoUrl['categoryId']) {
-                    unset($categorySeoUrl['categoryId']); // remove redundant data
-                }
-                $categoryBreadcrumb->seoUrls[] = $categorySeoUrl;
+                $categoryBreadcrumb->seoUrls[] = [
+                    'seoPathInfo' => $categorySeoUrl->seoPathInfo,
+                    'pathInfo' => $categorySeoUrl->pathInfo,
+                    'id' => $categorySeoUrl->id ?? '',
+                ];
             }
 
             $seoBreadcrumbCollection[$categoryId] = $categoryBreadcrumb;
@@ -348,14 +336,16 @@ class CategoryBreadcrumbBuilder
     }
 
     /**
-     * @param array<int, array<string, string|mixed>> $seoUrls
+     * @param list<SeoUrl> $seoUrls
      *
-     * @return array<int, array<string, string|mixed>>
+     * @return list<SeoUrl>
      */
     private function filterCategorySeoUrls(array $seoUrls, string $categoryId): array
     {
-        return array_filter($seoUrls, static function (array $seoUrl) use ($categoryId): bool {
-            return $seoUrl['categoryId'] === $categoryId;
-        });
+        return array_values(
+            array_filter($seoUrls, static function (SeoUrl $seoUrl) use ($categoryId): bool {
+                return $seoUrl->foreignKey === $categoryId;
+            })
+        );
     }
 }

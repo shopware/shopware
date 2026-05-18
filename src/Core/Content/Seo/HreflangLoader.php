@@ -6,6 +6,8 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Seo\Hreflang\HreflangCollection;
 use Shopware\Core\Content\Seo\Hreflang\HreflangStruct;
+use Shopware\Core\Content\Seo\UrlProvider\UrlProviderInterface;
+use Shopware\Core\Content\Seo\UrlProvider\UrlType;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Routing\RouterInterface;
@@ -18,7 +20,8 @@ class HreflangLoader implements HreflangLoaderInterface
      */
     public function __construct(
         private readonly RouterInterface $router,
-        private readonly Connection $connection
+        private readonly Connection $connection,
+        private readonly ?UrlProviderInterface $urlProvider,
     ) {
     }
 
@@ -32,8 +35,7 @@ class HreflangLoader implements HreflangLoaderInterface
 
         $domains = $this->fetchSalesChannelDomains($salesChannelContext->getSalesChannelId());
 
-        /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */
-        if ($parameter->getRoute() === 'frontend.home.page') {
+        if ($this->urlProvider?->getUrlTypeByRouteName($parameter->getRoute()) === UrlType::HOME) {
             return $this->getHreflangForHomepage($domains, $salesChannelContext->getSalesChannel()->getHreflangDefaultDomainId());
         }
 

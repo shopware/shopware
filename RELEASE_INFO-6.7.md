@@ -138,6 +138,13 @@ A new `translation:list` console command prints every locale configured for `tra
 The new `SnippetPatterns::ALLOWED_PSEUDO_LOCALES` and `SnippetPatterns::PSEUDO_LOCALE_TERRITORY` constants register Crowdin pseudo-languages (e.g. `ach-UG`) as valid translation targets for in-context proofreading and translatability audits.
 Pseudo-locales bypass Symfony Intl validation in `Language::validateLocale` and `TranslationLoader::getLocalePath`, and a missing `locale` entity is auto-created on install with a display name from the constant map and a fixed `Pseudo Language` territory.
 
+### URL provider abstraction for SEO URL handling and routing independent of Storefront package
+The new `UrlProviderInterface` abstraction is used for SEO URL generation and route resolution instead of depending on hard-coded Storefront routes.
+
+This abstraction is used by features such as sitemap generation, category URL generation, category breadcrumbs, and hreflang handling. The default implementation is only registered when the Storefront package is installed.
+
+In setups without the Storefront package, no `UrlProviderInterface` service is available by default. Integrations can provide their own implementation to supply custom SEO URLs and route mappings, for example for composable frontends or other custom sales channel implementations.
+
 ## Administration
 
 ### Block renaming

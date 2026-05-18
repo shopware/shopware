@@ -16,6 +16,8 @@ use Shopware\Core\Content\Category\Service\AbstractCategoryUrlGenerator;
 use Shopware\Core\Content\Category\Service\CategoryUrlGenerator;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Content\Seo\UrlProvider\UrlProviderInterface;
+use Shopware\Core\Content\Seo\UrlProvider\UrlType;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Language\LanguageCollection;
@@ -64,16 +66,18 @@ class NavigationControllerTest extends TestCase
         $this->seoUrlReplacer = $this->createMock(SeoUrlPlaceholderHandlerInterface::class);
         $this->seoUrlReplacer->method('replace')
             ->willReturnCallback(static fn (string $url) => $url);
-        $this->seoUrlReplacer->method('generate')
-            ->willReturnCallback(static function (string $route, array $parameters) {
-                return match ($route) {
-                    'frontend.detail.page' => '/product/' . $parameters['productId'],
-                    'frontend.navigation.page' => '/navigation/' . $parameters['navigationId'],
-                    'frontend.home.page' => '/',
-                    default => '/' . $route,
+
+        $urlProvider = $this->createMock(UrlProviderInterface::class);
+        $urlProvider->method('generateWithPlaceholder')
+            ->willReturnCallback(static function (UrlType $urlType, array $parameters) {
+                return match ($urlType) {
+                    UrlType::PRODUCT => '/product/' . $parameters['productId'],
+                    UrlType::CATEGORY => '/navigation/' . $parameters['navigationId'],
+                    UrlType::HOME => '/',
+                    default => '/' . $urlType->name,
                 };
             });
-        $this->categoryUrlGenerator = new CategoryUrlGenerator($this->seoUrlReplacer);
+        $this->categoryUrlGenerator = new CategoryUrlGenerator($urlProvider);
 
         $this->controller = new NavigationControllerTestClass(
             $this->pageLoader,

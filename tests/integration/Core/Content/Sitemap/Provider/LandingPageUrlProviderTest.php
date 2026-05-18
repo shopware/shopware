@@ -8,6 +8,7 @@ use Shopware\Core\Content\LandingPage\LandingPageCollection;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
+use Shopware\Core\Content\Seo\UrlProvider\UrlProviderInterface;
 use Shopware\Core\Content\Sitemap\Provider\LandingPageUrlProvider;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Content\Sitemap\Struct\Url;
@@ -21,8 +22,6 @@ use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
-use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @internal
@@ -44,8 +43,8 @@ class LandingPageUrlProviderTest extends TestCase
 
     protected function setUp(): void
     {
-        if (!static::getContainer()->has(ProductPageSeoUrlRoute::class)) {
-            static::markTestSkipped('NEXT-16799: Sitemap module has a dependency on storefront routes');
+        if (!static::getContainer()->has(UrlProviderInterface::class)) {
+            static::markTestSkipped('This test needs storefront to be installed.');
         }
 
         $this->landingPageRepository = static::getContainer()->get('landing_page.repository');
@@ -122,8 +121,8 @@ class LandingPageUrlProviderTest extends TestCase
         $landingPageUrlProvider = new LandingPageUrlProvider(
             $configHandler,
             static::getContainer()->get(Connection::class),
-            static::getContainer()->get(RouterInterface::class),
             static::getContainer()->get('event_dispatcher'),
+            static::getContainer()->get(UrlProviderInterface::class)
         );
 
         $urlResult = $landingPageUrlProvider->getUrls($this->salesChannelContext, 20);

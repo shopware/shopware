@@ -46,11 +46,10 @@
 
         <service id="Shopware\Core\Content\Sitemap\Provider\CategoryUrlProvider">
             <argument type="service" id="Shopware\Core\Content\Sitemap\Service\ConfigHandler"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Content\Category\CategoryDefinition"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
-            <argument type="service" id="router"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Seo\UrlProvider\UrlProviderInterface" on-invalid="null"/>
 
             <tag name="shopware.sitemap_url_provider"/>
         </service>
@@ -63,12 +62,11 @@
 
         <service id="Shopware\Core\Content\Sitemap\Provider\ProductUrlProvider">
             <argument type="service" id="Shopware\Core\Content\Sitemap\Service\ConfigHandler"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
-            <argument type="service" id="router"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Seo\UrlProvider\UrlProviderInterface" on-invalid="null"/>
 
             <tag name="shopware.sitemap_url_provider"/>
         </service>
@@ -76,8 +74,8 @@
         <service id="Shopware\Core\Content\Sitemap\Provider\LandingPageUrlProvider">
             <argument type="service" id="Shopware\Core\Content\Sitemap\Service\ConfigHandler"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="router"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Seo\UrlProvider\UrlProviderInterface" on-invalid="null"/>
 
             <tag name="shopware.sitemap_url_provider"/>
         </service>

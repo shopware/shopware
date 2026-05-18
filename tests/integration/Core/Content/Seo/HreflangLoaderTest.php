@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Seo\HreflangLoaderInterface;
 use Shopware\Core\Content\Seo\HreflangLoaderParameter;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
+use Shopware\Core\Content\Seo\UrlProvider\UrlProviderInterface;
 use Shopware\Core\Content\Test\TestProductSeoUrlRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -346,6 +347,10 @@ class HreflangLoaderTest extends TestCase
 
     public function testHomePageWithTwoDomains(): void
     {
+        if (!static::getContainer()->has(UrlProviderInterface::class)) {
+            static::markTestSkipped('This test needs storefront to be installed.');
+        }
+
         $this->salesChannelContext->getSalesChannel()->setHreflangActive(true);
 
         list($first, $last) = $this->getFirstAndLastLanguages();
@@ -396,6 +401,10 @@ class HreflangLoaderTest extends TestCase
 
     public function testHomePageWithTwoDomainsAndDefault(): void
     {
+        if (!static::getContainer()->has(UrlProviderInterface::class)) {
+            static::markTestSkipped('This test needs storefront to be installed.');
+        }
+
         $this->salesChannelContext->getSalesChannel()->setHreflangActive(true);
 
         list($first, $last) = $this->getFirstAndLastLanguages();

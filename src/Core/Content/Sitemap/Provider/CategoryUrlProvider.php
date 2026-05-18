@@ -3,10 +3,12 @@
 namespace Shopware\Core\Content\Sitemap\Provider;
 
 use Doctrine\DBAL\ArrayParameterType;
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Event\SalesChannelCategoryIdsFetchedEvent;
+use Shopware\Core\Content\Seo\DTO\SeoUrl;
+use Shopware\Core\Content\Seo\UrlProvider\UrlProviderInterface;
+use Shopware\Core\Content\Seo\UrlProvider\UrlType;
 use Shopware\Core\Content\Sitemap\Event\SitemapQueryEvent;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Content\Sitemap\Struct\Url;
@@ -19,7 +21,6 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Routing\RouterInterface;
 
 #[Package('discovery')]
 class CategoryUrlProvider extends AbstractUrlProvider
@@ -33,11 +34,10 @@ class CategoryUrlProvider extends AbstractUrlProvider
      */
     public function __construct(
         private readonly ConfigHandler $configHandler,
-        private readonly Connection $connection,
         private readonly CategoryDefinition $definition,
         private readonly IteratorFactory $iteratorFactory,
-        private readonly RouterInterface $router,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ?UrlProviderInterface $urlProvider,
     ) {
     }
 
@@ -53,6 +53,10 @@ class CategoryUrlProvider extends AbstractUrlProvider
 
     public function getUrls(SalesChannelContext $context, int $limit, ?int $offset = null): UrlResult
     {
+        if ($this->urlProvider === null) {
+            return new UrlResult([], null);
+        }
+
         $categories = $this->getCategories($context, $limit, $offset);
 
         if ($categories === []) {
@@ -80,11 +84,16 @@ class CategoryUrlProvider extends AbstractUrlProvider
             static fn (array $category) => $categoryIdsFetchedEvent->hasId($category['id'])
         );
 
-        /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */
-        $seoUrls = $this->getSeoUrls($categoryIdsFetchedEvent->getIds(), 'frontend.navigation.page', $context, $this->connection);
-
-        /** @var array<string, array{seo_path_info: string}> $seoUrls */
-        $seoUrls = FetchModeHelper::groupUnique($seoUrls);
+        /** @var array<string, SeoUrl> $seoUrls */
+        $seoUrls = array_merge(...array_map(
+            static fn (SeoUrl $seoUrl) => [$seoUrl->foreignKey => $seoUrl],
+            $this->urlProvider->getSeoUrls(
+                $categoryIdsFetchedEvent->getIds(),
+                UrlType::CATEGORY,
+                $context->getContext()->getLanguageId(),
+                $context->getSalesChannelId()
+            )
+        ));
 
         $urls = [];
         $url = new Url();
@@ -97,10 +106,9 @@ class CategoryUrlProvider extends AbstractUrlProvider
             $newUrl = clone $url;
 
             if (isset($seoUrls[$category['id']])) {
-                $newUrl->setLoc($seoUrls[$category['id']]['seo_path_info']);
+                $newUrl->setLoc($seoUrls[$category['id']]->seoPathInfo);
             } else {
-                /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */
-                $newUrl->setLoc($this->router->generate('frontend.navigation.page', ['navigationId' => $category['id']]));
+                $newUrl->setLoc($this->urlProvider->generate(UrlType::CATEGORY, ['navigationId' => $category['id']]));
             }
 
             $newUrl->setLastmod(new \DateTime($lastMod));

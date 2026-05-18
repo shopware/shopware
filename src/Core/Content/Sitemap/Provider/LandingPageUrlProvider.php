@@ -5,18 +5,19 @@ namespace Shopware\Core\Content\Sitemap\Provider;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
+use Shopware\Core\Content\Seo\DTO\SeoUrl;
+use Shopware\Core\Content\Seo\UrlProvider\UrlProviderInterface;
+use Shopware\Core\Content\Seo\UrlProvider\UrlType;
 use Shopware\Core\Content\Sitemap\Event\SitemapQueryEvent;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\Content\Sitemap\Struct\UrlResult;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Routing\RouterInterface;
 
 #[Package('discovery')]
 class LandingPageUrlProvider extends AbstractUrlProvider
@@ -31,8 +32,8 @@ class LandingPageUrlProvider extends AbstractUrlProvider
     public function __construct(
         private readonly ConfigHandler $configHandler,
         private readonly Connection $connection,
-        private readonly RouterInterface $router,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ?UrlProviderInterface $urlProvider,
     ) {
     }
 
@@ -53,6 +54,10 @@ class LandingPageUrlProvider extends AbstractUrlProvider
      */
     public function getUrls(SalesChannelContext $context, int $limit, ?int $offset = null): UrlResult
     {
+        if ($this->urlProvider === null) {
+            return new UrlResult([], null);
+        }
+
         $landingPages = $this->getLandingPages($context, $limit, $offset);
 
         if ($landingPages === []) {
@@ -61,21 +66,25 @@ class LandingPageUrlProvider extends AbstractUrlProvider
 
         $ids = array_column($landingPages, 'id');
 
-        /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */
-        $seoUrls = $this->getSeoUrls($ids, 'frontend.landing.page', $context, $this->connection);
-
-        /** @var array<string, array{seo_path_info: string}> $seoUrls */
-        $seoUrls = FetchModeHelper::groupUnique($seoUrls);
+        /** @var array<string, SeoUrl> $seoUrls */
+        $seoUrls = array_merge(...array_map(
+            static fn (SeoUrl $seoUrl) => [$seoUrl->foreignKey => $seoUrl],
+            $this->urlProvider->getSeoUrls(
+                $ids,
+                UrlType::LANDING_PAGE,
+                $context->getContext()->getLanguageId(),
+                $context->getSalesChannelId()
+            )
+        ));
 
         $urls = [];
         foreach ($landingPages as $landingPage) {
             $url = new Url();
 
             if (isset($seoUrls[$landingPage['id']])) {
-                $url->setLoc($seoUrls[$landingPage['id']]['seo_path_info']);
+                $url->setLoc($seoUrls[$landingPage['id']]->seoPathInfo);
             } else {
-                /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */
-                $url->setLoc($this->router->generate('frontend.landing.page', ['landingPageId' => $landingPage['id']]));
+                $url->setLoc($this->urlProvider->generate(UrlType::LANDING_PAGE, ['landingPageId' => $landingPage['id']]));
             }
 
             $lastMod = $landingPage['updated_at'] ?: $landingPage['created_at'];

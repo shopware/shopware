@@ -7,6 +7,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Content\Seo\UrlProvider\UrlProviderInterface;
 use Shopware\Core\Content\Sitemap\Provider\ProductUrlProvider;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -19,7 +20,6 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\Tax\TaxEntity;
-use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 
 /**
  * @internal
@@ -48,8 +48,8 @@ class ProductUrlProviderTest extends TestCase
 
     protected function setUp(): void
     {
-        if (!static::getContainer()->has(ProductPageSeoUrlRoute::class)) {
-            static::markTestSkipped('NEXT-16799: Sitemap module has a dependency on storefront routes');
+        if (!static::getContainer()->has(UrlProviderInterface::class)) {
+            static::markTestSkipped('This test needs storefront to be installed.');
         }
 
         $this->productRepository = static::getContainer()->get('product.repository');

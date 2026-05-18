@@ -3,10 +3,12 @@
 namespace Shopware\Core\Content\Sitemap\Provider;
 
 use Doctrine\DBAL\ArrayParameterType;
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Seo\DTO\SeoUrl;
+use Shopware\Core\Content\Seo\UrlProvider\UrlProviderInterface;
+use Shopware\Core\Content\Seo\UrlProvider\UrlType;
 use Shopware\Core\Content\Sitemap\Event\SitemapQueryEvent;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Content\Sitemap\Struct\Url;
@@ -20,7 +22,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Routing\RouterInterface;
 
 #[Package('discovery')]
 class ProductUrlProvider extends AbstractUrlProvider
@@ -38,12 +39,11 @@ class ProductUrlProvider extends AbstractUrlProvider
      */
     public function __construct(
         private readonly ConfigHandler $configHandler,
-        private readonly Connection $connection,
         private readonly ProductDefinition $definition,
         private readonly IteratorFactory $iteratorFactory,
-        private readonly RouterInterface $router,
         private readonly SystemConfigService $systemConfigService,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ?UrlProviderInterface $urlProvider,
     ) {
     }
 
@@ -64,6 +64,10 @@ class ProductUrlProvider extends AbstractUrlProvider
      */
     public function getUrls(SalesChannelContext $context, int $limit, ?int $offset = null): UrlResult
     {
+        if ($this->urlProvider === null) {
+            return new UrlResult([], null);
+        }
+
         $products = $this->getProducts($context, $limit, $offset);
 
         if ($products === []) {
@@ -72,11 +76,16 @@ class ProductUrlProvider extends AbstractUrlProvider
 
         $keys = FetchModeHelper::keyPair($products);
 
-        /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */
-        $seoUrls = $this->getSeoUrls(array_values($keys), 'frontend.detail.page', $context, $this->connection);
-
-        /** @var array<string, array{seo_path_info: string}> $seoUrls */
-        $seoUrls = FetchModeHelper::groupUnique($seoUrls);
+        /** @var array<string, SeoUrl> $seoUrls */
+        $seoUrls = array_merge(...array_map(
+            static fn (SeoUrl $seoUrl) => [$seoUrl->foreignKey => $seoUrl],
+            $this->urlProvider->getSeoUrls(
+                array_values($keys),
+                UrlType::PRODUCT,
+                $context->getContext()->getLanguageId(),
+                $context->getSalesChannelId()
+            )
+        ));
 
         $urls = [];
         $url = new Url();
@@ -89,10 +98,9 @@ class ProductUrlProvider extends AbstractUrlProvider
             $newUrl = clone $url;
 
             if (isset($seoUrls[$product['id']])) {
-                $newUrl->setLoc($seoUrls[$product['id']]['seo_path_info']);
+                $newUrl->setLoc($seoUrls[$product['id']]->seoPathInfo);
             } else {
-                /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */
-                $newUrl->setLoc($this->router->generate('frontend.detail.page', ['productId' => $product['id']]));
+                $newUrl->setLoc($this->urlProvider->generate(UrlType::PRODUCT, ['productId' => $product['id']]));
             }
 
             $newUrl->setLastmod(new \DateTime($lastMod));

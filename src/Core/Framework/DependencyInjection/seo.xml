@@ -113,6 +113,7 @@
         <service id="Shopware\Core\Content\Seo\HreflangLoaderInterface" class="Shopware\Core\Content\Seo\HreflangLoader">
             <argument type="service" id="router.default"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Content\Seo\UrlProvider\UrlProviderInterface" on-invalid="null"/>
         </service>
 
         <service id="Shopware\Core\Content\Seo\SalesChannel\SeoUrlRoute" public="true">

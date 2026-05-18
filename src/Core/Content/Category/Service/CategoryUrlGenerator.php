@@ -4,7 +4,8 @@ namespace Shopware\Core\Content\Category\Service;
 
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
-use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Content\Seo\UrlProvider\UrlProviderInterface;
+use Shopware\Core\Content\Seo\UrlProvider\UrlType;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -15,7 +16,7 @@ class CategoryUrlGenerator extends AbstractCategoryUrlGenerator
     /**
      * @internal
      */
-    public function __construct(private readonly SeoUrlPlaceholderHandlerInterface $seoUrlReplacer)
+    public function __construct(private readonly ?UrlProviderInterface $urlProvider)
     {
     }
 
@@ -31,8 +32,7 @@ class CategoryUrlGenerator extends AbstractCategoryUrlGenerator
         }
 
         if ($category->getType() !== CategoryDefinition::TYPE_LINK) {
-            /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */
-            return $this->seoUrlReplacer->generate('frontend.navigation.page', ['navigationId' => $category->getId()]);
+            return $this->urlProvider?->generateWithPlaceholder(UrlType::CATEGORY, ['navigationId' => $category->getId()]);
         }
 
         $linkType = $category->getTranslation('linkType');
@@ -44,21 +44,17 @@ class CategoryUrlGenerator extends AbstractCategoryUrlGenerator
 
         switch ($linkType) {
             case CategoryDefinition::LINK_TYPE_PRODUCT:
-                /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */
-                return $this->seoUrlReplacer->generate('frontend.detail.page', ['productId' => $internalLink]);
+                return $this->urlProvider?->generateWithPlaceholder(UrlType::PRODUCT, ['productId' => $internalLink]);
 
             case CategoryDefinition::LINK_TYPE_CATEGORY:
                 if ($salesChannel !== null && $internalLink === $salesChannel->getNavigationCategoryId()) {
-                    /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */
-                    return $this->seoUrlReplacer->generate('frontend.home.page');
+                    return $this->urlProvider?->generateWithPlaceholder(UrlType::HOME);
                 }
 
-                /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */
-                return $this->seoUrlReplacer->generate('frontend.navigation.page', ['navigationId' => $internalLink]);
+                return $this->urlProvider?->generateWithPlaceholder(UrlType::CATEGORY, ['navigationId' => $internalLink]);
 
             case CategoryDefinition::LINK_TYPE_LANDING_PAGE:
-                /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */
-                return $this->seoUrlReplacer->generate('frontend.landing.page', ['landingPageId' => $internalLink]);
+                return $this->urlProvider?->generateWithPlaceholder(UrlType::LANDING_PAGE, ['landingPageId' => $internalLink]);
 
             case CategoryDefinition::LINK_TYPE_EXTERNAL:
             default:

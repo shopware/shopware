@@ -12,6 +12,8 @@ use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Event\SalesChannelCategoryIdsFetchedEvent;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Seo\DTO\SeoUrl;
+use Shopware\Core\Content\Seo\UrlProvider\UrlProviderInterface;
 use Shopware\Core\Content\Sitemap\Provider\CategoryUrlProvider;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Content\Sitemap\Struct\Url;
@@ -26,7 +28,6 @@ use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @internal
@@ -37,13 +38,11 @@ class CategoryUrlProviderTest extends TestCase
 {
     private readonly ConfigHandler&MockObject $configHandler;
 
-    private readonly Connection&MockObject $connection;
+    private readonly UrlProviderInterface&MockObject $provider;
 
     private readonly CategoryDefinition&MockObject $definition;
 
     private readonly IteratorFactory&MockObject $iteratorFactory;
-
-    private readonly RouterInterface&MockObject $router;
 
     private readonly EventDispatcher&MockObject $dispatcher;
 
@@ -56,10 +55,9 @@ class CategoryUrlProviderTest extends TestCase
     protected function setUp(): void
     {
         $this->configHandler = $this->createMock(ConfigHandler::class);
-        $this->connection = $this->createMock(Connection::class);
+        $this->provider = $this->createMock(UrlProviderInterface::class);
         $this->definition = $this->createMock(CategoryDefinition::class);
         $this->iteratorFactory = $this->createMock(IteratorFactory::class);
-        $this->router = $this->createMock(RouterInterface::class);
         $this->ids = new IdsCollection();
         $this->dispatcher = $this->createMock(EventDispatcher::class);
         $this->categoryResultIncrement = 0;
@@ -89,7 +87,7 @@ class CategoryUrlProviderTest extends TestCase
                     array_values($categoryResult2),
                 ]
             ),
-            $this->connection
+            $this->createMock(Connection::class)
         );
         $this->initServices($queryResult);
         static::assertNotNull($this->queryBuilder);
@@ -128,7 +126,7 @@ class CategoryUrlProviderTest extends TestCase
         $categoryRowNames = array_keys($this->createCategoryResult());
         $queryResult = new Result(
             new ArrayResult($categoryRowNames, []),
-            $this->connection
+            $this->createMock(Connection::class)
         );
         $this->initServices($queryResult);
         static::assertNotNull($this->queryBuilder);
@@ -146,7 +144,7 @@ class CategoryUrlProviderTest extends TestCase
         $categoryRowNames = array_keys($this->createCategoryResult());
         $queryResult = new Result(
             new ArrayResult($categoryRowNames, []),
-            $this->connection
+            $this->createMock(Connection::class)
         );
         $this->initServices($queryResult, []);
         static::assertNotNull($this->queryBuilder);
@@ -182,7 +180,7 @@ class CategoryUrlProviderTest extends TestCase
                     array_values($categoryResult2),
                 ]
             ),
-            $this->connection
+            $this->createMock(Connection::class)
         );
         $this->initServices($queryResult);
         static::assertNotNull($this->queryBuilder);
@@ -224,7 +222,7 @@ class CategoryUrlProviderTest extends TestCase
                     array_values($categoryResult2),
                 ]
             ),
-            $this->connection
+            $this->createMock(Connection::class)
         );
         $this->initServices($queryResult);
         static::assertNotNull($this->queryBuilder);
@@ -247,6 +245,33 @@ class CategoryUrlProviderTest extends TestCase
         static::assertSame(2, $urlResult->getNextOffset());
     }
 
+    public function testGetEmptyResultWithoutUrlProviderImplementation(): void
+    {
+        $categoryResult1 = $this->createCategoryResult();
+        $queryResult = new Result(
+            new ArrayResult(
+                array_keys($categoryResult1),
+                [
+                    array_values($categoryResult1),
+                ]
+            ),
+            $this->createMock(Connection::class)
+        );
+        $this->initServices($queryResult);
+        static::assertNotNull($this->queryBuilder);
+        $context = Generator::generateSalesChannelContext();
+
+        $this->dispatcher
+            ->expects($this->never())
+            ->method('dispatch');
+
+        $provider = $this->getCategoryUrlProvider(false);
+        $urlResult = $provider->getUrls($context, 100, 50);
+
+        $urls = $urlResult->getUrls();
+        static::assertCount(0, $urls);
+    }
+
     /**
      * @param array<array{resource: class-string, salesChannelId: string, identifier: string}>|null $excludedUrls
      */
@@ -254,14 +279,11 @@ class CategoryUrlProviderTest extends TestCase
         Result $categoryQueryResult,
         ?array $excludedUrls = null,
     ): void {
-        $this->connection->method('fetchAllAssociative')->willReturn([
-            [
-                'foreign_key' => $this->ids->get('category-1'),
-                'seo_path_info' => 'category/1/detail',
-            ],
+        $this->provider->method('getSeoUrls')->willReturn([
+            new SeoUrl($this->ids->get('category-1'), 'category/1/detail', '', ''),
         ]);
 
-        $this->router->method('generate')->willReturn('category/2/detail');
+        $this->provider->method('generate')->willReturn('category/2/detail');
 
         $this->queryBuilder = $this->createMock(QueryBuilder::class);
         $this->queryBuilder->method('executeQuery')->willReturn($categoryQueryResult);
@@ -274,15 +296,14 @@ class CategoryUrlProviderTest extends TestCase
             ->willReturn($excludedUrls ?? $this->getDefaultExcludedUrls());
     }
 
-    private function getCategoryUrlProvider(): CategoryUrlProvider
+    private function getCategoryUrlProvider(bool $isUrlProviderImplemented = true): CategoryUrlProvider
     {
         return new CategoryUrlProvider(
             $this->configHandler,
-            $this->connection,
             $this->definition,
             $this->iteratorFactory,
-            $this->router,
-            $this->dispatcher
+            $this->dispatcher,
+            $isUrlProviderImplemented ? $this->provider : null
         );
     }
 

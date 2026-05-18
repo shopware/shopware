@@ -15,7 +15,7 @@
 
     .sw-cms-element-preview-sidebar-filter__element {
         display: inline-block;
-        border: 1px solid #d4e2e2;
+        border: 1px solid var(--color-border-primary-default);
         border-radius: 3px;
         padding: 4px 6px;
         margin-right: 6px;
@@ -29,7 +29,7 @@
             margin-right: 4px;
             width: 25px;
             height: 10px;
-            background-color: $color-gray-100;
+            background-color: var(--color-background-secondary-default);
             border-radius: 8px;
         }
 

@@ -1010,9 +1010,13 @@ Use the parent blocks instead
 ## File accessibility changed from public to private
 `administration/src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/index.js`
 
-## The following template blocks have been replaced due to a typo in their name
+## The following template blocks have been replaced due to typos or misleading names:
 * `sw_condiiton_date_range_field_to_date` -> `sw_condition_date_range_field_to_date`
 * `sw_cms_detail_stage_empty_stade_content` -> `sw_cms_detail_stage_empty_stage_content`
+* `sw_settings_listing_option_base_smart_content` -> `sw_settings_listing_option_base_content`
+* `sw_settings_listing_option_base_smart_content_general_info` -> `sw_settings_listing_option_base_content_general_info`
+* `sw_settings_listing_option_base_smart_bar_actions_grid` -> `sw_settings_listing_option_base_content_criteria_grid`
+* `sw_settings_listing_option_base_smart_bar_actions_grid_delete_modal` -> `sw_settings_listing_option_base_content_delete_modal`
 
 ## Removed .png and .jpg images
 

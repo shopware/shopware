@@ -93,6 +93,15 @@ Pseudo-locales bypass Symfony Intl validation in `Language::validateLocale` and 
 
 ## Administration
 
+### Block renaming
+
+Due to misleading block names, the following blocks have been deprecated and will be removed in v6.8.0. Use the respective replacements instead:
+
+* `sw_settings_listing_option_base_smart_content` -> `sw_settings_listing_option_base_content`
+* `sw_settings_listing_option_base_smart_content_general_info` -> `sw_settings_listing_option_base_content_general_info`
+* `sw_settings_listing_option_base_smart_bar_actions_grid` -> `sw_settings_listing_option_base_content_criteria_grid`
+* `sw_settings_listing_option_base_smart_bar_actions_grid_delete_modal` -> `sw_settings_listing_option_base_content_delete_modal`
+
 ### Mail template preview is now sales-channel-aware and uses isolated HTML rendering
 
 The mail template detail page can now preview mails with the selected sales channel and its configured mail header and footer.

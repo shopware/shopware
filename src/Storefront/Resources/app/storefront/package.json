@@ -109,6 +109,9 @@
     "npm": ">=11.8.0"
   },
   "overrides": {
+    "@babel/plugin-transform-modules-systemjs": "7.29.4",
+    "fast-uri": "3.1.2",
+    "postcss": "8.5.14",
     "tmp": "0.2.5",
     "qs": "6.14.2",
     "minimatch": "10.2.4",

@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\App\Lifecycle\Registration;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Uri;
+use Psr\Clock\ClockInterface;
 use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Log\Package;
@@ -28,19 +29,19 @@ class StoreHandshake implements AppHandshakeInterface
         private readonly StoreClient $storeClient,
         private readonly string $shopwareVersion,
         #[\SensitiveParameter]
-        private readonly ?string $currentAppSecret = null
+        private readonly ?string $currentAppSecret,
+        private readonly ClockInterface $clock,
     ) {
     }
 
     public function assembleRequest(): RequestInterface
     {
-        $date = new \DateTime();
         $uri = new Uri($this->appEndpoint);
 
         $uri = Uri::withQueryValues($uri, [
             'shop-id' => $this->shopId,
             'shop-url' => $this->shopUrl,
-            'timestamp' => (string) $date->getTimestamp(),
+            'timestamp' => (string) $this->clock->now()->getTimestamp(),
         ]);
 
         $signature = $this->signPayload($uri->getQuery());

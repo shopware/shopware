@@ -46,6 +46,7 @@
             <argument type="service" id="Shopware\Core\Framework\Sso\TokenService\IdTokenParser"/>
             <argument type="service" id="user.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Sso\TokenService\ExternalTokenService"/>
+            <argument type="service" id="Symfony\Component\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Framework\Sso\SsoUser\SsoUserService">
@@ -54,6 +55,7 @@
 
         <service id="Shopware\Core\Framework\Sso\LoginResponseService">
             <argument type="service" id="Symfony\Component\Routing\RouterInterface"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Framework\Sso\SsoService">

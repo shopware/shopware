@@ -185,7 +185,9 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Promotion\Service\PromotionDateTimeService"/>
+        <service id="Shopware\Core\Checkout\Promotion\Service\PromotionDateTimeService">
+            <argument type="service" id="clock"/>
+        </service>
 
         <service id="Shopware\Core\Checkout\Promotion\Util\PromotionCodeService">
             <argument type="service" id="promotion.repository"/>

@@ -9,6 +9,7 @@ use horstoeko\zugferd\codelists\ZugferdSchemeIdentifiers;
 use horstoeko\zugferd\codelists\ZugferdUnitCodes;
 use horstoeko\zugferd\ZugferdDocumentBuilder;
 use horstoeko\zugferd\ZugferdDocumentValidator;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -29,6 +30,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
+use Symfony\Component\Clock\NativeClock;
 
 #[Package('after-sales')]
 class ZugferdDocument
@@ -65,9 +67,11 @@ class ZugferdDocument
         self::ALLOWANCE_AMOUNT => [],
     ];
 
+    // @TODO clock-bc: review public ctor change for BC
     public function __construct(
         protected readonly ZugferdDocumentBuilder $zugferdBuilder,
         protected readonly bool $isGross = false,
+        private readonly ClockInterface $clock = new NativeClock(),
     ) {
     }
 
@@ -158,7 +162,7 @@ class ZugferdDocument
         ];
 
         $this->zugferdBuilder
-            ->addDocumentPaymentTerm(null, (new \DateTime())->modify($documentConfig->getPaymentDueDate() ?: '+30 days'))
+            ->addDocumentPaymentTerm(null, \DateTime::createFromImmutable($this->clock->now())->modify($documentConfig->getPaymentDueDate() ?: '+30 days'))
             ->setDocumentSeller($documentConfig->getCompanyName() ?? '')
             ->addDocumentSellerTaxRegistration('FC', $documentConfig->getTaxNumber())
             ->addDocumentSellerTaxRegistration('VA', $documentConfig->getVatId())

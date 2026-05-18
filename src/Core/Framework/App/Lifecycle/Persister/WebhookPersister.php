@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\Flow\Action\Action;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
@@ -27,6 +28,7 @@ class WebhookPersister implements PersisterInterface
     public function __construct(
         private readonly Connection $connection,
         private readonly WebhookCacheClearer $cacheClearer,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -50,7 +52,7 @@ class WebhookPersister implements PersisterInterface
             }
 
             $payload['id'] = Uuid::randomBytes();
-            $payload['created_at'] = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+            $payload['created_at'] = \DateTime::createFromImmutable($this->clock->now())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
             $inserts[] = $payload;
         }
 

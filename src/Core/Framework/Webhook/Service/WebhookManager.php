@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Webhook\Service;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\AppLocaleProvider;
@@ -57,6 +58,7 @@ class WebhookManager implements ResetInterface
         private readonly string $shopUrl,
         private readonly string $shopwareVersion,
         private readonly bool $isAdminWorkerEnabled,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -154,7 +156,7 @@ class WebhookManager implements ResetInterface
                 'app_version' => $webhook->appVersion,
                 'url' => $webhook->url,
                 'only_live_version' => (int) $webhook->onlyLiveVersion,
-                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => \DateTime::createFromImmutable($this->clock->now())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'serialized_webhook_message' => serialize($webhookEventMessage),
             ]
         );

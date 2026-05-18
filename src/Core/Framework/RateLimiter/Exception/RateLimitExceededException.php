@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\RateLimiter\Exception;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\RateLimiterException;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('framework')]
@@ -15,7 +16,8 @@ class RateLimitExceededException extends RateLimiterException
         private readonly int $retryAfter,
         ?\Throwable $e = null
     ) {
-        $this->now = time();
+        // @TODO clock-non-di: NativeClock fallback in exception; review
+        $this->now = (new NativeClock())->now()->getTimestamp();
 
         parent::__construct(
             Response::HTTP_TOO_MANY_REQUESTS,

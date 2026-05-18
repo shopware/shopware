@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Consent;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -16,8 +17,10 @@ use Shopware\Core\System\Consent\DTO\ConsentStateRecord;
 #[Package('data-services')]
 class ConsentRepository
 {
-    public function __construct(private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly ClockInterface $clock,
+    ) {
     }
 
     /**
@@ -53,7 +56,7 @@ class ConsentRepository
             $revision = null;
         }
 
-        $now = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $now = $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         $actor = $this->connection->executeQuery('SELECT username from user WHERE id = :id', [
             'id' => Uuid::fromHexToBytes($actorId),

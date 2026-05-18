@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Clock\NativeClock;
 
 #[Package('framework')]
 class VersionCommitDefinition extends EntityDefinition
@@ -47,9 +48,10 @@ class VersionCommitDefinition extends EntityDefinition
 
     public function getDefaults(): array
     {
+        // @TODO clock-static: NativeClock fallback in entity definition; review
         return [
             'name' => 'auto-save',
-            'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'createdAt' => \DateTime::createFromImmutable((new NativeClock())->now())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
     }
 

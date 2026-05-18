@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlistProduct\CustomerWishlistProductCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
@@ -38,6 +39,7 @@ use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\System\Unit\UnitEntity;
+use Symfony\Component\Clock\NativeClock;
 
 #[Package('inventory')]
 class ProductEntity extends Entity implements \Stringable
@@ -266,9 +268,16 @@ class ProductEntity extends Entity implements \Stringable
      */
     protected array $states = [];
 
+    private ?ClockInterface $clock = null;
+
     public function __construct()
     {
         $this->prices = new ProductPriceCollection();
+    }
+
+    public function setClock(ClockInterface $clock): void
+    {
+        $this->clock = $clock;
     }
 
     public function __toString(): string
@@ -679,10 +688,11 @@ class ProductEntity extends Entity implements \Stringable
 
     public function getDeliveryDate(): DeliveryDate
     {
+        // @TODO clock-entity: ProductEntity reads clock with NativeClock fallback; consider moving logic out of entity
         return new DeliveryDate(
-            (new \DateTime())
+            \DateTime::createFromImmutable(($this->clock ?? new NativeClock())->now())
                 ->add(new \DateInterval('P' . 1 . 'D')),
-            (new \DateTime())
+            \DateTime::createFromImmutable(($this->clock ?? new NativeClock())->now())
                 ->add(new \DateInterval('P' . 1 . 'D'))
                 ->add(new \DateInterval('P' . 1 . 'D'))
         );
@@ -701,7 +711,8 @@ class ProductEntity extends Entity implements \Stringable
             return true;
         }
 
-        return $this->releaseDate < new \DateTime();
+        // @TODO clock-entity: ProductEntity reads clock with NativeClock fallback; consider moving logic out of entity
+        return $this->releaseDate < \DateTime::createFromImmutable(($this->clock ?? new NativeClock())->now());
     }
 
     /**

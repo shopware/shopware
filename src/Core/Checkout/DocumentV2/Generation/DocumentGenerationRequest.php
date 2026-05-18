@@ -2,11 +2,11 @@
 
 namespace Shopware\Core\Checkout\DocumentV2\Generation;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -31,11 +31,12 @@ final readonly class DocumentGenerationRequest
         public string $orderVersionId,
         DocumentType|string $documentType,
         array $requestedFormats,
+        private readonly ClockInterface $clock,
         public ?string $documentNumber = null,
         public ?string $documentComment = null,
         ?string $documentDate = null,
     ) {
-        $this->documentDate = $documentDate ?? (new NativeClock())->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $this->documentDate = $documentDate ?? $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         $this->documentType = $documentType instanceof DocumentType ? $documentType->value : $documentType;
         $this->requestedFormats = array_map(
@@ -51,6 +52,7 @@ final readonly class DocumentGenerationRequest
             $this->orderVersionId,
             $this->documentType,
             $this->requestedFormats,
+            $this->clock,
             $documentNumber,
             $this->documentComment,
             $this->documentDate,

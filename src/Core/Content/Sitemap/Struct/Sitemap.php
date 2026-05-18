@@ -2,20 +2,24 @@
 
 namespace Shopware\Core\Content\Sitemap\Struct;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
+use Symfony\Component\Clock\NativeClock;
 
 #[Package('discovery')]
 class Sitemap extends Struct
 {
     protected \DateTimeInterface $created;
 
+    // @TODO clock-bc: review public ctor change for BC
     public function __construct(
         protected string $filename,
         private int $urlCount,
         ?\DateTimeInterface $created = null,
+        private readonly ClockInterface $clock = new NativeClock(),
     ) {
-        $this->created = $created ?: new \DateTime('NOW', new \DateTimeZone('UTC'));
+        $this->created = $created ?: \DateTime::createFromImmutable($this->clock->now()->setTimezone(new \DateTimeZone('UTC')));
     }
 
     public function getFilename(): string

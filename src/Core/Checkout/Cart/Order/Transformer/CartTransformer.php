@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\Clock\NativeClock;
 
 #[Package('checkout')]
 class CartTransformer
@@ -39,7 +40,8 @@ class CartTransformer
         ];
 
         if ($setOrderDate) {
-            $data['orderDateTime'] = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+            // @TODO clock-static: NativeClock fallback in static method; consider refactor to accept clock parameter
+            $data['orderDateTime'] = (new NativeClock())->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
             $data['deepLinkCode'] = Random::getBase64UrlString(32);
         }
 

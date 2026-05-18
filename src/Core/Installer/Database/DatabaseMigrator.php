@@ -3,6 +3,7 @@
 namespace Shopware\Core\Installer\Database;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
 
@@ -15,7 +16,8 @@ class DatabaseMigrator
     public function __construct(
         private readonly SetupDatabaseAdapter $adapter,
         private readonly MigrationCollectionFactory $migrationFactory,
-        private readonly string $version
+        private readonly string $version,
+        private readonly ClockInterface $clock
     ) {
     }
 
@@ -36,12 +38,12 @@ class DatabaseMigrator
 
         // use 7 s as max execution time, so the UI stays responsive
         $maxExecutionTime = min(\ini_get('max_execution_time'), 7);
-        $startTime = microtime(true);
+        $startTime = (float) $this->clock->now()->format('U.u');
         $executedMigrations = $offset;
 
         $stopped = false;
         while (iterator_count($coreMigrations->migrateInSteps(null, 1)) === 1) {
-            $runningSince = microtime(true) - $startTime;
+            $runningSince = (float) $this->clock->now()->format('U.u') - $startTime;
             ++$executedMigrations;
 
             // if there are more than 5 seconds execution time left, we execute more migrations in this request, otherwise we return the result
@@ -54,7 +56,7 @@ class DatabaseMigrator
         }
 
         while (!$stopped && iterator_count($coreMigrations->migrateDestructiveInSteps(null, 1)) === 1) {
-            $runningSince = microtime(true) - $startTime;
+            $runningSince = (float) $this->clock->now()->format('U.u') - $startTime;
             ++$executedMigrations;
 
             // if there are more than 5 seconds execution time left, we execute more migrations in this request, otherwise we return the result

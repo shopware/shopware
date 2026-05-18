@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Update\Struct;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @phpstan-type VersionFixedVulnerabilities array{severity: string, summary: string, link: string}
@@ -29,7 +30,8 @@ class Version extends Struct
      */
     public function __construct(array $data = [])
     {
-        $this->date = new \DateTimeImmutable();
+        // @TODO clock-non-di: NativeClock fallback in value object; review
+        $this->date = (new NativeClock())->now();
 
         if (isset($data['date']) && \is_string($data['date'])) {
             $data['date'] = new \DateTimeImmutable($data['date']);

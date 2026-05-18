@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit\VersionCommitDefinition;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Clock\NativeClock;
 
 #[Package('framework')]
 class VersionDefinition extends EntityDefinition
@@ -41,7 +42,8 @@ class VersionDefinition extends EntityDefinition
 
     public function getDefaults(): array
     {
-        $dateTime = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        // @TODO clock-static: NativeClock fallback in entity definition; review
+        $dateTime = \DateTime::createFromImmutable((new NativeClock())->now())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         return ['name' => \sprintf('Draft %s', $dateTime), 'createdAt' => $dateTime];
     }

@@ -21,18 +21,22 @@
         </service>
 
         <service id="Shopware\Core\System\Tax\TaxRuleType\EntireCountryRuleTypeFilter">
+            <argument type="service" id="clock"/>
             <tag name="tax.rule_type_filter"/>
         </service>
 
         <service id="Shopware\Core\System\Tax\TaxRuleType\IndividualStatesRuleTypeFilter">
+            <argument type="service" id="clock"/>
             <tag name="tax.rule_type_filter"/>
         </service>
 
         <service id="Shopware\Core\System\Tax\TaxRuleType\ZipCodeRangeRuleTypeFilter">
+            <argument type="service" id="clock"/>
             <tag name="tax.rule_type_filter"/>
         </service>
 
         <service id="Shopware\Core\System\Tax\TaxRuleType\ZipCodeRuleTypeFilter">
+            <argument type="service" id="clock"/>
             <tag name="tax.rule_type_filter"/>
         </service>
     </services>

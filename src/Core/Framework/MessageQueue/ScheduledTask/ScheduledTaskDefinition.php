@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Clock\NativeClock;
 
 #[Package('framework')]
 class ScheduledTaskDefinition extends EntityDefinition
@@ -46,7 +47,8 @@ class ScheduledTaskDefinition extends EntityDefinition
 
     public function getDefaults(): array
     {
-        return ['nextExecutionTime' => new \DateTime()];
+        // @TODO clock-static: NativeClock fallback in entity definition; review
+        return ['nextExecutionTime' => \DateTime::createFromImmutable((new NativeClock())->now())];
     }
 
     public function since(): ?string

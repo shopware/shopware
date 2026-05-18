@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Customer;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -30,13 +31,14 @@ final class CleanupCustomerRecoveryTaskHandler extends ScheduledTaskHandler
         EntityRepository $scheduledTaskRepository,
         LoggerInterface $logger,
         private readonly Connection $connection,
+        ClockInterface $clock,
     ) {
-        parent::__construct($scheduledTaskRepository, $logger);
+        parent::__construct($scheduledTaskRepository, $logger, $clock);
     }
 
     public function run(): void
     {
-        $threshold = new \DateTime();
+        $threshold = \DateTime::createFromImmutable($this->clock->now());
         $threshold->modify('-48 hour');
 
         do {

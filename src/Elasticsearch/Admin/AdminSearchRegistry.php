@@ -8,6 +8,7 @@ use Doctrine\DBAL\Exception;
 use OpenSearch\Client;
 use OpenSearch\Exception\OpenSearchExceptionInterface;
 use Psr\Http\Client\ClientExceptionInterface;
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
@@ -55,7 +56,8 @@ class AdminSearchRegistry implements EventSubscriberInterface
         private readonly LoggerInterface $logger,
         array $config,
         private readonly array $mapping,
-        private readonly string $environment
+        private readonly string $environment,
+        private readonly ClockInterface $clock,
     ) {
         if (isset($config['settings']['index'])) {
             if (\array_key_exists('number_of_shards', $config['settings']['index']) && $config['settings']['index']['number_of_shards'] === null) {
@@ -295,7 +297,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
         foreach ($entities as $entityName) {
             $indexer = $this->getIndexer($entityName);
             $alias = $this->adminEsHelper->getIndex($indexer->getName());
-            $index = $alias . '_' . time();
+            $index = $alias . '_' . $this->clock->now()->getTimestamp();
 
             if ($this->client->indices()->exists(['index' => $index])) {
                 continue;
@@ -343,7 +345,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
                 continue;
             }
 
-            $index = $alias . '_' . time();
+            $index = $alias . '_' . $this->clock->now()->getTimestamp();
             $this->create($indexer, $index, $alias);
 
             $entities[] = $indexer->getEntity();

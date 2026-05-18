@@ -4,6 +4,7 @@ namespace Shopware\Core\Installer\Configuration;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
@@ -25,7 +26,8 @@ use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
 class ShopConfigurationService
 {
     public function __construct(
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ClockInterface $clock
     ) {
     }
 
@@ -46,7 +48,7 @@ class ShopConfigurationService
             throw new \RuntimeException('Please fill in all required fields. (shop configuration)');
         }
 
-        $shopConfigurator = new ShopConfigurator($connection, $this->eventDispatcher);
+        $shopConfigurator = new ShopConfigurator($connection, $this->eventDispatcher, $this->clock);
         $shopConfigurator->updateBasicInformation($shop['name'], $shop['email']);
         $shopConfigurator->setDefaultLanguage($shop['locale']);
         $shopConfigurator->setDefaultCurrency($shop['currency']);
@@ -97,7 +99,7 @@ class ShopConfigurationService
                 $shippingMethod,
                 $countryId,
                 $this->getCustomerGroupId($connection),
-                (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                \DateTime::createFromImmutable($this->clock->now())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
 
@@ -105,7 +107,7 @@ class ShopConfigurationService
             'INSERT INTO sales_channel_translation (sales_channel_id, language_id, `name`, created_at)
              VALUES (?, UNHEX(?), ?, ?)',
             [
-                $newId, Defaults::LANGUAGE_SYSTEM, $shop['name'], (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                $newId, Defaults::LANGUAGE_SYSTEM, $shop['name'], \DateTime::createFromImmutable($this->clock->now())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
 
@@ -173,7 +175,7 @@ SQL;
             'url' => 'http://' . $shop['host'] . $shop['basePath'],
             'currencyId' => $currencyId,
             'snippetSetId' => $snippetSetId,
-            'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'createdAt' => \DateTime::createFromImmutable($this->clock->now())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         StatementHelper::executeStatement($insertSalesChannel, [
@@ -183,7 +185,7 @@ SQL;
             'url' => 'https://' . $shop['host'] . $shop['basePath'],
             'currencyId' => $currencyId,
             'snippetSetId' => $snippetSetId,
-            'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'createdAt' => \DateTime::createFromImmutable($this->clock->now())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }
 

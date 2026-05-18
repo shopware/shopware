@@ -152,6 +152,7 @@
 
         <service id="Shopware\Core\Content\Product\AbstractIsNewDetector" class="Shopware\Core\Content\Product\IsNewDetector">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\ProductVariationBuilder"/>
@@ -427,6 +428,7 @@
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamUpdater"/>
             <argument type="service" id="messenger.default_bus"/>
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater" on-invalid="null"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <tag name="shopware.entity_indexer" priority="100"/>
         </service>
 
@@ -479,6 +481,7 @@
             <argument type="service" id="language.repository"/>
             <argument type="service" id="product.repository"/>
             <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzer"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <argument>%shopware.product.search_keyword.indexing%</argument>
             <tag name="kernel.reset" method="reset"/>
         </service>

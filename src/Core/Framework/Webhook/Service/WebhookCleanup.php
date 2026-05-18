@@ -10,7 +10,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -26,7 +25,7 @@ class WebhookCleanup
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
         private readonly Connection $connection,
-        private readonly ClockInterface $clock = new NativeClock(),
+        private readonly ClockInterface $clock,
     ) {
     }
 

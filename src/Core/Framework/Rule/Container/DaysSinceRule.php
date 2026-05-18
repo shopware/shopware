@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Rule\Container;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleException;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Symfony\Component\Clock\NativeClock;
 
 #[Package('fundamentals@after-sales')]
 abstract class DaysSinceRule extends Rule
@@ -16,6 +18,13 @@ abstract class DaysSinceRule extends Rule
     protected string $operator = Rule::OPERATOR_EQ;
 
     protected ?float $daysPassed = null;
+
+    // @TODO clock-bc: rule ctor — clock with NativeClock default
+    public function __construct(
+        private readonly ClockInterface $clock = new NativeClock()
+    ) {
+        parent::__construct();
+    }
 
     public function match(RuleScope $scope): bool
     {
@@ -37,7 +46,7 @@ abstract class DaysSinceRule extends Rule
             return false;
         }
 
-        $dateTime = (new \DateTime())
+        $dateTime = \DateTime::createFromImmutable($this->clock->now())
             ->setTimestamp($date->getTimestamp())
             ->setTime(0, 0);
 

@@ -2,17 +2,25 @@
 
 namespace Shopware\Core\Content\Sitemap\Provider;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\Content\Sitemap\Struct\UrlResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\Clock\NativeClock;
 
 #[Package('discovery')]
 class HomeUrlProvider extends AbstractUrlProvider
 {
     final public const CHANGE_FREQ = 'daily';
     final public const PRIORITY = 1.0;
+
+    // @TODO clock-bc: review public ctor change for BC
+    public function __construct(
+        private readonly ClockInterface $clock = new NativeClock(),
+    ) {
+    }
 
     public function getDecorated(): AbstractUrlProvider
     {
@@ -31,7 +39,7 @@ class HomeUrlProvider extends AbstractUrlProvider
     {
         $homepageUrl = new Url();
         $homepageUrl->setLoc('');
-        $homepageUrl->setLastmod(new \DateTime());
+        $homepageUrl->setLastmod(\DateTime::createFromImmutable($this->clock->now()));
         $homepageUrl->setChangefreq(self::CHANGE_FREQ);
         $homepageUrl->setPriority(self::PRIORITY);
         $homepageUrl->setResource($this->getName());

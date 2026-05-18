@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\Rule;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Log\Package;
@@ -10,6 +11,7 @@ use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @final
@@ -19,12 +21,11 @@ class CustomerAgeRule extends Rule
 {
     final public const RULE_NAME = 'customerAge';
 
-    /**
-     * @internal
-     */
+    // @TODO clock-bc: rule ctor — clock with NativeClock default
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,
-        protected ?float $age = null
+        protected ?float $age = null,
+        private readonly ClockInterface $clock = new NativeClock()
     ) {
         parent::__construct();
     }
@@ -47,8 +48,8 @@ class CustomerAgeRule extends Rule
             return RuleComparison::isNegativeOperator($this->operator);
         }
 
-        $birthday = (new \DateTime())->setTimestamp($birthday->getTimestamp());
-        $now = new \DateTime();
+        $birthday = \DateTime::createFromImmutable($this->clock->now())->setTimestamp($birthday->getTimestamp());
+        $now = \DateTime::createFromImmutable($this->clock->now());
 
         $age = $now->diff($birthday)->y;
 

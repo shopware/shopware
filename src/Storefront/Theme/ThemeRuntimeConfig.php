@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -70,7 +71,8 @@ class ThemeRuntimeConfig
             $data['viewInheritance'] ?? [],
             $data['scriptFiles'] ?? null,
             $data['iconSets'] ?? [],
-            $data['updatedAt'] ?? new \DateTimeImmutable(),
+            // @TODO clock-non-di: review static factory clock read
+            $data['updatedAt'] ?? (new NativeClock())->now(),
         );
     }
 

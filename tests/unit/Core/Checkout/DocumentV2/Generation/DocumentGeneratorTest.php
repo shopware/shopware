@@ -36,6 +36,7 @@ use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInt
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentDataProvider;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentRenderer;
+use Symfony\Component\Clock\MockClock;
 
 /**
  * @internal
@@ -58,6 +59,7 @@ class DocumentGeneratorTest extends TestCase
             $orderVersionId,
             DocumentType::INVOICE,
             [DocumentFormat::PDF],
+            new MockClock(),
         );
 
         $order = new OrderEntity();
@@ -171,6 +173,7 @@ class DocumentGeneratorTest extends TestCase
                 Uuid::randomHex(),
                 DocumentType::INVOICE,
                 [],
+                new MockClock(),
             ),
             'exception' => DocumentV2Exception::missingFormats(),
         ];
@@ -181,6 +184,7 @@ class DocumentGeneratorTest extends TestCase
                 Defaults::LIVE_VERSION,
                 DocumentType::INVOICE,
                 [DocumentFormat::PDF],
+                new MockClock(),
             ),
             'exception' => DocumentV2Exception::liveVersionNotAllowed(),
         ];

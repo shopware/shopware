@@ -2,10 +2,12 @@
 
 namespace Shopware\Core\System\Consent\DTO;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Consent\ConsentDefinition;
 use Shopware\Core\System\Consent\ConsentStatus;
+use Symfony\Component\Clock\NativeClock;
 
 #[Package('data-services')]
 class ConsentState
@@ -14,6 +16,7 @@ class ConsentState
 
     public readonly ?string $acceptedRevision;
 
+    // @TODO clock-bc: review public ctor change for BC
     public function __construct(
         public readonly string $name,
         public readonly string $scopeName,
@@ -23,6 +26,7 @@ class ConsentState
         public readonly ?string $updatedAt,
         ?string $acceptedRevision = null,
         public readonly ?string $latestRevision = null,
+        private readonly ClockInterface $clock = new NativeClock(),
     ) {
         $this->acceptedRevision = $status === ConsentStatus::ACCEPTED ? $acceptedRevision : null;
         $this->acceptedUntil = $this->computeAcceptedUntil();
@@ -88,7 +92,7 @@ class ConsentState
     private function computeAcceptedUntil(): ?string
     {
         return match ($this->status) {
-            ConsentStatus::ACCEPTED => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ConsentStatus::ACCEPTED => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ConsentStatus::REVOKED => $this->updatedAt,
             default => null,
         };

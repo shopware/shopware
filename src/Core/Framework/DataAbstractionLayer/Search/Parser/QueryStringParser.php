@@ -24,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -287,7 +288,8 @@ class QueryStringParser
             throw DataAbstractionLayerException::invalidFilterQuery(\sprintf('Parameter "parameter.operator" for %s filter is missing.', $query['type']), $path . '/parameter');
         }
 
-        $now = new \DateTimeImmutable();
+        // @TODO clock-static: NativeClock fallback in static method; review
+        $now = (new NativeClock())->now();
         $dateInterval = new \DateInterval($query['value']);
         if ($query['type'] === 'since') {
             $dateInterval->invert = 1;

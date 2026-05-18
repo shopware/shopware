@@ -45,6 +45,7 @@
             <argument type="string">%env(APP_URL)%</argument>
             <argument>%kernel.shopware_version%</argument>
             <argument>%shopware.admin_worker.enable_admin_worker%</argument>
+            <argument type="service" id="Symfony\Component\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Framework\Webhook\WebhookCacheClearer">
@@ -114,6 +115,7 @@
         <service id="Shopware\Core\Framework\Webhook\Service\WebhookCleanup">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
             <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Framework\Webhook\ScheduledTask\CleanupWebhookEventLogTask">

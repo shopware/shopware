@@ -2,12 +2,20 @@
 
 namespace Shopware\Core\Checkout\Promotion\Service;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Clock\NativeClock;
 
 #[Package('checkout')]
 class PromotionDateTimeService implements PromotionDateTimeServiceInterface
 {
+    // @TODO clock-bc: review public ctor change for BC
+    public function __construct(
+        private readonly ClockInterface $clock = new NativeClock(),
+    ) {
+    }
+
     /**
      * function returns the actual date time as string
      * in format: Y-m-d H:i:s
@@ -16,9 +24,6 @@ class PromotionDateTimeService implements PromotionDateTimeServiceInterface
      */
     public function getNow(): string
     {
-        $now = new \DateTime();
-        $now->setTimezone(new \DateTimeZone('UTC'));
-
-        return $now->format(Defaults::STORAGE_DATE_FORMAT);
+        return $this->clock->now()->setTimezone(new \DateTimeZone('UTC'))->format(Defaults::STORAGE_DATE_FORMAT);
     }
 }

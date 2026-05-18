@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Media\File;
 
 use League\Flysystem\FilesystemOperator;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Core\Event\UpdateMediaPathEvent;
@@ -47,7 +48,8 @@ class FileSaver
         private readonly AbstractMediaPathStrategy $mediaPathStrategy,
         private readonly MediaFileCleanupService $cleanup,
         private readonly MediaFileExtensionValidator $extensionValidator,
-        private readonly bool $remoteThumbnailsEnable = false,
+        private readonly bool $remoteThumbnailsEnable,
+        private readonly ClockInterface $clock,
     ) {
         $this->fileNameValidator = new FileNameValidator();
     }
@@ -262,7 +264,7 @@ class FileSaver
             'fileName' => $destination,
             'metaData' => $metadata,
             'mediaTypeRaw' => serialize($mediaType),
-            'uploadedAt' => new \DateTime(),
+            'uploadedAt' => \DateTime::createFromImmutable($this->clock->now()),
         ];
 
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($data): void {

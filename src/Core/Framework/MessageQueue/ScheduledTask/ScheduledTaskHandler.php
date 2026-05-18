@@ -2,22 +2,26 @@
 
 namespace Shopware\Core\Framework\MessageQueue\ScheduledTask;
 
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Clock\NativeClock;
 
 #[Package('framework')]
 abstract class ScheduledTaskHandler
 {
+    // @TODO clock-bc: review public ctor change for BC
     /**
      * @param EntityRepository<ScheduledTaskCollection> $scheduledTaskRepository
      */
     public function __construct(
         protected EntityRepository $scheduledTaskRepository,
         protected readonly LoggerInterface $exceptionLogger,
+        protected readonly ClockInterface $clock = new NativeClock(),
     ) {
     }
 
@@ -91,7 +95,7 @@ abstract class ScheduledTaskHandler
 
     protected function rescheduleTask(ScheduledTask $task, ScheduledTaskEntity $taskEntity): void
     {
-        $now = new \DateTimeImmutable();
+        $now = $this->clock->now();
 
         $nextExecutionTimeString = $taskEntity->getNextExecutionTime()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
         $newNextExecutionTime = (new \DateTimeImmutable($nextExecutionTimeString))->modify(\sprintf('+%d seconds', $taskEntity->getRunInterval()));

@@ -27,6 +27,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Country\CountryEntity;
+use Symfony\Component\Clock\MockClock;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -116,6 +117,7 @@ class InvoiceDataProviderTest extends TestCase
             $order->getVersionId() ?? Uuid::randomHex(),
             DocumentType::INVOICE,
             [DocumentFormat::PDF],
+            new MockClock(),
             '12345',
             documentDate: '2026-05-05T12:00:00+00:00',
         );

@@ -285,6 +285,42 @@ class ThemeConfigValueAccessorTest extends TestCase
         );
     }
 
+    public function testGetCssVarValuesSanitizesHtmlSensitiveCharacters(): void
+    {
+        $unsafeKey = 'sw-bad<>&"\'key';
+
+        $accessor = $this->createAccessorWithResolvedConfig(
+            fields: [
+                $unsafeKey => ['type' => 'text'],
+            ],
+            resolvedValues: [
+                $unsafeKey => '</style>&',
+            ],
+        );
+
+        static::assertSame(
+            ['sw-badkey' => '\\3C /style\\3E \\26 '],
+            $accessor->getCssVarValues($this->createContext(), 'theme-id'),
+        );
+    }
+
+    public function testGetCssVarValuesPreventsStyleTagBreakoutScriptInjection(): void
+    {
+        $accessor = $this->createAccessorWithResolvedConfig(
+            fields: [
+                'sw-danger' => ['type' => 'text'],
+            ],
+            resolvedValues: [
+                'sw-danger' => '</style><script>alert(1)</script>',
+            ],
+        );
+
+        static::assertSame(
+            ['sw-danger' => '\\3C /style\\3E \\3C script\\3E alert(1)\\3C /script\\3E '],
+            $accessor->getCssVarValues($this->createContext(), 'theme-id'),
+        );
+    }
+
     public function testGetCssVarValuesSkipsFieldsWithScssFalse(): void
     {
         $accessor = $this->createAccessorWithResolvedConfig(

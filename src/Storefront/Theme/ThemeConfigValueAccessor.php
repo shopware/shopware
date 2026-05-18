@@ -263,7 +263,7 @@ class ThemeConfigValueAccessor
 
     private function sanitizeCssCustomPropertyKey(string $key): ?string
     {
-        $sanitizedKey = str_replace(["\n", "\r", ';', '{', '}'], '', $key);
+        $sanitizedKey = str_replace(["\n", "\r", ';', '{', '}', '<', '>', '&', '"', '\''], '', $key);
 
         return $sanitizedKey !== '' ? $sanitizedKey : null;
     }
@@ -271,8 +271,8 @@ class ThemeConfigValueAccessor
     private function sanitizeCssCustomPropertyValue(string $value): string
     {
         return str_replace(
-            [';', '{', '}', "\n", "\r"],
-            ['\\3B ', '\\7B ', '\\7D ', ' ', ' '],
+            [';', '{', '}', "\n", "\r", '<', '>', '&'],
+            ['\\3B ', '\\7B ', '\\7D ', ' ', ' ', '\\3C ', '\\3E ', '\\26 '],
             $value
         );
     }

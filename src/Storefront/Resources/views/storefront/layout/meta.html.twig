@@ -142,7 +142,7 @@
                 <style>
                     :root {
                     {%- for key, value in themeCssVars -%}
-                        --{{ key|e }}: {{ value|e }};
+                        --{{ key|raw }}: {{ value|raw }};
                     {%- endfor -%}
                     }
                 </style>

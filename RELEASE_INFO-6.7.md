@@ -69,6 +69,8 @@ The old `pluginTranslationExists(Plugin $plugin)` is deprecated and will be remo
 
 `TestBootstrapper::addActivePlugins()` can now be used with Composer-managed plugins installed below `vendor/`.
 Plugins no longer need to be copied into `custom/plugins` or `custom/static-plugins` just to be installed and activated during test bootstrap.
+When `TestBootstrapper::getPluginPath()` or `getClassLoader()` is used without bootstrapping the full application, local plugins below `custom/plugins` and `custom/static-plugins` are still resolved from the filesystem.
+This keeps static analysis and other tooling that only needs plugin paths or `autoload-dev` registration working without a database-backed kernel.
 
 ### Requirement-aware plugin installation order
 
@@ -139,6 +141,16 @@ The original `403 Forbidden` response is preserved.
 Regular page requests still redirect to the login page.
 This prevents expired sessions from creating redirect chains from XHR endpoints to page controllers and fixes the follow-up failure where the redirected XHR request reaches the login page, which does not allow XHR access.
 JavaScript clients can now handle the failed unauthenticated XHR response explicitly.
+
+### Single-hit search redirect now matches EAN and manufacturer number
+
+The storefront search already redirected to the product detail page when a search term exactly matched a product's number and produced a single result.
+The same redirect now triggers when the term exactly matches the product's `ean` or `manufacturerNumber`.
+The condition still requires exactly one matching product, so listings with multiple hits remain unaffected.
+
+The set of fields that trigger the redirect is configurable via the `shopware.storefront.redirect_on_single_hit_fields` container parameter (defaults to `['productNumber', 'ean', 'manufacturerNumber']`).
+Any string-valued property declared on `ProductEntity` may be configured — unknown or non-string properties are skipped.
+Set the parameter to a narrower list (for example `['productNumber']`) to restore the previous behaviour.
 
 ## App System
 

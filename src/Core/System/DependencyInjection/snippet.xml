@@ -66,6 +66,13 @@
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Core\System\Snippet\Command\ListTranslationsCommand">
+            <argument type="service" id="Shopware\Core\System\Snippet\Struct\TranslationConfig"/>
+            <argument type="service" id="Shopware\Core\System\Snippet\Service\TranslationMetadataLoader"/>
+
+            <tag name="console.command"/>
+        </service>
+
         <service id="shopware.translation.client" class="GuzzleHttp\Client"/>
 
         <service id="Shopware\Core\System\Snippet\Service\TranslationConfigLoader">

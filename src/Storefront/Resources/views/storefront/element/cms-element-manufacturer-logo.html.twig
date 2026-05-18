@@ -25,7 +25,9 @@
 
             {% block element_manufacturer_logo_link %}
                 {% if manufacturer.link %}
-                    <a href="{{ manufacturer.link }}"
+                    {% set manufacturerLinkHasScheme = manufacturer.link matches '/^[a-zA-Z][a-zA-Z0-9+.-]*:/' or manufacturer.link starts with '//' %}
+                    {% set manufacturerLinkHref = manufacturerLinkHasScheme ? manufacturer.link : 'https://' ~ manufacturer.link %}
+                    <a href="{{ manufacturerLinkHref }}"
                         class="cms-image-link product-detail-manufacturer-link"
                         {% if config.newTab.value %}target="_blank" rel="noreferrer noopener"{% endif %}
                         title="{{ manufacturer.name }}">

@@ -34,4 +34,28 @@ class BoolFieldTest extends TestCase
         static::assertSame(1, $boolField->getPosition());
         static::assertFalse($boolField->getRequired());
     }
+
+    public function testToEntityPayload(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/bool-field.xml');
+        static::assertNotNull($manifest->getCustomFields());
+
+        $boolField = $manifest->getCustomFields()->getCustomFieldSets()[0]->getFields()[0];
+        static::assertInstanceOf(BoolField::class, $boolField);
+
+        static::assertEquals([
+            'name' => 'test_bool_field',
+            'type' => 'bool',
+            'config' => [
+                'label' => [
+                    'en-GB' => 'Test bool field',
+                ],
+                'helpText' => [],
+                'customFieldPosition' => 1,
+                'type' => 'checkbox',
+                'componentName' => 'sw-field',
+                'customFieldType' => 'checkbox',
+            ],
+        ], $boolField->toEntityPayload());
+    }
 }

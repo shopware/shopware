@@ -45,6 +45,11 @@ class Migration1774366000MigrateLineItemStockRuleConditionTest extends TestCase
         $this->otherConditionId = Uuid::randomBytes();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1774366000, (new Migration1774366000MigrateLineItemStockRuleCondition())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         $this->createTestRulesAndConditions();

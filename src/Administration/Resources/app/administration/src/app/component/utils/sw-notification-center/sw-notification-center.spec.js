@@ -63,6 +63,41 @@ describe('src/app/component/utils/sw-notification-center', () => {
         expect(wrapper.findAll('.sw-notification-center-item')).toHaveLength(1);
     });
 
+    it('should close notifications when clicking outside the flyout', async () => {
+        const notificationId = '018d0c7c90f47a228894d117c9b442bc';
+        Shopware.Store.get('notification').setNotifications({
+            [notificationId]: {
+                visited: false,
+                metadata: {},
+                isLoading: false,
+                uuid: notificationId,
+                timestamp: '2024-01-15T09:38:26.676Z',
+                variant: 'info',
+                message: 'Thumbnail generation done',
+            },
+        });
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.find('.mt-icon').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('.sw-context-menu').exists()).toBe(true);
+        expect(Shopware.Store.get('notification').notifications[notificationId].visited).toBe(false);
+
+        const outsideButton = document.createElement('button');
+        document.body.appendChild(outsideButton);
+
+        outsideButton.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+        await flushPromises();
+
+        expect(wrapper.find('.sw-context-menu').exists()).toBe(false);
+        expect(Shopware.Store.get('notification').notifications[notificationId].visited).toBe(true);
+
+        outsideButton.remove();
+    });
+
     it('should show no notifications after clearing them', async () => {
         Shopware.Store.get('notification').setNotifications({
             '018d0c7c90f47a228894d117c9b442bc': {

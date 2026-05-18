@@ -5,12 +5,12 @@
     class="sw-notification-center__context-button"
     :class="additionalContextButtonClass"
     :auto-close="false"
+    :auto-close-outside-click="true"
     :menu-width="360"
     :menu-offset-top="10"
     :menu-offset-left="24"
     :additional-context-menu-classes="additionalContextMenuClasses"
-    @context-menu-after-open="onContextMenuOpen"
-    @context-menu-after-close="onContextMenuClose"
+    @on-open-change="onOpenChange"
 >
     <template #button>
         {% block sw_notification_center_context_button_button_slot %}

@@ -54,6 +54,14 @@ export default {
     },
 
     methods: {
+        onOpenChange(isOpen) {
+            if (isOpen) {
+                this.onContextMenuOpen();
+                return;
+            }
+
+            this.onContextMenuClose();
+        },
         onContextMenuOpen() {
             Shopware.Store.get('notification').workerProcessPollInterval = POLL_FOREGROUND_INTERVAL;
         },
@@ -72,18 +80,18 @@ export default {
             this.showDeleteModal = false;
         },
         changeVisibility(visible) {
-            if (this.$refs.notificationCenterContextButton === undefined) {
+            const contextButton = this.$refs.notificationCenterContextButton;
+
+            if (contextButton === undefined) {
                 return;
             }
 
             if (visible) {
-                this.$refs.notificationCenterContextButton.openMenu();
+                contextButton.openMenu();
                 return;
             }
 
-            this.$refs.notificationCenterContextButton.showMenu = false;
-            this.$refs.notificationCenterContextButton.removeMenuFromBody();
-            this.$refs.notificationCenterContextButton.$emit('context-menu-after-close');
+            contextButton.closeMenu();
         },
         createNotificationFromSystemError({ name, args }) {
             if (name !== 'addSystemError') {

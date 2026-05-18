@@ -3,10 +3,10 @@
 namespace Shopware\Core\Content\ImportExportV2\Controller;
 
 use Shopware\Core\Content\ImportExportV2\Exception\ImportExportV2Exception;
+use Shopware\Core\Content\ImportExportV2\File\FileService;
 use Shopware\Core\Content\ImportExportV2\Profile\ImportExportV2ProfileCollection;
 use Shopware\Core\Content\ImportExportV2\Profile\ImportExportV2ProfileEntity;
 use Shopware\Core\Content\ImportExportV2\Service\RunService;
-use Shopware\Core\Content\ImportExportV2\Support\FileService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;

@@ -2,11 +2,11 @@
 
 namespace Scripts\Examples;
 
+use Shopware\Core\Content\ImportExportV2\File\FileService;
 use Shopware\Core\Content\ImportExportV2\File\ImportExportV2FileEntity;
 use Shopware\Core\Content\ImportExportV2\Profile\ImportExportV2ProfileEntity;
 use Shopware\Core\Content\ImportExportV2\Run\ImportExportV2RunEntity;
 use Shopware\Core\Content\ImportExportV2\Service\RunService;
-use Shopware\Core\Content\ImportExportV2\Support\FileService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;

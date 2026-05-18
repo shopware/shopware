@@ -4,8 +4,9 @@
  * @codeCoverageIgnore - DI wiring only
  */
 
-use Shopware\Core\Content\ImportExportV2\File\ImportExportV2FileDefinition;
 use Shopware\Core\Content\ImportExportV2\Controller\ImportExportV2ActionController;
+use Shopware\Core\Content\ImportExportV2\File\FileService;
+use Shopware\Core\Content\ImportExportV2\File\ImportExportV2FileDefinition;
 use Shopware\Core\Content\ImportExportV2\Format\Csv\CsvExportWriter;
 use Shopware\Core\Content\ImportExportV2\Format\Csv\CsvFormat;
 use Shopware\Core\Content\ImportExportV2\Format\Csv\CsvImportReader;
@@ -26,7 +27,6 @@ use Shopware\Core\Content\ImportExportV2\Service\FailedImportRecordExporter;
 use Shopware\Core\Content\ImportExportV2\Service\ImportEntityMatchResolver;
 use Shopware\Core\Content\ImportExportV2\Service\ImportRecordValidator;
 use Shopware\Core\Content\ImportExportV2\Service\RunService;
-use Shopware\Core\Content\ImportExportV2\Support\FileService;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Symfony\Component\DependencyInjection\Argument\TaggedIteratorArgument;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;

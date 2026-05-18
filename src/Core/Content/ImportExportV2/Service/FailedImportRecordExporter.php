@@ -2,17 +2,17 @@
 
 namespace Shopware\Core\Content\ImportExportV2\Service;
 
+use Shopware\Core\Content\ImportExportV2\File\FileService;
 use Shopware\Core\Content\ImportExportV2\Format\FormatRegistry;
 use Shopware\Core\Content\ImportExportV2\Profile\ImportExportV2ProfileEntity;
 use Shopware\Core\Content\ImportExportV2\Record\ImportExportRecord;
 use Shopware\Core\Content\ImportExportV2\Run\ImportExportV2RunEntity;
-use Shopware\Core\Content\ImportExportV2\Support\FileService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * Writes failed import records into a dedicated invalid-records file by
- * reusing the normal JSON/CSV export writers.
+ * reusing the format defined export writers.
  *
  * Each failed record is the same normalized record payload that moved through
  * the import pipeline, plus one additional `_error` field.

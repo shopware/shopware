@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Content\ImportExportV2\Format\Json;
 
-use Shopware\Core\Content\ImportExportV2\File\ImportExportV2FileEntity;
 use Shopware\Core\Content\ImportExportV2\Exception\ImportExportV2Exception;
+use Shopware\Core\Content\ImportExportV2\File\FileService;
+use Shopware\Core\Content\ImportExportV2\File\ImportExportV2FileEntity;
 use Shopware\Core\Content\ImportExportV2\Format\ImportReaderInterface;
 use Shopware\Core\Content\ImportExportV2\Format\ReadResult;
 use Shopware\Core\Content\ImportExportV2\Profile\ImportExportV2ProfileEntity;
 use Shopware\Core\Content\ImportExportV2\Record\ImportExportRecord;
-use Shopware\Core\Content\ImportExportV2\Support\FileService;
 use Shopware\Core\Framework\Log\Package;
 
 /**

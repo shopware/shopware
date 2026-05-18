@@ -1,9 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\ImportExportV2\Support;
+namespace Shopware\Core\Content\ImportExportV2\File;
 
 use League\Flysystem\FilesystemOperator;
-use Shopware\Core\Content\ImportExportV2\File\ImportExportV2FileEntity;
 use Shopware\Core\Content\ImportExportV2\Exception\ImportExportV2Exception;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;

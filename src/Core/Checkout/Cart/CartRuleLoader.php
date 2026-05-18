@@ -106,7 +106,13 @@ class CartRuleLoader implements ResetInterface
                 function: $this->_load(...),
             );
 
-            $this->translateCartErrors($result->getCart()->getErrors(), $context);
+            $cartErrors = $result->getCart()->getErrors();
+
+            if ($cartErrors->count() === 0) {
+                $cartErrors = $cart->getErrors();
+            }
+
+            $this->translateCartErrors($cartErrors, $context);
 
             // save the cart if errors exist, so the errors get persisted
             if ($this->updated($result->getCart(), $timestamps, $dataHashes)

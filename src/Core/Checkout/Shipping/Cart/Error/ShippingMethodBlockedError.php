@@ -9,12 +9,6 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('checkout')]
 class ShippingMethodBlockedError extends Error
 {
-    public const REASON_NO_SHIPPING_COSTS_FOUND = 'no shipping costs found';
-
-    public const REASON_NOT_ALLOWED = 'not allowed';
-
-    public const REASON_RULE_NOT_MATCHING_OR_INACTIVE = 'rule not matching or inactive';
-
     private const KEY = 'shipping-method-blocked';
 
     /**

@@ -287,7 +287,7 @@ class DeliveryCalculatorTest extends TestCase
         static::assertSame([
             'id' => $shippingMethodId,
             'name' => 'Test shipping',
-            'reason' => ShippingMethodBlockedError::REASON_NO_SHIPPING_COSTS_FOUND,
+            'reason' => 'no shipping costs found',
         ], $error->getParameters());
     }
 

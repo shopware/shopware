@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1774345867AddProductOpenGraphFields;
+use Shopware\Tests\Migration\MySql84FkGuardTestTrait;
 
 /**
  * @internal
@@ -15,6 +16,8 @@ use Shopware\Core\Migration\V6_7\Migration1774345867AddProductOpenGraphFields;
 #[CoversClass(Migration1774345867AddProductOpenGraphFields::class)]
 class Migration1774345867AddProductOpenGraphFieldsTest extends TestCase
 {
+    use MySql84FkGuardTestTrait;
+
     private Connection $connection;
 
     protected function setUp(): void
@@ -67,6 +70,35 @@ class Migration1774345867AddProductOpenGraphFieldsTest extends TestCase
         $migration->update($this->connection);
 
         static::assertTrue(TableHelper::indexExists($this->connection, 'product', 'fk.product.open_graph_media_id'));
+    }
+
+    /**
+     * Regression coverage for issue #16240 / MySQL bug #118151. Skips outside
+     * MySQL 8.4+ with `restrict_fk_on_non_standard_key=ON`.
+     */
+    public function testColumnsAndForeignKeyAreCreatedOnMysql84WithNonStandardChildFkOnProduct(): void
+    {
+        $this->skipUnlessMysql84WithFkGuardOn($this->connection);
+
+        $this->rollbackInheritanceColumn();
+        $this->createNonStandardChildFkOnProduct($this->connection);
+
+        try {
+            (new Migration1774345867AddProductOpenGraphFields())->update($this->connection);
+
+            static::assertTrue(TableHelper::columnExists($this->connection, 'product', 'open_graph_media_id'));
+            static::assertTrue(TableHelper::columnExists($this->connection, 'product', 'openGraphMedia'));
+            static::assertTrue(TableHelper::columnExists($this->connection, 'product_translation', 'og_title'));
+            static::assertTrue(TableHelper::columnExists($this->connection, 'product_translation', 'og_description'));
+            static::assertTrue(TableHelper::indexExists($this->connection, 'product', 'fk.product.open_graph_media_id'));
+            static::assertSame(
+                '1',
+                (string) $this->connection->fetchOne('SELECT @@SESSION.restrict_fk_on_non_standard_key'),
+                'Migration must restore the FK guard to its previous (ON) state'
+            );
+        } finally {
+            $this->dropNonStandardChildFkOnProduct($this->connection);
+        }
     }
 
     private function rollbackInheritanceColumn(): void

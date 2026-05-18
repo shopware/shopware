@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1756305375AddCategoriesIndexToProduct;
+use Shopware\Tests\Migration\MySql84FkGuardTestTrait;
 
 /**
  * @internal
@@ -15,6 +16,8 @@ use Shopware\Core\Migration\V6_7\Migration1756305375AddCategoriesIndexToProduct;
 #[CoversClass(Migration1756305375AddCategoriesIndexToProduct::class)]
 class Migration1756305375AddCategoriesIndexToProductTest extends TestCase
 {
+    use MySql84FkGuardTestTrait;
+
     private Connection $connection;
 
     protected function setUp(): void
@@ -48,5 +51,33 @@ class Migration1756305375AddCategoriesIndexToProductTest extends TestCase
         $migration->update($this->connection);
 
         static::assertTrue(TableHelper::indexExists($this->connection, 'product', 'idx.product.categories'));
+    }
+
+    /**
+     * Regression coverage for issue #13039 / MySQL bug #118151. Skips outside
+     * MySQL 8.4+ with `restrict_fk_on_non_standard_key=ON`.
+     */
+    public function testIndexIsCreatedOnMysql84WithNonStandardChildFkOnProduct(): void
+    {
+        $this->skipUnlessMysql84WithFkGuardOn($this->connection);
+
+        if (TableHelper::indexExists($this->connection, 'product', 'idx.product.categories')) {
+            $this->connection->executeStatement('DROP INDEX `idx.product.categories` ON `product`');
+        }
+
+        $this->createNonStandardChildFkOnProduct($this->connection);
+
+        try {
+            (new Migration1756305375AddCategoriesIndexToProduct())->update($this->connection);
+
+            static::assertTrue(TableHelper::indexExists($this->connection, 'product', 'idx.product.categories'));
+            static::assertSame(
+                '1',
+                (string) $this->connection->fetchOne('SELECT @@SESSION.restrict_fk_on_non_standard_key'),
+                'Migration must restore the FK guard to its previous (ON) state'
+            );
+        } finally {
+            $this->dropNonStandardChildFkOnProduct($this->connection);
+        }
     }
 }

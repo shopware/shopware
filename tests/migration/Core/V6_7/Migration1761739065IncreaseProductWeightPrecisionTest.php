@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_7\Migration1761739065IncreaseProductWeightPrecision;
+use Shopware\Tests\Migration\MySql84FkGuardTestTrait;
 
 /**
  * @internal
@@ -15,6 +16,7 @@ use Shopware\Core\Migration\V6_7\Migration1761739065IncreaseProductWeightPrecisi
 class Migration1761739065IncreaseProductWeightPrecisionTest extends TestCase
 {
     use KernelTestBehaviour;
+    use MySql84FkGuardTestTrait;
 
     public function testGetCreationTimestamp(): void
     {
@@ -56,6 +58,33 @@ class Migration1761739065IncreaseProductWeightPrecisionTest extends TestCase
                 $this->getProductWeightColumnType($connection)
             );
         } finally {
+            $this->setProductWeightPrecision($connection, 'DECIMAL(15,6) UNSIGNED NULL');
+        }
+    }
+
+    /**
+     * Regression coverage for issue #16240 / MySQL bug #118151. Skips outside
+     * MySQL 8.4+ with `restrict_fk_on_non_standard_key=ON`.
+     */
+    public function testUpdateIncreasesPrecisionOnMysql84WithNonStandardChildFkOnProduct(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $this->skipUnlessMysql84WithFkGuardOn($connection);
+
+        try {
+            $this->setProductWeightPrecision($connection, 'DECIMAL(10,3) UNSIGNED NULL');
+            $this->createNonStandardChildFkOnProduct($connection);
+
+            (new Migration1761739065IncreaseProductWeightPrecision())->update($connection);
+
+            static::assertSame('decimal(15,6) unsigned', $this->getProductWeightColumnType($connection));
+            static::assertSame(
+                '1',
+                (string) $connection->fetchOne('SELECT @@SESSION.restrict_fk_on_non_standard_key'),
+                'Migration must restore the FK guard to its previous (ON) state'
+            );
+        } finally {
+            $this->dropNonStandardChildFkOnProduct($connection);
             $this->setProductWeightPrecision($connection, 'DECIMAL(15,6) UNSIGNED NULL');
         }
     }

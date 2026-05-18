@@ -29,7 +29,7 @@ use Shopware\Core\Framework\Log\Package;
  * @mixin DocumentDisplayOptions
  * @mixin InvoiceRenderData
  *
- * @property mixed $fileType
+ * @property bool $preview
  * @property mixed $getAddressParts
  * @property mixed $displayAdditionalNoteDelivery
  */
@@ -43,7 +43,7 @@ final readonly class TemplateContext implements \ArrayAccess
 
     public function __construct(
         AbstractRenderData $data,
-        ?string $fileType = null,
+        bool $preview = false,
         ?int $itemsPerPage = null,
     ) {
         $properties = array_replace(
@@ -54,10 +54,7 @@ final readonly class TemplateContext implements \ArrayAccess
         );
 
         $properties['getAddressParts'] = $data->company->getAddressParts();
-
-        if ($fileType !== null) {
-            $properties['fileType'] = $fileType;
-        }
+        $properties['preview'] = $preview;
 
         if ($itemsPerPage !== null) {
             $properties['itemsPerPage'] = $itemsPerPage;

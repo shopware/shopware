@@ -47,11 +47,11 @@ class BundleConfigGeneratorTest extends TestCase
     {
         $coreBundlePath = $this->projectDir . '/src/CoreBundle';
 
-        $activePluginPath = $this->projectDir . '/custom/plugins/ActivePlugin';
+        $activePluginPath = $this->projectDir . '/extensions/plugins/ActivePlugin';
 
-        $inactivePluginPath = $this->projectDir . '/custom/plugins/InactivePlugin';
+        $inactivePluginPath = $this->projectDir . '/extensions/plugins/InactivePlugin';
 
-        $appRelativePath = 'custom/apps/SwagDemoApp';
+        $appRelativePath = 'extensions/apps/SwagDemoApp';
 
         $coreBundle = new class($coreBundlePath) extends Bundle {
             public function __construct(private string $bundlePath)
@@ -118,13 +118,13 @@ class BundleConfigGeneratorTest extends TestCase
         static::assertTrue($config[$coreBundleName]['storefront']['hasComponentAssets']);
         static::assertSame([], $config[$coreBundleName]['storefront']['styleFiles']);
 
-        static::assertSame('custom/plugins/ActivePlugin/', $config[$activePluginName]['basePath']);
+        static::assertSame('extensions/plugins/ActivePlugin/', $config[$activePluginName]['basePath']);
         static::assertNotSame('', $config[$activePluginName]['technicalName']);
 
         static::assertSame($appRelativePath . '/', $config['SwagDemoApp']['basePath']);
         static::assertSame('swag-demo-app', $config['SwagDemoApp']['technicalName']);
         static::assertNull($config['SwagDemoApp']['storefront']['entryFilePath']);
-        static::assertSame('Resources/app/storefront/build/webpack.config.cjs', $config['SwagDemoApp']['storefront']['webpack']);
+        static::assertSame('Resources/app/storefront/build/webpack.config.ts', $config['SwagDemoApp']['storefront']['webpack']);
     }
 
     public function testGetStyleFilesUsesRegistryConfigAndReturnsJoinedPaths(): void
@@ -169,7 +169,7 @@ class BundleConfigGeneratorTest extends TestCase
 
     public function testHasStorefrontComponentAssetsIgnoresNonBuildableFiles(): void
     {
-        $bundlePath = $this->projectDir . '/custom/plugins/IgnoredAssets';
+        $bundlePath = $this->projectDir . '/extensions/plugins/IgnoredAssets';
 
         $bundle = new class($bundlePath) extends Bundle {
             public function __construct(private string $bundlePath)

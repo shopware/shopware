@@ -65,7 +65,7 @@ merge 16.11.2020
                 {% sw_include '@Framework/documents/style_base_portrait.css.twig' %}
             {% endif %}
 
-            {% if config.fileType == constant('Shopware\\Core\\Checkout\\Document\\Service\\HtmlRenderer::FILE_EXTENSION') %}
+            {% if config.preview or config.fileType == constant('Shopware\\Core\\Checkout\\Document\\Service\\HtmlRenderer::FILE_EXTENSION') %}
                 {% sw_include '@Framework/documents/style_base_html.css.twig' %}
             {% endif %}
         {% endblock %}

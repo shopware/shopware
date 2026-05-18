@@ -55,24 +55,31 @@ class TemplateContextTest extends TestCase
 
     public function testExposesOverrides(): void
     {
-        $context = $this->createContext(fileType: 'html', itemsPerPage: 1000);
+        $context = $this->createContext(preview: true, itemsPerPage: 1000);
 
-        static::assertSame('html', $context->fileType);
+        static::assertTrue($context->preview);
         static::assertSame(1000, $context->itemsPerPage);
+    }
+
+    public function testPreviewDefaultsToFalse(): void
+    {
+        $context = $this->createContext();
+
+        static::assertFalse($context->preview);
     }
 
     public function testRendererValuesTakePrecedenceOverDocumentConfig(): void
     {
         $context = $this->createContext(
-            fileType: 'html',
+            preview: true,
             itemsPerPage: 1000,
             legacyConfig: [
-                'fileType' => 'pdf',
+                'preview' => false,
                 'itemsPerPage' => 10,
             ],
         );
 
-        static::assertSame('html', $context->fileType);
+        static::assertTrue($context->preview);
         static::assertSame(1000, $context->itemsPerPage);
     }
 
@@ -110,11 +117,11 @@ class TemplateContextTest extends TestCase
 
     public function testArrayAccessMirrorsPropertyAccess(): void
     {
-        $context = $this->createContext(fileType: 'html');
+        $context = $this->createContext(preview: true);
 
         static::assertSame($context->companyName, $context->offsetGet('companyName'));
         static::assertSame($context->pageSize, $context->offsetGet('pageSize'));
-        static::assertSame($context->fileType, $context->offsetGet('fileType'));
+        static::assertSame($context->preview, $context->offsetGet('preview'));
         static::assertNull($context->offsetGet('doesNotExist'));
 
         static::assertTrue($context->offsetExists('companyName'));
@@ -143,7 +150,7 @@ class TemplateContextTest extends TestCase
      * @param array<string, mixed> $legacyConfig
      */
     private function createContext(
-        ?string $fileType = null,
+        bool $preview = false,
         ?int $itemsPerPage = null,
         array $legacyConfig = [],
     ): TemplateContext {
@@ -203,7 +210,7 @@ class TemplateContextTest extends TestCase
 
         return new TemplateContext(
             $renderData,
-            $fileType,
+            $preview,
             $itemsPerPage
         );
     }

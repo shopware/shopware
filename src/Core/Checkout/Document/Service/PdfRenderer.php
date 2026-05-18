@@ -137,6 +137,8 @@ class PdfRenderer extends AbstractDocumentTypeRenderer
                 $o['c'] = str_replace($search, $replace, (string) $o['c']);
             }
         }
+
+        unset($o);
     }
 
     private function insertNullByteBeforeEachCharacter(string $string): string

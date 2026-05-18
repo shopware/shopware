@@ -19,7 +19,16 @@ describe('components/sw-sidebar-filter-panel', () => {
             global: {
                 stubs: {
                     'sw-sidebar-item': {
-                        template: '<div><slot name="headline-content"></slot><slot></slot></div>',
+                        props: ['tooltipShortcut'],
+                        template: `
+                            <div
+                                class="sw-sidebar-item-stub"
+                                :data-tooltip-shortcut="tooltipShortcut.join(' ')"
+                            >
+                                <slot name="headline-content"></slot>
+                                <slot></slot>
+                            </div>
+                        `,
                         methods: {
                             openContent: openContentMock,
                         },
@@ -39,6 +48,12 @@ describe('components/sw-sidebar-filter-panel', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.$options.shortcuts.OF).toBe('openFilterPanel');
+    });
+
+    it('should show the open filters shortcut in the sidebar tooltip', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.find('.sw-sidebar-item-stub').attributes('data-tooltip-shortcut')).toBe('O F');
     });
 
     it('should open the filter panel', async () => {

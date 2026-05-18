@@ -1,7 +1,13 @@
+import MtTooltip from '@shopware-ag/meteor-component-library/dist/esm/MtTooltip';
 import template from './sw-help-sidebar.html.twig';
 import './sw-help-sidebar.scss';
 
 const MOBILE_VIEWPORT_WIDTH = 500;
+
+type TooltipKey = {
+    label: string;
+    ariaLabel: string;
+};
 
 /**
  * @description Displays the help sidebar
@@ -12,6 +18,10 @@ const MOBILE_VIEWPORT_WIDTH = 500;
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
+
+    components: {
+        MtTooltip,
+    },
 
     inject: ['shortcutService'],
 
@@ -46,6 +56,25 @@ export default Shopware.Component.wrapComponentConfig({
 
         showShortcutButton(): boolean {
             return this.viewportWidth > MOBILE_VIEWPORT_WIDTH;
+        },
+
+        shortcutTooltipKeys(): TooltipKey[] {
+            return this.$t('sw-shortcut-overview.keyboardShortcutSpecialShortcutShortcutListing')
+                .split(' ')
+                .flatMap((key: string) => key.split('-'))
+                .filter(Boolean)
+                .map((key: string) => this.formatShortcutKey(key));
+        },
+
+        shortcutTooltipContent(): string {
+            const shortcutKeys = this.shortcutTooltipKeys.map((key: TooltipKey) => {
+                return `<b class="sw-help-sidebar__tooltip-shortcut-key" aria-label="${key.ariaLabel}">${key.label}</b>`;
+            });
+
+            return [
+                `<b class="sw-help-sidebar__tooltip-title">${this.$t('sw-shortcut-overview.title')}</b>`,
+                shortcutKeys.join(' '),
+            ].join(' ');
         },
     },
 
@@ -175,6 +204,32 @@ export default Shopware.Component.wrapComponentConfig({
 
         openShortcutModal(): void {
             Shopware.Store.get('adminHelpCenter').showShortcutModal = true;
+        },
+
+        formatShortcutKey(key: string): TooltipKey {
+            const normalizedKey = key.trim();
+            const upperCaseKey = normalizedKey.toUpperCase();
+
+            if (upperCaseKey === 'SHIFT' && window.navigator.platform.includes('Mac')) {
+                return {
+                    label: '⇧',
+                    ariaLabel: 'Shift',
+                };
+            }
+
+            if (upperCaseKey === 'SHIFT') {
+                return {
+                    label: 'Shift',
+                    ariaLabel: 'Shift',
+                };
+            }
+
+            const label = normalizedKey.length === 1 ? upperCaseKey : normalizedKey;
+
+            return {
+                label,
+                ariaLabel: label,
+            };
         },
     },
 });

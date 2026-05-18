@@ -87,25 +87,28 @@
                 class="sw-help-sidebar__footer"
             >
                 <div class="sw-help-sidebar__shortcut">
-                    <mt-button
-                        v-tooltip="{
-                            message: $t('sw-shortcut-overview.iconTooltip', { key: 'Shift + ?' }, 0),
-                            appearance: 'light',
-                            position: 'top',
-                            zIndex: 1600,
-                        }"
-                        class="sw-help-sidebar__shortcut-button"
-                        :aria-label="$t('help-center.sidebar.ariaLabelButtonShortcut')"
-                        variant="secondary"
-                        @click="openShortcutModal"
+                    <mt-tooltip
+                        class="sw-help-sidebar__shortcut-tooltip"
+                        :content="shortcutTooltipContent"
+                        placement="top"
                     >
-                        <mt-icon
-                            name="solid-keyboard"
-                            color="var(--color-icon-primary-default)"
-                            size="var(--scale-size-16)"
-                        />
-                        {{ $t('sw-shortcut-overview.title') }}
-                    </mt-button>
+                        <template #default="tooltip">
+                            <mt-button
+                                class="sw-help-sidebar__shortcut-button"
+                                v-bind="tooltip"
+                                :aria-label="$t('help-center.sidebar.ariaLabelButtonShortcut')"
+                                variant="secondary"
+                                @click="openShortcutModal"
+                            >
+                                <mt-icon
+                                    name="solid-keyboard"
+                                    color="var(--color-icon-primary-default)"
+                                    size="var(--scale-size-16)"
+                                />
+                                {{ $t('sw-shortcut-overview.title') }}
+                            </mt-button>
+                        </template>
+                    </mt-tooltip>
                 </div>
             </div>
         </div>

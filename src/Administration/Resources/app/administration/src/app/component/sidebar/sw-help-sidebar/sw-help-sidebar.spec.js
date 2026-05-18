@@ -1,8 +1,18 @@
 /**
  * @sw-package buyers-experience
  */
+import { h } from 'vue';
 import { config, mount } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
+
+function translateSnippet(key) {
+    const snippets = {
+        'sw-shortcut-overview.title': 'Keyboard shortcuts',
+        'sw-shortcut-overview.keyboardShortcutSpecialShortcutShortcutListing': 'Shift-?',
+    };
+
+    return snippets[key] ?? key;
+}
 
 async function createWrapper(viewportWidth = 1920) {
     delete config.global.mocks.$router;
@@ -41,6 +51,43 @@ async function createWrapper(viewportWidth = 1920) {
                 'sw-extension-component-section': true,
                 'sw-external-link': true,
                 'sw-loader': true,
+                'mt-tooltip': {
+                    props: {
+                        content: {
+                            type: String,
+                            required: true,
+                        },
+                        placement: {
+                            type: String,
+                            required: true,
+                        },
+                    },
+                    setup(props, { slots }) {
+                        return () =>
+                            h(
+                                'div',
+                                {
+                                    class: 'mt-tooltip-stub',
+                                    'data-content': props.content,
+                                    'data-placement': props.placement,
+                                },
+                                slots.default?.({
+                                    id: 'mt-tooltip-stub-trigger',
+                                    onFocus: () => {},
+                                    onBlur: () => {},
+                                    onKeydown: () => {},
+                                    onMouseover: () => {},
+                                    onMouseleave: () => {},
+                                    onMousedown: () => {},
+                                    onMouseup: () => {},
+                                    'aria-describedby': 'mt-tooltip-stub-content',
+                                }),
+                            );
+                    },
+                },
+            },
+            mocks: {
+                $t: translateSnippet,
             },
             provide: {
                 shortcutService: {
@@ -88,6 +135,22 @@ describe('src/app/asyncComponent/sidebar/sw-help-sidebar', () => {
         await wrapper.find('.sw-help-sidebar__shortcut-button').trigger('click');
 
         expect(Shopware.Store.get('adminHelpCenter').showShortcutModal).toBeTruthy();
+    });
+
+    it('should render the shortcut button with a Meteor tooltip above the button', async () => {
+        const tooltip = wrapper.find('.mt-tooltip-stub');
+        const shortcutButton = wrapper.find('.sw-help-sidebar__shortcut-button');
+        const tooltipContent = tooltip.attributes('data-content');
+
+        expect(tooltip.attributes('data-placement')).toBe('top');
+        expect(tooltipContent).toContain('sw-help-sidebar__tooltip-title');
+        expect(tooltipContent).toContain('Keyboard shortcuts');
+        expect(tooltipContent).toContain('sw-help-sidebar__tooltip-shortcut-key');
+        expect(tooltipContent).toContain('?');
+        expect(tooltipContent).toContain('aria-label="Shift"');
+        expect(tooltipContent).toContain('aria-label="?"');
+        expect(tooltipContent).toMatch(/Shift|⇧/);
+        expect(shortcutButton.attributes('aria-describedby')).toBe('mt-tooltip-stub-content');
     });
 
     it('should hide the shortcut button on mobile viewports', async () => {

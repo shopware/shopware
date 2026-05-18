@@ -1,3 +1,4 @@
+import MtTooltip from '@shopware-ag/meteor-component-library/dist/esm/MtTooltip';
 import template from './sw-sidebar-navigation-item.html.twig';
 import './sw-sidebar-navigation-item.scss';
 
@@ -8,6 +9,10 @@ import './sw-sidebar-navigation-item.scss';
  */
 export default {
     template,
+
+    components: {
+        MtTooltip,
+    },
 
     emits: ['item-click'],
 
@@ -23,6 +28,21 @@ export default {
             return [
                 `is--${this.sidebarItem.badgeType}`,
             ];
+        },
+
+        tooltipContent() {
+            if (!this.sidebarItem.tooltipShortcut?.length) {
+                return this.sidebarItem.title;
+            }
+
+            const shortcutKeys = this.sidebarItem.tooltipShortcut.map((key) => {
+                return `<b class="sw-sidebar-navigation-item__tooltip-shortcut-key" aria-label="${key}">${key}</b>`;
+            });
+
+            return [
+                `<b class="sw-sidebar-navigation-item__tooltip-title">${this.sidebarItem.title}</b>`,
+                shortcutKeys.join(' '),
+            ].join(' ');
         },
     },
 

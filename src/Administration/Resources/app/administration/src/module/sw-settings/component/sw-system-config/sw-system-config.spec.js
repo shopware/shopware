@@ -757,6 +757,41 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         expect(selectionText.text()).toBe('Headless');
     });
 
+    it('should allow removing inheritance from disabled Meteor switch fields', async () => {
+        const fieldName = 'ConfigRenderer.config.boolField';
+
+        wrapper = await createWrapper({
+            'ConfigRenderer.config': {
+                null: {
+                    [fieldName]: true,
+                },
+            },
+        });
+
+        await flushPromises();
+
+        wrapper.vm.onSalesChannelChanged(uuid.get('headless'));
+        await flushPromises();
+
+        let field = wrapper.find(`.sw-system-config--field-${kebabCase(fieldName)}`);
+        const switchInput = field.find('input[type="checkbox"]');
+        expect(switchInput.element.disabled).toBe(true);
+
+        let inheritanceSwitch = field.find('.mt-inheritance-switch');
+        expect(inheritanceSwitch.attributes('aria-label')).toBe('Unlink inheritance');
+        expect(inheritanceSwitch.attributes('disabled')).toBeUndefined();
+        expect(wrapper.vm.actualConfigData[uuid.get('headless')][fieldName]).toBeUndefined();
+        expect(switchInput.element.checked).toBe(true);
+
+        await inheritanceSwitch.trigger('click');
+        await flushPromises();
+
+        field = wrapper.find(`.sw-system-config--field-${kebabCase(fieldName)}`);
+        inheritanceSwitch = field.find('.mt-inheritance-switch');
+        expect(inheritanceSwitch.attributes('aria-label')).toBe('Link inheritance');
+        expect(wrapper.vm.actualConfigData[uuid.get('headless')][fieldName]).toBe(true);
+    });
+
     it('should return ShopwareError when has error', async () => {
         Shopware.Store.get('error').addApiError({
             expression: 'SYSTEM_CONFIG.null.dummyKey',

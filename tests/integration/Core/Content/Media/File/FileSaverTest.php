@@ -16,8 +16,9 @@ use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader;
-use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
+use Shopware\Core\Content\Media\Upload\MediaFileCleanupService;
+use Shopware\Core\Content\Media\Upload\MediaFileExtensionValidator;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -688,23 +689,17 @@ class FileSaverTest extends TestCase
             ->method('update')
             ->willThrowException(new \Exception());
 
-        $allowed = static::getContainer()->getParameter('shopware.filesystem.allowed_extensions');
-        $allowedPrivate = static::getContainer()->getParameter('shopware.filesystem.private_allowed_extensions');
-        static::assertIsList($allowedPrivate);
-
         $fileSaverWithFailingRepository = new FileSaver(
             $repositoryMock,
             static::getContainer()->get('shopware.filesystem.public'),
             static::getContainer()->get('shopware.filesystem.private'),
-            static::getContainer()->get(ThumbnailService::class),
             static::getContainer()->get(MetadataLoader::class),
             static::getContainer()->get(TypeDetector::class),
-            static::getContainer()->get('messenger.default_bus'),
             static::getContainer()->get('event_dispatcher'),
             static::getContainer()->get(MediaLocationBuilder::class),
             static::getContainer()->get(AbstractMediaPathStrategy::class),
-            $allowed,
-            $allowedPrivate
+            static::getContainer()->get(MediaFileCleanupService::class),
+            static::getContainer()->get(MediaFileExtensionValidator::class),
         );
 
         $mediaPath = $png->getPath();

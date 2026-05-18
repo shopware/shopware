@@ -3,19 +3,26 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Document\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
+use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelEntity;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Country\CountryCollection;
+use Shopware\Core\System\Country\CountryDefinition;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
@@ -91,5 +98,86 @@ class DocumentConfigLoaderTest extends TestCase
 
         static::assertInstanceOf(DocumentBaseConfigSalesChannelEntity::class, $salesChannel);
         static::assertSame($this->ids->get('document-sales-channel'), $salesChannel->getUniqueIdentifier());
+    }
+
+    /**
+     * @param list<string> $activeFeatures
+     */
+    #[DataProvider('logoUrlProvider')]
+    public function testLoadNormalizesLogoUrl(?string $logoUrl, array $activeFeatures, ?string $expectedLogoUrl): void
+    {
+        $document = new DocumentBaseConfigEntity();
+        $document->setId($this->ids->get('document'));
+        $document->setGlobal(true);
+
+        if ($logoUrl !== null) {
+            $logo = new MediaEntity();
+
+            $logo->setId($this->ids->get('logo'));
+            $logo->setUrl($logoUrl);
+
+            $document->setLogo($logo);
+        }
+
+        $context = Context::createDefaultContext();
+
+        /** @var StaticEntityRepository<DocumentBaseConfigCollection> $configRepository */
+        $configRepository = new StaticEntityRepository(
+            [new EntitySearchResult(
+                'document_base_config',
+                1,
+                new DocumentBaseConfigCollection([$document]),
+                null,
+                new Criteria(),
+                $context
+            )],
+            new DocumentBaseConfigDefinition(),
+        );
+
+        Feature::fake($activeFeatures, function () use ($configRepository, $context, $expectedLogoUrl): void {
+            /** @var StaticEntityRepository<CountryCollection> $countryRepository */
+            $countryRepository = new StaticEntityRepository([], new CountryDefinition());
+
+            $loader = new DocumentConfigLoader(
+                $configRepository,
+                $countryRepository,
+            );
+
+            $config = $loader->load('invoice', $this->ids->get('sales-channel-id'), $context);
+            $cachedConfig = $loader->load('invoice', $this->ids->get('sales-channel-id'), $context);
+
+            static::assertSame($expectedLogoUrl, $config->getLogo()?->getUrl());
+            static::assertSame($expectedLogoUrl, $cachedConfig->getLogo()?->getUrl());
+        });
+    }
+
+    /**
+     * @return iterable<string, array{logoUrl: string|null, activeFeatures: list<string>, expectedLogoUrl: string|null}>
+     */
+    public static function logoUrlProvider(): iterable
+    {
+        yield 'encodes raw logo url' => [
+            'logoUrl' => 'https://example.com/media/my logo_test.webp',
+            'activeFeatures' => [],
+            'expectedLogoUrl' => 'https://example.com/media/my%20logo_test.webp',
+        ];
+
+        yield 'keeps logo url untouched' => [
+            'logoUrl' => 'https://example.com/media/my logo_test.webp',
+            'activeFeatures' => ['v6.8.0.0'],
+            'expectedLogoUrl' => 'https://example.com/media/my logo_test.webp',
+        ];
+
+        yield 'empty logo url is kept' => [
+            'logoUrl' => '',
+            'activeFeatures' => [],
+            'expectedLogoUrl' => '',
+        ];
+
+        yield 'missing logo is ignored' => [
+            'logoUrl' => null,
+            'activeFeatures' => [],
+            'expectedLogoUrl' => null,
+        ];
     }
 }

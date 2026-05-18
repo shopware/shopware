@@ -70,7 +70,11 @@ class DownloadService
         );
 
         try {
-            $url = $this->filesystem->temporaryUrl($entity->getPath(), (new \DateTimeImmutable())->modify(self::EXPIRATION_TIME));
+            $url = $this->filesystem->temporaryUrl(
+                $entity->getPath(),
+                (new \DateTimeImmutable())->modify(self::EXPIRATION_TIME),
+                $this->getTemporaryUrlConfig($entity)
+            );
 
             return new RedirectResponse($url);
         } catch (UnableToGenerateTemporaryUrl $exception) {
@@ -132,6 +136,38 @@ class DownloadService
      */
     private function getStreamHeaders(ImportExportFileEntity $entity): array
     {
+        $downloadHeaders = $this->getDownloadHeaders($entity);
+
+        return [
+            'Content-Disposition' => $downloadHeaders['Content-Disposition'],
+            'Content-Length' => $this->filesystem->fileSize($entity->getPath()),
+            'Content-Type' => $downloadHeaders['Content-Type'],
+        ];
+    }
+
+    /**
+     * S3 temporary URLs use GetObject response overrides to preserve the download
+     * filename and content type after redirecting away from Shopware.
+     *
+     * @return array{get_object_options: array{ResponseContentDisposition: string, ResponseContentType: string}}
+     */
+    private function getTemporaryUrlConfig(ImportExportFileEntity $entity): array
+    {
+        $downloadHeaders = $this->getDownloadHeaders($entity);
+
+        return [
+            'get_object_options' => [
+                'ResponseContentDisposition' => $downloadHeaders['Content-Disposition'],
+                'ResponseContentType' => $downloadHeaders['Content-Type'],
+            ],
+        ];
+    }
+
+    /**
+     * @return array{'Content-Disposition': string, 'Content-Type': string}
+     */
+    private function getDownloadHeaders(ImportExportFileEntity $entity): array
+    {
         $originalName = (string) preg_replace('/[\/\\\]/', '', $entity->getOriginalName());
 
         try {
@@ -147,7 +183,6 @@ class DownloadService
                 // only printable ascii
                 $filenameFallback
             ),
-            'Content-Length' => $this->filesystem->fileSize($entity->getPath()),
             'Content-Type' => $this->resolveContentType($originalName),
         ];
     }

@@ -25,6 +25,10 @@ export default {
         Mixin.getByName('listing'),
     ],
 
+    shortcuts: {
+        OF: 'openFilterSidebar',
+    },
+
     data() {
         return {
             isLoading: false,
@@ -224,6 +228,11 @@ export default {
                 return;
             }
 
+            this.$refs.filterSideBar.openContent();
+            this.filterSidebarIsOpen = true;
+        },
+
+        openFilterSidebar() {
             this.$refs.filterSideBar.openContent();
             this.filterSidebarIsOpen = true;
         },

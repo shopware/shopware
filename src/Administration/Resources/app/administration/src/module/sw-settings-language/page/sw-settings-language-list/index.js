@@ -22,6 +22,10 @@ export default {
         Mixin.getByName('notification'),
     ],
 
+    shortcuts: {
+        OF: 'openFilterSidebar',
+    },
+
     data() {
         return {
             languages: null,
@@ -115,6 +119,10 @@ export default {
     },
 
     methods: {
+        openFilterSidebar() {
+            this.$refs.filterSideBar.openContent();
+        },
+
         getList() {
             this.isLoading = true;
             return this.languageRepository.search(this.listingCriteria).then((languageResult) => {

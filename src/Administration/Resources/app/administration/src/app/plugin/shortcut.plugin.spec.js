@@ -90,6 +90,72 @@ describe('app/plugins/shortcut.plugin', () => {
         expect(onSaveMock).toHaveBeenCalledWith();
     });
 
+    it('String sequence: should call the shortcut method', async () => {
+        const openFiltersMock = jest.fn();
+
+        wrapper = await createWrapper({
+            shortcuts: {
+                OF: 'openFilters',
+            },
+            methods: {
+                openFilters() {
+                    openFiltersMock();
+                },
+            },
+        });
+
+        await wrapper.trigger('keydown', {
+            key: 'o',
+        });
+
+        expect(openFiltersMock).not.toHaveBeenCalled();
+
+        await wrapper.trigger('keydown', {
+            key: 'f',
+        });
+
+        expect(openFiltersMock).toHaveBeenCalledTimes(1);
+
+        wrapper.unmount();
+    });
+
+    it('String sequence: should prefer the shortcut sequence over a single key shortcut', async () => {
+        const openFiltersMock = jest.fn();
+        const focusSearchMock = jest.fn();
+
+        wrapper = await createWrapper({
+            shortcuts: {
+                f: 'focusSearch',
+                OF: 'openFilters',
+            },
+            methods: {
+                focusSearch() {
+                    focusSearchMock();
+                },
+
+                openFilters() {
+                    openFiltersMock();
+                },
+            },
+        });
+
+        await wrapper.trigger('keydown', {
+            key: 'o',
+        });
+        await wrapper.trigger('keydown', {
+            key: 'f',
+        });
+
+        expect(openFiltersMock).toHaveBeenCalledTimes(1);
+        expect(focusSearchMock).not.toHaveBeenCalled();
+
+        await wrapper.trigger('keydown', {
+            key: 'f',
+        });
+
+        expect(focusSearchMock).toHaveBeenCalledTimes(1);
+    });
+
     it('should not call the shortcut method when keyboard shortcuts are disabled', async () => {
         const onSaveMock = jest.fn();
         const originalService = Shopware.Service.bind(Shopware);

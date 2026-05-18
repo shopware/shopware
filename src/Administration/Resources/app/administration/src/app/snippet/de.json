@@ -1504,6 +1504,8 @@
     "keyboardShortcutAccessibilityCloseDialog": "Esc",
     "functionSpecialShortcutFocusSearch": "Suche fokussieren",
     "keyboardShortcutSpecialShortcutFocusSearch": "f",
+    "functionSpecialShortcutOpenFilters": "Filter öffnen",
+    "keyboardShortcutSpecialShortcutOpenFilters": "O F",
     "functionSpecialShortcutShortcutListing": "Tastenkürzel",
     "keyboardShortcutSpecialShortcutShortcutListing": "Shift ?",
     "functionSpecialShortcutSaveDetailView": "Aktuelle Ansicht speichern",

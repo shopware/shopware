@@ -127,7 +127,7 @@ async function createWrapper(options = {}, customStubs = {}) {
         global: {
             stubs: {
                 'sw-page': {
-                    template: '<div><slot name="content"><slot name="grid"></slot></slot></div>',
+                    template: '<div><slot name="content"><slot name="grid"></slot></slot><slot name="sidebar"></slot></div>',
                 },
                 'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
@@ -192,7 +192,9 @@ async function createWrapper(options = {}, customStubs = {}) {
                 'sw-sidebar-item': true,
                 'sw-sidebar-collapse': true,
                 'sw-entity-multi-select': true,
-                'sw-sidebar': true,
+                'sw-sidebar': {
+                    template: '<div><slot></slot></div>',
+                },
                 'sw-time-ago': true,
                 'sw-pagination': true,
                 'sw-bulk-edit-modal': true,
@@ -236,6 +238,32 @@ async function createWrapper(options = {}, customStubs = {}) {
 describe('src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list', () => {
     beforeEach(() => {
         global.activeAclRoles = [];
+    });
+
+    it('should register the open filters shortcut', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.$options.shortcuts.OF).toBe('openFilterSidebar');
+    });
+
+    it('should open the filter sidebar', async () => {
+        const openContentMock = jest.fn();
+        const wrapper = await createWrapper(
+            {},
+            {
+                'sw-sidebar-item': {
+                    template: '<div><slot></slot></div>',
+                    methods: {
+                        openContent: openContentMock,
+                    },
+                },
+            },
+        );
+
+        wrapper.vm.openFilterSidebar();
+
+        expect(openContentMock).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.filterSidebarIsOpen).toBe(true);
     });
 
     it('should have no rights', async () => {

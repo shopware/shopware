@@ -3,7 +3,11 @@
  */
 import { mount } from '@vue/test-utils';
 
+let openContentMock;
+
 async function createWrapper() {
+    openContentMock = jest.fn();
+
     return mount(
         await wrapTestComponent('sw-settings-snippet-sidebar', {
             sync: true,
@@ -17,6 +21,9 @@ async function createWrapper() {
                     },
                     'sw-sidebar-item': {
                         template: '<div><slot name="headline-content"></slot><slot></slot></div>',
+                        methods: {
+                            openContent: openContentMock,
+                        },
                     },
                     'sw-settings-snippet-filter-switch': true,
                     'sw-sidebar-collapse': true,
@@ -35,6 +42,17 @@ describe('sw-settings-snippet-sidebar', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
+    });
+
+    it('should register the open filters shortcut', async () => {
+        expect(wrapper.vm.$options.shortcuts.OF).toBe('openFilterSidebar');
+    });
+
+    it('should open the filter sidebar', async () => {
+        wrapper.vm.openFilterSidebar();
+
+        expect(openContentMock).toHaveBeenCalledTimes(1);
+        expect(wrapper.emitted('sw-sidebar-open')).toHaveLength(1);
     });
 
     it('should contain a computed property, called: activeFilterNumber', async () => {

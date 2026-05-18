@@ -34,6 +34,16 @@ export default {
         },
     },
 
+    shortcuts: {
+        OF: 'openFilterSidebar',
+    },
+
+    data() {
+        return {
+            filterSidebarIsOpen: false,
+        };
+    },
+
     computed: {
         activeFilterNumber() {
             let count = 0;
@@ -74,6 +84,17 @@ export default {
                 this.$refs.filterSideBar.closeContent();
                 this.filterSidebarIsOpen = false;
                 this.$emit('sw-sidebar-close');
+                return;
+            }
+
+            this.$refs.filterSideBar?.openContent?.();
+            this.filterSidebarIsOpen = true;
+
+            this.$emit('sw-sidebar-open');
+        },
+
+        openFilterSidebar() {
+            if (this.filterSidebarIsOpen) {
                 return;
             }
 

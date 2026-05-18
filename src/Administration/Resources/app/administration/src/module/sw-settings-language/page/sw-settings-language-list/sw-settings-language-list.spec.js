@@ -3,7 +3,11 @@
  */
 import { mount } from '@vue/test-utils';
 
+let openContentMock;
+
 async function createWrapper(privileges = []) {
+    openContentMock = jest.fn();
+
     return mount(
         await wrapTestComponent('sw-settings-language-list', {
             sync: true,
@@ -80,7 +84,12 @@ async function createWrapper(privileges = []) {
                     'sw-search-bar': true,
                     'sw-language-switch': true,
                     'sw-sidebar': true,
-                    'sw-sidebar-item': true,
+                    'sw-sidebar-item': {
+                        template: '<div><slot></slot></div>',
+                        methods: {
+                            openContent: openContentMock,
+                        },
+                    },
                     'sw-collapse': true,
                     'sw-context-menu-item': true,
                     'sw-entity-listing': {
@@ -120,6 +129,20 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-language/page/sw-settings-language-list', () => {
+    it('should register the open filters shortcut', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.$options.shortcuts.OF).toBe('openFilterSidebar');
+    });
+
+    it('should open the filter sidebar', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.openFilterSidebar();
+
+        expect(openContentMock).toHaveBeenCalledTimes(1);
+    });
+
     it('should be able to create a new language', async () => {
         const wrapper = await createWrapper([
             'language.creator',

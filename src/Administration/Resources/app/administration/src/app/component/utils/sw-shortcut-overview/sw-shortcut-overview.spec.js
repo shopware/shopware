@@ -126,6 +126,10 @@ describe('app/component/utils/sw-shortcut-overview', () => {
                     content: 'sw-shortcut-overview.keyboardShortcutSpecialShortcutFocusSearch',
                 }),
                 expect.objectContaining({
+                    title: 'sw-shortcut-overview.functionSpecialShortcutOpenFilters',
+                    content: 'sw-shortcut-overview.keyboardShortcutSpecialShortcutOpenFilters',
+                }),
+                expect.objectContaining({
                     title: 'sw-shortcut-overview.functionAccessibilityCloseDialog',
                     content: 'sw-shortcut-overview.keyboardShortcutAccessibilityCloseDialog',
                 }),
@@ -172,6 +176,9 @@ describe('app/component/utils/sw-shortcut-overview', () => {
                 }),
                 expect.objectContaining({
                     title: 'sw-shortcut-overview.functionSpecialShortcutShortcutListing',
+                }),
+                expect.objectContaining({
+                    title: 'sw-shortcut-overview.functionSpecialShortcutOpenFilters',
                 }),
                 expect.objectContaining({
                     title: 'sw-shortcut-overview.functionAccessibilityCloseDialog',

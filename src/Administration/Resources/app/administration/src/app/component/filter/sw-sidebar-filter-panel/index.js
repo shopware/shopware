@@ -11,6 +11,10 @@ import './sw-sidebar-filter-panel.scss';
 export default {
     template,
 
+    shortcuts: {
+        OF: 'openFilterPanel',
+    },
+
     props: {
         activeFilterNumber: {
             type: Number,
@@ -21,6 +25,10 @@ export default {
     computed: {},
 
     methods: {
+        openFilterPanel() {
+            this.$refs.filterSidebarItem.openContent();
+        },
+
         resetAll() {
             this.$refs.filterPanel.resetAll();
         },

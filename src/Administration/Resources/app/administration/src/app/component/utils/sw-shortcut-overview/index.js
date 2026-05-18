@@ -65,6 +65,11 @@ export default {
                     },
                     {
                         id: utils.createId(),
+                        title: this.$t('sw-shortcut-overview.functionSpecialShortcutOpenFilters'),
+                        content: this.$t('sw-shortcut-overview.keyboardShortcutSpecialShortcutOpenFilters'),
+                    },
+                    {
+                        id: utils.createId(),
                         title: this.$t('sw-shortcut-overview.functionAccessibilityCloseDialog'),
                         content: this.$t('sw-shortcut-overview.keyboardShortcutAccessibilityCloseDialog'),
                     },

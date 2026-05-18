@@ -111,6 +111,11 @@ When merchants rename a media file, its URL automatically updates so they can do
 
 ## Storefront
 
+### Mail templates can access storefront theme configuration
+
+Mail templates rendered for a sales channel now receive a temporary `salesChannelContext` and the assigned `themeId`.
+This allows Twig helpers such as `theme_config()` to resolve storefront theme configuration in mails without replacing the existing core `context` variable.
+
 ## App System
 
 ## Hosting & Configuration

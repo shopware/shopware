@@ -115,6 +115,11 @@
             <argument type="service" id="Shopware\Storefront\Theme\ThemeScripts" />
         </service>
 
+        <service id="Shopware\Storefront\Theme\Subscriber\MailThemeConfigSubscriber">
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Storefront\Theme\ThemeConfigValueAccessor">
             <argument type="service" id="Shopware\Storefront\Theme\ResolvedConfigLoader"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>

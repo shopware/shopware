@@ -3,11 +3,11 @@
 namespace Shopware\Core\Framework\Adapter\Twig\Filter;
 
 use Shopware\Core\Framework\Adapter\AdapterException;
+use Shopware\Core\Framework\Adapter\Twig\TwigContextHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\CurrencyFormatter;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
@@ -48,12 +48,8 @@ class CurrencyFilter extends AbstractExtension
      */
     public function formatCurrency($twigContext, $price, $currencyIsoCode = null, $languageId = null, ?int $decimals = null)
     {
-        if (!\array_key_exists('context', $twigContext)
-            || (
-                !$twigContext['context'] instanceof Context
-                && !$twigContext['context'] instanceof SalesChannelContext
-            )
-        ) {
+        $context = TwigContextHelper::getContext($twigContext);
+        if (!$context instanceof Context) {
             if (isset($twigContext['testMode']) && $twigContext['testMode'] === true) {
                 return $price;
             }
@@ -61,8 +57,8 @@ class CurrencyFilter extends AbstractExtension
             throw AdapterException::currencyFilterMissingContext();
         }
 
-        if (!$currencyIsoCode && $twigContext['context'] instanceof SalesChannelContext) {
-            $currencyIsoCode = $twigContext['context']->getCurrency()->getIsoCode();
+        if (!$currencyIsoCode) {
+            $currencyIsoCode = TwigContextHelper::getSalesChannelContext($twigContext)?->getCurrency()->getIsoCode();
         }
 
         if (!$currencyIsoCode) {
@@ -71,12 +67,6 @@ class CurrencyFilter extends AbstractExtension
             }
 
             throw AdapterException::currencyFilterMissingIsoCode();
-        }
-
-        if ($twigContext['context'] instanceof Context) {
-            $context = $twigContext['context'];
-        } else {
-            $context = $twigContext['context']->getContext();
         }
 
         if ($languageId === null) {

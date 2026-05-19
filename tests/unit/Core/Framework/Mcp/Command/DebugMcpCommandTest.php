@@ -9,7 +9,9 @@ use Mcp\Schema\Resource;
 use Mcp\Schema\ResourceTemplate;
 use Mcp\Schema\Tool;
 use Mcp\Server;
+use Mcp\Server\Builder;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
@@ -48,6 +50,29 @@ class DebugMcpCommandTest extends TestCase
         } finally {
             $_SERVER['MCP_SERVER'] = '1';
         }
+    }
+
+    /**
+     * @return iterable<string, array{?Builder, ?Registry}>
+     */
+    public static function nullableConstructorArgProvider(): iterable
+    {
+        yield 'builder is null' => [null, new Registry()];
+        yield 'registry is null' => [Server::builder(), null];
+    }
+
+    #[DataProvider('nullableConstructorArgProvider')]
+    public function testExecuteReturnsErrorWhenMcpBundleServiceIsNull(?Builder $builder, ?Registry $registry): void
+    {
+        $allowlistProvider = static::createStub(McpAllowlistProvider::class);
+        $catalog = new McpCapabilityCatalog(null, $this->stubPrivilegeProvider());
+
+        $command = new DebugMcpCommand($builder, $registry, $allowlistProvider, $catalog);
+        $tester = new CommandTester($command);
+        $tester->execute([]);
+
+        static::assertSame(1, $tester->getStatusCode());
+        static::assertStringContainsString('MCP bundle is not installed', $tester->getDisplay());
     }
 
     public function testOutputsSectionHeaders(): void

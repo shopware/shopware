@@ -781,6 +781,37 @@ class McpServerControllerTest extends TestCase
     }
 
     /**
+     * @return iterable<string, array{string}>
+     */
+    public static function nullableConstructorArgProvider(): iterable
+    {
+        yield 'server is null' => ['server'];
+        yield 'httpMessageFactory is null' => ['httpMessageFactory'];
+        yield 'httpFoundationFactory is null' => ['httpFoundationFactory'];
+        yield 'responseFactory is null' => ['responseFactory'];
+        yield 'streamFactory is null' => ['streamFactory'];
+    }
+
+    #[DataProvider('nullableConstructorArgProvider')]
+    public function testHandleReturnsNotFoundWhenAnyMcpBundleServiceIsNull(string $nullArg): void
+    {
+        $psr17 = new Psr17Factory();
+
+        $controller = new McpServerController(
+            $nullArg === 'server' ? null : Server::builder()->build(),
+            $nullArg === 'httpMessageFactory' ? null : static::createStub(HttpMessageFactoryInterface::class),
+            $nullArg === 'httpFoundationFactory' ? null : static::createStub(HttpFoundationFactoryInterface::class),
+            $nullArg === 'responseFactory' ? null : $psr17,
+            $nullArg === 'streamFactory' ? null : $psr17,
+            static::createStub(RateLimiter::class),
+        );
+
+        $response = $controller->handle(new Request());
+
+        static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+    }
+
+    /**
      * Performs the MCP initialize handshake and returns the session ID.
      * Must use the same server instance for subsequent requests so they share the in-memory session.
      */

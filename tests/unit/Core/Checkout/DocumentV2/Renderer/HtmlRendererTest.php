@@ -4,7 +4,8 @@ namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Renderer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Document\DocumentConfiguration;
+use Shopware\Core\Checkout\DocumentV2\Config\CompanyInfo;
+use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfig;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
@@ -15,12 +16,14 @@ use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
 use Shopware\Core\Checkout\DocumentV2\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\DocumentV2\Twig\PaginationCounter;
+use Shopware\Core\Checkout\DocumentV2\Twig\TemplateContext;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Twig\Environment;
 
@@ -46,14 +49,10 @@ class HtmlRendererTest extends TestCase
     {
         $rendered = '<html>rendered</html>';
 
-        $config = new DocumentConfiguration();
-        $config->merge([
-            'fileType' => 'pdf',
-            'itemsPerPage' => 10,
-            'documentNumber' => '12345',
-            'filenamePrefix' => 'invoice_',
-            'custom' => ['test' => 1],
-        ]);
+        $renderData = $this->createRenderData(
+            filenamePrefix: 'invoice_',
+            custom: ['test' => 1],
+        );
 
         $finder = $this->createMock(TemplateFinder::class);
         $finder->expects($this->once())
@@ -66,13 +65,12 @@ class HtmlRendererTest extends TestCase
             ->method('render')
             ->with(
                 DocumentType::INVOICE->templatePath(),
-                static::callback(function (array $parameters) use ($config): bool {
+                static::callback(function (array $parameters): bool {
                     static::assertArrayHasKey('config', $parameters);
-                    static::assertInstanceOf(DocumentConfiguration::class, $parameters['config']);
-                    static::assertNotSame($config, $parameters['config']);
-                    static::assertSame('html', $parameters['config']->__get('fileType'));
-                    static::assertSame(1000, $parameters['config']->__get('itemsPerPage'));
-                    static::assertSame(['test' => 1], $parameters['config']->__get('custom'));
+                    static::assertInstanceOf(TemplateContext::class, $parameters['config']);
+                    static::assertSame('html', $parameters['config']->fileType);
+                    static::assertSame(1000, $parameters['config']->itemsPerPage);
+                    static::assertSame(['test' => 1], $parameters['config']->custom);
 
                     static::assertArrayHasKey('counter', $parameters);
                     static::assertInstanceOf(PaginationCounter::class, $parameters['counter']);
@@ -82,10 +80,17 @@ class HtmlRendererTest extends TestCase
             )
             ->willReturn($rendered);
 
+        $input = new RenderInput(
+            DocumentType::INVOICE->value,
+            $renderData->documentNumber,
+            $this->createOrder(),
+            [InvoiceDataProvider::KEY => $renderData],
+        );
+
         $renderer = $this->createRenderer($finder, $env);
 
         $result = $renderer->renderToString(
-            $this->createInput($config),
+            $input,
             new RenderState(),
             Context::createDefaultContext(),
         );
@@ -95,9 +100,6 @@ class HtmlRendererTest extends TestCase
         static::assertSame('html', $result->fileExtension);
         static::assertSame('text/html', $result->mimeType);
         static::assertSame('invoice_12345', $result->fileName);
-
-        static::assertSame('pdf', $config->__get('fileType'));
-        static::assertSame(10, $config->__get('itemsPerPage'));
     }
 
     public function testShouldThrowIfRenderDataCantBeFound(): void
@@ -136,7 +138,7 @@ class HtmlRendererTest extends TestCase
             'unknown_document_type',
             '12345',
             $this->createOrder(),
-            [InvoiceDataProvider::KEY => new InvoiceRenderData(new DocumentConfiguration())],
+            [InvoiceDataProvider::KEY => $this->createRenderData()],
         );
 
         static::expectException(\ValueError::class);
@@ -171,13 +173,38 @@ class HtmlRendererTest extends TestCase
         return $order;
     }
 
-    private function createInput(DocumentConfiguration $config): RenderInput
-    {
-        return new RenderInput(
-            DocumentType::INVOICE->value,
-            '12345',
-            $this->createOrder(),
-            [InvoiceDataProvider::KEY => new InvoiceRenderData($config)],
+    /**
+     * @param array<string, mixed> $custom
+     */
+    private function createRenderData(
+        ?string $filenamePrefix = null,
+        array $custom = [],
+    ): InvoiceRenderData {
+        return new InvoiceRenderData(
+            new DocumentConfig(
+                pageSize: 'a4',
+                pageOrientation: 'portrait',
+                itemsPerPage: 10,
+                filenamePrefix: $filenamePrefix,
+            ),
+            new CompanyInfo(
+                'company',
+                'street',
+                '12345',
+                'city',
+                new CountryEntity()
+            ),
+            documentDate: 'date',
+            documentNumber: '12345',
+            documentComment: null,
+            intraCommunityDelivery: false,
+            displayDivergentDeliveryAddress: false,
+            displayLineItems: false,
+            displayLineItemPosition: false,
+            displayPrices: false,
+            deliveryCountries: [],
+            legacyConfig: [],
+            custom: $custom,
         );
     }
 }

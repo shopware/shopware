@@ -120,6 +120,7 @@
     "VIOLATION::BILLING_ADDRESS_INVALID_TYPE_ERROR": "The billing address must be a valid object. Please refer to /store-api/_info/openapi3.json#/components/schemas/CustomerAddressBody for the correct structure.",
     "VIOLATION::SHIPPING_ADDRESS_INVALID_TYPE_ERROR": "The shipping address must be either null or a valid object. Please refer to /store-api/_info/openapi3.json#/components/schemas/CustomerAddressBody for the correct structure.",
     "VIOLATION::PASSWORD_IS_TOO_LONG": "The chosen password is too long.",
+    "VIOLATION::PASSWORD_IS_TOO_SHORT": "The chosen password is too short.",
     "VIOLATION::RECAPTCHA_COOKIE_REQUIRED": "Please accept the technically required cookies to enable the reCAPTCHA verification.",
     "FRAMEWORK__INVALID_CAPTCHA_VALUE": "There was an error with the captcha verification.",
     "message-default": "Unfortunately, something went wrong.",

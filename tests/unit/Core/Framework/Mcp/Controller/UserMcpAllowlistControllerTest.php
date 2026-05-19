@@ -27,6 +27,9 @@ class UserMcpAllowlistControllerTest extends TestCase
 
     private UserEntity $user;
 
+    /**
+     * @var EntityRepository<UserCollection>&MockObject
+     */
     private EntityRepository&MockObject $repository;
 
     private UserMcpAllowlistController $controller;

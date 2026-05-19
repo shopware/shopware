@@ -5,6 +5,7 @@ namespace Shopware\Tests\Migration;
 use Doctrine\DBAL\Connection;
 use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Migration\MigrationRuntime;
+use Shopware\Core\Framework\Migration\MigrationSource;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
@@ -81,20 +82,33 @@ trait MySql84FkGuardTestTrait
     }
 
     /**
-     * Runs the migration through the same FK-guard retry that
-     * {@see MigrationRuntime::migrate()} uses, so the test exercises the real
-     * workaround for MySQL bug #118151 rather than calling
-     * `$migration->update()` directly (which would fail on MySQL 8.4 with a
-     * non-standard child FK in place — the workaround lives at the runtime
-     * layer, not in individual migrations).
+     * Runs the migration through {@see MigrationRuntime::migrate()} so the
+     * test exercises the real production code path — including the bug
+     * #118151 retry — rather than calling `$migration->update()` directly
+     * (which would fail on MySQL 8.4 with a non-standard child FK in place).
      *
-     * The retry method is private on `MigrationRuntime` because it has no
-     * production caller outside the runtime itself; this trait reaches for it
-     * via reflection so the production API stays test-free.
+     * `migrate()` skips migrations whose record has `update IS NOT NULL`.
+     * After `system:install` every migration is recorded as executed, so the
+     * test temporarily resets the record back to pending, runs the iterator
+     * (it picks up only this class because no other migration in the same
+     * namespace is pending), and the runtime's `setExecuted` re-stamps the
+     * record on success. Two consecutive calls therefore exercise the
+     * migration's own idempotency.
      */
     protected function runMigrationViaRuntime(Connection $connection, MigrationStep $migration): void
     {
+        $class = $migration::class;
+        $namespace = substr($class, 0, (int) strrpos($class, '\\'));
+
+        $connection->update(
+            'migration',
+            ['`update`' => null],
+            ['`class`' => $class]
+        );
+
+        $source = new MigrationSource('mysql84-fk-guard-test', [$namespace]);
         $runtime = new MigrationRuntime($connection, new NullLogger());
-        (new \ReflectionMethod($runtime, 'runMigrationWithFkGuardRetry'))->invoke($runtime, $migration);
+
+        iterator_to_array($runtime->migrate($source));
     }
 }

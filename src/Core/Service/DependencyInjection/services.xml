@@ -151,6 +151,11 @@
             <tag name="shopware.service.requirement"/>
         </service>
 
+        <service id="Shopware\Core\Service\Requirement\ServicesEnabledRequirement">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <tag name="shopware.service.requirement"/>
+        </service>
+
         <service id="Shopware\Core\Service\Requirement\ShopwareAccountRequirement">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="shopware.service.requirement"/>

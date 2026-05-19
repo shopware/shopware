@@ -103,16 +103,28 @@ class LifecycleManagerTest extends TestCase
     public function testDisable(): void
     {
         $services = new AppCollection([
-            $this->createServiceEntity('service1', 'SwagService1'),
-            $this->createServiceEntity('service2', 'SwagService2'),
-            $this->createServiceEntity('service3', 'SwagService3'),
+            $this->createServiceEntity('service1', 'SwagService1', ['services_enabled', 'service_consent']),
+            $this->createServiceEntity('service2', 'SwagService2', ['shopware_account']),
+            $this->createServiceEntity('service3', 'SwagService3', ['services_enabled', 'service_consent']),
         ]);
 
-        $this->serviceLifecycle->expects($this->exactly($services->count()))
+        /** @var array<string, true> $deletedServices */
+        $deletedServices = [
+            'SwagService1' => true,
+            'SwagService3' => true,
+        ];
+
+        $this->requirementsValidator->expects($this->exactly(3))
+            ->method('isSatisfied')
+            ->willReturnCallback(static fn (array $requirements): bool => $requirements === ['shopware_account']);
+
+        $this->serviceLifecycle->expects($this->exactly(2))
             ->method('uninstall')
-            ->willReturnCallback(function (string $serviceName, Context $context) use ($services): void {
-                static::assertContains($serviceName, $services->map(static fn (AppEntity $service) => $service->getName()));
+            ->willReturnCallback(function (string $serviceName, Context $context) use (&$deletedServices): void {
+                static::assertArrayHasKey($serviceName, $deletedServices);
                 static::assertSame($this->context, $context);
+
+                unset($deletedServices[$serviceName]);
             });
 
         $this->permissionsService->expects($this->once())
@@ -126,6 +138,8 @@ class LifecycleManagerTest extends TestCase
         $manager = $this->createManager($this->createAppRepository($services));
 
         $manager->disable($this->context);
+
+        static::assertSame([], $deletedServices);
     }
 
     public function testDisableWithNoServices(): void
@@ -134,6 +148,9 @@ class LifecycleManagerTest extends TestCase
 
         $this->serviceLifecycle->expects($this->never())
             ->method('uninstall');
+
+        $this->requirementsValidator->expects($this->never())
+            ->method('isSatisfied');
 
         $this->permissionsService->expects($this->once())
             ->method('revoke')
@@ -330,18 +347,18 @@ class LifecycleManagerTest extends TestCase
             false,
         ];
 
-        yield 'auto enabled in prod, but disabled via system config' => [
+        yield 'auto enabled in prod, system config disabled is ignored by enabled check' => [
             LifecycleManager::AUTO_ENABLED,
             'prod',
             [LifecycleManager::CONFIG_KEY_SERVICES_DISABLED => true],
-            false,
+            true,
         ];
 
-        yield 'explicitly enabled, but disabled via system config' => [
+        yield 'explicitly enabled, system config disabled is ignored by enabled check' => [
             'true',
             'prod',
             [LifecycleManager::CONFIG_KEY_SERVICES_DISABLED => true],
-            false,
+            true,
         ];
 
         yield 'auto enabled in prod, system config set to false' => [

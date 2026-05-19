@@ -14,11 +14,10 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 /**
  * This class is responsible for managing the full lifecycle of self-managed services (apps).
  *
- * Services (As a unit) can have two states:
- * Disabled: No Service is usable, or installed.
- * Enabled: All the applications backing the services are installed.
+ * ENABLE_SERVICES controls whether services are installed. The persisted disabled state is handled through the
+ * services_enabled requirement and is evaluated per service.
  *
- * Then, if enabled, each service can have two states:
+ * If its requirements are met, each service can have two states:
  * Started: The service is running. The underlying application backing the service has all the required permissions.
  * Stopped: The service is not running. The underlying application backing the service is in a Pending Permission state.
  *
@@ -46,7 +45,7 @@ class LifecycleManager
     }
 
     /**
-     * This method installs all services, only if Services (as a unit) are enabled.
+     * This method installs all services, only if ENABLE_SERVICES allows installation.
      *
      * @return array<string> The newly installed services
      */
@@ -97,8 +96,7 @@ class LifecycleManager
     }
 
     /**
-     * This method enables the services (as aa unit), allowing them to be installed and later used.
-     * It also schedules the installation of all services.
+     * This method clears the persisted disabled state and schedules the installation of all services.
      */
     public function enable(): void
     {
@@ -108,21 +106,26 @@ class LifecycleManager
     }
 
     /**
-     * This method disables the services (as a unit), preventing any service from being installed or used.
+     * This method marks services as disabled and uninstalls services whose requirements are no longer satisfied.
      */
     public function disable(Context $context): void
     {
+        $this->systemConfigService->set(self::CONFIG_KEY_SERVICES_DISABLED, true, null, true);
+
         foreach ($this->serviceStorage->findAll($context) as $service) {
+            if ($this->requirementsValidator->isSatisfied($service->requirements)) {
+                continue;
+            }
+
             $this->serviceLifecycle->uninstall($service->name, $context);
         }
 
         $this->permissionsService->revoke($context);
-        $this->systemConfigService->set(self::CONFIG_KEY_SERVICES_DISABLED, true, null, true);
     }
 
     public function enabled(): bool
     {
-        return !$this->areDisabledFromEnv() && !$this->areDisabledFromConfig();
+        return !$this->areDisabledFromEnv();
     }
 
     /**
@@ -159,10 +162,5 @@ class LifecycleManager
         }
 
         return !$enabled;
-    }
-
-    private function areDisabledFromConfig(): bool
-    {
-        return $this->systemConfigService->getBool(self::CONFIG_KEY_SERVICES_DISABLED);
     }
 }

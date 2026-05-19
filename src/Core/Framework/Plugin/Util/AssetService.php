@@ -378,12 +378,21 @@ class AssetService
 
     private function getAssetVisibility(): string
     {
+        $legacyVisibility = null;
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            // Remove the whole $legacyVisibility block when removing the v6.8.0.0 feature flag.
+            try {
+                $assetConfig = $this->parameterBag->get('shopware.filesystem.asset.config');
+            } catch (ParameterNotFoundException) {
+                $assetConfig = null;
+            }
+
+            $legacyVisibility = \is_array($assetConfig) ? $assetConfig['visibility'] ?? null : null;
+        }
+
         try {
-            return (string) ((
-                !Feature::isActive('v6.8.0.0')
-                    ? $this->parameterBag->get('shopware.filesystem.asset.config')['visibility'] ?? null
-                    : null
-            ) ?? $this->parameterBag->get('shopware.filesystem.asset.visibility'));
+            return (string) ($legacyVisibility ?? $this->parameterBag->get('shopware.filesystem.asset.visibility') ?? Visibility::PUBLIC);
         } catch (ParameterNotFoundException) {
             return Visibility::PUBLIC;
         }

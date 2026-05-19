@@ -1442,6 +1442,33 @@
                             "description": "Time in minutes before the presigned upload URL expires. Bounded by the AWS S3 presigned URL maximum of 7 days (10080 minutes)."
                         }
                     }
+                },
+                "svg": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "allowed_elements": {
+                            "type": "array",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "allowed_attributes": {
+                            "type": "array",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "allowed_reference_attributes": {
+                            "type": "array",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
                 }
             },
             "title": "Media"

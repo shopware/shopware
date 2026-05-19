@@ -150,10 +150,16 @@ class UserController extends AbstractController
         }
         $data['id'] = $userId ?: $data['id'];
 
-        if (
-            !$source->isAllowed('user:update')
-            && $source->getUserId() !== $data['id']
-        ) {
+        $isSelfUpdate = $source->getUserId() === $data['id'];
+        $canUpdateUsers = $source->isAllowed('user:update');
+
+        if (!$canUpdateUsers && !$isSelfUpdate) {
+            throw new PermissionDeniedException();
+        }
+
+        $isTryingToChangeAdmin = isset($data['admin']);
+
+        if (!$source->isAdmin() && $isTryingToChangeAdmin) {
             throw new PermissionDeniedException();
         }
 

@@ -34,10 +34,8 @@ class Storefront extends Bundle implements ThemeInterface
         $loader->load('theme.xml');
         $loader->load('system.xml');
 
-        // @codeCoverageIgnoreStart
         $phpLoader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection'));
         $phpLoader->load('mcp.php');
-        // @codeCoverageIgnoreEnd
 
         $container->setParameter('storefrontRoot', $this->getPath());
 

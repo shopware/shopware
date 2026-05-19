@@ -25,9 +25,9 @@ Arbitrary unknown top-level keys are still forwarded for backwards compatibility
 
 ## Core
 
-### `product.type` migration unblocked on MySQL 8.4
+### Migration runtime auto-recovers from MySQL 8.4 FK-guard failures
 
-`Migration1763125891AddProductTypeColumn` previously aborted on MySQL 8.4 with `Cannot drop index '<unknown key name>': needed in a foreign key constraint` (issue #16240, MySQL bug #118151) on shops carrying non-standard child foreign keys on the `product` table. The migration now temporarily sets `restrict_fk_on_non_standard_key=OFF` for its own session, runs the column and index DDL, and restores the previous value. Behavior on MariaDB and MySQL <8.4 is unchanged.
+`MigrationRuntime` now retries a failing migration once with `restrict_fk_on_non_standard_key=OFF` for the session when the first attempt fails with MySQL's `<unknown key name>` foreign-key constraint error, then restores the previous value. The behavior applies to every migration and is a transparent no-op on MariaDB and MySQL versions where the variable does not exist. When the retry path is exercised, a warning is logged with the migration class name so administrators can audit non-standard foreign keys against parent tables in their schema.
 
 ### Backward compatible invalid locales
 

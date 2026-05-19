@@ -10,24 +10,15 @@ import {
 const SW_BLOCK_TAG = 'sw-block';
 const SW_BLOCK_PARENT_TAG = 'sw-block-parent';
 const CONDITIONAL_DIRECTIVE_RE = /\bv-(?:if|else-if|else)\b/;
-
-type LegacyBlockHelperNames = {
-    if: string;
-    elseIf: string;
-    else: string;
-};
+const LEGACY_BLOCK_IF_HELPER = '$swLegacyBlockIf';
+const LEGACY_BLOCK_ELSE_IF_HELPER = '$swLegacyBlockElseIf';
+const LEGACY_BLOCK_ELSE_HELPER = '$swLegacyBlockElse';
 
 type TextEdit = {
     start: number;
     end: number;
     text: string;
 };
-
-const GLOBAL_LEGACY_HELPERS = {
-    if: '$swLegacyBlockIf',
-    elseIf: '$swLegacyBlockElseIf',
-    else: '$swLegacyBlockElse',
-} satisfies LegacyBlockHelperNames;
 
 function getStaticAttribute(element: ElementNode, name: string): string | null {
     const attribute = element.props.find((prop) => prop.type === NodeTypes.ATTRIBUTE && prop.name === name);
@@ -135,12 +126,7 @@ function getConditionalElementFollowingBlockParent(children: ElementNode[]): Ele
     return null;
 }
 
-function collectTrailingConditionalEdits(
-    edits: TextEdit[],
-    blockName: string,
-    conditionalChain: ElementNode[],
-    helpers: LegacyBlockHelperNames,
-): void {
+function collectTrailingConditionalEdits(edits: TextEdit[], blockName: string, conditionalChain: ElementNode[]): void {
     if (conditionalChain.length === 0) {
         return;
     }
@@ -155,7 +141,7 @@ function collectTrailingConditionalEdits(
     edits.push({
         start: firstDirective.loc.start.offset,
         end: firstDirective.loc.end.offset,
-        text: createConditionalReplacement(helpers.if, blockName, firstExpression),
+        text: createConditionalReplacement(LEGACY_BLOCK_IF_HELPER, blockName, firstExpression),
     });
 
     conditionalChain.slice(1).forEach((conditionalElement) => {
@@ -169,17 +155,12 @@ function collectTrailingConditionalEdits(
         edits.push({
             start: directive.loc.start.offset,
             end: directive.loc.end.offset,
-            text: createConditionalReplacement(helpers.elseIf, blockName, expression),
+            text: createConditionalReplacement(LEGACY_BLOCK_ELSE_IF_HELPER, blockName, expression),
         });
     });
 }
 
-function collectLeadingConditionalEdit(
-    edits: TextEdit[],
-    blockName: string,
-    conditionalElement: ElementNode | null,
-    helpers: LegacyBlockHelperNames,
-): void {
+function collectLeadingConditionalEdit(edits: TextEdit[], blockName: string, conditionalElement: ElementNode | null): void {
     if (!conditionalElement) {
         return;
     }
@@ -190,7 +171,7 @@ function collectLeadingConditionalEdit(
         edits.push({
             start: elseDirective.loc.start.offset,
             end: elseDirective.loc.end.offset,
-            text: createConditionalReplacement(helpers.else, blockName),
+            text: createConditionalReplacement(LEGACY_BLOCK_ELSE_HELPER, blockName),
         });
 
         return;
@@ -206,7 +187,7 @@ function collectLeadingConditionalEdit(
     edits.push({
         start: elseIfDirective.loc.start.offset,
         end: elseIfDirective.loc.end.offset,
-        text: createConditionalReplacement(helpers.elseIf, blockName, expression),
+        text: createConditionalReplacement(LEGACY_BLOCK_ELSE_IF_HELPER, blockName, expression),
     });
 }
 
@@ -235,10 +216,7 @@ function applyTextEdits(source: string, edits: TextEdit[]): string {
         .reduce((result, edit) => `${result.slice(0, edit.start)}${edit.text}${result.slice(edit.end)}`, source);
 }
 
-export default function transformLegacyBlockConditionals(
-    template: string,
-    helpers: LegacyBlockHelperNames = GLOBAL_LEGACY_HELPERS,
-): string {
+export default function transformLegacyBlockConditionals(template: string): string {
     if (!template.includes('<sw-block') || !CONDITIONAL_DIRECTIVE_RE.test(template)) {
         return template;
     }
@@ -265,8 +243,8 @@ export default function transformLegacyBlockConditionals(
 
         const children = getElementChildren(element.children);
 
-        collectTrailingConditionalEdits(edits, blockName, getTrailingConditionalChain(children), helpers);
-        collectLeadingConditionalEdit(edits, blockName, getConditionalElementFollowingBlockParent(children), helpers);
+        collectTrailingConditionalEdits(edits, blockName, getTrailingConditionalChain(children));
+        collectLeadingConditionalEdit(edits, blockName, getConditionalElementFollowingBlockParent(children));
     });
 
     if (errors.length > 0 && edits.length === 0) {

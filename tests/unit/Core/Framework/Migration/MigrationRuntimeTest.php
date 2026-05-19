@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Migration\MigrationRuntime;
@@ -45,7 +46,7 @@ class MigrationRuntimeTest extends TestCase
         $connection->method('fetchOne')->willReturn(1);
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects(static::once())
+        $logger->expects($this->once())
             ->method('warning')
             ->with(static::stringContains('118151'));
 
@@ -64,8 +65,8 @@ class MigrationRuntimeTest extends TestCase
         $connection->method('fetchOne')->willReturn(1);
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects(static::never())->method('warning');
-        $logger->expects(static::atLeastOnce())->method('error');
+        $logger->expects($this->never())->method('warning');
+        $logger->expects($this->atLeastOnce())->method('error');
 
         $runtime = new MigrationRuntime($connection, $logger);
 
@@ -86,8 +87,8 @@ class MigrationRuntimeTest extends TestCase
         $connection->method('fetchOne')->willReturn(1);
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects(static::once())->method('warning');
-        $logger->expects(static::atLeastOnce())->method('error');
+        $logger->expects($this->once())->method('warning');
+        $logger->expects($this->atLeastOnce())->method('error');
 
         $runtime = new MigrationRuntime($connection, $logger);
 
@@ -103,8 +104,20 @@ class MigrationRuntimeTest extends TestCase
         static::assertSame(2, AlwaysFailingFkGuardMigration::$updateCalls, 'update() should be called twice before the second failure propagates');
     }
 
+    public static function makeFkGuardException(): \Throwable
+    {
+        // Mirrors the wording the runtime's looksLikeNonStandardFkGuardBug
+        // matches on. The runtime catches \Throwable, so the exception class
+        // is irrelevant — only the message matters.
+        return new \RuntimeException(
+            'An exception occurred while executing a query: SQLSTATE[HY000]: '
+            . 'General error: 1553 Cannot drop index \'<unknown key name>\': '
+            . 'needed in a foreign key constraint'
+        );
+    }
+
     /**
-     * @return Connection&\PHPUnit\Framework\MockObject\MockObject
+     * @return Connection&MockObject
      */
     private function createConnectionExecutingMigration(string $migrationClass): Connection
     {
@@ -135,18 +148,6 @@ class MigrationRuntimeTest extends TestCase
     private function source(): MigrationSource
     {
         return new MigrationSource('test', ['Shopware\\Tests\\Unit\\Core\\Framework\\Migration']);
-    }
-
-    public static function makeFkGuardException(): \Throwable
-    {
-        // Mirrors the wording the runtime's looksLikeNonStandardFkGuardBug
-        // matches on. The runtime catches \Throwable, so the exception class
-        // is irrelevant — only the message matters.
-        return new \RuntimeException(
-            "An exception occurred while executing a query: SQLSTATE[HY000]: "
-            . "General error: 1553 Cannot drop index '<unknown key name>': "
-            . 'needed in a foreign key constraint'
-        );
     }
 }
 

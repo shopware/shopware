@@ -76,7 +76,7 @@ class AppMcpResourceLoaderTest extends TestCase
                 static::callback(function (Resource $resource): bool {
                     static::assertSame('my-app-order-stats', $resource->name);
                     static::assertSame('app-example://order-stats', $resource->uri);
-                    static::assertSame('Order Stats', $resource->description);
+                    static::assertSame('Live order statistics', $resource->description);
                     static::assertSame('application/json', $resource->mimeType);
 
                     return true;

@@ -13,6 +13,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Mcp\Controller\McpToolListController;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpPrivilegeProvider;
 use Shopware\Core\Framework\Mcp\McpCapabilityCatalog;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -21,6 +22,16 @@ use Shopware\Core\Framework\Mcp\McpCapabilityCatalog;
 #[CoversClass(McpCapabilityCatalog::class)]
 class McpToolListControllerTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        $_SERVER['MCP_SERVER'] = '1';
+    }
+
+    protected function tearDown(): void
+    {
+        unset($_SERVER['MCP_SERVER']);
+    }
+
     public function testListReturnsEmptyArrayWhenNoToolsRegistered(): void
     {
         $controller = $this->makeController(new Page([], null));
@@ -121,7 +132,7 @@ class McpToolListControllerTest extends TestCase
             new Resource('shopware://entities', 'entities', 'All entities', null, null, null),
         ], null);
         $promptsPage = new Page([
-            new Prompt('shopware-context', 'Context prompt', []),
+            new Prompt('shopware-context', null, 'Context prompt', []),
         ], null);
 
         $controller = $this->makeController($toolsPage, [], [], null, $resourcesPage, $promptsPage);
@@ -138,6 +149,24 @@ class McpToolListControllerTest extends TestCase
         static::assertSame('shopware-context', $data['prompts'][0]['name']);
     }
 
+    public function testListIncludesTitleWhenSet(): void
+    {
+        $page = new Page([
+            new Tool(
+                name: 'shopware-entity-search',
+                title: 'Entity Search',
+                inputSchema: ['type' => 'object', 'properties' => [], 'required' => null],
+                description: 'Search entities',
+                annotations: null,
+            ),
+        ], null);
+        $controller = $this->makeController($page);
+
+        $data = json_decode((string) $controller->list()->getContent(), true);
+
+        static::assertSame('Entity Search', $data[0]['title']);
+    }
+
     public function testListHandlesNullDescription(): void
     {
         $page = new Page([self::makeTool('shopware-entity-schema', null)], null);
@@ -148,10 +177,33 @@ class McpToolListControllerTest extends TestCase
         static::assertNull($data[0]['description']);
     }
 
+    public function testListReturnsNotFoundWhenFeatureFlagIsOff(): void
+    {
+        $_SERVER['MCP_SERVER'] = false;
+        try {
+            $controller = $this->makeController(new Page([], null));
+            static::assertSame(Response::HTTP_NOT_FOUND, $controller->list()->getStatusCode());
+        } finally {
+            $_SERVER['MCP_SERVER'] = '1';
+        }
+    }
+
+    public function testCapabilitiesReturnsNotFoundWhenFeatureFlagIsOff(): void
+    {
+        $_SERVER['MCP_SERVER'] = false;
+        try {
+            $controller = $this->makeController(new Page([], null));
+            static::assertSame(Response::HTTP_NOT_FOUND, $controller->capabilities()->getStatusCode());
+        } finally {
+            $_SERVER['MCP_SERVER'] = '1';
+        }
+    }
+
     private static function makeTool(string $name, ?string $description = null): Tool
     {
         return new Tool(
             name: $name,
+            title: null,
             inputSchema: ['type' => 'object', 'properties' => [], 'required' => null],
             description: $description,
             annotations: null,

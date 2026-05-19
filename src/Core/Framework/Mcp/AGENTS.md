@@ -66,13 +66,23 @@ The `McpToolCompilerPass` enforces unique names and throws on conflicts. The `sh
 - `Loader/` -- Extension loaders for app capabilities (`AppMcpToolLoader`, `AppMcpPromptLoader`, `AppMcpResourceLoader`, `AppMcpCapabilityExecutor`, `AbstractAppMcpLoader`)
 - `docs/` -- Documentation: tool reference, examples, security, setup, extensibility, user stories
 
+## Feature flag
+
+`Feature::isActive('MCP_SERVER')` is a **runtime** env-var check, not a compile-time gate. `FeatureFlagCompilerPass` removes services tagged `shopware.feature: { flag: MCP_SERVER }`, but MCP services are NOT tagged that way — they use `nullOnInvalid()` on their injected `mcp.*` dependencies instead.
+
+`nullOnInvalid()` injects `null` only when the service does not exist in the container at all (i.e., `symfony/mcp-bundle` absent). Because the bundle is in `require` and registered unconditionally in `config/bundles.php`, MCP services are always present and `nullOnInvalid()` never resolves to `null`.
+
+**Consequence:** `Feature::isActive('MCP_SERVER')` is the only meaningful runtime gate. The `=== null` null-checks in controllers/commands are a safety net for "bundle truly absent", not a feature-flag substitute.
+
+**Do not remove `Feature::isActive('MCP_SERVER')` guards** in isolation. Full unflagging requires a single sweep: `feature.yaml` default, the PHP backend guards, and the Admin UI guard at `sw-integration-list.html.twig:214`.
+
 ## Conventions
 - All classes use `@experimental stableVersion:v6.8.0 feature:MCP_SERVER` annotation
 - All classes use `#[Package('framework')]` attribute
 - Tools return JSON strings; the MCP protocol handles transport encoding
 - Write tools default to `dryRun=true` for safety. Dry-run adds `SKIP_TRIGGER_FLOW` to the context to prevent Flow Builder actions during preview
 - Entity tools validate entity existence with `registry->has()` before ACL checks to provide clear error messages
-- Service IDs use FQCN; tags include both `mcp.tool` (for SDK discovery) and `shopware.feature` (for flag gating)
+- Service IDs use FQCN; tags include `mcp.tool` for SDK discovery
 - Tools declare prerequisites with `#[McpToolDependsOn('other-tool-name')]` (repeatable) — the allowlist UI auto-expands these when a user enables a tool; `debug:mcp` shows them in the Dependencies column
 - Tools declare required ACL privileges with `#[McpToolRequires]` (repeatable) — **declarative only**; runtime enforcement still depends on `requirePrivilege()` calls and DAL ACL checks. The attribute is used by `debug:mcp` (Privileges column), the API (`/_action/mcp/tools`), and the Admin UI to help operators configure roles correctly
 

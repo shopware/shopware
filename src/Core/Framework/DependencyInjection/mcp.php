@@ -314,15 +314,19 @@ return static function (ContainerConfigurator $container): void {
         ->args([
             service('Doctrine\DBAL\Connection'),
             service(AppMcpCapabilityExecutor::class),
+            service('logger'),
         ])
-        ->tag('mcp.loader');
+        ->tag('mcp.loader')
+        ->tag('monolog.logger', ['channel' => 'mcp']);
 
     $services->set(AppMcpResourceLoader::class)
         ->args([
             service('Doctrine\DBAL\Connection'),
             service(AppMcpCapabilityExecutor::class),
+            service('logger'),
         ])
-        ->tag('mcp.loader');
+        ->tag('mcp.loader')
+        ->tag('monolog.logger', ['channel' => 'mcp']);
 
     $services->set(McpToolPersister::class)
         ->args([service('app_mcp_tool.repository')]);

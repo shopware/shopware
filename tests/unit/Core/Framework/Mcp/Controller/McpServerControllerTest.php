@@ -39,6 +39,7 @@ class McpServerControllerTest extends TestCase
 
     protected function setUp(): void
     {
+        $_SERVER['MCP_SERVER'] = '1';
         $this->rateLimiter = $this->createMock(RateLimiter::class);
 
         $this->controller = new McpServerController(
@@ -49,6 +50,11 @@ class McpServerControllerTest extends TestCase
             static::createStub(StreamFactoryInterface::class),
             $this->rateLimiter,
         );
+    }
+
+    protected function tearDown(): void
+    {
+        unset($_SERVER['MCP_SERVER']);
     }
 
     public function testHandleReturnsResponseForValidMcpRequest(): void
@@ -610,6 +616,18 @@ class McpServerControllerTest extends TestCase
         $data = json_decode((string) $response->getContent(), true);
         $names = array_column($data['result']['prompts'] ?? [], 'name');
         static::assertSame(['prompt-a'], array_values($names));
+    }
+
+    public function testHandleReturnsNotFoundWhenFeatureFlagIsOff(): void
+    {
+        $_SERVER['MCP_SERVER'] = false;
+        try {
+            $controller = $this->buildController(new ServerRequest('POST', '/api/_mcp'));
+            $response = $controller->handle(new Request());
+            static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+        } finally {
+            $_SERVER['MCP_SERVER'] = '1';
+        }
     }
 
     /**

@@ -32,8 +32,6 @@ class McpSessionPersistenceTest extends TestCase
 
     public function testSessionStoreServiceIsFileSessionStore(): void
     {
-        Feature::skipTestIfInActive('MCP_SERVER', $this);
-
         $container = static::getContainer();
         static::assertTrue($container->has('mcp.session.store'), 'mcp.session.store is not registered');
 
@@ -50,7 +48,6 @@ class McpSessionPersistenceTest extends TestCase
     public function testInitializeReturnsSessionIdHeader(): void
     {
         Feature::skipTestIfInActive('MCP_SERVER', $this);
-
         $browser = $this->getBrowser();
         $this->initialize($browser);
 
@@ -68,7 +65,6 @@ class McpSessionPersistenceTest extends TestCase
     public function testSessionPersistsAcrossRequests(): void
     {
         Feature::skipTestIfInActive('MCP_SERVER', $this);
-
         $browser = $this->getBrowser();
         $this->initialize($browser);
 
@@ -114,7 +110,6 @@ class McpSessionPersistenceTest extends TestCase
     public function testRequestWithUnknownSessionIdIsRejected(): void
     {
         Feature::skipTestIfInActive('MCP_SERVER', $this);
-
         $browser = $this->getBrowser();
         $browser->request(
             'POST',

@@ -40,6 +40,13 @@
         </xs:complexType>
     </xs:element>
 
+    <xs:simpleType name="capabilityName">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[a-zA-Z0-9_-]+"/>
+            <xs:minLength value="1"/>
+        </xs:restriction>
+    </xs:simpleType>
+
     <xs:complexType name="translatable">
         <xs:simpleContent>
             <xs:extension base="xs:string">
@@ -50,7 +57,11 @@
 
     <xs:complexType name="mcpTool">
         <xs:sequence>
-            <xs:element name="label" type="translatable" maxOccurs="unbounded"/>
+            <xs:element name="label" type="translatable" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>Human-readable display name shown in MCP client UIs (e.g. Claude Desktop, Cursor). Maps to the MCP protocol "title" field. Without a label, clients fall back to the machine-readable "name" attribute.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
             <xs:element name="description" type="translatable" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="input-schema" minOccurs="0">
                 <xs:complexType>
@@ -67,25 +78,33 @@
                 </xs:complexType>
             </xs:element>
         </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="name" type="capabilityName" use="required"/>
         <xs:attribute name="url" type="xs:string" use="required"/>
     </xs:complexType>
 
     <xs:complexType name="mcpPrompt">
         <xs:sequence>
-            <xs:element name="label" type="translatable" maxOccurs="unbounded"/>
+            <xs:element name="label" type="translatable" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>Human-readable display name shown in MCP client UIs. Maps to the MCP protocol "title" field.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
             <xs:element name="description" type="translatable" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="name" type="capabilityName" use="required"/>
         <xs:attribute name="url" type="xs:string" use="required"/>
     </xs:complexType>
 
     <xs:complexType name="mcpResource">
         <xs:sequence>
-            <xs:element name="label" type="translatable" maxOccurs="unbounded"/>
+            <xs:element name="label" type="translatable" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>Human-readable display name shown in MCP client UIs. Maps to the MCP protocol "title" field.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
             <xs:element name="description" type="translatable" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="name" type="capabilityName" use="required"/>
         <xs:attribute name="uri" type="xs:string" use="required"/>
         <xs:attribute name="url" type="xs:string" use="required"/>
         <xs:attribute name="mime-type" type="xs:string" use="optional"/>

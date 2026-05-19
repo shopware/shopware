@@ -46,6 +46,10 @@ class AppMcpResourceLoader extends AbstractAppMcpLoader
         $name = (string) $row['name'];
         $resourceName = $this->capabilityName($appName, $name);
 
+        if ($this->isReservedName($resourceName, $appName, 'resource')) {
+            return;
+        }
+
         $description = $this->resolveDescription($row, $resourceName);
         $mimeType = isset($row['mime_type']) ? (string) $row['mime_type'] : null;
 

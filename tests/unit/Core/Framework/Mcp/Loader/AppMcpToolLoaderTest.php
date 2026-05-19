@@ -76,8 +76,41 @@ class AppMcpToolLoaderTest extends TestCase
             ->with(
                 static::callback(function (Tool $tool): bool {
                     static::assertSame('my-app-sync-orders', $tool->name);
-                    static::assertSame('Sync Orders', $tool->description);
+                    static::assertSame('Sync Orders', $tool->title);
+                    static::assertSame('Syncs orders', $tool->description);
                     static::assertSame(['type' => 'object', 'properties' => [], 'required' => []], $tool->inputSchema);
+
+                    return true;
+                }),
+                static::isCallable(),
+                true,
+            );
+
+        $this->loader->load($registry);
+    }
+
+    public function testTitleIsNullWhenLabelIsEmpty(): void
+    {
+        $toolRow = [
+            'name' => 'sync-orders',
+            'url' => 'https://app.example.com/mcp/sync',
+            'input_schema' => null,
+            'app_name' => 'my-app',
+            'app_secret' => 'secret',
+            'version' => '0.0.0',
+            'label' => '',
+            'description' => 'Syncs orders',
+        ];
+
+        $this->connection->method('fetchAllAssociative')->willReturn([$toolRow]);
+
+        $registry = $this->createMock(RegistryInterface::class);
+        $registry->expects($this->once())
+            ->method('registerTool')
+            ->with(
+                static::callback(function (Tool $tool): bool {
+                    static::assertNull($tool->title);
+                    static::assertSame('Syncs orders', $tool->description);
 
                     return true;
                 }),
@@ -239,6 +272,7 @@ class AppMcpToolLoaderTest extends TestCase
             ->method('registerTool')
             ->with(
                 static::callback(function (Tool $tool): bool {
+                    static::assertNull($tool->title);
                     static::assertSame('my-app-mystery-tool', $tool->description);
 
                     return true;
@@ -350,6 +384,37 @@ class AppMcpToolLoaderTest extends TestCase
 
         $loader = new AppMcpToolLoader($this->connection, $this->executor, ['other-tool-only']);
         $loader->load($registry);
+    }
+
+    public function testEmptyStringDescriptionFallsBackToLabel(): void
+    {
+        $toolRow = [
+            'name' => 'sync-orders',
+            'url' => 'https://app.example.com/mcp/sync',
+            'input_schema' => null,
+            'app_name' => 'my-app',
+            'app_secret' => 'secret',
+            'version' => '0.0.0',
+            'label' => 'Sync Orders',
+            'description' => '',
+        ];
+
+        $this->connection->method('fetchAllAssociative')->willReturn([$toolRow]);
+
+        $registry = $this->createMock(RegistryInterface::class);
+        $registry->expects($this->once())
+            ->method('registerTool')
+            ->with(
+                static::callback(function (Tool $tool): bool {
+                    static::assertSame('Sync Orders', $tool->description);
+
+                    return true;
+                }),
+                static::isCallable(),
+                true,
+            );
+
+        $this->loader->load($registry);
     }
 
     public function testLoadSkipsReservedShopwarePrefixedToolName(): void

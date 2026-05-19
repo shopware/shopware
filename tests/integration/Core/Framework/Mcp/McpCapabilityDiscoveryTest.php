@@ -36,7 +36,6 @@ class McpCapabilityDiscoveryTest extends TestCase
     public function testAllExpectedToolsAreDiscovered(): void
     {
         Feature::skipTestIfInActive('MCP_SERVER', $this);
-
         $registered = $this->listCapabilities('tools/list', 'tools');
 
         foreach (self::expectedTools() as $name) {
@@ -54,7 +53,6 @@ class McpCapabilityDiscoveryTest extends TestCase
     public function testAllExpectedPromptsAreDiscovered(): void
     {
         Feature::skipTestIfInActive('MCP_SERVER', $this);
-
         $registered = $this->listCapabilities('prompts/list', 'prompts');
 
         foreach (self::expectedPrompts() as $name) {
@@ -69,7 +67,6 @@ class McpCapabilityDiscoveryTest extends TestCase
     public function testAllExpectedResourcesAreDiscovered(): void
     {
         Feature::skipTestIfInActive('MCP_SERVER', $this);
-
         $registered = $this->listCapabilities('resources/list', 'resources');
 
         foreach (self::expectedResources() as $name) {

@@ -73,7 +73,39 @@ class AppMcpPromptLoaderTest extends TestCase
             ->with(
                 static::callback(function (Prompt $prompt): bool {
                     static::assertSame('my-app-order-context', $prompt->name);
-                    static::assertSame('Order Context', $prompt->description);
+                    static::assertSame('Order Context', $prompt->title);
+                    static::assertSame('Context for order management', $prompt->description);
+
+                    return true;
+                }),
+                static::isCallable(),
+                [],
+                true,
+            );
+
+        $this->loader->load($registry);
+    }
+
+    public function testTitleIsNullWhenLabelIsEmpty(): void
+    {
+        $promptRow = [
+            'name' => 'order-context',
+            'url' => 'https://app.example.com/mcp/prompt/order-context',
+            'app_name' => 'my-app',
+            'app_secret' => 'secret',
+            'label' => '',
+            'description' => 'Context for order management',
+        ];
+
+        $this->connection->method('fetchAllAssociative')->willReturn([$promptRow]);
+
+        $registry = $this->createMock(RegistryInterface::class);
+        $registry->expects($this->once())
+            ->method('registerPrompt')
+            ->with(
+                static::callback(function (Prompt $prompt): bool {
+                    static::assertNull($prompt->title);
+                    static::assertSame('Context for order management', $prompt->description);
 
                     return true;
                 }),
@@ -103,6 +135,7 @@ class AppMcpPromptLoaderTest extends TestCase
             ->method('registerPrompt')
             ->with(
                 static::callback(function (Prompt $prompt): bool {
+                    static::assertNull($prompt->title);
                     static::assertSame('my-app-mystery-prompt', $prompt->description);
 
                     return true;

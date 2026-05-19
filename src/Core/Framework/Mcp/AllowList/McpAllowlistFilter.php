@@ -26,21 +26,24 @@ class McpAllowlistFilter
     /**
      * Removes tools not present in $allowlist from a decoded tools/list JSON-RPC response.
      *
-     * @param array<string, mixed> $responseData decoded JSON-RPC response body
      * @param list<string> $allowlist
-     *
-     * @return array<string, mixed> filtered response data
      */
-    public function filterToolsListResponse(array $responseData, array $allowlist): array
+    public function filterToolsListResponse(\stdClass $responseData, array $allowlist): \stdClass
     {
-        if (!isset($responseData['result'][McpAllowlistProvider::TOOLS]) || !\is_array($responseData['result'][McpAllowlistProvider::TOOLS])) {
+        $result = $responseData->result ?? null;
+        if (!$result instanceof \stdClass) {
             return $responseData;
         }
 
-        $responseData['result'][McpAllowlistProvider::TOOLS] = array_values(
+        $tools = $result->{McpAllowlistProvider::TOOLS} ?? null;
+        if (!\is_array($tools)) {
+            return $responseData;
+        }
+
+        $result->{McpAllowlistProvider::TOOLS} = array_values(
             array_filter(
-                $responseData['result'][McpAllowlistProvider::TOOLS],
-                static fn (mixed $tool): bool => \is_array($tool) && \in_array($tool['name'] ?? '', $allowlist, true),
+                $tools,
+                static fn (mixed $tool): bool => $tool instanceof \stdClass && \in_array($tool->name ?? '', $allowlist, true),
             ),
         );
 
@@ -67,21 +70,24 @@ class McpAllowlistFilter
     /**
      * Removes resources not present in $allowlist from a decoded resources/list JSON-RPC response.
      *
-     * @param array<string, mixed> $responseData decoded JSON-RPC response body
      * @param list<string> $allowlist
-     *
-     * @return array<string, mixed> filtered response data
      */
-    public function filterResourcesListResponse(array $responseData, array $allowlist): array
+    public function filterResourcesListResponse(\stdClass $responseData, array $allowlist): \stdClass
     {
-        if (!isset($responseData['result'][McpAllowlistProvider::RESOURCES]) || !\is_array($responseData['result'][McpAllowlistProvider::RESOURCES])) {
+        $result = $responseData->result ?? null;
+        if (!$result instanceof \stdClass) {
             return $responseData;
         }
 
-        $responseData['result'][McpAllowlistProvider::RESOURCES] = array_values(
+        $resources = $result->{McpAllowlistProvider::RESOURCES} ?? null;
+        if (!\is_array($resources)) {
+            return $responseData;
+        }
+
+        $result->{McpAllowlistProvider::RESOURCES} = array_values(
             array_filter(
-                $responseData['result'][McpAllowlistProvider::RESOURCES],
-                static fn (mixed $resource): bool => \is_array($resource) && \in_array($resource['uri'] ?? '', $allowlist, true),
+                $resources,
+                static fn (mixed $resource): bool => $resource instanceof \stdClass && \in_array($resource->uri ?? '', $allowlist, true),
             ),
         );
 
@@ -101,21 +107,24 @@ class McpAllowlistFilter
     /**
      * Removes prompts not present in $allowlist from a decoded prompts/list JSON-RPC response.
      *
-     * @param array<string, mixed> $responseData decoded JSON-RPC response body
      * @param list<string> $allowlist
-     *
-     * @return array<string, mixed> filtered response data
      */
-    public function filterPromptsListResponse(array $responseData, array $allowlist): array
+    public function filterPromptsListResponse(\stdClass $responseData, array $allowlist): \stdClass
     {
-        if (!isset($responseData['result'][McpAllowlistProvider::PROMPTS]) || !\is_array($responseData['result'][McpAllowlistProvider::PROMPTS])) {
+        $result = $responseData->result ?? null;
+        if (!$result instanceof \stdClass) {
             return $responseData;
         }
 
-        $responseData['result'][McpAllowlistProvider::PROMPTS] = array_values(
+        $prompts = $result->{McpAllowlistProvider::PROMPTS} ?? null;
+        if (!\is_array($prompts)) {
+            return $responseData;
+        }
+
+        $result->{McpAllowlistProvider::PROMPTS} = array_values(
             array_filter(
-                $responseData['result'][McpAllowlistProvider::PROMPTS],
-                static fn (mixed $prompt): bool => \is_array($prompt) && \in_array($prompt['name'] ?? '', $allowlist, true),
+                $prompts,
+                static fn (mixed $prompt): bool => $prompt instanceof \stdClass && \in_array($prompt->name ?? '', $allowlist, true),
             ),
         );
 

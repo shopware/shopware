@@ -29,9 +29,9 @@ class AppMcpToolLoader extends AbstractAppMcpLoader
         Connection $connection,
         AppMcpCapabilityExecutor $executor,
         private readonly array $allowedTools = [],
-        private readonly ?LoggerInterface $logger = null,
+        ?LoggerInterface $logger = null,
     ) {
-        parent::__construct($connection, $executor);
+        parent::__construct($connection, $executor, $logger);
     }
 
     protected function fetchRows(): array
@@ -63,9 +63,7 @@ class AppMcpToolLoader extends AbstractAppMcpLoader
         $name = (string) $row['name'];
         $toolName = $this->capabilityName($appName, $name);
 
-        if (str_starts_with($toolName, 'shopware-')) {
-            $this->logger?->warning('App tool name uses reserved "shopware-" prefix, skipping', ['toolName' => $toolName, 'appName' => $appName]);
-
+        if ($this->isReservedName($toolName, $appName, 'tool')) {
             return;
         }
 
@@ -78,6 +76,7 @@ class AppMcpToolLoader extends AbstractAppMcpLoader
 
         $tool = new Tool(
             name: $toolName,
+            title: isset($row['label']) && $row['label'] !== '' ? (string) $row['label'] : null,
             inputSchema: $inputSchema,
             description: $description,
             annotations: null,

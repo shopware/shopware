@@ -44,10 +44,15 @@ class AppMcpPromptLoader extends AbstractAppMcpLoader
         $name = (string) $row['name'];
         $promptName = $this->capabilityName($appName, $name);
 
+        if ($this->isReservedName($promptName, $appName, 'prompt')) {
+            return;
+        }
+
         $description = $this->resolveDescription($row, $promptName);
 
         $prompt = new Prompt(
             name: $promptName,
+            title: isset($row['label']) && $row['label'] !== '' ? (string) $row['label'] : null,
             description: $description,
         );
 

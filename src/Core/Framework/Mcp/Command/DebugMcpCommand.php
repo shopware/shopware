@@ -31,10 +31,9 @@ class DebugMcpCommand extends Command
     /**
      * @internal
      *
-     * $builder and $registry are nullable via nullOnInvalid(): null when the PhpMcp
-     * bundle is absent (MCP_SERVER disabled in a shared compiled container). Once
-     * MCP_SERVER is stable (v6.8.0) remove the nullable types and the null guards
-     * in execute().
+     * $builder and $registry are nullable via nullOnInvalid(): null when the MCP
+     * bundle is absent. Once MCP_SERVER is stable (v6.8.0) remove the nullable
+     * types and the null guards in execute().
      */
     public function __construct(
         private readonly ?Builder $builder,
@@ -59,7 +58,7 @@ class DebugMcpCommand extends Command
         $io = new SymfonyStyle($input, $output);
 
         if (!Feature::isActive('MCP_SERVER') || $this->builder === null || $this->registry === null) {
-            $io->error('The MCP_SERVER feature flag is not active.');
+            $io->error('MCP bundle is not installed.');
 
             return self::FAILURE;
         }
@@ -179,7 +178,11 @@ class DebugMcpCommand extends Command
 
         $deps = $toolData['dependencies'] ?? [];
         $privilegeLabel = $this->formatPrivileges($toolData['requiredPrivileges'] ?? null);
-        $meta = [['Type' => 'tool'], ['Source' => $this->describeHandler($handler)]];
+        $meta = [['Type' => 'tool']];
+        if ($tool->title !== null && $tool->title !== '') {
+            $meta[] = ['Title' => $tool->title];
+        }
+        $meta[] = ['Source' => $this->describeHandler($handler)];
         if ($deps !== []) {
             $meta[] = ['Dependencies' => implode(', ', $deps)];
         }
@@ -208,10 +211,16 @@ class DebugMcpCommand extends Command
             $rows[] = [$arg->name, ($arg->required ?? false) ? 'required' : 'optional', $arg->description ?? ''];
         }
 
+        $meta = [['Type' => 'prompt']];
+        if ($prompt->title !== null && $prompt->title !== '') {
+            $meta[] = ['Title' => $prompt->title];
+        }
+        $meta[] = ['Source' => $this->describeHandler($handler)];
+
         $this->renderCapabilityDetail(
             $io,
             $prompt->name,
-            [['Type' => 'prompt'], ['Source' => $this->describeHandler($handler)]],
+            $meta,
             $prompt->description,
             $rows !== [] ? 'Arguments' : '',
             ['Argument', '', 'Description'],

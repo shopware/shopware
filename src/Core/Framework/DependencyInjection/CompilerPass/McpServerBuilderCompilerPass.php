@@ -47,10 +47,10 @@ class McpServerBuilderCompilerPass implements CompilerPassInterface
 
             $definition = $container->getDefinition($serviceId);
             $class = $definition->getClass() ?? $serviceId;
-            $toolInfo = McpToolAttributeReader::resolveInfo($class, McpTool::class, ['name', 'description']);
+            $toolInfo = McpToolAttributeReader::resolveInfo($class, McpTool::class, ['name', 'title', 'description']);
 
             if ($toolInfo !== null) {
-                $builderDef->addMethodCall('addTool', [$class, $toolInfo['name'], $toolInfo['description']]);
+                $builderDef->addMethodCall('addTool', [$class, $toolInfo['name'], $toolInfo['title'], $toolInfo['description']]);
             }
         }
 
@@ -61,9 +61,9 @@ class McpServerBuilderCompilerPass implements CompilerPassInterface
 
             $definition = $container->getDefinition($serviceId);
             $class = $definition->getClass() ?? $serviceId;
-            $promptInfo = McpToolAttributeReader::resolveInfo($class, McpPrompt::class, ['name', 'description']);
+            $promptInfo = McpToolAttributeReader::resolveInfo($class, McpPrompt::class, ['name', 'title', 'description']);
 
-            $builderDef->addMethodCall('addPrompt', [$class, $promptInfo ? $promptInfo['name'] : null, $promptInfo ? $promptInfo['description'] : null]);
+            $builderDef->addMethodCall('addPrompt', [$class, $promptInfo ? $promptInfo['name'] : null, $promptInfo ? $promptInfo['title'] : null, $promptInfo ? $promptInfo['description'] : null]);
         }
 
         foreach ($container->findTaggedServiceIds('shopware.mcp.resource') as $serviceId => $tags) {

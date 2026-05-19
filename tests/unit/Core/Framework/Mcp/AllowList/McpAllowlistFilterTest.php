@@ -44,7 +44,7 @@ class McpAllowlistFilterTest extends TestCase
 
     public function testFilterToolsListResponseKeepsAllowedTools(): void
     {
-        $responseData = [
+        $responseData = self::toStdClass([
             'jsonrpc' => '2.0',
             'id' => 1,
             'result' => [
@@ -54,17 +54,19 @@ class McpAllowlistFilterTest extends TestCase
                     ['name' => 'tool-c', 'description' => 'C'],
                 ],
             ],
-        ];
+        ]);
 
         $filtered = $this->filter->filterToolsListResponse($responseData, ['tool-a', 'tool-c']);
 
-        $names = array_column($filtered['result']['tools'], 'name');
+        $result = $filtered->result;
+        static::assertInstanceOf(\stdClass::class, $result);
+        $names = array_column((array) $result->tools, 'name');
         static::assertSame(['tool-a', 'tool-c'], $names);
     }
 
     public function testFilterToolsListResponseWithEmptyAllowlistRemovesAllTools(): void
     {
-        $responseData = [
+        $responseData = self::toStdClass([
             'jsonrpc' => '2.0',
             'id' => 1,
             'result' => [
@@ -72,46 +74,70 @@ class McpAllowlistFilterTest extends TestCase
                     ['name' => 'tool-a'],
                 ],
             ],
-        ];
+        ]);
 
         $filtered = $this->filter->filterToolsListResponse($responseData, []);
 
-        static::assertSame([], $filtered['result']['tools']);
+        $result = $filtered->result;
+        static::assertInstanceOf(\stdClass::class, $result);
+        static::assertSame([], $result->tools);
     }
 
     public function testFilterToolsListResponseReindexesArray(): void
     {
-        $responseData = [
+        $responseData = self::toStdClass([
             'result' => [
                 'tools' => [
                     ['name' => 'tool-a'],
                     ['name' => 'tool-b'],
                 ],
             ],
-        ];
+        ]);
 
         $filtered = $this->filter->filterToolsListResponse($responseData, ['tool-b']);
 
-        static::assertArrayHasKey(0, $filtered['result']['tools']);
-        static::assertSame('tool-b', $filtered['result']['tools'][0]['name']);
+        $result = $filtered->result;
+        static::assertInstanceOf(\stdClass::class, $result);
+        $tools = $result->tools;
+        static::assertIsArray($tools);
+        static::assertArrayHasKey(0, $tools);
+        $firstTool = $tools[0];
+        static::assertInstanceOf(\stdClass::class, $firstTool);
+        static::assertSame('tool-b', $firstTool->name);
     }
 
     public function testFilterToolsListResponsePassesThroughWhenNoToolsKey(): void
     {
-        $responseData = ['jsonrpc' => '2.0', 'id' => 1, 'result' => ['nextCursor' => null]];
+        $responseData = self::toStdClass(['jsonrpc' => '2.0', 'id' => 1, 'result' => ['nextCursor' => null]]);
 
         $filtered = $this->filter->filterToolsListResponse($responseData, ['tool-a']);
 
-        static::assertSame($responseData, $filtered);
+        static::assertEquals($responseData, $filtered);
     }
 
     public function testFilterToolsListResponsePassesThroughWhenToolsIsNotArray(): void
     {
-        $responseData = ['result' => ['tools' => 'invalid']];
+        $responseData = self::toStdClass(['result' => ['tools' => 'invalid']]);
 
         $filtered = $this->filter->filterToolsListResponse($responseData, ['tool-a']);
 
-        static::assertSame($responseData, $filtered);
+        static::assertEquals($responseData, $filtered);
+    }
+
+    public function testFilterToolsListResponsePreservesInputSchemaObjects(): void
+    {
+        $responseData = json_decode(
+            '{"result":{"tools":[{"name":"tool-a","inputSchema":{"type":"object","properties":{}}}]}}',
+            false,
+            512,
+            \JSON_THROW_ON_ERROR,
+        );
+        static::assertInstanceOf(\stdClass::class, $responseData);
+
+        $filtered = $this->filter->filterToolsListResponse($responseData, ['tool-a']);
+
+        $json = json_encode($filtered, \JSON_THROW_ON_ERROR);
+        static::assertStringContainsString('"properties":{}', $json, 'Empty properties must encode as {} not []');
     }
 
     // ── Resources ────────────────────────────────────────────────────────────
@@ -139,7 +165,7 @@ class McpAllowlistFilterTest extends TestCase
 
     public function testFilterResourcesListResponseKeepsAllowedResources(): void
     {
-        $responseData = [
+        $responseData = self::toStdClass([
             'result' => [
                 'resources' => [
                     ['uri' => 'shopware://entities', 'name' => 'Entities'],
@@ -147,53 +173,63 @@ class McpAllowlistFilterTest extends TestCase
                     ['uri' => 'shopware://state-machines', 'name' => 'State Machines'],
                 ],
             ],
-        ];
+        ]);
 
         $filtered = $this->filter->filterResourcesListResponse($responseData, ['shopware://entities', 'shopware://currencies']);
 
-        $uris = array_column($filtered['result']['resources'], 'uri');
+        $result = $filtered->result;
+        static::assertInstanceOf(\stdClass::class, $result);
+        $uris = array_column((array) $result->resources, 'uri');
         static::assertSame(['shopware://entities', 'shopware://currencies'], $uris);
     }
 
     public function testFilterResourcesListResponseWithEmptyAllowlistRemovesAll(): void
     {
-        $responseData = [
+        $responseData = self::toStdClass([
             'result' => [
                 'resources' => [
                     ['uri' => 'shopware://entities'],
                 ],
             ],
-        ];
+        ]);
 
         $filtered = $this->filter->filterResourcesListResponse($responseData, []);
 
-        static::assertSame([], $filtered['result']['resources']);
+        $result = $filtered->result;
+        static::assertInstanceOf(\stdClass::class, $result);
+        static::assertSame([], $result->resources);
     }
 
     public function testFilterResourcesListResponsePassesThroughWhenNoResourcesKey(): void
     {
-        $responseData = ['result' => ['nextCursor' => null]];
+        $responseData = self::toStdClass(['result' => ['nextCursor' => null]]);
 
         $filtered = $this->filter->filterResourcesListResponse($responseData, ['shopware://entities']);
 
-        static::assertSame($responseData, $filtered);
+        static::assertEquals($responseData, $filtered);
     }
 
     public function testFilterResourcesListResponseReindexesArray(): void
     {
-        $responseData = [
+        $responseData = self::toStdClass([
             'result' => [
                 'resources' => [
                     ['uri' => 'shopware://entities'],
                     ['uri' => 'shopware://currencies'],
                 ],
             ],
-        ];
+        ]);
 
         $filtered = $this->filter->filterResourcesListResponse($responseData, ['shopware://currencies']);
 
-        static::assertArrayHasKey(0, $filtered['result']['resources']);
-        static::assertSame('shopware://currencies', $filtered['result']['resources'][0]['uri']);
+        $result = $filtered->result;
+        static::assertInstanceOf(\stdClass::class, $result);
+        $resources = $result->resources;
+        static::assertIsArray($resources);
+        static::assertArrayHasKey(0, $resources);
+        $firstResource = $resources[0];
+        static::assertInstanceOf(\stdClass::class, $firstResource);
+        static::assertSame('shopware://currencies', $firstResource->uri);
     }
 
     // ── Prompts ──────────────────────────────────────────────────────────────
@@ -219,59 +255,77 @@ class McpAllowlistFilterTest extends TestCase
 
     public function testFilterPromptsListResponseKeepsAllowedPrompts(): void
     {
-        $responseData = [
+        $responseData = self::toStdClass([
             'result' => [
                 'prompts' => [
                     ['name' => 'shopware-context', 'description' => 'Context'],
                     ['name' => 'shopware-developer', 'description' => 'Dev'],
                 ],
             ],
-        ];
+        ]);
 
         $filtered = $this->filter->filterPromptsListResponse($responseData, ['shopware-context']);
 
-        $names = array_column($filtered['result']['prompts'], 'name');
+        $result = $filtered->result;
+        static::assertInstanceOf(\stdClass::class, $result);
+        $names = array_column((array) $result->prompts, 'name');
         static::assertSame(['shopware-context'], $names);
     }
 
     public function testFilterPromptsListResponseWithEmptyAllowlistRemovesAll(): void
     {
-        $responseData = [
+        $responseData = self::toStdClass([
             'result' => [
                 'prompts' => [
                     ['name' => 'shopware-context'],
                 ],
             ],
-        ];
+        ]);
 
         $filtered = $this->filter->filterPromptsListResponse($responseData, []);
 
-        static::assertSame([], $filtered['result']['prompts']);
+        $result = $filtered->result;
+        static::assertInstanceOf(\stdClass::class, $result);
+        static::assertSame([], $result->prompts);
     }
 
     public function testFilterPromptsListResponsePassesThroughWhenNoPromptsKey(): void
     {
-        $responseData = ['result' => ['nextCursor' => null]];
+        $responseData = self::toStdClass(['result' => ['nextCursor' => null]]);
 
         $filtered = $this->filter->filterPromptsListResponse($responseData, ['shopware-context']);
 
-        static::assertSame($responseData, $filtered);
+        static::assertEquals($responseData, $filtered);
     }
 
     public function testFilterPromptsListResponseReindexesArray(): void
     {
-        $responseData = [
+        $responseData = self::toStdClass([
             'result' => [
                 'prompts' => [
                     ['name' => 'shopware-context'],
                     ['name' => 'shopware-developer'],
                 ],
             ],
-        ];
+        ]);
 
         $filtered = $this->filter->filterPromptsListResponse($responseData, ['shopware-developer']);
 
-        static::assertArrayHasKey(0, $filtered['result']['prompts']);
-        static::assertSame('shopware-developer', $filtered['result']['prompts'][0]['name']);
+        $result = $filtered->result;
+        static::assertInstanceOf(\stdClass::class, $result);
+        $prompts = $result->prompts;
+        static::assertIsArray($prompts);
+        static::assertArrayHasKey(0, $prompts);
+        $firstPrompt = $prompts[0];
+        static::assertInstanceOf(\stdClass::class, $firstPrompt);
+        static::assertSame('shopware-developer', $firstPrompt->name);
+    }
+
+    /**
+     * @param array<mixed> $data
+     */
+    private static function toStdClass(array $data): \stdClass
+    {
+        return json_decode(json_encode($data, \JSON_THROW_ON_ERROR), false, 512, \JSON_THROW_ON_ERROR);
     }
 }

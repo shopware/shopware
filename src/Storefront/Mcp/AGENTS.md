@@ -4,7 +4,7 @@
 
 MCP tools that depend on Storefront-specific services (e.g., `ThemeService`) must live in the Storefront bundle to maintain correct dependency direction. Shopware's architecture requires `Storefront -> Core`, never `Core -> Storefront`.
 
-Core MCP tools live in `src/Core/Framework/Mcp/Tool/` and only depend on Core services. Tools here depend on Storefront services and are registered with the `shopware.mcp.tool` tag in `src/Storefront/DependencyInjection/mcp.xml`.
+Core MCP tools live in `src/Core/Framework/Mcp/Tool/` and only depend on Core services. Tools here depend on Storefront services and are registered with the `mcp.tool` tag in `src/Storefront/DependencyInjection/mcp.xml`.
 
 The `McpToolCompilerPass` in Core discovers tools tagged `shopware.mcp.tool` from any bundle or plugin, so these tools are seamlessly integrated into the MCP server.
 
@@ -14,6 +14,4 @@ The `McpToolCompilerPass` in Core discovers tools tagged `shopware.mcp.tool` fro
 
 ## Registration
 
-Services are defined in `src/Storefront/DependencyInjection/mcp.xml` with tags:
-- `mcp.tool` (collected via `tagged_iterator('mcp.tool')` in Core's `mcp.php` — same tag as Core tools)
-- `shopware.feature` with flag `MCP_SERVER` (gated behind feature flag)
+Services are defined in `src/Storefront/DependencyInjection/mcp.xml` with the `mcp.tool` tag (collected via `tagged_iterator('mcp.tool')` in Core's `mcp.php` — same tag as Core in-tree bundle tools). The Storefront bundle loads DI via `XmlFileLoader` throughout, so `mcp.xml` follows that convention rather than the PHP-file pattern used by Core MCP.

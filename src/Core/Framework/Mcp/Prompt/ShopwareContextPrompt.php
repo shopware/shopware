@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
  * provides runtime context for AI clients using the MCP tools to interact
  * with a Shopware shop (criteria format, entity names, tool best practices).
  */
-#[McpPrompt(name: 'shopware-context', description: 'System prompt providing context about Shopware, its data model, and best practices for AI tool interaction.')]
+#[McpPrompt(name: 'shopware-context', title: 'Shopware Context', description: 'System prompt providing context about Shopware, its data model, and best practices for AI tool interaction.')]
 #[Package('framework')]
 class ShopwareContextPrompt
 {

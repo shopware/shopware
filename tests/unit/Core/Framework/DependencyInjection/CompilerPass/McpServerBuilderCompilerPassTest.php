@@ -113,7 +113,8 @@ class McpServerBuilderCompilerPassTest extends TestCase
         $args = array_values($addToolCalls)[0][1];
         static::assertSame(McpBuilderTestNamespacedTool::class, $args[0]);
         static::assertSame('my-builder-namespaced-tool', $args[1]);
-        static::assertSame('test namespaced tool', $args[2]);
+        static::assertNull($args[2]);
+        static::assertSame('test namespaced tool', $args[3]);
     }
 
     public function testPluginPromptsAreRegisteredWithBuilder(): void
@@ -135,7 +136,8 @@ class McpServerBuilderCompilerPassTest extends TestCase
         $args = array_values($addPromptCalls)[0][1];
         static::assertSame(McpBuilderTestPrompt::class, $args[0]);
         static::assertSame('my-builder-prompt', $args[1]);
-        static::assertSame('test plugin prompt', $args[2]);
+        static::assertNull($args[2]);
+        static::assertSame('test plugin prompt', $args[3]);
     }
 
     public function testPluginResourcesAreRegisteredWithBuilder(): void
@@ -200,7 +202,8 @@ class McpServerBuilderCompilerPassTest extends TestCase
 
         $args = array_values($addToolCalls)[0][1];
         static::assertSame('my-builder-method-level-tool', $args[1]);
-        static::assertSame('method-level description', $args[2]);
+        static::assertNull($args[2]);
+        static::assertSame('method-level description', $args[3]);
     }
 
     public function testMethodLevelMcpPromptAttributeIsDetected(): void
@@ -221,7 +224,8 @@ class McpServerBuilderCompilerPassTest extends TestCase
 
         $args = array_values($addPromptCalls)[0][1];
         static::assertSame('my-builder-method-prompt', $args[1]);
-        static::assertSame('method-level prompt description', $args[2]);
+        static::assertNull($args[2]);
+        static::assertSame('method-level prompt description', $args[3]);
     }
 
     public function testMethodLevelMcpResourceAttributeIsDetected(): void
@@ -244,6 +248,44 @@ class McpServerBuilderCompilerPassTest extends TestCase
         static::assertSame('plugin://builder-method-resource', $args[1]);
         static::assertSame('builder-method-resource', $args[2]);
         static::assertSame('method-level resource description', $args[3]);
+    }
+
+    public function testPluginToolTitleIsPassedToBuilder(): void
+    {
+        $container = $this->createContainer();
+
+        $def = new Definition(McpBuilderTestToolWithTitle::class);
+        $def->addTag('shopware.mcp.tool');
+        $container->setDefinition(McpBuilderTestToolWithTitle::class, $def);
+
+        $pass = new McpServerBuilderCompilerPass();
+        $pass->process($container);
+
+        $calls = $container->getDefinition('mcp.server.builder')->getMethodCalls();
+        $args = array_values(array_filter($calls, fn ($c) => $c[0] === 'addTool'))[0][1];
+
+        static::assertSame('tool-with-title', $args[1]);
+        static::assertSame('Human-Readable Tool', $args[2]);
+        static::assertSame('Performs actions', $args[3]);
+    }
+
+    public function testPluginPromptTitleIsPassedToBuilder(): void
+    {
+        $container = $this->createContainer();
+
+        $def = new Definition(McpBuilderTestPromptWithTitle::class);
+        $def->addTag('shopware.mcp.prompt');
+        $container->setDefinition(McpBuilderTestPromptWithTitle::class, $def);
+
+        $pass = new McpServerBuilderCompilerPass();
+        $pass->process($container);
+
+        $calls = $container->getDefinition('mcp.server.builder')->getMethodCalls();
+        $args = array_values(array_filter($calls, fn ($c) => $c[0] === 'addPrompt'))[0][1];
+
+        static::assertSame('prompt-with-title', $args[1]);
+        static::assertSame('Human-Readable Prompt', $args[2]);
+        static::assertSame('Sets context', $args[3]);
     }
 
     public function testSkipsWhenNoMcpServerBuilder(): void
@@ -343,6 +385,30 @@ class McpBuilderTestMethodLevelPrompt
 class McpBuilderTestMethodLevelResource
 {
     #[McpResource(uri: 'plugin://builder-method-resource', name: 'builder-method-resource', description: 'method-level resource description')]
+    public function __invoke(): string
+    {
+        return '';
+    }
+}
+
+/**
+ * @internal
+ */
+#[McpTool(name: 'tool-with-title', title: 'Human-Readable Tool', description: 'Performs actions')]
+class McpBuilderTestToolWithTitle extends McpToolResponse
+{
+    public function __invoke(): string
+    {
+        return '';
+    }
+}
+
+/**
+ * @internal
+ */
+#[McpPrompt(name: 'prompt-with-title', title: 'Human-Readable Prompt', description: 'Sets context')]
+class McpBuilderTestPromptWithTitle
+{
     public function __invoke(): string
     {
         return '';

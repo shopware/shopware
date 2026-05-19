@@ -24,9 +24,9 @@ class McpCapabilityCatalog
      * @param array<string, list<string>> $toolDependencies tool-name => [dep-name, ...]
      * @param array<string, array{static: list<string>, entityParam: ?string, operations: list<string>}> $toolPrivileges tool-name => privilege info
      *
-     * $registry is nullable via nullOnInvalid(): null when the PhpMcp bundle is absent
-     * (MCP_SERVER disabled in a shared compiled container). Once MCP_SERVER is stable
-     * (v6.8.0) remove the nullable type and the null guards in all public methods.
+     * $registry is nullable via nullOnInvalid(): null when the MCP bundle is absent.
+     * Once MCP_SERVER is stable (v6.8.0) remove the nullable type and the null guards
+     * in all public methods.
      */
     public function __construct(
         private readonly ?RegistryInterface $registry,
@@ -41,7 +41,7 @@ class McpCapabilityCatalog
      *
      * @param list<string>|null $allowlist null = all tools
      *
-     * @return list<array{name: string, description: ?string, dependencies: list<string>, requiredPrivileges: array{static: list<string>, entityParam: ?string, operations: list<string>}|null}>
+     * @return list<array{name: string, title: ?string, description: ?string, dependencies: list<string>, requiredPrivileges: array{static: list<string>, entityParam: ?string, operations: list<string>}|null}>
      */
     public function enrichedTools(?array $allowlist = null): array
     {
@@ -62,7 +62,7 @@ class McpCapabilityCatalog
                 continue;
             }
 
-            $tools[] = $this->buildToolEntry($tool->name, $tool->description, $appToolPrivileges);
+            $tools[] = $this->buildToolEntry($tool->name, $tool->title, $tool->description, $appToolPrivileges);
         }
 
         usort($tools, static fn (array $a, array $b): int => $a['name'] <=> $b['name']);
@@ -73,7 +73,7 @@ class McpCapabilityCatalog
     /**
      * Returns enriched data for a single tool, or null when not found.
      *
-     * @return array{name: string, description: ?string, dependencies: list<string>, requiredPrivileges: array{static: list<string>, entityParam: ?string, operations: list<string>}|null}|null
+     * @return array{name: string, title: ?string, description: ?string, dependencies: list<string>, requiredPrivileges: array{static: list<string>, entityParam: ?string, operations: list<string>}|null}|null
      */
     public function findTool(string $name): ?array
     {
@@ -88,7 +88,7 @@ class McpCapabilityCatalog
                 continue;
             }
 
-            return $this->buildToolEntry($tool->name, $tool->description, $appToolPrivileges);
+            return $this->buildToolEntry($tool->name, $tool->title, $tool->description, $appToolPrivileges);
         }
 
         return null;
@@ -141,7 +141,7 @@ class McpCapabilityCatalog
      *
      * @param list<string>|null $allowlist null = all prompts
      *
-     * @return list<array{name: string, description: ?string}>
+     * @return list<array{name: string, title: ?string, description: ?string}>
      */
     public function enrichedPrompts(?array $allowlist = null): array
     {
@@ -162,6 +162,7 @@ class McpCapabilityCatalog
 
             $prompts[] = [
                 'name' => $prompt->name,
+                'title' => $prompt->title,
                 'description' => $prompt->description,
             ];
         }
@@ -174,9 +175,9 @@ class McpCapabilityCatalog
     /**
      * @param array<string, list<string>> $appToolPrivileges
      *
-     * @return array{name: string, description: ?string, dependencies: list<string>, requiredPrivileges: array{static: list<string>, entityParam: ?string, operations: list<string>}|null}
+     * @return array{name: string, title: ?string, description: ?string, dependencies: list<string>, requiredPrivileges: array{static: list<string>, entityParam: ?string, operations: list<string>}|null}
      */
-    private function buildToolEntry(string $name, ?string $description, array $appToolPrivileges): array
+    private function buildToolEntry(string $name, ?string $title, ?string $description, array $appToolPrivileges): array
     {
         $privileges = $this->toolPrivileges[$name]
             ?? (isset($appToolPrivileges[$name])
@@ -185,6 +186,7 @@ class McpCapabilityCatalog
 
         return [
             'name' => $name,
+            'title' => $title,
             'description' => $description,
             'dependencies' => $this->toolDependencies[$name] ?? [],
             'requiredPrivileges' => $privileges,

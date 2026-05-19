@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 use Shopware\Core\Framework\Mcp\Tool\EntityAggregateTool;
@@ -53,8 +52,6 @@ abstract class McpScenarioTestCase extends TestCase
 
     protected function setUp(): void
     {
-        Feature::skipTestIfInActive('MCP_SERVER', $this);
-
         $container = static::getContainer();
         $registry = $container->get(DefinitionInstanceRegistry::class);
 

@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception as DBALException;
 use Mcp\Capability\Registry\Loader\LoaderInterface;
 use Mcp\Capability\RegistryInterface;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -17,6 +18,7 @@ abstract class AbstractAppMcpLoader implements LoaderInterface
     public function __construct(
         protected readonly Connection $connection,
         protected readonly AppMcpCapabilityExecutor $executor,
+        protected readonly ?LoggerInterface $logger = null,
     ) {
     }
 
@@ -48,11 +50,28 @@ abstract class AbstractAppMcpLoader implements LoaderInterface
         return $appName . '-' . $name;
     }
 
+    protected function isReservedName(string $capabilityName, string $appName, string $type): bool
+    {
+        if (str_starts_with($capabilityName, 'shopware-')) {
+            $this->logger?->warning(\sprintf('App %s name uses reserved "shopware-" prefix, skipping', $type), [
+                'capabilityName' => $capabilityName,
+                'appName' => $appName,
+            ]);
+
+            return true;
+        }
+
+        return false;
+    }
+
     /**
      * @param array<string, mixed> $row
      */
     protected function resolveDescription(array $row, string $fallback): string
     {
-        return (string) ($row['label'] ?? $row['description'] ?? $fallback);
+        $description = isset($row['description']) && $row['description'] !== '' ? (string) $row['description'] : null;
+        $label = isset($row['label']) && $row['label'] !== '' ? (string) $row['label'] : null;
+
+        return $description ?? $label ?? $fallback;
     }
 }

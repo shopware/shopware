@@ -209,13 +209,13 @@ class McpCapabilityCatalogTest extends TestCase
     {
         $registry = new Registry();
         $registry->registerPrompt(
-            new Prompt('zzz-prompt', 'Z prompt', []),
+            new Prompt('zzz-prompt', null, 'Z prompt', []),
             'Acme\\ZzzPrompt',
             [],
             true,
         );
         $registry->registerPrompt(
-            new Prompt('aaa-prompt', 'A prompt', []),
+            new Prompt('aaa-prompt', null, 'A prompt', []),
             'Acme\\AaaPrompt',
             [],
             true,
@@ -234,13 +234,13 @@ class McpCapabilityCatalogTest extends TestCase
     {
         $registry = new Registry();
         $registry->registerPrompt(
-            new Prompt('prompt-a', 'A', []),
+            new Prompt('prompt-a', null, 'A', []),
             'Acme\\PromptA',
             [],
             true,
         );
         $registry->registerPrompt(
-            new Prompt('prompt-b', 'B', []),
+            new Prompt('prompt-b', null, 'B', []),
             'Acme\\PromptB',
             [],
             true,
@@ -258,7 +258,7 @@ class McpCapabilityCatalogTest extends TestCase
     {
         $registry = new Registry();
         $registry->registerPrompt(
-            new Prompt('prompt-a', 'A', []),
+            new Prompt('prompt-a', null, 'A', []),
             'Acme\\PromptA',
             [],
             true,
@@ -267,6 +267,62 @@ class McpCapabilityCatalogTest extends TestCase
         $catalog = new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider());
 
         static::assertSame([], $catalog->enrichedPrompts([]));
+    }
+
+    public function testEnrichedToolsIncludesTitle(): void
+    {
+        $registry = new Registry();
+        $registry->registerTool(
+            new Tool('my-tool', 'My Human-Readable Tool', ['type' => 'object', 'properties' => [], 'required' => []], 'desc', null),
+            'Acme\\MyTool',
+            true,
+        );
+
+        $catalog = new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider());
+        $tools = $catalog->enrichedTools();
+
+        static::assertSame('My Human-Readable Tool', $tools[0]['title']);
+    }
+
+    public function testEnrichedToolsIncludesNullTitleWhenNotSet(): void
+    {
+        $registry = new Registry();
+        $this->registerTool($registry, 'tool-a', 'desc');
+
+        $catalog = new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider());
+
+        static::assertNull($catalog->enrichedTools()[0]['title']);
+    }
+
+    public function testEnrichedPromptsIncludesTitle(): void
+    {
+        $registry = new Registry();
+        $registry->registerPrompt(
+            new Prompt('my-prompt', 'My Human-Readable Prompt', 'desc', []),
+            'Acme\\MyPrompt',
+            [],
+            true,
+        );
+
+        $catalog = new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider());
+        $prompts = $catalog->enrichedPrompts();
+
+        static::assertSame('My Human-Readable Prompt', $prompts[0]['title']);
+    }
+
+    public function testEnrichedPromptsIncludesNullTitleWhenNotSet(): void
+    {
+        $registry = new Registry();
+        $registry->registerPrompt(
+            new Prompt('prompt-a', null, 'A', []),
+            'Acme\\PromptA',
+            [],
+            true,
+        );
+
+        $catalog = new McpCapabilityCatalog($registry, $this->stubPrivilegeProvider());
+
+        static::assertNull($catalog->enrichedPrompts()[0]['title']);
     }
 
     public function testTotalToolCountReportsRegistrySize(): void
@@ -294,7 +350,7 @@ class McpCapabilityCatalogTest extends TestCase
     private function registerTool(Registry $registry, string $name, ?string $description): void
     {
         $registry->registerTool(
-            new Tool($name, ['type' => 'object', 'properties' => [], 'required' => []], $description, null),
+            new Tool($name, null, ['type' => 'object', 'properties' => [], 'required' => []], $description, null),
             'Acme\\' . str_replace('-', '', ucwords($name, '-')),
             true,
         );

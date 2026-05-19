@@ -41,9 +41,8 @@ class McpServerController
      * @internal
      *
      * The five PhpMcp bundle params below are nullable because they are injected via
-     * nullOnInvalid(): when the bundle is absent (MCP_SERVER disabled in a shared compiled
-     * container) they resolve to null. Once MCP_SERVER is stable (v6.8.0) remove the
-     * nullable types, the null guards in handle(), and the Feature::isActive() check.
+     * nullOnInvalid(): when the MCP bundle is absent they resolve to null.
+     * Once MCP_SERVER is stable (v6.8.0) remove the nullable types and the null guards in handle().
      */
     public function __construct(
         private readonly ?Server $server,
@@ -199,9 +198,9 @@ class McpServerController
             return $psrResponse; // @codeCoverageIgnore
         }
 
-        $responseData = $this->decodeJson((string) $psrResponse->getBody());
+        $responseData = $this->decodeJson((string) $psrResponse->getBody(), false);
 
-        if (!\is_array($responseData)) { // @codeCoverageIgnore
+        if (!$responseData instanceof \stdClass) { // @codeCoverageIgnore
             return $psrResponse; // @codeCoverageIgnore
         }
 

@@ -112,7 +112,7 @@ The `/api/_action/mail-template/validate` route has been removed without replace
 
 ## Number range value generator interface removed
 
-`Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface` is removed.
+`Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface` was removed.
 Use `Shopware\Core\System\NumberRange\ValueGenerator\AbstractNumberRangeValueGenerator` instead.
 
 If your extension implemented the old interface, update the service to extend `AbstractNumberRangeValueGenerator`.

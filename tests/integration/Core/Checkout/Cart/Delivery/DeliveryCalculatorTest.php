@@ -2046,16 +2046,14 @@ class DeliveryCalculatorTest extends TestCase
     }
 
     /**
-     * @return array<string, array<int>>
+     * @return iterable<string, array<int>>
      */
-    public static function mixedShippingProvider(): array
+    public static function mixedShippingProvider(): iterable
     {
-        return [
-            'Mixed shipping by quantity' => [DeliveryCalculator::CALCULATION_BY_LINE_ITEM_COUNT, 1, 100],
-            'Mixed shipping by cart price' => [DeliveryCalculator::CALCULATION_BY_PRICE, 100, 1],
-            'Mixed shipping by weight' => [DeliveryCalculator::CALCULATION_BY_WEIGHT, 1, 1],
-            'Mixed shipping by volume' => [DeliveryCalculator::CALCULATION_BY_VOLUME, 1, 1],
-        ];
+        yield 'Mixed shipping by quantity' => [DeliveryCalculator::CALCULATION_BY_LINE_ITEM_COUNT, 1, 100];
+        yield 'Mixed shipping by cart price' => [DeliveryCalculator::CALCULATION_BY_PRICE, 100, 1];
+        yield 'Mixed shipping by weight' => [DeliveryCalculator::CALCULATION_BY_WEIGHT, 1, 1];
+        yield 'Mixed shipping by volume' => [DeliveryCalculator::CALCULATION_BY_VOLUME, 1, 1];
     }
 
     private function buildDeliveries(LineItemCollection $lineItems, SalesChannelContext $context): DeliveryCollection

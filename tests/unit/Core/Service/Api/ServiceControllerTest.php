@@ -60,6 +60,13 @@ class ServiceControllerTest extends TestCase
             'description' => 'A cool service',
             'createdAt' => new \DateTimeImmutable(),
             'updatedAt' => new \DateTimeImmutable(),
+            'sourceConfig' => [
+                'version' => '1.0.0',
+                'hash' => 'service-hash',
+                'revision' => '2025-05-18',
+                'zip-url' => 'https://example.com/service.zip',
+                'requirements' => ['service_consent'],
+            ],
         ]);
 
         $this->appRepo = new StaticEntityRepository([[$this->app]]);
@@ -265,6 +272,7 @@ class ServiceControllerTest extends TestCase
         static::assertTrue($service['active']);
         static::assertSame('1.0.0', $service['version']);
         static::assertSame('active', $service['state']);
+        static::assertSame(['service_consent'], $service['requirements']);
     }
 
     public function testDisableServices(): void

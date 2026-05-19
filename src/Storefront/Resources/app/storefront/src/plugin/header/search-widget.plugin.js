@@ -25,7 +25,6 @@ export default class SearchWidgetPlugin extends Plugin {
 
         searchWidgetDelay: 250,
         searchWidgetMinChars: 3,
-        searchWidgetMaxChars: 100,
     };
 
     init() {
@@ -85,11 +84,9 @@ export default class SearchWidgetPlugin extends Plugin {
             return;
         }
 
-        if (value.length <= this.options.searchWidgetMaxChars) {
-            document.dispatchEvent(new CustomEvent(PRODUCT_SEARCH_PERFORMED_EVENT, {
-                detail: { term: value },
-            }));
-        }
+        document.dispatchEvent(new CustomEvent(PRODUCT_SEARCH_PERFORMED_EVENT, {
+            detail: { term: value },
+        }));
     }
 
     /**
@@ -248,8 +245,9 @@ export default class SearchWidgetPlugin extends Plugin {
 
     /**
      * Delegated click handler on the rendered suggest dropdown. Fires a
-     * product:search-suggestion-product-viewed event when the user clicks an
-     * actual link (a product result or the "show all results" link).
+     * product:search-performed event when the user clicks the "show all
+     * results" link, or a product:search-suggestion-product-viewed event
+     * when the user clicks a product result.
      * @param {Event} event
      * @private
      */
@@ -259,11 +257,11 @@ export default class SearchWidgetPlugin extends Plugin {
         }
 
         const term = this._inputField.value.trim();
-        if (term.length < this.options.searchWidgetMinChars || term.length > this.options.searchWidgetMaxChars) {
-            return;
-        }
+        const eventName = event.target.closest('.search-suggest-total')
+            ? PRODUCT_SEARCH_PERFORMED_EVENT
+            : PRODUCT_SEARCH_SUGGESTION_PRODUCT_VIEWED_EVENT;
 
-        document.dispatchEvent(new CustomEvent(PRODUCT_SEARCH_SUGGESTION_PRODUCT_VIEWED_EVENT, {
+        document.dispatchEvent(new CustomEvent(eventName, {
             detail: { term },
         }));
     }

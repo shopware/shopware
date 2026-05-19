@@ -321,22 +321,7 @@ describe('SearchPlugin Tests', () => {
         document.removeEventListener('product:search-performed', listener);
     });
 
-    test('_handleSearchEvent does not dispatch event when term exceeds maximum length', () => {
-        const listener = jest.fn();
-        document.addEventListener('product:search-performed', listener);
-        searchPlugin._inputField.value = 'a'.repeat(101);
-
-        searchPlugin._handleSearchEvent({
-            preventDefault: jest.fn(),
-            stopPropagation: jest.fn(),
-        });
-
-        expect(listener).not.toHaveBeenCalled();
-
-        document.removeEventListener('product:search-performed', listener);
-    });
-
-    test('_handleSuggestResultClick dispatches product:search-suggestion-product-viewed when clicking a dropdown link', () => {
+    test('_handleSuggestResultClick dispatches product:search-suggestion-product-viewed when clicking a product link', () => {
         const listener = jest.fn();
         document.addEventListener('product:search-suggestion-product-viewed', listener);
         searchPlugin._inputField.value = 'shoes';
@@ -354,48 +339,42 @@ describe('SearchPlugin Tests', () => {
         document.removeEventListener('product:search-suggestion-product-viewed', listener);
     });
 
-    test('_handleSuggestResultClick ignores clicks that are not on a link', () => {
+    test('_handleSuggestResultClick dispatches product:search-performed when clicking the show-all-results link', () => {
         const listener = jest.fn();
-        document.addEventListener('product:search-suggestion-product-viewed', listener);
+        document.addEventListener('product:search-performed', listener);
+        searchPlugin._inputField.value = 'shoes';
+
+        const totalContainer = document.createElement('li');
+        totalContainer.className = 'search-suggest-total';
+        const link = document.createElement('a');
+        link.setAttribute('href', '/search?search=shoes');
+        link.className = 'search-suggest-total-link';
+        totalContainer.appendChild(link);
+
+        searchPlugin._handleSuggestResultClick({ target: link });
+
+        expect(listener).toHaveBeenCalledTimes(1);
+        expect(listener.mock.calls[0][0].detail).toEqual({ term: 'shoes' });
+
+        document.removeEventListener('product:search-performed', listener);
+    });
+
+    test('_handleSuggestResultClick ignores clicks that are not on a link', () => {
+        const productListener = jest.fn();
+        const performedListener = jest.fn();
+        document.addEventListener('product:search-suggestion-product-viewed', productListener);
+        document.addEventListener('product:search-performed', performedListener);
         searchPlugin._inputField.value = 'shoes';
 
         const nonLink = document.createElement('div');
 
         searchPlugin._handleSuggestResultClick({ target: nonLink });
 
-        expect(listener).not.toHaveBeenCalled();
+        expect(productListener).not.toHaveBeenCalled();
+        expect(performedListener).not.toHaveBeenCalled();
 
-        document.removeEventListener('product:search-suggestion-product-viewed', listener);
-    });
-
-    test('_handleSuggestResultClick does not dispatch event when term is below minimum length', () => {
-        const listener = jest.fn();
-        document.addEventListener('product:search-suggestion-product-viewed', listener);
-        searchPlugin._inputField.value = 'ab';
-
-        const link = document.createElement('a');
-        link.setAttribute('href', '/product/123');
-
-        searchPlugin._handleSuggestResultClick({ target: link });
-
-        expect(listener).not.toHaveBeenCalled();
-
-        document.removeEventListener('product:search-suggestion-product-viewed', listener);
-    });
-
-    test('_handleSuggestResultClick does not dispatch event when term exceeds maximum length', () => {
-        const listener = jest.fn();
-        document.addEventListener('product:search-suggestion-product-viewed', listener);
-        searchPlugin._inputField.value = 'a'.repeat(101);
-
-        const link = document.createElement('a');
-        link.setAttribute('href', '/product/123');
-
-        searchPlugin._handleSuggestResultClick({ target: link });
-
-        expect(listener).not.toHaveBeenCalled();
-
-        document.removeEventListener('product:search-suggestion-product-viewed', listener);
+        document.removeEventListener('product:search-suggestion-product-viewed', productListener);
+        document.removeEventListener('product:search-performed', performedListener);
     });
 
     test('_suggest should handle successful AJAX request', async () => {

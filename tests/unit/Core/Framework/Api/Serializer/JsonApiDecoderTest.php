@@ -30,42 +30,36 @@ class JsonApiDecoderTest extends TestCase
     }
 
     /**
-     * @return array<int, array<int, bool|\DateTime|float|int|string|null>>
+     * @return iterable<string, array<int, bool|\DateTime|float|int|string|null>>
      */
-    public static function emptyInputProvider(): array
+    public static function emptyInputProvider(): iterable
     {
-        return [
-            [null],
-            ['string'],
-            [1],
-            [false],
-            [new \DateTime()],
-            [1.1],
-        ];
+        yield 'empty input null' => [null];
+        yield 'empty input string' => ['string'];
+        yield 'empty input 1' => [1];
+        yield 'empty input false' => [false];
+        yield 'empty input date time' => [new \DateTime()];
+        yield 'empty input 1 point 1' => [1.1];
     }
 
     /**
-     * @return array<int, array<int, array<int|string, string>>>
+     * @return iterable<string, array<int, array<int|string, string>>>
      */
-    public static function inputWithoutDataOnRootProvider(): array
+    public static function inputWithoutDataOnRootProvider(): iterable
     {
-        return [
-            [['randomKey' => 'randomValue']],
-            [['data']],
-        ];
+        yield 'input without on root random key random value' => [['randomKey' => 'randomValue']];
+        yield 'input without on root data' => [['data']];
     }
 
     /**
-     * @return array<int, array<int, array<string, array<int|string, array<string, string>|string>>>>
+     * @return iterable<string, array<int, array<string, array<int|string, array<string, string>|string>>>>
      */
-    public static function resourceIdentifierWIthInvalidStructureProvider(): array
+    public static function resourceIdentifierWIthInvalidStructureProvider(): iterable
     {
-        return [
-            [['data' => ['id' => 'some-id']]],
-            [['data' => ['type' => 'some-type']]],
-            [['data' => ['ids' => 'foo', 'types' => 'some-type']]],
-            [['data' => [], 'included' => [['ids' => 'foo', 'types' => 'some-type']]]],
-        ];
+        yield 'resource identifier with invalid structure data id some id' => [['data' => ['id' => 'some-id']]];
+        yield 'resource identifier with invalid structure data type some type' => [['data' => ['type' => 'some-type']]];
+        yield 'resource identifier with invalid structure data ids foo types some type' => [['data' => ['ids' => 'foo', 'types' => 'some-type']]];
+        yield 'resource identifier with invalid structure data included ids foo types some type' => [['data' => [], 'included' => [['ids' => 'foo', 'types' => 'some-type']]]];
     }
 
     #[DataProvider('emptyInputProvider')]

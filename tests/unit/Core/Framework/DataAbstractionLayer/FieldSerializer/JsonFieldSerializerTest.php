@@ -72,22 +72,20 @@ class JsonFieldSerializerTest extends TestCase
     }
 
     /**
-     * @return array<string, array{JsonField, array<string, mixed>|null, string|null}>
+     * @return iterable<string, array{JsonField, array<string, mixed>|null, string|null}>
      */
-    public static function encodeProvider(): array
+    public static function encodeProvider(): iterable
     {
-        return [
-            'string value' => [new JsonField('data', 'data'), ['foo' => 'bar'], Json::encode(['foo' => 'bar'])],
-            'integer value' => [new JsonField('data', 'data'), ['foo' => 1], Json::encode(['foo' => 1])],
-            'float value' => [new JsonField('data', 'data'), ['foo' => 5.3], Json::encode(['foo' => 5.3])],
-            'nested value' => [new JsonField('data', 'data'), ['foo' => ['bar' => 'baz']], Json::encode(['foo' => ['bar' => 'baz']])],
-            'null without default' => [new JsonField('data', 'data'), null, null],
-            'null with empty default' => [new JsonField('data', 'data', [], []), null, Json::encode([])],
-            'null with string default' => [new JsonField('data', 'data', [], ['foo' => 'bar']), null, Json::encode(['foo' => 'bar'])],
-            'null with integer default' => [new JsonField('data', 'data', [], ['foo' => 1]), null, Json::encode(['foo' => 1])],
-            'null with float default' => [new JsonField('data', 'data', [], ['foo' => 5.3]), null, Json::encode(['foo' => 5.3])],
-            'null with nested default' => [new JsonField('data', 'data', [], ['foo' => ['bar' => 'baz']]), null, Json::encode(['foo' => ['bar' => 'baz']])],
-        ];
+        yield 'string payload is encoded as JSON' => [new JsonField('data', 'data'), ['foo' => 'bar'], Json::encode(['foo' => 'bar'])];
+        yield 'integer payload is encoded as JSON' => [new JsonField('data', 'data'), ['foo' => 1], Json::encode(['foo' => 1])];
+        yield 'float payload is encoded as JSON' => [new JsonField('data', 'data'), ['foo' => 5.3], Json::encode(['foo' => 5.3])];
+        yield 'nested payload is encoded as JSON' => [new JsonField('data', 'data'), ['foo' => ['bar' => 'baz']], Json::encode(['foo' => ['bar' => 'baz']])];
+        yield 'null payload without default stays null' => [new JsonField('data', 'data'), null, null];
+        yield 'null payload uses empty array default' => [new JsonField('data', 'data', [], []), null, Json::encode([])];
+        yield 'null payload uses string default' => [new JsonField('data', 'data', [], ['foo' => 'bar']), null, Json::encode(['foo' => 'bar'])];
+        yield 'null payload uses integer default' => [new JsonField('data', 'data', [], ['foo' => 1]), null, Json::encode(['foo' => 1])];
+        yield 'null payload uses float default' => [new JsonField('data', 'data', [], ['foo' => 5.3]), null, Json::encode(['foo' => 5.3])];
+        yield 'null payload uses nested default' => [new JsonField('data', 'data', [], ['foo' => ['bar' => 'baz']]), null, Json::encode(['foo' => ['bar' => 'baz']])];
     }
 
     /**
@@ -102,22 +100,20 @@ class JsonFieldSerializerTest extends TestCase
     }
 
     /**
-     * @return array<string, array{JsonField, string|null, array<string, mixed>|null}>
+     * @return iterable<string, array{JsonField, string|null, array<string, mixed>|null}>
      */
-    public static function decodeProvider(): array
+    public static function decodeProvider(): iterable
     {
-        return [
-            'string value' => [new JsonField('data', 'data'), Json::encode(['foo' => 'bar']), ['foo' => 'bar']],
-            'integer value' => [new JsonField('data', 'data'), Json::encode(['foo' => 1]), ['foo' => 1]],
-            'float value' => [new JsonField('data', 'data'), Json::encode(['foo' => 5.3]), ['foo' => 5.3]],
-            'nested value' => [new JsonField('data', 'data'), Json::encode(['foo' => ['bar' => 'baz']]), ['foo' => ['bar' => 'baz']]],
-            'null without default' => [new JsonField('data', 'data'), null, null],
-            'null with empty default' => [new JsonField('data', 'data', [], []), null, []],
-            'null with string default' => [new JsonField('data', 'data', [], ['foo' => 'bar']), null, ['foo' => 'bar']],
-            'null with integer default' => [new JsonField('data', 'data', [], ['foo' => 1]), null, ['foo' => 1]],
-            'null with float default' => [new JsonField('data', 'data', [], ['foo' => 5.3]), null, ['foo' => 5.3]],
-            'null with nested default' => [new JsonField('data', 'data', [], ['foo' => ['bar' => 'baz']]), null, ['foo' => ['bar' => 'baz']]],
-        ];
+        yield 'string JSON is decoded to payload' => [new JsonField('data', 'data'), Json::encode(['foo' => 'bar']), ['foo' => 'bar']];
+        yield 'integer JSON is decoded to payload' => [new JsonField('data', 'data'), Json::encode(['foo' => 1]), ['foo' => 1]];
+        yield 'float JSON is decoded to payload' => [new JsonField('data', 'data'), Json::encode(['foo' => 5.3]), ['foo' => 5.3]];
+        yield 'nested JSON is decoded to payload' => [new JsonField('data', 'data'), Json::encode(['foo' => ['bar' => 'baz']]), ['foo' => ['bar' => 'baz']]];
+        yield 'null JSON without default stays null' => [new JsonField('data', 'data'), null, null];
+        yield 'null JSON uses empty array default' => [new JsonField('data', 'data', [], []), null, []];
+        yield 'null JSON uses string default' => [new JsonField('data', 'data', [], ['foo' => 'bar']), null, ['foo' => 'bar']];
+        yield 'null JSON uses integer default' => [new JsonField('data', 'data', [], ['foo' => 1]), null, ['foo' => 1]];
+        yield 'null JSON uses float default' => [new JsonField('data', 'data', [], ['foo' => 5.3]), null, ['foo' => 5.3]];
+        yield 'null JSON uses nested default' => [new JsonField('data', 'data', [], ['foo' => ['bar' => 'baz']]), null, ['foo' => ['bar' => 'baz']]];
     }
 
     public function testEmptyArrayValueIsEncodedForRequiredField(): void

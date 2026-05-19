@@ -207,22 +207,20 @@ class OrderRouteTest extends TestCase
     }
 
     /**
-     * @return array<string, array{?bool, ?string, ?string, ?class-string<\Throwable>}>
+     * @return iterable<string, array{?bool, ?string, ?string, ?class-string<\Throwable>}>
      */
-    public static function customerDataProvider(): array
+    public static function customerDataProvider(): iterable
     {
-        return [
-            'no customer' => [null, 'test@example.com', 'AA-345', CustomerException::class],
-            'no guest customer' => [false, 'test@example.com', 'AA-345', CustomerException::class],
-            'no request e-mail' => [true, null, 'AA-345', GuestNotAuthenticatedException::class],
-            'no request postal code' => [true, 'test@example.com', null, GuestNotAuthenticatedException::class],
-            'wrong e-mail' => [true, 'false@example.com', 'AA-345', WrongGuestCredentialsException::class],
-            'wrong postal code' => [true, 'test@example.com', '12345', WrongGuestCredentialsException::class],
-            'valid guest' => [true, 'test@example.com', 'AA-345', null],
-            'valid guest uppercase email' => [true, 'Test@Example.Com', 'AA-345', null],
-            'valid guest lowercase postal code' => [true, 'Test@Example.Com', 'aa-345', null],
-            'valid guest with login' => [true, 'Test@Example.Com', 'aa-345', null, true],
-        ];
+        yield 'no customer' => [null, 'test@example.com', 'AA-345', CustomerException::class];
+        yield 'no guest customer' => [false, 'test@example.com', 'AA-345', CustomerException::class];
+        yield 'no request e-mail' => [true, null, 'AA-345', GuestNotAuthenticatedException::class];
+        yield 'no request postal code' => [true, 'test@example.com', null, GuestNotAuthenticatedException::class];
+        yield 'wrong e-mail' => [true, 'false@example.com', 'AA-345', WrongGuestCredentialsException::class];
+        yield 'wrong postal code' => [true, 'test@example.com', '12345', WrongGuestCredentialsException::class];
+        yield 'valid guest' => [true, 'test@example.com', 'AA-345', null];
+        yield 'valid guest uppercase email' => [true, 'Test@Example.Com', 'AA-345', null];
+        yield 'valid guest lowercase postal code' => [true, 'Test@Example.Com', 'aa-345', null];
+        yield 'valid guest with login' => [true, 'Test@Example.Com', 'aa-345', null, true];
     }
 
     #[DataProvider('deeplinkFilterProvider')]
@@ -243,17 +241,15 @@ class OrderRouteTest extends TestCase
     }
 
     /**
-     * @return array<string, array{Filter}>
+     * @return iterable<string, array{Filter}>
      */
-    public static function deeplinkFilterProvider(): array
+    public static function deeplinkFilterProvider(): iterable
     {
-        return [
-            'deeplink equalsAny' => [new EqualsAnyFilter('deepLinkCode', ['deepLinkCode'])],
-            'deeplink multi' => [new MultiFilter(MultiFilter::CONNECTION_OR, [new EqualsFilter('deepLinkCode', 'deepLinkCode')])],
-            'deeplink not' => [new NotFilter(MultiFilter::CONNECTION_OR, [new EqualsFilter('deepLinkCode', 'deepLinkCode')])],
-            'deeplink suffix' => [new SuffixFilter('deepLinkCode', 'Code')],
-            'deeplink prefix' => [new PrefixFilter('deepLinkCode', 'deep')],
-        ];
+        yield 'deeplink equalsAny' => [new EqualsAnyFilter('deepLinkCode', ['deepLinkCode'])];
+        yield 'deeplink multi' => [new MultiFilter(MultiFilter::CONNECTION_OR, [new EqualsFilter('deepLinkCode', 'deepLinkCode')])];
+        yield 'deeplink not' => [new NotFilter(MultiFilter::CONNECTION_OR, [new EqualsFilter('deepLinkCode', 'deepLinkCode')])];
+        yield 'deeplink suffix' => [new SuffixFilter('deepLinkCode', 'Code')];
+        yield 'deeplink prefix' => [new PrefixFilter('deepLinkCode', 'deep')];
     }
 
     #[DataProvider('deeplinkExpireDaysProvider')]
@@ -327,15 +323,13 @@ class OrderRouteTest extends TestCase
     }
 
     /**
-     * @return array<string, array{int, int, bool}>
+     * @return iterable<string, array{int, int, bool}>
      */
-    public static function deeplinkExpireDaysProvider(): array
+    public static function deeplinkExpireDaysProvider(): iterable
     {
-        return [
-            'order within limit' => [10, 30, false],
-            'order beyond limit' => [31, 30, true],
-            'order beyond default, within custom limit' => [40, 60, false],
-            'order beyond custom limit' => [61, 60, true],
-        ];
+        yield 'order within limit' => [10, 30, false];
+        yield 'order beyond limit' => [31, 30, true];
+        yield 'order beyond default, within custom limit' => [40, 60, false];
+        yield 'order beyond custom limit' => [61, 60, true];
     }
 }

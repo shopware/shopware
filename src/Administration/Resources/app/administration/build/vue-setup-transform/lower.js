@@ -148,6 +148,7 @@ function buildCallbackBody(analysis, setupBindingsName) {
                   replacement: {
                       props: `(${setupBindingsName}.props)`,
                       emits: `(${setupBindingsName}.context.emit)`,
+                      expose: `(${setupBindingsName}.context.expose)`,
                       slots: `(${setupBindingsName}.context.slots)`,
                   }[range.kind],
               }))

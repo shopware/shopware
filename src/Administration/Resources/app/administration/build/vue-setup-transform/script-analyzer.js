@@ -21,7 +21,7 @@ const { ShopwareSetupTransformError } = require('./utils/transform-error');
  * @property {number} end
  *
  * @typedef {SourceRange & { code: string }} ImportBlock
- * @typedef {SourceRange & { kind: 'props' | 'emits' | 'slots' }} SetupInputReplacement
+ * @typedef {SourceRange & { kind: 'props' | 'emits' | 'slots' | 'expose' }} SetupInputReplacement
  *
  * @typedef {object} RuntimeBinding
  * @property {string} name
@@ -51,7 +51,6 @@ const { ShopwareSetupTransformError } = require('./utils/transform-error');
  */
 
 const UNSUPPORTED_VUE_MACROS = new Set([
-    'defineExpose',
     'defineModel',
 ]);
 
@@ -59,6 +58,7 @@ const BASE_HELPERS = new Set([
     'swDefinePublic',
     'swDefineOverride',
     'defineEmits',
+    'defineExpose',
     'defineOptions',
     'defineSlots',
     'withDefaults',
@@ -70,6 +70,7 @@ const OVERRIDE_HELPERS = new Set([
     'swDefinePublic',
     'swDefineOverride',
     'defineEmits',
+    'defineExpose',
     'defineOptions',
     'defineSlots',
     'useSwPreviousState',
@@ -707,6 +708,8 @@ function analyzeShopwareSetupScript(script, options) {
     const overrideMarkerStatements = [];
     const definePropsCalls = [];
     const defineEmitsCalls = [];
+    const defineExposeCalls = [];
+    const defineExposeStatements = [];
     const defineSlotsCalls = [];
     const defineOptionsCalls = [];
     const defineOptionsStatements = [];
@@ -739,6 +742,11 @@ function analyzeShopwareSetupScript(script, options) {
             return;
         }
 
+        if (isStatementCompilerMacro(statement, 'defineExpose')) {
+            defineExposeStatements.push(statement);
+            return;
+        }
+
         collectRuntimeBinding(statement, runtimeBindings, runtimeBindingNames, scriptOffset, mode);
     });
 
@@ -749,6 +757,10 @@ function analyzeShopwareSetupScript(script, options) {
 
         if (isCompilerMacroCall(node, 'defineEmits')) {
             defineEmitsCalls.push(node);
+        }
+
+        if (isCompilerMacroCall(node, 'defineExpose')) {
+            defineExposeCalls.push(node);
         }
 
         if (isCompilerMacroCall(node, 'defineSlots')) {
@@ -813,6 +825,33 @@ function analyzeShopwareSetupScript(script, options) {
         throw new ShopwareSetupTransformError(
             'Only one defineEmits() call is allowed in a base Shopware setup block.',
             scriptOffset + getNodeRange(emitsMacroCalls[1], scriptOffset).start,
+        );
+    }
+
+    const topLevelDefineExposeCalls = new Set(defineExposeStatements.map((statement) => statement.expression));
+
+    defineExposeCalls.forEach((call) => {
+        if (topLevelDefineExposeCalls.has(call)) {
+            return;
+        }
+
+        throw new ShopwareSetupTransformError(
+            'defineExpose() must be called once at the top level of a base Shopware setup block.',
+            scriptOffset + getNodeRange(call, scriptOffset).start,
+        );
+    });
+
+    if (mode === 'override' && defineExposeStatements.length > 0) {
+        throw new ShopwareSetupTransformError(
+            'defineExpose() is only supported in base Shopware setup blocks.',
+            scriptOffset + getNodeRange(defineExposeStatements[0], scriptOffset).start,
+        );
+    }
+
+    if (defineExposeStatements.length > 1) {
+        throw new ShopwareSetupTransformError(
+            'Only one defineExpose() call is allowed in a base Shopware setup block.',
+            scriptOffset + getNodeRange(defineExposeStatements[1], scriptOffset).start,
         );
     }
 
@@ -940,6 +979,10 @@ function analyzeShopwareSetupScript(script, options) {
         ...emitsMacroCalls.map((call) => ({
             ...getNodeRange(call, scriptOffset),
             kind: 'emits',
+        })),
+        ...defineExposeStatements.map((statement) => ({
+            ...getNodeRange(statement.expression.callee, scriptOffset),
+            kind: 'expose',
         })),
         ...slotsMacroCalls.map((call) => ({
             ...getNodeRange(call, scriptOffset),

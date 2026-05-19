@@ -83,6 +83,15 @@ swDefinePublic({ count });
 </script>`,
         },
         {
+            filename: 'base-expose.vue',
+            code: `<script setup sw-component="sw-my-component">
+function focus() {}
+defineExpose({ focus });
+const count = 1;
+swDefinePublic({ count });
+</script>`,
+        },
+        {
             filename: 'base-slots.vue',
             code: `<script setup lang="ts" sw-component="sw-my-component">
 const slots = defineSlots<{ default(props: { count: number }): unknown }>();
@@ -144,6 +153,18 @@ swDefineOverride({});
             errors: [
                 {
                     message: 'defineEmits() is only supported in base Shopware setup blocks.',
+                },
+            ],
+        },
+        {
+            filename: 'override-expose.vue',
+            code: `<script setup sw-override="sw-my-component">
+defineExpose({});
+swDefineOverride({});
+</script>`,
+            errors: [
+                {
+                    message: 'defineExpose() is only supported in base Shopware setup blocks.',
                 },
             ],
         },

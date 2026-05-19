@@ -381,6 +381,51 @@ swDefinePublic({
         expect(result).toContain('private: {\n            emit,\n        }');
     });
 
+    it('replaces base defineExpose() with setup context expose inside the extendable setup callback', () => {
+        const source = `<script setup sw-component="sw-my-component">
+function focus() {
+    return 'focused';
+}
+
+defineExpose({
+    focus,
+});
+
+const count = 1;
+
+swDefinePublic({
+    count,
+});
+</script>`;
+
+        const result = transformOrFail(source, 'base-expose.vue').code;
+
+        expect(result).toContain('(__shopwareSetupBindings.context.expose)({');
+        expect(result).toContain('focus,');
+        expect(result).not.toContain('defineExpose');
+        expect(result.indexOf('function focus()')).toBeLessThan(
+            result.indexOf('(__shopwareSetupBindings.context.expose)'),
+        );
+        expect(result).toContain('private: {\n            focus,\n        }');
+    });
+
+    it('supports bare base defineExpose() calls', () => {
+        const source = `<script setup sw-component="sw-my-component">
+defineExpose();
+
+const count = 1;
+
+swDefinePublic({
+    count,
+});
+</script>`;
+
+        const result = transformOrFail(source, 'base-bare-expose.vue').code;
+
+        expect(result).toContain('(__shopwareSetupBindings.context.expose)();');
+        expect(result).not.toContain('defineExpose');
+    });
+
     it('supports runtime array and object defineEmits() declarations', () => {
         const arraySource = `<script setup sw-component="sw-my-component">
 const emit = defineEmits(['save']);
@@ -417,6 +462,19 @@ swDefinePublic({ count });
 
         expect(() => transformShopwareSetupSfc(source, 'base-duplicate-emits.vue')).toThrow(
             'Only one defineEmits() call is allowed in a base Shopware setup block.',
+        );
+    });
+
+    it('rejects duplicate base defineExpose() declarations', () => {
+        const source = `<script setup sw-component="sw-my-component">
+const count = 1;
+defineExpose({ count });
+defineExpose({});
+swDefinePublic({ count });
+</script>`;
+
+        expect(() => transformShopwareSetupSfc(source, 'base-duplicate-expose.vue')).toThrow(
+            'Only one defineExpose() call is allowed in a base Shopware setup block.',
         );
     });
 
@@ -912,10 +970,6 @@ swDefineOverride({ count });
 
     it.each([
         [
-            'defineExpose()',
-            'Vue macro defineExpose() is not supported inside Shopware setup blocks.',
-        ],
-        [
             'defineModel()',
             'Vue macro defineModel() is not supported inside Shopware setup blocks.',
         ],
@@ -963,6 +1017,17 @@ swDefineOverride({});
         );
     });
 
+    it('rejects defineExpose() in override mode', () => {
+        const source = `<script setup lang="ts" sw-override="sw-my-component">
+defineExpose({});
+swDefineOverride({});
+</script>`;
+
+        expect(() => transformShopwareSetupSfc(source, 'override-expose.vue')).toThrow(
+            'defineExpose() is only supported in base Shopware setup blocks.',
+        );
+    });
+
     it('rejects defineSlots() in override mode', () => {
         const source = `<script setup lang="ts" sw-override="sw-my-component">
 const slots = defineSlots();
@@ -996,6 +1061,20 @@ swDefinePublic({ count });
 
         expect(() => transformShopwareSetupSfc(source, 'nested-options.vue')).toThrow(
             'defineOptions() must be called once at the top level of a base Shopware setup block.',
+        );
+    });
+
+    it('rejects nested defineExpose()', () => {
+        const source = `<script setup sw-component="sw-my-component">
+if (true) {
+    defineExpose({});
+}
+const count = 1;
+swDefinePublic({ count });
+</script>`;
+
+        expect(() => transformShopwareSetupSfc(source, 'nested-expose.vue')).toThrow(
+            'defineExpose() must be called once at the top level of a base Shopware setup block.',
         );
     });
 

@@ -104,6 +104,7 @@ Shopware setup blocks differ from native Vue `<script setup>` in v1:
 - Override SFCs register with `overrideComponentSetup(...)` at import time.
 - Base components may use one props declaration macro, either `defineProps(...)` or `withDefaults(defineProps(...), ...)`; the declaration is hoisted once and original calls are replaced with the props object passed into the extendable setup runtime.
 - Base components may use one `defineEmits(...)` declaration; the declaration is hoisted once and original calls are replaced with the setup context emitter.
+- Base components may use one top-level `defineExpose(...)` call; it is replaced with the setup context expose function inside the extendable setup callback.
 - Base components may use one `defineSlots(...)` declaration; the declaration is hoisted once and original calls are replaced with the setup context slots object.
 - Base components may use one top-level `defineOptions(...)` call; it is kept at the generated script setup root and removed from the extendable setup callback.
 - Other Vue macros are not supported in Shopware setup blocks.
@@ -115,9 +116,10 @@ The transform rejects these cases loudly:
 
 - Script languages other than `js`, `jsx`, `ts`, and `tsx`
 - Bound `sw-component` or `sw-override` attributes
-- Vue macros except supported base props, emits, slots, and options declarations: `defineExpose()`, `defineModel()`
+- Vue macros except supported base props, emits, expose, slots, and options declarations: `defineModel()`
 - Props declaration macros in override mode, or more than one props declaration macro
 - `defineEmits()` in override mode, or more than one `defineEmits()` call
+- `defineExpose()` in override mode, outside the top level, or more than one `defineExpose()` call
 - `defineSlots()` in override mode, or more than one `defineSlots()` call
 - `defineOptions()` in override mode, outside the top level, or more than one `defineOptions()` call
 - Top-level `await`
@@ -149,7 +151,7 @@ Direct oxlint support is not part of v1. oxlint has JavaScript plugin support fo
 
 ## Proposals
 
-Full macro support could be added by mapping more Vue macros to explicit Shopware equivalents. Props, emits, and slots declaration macros are currently supported for base components by hoisting one declaration each and replacing the original call inside the extendable setup callback. Options declarations are supported by preserving one top-level `defineOptions(...)` call in the generated script setup root.
+Full macro support could be added by mapping more Vue macros to explicit Shopware equivalents. Props, emits, and slots declaration macros are currently supported for base components by hoisting one declaration each and replacing the original call inside the extendable setup callback. Expose declarations are replaced with the setup context expose function inside the callback. Options declarations are supported by preserving one top-level `defineOptions(...)` call in the generated script setup root.
 
 Top-level await could be supported only if the extension runtime becomes async-first for both base setup and override application. Until that runtime contract changes, v1 keeps top-level setup synchronous.
 

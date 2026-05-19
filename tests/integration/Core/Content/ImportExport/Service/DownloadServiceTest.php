@@ -151,12 +151,15 @@ class DownloadServiceTest extends TestCase
      */
     private function createDownloadService(Filesystem $fileSystem, EntityRepository $fileRepository): DownloadService
     {
+        /** @var RateLimiter $rateLimiter */
+        $rateLimiter = static::getContainer()->get(RateLimiter::class);
+
         return new DownloadService(
             $fileSystem,
             $fileRepository,
             $this->createMock(LoggerInterface::class),
             self::DEFAULT_STRATEGY,
-            new RateLimiter(),
+            $rateLimiter,
         );
     }
 }

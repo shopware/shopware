@@ -28,6 +28,11 @@ class Migration1763125902AddOrderLineItemProductTypePayloadTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1763125902, (new Migration1763125902AddOrderLineItemProductTypePayload())->getCreationTimestamp());
+    }
+
     public function testUpdateSetsDigitalTypeWhenStatesIsDownloadExists(): void
     {
         $this->ensureStatesColumnExists();

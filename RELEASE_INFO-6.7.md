@@ -118,6 +118,20 @@ Custom fields on category, landing page, sales channel, customer address, and or
 Selecting the "Last Quarter" timeframe in any listing's date filter (orders, documents, customers, etc.) between January and March now produces a three-month range in the previous year instead of a ~15-month range that spanned both years.
 The end boundary is now derived from the quarter's start year rather than the current year.
 
+### Added explicit calendar-based timeframe options to `sw-date-filter`
+
+The order date filter dropdown now offers two additional presets alongside the existing rolling options:
+
+* `Last calendar month` — the previous calendar month in the user's timezone
+* `Last calendar week` — the previous ISO week (Monday-Sunday) in the user's timezone
+
+The existing rolling presets keep their behaviour but were relabelled to make the distinction obvious:
+
+* `Last month` -> `Last 30 days`
+* `Last week` -> `Last 7 days`
+
+Snippet keys and persisted filter values are unchanged, so saved filter states continue to resolve the same range.
+
 ### Admin menu flyout no longer overflows the viewport
 
 When the sidebar is collapsed, hovering a menu entry near the bottom of the sidebar could cause the flyout submenu to extend beyond the viewport, making lower entries inaccessible.

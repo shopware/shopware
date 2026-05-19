@@ -110,7 +110,7 @@ class HtmlRendererTest extends TestCase
         static::assertSame('invoice_12345', $result->fileName);
     }
 
-    public function testRenderToStringPrintModeUsesPdfFileTypeAndConfiguredItemsPerPage(): void
+    public function testRenderToStringPrintModeUsesConfiguredItemsPerPage(): void
     {
         $renderData = $this->createRenderData();
 
@@ -119,6 +119,8 @@ class HtmlRendererTest extends TestCase
             ->method('find')
             ->with(self::HTML_TEMPLATE_PATH)
             ->willReturn(self::HTML_TEMPLATE_PATH);
+
+        $rendered = '<html>print</html>';
 
         $env = $this->createMock(Environment::class);
         $env->expects($this->once())
@@ -133,7 +135,7 @@ class HtmlRendererTest extends TestCase
                     return true;
                 })
             )
-            ->willReturn('<html>print</html>');
+            ->willReturn($rendered);
 
         $input = new RenderInput(
             DocumentType::INVOICE->value,
@@ -142,11 +144,17 @@ class HtmlRendererTest extends TestCase
             [InvoiceDataProvider::KEY => $renderData],
         );
 
-        $this->createRenderer($finder, $env)->renderToString(
+        $result = $this->createRenderer($finder, $env)->renderToString(
             $input,
             new RenderState(),
             Context::createDefaultContext(),
         );
+
+        static::assertSame(DocumentFormat::HTML->value, $result->format);
+        static::assertSame($rendered, $result->content);
+        static::assertSame('html', $result->fileExtension);
+        static::assertSame('text/html', $result->mimeType);
+        static::assertSame('12345', $result->fileName);
     }
 
     public function testShouldThrowIfRenderDataCantBeFound(): void

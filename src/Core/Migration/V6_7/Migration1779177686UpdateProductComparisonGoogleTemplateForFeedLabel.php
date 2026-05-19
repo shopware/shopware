@@ -23,9 +23,9 @@ class Migration1779177686UpdateProductComparisonGoogleTemplateForFeedLabel exten
     {
         $filesystem = new Filesystem();
 
-        $fixturePath = __DIR__ . '/../Fixtures/productComparison-export-profiles/gh-9421/';
-        $templateOld = $filesystem->readFile($fixturePath . 'google_old.xml.twig');
-        $templateNew = $filesystem->readFile($fixturePath . 'google_new.xml.twig');
+        $fixturePath = __DIR__ . '/../Fixtures/productComparison-export-profiles/';
+        $templateOld = $filesystem->readFile($fixturePath . 'next-39314/google_new.xml.twig');
+        $templateNew = $filesystem->readFile($fixturePath . 'new-template-google.xml.twig');
 
         $connection->update(
             'product_export',

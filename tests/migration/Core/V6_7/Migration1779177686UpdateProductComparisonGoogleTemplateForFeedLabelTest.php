@@ -31,9 +31,9 @@ class Migration1779177686UpdateProductComparisonGoogleTemplateForFeedLabelTest e
     {
         $this->connection = KernelLifecycleManager::getConnection();
         $fs = new Filesystem();
-        $fixtureBase = __DIR__ . '/../../../../src/Core/Migration/Fixtures/productComparison-export-profiles/gh-9421/';
-        $this->oldTemplate = $fs->readFile($fixtureBase . 'google_old.xml.twig');
-        $this->newTemplate = $fs->readFile($fixtureBase . 'google_new.xml.twig');
+        $fixtureBase = __DIR__ . '/../../../../src/Core/Migration/Fixtures/productComparison-export-profiles/';
+        $this->oldTemplate = $fs->readFile($fixtureBase . 'next-39314/google_new.xml.twig');
+        $this->newTemplate = $fs->readFile($fixtureBase . 'new-template-google.xml.twig');
     }
 
     public function testGetCreationTimestamp(): void

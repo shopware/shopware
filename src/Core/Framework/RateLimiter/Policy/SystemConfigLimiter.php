@@ -36,6 +36,6 @@ class SystemConfigLimiter extends TimeBackoffLimiter
         }
 
         /** @var list<array{limit: int, interval: string}> $limits */
-        parent::__construct($id, $limits, $reset, $storage, $lock ?? new NoLock(), $clock ?? new NativeClock());
+        parent::__construct($id, $limits, $reset, $storage, $clock ?? new NativeClock(), $lock ?? new NoLock());
     }
 }

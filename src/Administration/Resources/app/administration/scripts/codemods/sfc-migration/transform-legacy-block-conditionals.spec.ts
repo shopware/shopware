@@ -39,6 +39,17 @@ describe('scripts/codemods/sfc-migration/transform-legacy-block-conditionals', (
         expect(result).not.toContain('v-else-if="showOverride"');
     });
 
+    it('does not rewrite leading v-else branches without sw-block-parent', () => {
+        const result = transformLegacyBlockConditionals(`
+<sw-block name="sw_example" :data="$dataScope">
+    <div v-else class="fallback">fallback</div>
+</sw-block>
+        `);
+
+        expect(result).toContain('v-else class="fallback"');
+        expect(result).not.toContain('$swLegacyBlockElse');
+    });
+
     it('escapes rewritten helper expressions for double-quoted attributes', () => {
         const result = transformLegacyBlockConditionals(`
 <sw-block name="sw_example" :data="$dataScope">

@@ -108,7 +108,7 @@ function getTrailingConditionalChain(children: ElementNode[]): ElementNode[] {
 }
 
 function getConditionalElementFollowingBlockParent(children: ElementNode[]): ElementNode | null {
-    let shouldCheckChild = true;
+    let shouldCheckChild = false;
 
     for (const child of children) {
         if (child.tag === SW_BLOCK_PARENT_TAG) {

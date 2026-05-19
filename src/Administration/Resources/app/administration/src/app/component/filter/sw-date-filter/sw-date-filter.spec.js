@@ -51,6 +51,10 @@ describe('src/app/component/filter/sw-date-filter', () => {
         jest.setSystemTime(new Date(1337, 11, 31));
     });
 
+    beforeEach(() => {
+        Shopware.Store.get('session').setCurrentUser({ timeZone: 'UTC' });
+    });
+
     afterAll(() => {
         jest.useRealTimers();
     });
@@ -65,7 +69,7 @@ describe('src/app/component/filter/sw-date-filter', () => {
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'releaseDate',
-            [Criteria.range('releaseDate', { gte: '2021-01-22' })],
+            [Criteria.range('releaseDate', { gte: '2021-01-22T00:00:00.000Z' })],
             { from: '2021-01-22T00:00:00.000Z', to: null, timeframe: 'custom' },
         ]);
     });
@@ -80,7 +84,7 @@ describe('src/app/component/filter/sw-date-filter', () => {
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'releaseDate',
-            [Criteria.range('releaseDate', { lte: '2021-01-25' })],
+            [Criteria.range('releaseDate', { lte: '2021-01-25T23:59:59.000Z' })],
             { from: null, to: '2021-01-25T23:59:59.000Z', timeframe: 'custom' },
         ]);
     });
@@ -96,13 +100,6 @@ describe('src/app/component/filter/sw-date-filter', () => {
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'releaseDate',
-            [Criteria.range('releaseDate', { gte: '2021-01-19' })],
-            { from: '2021-01-19T00:00:00.000Z', to: null, timeframe: 'custom' },
-        ]);
-
-        // [1] is a duplicate emission from sw-date-filter mutating dateValue.from to ISO (triggers sw-range-filter watch again)
-        expect(wrapper.emitted()['filter-update'][1]).toEqual([
-            'releaseDate',
             [Criteria.range('releaseDate', { gte: '2021-01-19T00:00:00.000Z' })],
             { from: '2021-01-19T00:00:00.000Z', to: null, timeframe: 'custom' },
         ]);
@@ -113,17 +110,49 @@ describe('src/app/component/filter/sw-date-filter', () => {
         await toInput.trigger('input');
         await flushPromises();
 
-        expect(wrapper.emitted()['filter-update'][2]).toEqual([
+        expect(wrapper.emitted()['filter-update'][1]).toEqual([
             'releaseDate',
             [
                 Criteria.range('releaseDate', {
                     gte: '2021-01-19T00:00:00.000Z',
-                    lte: '2021-01-25',
+                    lte: '2021-01-25T23:59:59.000Z',
                 }),
             ],
             {
                 from: '2021-01-19T00:00:00.000Z',
                 to: '2021-01-25T23:59:59.000Z',
+                timeframe: 'custom',
+            },
+        ]);
+    });
+
+    it('should emit user timezone aware criteria for date ranges', async () => {
+        Shopware.Store.get('session').setCurrentUser({ timeZone: 'Europe/Berlin' });
+
+        const wrapper = await createWrapper();
+
+        const fromInput = wrapper.find('.sw-date-filter__from').find('input');
+        const toInput = wrapper.find('.sw-date-filter__to').find('input');
+
+        await fromInput.setValue('2024-04-29');
+        await fromInput.trigger('input');
+        await flushPromises();
+
+        await toInput.setValue('2024-04-29');
+        await toInput.trigger('input');
+        await flushPromises();
+
+        expect(wrapper.emitted()['filter-update'][1]).toEqual([
+            'releaseDate',
+            [
+                Criteria.range('releaseDate', {
+                    gte: '2024-04-28T22:00:00.000Z',
+                    lte: '2024-04-29T21:59:59.000Z',
+                }),
+            ],
+            {
+                from: '2024-04-28T22:00:00.000Z',
+                to: '2024-04-29T21:59:59.000Z',
                 timeframe: 'custom',
             },
         ]);
@@ -240,7 +269,7 @@ describe('src/app/component/filter/sw-date-filter', () => {
         'a year': {
             timeframe: -365,
             expectedFrom: '1336-12-31T00:00:00.000Z',
-            expectedTo: '1337-12-31T00:00:00.000Z',
+            expectedTo: '1337-12-31T23:59:59.000Z',
         },
         'a quarter': {
             timeframe: 'lastQuarter',
@@ -250,17 +279,17 @@ describe('src/app/component/filter/sw-date-filter', () => {
         'a month': {
             timeframe: -30,
             expectedFrom: '1337-12-01T00:00:00.000Z',
-            expectedTo: '1337-12-31T00:00:00.000Z',
+            expectedTo: '1337-12-31T23:59:59.000Z',
         },
         'a week': {
             timeframe: -7,
             expectedFrom: '1337-12-24T00:00:00.000Z',
-            expectedTo: '1337-12-31T00:00:00.000Z',
+            expectedTo: '1337-12-31T23:59:59.000Z',
         },
         'a day': {
             timeframe: -1,
             expectedFrom: '1337-12-30T00:00:00.000Z',
-            expectedTo: '1337-12-31T00:00:00.000Z',
+            expectedTo: '1337-12-31T23:59:59.000Z',
         },
     };
 

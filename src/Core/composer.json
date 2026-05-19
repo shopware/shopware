@@ -14,7 +14,10 @@
         ],
         "psr-4": {
             "Shopware\\Core\\": ""
-        }
+        },
+        "exclude-from-classmap": [
+            "Framework/Adapter/Doctrine/Patch/"
+        ]
     },
     "support": {
         "issues": "https://github.com/shopware/shopware/issues",

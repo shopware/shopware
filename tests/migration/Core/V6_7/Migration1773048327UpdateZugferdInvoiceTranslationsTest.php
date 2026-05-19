@@ -26,6 +26,11 @@ class Migration1773048327UpdateZugferdInvoiceTranslationsTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1773048327, (new Migration1773048327UpdateZugferdInvoiceTranslations())->getCreationTimestamp());
+    }
+
     public function testUpdateZugferdInvoiceTranslations(): void
     {
         $technicalNames = [

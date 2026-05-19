@@ -33,6 +33,11 @@ class Migration1711461580SetSystemDefaultForDefaultMailFooterTest extends TestCa
         $this->mailHeaderFooterId = $this->fetchMailHeaderFooterId($this->connection);
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1711461580, (new Migration1711461580SetSystemDefaultForDefaultMailFooter())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         $this->ensureMailHeaderFooterTemplateIsNotSystemDefault();

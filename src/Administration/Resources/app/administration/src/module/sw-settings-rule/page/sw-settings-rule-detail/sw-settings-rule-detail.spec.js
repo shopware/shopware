@@ -1,4 +1,4 @@
-/* eslint-disable sw-test-rules/test-file-max-lines-error */
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
 
 import { config, mount } from '@vue/test-utils';
 import kebabCase from 'lodash-es/kebabCase';

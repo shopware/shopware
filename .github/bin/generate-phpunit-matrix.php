@@ -34,6 +34,11 @@ $matrix = [
                 'db' => 'mariadb:11'
             ],
             [
+                'test' => ['testsuite' => 'migration'],
+                'php' => '8.2',
+                'db' => 'mysql:8.4'
+            ],
+            [
                 'test' => ['testsuite' => 'devops'],
                 'php' => '8.5',
                 'db' => 'mariadb:11'

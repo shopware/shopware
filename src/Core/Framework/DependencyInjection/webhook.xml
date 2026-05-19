@@ -68,8 +68,11 @@
             <tag name="messenger.transport_factory"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Webhook\Subscriber\WebhookConsumeMessagesSubscriber">
-            <tag name="kernel.event_subscriber"/>
+        <service id="Shopware\Core\Framework\Webhook\Command\WebhookDrainToAsyncCommand">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Symfony\Component\Messenger\MessageBusInterface"/>
+            <argument type="service" id="logger"/>
+            <tag name="console.command"/>
         </service>
 
         <service lazy="true" id="Shopware\Core\Framework\Webhook\Service\WebhookManager">

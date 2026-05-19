@@ -893,6 +893,86 @@ swDefineOverride({});
         expect(result).toContain('return {};');
     });
 
+    it('detects override-local references in TypeScript and optional-chain template expressions', () => {
+        const source = `<template>
+<sw-block extends="sw_example_component_body">
+    <p>{{ (maybeInfo as string | undefined)?.toUpperCase() }}</p>
+    <p>{{ source?.[dynamicKey] }}</p>
+</sw-block>
+</template>
+<script setup lang="ts" sw-override="sw-example-component">
+const maybeInfo = 'local';
+const source = {
+    headline: 'Headline',
+};
+const dynamicKey = 'headline';
+
+swDefineOverride({});
+</script>`;
+
+        const result = transformOrFail(source, 'typescript-template-references.override.vue').code;
+
+        [
+            'maybeInfo',
+            'source',
+            'dynamicKey',
+        ].forEach((name) => {
+            const privateAlias = result.match(new RegExp(`__swOverride_[a-f0-9]{5}_${name}`))?.[0];
+
+            expect(privateAlias).toBeDefined();
+            expect(result).toContain(`${privateAlias}: ${name}`);
+        });
+    });
+
+    it('ignores identifiers shadowed by v-for aliases, slot scopes, and nested callback patterns', () => {
+        const source = `<template>
+<sw-block extends="sw_example_component_body">
+    <p v-for="({ info, label: localLabel }, index) in rows">
+        {{ info }}{{ localLabel }}{{ index }}{{ rows.length }}
+    </p>
+
+    <Child #default="{ info, nested: { localInfo }, items: [firstItem] }">
+        {{ info }}{{ localInfo }}{{ firstItem }}{{ rows.length }}
+    </Child>
+
+    <p>{{ items.map(({ info, label: localLabel }) => info + localLabel).join(',') }}</p>
+</sw-block>
+</template>
+<script setup sw-override="sw-example-component">
+const info = 'setup info';
+const localInfo = 'setup nested info';
+const firstItem = 'setup first item';
+const localLabel = 'setup label';
+const index = 0;
+const rows = [];
+const items = [];
+
+swDefineOverride({});
+</script>`;
+
+        const result = transformOrFail(source, 'template-shadowing-patterns.override.vue').code;
+
+        [
+            'rows',
+            'items',
+        ].forEach((name) => {
+            const privateAlias = result.match(new RegExp(`__swOverride_[a-f0-9]{5}_${name}`))?.[0];
+
+            expect(privateAlias).toBeDefined();
+            expect(result).toContain(`${privateAlias}: ${name}`);
+        });
+
+        [
+            'info',
+            'localInfo',
+            'firstItem',
+            'localLabel',
+            'index',
+        ].forEach((name) => {
+            expect(result).not.toMatch(new RegExp(`__swOverride_[a-f0-9]{5}_${name}(?![A-Za-z0-9_$])`));
+        });
+    });
+
     it('does not expose override-local state when an existing default slot scope shadows it', () => {
         const source = `<template>
 <sw-block

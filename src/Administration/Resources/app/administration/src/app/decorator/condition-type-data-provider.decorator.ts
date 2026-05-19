@@ -364,14 +364,14 @@ export const CONDITIONS: ConditionDefinition[] = [
         type: 'orderAffiliateCode',
         component: COMPONENTS.GENERIC,
         label: 'global.sw-condition.condition.orderAffiliateCodeRule',
-        scopes: [SCOPES.CHECKOUT],
+        scopes: [SCOPES.ORDER],
         group: GROUPS.ORDER,
     },
     {
         type: 'orderCampaignCode',
         component: COMPONENTS.GENERIC,
         label: 'global.sw-condition.condition.orderCampaignCodeRule',
-        scopes: [SCOPES.CHECKOUT],
+        scopes: [SCOPES.ORDER],
         group: GROUPS.ORDER,
     },
     {
@@ -724,7 +724,6 @@ export const CONDITIONS: ConditionDefinition[] = [
         scopes: [SCOPES.CHECKOUT],
         group: GROUPS.CUSTOMER,
     },
-    /** @deprecated tag:v6.8.0 - Will be removed, use cartLineItemProductType instead. */
     {
         type: 'cartLineItemProductStates',
         component: COMPONENTS.GENERIC_LINE_ITEM,
@@ -839,17 +838,18 @@ export const CONDITIONS: ConditionDefinition[] = [
  *
  * @private
  */
-export const AWARENESS_CONFIGURATIONS = (s: RuleConditionService): AwarenessConfigurationDefinition[] => [
+export const AWARENESS_CONFIGURATIONS = (service: RuleConditionService): AwarenessConfigurationDefinition[] => [
     {
         name: 'personaPromotions',
         config: {
             notEquals: [
                 'cartCartAmount',
                 'cartShippingCost',
+                ...service.getRestrictionsByGroup(GROUPS.ORDER),
             ],
             equalsAny: [
-                ...s.getRestrictionsByGroup(GROUPS.CUSTOMER),
                 'alwaysValid',
+                ...service.getRestrictionsByGroup(GROUPS.CUSTOMER),
             ],
             snippet: 'sw-restricted-rules.restrictedAssignment.personaPromotions',
         },
@@ -860,7 +860,7 @@ export const AWARENESS_CONFIGURATIONS = (s: RuleConditionService): AwarenessConf
             notEquals: [
                 'cartCartAmount',
                 'cartShippingCost',
-                ...s.getRestrictionsByGroup(GROUPS.ORDER),
+                ...service.getRestrictionsByGroup(GROUPS.ORDER),
             ],
             snippet: 'sw-restricted-rules.restrictedAssignment.orderPromotions',
         },
@@ -871,7 +871,7 @@ export const AWARENESS_CONFIGURATIONS = (s: RuleConditionService): AwarenessConf
             notEquals: [
                 'cartCartAmount',
                 'cartShippingCost',
-                ...s.getRestrictionsByGroup(GROUPS.ORDER),
+                ...service.getRestrictionsByGroup(GROUPS.ORDER),
             ],
             snippet: 'sw-restricted-rules.restrictedAssignment.cartPromotions',
         },
@@ -882,6 +882,7 @@ export const AWARENESS_CONFIGURATIONS = (s: RuleConditionService): AwarenessConf
             notEquals: [
                 'cartCartAmount',
                 'cartShippingCost',
+                ...service.getRestrictionsByGroup(GROUPS.ORDER),
             ],
             snippet: 'sw-restricted-rules.restrictedAssignment.promotionSetGroups',
         },
@@ -892,6 +893,7 @@ export const AWARENESS_CONFIGURATIONS = (s: RuleConditionService): AwarenessConf
             notEquals: [
                 'cartCartAmount',
                 'cartShippingCost',
+                ...service.getRestrictionsByGroup(GROUPS.ORDER),
             ],
             snippet: 'sw-restricted-rules.restrictedAssignment.promotionDiscounts',
         },
@@ -902,6 +904,7 @@ export const AWARENESS_CONFIGURATIONS = (s: RuleConditionService): AwarenessConf
             notEquals: [
                 'cartCartAmount',
                 'cartShippingCost',
+                ...service.getRestrictionsByGroup(GROUPS.ORDER),
             ],
             snippet: 'sw-restricted-rules.restrictedAssignment.shippingMethodPriceCalculations',
         },
@@ -912,8 +915,27 @@ export const AWARENESS_CONFIGURATIONS = (s: RuleConditionService): AwarenessConf
             notEquals: [
                 'cartCartAmount',
                 'cartShippingCost',
+                ...service.getRestrictionsByGroup(GROUPS.ORDER),
             ],
             snippet: 'sw-restricted-rules.restrictedAssignment.shippingMethodPrices',
+        },
+    },
+    {
+        name: 'paymentMethods',
+        config: {
+            notEquals: [
+                ...service.getRestrictionsByGroup(GROUPS.ORDER),
+            ],
+            snippet: 'sw-restricted-rules.restrictedAssignment.paymentMethods',
+        },
+    },
+    {
+        name: 'shippingMethods',
+        config: {
+            notEquals: [
+                ...service.getRestrictionsByGroup(GROUPS.ORDER),
+            ],
+            snippet: 'sw-restricted-rules.restrictedAssignment.shippingMethods',
         },
     },
 ];

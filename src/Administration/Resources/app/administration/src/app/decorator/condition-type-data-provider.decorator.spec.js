@@ -119,6 +119,8 @@ const EXPECTED_AWARENESS_CONFIGURATIONS = [
     'promotionDiscounts',
     'shippingMethodPriceCalculations',
     'shippingMethodPrices',
+    'paymentMethods',
+    'shippingMethods',
 ];
 
 describe('app/decorator/condition-type-data-provider.decorator', () => {
@@ -185,6 +187,18 @@ describe('app/decorator/condition-type-data-provider.decorator', () => {
 
         expect(unknown).toHaveLength(0);
     });
+
+    it.each(CONDITIONS.filter((condition) => Boolean(condition.removedInFeature)))(
+        'should skip $type while feature flag $removedInFeature is active',
+        ({ type, removedInFeature }) => {
+            jest.spyOn(Shopware.Feature, 'isActive').mockImplementation((flag) => flag === removedInFeature);
+
+            const conditionService = new RuleConditionService();
+            expect(Object.keys(conditionService.$store)).not.toContain(type);
+
+            jest.restoreAllMocks();
+        },
+    );
 
     it('should add app script conditions', () => {
         service.addScriptConditions([

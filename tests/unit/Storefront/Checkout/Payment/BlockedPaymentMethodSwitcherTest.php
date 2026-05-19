@@ -13,8 +13,6 @@ use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRouteResponse;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsAnyFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Generator;
@@ -276,7 +274,7 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
 
         $paymentMethodRoute = $this->createMock(PaymentMethodRoute::class);
         $paymentMethodRoute
-            ->expects($this->exactly(2))
+            ->expects($this->once())
             ->method('load')
             ->with(
                 static::equalTo(new Request(['onlyAvailable' => true])),
@@ -290,57 +288,22 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
 
     public function callbackLoadPaymentMethods(Request $request, SalesChannelContext $context, Criteria $criteria): PaymentMethodRouteResponse
     {
-        $searchIds = $criteria->getIds();
-
-        if ($searchIds === []) {
-            static::assertCount(1, $criteria->getFilters());
-
-            $notEqualsAnyFilter = $criteria->getFilters()[0];
-
-            static::assertInstanceOf(NotEqualsAnyFilter::class, $notEqualsAnyFilter);
-            static::assertCount(1, $notEqualsAnyFilter->getQueries());
-
-            $idsFilter = $notEqualsAnyFilter->getQueries()[0];
-
-            static::assertInstanceOf(EqualsAnyFilter::class, $idsFilter);
-
-            $ids = $idsFilter->getValue();
-
-            $collection = $this->paymentMethodCollection->filter(
-                static fn (PaymentMethodEntity $entity) => !\in_array($entity->getId(), $ids, true)
-            );
-        } else {
-            $collection = $this->paymentMethodCollection->filter(
-                static fn (PaymentMethodEntity $entity) => \in_array($entity->getId(), $searchIds, true)
-            );
-        }
-
         $paymentMethodResponse = $this->createMock(PaymentMethodRouteResponse::class);
         $paymentMethodResponse
             ->expects($this->once())
             ->method('getPaymentMethods')
-            ->willReturn($collection);
+            ->willReturn($this->paymentMethodCollection);
 
         return $paymentMethodResponse;
     }
 
     private function callbackLoadPaymentMethodsForAllBlocked(Request $request, SalesChannelContext $context, Criteria $criteria): PaymentMethodRouteResponse
     {
-        $searchIds = $criteria->getIds();
-
-        if ($searchIds === []) {
-            $collection = new PaymentMethodCollection();
-        } else {
-            $collection = $this->paymentMethodCollection->filter(
-                static fn (PaymentMethodEntity $entity) => \in_array($entity->getId(), $searchIds, true)
-            );
-        }
-
         $paymentMethodResponse = $this->createMock(PaymentMethodRouteResponse::class);
         $paymentMethodResponse
             ->expects($this->once())
             ->method('getPaymentMethods')
-            ->willReturn($collection);
+            ->willReturn(new PaymentMethodCollection());
 
         return $paymentMethodResponse;
     }

@@ -98,6 +98,9 @@ final class ReviewFormEvent extends Event implements SalesChannelAware, MailAwar
         return $this->productId;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return a non-nullable ProductEntity in v6.8.0.0
+     */
     public function getProduct(): ?ProductEntity
     {
         return $this->product;

@@ -81,14 +81,20 @@ trait MySql84FkGuardTestTrait
     }
 
     /**
-     * Runs the migration through {@see MigrationRuntime::runMigrationStep()} so
-     * it benefits from the runtime's MySQL bug #118151 retry. Calling
-     * `$migration->update()` directly would fail on MySQL 8.4 with a
+     * Runs the migration through the same FK-guard retry that
+     * {@see MigrationRuntime::migrate()} uses, so the test exercises the real
+     * workaround for MySQL bug #118151 rather than calling
+     * `$migration->update()` directly (which would fail on MySQL 8.4 with a
      * non-standard child FK in place — the workaround lives at the runtime
-     * layer, not in individual migrations.
+     * layer, not in individual migrations).
+     *
+     * The retry method is private on `MigrationRuntime` because it has no
+     * production caller outside the runtime itself; this trait reaches for it
+     * via reflection so the production API stays test-free.
      */
     protected function runMigrationViaRuntime(Connection $connection, MigrationStep $migration): void
     {
-        (new MigrationRuntime($connection, new NullLogger()))->runMigrationStep($migration);
+        $runtime = new MigrationRuntime($connection, new NullLogger());
+        (new \ReflectionMethod($runtime, 'runMigrationWithFkGuardRetry'))->invoke($runtime, $migration);
     }
 }

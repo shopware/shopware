@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache\Http;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheHitEvent;
@@ -53,6 +54,7 @@ class CacheStore implements StoreInterface
         private readonly CacheTagCollector $collector,
         private bool $softPurge,
         private readonly MessageBusInterface $bus,
+        private readonly ClockInterface $clock,
     ) {
         $this->sessionName = $sessionOptions['name'] ?? PlatformRequest::FALLBACK_SESSION_NAME;
     }
@@ -92,7 +94,7 @@ class CacheStore implements StoreInterface
 
             if ($minInvalidation >= $responseGeneratedAt->getTimestamp()) {
                 // The cache is too old, we need to revalidate it
-                if ($staleWhileRevalidate && $responseGeneratedAt->diff(new \DateTime())->s >= (int) $staleWhileRevalidate) {
+                if ($staleWhileRevalidate && $responseGeneratedAt->diff($this->clock->now())->s >= (int) $staleWhileRevalidate) {
                     return null;
                 }
 

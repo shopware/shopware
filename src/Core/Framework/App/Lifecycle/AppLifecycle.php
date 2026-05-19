@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\App\Lifecycle;
 
 use Composer\Semver\VersionParser;
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
@@ -90,6 +91,7 @@ class AppLifecycle extends AbstractAppLifecycle
         private readonly McpAppSyncer $mcpAppSyncer,
         private readonly DeletedAppsGateway $deletedAppsGateway,
         private readonly AppRequirementsValidator $requirementsValidator,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -315,7 +317,7 @@ class AppLifecycle extends AbstractAppLifecycle
             if ($softDelete) {
                 $this->integrationRepository->update([[
                     'id' => $app->getIntegrationId(),
-                    'deletedAt' => new \DateTimeImmutable(),
+                    'deletedAt' => $this->clock->now(),
                 ]], $context);
                 $this->permissionLifecycle->softDeleteRole($app->getAclRoleId());
             } else {
@@ -344,7 +346,7 @@ class AppLifecycle extends AbstractAppLifecycle
                 $update[] = [
                     'id' => $customEntity->getId(),
                     'appId' => null,
-                    'deletedAt' => new \DateTimeImmutable(),
+                    'deletedAt' => $this->clock->now(),
                 ];
             } else {
                 $update[] = [

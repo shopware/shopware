@@ -43,6 +43,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Shopware\Core\Test\Stub\App\StaticSourceResolver;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -525,7 +526,8 @@ class AppLifecycleTest extends TestCase
             $this->createMock(ConfigReader::class),
             $mcpAppSyncer ?? $this->createMock(McpAppSyncer::class),
             $deletedAppsGateway,
-            $requirementsValidator ?? static::createStub(AppRequirementsValidator::class)
+            $requirementsValidator ?? static::createStub(AppRequirementsValidator::class),
+            new NativeClock()
         );
     }
 

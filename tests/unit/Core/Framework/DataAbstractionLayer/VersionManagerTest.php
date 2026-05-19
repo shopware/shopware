@@ -28,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\SharedLockInterface;
@@ -59,7 +60,8 @@ class VersionManagerTest extends TestCase
             $this->createMock(VersionCommitDefinition::class),
             $this->createMock(VersionCommitDataDefinition::class),
             $this->createMock(VersionDefinition::class),
-            $this->createMock(LockFactory::class)
+            $this->createMock(LockFactory::class),
+            new NativeClock()
         );
 
         $entityCollectionMock = new EntityCollection([
@@ -129,7 +131,8 @@ class VersionManagerTest extends TestCase
             $this->createMock(VersionCommitDefinition::class),
             $this->createMock(VersionCommitDataDefinition::class),
             $this->createMock(VersionDefinition::class),
-            $this->createMock(LockFactory::class)
+            $this->createMock(LockFactory::class),
+            new NativeClock()
         );
 
         $productId = 'product-id';
@@ -179,7 +182,8 @@ class VersionManagerTest extends TestCase
             $this->createMock(VersionCommitDefinition::class),
             $this->createMock(VersionCommitDataDefinition::class),
             $this->createMock(VersionDefinition::class),
-            $lockFactory
+            $lockFactory,
+            new NativeClock()
         );
 
         $versionId = 'version-id';
@@ -216,7 +220,8 @@ class VersionManagerTest extends TestCase
             $this->createMock(VersionCommitDefinition::class),
             $this->createMock(VersionCommitDataDefinition::class),
             $this->createMock(VersionDefinition::class),
-            $lockFactory
+            $lockFactory,
+            new NativeClock()
         );
 
         $versionId = 'non-existent-version-id';

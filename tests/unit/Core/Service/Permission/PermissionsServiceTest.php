@@ -16,6 +16,7 @@ use Shopware\Core\Service\Permission\PermissionsService;
 use Shopware\Core\Service\Permission\RemoteLogger;
 use Shopware\Core\Service\ServiceException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -42,7 +43,8 @@ class PermissionsServiceTest extends TestCase
         $this->permissionsService = new PermissionsService(
             $this->systemConfigService,
             $this->eventDispatcher,
-            $this->remoteConsentLogger
+            $this->remoteConsentLogger,
+            new NativeClock()
         );
 
         $this->context = new Context(new AdminApiSource(Uuid::randomHex()));

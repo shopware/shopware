@@ -18,6 +18,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigLoader;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -40,23 +41,26 @@ class SystemConfigServiceTest extends TestCase
             static::getContainer()->get('event_dispatcher'),
             new SymfonySystemConfigService([]),
             static::getContainer()->get(CacheTagCollector::class),
+            new NativeClock()
         );
     }
 
     /**
-     * @return iterable<string, array{mixed}>
+     * @return list<array{mixed}>
      */
-    public static function differentTypesProvider(): iterable
+    public static function differentTypesProvider(): array
     {
-        yield 'boolean true value is stored unchanged' => [true];
-        yield 'boolean false value is stored unchanged' => [false];
-        yield 'null value is stored unchanged' => [null];
-        yield 'zero integer value is stored unchanged' => [0];
-        yield 'positive integer value is stored unchanged' => [1234];
-        yield 'float value is stored unchanged' => [1243.42314];
-        yield 'empty string value is stored unchanged' => [''];
-        yield 'string value is stored unchanged' => ['test'];
-        yield 'array value is stored unchanged' => [['foo' => 'bar']];
+        return [
+            [true],
+            [false],
+            [null],
+            [0],
+            [1234],
+            [1243.42314],
+            [''],
+            ['test'],
+            [['foo' => 'bar']],
+        ];
     }
 
     /**
@@ -71,19 +75,21 @@ class SystemConfigServiceTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{mixed, string}>
+     * @return list<array{mixed, string}>
      */
-    public static function getStringProvider(): iterable
+    public static function getStringProvider(): array
     {
-        yield 'true value is read as string one' => [true, '1'];
-        yield 'false value is read as empty string' => [false, ''];
-        yield 'null value is read as empty string' => [null, ''];
-        yield 'zero integer is read as string zero' => [0, '0'];
-        yield 'positive integer is read as string integer' => [1234, '1234'];
-        yield 'float value is read as string float' => [1243.42314, '1243.42314'];
-        yield 'empty string is read unchanged' => ['', ''];
-        yield 'string value is read unchanged' => ['test', 'test'];
-        yield 'array value is invalid for string reads' => [['foo' => 'bar'], ''];
+        return [
+            [true, '1'],
+            [false, ''],
+            [null, ''],
+            [0, '0'],
+            [1234, '1234'],
+            [1243.42314, '1243.42314'],
+            ['', ''],
+            ['test', 'test'],
+            [['foo' => 'bar'], ''],
+        ];
     }
 
     /**
@@ -101,19 +107,21 @@ class SystemConfigServiceTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{mixed, int}>
+     * @return list<array{mixed, int}>
      */
-    public static function getIntProvider(): iterable
+    public static function getIntProvider(): array
     {
-        yield 'true value is read as integer one' => [true, 1];
-        yield 'false value is read as integer zero' => [false, 0];
-        yield 'null value is read as integer zero' => [null, 0];
-        yield 'zero integer is read unchanged' => [0, 0];
-        yield 'positive integer is read unchanged' => [1234, 1234];
-        yield 'float value is truncated to integer' => [1243.42314, 1243];
-        yield 'empty string is read as integer zero' => ['', 0];
-        yield 'non numeric string is read as integer zero' => ['test', 0];
-        yield 'array value is invalid for integer reads' => [['foo' => 'bar'], 0];
+        return [
+            [true, 1],
+            [false, 0],
+            [null, 0],
+            [0, 0],
+            [1234, 1234],
+            [1243.42314, 1243],
+            ['', 0],
+            ['test', 0],
+            [['foo' => 'bar'], 0],
+        ];
     }
 
     /**
@@ -131,19 +139,21 @@ class SystemConfigServiceTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{mixed, float}>
+     * @return list<array{mixed, float}>
      */
-    public static function getFloatProvider(): iterable
+    public static function getFloatProvider(): array
     {
-        yield 'true value is read as float one' => [true, 1];
-        yield 'false value is read as float zero' => [false, 0];
-        yield 'null value is read as float zero' => [null, 0];
-        yield 'zero integer is read as float zero' => [0, 0];
-        yield 'positive integer is read as float value' => [1234, 1234];
-        yield 'float value is read unchanged' => [1243.42314, 1243.42314];
-        yield 'empty string is read as float zero' => ['', 0];
-        yield 'non numeric string is read as float zero' => ['test', 0];
-        yield 'array value is invalid for float reads' => [['foo' => 'bar'], 0];
+        return [
+            [true, 1],
+            [false, 0],
+            [null, 0],
+            [0, 0],
+            [1234, 1234],
+            [1243.42314, 1243.42314],
+            ['', 0],
+            ['test', 0],
+            [['foo' => 'bar'], 0],
+        ];
     }
 
     /**
@@ -161,20 +171,22 @@ class SystemConfigServiceTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{mixed, bool}>
+     * @return list<array{mixed, bool}>
      */
-    public static function getBoolProvider(): iterable
+    public static function getBoolProvider(): array
     {
-        yield 'true value is read as true' => [true, true];
-        yield 'false value is read as false' => [false, false];
-        yield 'null value is read as false' => [null, false];
-        yield 'zero integer is read as false' => [0, false];
-        yield 'positive integer is read as true' => [1234, true];
-        yield 'float value is read as true' => [1243.42314, true];
-        yield 'empty string is read as false' => ['', false];
-        yield 'non empty string is read as true' => ['test', true];
-        yield 'non empty array value is read as true' => [['foo' => 'bar'], true];
-        yield 'array value is read as false' => [[], false];
+        return [
+            [true, true],
+            [false, false],
+            [null, false],
+            [0, false],
+            [1234, true],
+            [1243.42314, true],
+            ['', false],
+            ['test', true],
+            [['foo' => 'bar'], true],
+            [[], false],
+        ];
     }
 
     /**

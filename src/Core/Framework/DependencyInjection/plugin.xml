@@ -72,6 +72,7 @@
             <argument type="service" id="Shopware\Core\Framework\Plugin\Util\VersionSanitizer"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\PluginManagementService">
@@ -262,6 +263,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\EntityGenerator">
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <tag name="shopware.scaffold.generator"/>
         </service>
 

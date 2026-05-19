@@ -27,6 +27,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Integration\IntegrationEntity;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 /**
@@ -76,7 +77,8 @@ class AppRegistrationServiceTest extends TestCase
             $this->appRepositoryMock,
             'https://shopware.swag',
             $shopIdProviderMock,
-            '6.5.2.0'
+            '6.5.2.0',
+            new NativeClock(),
         );
     }
 
@@ -100,6 +102,7 @@ class AppRegistrationServiceTest extends TestCase
             'shop-id',
             $this->createMock(StoreClient::class),
             '6.5.2.0',
+            new NativeClock(),
         );
 
         $registrationRequest = $handshake->assembleRequest();
@@ -132,6 +135,7 @@ class AppRegistrationServiceTest extends TestCase
             'test',
             'shop-id',
             '6.5.2.0',
+            new NativeClock()
         );
 
         $registrationRequest = $handshake->assembleRequest();
@@ -171,6 +175,7 @@ class AppRegistrationServiceTest extends TestCase
             'test',
             'shop-id',
             '6.5.2.0',
+            new NativeClock()
         );
 
         $registrationRequest = $handshake->assembleRequest();
@@ -206,6 +211,7 @@ class AppRegistrationServiceTest extends TestCase
             'test',
             'shop-id',
             '6.5.2.0',
+            new NativeClock()
         );
 
         $this->testApp->setAppSecret('4pp-s3cr3t');
@@ -248,6 +254,7 @@ class AppRegistrationServiceTest extends TestCase
             'test',
             'shop-id',
             '6.5.2.0',
+            new NativeClock()
         );
 
         $registrationRequest = $handshake->assembleRequest();
@@ -295,6 +302,7 @@ class AppRegistrationServiceTest extends TestCase
             'test',
             'shop-id',
             '6.5.2.0',
+            new NativeClock()
         );
 
         $registrationRequest = $handshake->assembleRequest();
@@ -325,6 +333,7 @@ class AppRegistrationServiceTest extends TestCase
             'test',
             'shop-id',
             '6.5.2.0',
+            new NativeClock()
         );
 
         $registrationRequest = $handshake->assembleRequest();
@@ -359,6 +368,7 @@ class AppRegistrationServiceTest extends TestCase
             'test',
             'shop-id',
             '6.5.2.0',
+            new NativeClock()
         );
 
         $registrationRequest = $handshake->assembleRequest();
@@ -399,6 +409,7 @@ class AppRegistrationServiceTest extends TestCase
             'test',
             'shop-id',
             '6.5.2.0',
+            new NativeClock()
         );
 
         $registrationRequest = $handshake->assembleRequest();

@@ -35,6 +35,7 @@
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\McpAppSyncer"/>
             <argument type="service" id="Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway"/>
             <argument type="service" id="Shopware\Core\Framework\App\Validation\AppRequirementsValidator"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Source\SourceResolver">

@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\MigrationFileRenderer;
 use Shopware\Core\Framework\DataAbstractionLayer\MigrationQueryGenerator;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -47,7 +48,7 @@ class CreateMigrationCommandTest extends TestCase
         $coreDir = '/path/to/core';
         $shopwareVersion = '6.5.0';
 
-        $command = new CreateMigrationCommand($registry, $queryGenerator, $kernel, $filesystem, $migrationFileRenderer, $coreDir, $shopwareVersion, $now);
+        $command = new CreateMigrationCommand($registry, $queryGenerator, $kernel, $filesystem, $migrationFileRenderer, $coreDir, $shopwareVersion, new MockClock($now));
 
         $commandTester = new CommandTester($command);
 

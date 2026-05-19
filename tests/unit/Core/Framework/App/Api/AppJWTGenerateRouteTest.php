@@ -11,6 +11,7 @@ use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
 use Shopware\Core\Test\Generator;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -24,6 +25,7 @@ class AppJWTGenerateRouteTest extends TestCase
             $this->createMock(Connection::class),
             $this->createMock(ShopIdProvider::class),
             StaticInAppPurchaseFactory::createWithFeatures(),
+            new NativeClock()
         );
 
         $context = Generator::generateSalesChannelContext();
@@ -40,6 +42,7 @@ class AppJWTGenerateRouteTest extends TestCase
             $this->createMock(Connection::class),
             $this->createMock(ShopIdProvider::class),
             StaticInAppPurchaseFactory::createWithFeatures(),
+            new NativeClock()
         );
 
         $context = Generator::generateSalesChannelContext();
@@ -77,6 +80,7 @@ class AppJWTGenerateRouteTest extends TestCase
             $connection,
             $shopIdProvider,
             $inAppPurchase,
+            new NativeClock()
         );
 
         $context = Generator::generateSalesChannelContext();

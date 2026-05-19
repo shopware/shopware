@@ -48,6 +48,8 @@ use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Symfony\Component\Cache\CacheItem;
+use Symfony\Component\Clock\MockClock;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpFoundation\Request;
@@ -126,6 +128,7 @@ class PluginLifecycleServiceTest extends TestCase
             $this->createMock(VersionSanitizer::class),
             $this->createMock(DefinitionInstanceRegistry::class),
             $this->requestStackMock,
+            new NativeClock()
         );
     }
 
@@ -423,6 +426,7 @@ class PluginLifecycleServiceTest extends TestCase
                 $this->createMock(VersionSanitizer::class),
                 $this->createMock(DefinitionInstanceRegistry::class),
                 $this->requestStackMock,
+                new MockClock(),
             ])
             ->onlyMethods(['isCLI'])
             ->getMock();

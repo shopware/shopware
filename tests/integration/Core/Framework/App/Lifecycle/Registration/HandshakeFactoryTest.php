@@ -21,6 +21,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\AppSystemTestBehaviour;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -65,6 +67,7 @@ class HandshakeFactoryTest extends TestCase
             static::getContainer()->get(ShopIdProvider::class),
             static::getContainer()->get(StoreClient::class),
             Kernel::SHOPWARE_FALLBACK_VERSION,
+            new NativeClock()
         );
 
         $app = new AppEntity();
@@ -94,6 +97,7 @@ class HandshakeFactoryTest extends TestCase
             static::getContainer()->get(ShopIdProvider::class),
             static::getContainer()->get(StoreClient::class),
             Kernel::SHOPWARE_FALLBACK_VERSION,
+            new NativeClock()
         );
 
         $app = new AppEntity();
@@ -120,6 +124,7 @@ class HandshakeFactoryTest extends TestCase
             static::getContainer()->get(ShopIdProvider::class),
             static::getContainer()->get(StoreClient::class),
             Kernel::SHOPWARE_FALLBACK_VERSION,
+            new NativeClock()
         );
 
         $app = new AppEntity();

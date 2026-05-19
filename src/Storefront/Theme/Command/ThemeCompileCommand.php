@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme\Command;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\ConfigLoader\AbstractAvailableThemeProvider;
@@ -27,7 +28,8 @@ class ThemeCompileCommand extends Command
      */
     public function __construct(
         private readonly ThemeService $themeService,
-        private readonly AbstractAvailableThemeProvider $themeProvider
+        private readonly AbstractAvailableThemeProvider $themeProvider,
+        private readonly ClockInterface $clock
     ) {
         parent::__construct();
     }
@@ -89,9 +91,9 @@ class ThemeCompileCommand extends Command
 
             $this->io->block(\sprintf('Compiling theme for sales channel for : %s', $salesChannelId));
 
-            $start = microtime(true);
+            $start = (float) $this->clock->now()->format('U.u');
             $this->themeService->compileTheme($salesChannelId, $themeId, $context, null, !$input->getOption('keep-assets'));
-            $this->io->note(\sprintf('Took %f seconds', microtime(true) - $start));
+            $this->io->note(\sprintf('Took %f seconds', (float) $this->clock->now()->format('U.u') - $start));
         }
 
         return self::SUCCESS;

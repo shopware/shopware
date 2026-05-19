@@ -26,6 +26,11 @@ class Migration1770705203AddPaymentMethodChangedFlowAndMailTemplateTest extends 
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1770705203, (new Migration1770705203AddPaymentMethodChangedFlowAndMailTemplate())->getCreationTimestamp());
+    }
+
     public function testUpdate(): void
     {
         $this->deleteMailTemplate();

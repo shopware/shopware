@@ -22,11 +22,11 @@
     }
 
     .sw-media-breadcrumbs__parent-folder {
-        color: $color-gray-300;
+        color: var(--color-text-secondary-default);
     }
 
     .sw-media-breadcrumbs__arrow-separator {
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
 
         &.mt-icon {
             width: 22px;

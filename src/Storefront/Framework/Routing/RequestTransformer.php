@@ -121,6 +121,14 @@ class RequestTransformer implements RequestTransformerInterface
          */
         $absoluteBaseUrl = $this->getSchemeAndHttpHost($request) . $request->getBasePath();
         $baseUrl = str_replace($absoluteBaseUrl, '', $salesChannel['url']);
+        // if no replacement occurred, consider punycode urls
+        if ($baseUrl === $salesChannel['url']) {
+            $baseUrl = str_replace(
+                $this->getSchemeAndAsciiHttpHost($request) . $request->getBasePath(),
+                '',
+                $salesChannel['url']
+            );
+        }
 
         $resolved = $this->resolveSeoUrl(
             $request,
@@ -273,18 +281,27 @@ class RequestTransformer implements RequestTransformerInterface
         }
 
         // domain urls and request uri should be in same format, all with trailing slash
-        $requestUrl = rtrim($this->getSchemeAndHttpHost($request) . $request->getBasePath() . $request->getPathInfo(), '/') . '/';
+        $requestUrl = $this->getNormalizedRequestUrl($request);
+
+        if ($this->isHttpHostPunycode($request)) {
+            $asciiRequestUrl = $this->getNormalizedRequestUrl($request, false);
+            $domain = $domains[$requestUrl] ?? $domains[$asciiRequestUrl] ?? null;
+            $filter = static fn ($baseUrl): bool => str_starts_with($requestUrl, $baseUrl)
+                || str_starts_with($asciiRequestUrl, $baseUrl);
+        } else {
+            $domain = $domains[$requestUrl] ?? null;
+            $filter = static fn ($baseUrl): bool => str_starts_with($requestUrl, $baseUrl);
+        }
 
         // direct hit
-        if (\array_key_exists($requestUrl, $domains)) {
-            $domain = $domains[$requestUrl];
+        if ($domain !== null) {
             $domain['url'] = rtrim($domain['url'], '/');
 
             return $domain;
         }
 
         // reduce shops to which base url is the beginning of the request
-        $domains = array_filter($domains, static fn ($baseUrl): bool => str_starts_with($requestUrl, $baseUrl), \ARRAY_FILTER_USE_KEY);
+        $domains = array_filter($domains, $filter, \ARRAY_FILTER_USE_KEY);
 
         if ($domains === []) {
             return null;
@@ -334,6 +351,28 @@ class RequestTransformer implements RequestTransformerInterface
     private function getSchemeAndHttpHost(Request $request): string
     {
         return $request->getScheme() . '://' . idn_to_utf8($request->getHttpHost());
+    }
+
+    private function getSchemeAndAsciiHttpHost(Request $request): string
+    {
+        return $request->getScheme() . '://' . $request->getHttpHost();
+    }
+
+    private function isHttpHostPunycode(Request $request): bool
+    {
+        return $request->getHttpHost() !== idn_to_utf8($request->getHttpHost());
+    }
+
+    /**
+     * domain urls and request uri should be in same format, all with trailing slash
+     */
+    private function getNormalizedRequestUrl(Request $request, bool $unicode = true): string
+    {
+        $schemeAndHost = $unicode === true
+            ? $this->getSchemeAndHttpHost($request)
+            : $this->getSchemeAndAsciiHttpHost($request);
+
+        return rtrim($schemeAndHost . $request->getBasePath() . $request->getPathInfo(), '/') . '/';
     }
 
     /**

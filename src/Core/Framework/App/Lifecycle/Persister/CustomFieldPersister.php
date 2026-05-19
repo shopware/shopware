@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFields;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldSet;
@@ -40,6 +41,14 @@ class CustomFieldPersister implements PersisterInterface
         $context->context->scope(Context::SYSTEM_SCOPE, function (Context $innerContext) use ($context): void {
             $this->upsertCustomFieldSets($context->manifest->getCustomFields(), $context->app->getId(), $innerContext);
         });
+    }
+
+    public function activate(AppEntity $app, Context $context): void
+    {
+    }
+
+    public function deactivate(AppEntity $app, Context $context): void
+    {
     }
 
     private function upsertCustomFieldSets(?CustomFields $customFields, string $appId, Context $context): void

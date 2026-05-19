@@ -219,8 +219,13 @@ class AppMcpCapabilityExecutorTest extends TestCase
 
         $kernel = $this->createMock(KernelInterface::class);
         $kernel->method('handle')->with(
-            static::callback(static fn (Request $r): bool => $r->getMethod() === 'POST'
-                && $r->request->all('arguments') === ['name' => 'World']),
+            static::callback(static function (Request $r): bool {
+                $body = json_decode($r->getContent(), true);
+
+                return $r->getMethod() === 'POST'
+                    && $r->headers->get('Content-Type') === 'application/json'
+                    && $body === ['arguments' => ['name' => 'World']];
+            }),
             HttpKernelInterface::SUB_REQUEST,
         )->willReturn(new SymfonyResponse('{"success":true,"data":{"message":"Hello"}}'));
 
@@ -228,6 +233,58 @@ class AppMcpCapabilityExecutorTest extends TestCase
 
         $result = $executor->execute('MyApp-my-tool', null, '/api/script/my-tool', ['name' => 'World']);
         static::assertSame('{"success":true,"data":{"message":"Hello"}}', $result);
+    }
+
+    public function testSubrequestPropagatesAuthorizationHeaderForOAuthValidator(): void
+    {
+        $parent = new Request();
+        $parent->headers->set('Authorization', 'Bearer my-token-123');
+
+        $requestStack = $this->createMock(RequestStack::class);
+        $requestStack->method('getCurrentRequest')->willReturn($parent);
+
+        $router = $this->createMock(RouterInterface::class);
+        $router->method('match')->willReturn(['_route' => 'api.script.run']);
+
+        $kernel = $this->createMock(KernelInterface::class);
+        $kernel->method('handle')->with(
+            // Bearer validator reads Authorization from server params (PSR-7 conversion),
+            // not the HeaderBag — verify both are populated.
+            static::callback(static fn (Request $r): bool => $r->server->get('HTTP_AUTHORIZATION') === 'Bearer my-token-123'
+                && $r->headers->get('Authorization') === 'Bearer my-token-123'),
+            HttpKernelInterface::SUB_REQUEST,
+        )->willReturn(new SymfonyResponse('{"success":true}'));
+
+        $executor = $this->makeExecutorWithSubrequest($kernel, $requestStack, $router);
+        $executor->execute('my-tool', null, '/api/script/my-tool', []);
+    }
+
+    public function testSubrequestSendsJsonBodyNotFormUrlencoded(): void
+    {
+        // Earlier impl POSTed form params and then copied parent headers, which
+        // stomped Content-Type to application/json with a form-urlencoded body.
+        // The request bag came out empty. JSON body + explicit JSON content-type
+        // keeps the two in sync.
+        $requestStack = $this->createMock(RequestStack::class);
+        $requestStack->method('getCurrentRequest')->willReturn(new Request());
+
+        $router = $this->createMock(RouterInterface::class);
+        $router->method('match')->willReturn(['_route' => 'api.script.run']);
+
+        $kernel = $this->createMock(KernelInterface::class);
+        $kernel->method('handle')->with(
+            static::callback(static function (Request $r): bool {
+                $body = json_decode($r->getContent(), true);
+
+                return $r->headers->get('Content-Type') === 'application/json'
+                    && \is_array($body)
+                    && $body === ['arguments' => ['entity' => 'product', 'limit' => 5]];
+            }),
+            HttpKernelInterface::SUB_REQUEST,
+        )->willReturn(new SymfonyResponse('{"success":true}'));
+
+        $executor = $this->makeExecutorWithSubrequest($kernel, $requestStack, $router);
+        $executor->execute('my-tool', null, '/api/script/my-tool', ['entity' => 'product', 'limit' => 5]);
     }
 
     public function testSubrequestExceptionReturnsError(): void

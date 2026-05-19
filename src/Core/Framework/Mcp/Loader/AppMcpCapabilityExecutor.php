@@ -125,9 +125,17 @@ class AppMcpCapabilityExecutor
         try {
             $route = $this->router->match($url);
 
-            $subRequest = Request::create($url, 'POST', ['arguments' => $arguments]);
+            // Pass the Authorization header via server params so PSR-7 conversion
+            // (used by the OAuth bearer validator on the subrequest) sees it.
+            $server = [];
+            if ($parent->headers->has('Authorization')) {
+                $server['HTTP_AUTHORIZATION'] = $parent->headers->get('Authorization');
+            }
+            $server['CONTENT_TYPE'] = 'application/json';
+
+            $body = json_encode(['arguments' => $arguments], \JSON_THROW_ON_ERROR);
+            $subRequest = Request::create($url, 'POST', [], [], [], $server, $body);
             $subRequest->attributes->add($route);
-            $subRequest->headers->replace($parent->headers->all());
 
             $response = $this->kernel->handle($subRequest, HttpKernelInterface::SUB_REQUEST);
 

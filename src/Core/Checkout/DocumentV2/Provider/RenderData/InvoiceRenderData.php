@@ -6,13 +6,13 @@ use Shopware\Core\Checkout\DocumentV2\Config\DocumentCompanyInfo;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfig;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentDisplayOptions;
 use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
-use Shopware\Core\Checkout\DocumentV2\Twig\Enum\TypeCode;
-use Shopware\Core\Checkout\DocumentV2\Twig\View\AllowanceChargeView;
-use Shopware\Core\Checkout\DocumentV2\Twig\View\LineItemView;
-use Shopware\Core\Checkout\DocumentV2\Twig\View\MonetarySummationView;
-use Shopware\Core\Checkout\DocumentV2\Twig\View\PaymentMeansView;
-use Shopware\Core\Checkout\DocumentV2\Twig\View\TaxBreakdownView;
-use Shopware\Core\Checkout\DocumentV2\Twig\View\TradePartyView;
+use Shopware\Core\Checkout\DocumentV2\Template\Enum\TypeCode;
+use Shopware\Core\Checkout\DocumentV2\Template\View\AllowanceChargeView;
+use Shopware\Core\Checkout\DocumentV2\Template\View\LineItemView;
+use Shopware\Core\Checkout\DocumentV2\Template\View\MonetarySummationView;
+use Shopware\Core\Checkout\DocumentV2\Template\View\PaymentMeansView;
+use Shopware\Core\Checkout\DocumentV2\Template\View\TaxBreakdownView;
+use Shopware\Core\Checkout\DocumentV2\Template\View\TradePartyView;
 use Shopware\Core\Framework\Log\Package;
 
 /**

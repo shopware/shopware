@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderResult;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
-use Shopware\Core\Checkout\DocumentV2\Twig\DocumentTemplateRenderer;
+use Shopware\Core\Checkout\DocumentV2\Template\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\DocumentV2\Xml\XmlFormatter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;

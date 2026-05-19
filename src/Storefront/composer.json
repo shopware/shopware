@@ -6,7 +6,10 @@
     "autoload": {
         "psr-4": {
             "Shopware\\Storefront\\": ""
-        }
+        },
+        "exclude-from-classmap": [
+            "Resources/app/storefront/node_modules/"
+        ]
     },
     "config": {
         "sort-packages": true
@@ -50,8 +53,7 @@
         "symfony/mime": "~7.4.0",
         "twig/intl-extra": "^3.10.0",
         "twig/string-extra": "^3.10.0",
-        "twig/twig": "^3.21.1",
-        "symfony/ux-twig-component": "~2.32.0"
+        "twig/twig": "^3.21.1"
     },
     "require-dev": {
         "symfony/css-selector": "~7.4.0",

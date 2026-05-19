@@ -4,7 +4,7 @@
     <template #search-bar>
         <sw-search-bar
             initial-search-type="custom_field"
-            :placeholder="$tc('sw-settings-custom-field.general.placeholderSearchBar')"
+            :placeholder="$t('sw-settings-custom-field.general.placeholderSearchBar')"
             :initial-search="term"
             @search="onSearch"
         />
@@ -14,12 +14,12 @@
     {% block sw_settings_custom_field_set_list_header %}
     <template #smart-bar-header>
         <h2>
-            {{ $tc('sw-settings.index.title') }}
+            {{ $t('sw-settings.index.title') }}
             <mt-icon
                 name="regular-chevron-right-xs"
                 size="12px"
             />
-            {{ $tc('sw-settings-custom-field.set.list.textHeadline') }}
+            {{ $t('sw-settings-custom-field.set.list.textHeadline') }}
 
             <span
                 v-if="!isLoading"
@@ -36,7 +36,7 @@
         {% block sw_settings_custom_field_set_list_actions_add %}
         <mt-button
             v-tooltip.bottom="{
-                message: $tc('sw-privileges.tooltip.warning'),
+                message: $t('sw-privileges.tooltip.warning'),
                 disabled: acl.can('custom_field.creator'),
                 showOnDisabledElements: true
             }"
@@ -46,7 +46,7 @@
             size="default"
             @click="$router.push({ name: 'sw.settings.custom.field.create' })"
         >
-            {{ $tc('sw-settings-custom-field.set.list.buttonAdd') }}
+            {{ $t('sw-settings-custom-field.set.list.buttonAdd') }}
         </mt-button>
         {% endblock %}
     </template>
@@ -77,18 +77,18 @@
                             {% block sw_settings_custom_field_set_list_grid_column_label %}
                             <sw-grid-column
                                 flex="minmax(180px, 2fr)"
-                                :label="$tc('sw-settings-custom-field.set.list.columnName')"
+                                :label="$t('sw-settings-custom-field.set.list.columnName')"
                             >
                                 <template v-if="item.global">
                                     {{ getInlineSnippet(item.config.label) || item.name }}
                                     <sw-help-text
                                         class="sw-settings-custom-field-set-list__help-text-global-set"
-                                        :text="$tc('sw-settings-custom-field.set.list.helpTextGlobalSet')"
+                                        :text="$t('sw-settings-custom-field.set.list.helpTextGlobalSet')"
                                     />
                                 </template>
                                 <template v-else>
                                     <router-link
-                                        :title="$tc('sw-settings-custom-field.set.list.contextMenuEdit')"
+                                        :title="$t('sw-settings-custom-field.set.list.contextMenuEdit')"
                                         class="sw-custom-field-set-list__column-name"
                                         :to="{ name: 'sw.settings.custom.field.detail', params: { id: item.id } }"
                                     >
@@ -107,7 +107,7 @@
                                 <sw-context-button>
                                     <sw-context-menu-item
                                         v-tooltip="{
-                                            message: $tc('sw-settings-custom-field.set.list.helpTextGlobalSet'),
+                                            message: $t('sw-settings-custom-field.set.list.helpTextGlobalSet'),
                                             showOnDisabledElements: true,
                                             disabled: !item.global
                                         }"
@@ -115,7 +115,7 @@
                                         class="sw-custom-field-set-list__edit-action"
                                         :router-link="{ name: 'sw.settings.custom.field.detail', params: { id: item.id } }"
                                     >
-                                        {{ $tc('sw-settings-custom-field.set.list.contextMenuEdit') }}
+                                        {{ $t('sw-settings-custom-field.set.list.contextMenuEdit') }}
                                     </sw-context-menu-item>
 
                                     <template v-if="!item.global">
@@ -125,7 +125,7 @@
                                             variant="danger"
                                             @click="onDelete(item.id)"
                                         >
-                                            {{ $tc('sw-settings-custom-field.set.list.buttonDelete') }}
+                                            {{ $t('sw-settings-custom-field.set.list.buttonDelete') }}
                                         </sw-context-menu-item>
                                     </template>
                                 </sw-context-button>
@@ -135,14 +135,14 @@
                             {% block sw_settings_custom_field_set_list_grid_delete_modal %}
                             <sw-modal
                                 v-if="showDeleteModal === item.id"
-                                :title="$tc('global.default.warning')"
+                                :title="$t('global.default.warning')"
                                 variant="small"
                                 @modal-close="onCloseDeleteModal"
                             >
 
                                 {% block sw_settings_custom_field_set_list_grid_delete_modal_text %}
                                 <p>
-                                    {{ $tc('sw-settings-custom-field.set.list.textDeleteConfirm', { name: getInlineSnippet(item.config.label) || item.name }, 0) }}
+                                    {{ $t('sw-settings-custom-field.set.list.textDeleteConfirm', { name: getInlineSnippet(item.config.label) || item.name }, 0) }}
                                 </p>
                                 {% endblock %}
 
@@ -155,7 +155,7 @@
                                         variant="secondary"
                                         @click="onCloseDeleteModal"
                                     >
-                                        {{ $tc('global.default.cancel') }}
+                                        {{ $t('global.default.cancel') }}
                                     </mt-button>
                                     {% endblock %}
 
@@ -165,7 +165,7 @@
                                         size="small"
                                         @click="onConfirmDelete(item.id)"
                                     >
-                                        {{ $tc('sw-settings-custom-field.set.list.buttonDelete') }}
+                                        {{ $t('sw-settings-custom-field.set.list.buttonDelete') }}
                                     </mt-button>
                                     {% endblock %}
                                 </template>
@@ -193,7 +193,7 @@
                 <mt-empty-state
                     v-if="!isLoading && items.length <= 0"
                     :icon="$route.meta.$module.icon"
-                    :headline="$tc('sw-settings-custom-field.set.list.messageEmpty')"
+                    :headline="$t('sw-settings-custom-field.set.list.messageEmpty')"
                 />
                 {% endblock %}
             </mt-card>

@@ -1,5 +1,7 @@
 <?php declare(strict_types=1);
 
+use Shopware\Core\Framework\Adapter\Twig\SwTwigFunction;
+
 return [
     'filePatterns' => [
         '**/Test/**', // Testing
@@ -37,6 +39,12 @@ return [
         preg_quote('CHANGED: Shopware\\Core\\DevOps\\System\\Command\\SystemDumpDatabaseCommand was marked "@internal"', '/'),
         preg_quote('REMOVED: Method Shopware\\Core\\DevOps\\System\\Command\\SystemDumpDatabaseCommand#getIgnoreTableStmt() was removed', '/'),
 
+        // Plugin lifecycle command constructors were not marked @internal
+        preg_quote('REMOVED: Method Shopware\Core\Framework\Plugin\Command\Lifecycle\AbstractPluginLifecycleCommand#__construct() was removed', '/'),
+        preg_quote('ADDED: Parameter projectDir was added to Method __construct() of class Shopware\Core\Framework\Plugin\Command\Lifecycle\AbstractPluginLifecycleCommand', '/'),
+        preg_quote('CHANGED: Shopware\Core\Framework\Plugin\Command\Lifecycle\AbstractPluginLifecycleCommand#__construct() was marked "@internal"', '/'),
+        preg_quote('CHANGED: The number of required arguments for Shopware\Core\Framework\Plugin\Command\Lifecycle\AbstractPluginLifecycleCommand#__construct() increased from 3 to 4', '/'),
+
         // No break as all existing NoContentResponse usages are still valid with the widened StoreApiResponse return type
         'CHANGED: The return type of Shopware\\\\Core\\\\Content\\\\Newsletter\\\\SalesChannel\\\\.* changed from Shopware\\\\Core\\\\System\\\\SalesChannel\\\\NoContentResponse to (?:the non-covariant )?Shopware\\\\Core\\\\System\\\\SalesChannel\\\\StoreApiResponse',
 
@@ -58,5 +66,27 @@ return [
 
         // Return type is still of type "self" but more specific. Could never be something different from the InvalidSortQueryException, so this should be fine
         'CHANGED: The return type of Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\DataAbstractionLayerException.* changed from self to (?:the non-covariant )?Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Exception\\\\InvalidSortQueryException',
+
+        // minor library update, no break
+        preg_quote(' OpenSearch\Client', '/'),
+        // widening input argument in exception factory, no break
+        preg_quote('CHANGED: The parameter $previous of Shopware\Elasticsearch\Product\ElasticsearchProductException::cannotChangeFieldType() changed from OpenSearch\Common\Exceptions\BadRequest400Exception to OpenSearch\Common\Exceptions\BadRequest400Exception|OpenSearch\Exception\BadRequestHttpException', '/'),
+        preg_quote('CHANGED: The parameter $previous of Shopware\Elasticsearch\Product\ElasticsearchProductException::cannotChangeCustomFieldType() changed from OpenSearch\Common\Exceptions\BadRequest400Exception to OpenSearch\Common\Exceptions\BadRequest400Exception|OpenSearch\Exception\BadRequestHttpException', '/'),
+        // constructor changes of internal decorator, no break
+        preg_quote('ADDED: Parameter transport was added to Method __construct() of class Shopware\Elasticsearch\Profiler\ClientProfiler', '/'),
+        preg_quote('CHANGED: Parameter 0 of Shopware\Elasticsearch\Profiler\ClientProfiler#__construct() changed name from client to transport', '/'),
+        
+      // Revert new feature, which was not released yet
+        preg_quote('REMOVED: Class Shopware\Storefront\DependencyInjection\TwigComponentBundlePass has been deleted', '/'),
+        preg_quote('REMOVED: Method Shopware\Storefront\Framework\Twig\Extension\ConfigExtension#componentImportMap() was removed', '/'),
+        preg_quote('REMOVED: Method Shopware\Storefront\Framework\Twig\TemplateConfigAccessor#componentImportMap() was removed', '/'),
+        preg_quote('REMOVED: Class Shopware\Storefront\Framework\Routing\StorybookRouteScopeAllowList has been deleted', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\Framework\Bundle::getTwigComponentNamespace() was removed', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\Framework\Bundle::getTwigComponentNamespace() was removed', '/'),
+
+        /** Internal annotation on {@see SwTwigFunction} was not recognized correctly */
+        preg_quote('CHANGED: Shopware\Core\Framework\Adapter\Twig\SwTwigFunction was marked "@internal"', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::escapeFilter() was removed', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::resetEscapeCache() was removed', '/'),
     ],
 ];

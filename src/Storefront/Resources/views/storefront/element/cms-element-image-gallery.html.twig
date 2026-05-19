@@ -242,6 +242,20 @@
                                                                                             data-spatial-gallery-slider-viewer
                                                                                             data-spatial-gallery-slider-viewer-options='{{spatialGalleryViewerOptions|json_encode}}'
                                                                                         ></canvas>
+                                                                                        <div class="spatial-anim-container position-absolute start-0 top-0 p-1 gap-2 d-flex">
+                                                                                            <button class="btn btn-outline-light spatial-anim-button position-relative text-center mx-0 p-0 visually-hidden" aria-label="{{ 'spatial.animation.toggle'|trans|striptags }}">
+                                                                                                <svg class="spatial-anim-button-circle position-absolute end-0 top-0">
+                                                                                                    <circle r="calc(50% - (var(--stroke-width) / 2))" cx="50%" cy="50%"></circle>
+                                                                                                </svg>
+                                                                                                {% sw_icon 'play' %}
+                                                                                                {% sw_icon 'pause' %}
+                                                                                            </button>
+                                                                                            <span class="spatial-anim-switch-container position-relative visually-hidden">
+                                                                                                <select id="spatial-anim-switch-{{ image.id }}" class="form-select spatial-anim-switch text-left mx-0" aria-label="{{ 'spatial.animation.select'|trans|striptags }}">
+                                                                                                </select>
+                                                                                                {% sw_icon 'arrow-head-down' %}
+                                                                                            </span>
+                                                                                        </div>
                                                                                         <span
                                                                                             class="spatial-canvas-note spatial-slider-movement-note position-absolute start-50 text-center badge mx-0 py-1 px-3 translate-middle-x"
                                                                                             data-spatial-movement-note
@@ -314,15 +328,15 @@
 
                                                                                 {# @deprecated tag:v6.8.0 - Product image microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
                                                                                 {% if not feature('JSON_LD_DATA') and isProduct %}
-                                                                                    {% if loop.first %}
-                                                                                        {% set attributes = attributes|merge({ itemprop: 'image primaryImageOfPage' }) %}
-                                                                                    {% else %}
-                                                                                        {% set attributes = attributes|merge({ itemprop: 'image' }) %}
-                                                                                    {% endif %}
+                                                                                    {% set attributes = attributes|merge({ itemprop: 'image' }) %}
                                                                                 {% endif %}
 
                                                                                 {% if loop.first and sliderConfig.useFetchPriorityOnFirstItem.value is true %}
                                                                                     {% set attributes = attributes|merge({ fetchpriority: 'high' }) %}
+                                                                                {% endif %}
+
+                                                                                {% if not loop.first %}
+                                                                                    {% set attributes = attributes|merge({ loading: 'lazy' }) %}
                                                                                 {% endif %}
 
                                                                                 {% sw_thumbnails 'gallery-slider-image-thumbnails' with {
@@ -404,7 +418,22 @@
                                                                         <canvas
                                                                                 data-spatial-gallery-slider-viewer
                                                                                 data-spatial-gallery-slider-viewer-options='{{spatialGalleryViewerOptions|json_encode}}'
-                                                                        ></canvas>
+                                                                        >
+                                                                        </canvas>
+                                                                        <div class="spatial-anim-container position-absolute start-0 top-0 p-1 gap-2 d-flex">
+                                                                            <button class="btn btn-outline-light spatial-anim-button position-relative text-center mx-0 p-0 visually-hidden" aria-label="{{ 'spatial.animation.toggle'|trans|striptags }}">
+                                                                                <svg class="spatial-anim-button-circle position-absolute end-0 top-0">
+                                                                                    <circle r="calc(50% - (var(--stroke-width) / 2))" cx="50%" cy="50%"></circle>
+                                                                                </svg>
+                                                                                {% sw_icon 'play' %}
+                                                                                {% sw_icon 'pause' %}
+                                                                            </button>
+                                                                            <span class="spatial-anim-switch-container position-relative visually-hidden">
+                                                                                <select id="spatial-anim-switch-{{ image.id }}" class="form-select spatial-anim-switch text-left mx-0" aria-label="{{ 'spatial.animation.select'|trans|striptags }}">
+                                                                                </select>
+                                                                                {% sw_icon 'arrow-head-down' %}
+                                                                            </span>
+                                                                        </div>
                                                                         <span
                                                                                 class="spatial-canvas-note spatial-slider-movement-note position-absolute start-50 text-center badge mx-0 py-1 px-3 translate-middle-x"
                                                                                 data-spatial-movement-note
@@ -476,24 +505,30 @@
 
                                                                 {# @deprecated tag:v6.8.0 - Product image microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
                                                                 {% if not feature('JSON_LD_DATA') and isProduct %}
-                                                                    {% if loop.first %}
-                                                                        {% set attributes = attributes|merge({ itemprop: 'image primaryImageOfPage' }) %}
-                                                                    {% else %}
-                                                                        {% set attributes = attributes|merge({ itemprop: 'image' }) %}
-                                                                    {% endif %}
+                                                                    {% set attributes = attributes|merge({ itemprop: 'image' }) %}
                                                                 {% endif %}
 
                                                                 {% sw_thumbnails 'gallery-slider-image-thumbnails' with {
                                                                     media: mediaItems|first,
-                                                                    attributes: attributes
+                                                                    attributes: attributes,
+                                                                    sizes: {
+                                                                        xs: '100vw',
+                                                                        sm: '100vw',
+                                                                        md: '100vw',
+                                                                        lg: '60vw',
+                                                                        xl: '50vw',
+                                                                        xxl: '800px'
+                                                                    }
                                                                 } %}
                                                             {% endblock %}
                                                         {% endif %}
                                                     {% endfor %}
                                                 {% else %}
-                                                    {% sw_icon 'placeholder' style {
-                                                        'size': 'fluid'
-                                                    } %}
+                                                    {% block element_image_gallery_inner_image_placeholder %}
+                                                        {% sw_icon 'placeholder' style {
+                                                            'size': 'fluid'
+                                                        } %}
+                                                    {% endblock %}
                                                 {% endif %}
                                             </div>
                                         {% endblock %}
@@ -568,13 +603,11 @@
                                                                                 alt: (image.translated.alt ?: false)
                                                                             }) %}
 
+                                                                            {% set attributes = attributes|merge({ loading: 'lazy' }) %}
+
                                                                             {# @deprecated tag:v6.8.0 - Product image microdata replaced by JSON-LD in json-ld-product.html.twig. Will be removed. #}
                                                                             {% if not feature('JSON_LD_DATA') and isProduct %}
-                                                                                {% if loop.first %}
-                                                                                    {% set attributes = attributes|merge({ itemprop: 'image primaryImageOfPage' }) %}
-                                                                                {% else %}
-                                                                                    {% set attributes = attributes|merge({ itemprop: 'image' }) %}
-                                                                                {% endif %}
+                                                                                {% set attributes = attributes|merge({ itemprop: 'image' }) %}
                                                                             {% endif %}
 
                                                                             {% sw_thumbnails 'gallery-slider-thumbnails-image-thumbnails' with {
@@ -783,6 +816,20 @@
                                                                                                                     data-spatial-zoom-gallery-slider-viewer
                                                                                                                     data-spatial-zoom-gallery-slider-viewer-options='{{spatialGalleryViewerOptions|json_encode}}'
                                                                                                             ></canvas>
+                                                                                                            <div class="spatial-anim-container position-absolute start-0 top-0 p-3 gap-2 d-flex">
+                                                                                                                <button class="btn btn-outline-light spatial-anim-button position-relative text-center mx-0 p-0 visually-hidden" aria-label="{{ 'spatial.animation.toggle'|trans|striptags }}">
+                                                                                                                    <svg class="spatial-anim-button-circle position-absolute end-0 top-0">
+                                                                                                                        <circle r="calc(50% - (var(--stroke-width) / 2))" cx="50%" cy="50%"></circle>
+                                                                                                                    </svg>
+                                                                                                                    {% sw_icon 'play' %}
+                                                                                                                    {% sw_icon 'pause' %}
+                                                                                                                </button>
+                                                                                                                <span class="spatial-anim-switch-container position-relative visually-hidden">
+                                                                                                                    <select id="spatial-anim-switch-{{ image.id }}" class="form-select spatial-anim-switch text-left mx-0" aria-label="{{ 'spatial.animation.select'|trans|striptags }}">
+                                                                                                                    </select>
+                                                                                                                    {% sw_icon 'arrow-head-down' %}
+                                                                                                                </span>
+                                                                                                            </div>
                                                                                                             <span
                                                                                                                     class="spatial-canvas-note spatial-slider-movement-note position-absolute start-50 text-center badge mx-0 py-1 px-3 translate-middle-x"
                                                                                                                     data-spatial-movement-note

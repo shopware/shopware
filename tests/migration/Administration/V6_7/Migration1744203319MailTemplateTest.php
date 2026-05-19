@@ -28,6 +28,11 @@ class Migration1744203319MailTemplateTest extends TestCase
         $this->connection = static::getContainer()->get(Connection::class);
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1744203319, (new Migration1744203319MailTemplate())->getCreationTimestamp());
+    }
+
     public function testCreationTimestamp(): void
     {
         $migration = new Migration1744203319MailTemplate();

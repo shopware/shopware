@@ -47,10 +47,10 @@ Mixin.register('sw-settings-list', {
 
         titleSaveSuccess() {
             if (this.$te(`sw-settings-${this.entityName.replace(/[_]/g, '-')}.list.titleDeleteSuccess`)) {
-                return this.$tc(`sw-settings-${this.entityName.replace(/[_]/g, '-')}.list.titleDeleteSuccess`);
+                return this.$t(`sw-settings-${this.entityName.replace(/[_]/g, '-')}.list.titleDeleteSuccess`);
             }
 
-            return this.$tc('global.default.success');
+            return this.$t('global.default.success');
         },
 
         messageSaveSuccess() {
@@ -61,12 +61,12 @@ Mixin.register('sw-settings-list', {
                 }
 
                 if (this.$te(`sw-settings-${this.entityName.replace(/[_]/g, '-')}.list.messageDeleteSuccess)`)) {
-                    return this.$tc(`sw-settings-${this.entityName.replace(/[_]/g, '-')}.list.messageDeleteSuccess`, 0, {
+                    return this.$t(`sw-settings-${this.entityName.replace(/[_]/g, '-')}.list.messageDeleteSuccess`, 0, {
                         name: name,
                     });
                 }
 
-                return this.$tc(
+                return this.$t(
                     'global.notification.messageDeleteSuccess',
                     {
                         name: name,

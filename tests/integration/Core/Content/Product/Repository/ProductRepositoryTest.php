@@ -2723,320 +2723,318 @@ class ProductRepositoryTest extends TestCase
     }
 
     /**
-     * @return array<string, mixed>
+     * @return iterable<string, mixed>
      */
-    public static function customFieldVariantsProvider(): array
+    public static function customFieldVariantsProvider(): iterable
     {
-        return [
-            'Test own values' => [
-                [
-                    'parent' => [
-                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent'], 'name' => 'A'],
-                    ],
-                    'child' => [
-                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'child'], 'name' => 'A'],
-                    ],
+        yield 'Test own values' => [
+            [
+                'parent' => [
+                    Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent'], 'name' => 'A'],
                 ],
-                [
-                    'parent' => ['foo' => 'parent'],
-                    'child' => ['foo' => 'child'],
+                'child' => [
+                    Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'child'], 'name' => 'A'],
                 ],
-                self::createLanguageContext([Defaults::LANGUAGE_SYSTEM], true),
             ],
-            'Test merged with parent' => [
-                [
-                    'parent' => [
-                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent', 'bar' => 'parent'], 'name' => 'A'],
-                    ],
-                    'child' => [
-                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'child'], 'name' => 'A'],
-                    ],
-                ],
-                [
-                    'parent' => ['foo' => 'parent', 'bar' => 'parent'],
-                    'child' => ['foo' => 'child', 'bar' => 'parent'],
-                ],
-                self::createLanguageContext([Defaults::LANGUAGE_SYSTEM], true),
+            [
+                'parent' => ['foo' => 'parent'],
+                'child' => ['foo' => 'child'],
             ],
-            'Test not merged with parent, no inheritance' => [
-                [
-                    'parent' => [
-                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent', 'bar' => 'parent'], 'name' => 'A'],
-                    ],
-                    'child' => [
-                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'child'], 'name' => 'A'],
-                    ],
+            self::createLanguageContext([Defaults::LANGUAGE_SYSTEM], true),
+        ];
+        yield 'Test merged with parent' => [
+            [
+                'parent' => [
+                    Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent', 'bar' => 'parent'], 'name' => 'A'],
                 ],
-                [
-                    'parent' => ['foo' => 'parent', 'bar' => 'parent'],
-                    'child' => ['foo' => 'child'],
+                'child' => [
+                    Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'child'], 'name' => 'A'],
                 ],
-                self::createLanguageContext([Defaults::LANGUAGE_SYSTEM], false),
             ],
-            'Test inheritance child null value' => [
-                [
-                    'parent' => [
-                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent'], 'name' => 'A'],
-                    ],
-                    'child' => [
-                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => null], 'name' => 'A'],
-                    ],
-                ],
-                [
-                    'parent' => ['foo' => 'parent'],
-                    'child' => ['foo' => 'parent'],
-                ],
-                self::createLanguageContext([Defaults::LANGUAGE_SYSTEM], true),
+            [
+                'parent' => ['foo' => 'parent', 'bar' => 'parent'],
+                'child' => ['foo' => 'child', 'bar' => 'parent'],
             ],
-            'Test child null value no inheritance' => [
-                [
-                    'parent' => [
-                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent'], 'name' => 'A'],
-                    ],
-                    'child' => [
-                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => null], 'name' => 'A'],
-                    ],
+            self::createLanguageContext([Defaults::LANGUAGE_SYSTEM], true),
+        ];
+        yield 'Test not merged with parent, no inheritance' => [
+            [
+                'parent' => [
+                    Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent', 'bar' => 'parent'], 'name' => 'A'],
                 ],
-                [
-                    'parent' => ['foo' => 'parent'],
-                    'child' => [],
+                'child' => [
+                    Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'child'], 'name' => 'A'],
                 ],
-                self::createLanguageContext([Defaults::LANGUAGE_SYSTEM], false),
             ],
-            'Test child and parent null value no inheritance' => [
-                [
-                    'parent' => [
-                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => null], 'name' => 'A'],
-                    ],
-                    'child' => [
-                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => null], 'name' => 'A'],
-                    ],
-                ],
-                [
-                    'parent' => [],
-                    'child' => [],
-                ],
-                self::createLanguageContext([Defaults::LANGUAGE_SYSTEM], false),
+            [
+                'parent' => ['foo' => 'parent', 'bar' => 'parent'],
+                'child' => ['foo' => 'child'],
             ],
-            'Test only parent null value with inheritance' => [
-                [
-                    'parent' => [
-                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => null], 'name' => 'A'],
-                    ],
-                    'child' => [
-                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'child'], 'name' => 'A'],
-                    ],
+            self::createLanguageContext([Defaults::LANGUAGE_SYSTEM], false),
+        ];
+        yield 'Test inheritance child null value' => [
+            [
+                'parent' => [
+                    Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent'], 'name' => 'A'],
                 ],
-                [
-                    'parent' => [],
-                    'child' => ['foo' => 'child'],
+                'child' => [
+                    Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => null], 'name' => 'A'],
                 ],
-                self::createLanguageContext([Defaults::LANGUAGE_SYSTEM], true),
             ],
-            'Test inheritance with language chain' => [
-                [
-                    'parent' => [
-                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent'], 'name' => 'A'],
-                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => 'parent translated']],
-                    ],
-                    'child' => [
-                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'child'], 'name' => 'A'],
-                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => 'child translated']],
-                    ],
-                ],
-                [
-                    'parent' => ['foo' => 'parent translated'],
-                    'child' => ['foo' => 'child translated'],
-                ],
-                self::createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], true),
+            [
+                'parent' => ['foo' => 'parent'],
+                'child' => ['foo' => 'parent'],
             ],
-            'Test inheritance with language chain merged with parent' => [
-                [
-                    'parent' => [
-                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent'], 'name' => 'A'],
-                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => 'parent translated']],
-                    ],
-                    'child' => [
-                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'child'], 'name' => 'A'],
-                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => null]],
-                    ],
+            self::createLanguageContext([Defaults::LANGUAGE_SYSTEM], true),
+        ];
+        yield 'Test child null value no inheritance' => [
+            [
+                'parent' => [
+                    Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent'], 'name' => 'A'],
                 ],
-                [
-                    'parent' => ['foo' => 'parent translated'],
-                    'child' => ['foo' => 'parent translated'],
+                'child' => [
+                    Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => null], 'name' => 'A'],
                 ],
-                self::createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], true),
             ],
-            'Test inheritance with language chain no translation for language' => [
-                [
-                    'parent' => [
-                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent'], 'name' => 'A'],
-                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => null]],
-                    ],
-                    'child' => [
-                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'child'], 'name' => 'A'],
-                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => null]],
-                    ],
-                ],
-                [
-                    'parent' => ['foo' => 'parent'],
-                    'child' => ['foo' => 'child'],
-                ],
-                self::createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], true),
+            [
+                'parent' => ['foo' => 'parent'],
+                'child' => [],
             ],
-            'Test inheritance with language chain no translation for language and child at all' => [
-                [
-                    'parent' => [
-                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent'], 'name' => 'A'],
-                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => null]],
-                    ],
-                    'child' => [
-                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => null], 'name' => 'A'],
-                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => null]],
-                    ],
+            self::createLanguageContext([Defaults::LANGUAGE_SYSTEM], false),
+        ];
+        yield 'Test child and parent null value no inheritance' => [
+            [
+                'parent' => [
+                    Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => null], 'name' => 'A'],
                 ],
-                [
-                    'parent' => ['foo' => 'parent'],
-                    'child' => ['foo' => 'parent'],
+                'child' => [
+                    Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => null], 'name' => 'A'],
                 ],
-                self::createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], true),
             ],
-            'Test language chain without inheritance' => [
-                [
-                    'parent' => [
-                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent'], 'name' => 'A'],
-                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => null]],
-                    ],
-                    'child' => [
-                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => null], 'name' => 'A'],
-                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => null]],
-                    ],
-                ],
-                [
-                    'parent' => ['foo' => 'parent'],
-                    'child' => [],
-                ],
-                self::createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], false),
+            [
+                'parent' => [],
+                'child' => [],
             ],
-            'Test language chain without inheritance but language is set' => [
-                [
-                    'parent' => [
-                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent'], 'name' => 'A'],
-                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => 'parent translated']],
-                    ],
-                    'child' => [
-                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => null], 'name' => 'A'],
-                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => null]],
-                    ],
+            self::createLanguageContext([Defaults::LANGUAGE_SYSTEM], false),
+        ];
+        yield 'Test only parent null value with inheritance' => [
+            [
+                'parent' => [
+                    Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => null], 'name' => 'A'],
                 ],
-                [
-                    'parent' => ['foo' => 'parent translated'],
-                    'child' => [],
+                'child' => [
+                    Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'child'], 'name' => 'A'],
                 ],
-                self::createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], false),
             ],
-            'Test language chain without inheritance but language is set, main is not' => [
-                [
-                    'parent' => [
-                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => null], 'name' => 'A'],
-                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => 'parent translated']],
-                    ],
-                    'child' => [
-                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => null], 'name' => 'A'],
-                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => null]],
-                    ],
-                ],
-                [
-                    'parent' => ['foo' => 'parent translated'],
-                    'child' => [],
-                ],
-                self::createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], false),
+            [
+                'parent' => [],
+                'child' => ['foo' => 'child'],
             ],
-            'Test language chain without inheritance and only main language set' => [
-                [
-                    'parent' => [
-                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent'], 'name' => 'A'],
-                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => null]],
-                    ],
-                    'child' => [
-                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'child'], 'name' => 'A'],
-                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => null]],
-                    ],
+            self::createLanguageContext([Defaults::LANGUAGE_SYSTEM], true),
+        ];
+        yield 'Test inheritance with language chain' => [
+            [
+                'parent' => [
+                    Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent'], 'name' => 'A'],
+                    self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => 'parent translated']],
                 ],
-                [
-                    'parent' => ['foo' => 'parent'],
-                    'child' => ['foo' => 'child'],
+                'child' => [
+                    Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'child'], 'name' => 'A'],
+                    self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => 'child translated']],
                 ],
-                self::createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], false),
             ],
-            'Test language with inheritance and merge with parent and languages' => [
-                [
-                    'parent' => [
-                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent', 'bar' => 'parent'], 'name' => 'A'],
-                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => 'parent translated']],
-                    ],
-                    'child' => [
-                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'child'], 'name' => 'A'],
-                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => 'child translated']],
-                    ],
-                ],
-                [
-                    'parent' => ['foo' => 'parent translated', 'bar' => 'parent'],
-                    'child' => ['foo' => 'child translated', 'bar' => 'parent'],
-                ],
-                self::createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], true),
+            [
+                'parent' => ['foo' => 'parent translated'],
+                'child' => ['foo' => 'child translated'],
             ],
-            'Test language with inheritance and merge with parent and languages, child own values' => [
-                [
-                    'parent' => [
-                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent', 'bar' => 'parent'], 'name' => 'A'],
-                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => 'parent translated']],
-                    ],
-                    'child' => [
-                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'child'], 'name' => 'A'],
-                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => 'child translated', 'bar' => 'child translated']],
-                    ],
+            self::createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], true),
+        ];
+        yield 'Test inheritance with language chain merged with parent' => [
+            [
+                'parent' => [
+                    Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent'], 'name' => 'A'],
+                    self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => 'parent translated']],
                 ],
-                [
-                    'parent' => ['foo' => 'parent translated', 'bar' => 'parent'],
-                    'child' => ['foo' => 'child translated', 'bar' => 'child translated'],
+                'child' => [
+                    Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'child'], 'name' => 'A'],
+                    self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => null]],
                 ],
-                self::createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], true),
             ],
-            'Test language with inheritance and merge with parent and languages, main child has values' => [
-                [
-                    'parent' => [
-                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent', 'bar' => 'parent'], 'name' => 'A'],
-                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => 'parent translated']],
-                    ],
-                    'child' => [
-                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'child', 'bar' => 'child'], 'name' => 'A'],
-                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => 'child translated']],
-                    ],
-                ],
-                [
-                    'parent' => ['foo' => 'parent translated', 'bar' => 'parent'],
-                    'child' => ['foo' => 'child translated', 'bar' => 'child'],
-                ],
-                self::createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], true),
+            [
+                'parent' => ['foo' => 'parent translated'],
+                'child' => ['foo' => 'parent translated'],
             ],
-            'Test language with inheritance and merge with parent and languages, main child has values and parent language has values' => [
-                [
-                    'parent' => [
-                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent', 'bar' => 'parent'], 'name' => 'A'],
-                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => 'parent translated', 'bar' => 'parent translated']],
-                    ],
-                    'child' => [
-                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'child', 'bar' => 'child'], 'name' => 'A'],
-                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => 'child translated']],
-                    ],
+            self::createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], true),
+        ];
+        yield 'Test inheritance with language chain no translation for language' => [
+            [
+                'parent' => [
+                    Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent'], 'name' => 'A'],
+                    self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => null]],
                 ],
-                [
-                    'parent' => ['foo' => 'parent translated', 'bar' => 'parent translated'],
-                    'child' => ['foo' => 'child translated', 'bar' => 'parent translated'],
+                'child' => [
+                    Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'child'], 'name' => 'A'],
+                    self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => null]],
                 ],
-                self::createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], true),
             ],
+            [
+                'parent' => ['foo' => 'parent'],
+                'child' => ['foo' => 'child'],
+            ],
+            self::createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], true),
+        ];
+        yield 'Test inheritance with language chain no translation for language and child at all' => [
+            [
+                'parent' => [
+                    Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent'], 'name' => 'A'],
+                    self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => null]],
+                ],
+                'child' => [
+                    Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => null], 'name' => 'A'],
+                    self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => null]],
+                ],
+            ],
+            [
+                'parent' => ['foo' => 'parent'],
+                'child' => ['foo' => 'parent'],
+            ],
+            self::createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], true),
+        ];
+        yield 'Test language chain without inheritance' => [
+            [
+                'parent' => [
+                    Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent'], 'name' => 'A'],
+                    self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => null]],
+                ],
+                'child' => [
+                    Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => null], 'name' => 'A'],
+                    self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => null]],
+                ],
+            ],
+            [
+                'parent' => ['foo' => 'parent'],
+                'child' => [],
+            ],
+            self::createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], false),
+        ];
+        yield 'Test language chain without inheritance but language is set' => [
+            [
+                'parent' => [
+                    Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent'], 'name' => 'A'],
+                    self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => 'parent translated']],
+                ],
+                'child' => [
+                    Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => null], 'name' => 'A'],
+                    self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => null]],
+                ],
+            ],
+            [
+                'parent' => ['foo' => 'parent translated'],
+                'child' => [],
+            ],
+            self::createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], false),
+        ];
+        yield 'Test language chain without inheritance but language is set, main is not' => [
+            [
+                'parent' => [
+                    Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => null], 'name' => 'A'],
+                    self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => 'parent translated']],
+                ],
+                'child' => [
+                    Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => null], 'name' => 'A'],
+                    self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => null]],
+                ],
+            ],
+            [
+                'parent' => ['foo' => 'parent translated'],
+                'child' => [],
+            ],
+            self::createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], false),
+        ];
+        yield 'Test language chain without inheritance and only main language set' => [
+            [
+                'parent' => [
+                    Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent'], 'name' => 'A'],
+                    self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => null]],
+                ],
+                'child' => [
+                    Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'child'], 'name' => 'A'],
+                    self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => null]],
+                ],
+            ],
+            [
+                'parent' => ['foo' => 'parent'],
+                'child' => ['foo' => 'child'],
+            ],
+            self::createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], false),
+        ];
+        yield 'Test language with inheritance and merge with parent and languages' => [
+            [
+                'parent' => [
+                    Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent', 'bar' => 'parent'], 'name' => 'A'],
+                    self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => 'parent translated']],
+                ],
+                'child' => [
+                    Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'child'], 'name' => 'A'],
+                    self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => 'child translated']],
+                ],
+            ],
+            [
+                'parent' => ['foo' => 'parent translated', 'bar' => 'parent'],
+                'child' => ['foo' => 'child translated', 'bar' => 'parent'],
+            ],
+            self::createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], true),
+        ];
+        yield 'Test language with inheritance and merge with parent and languages, child own values' => [
+            [
+                'parent' => [
+                    Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent', 'bar' => 'parent'], 'name' => 'A'],
+                    self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => 'parent translated']],
+                ],
+                'child' => [
+                    Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'child'], 'name' => 'A'],
+                    self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => 'child translated', 'bar' => 'child translated']],
+                ],
+            ],
+            [
+                'parent' => ['foo' => 'parent translated', 'bar' => 'parent'],
+                'child' => ['foo' => 'child translated', 'bar' => 'child translated'],
+            ],
+            self::createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], true),
+        ];
+        yield 'Test language with inheritance and merge with parent and languages, main child has values' => [
+            [
+                'parent' => [
+                    Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent', 'bar' => 'parent'], 'name' => 'A'],
+                    self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => 'parent translated']],
+                ],
+                'child' => [
+                    Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'child', 'bar' => 'child'], 'name' => 'A'],
+                    self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => 'child translated']],
+                ],
+            ],
+            [
+                'parent' => ['foo' => 'parent translated', 'bar' => 'parent'],
+                'child' => ['foo' => 'child translated', 'bar' => 'child'],
+            ],
+            self::createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], true),
+        ];
+        yield 'Test language with inheritance and merge with parent and languages, main child has values and parent language has values' => [
+            [
+                'parent' => [
+                    Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent', 'bar' => 'parent'], 'name' => 'A'],
+                    self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => 'parent translated', 'bar' => 'parent translated']],
+                ],
+                'child' => [
+                    Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'child', 'bar' => 'child'], 'name' => 'A'],
+                    self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => 'child translated']],
+                ],
+            ],
+            [
+                'parent' => ['foo' => 'parent translated', 'bar' => 'parent translated'],
+                'child' => ['foo' => 'child translated', 'bar' => 'parent translated'],
+            ],
+            self::createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], true),
         ];
     }
 

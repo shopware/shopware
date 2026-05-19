@@ -167,7 +167,6 @@ async function createWrapper() {
             ],
             mocks: {
                 $t: translate,
-                $tc: (key) => key,
             },
             stubs: {},
         },

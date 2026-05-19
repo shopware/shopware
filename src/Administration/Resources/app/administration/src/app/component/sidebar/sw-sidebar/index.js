@@ -41,6 +41,7 @@ export default {
         return {
             items: [],
             isOpened: false,
+            resizeNavigationKey: 0,
             _parent: this.$parent,
         };
     },
@@ -92,14 +93,19 @@ export default {
         },
 
         mountedComponent() {
-            if (this.propagateWidth) {
-                const sidebarWidth = this.$el.querySelector('.sw-sidebar__navigation').offsetWidth;
+            this.$device.onResize({
+                listener: this.onResize,
+                component: this,
+            });
 
-                this.setSwPageSidebarOffset(sidebarWidth);
+            if (this.propagateWidth) {
+                this.updateSidebarOffset();
             }
         },
 
         destroyedComponent() {
+            this.$device.removeResizeListener(this);
+
             if (!this.propagateWidth) {
                 return;
             }
@@ -123,6 +129,24 @@ export default {
 
         closeSidebar() {
             this.isOpened = false;
+        },
+
+        onResize() {
+            this.resizeNavigationKey += 1;
+
+            if (this.propagateWidth) {
+                this.updateSidebarOffset();
+            }
+        },
+
+        updateSidebarOffset() {
+            const sidebarWidth = this.$el.querySelector('.sw-sidebar__navigation')?.offsetWidth;
+
+            if (!sidebarWidth) {
+                return;
+            }
+
+            this.setSwPageSidebarOffset(sidebarWidth);
         },
 
         registerSidebarItem(item) {

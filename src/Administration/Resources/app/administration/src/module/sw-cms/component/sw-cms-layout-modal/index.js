@@ -89,21 +89,21 @@ export default {
             return [
                 {
                     property: 'name',
-                    label: this.$tc('sw-cms.list.gridHeaderName'),
+                    label: this.$t('sw-cms.list.gridHeaderName'),
                     inlineEdit: 'string',
                     primary: true,
                 },
                 {
                     property: 'type',
-                    label: this.$tc('sw-cms.list.gridHeaderType'),
+                    label: this.$t('sw-cms.list.gridHeaderType'),
                 },
                 {
                     property: 'createdAt',
-                    label: this.$tc('sw-cms.list.gridHeaderCreated'),
+                    label: this.$t('sw-cms.list.gridHeaderCreated'),
                 },
                 {
                     property: 'updatedAt',
-                    label: this.$tc('sw-cms.list.gridHeaderUpdated'),
+                    label: this.$t('sw-cms.list.gridHeaderUpdated'),
                 },
             ];
         },
@@ -211,8 +211,8 @@ export default {
                 this.defaultProductId,
                 this.defaultCategoryId,
             ].includes(page.id);
-            const defaultText = this.$tc('sw-cms.components.cmsListItem.defaultLayout');
-            const typeLabel = this.$tc(this.cmsPageTypeService.getType(page.type)?.title);
+            const defaultText = this.$t('sw-cms.components.cmsListItem.defaultLayout');
+            const typeLabel = this.$t(this.cmsPageTypeService.getType(page.type)?.title);
             return isDefault ? `${defaultText} - ${typeLabel}` : typeLabel;
         },
 

@@ -4,8 +4,6 @@
     {% sw_include '@Storefront/storefront/layout/header/header-minimal.html.twig' %}
 {% endblock %}
 
-{% block base_navigation %}{% endblock %}
-
 {% set showTaxPrice = config('core.cart.columnTaxInsteadUnitPrice') %}
 {% set showSubtotal = config('core.cart.showSubtotal') %}
 
@@ -320,7 +318,10 @@
     <div class="checkout-aside-action">
         <form id="confirmOrderForm"
               action="{{ confirmOrderFormAction }}"
+              data-checkout-customer-storage="true"
+              data-checkout-customer-storage-options="{{ { customerId: context.customer.id }|json_encode }}"
               data-form-preserver="true"
+              data-form-preserver-options="{{ { ignoredElementNames: [constant('Shopware\\Core\\Checkout\\Order\\SalesChannel\\OrderService::CUSTOMER_COMMENT_KEY'), 'tos'] }|json_encode }}"
               data-form-handler="true"
               data-form-handler-options="{{ { formFieldSelector: null }|json_encode }}"
               data-form-add-history="true"

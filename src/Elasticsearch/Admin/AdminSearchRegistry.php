@@ -6,7 +6,8 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use OpenSearch\Client;
-use OpenSearch\Common\Exceptions\OpenSearchException;
+use OpenSearch\Exception\OpenSearchExceptionInterface;
+use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
@@ -92,7 +93,10 @@ class AdminSearchRegistry implements EventSubscriberInterface
         }
 
         $indexers = $this->getIndexersArray();
-        /** @var list<string> $entities */
+        if ($indexers === []) {
+            return;
+        }
+
         $entities = array_keys($indexers);
 
         if ($indexingBehavior->getOnlyEntities()) {
@@ -134,10 +138,15 @@ class AdminSearchRegistry implements EventSubscriberInterface
             return;
         }
 
+        $indexers = $this->getIndexersArray();
+        if ($indexers === []) {
+            return;
+        }
+
         if ($this->adminEsHelper->getRefreshIndices()) {
             try {
                 $this->refreshIndices();
-            } catch (OpenSearchException $e) {
+            } catch (ClientExceptionInterface|OpenSearchExceptionInterface $e) {
                 $this->logger->error('Could not refresh indices. Run "bin/console es:admin:mapping:update" & "bin/console es:admin:index" to update indices and reindex. Error: ' . $e->getMessage());
 
                 return;
@@ -146,12 +155,11 @@ class AdminSearchRegistry implements EventSubscriberInterface
 
         /** @var array<string, string> $indices */
         $indices = $this->connection->fetchAllKeyValue('SELECT `alias`, `index` FROM admin_elasticsearch_index_task');
-
         if ($indices === []) {
             return;
         }
 
-        foreach ($this->indexer as $indexer) {
+        foreach ($indexers as $indexer) {
             $ids = $indexer->getUpdatedIds($event);
             $deletedIds = $event->getDeletedPrimaryKeys($indexer->getEntity());
             $ids = array_values(array_diff($ids, $deletedIds));
@@ -307,6 +315,10 @@ class AdminSearchRegistry implements EventSubscriberInterface
             ];
         }
 
+        if ($indices === []) {
+            return $indices;
+        }
+
         $this->connection->executeStatement(
             'DELETE FROM admin_elasticsearch_index_task WHERE `entity` IN (:entities)',
             ['entities' => $entities],
@@ -322,8 +334,8 @@ class AdminSearchRegistry implements EventSubscriberInterface
 
     private function refreshIndices(): void
     {
-        $entities = [];
         $indexTasks = [];
+        $entities = [];
         foreach ($this->indexer as $indexer) {
             $alias = $this->adminEsHelper->getIndex($indexer->getName());
 
@@ -344,6 +356,10 @@ class AdminSearchRegistry implements EventSubscriberInterface
                 '`alias`' => $alias,
                 '`doc_count`' => $iterator->fetchCount(),
             ];
+        }
+
+        if ($entities === []) {
+            return;
         }
 
         $this->connection->executeStatement(

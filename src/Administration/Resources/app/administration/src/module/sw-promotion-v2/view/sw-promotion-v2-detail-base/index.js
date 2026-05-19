@@ -67,7 +67,7 @@ export default {
         codeTypeOptions() {
             return Object.entries(this.CODE_TYPES).map((type) =>
                 Object.create({
-                    label: this.$tc(`sw-promotion-v2.detail.base.codes.${type[0].toLowerCase()}.description`),
+                    label: this.$t(`sw-promotion-v2.detail.base.codes.${type[0].toLowerCase()}.description`),
                     value: type[1],
                 }),
             );

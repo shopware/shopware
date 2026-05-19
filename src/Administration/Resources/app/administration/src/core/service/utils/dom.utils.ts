@@ -29,6 +29,13 @@ function getScrollbarWidth(element: HTMLElement): number {
 }
 
 async function copyStringToClipboard(stringToCopy: string): Promise<void> {
+    if (!navigator.clipboard) {
+        // Feature is only available in secure context. See https://developer.mozilla.org/en-US/docs/Web/API/Navigator/clipboard
+        throw new Error(
+            'Clipboard functionality is not available. Access the admin via a secure HTTPS connection and try again.',
+        );
+    }
+
     await navigator.clipboard.writeText(stringToCopy);
 }
 

@@ -226,6 +226,32 @@ swDefinePublic({
         expect(result).toContain('const { initialCount = 0 } = (__shopwareSetupBindings.props);');
     });
 
+    it('keeps bare defineProps() outside the callback when the generated props binding name is taken', () => {
+        const source = `<script setup sw-component="sw-my-component">
+defineProps();
+
+function props() {
+    return 'local binding';
+}
+
+const count = props().length;
+
+swDefinePublic({
+    count,
+});
+</script>`;
+
+        const result = transformOrFail(source, 'base-bare-props-collision.vue').code;
+
+        expect(result).toContain('const props2 = defineProps();');
+        expect(result).toContain(
+            "Shopware.Component.createScriptSetupExtendableComponent()('sw-my-component', props2, (__shopwareSetupBindings) => {",
+        );
+        expect(result).toContain('(__shopwareSetupBindings.props);');
+        expect(result).toContain("return 'local binding';");
+        expect(result).toContain('private: {\n            props,\n        }');
+    });
+
     it('keeps base withDefaults(defineProps()) outside the extendable setup callback', () => {
         const source = `<script setup lang="ts" sw-component="sw-my-component">
 const props = withDefaults(defineProps<{
@@ -332,6 +358,29 @@ swDefinePublic({
         expect(result.match(/defineEmits/g)).toHaveLength(1);
     });
 
+    it('keeps bare defineEmits() outside the callback when the generated emit binding name is taken', () => {
+        const source = `<script setup sw-component="sw-my-component">
+defineEmits(['save']);
+
+function emit() {
+    return 'local binding';
+}
+
+const count = emit().length;
+
+swDefinePublic({
+    count,
+});
+</script>`;
+
+        const result = transformOrFail(source, 'base-bare-emits-collision.vue').code;
+
+        expect(result).toContain("const emit2 = defineEmits(['save']);");
+        expect(result).toContain('(__shopwareSetupBindings.context.emit);');
+        expect(result).toContain("return 'local binding';");
+        expect(result).toContain('private: {\n            emit,\n        }');
+    });
+
     it('supports runtime array and object defineEmits() declarations', () => {
         const arraySource = `<script setup sw-component="sw-my-component">
 const emit = defineEmits(['save']);
@@ -415,6 +464,29 @@ swDefinePublic({
         expect(result).toContain('const { default: defaultSlot } = (__shopwareSetupBindings.context.slots);');
     });
 
+    it('keeps bare defineSlots() outside the callback when the generated slots binding name is taken', () => {
+        const source = `<script setup sw-component="sw-my-component">
+defineSlots();
+
+function slots() {
+    return 'local binding';
+}
+
+const count = slots().length;
+
+swDefinePublic({
+    count,
+});
+</script>`;
+
+        const result = transformOrFail(source, 'base-bare-slots-collision.vue').code;
+
+        expect(result).toContain('const slots2 = defineSlots();');
+        expect(result).toContain('(__shopwareSetupBindings.context.slots);');
+        expect(result).toContain("return 'local binding';");
+        expect(result).toContain('private: {\n            slots,\n        }');
+    });
+
     it('keeps base defineOptions() outside the extendable setup callback', () => {
         const source = `<script setup sw-component="sw-my-component">
 defineOptions({
@@ -441,6 +513,42 @@ swDefinePublic({
 
     defineOptions`);
         expect(result.match(/defineOptions/g)).toHaveLength(1);
+    });
+
+    it('preserves defineOptions() component name and custom options at the generated script root', () => {
+        const source = `<script setup sw-component="sw-my-component">
+defineOptions({
+    name: 'sw-custom-name',
+    inheritAttrs: false,
+    customOption: {
+        enabled: true,
+    },
+});
+
+const count = 1;
+
+swDefinePublic({
+    count,
+});
+</script>`;
+
+        const result = transformOrFail(source, 'base-options-custom.vue').code;
+
+        expect(result).toContain(`defineOptions({
+    name: 'sw-custom-name',
+    inheritAttrs: false,
+    customOption: {
+        enabled: true,
+    },
+});`);
+        expect(result.indexOf("name: 'sw-custom-name'")).toBeLessThan(
+            result.indexOf('Shopware.Component.createScriptSetupExtendableComponent()'),
+        );
+        expect(result).not.toContain(`customOption: {
+        enabled: true,
+    },
+
+    const count`);
     });
 
     it('rejects duplicate base defineSlots() declarations', () => {

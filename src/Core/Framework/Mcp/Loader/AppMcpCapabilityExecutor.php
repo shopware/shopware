@@ -7,6 +7,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\Hmac\RequestSigner;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
@@ -125,8 +126,6 @@ class AppMcpCapabilityExecutor
         try {
             $route = $this->router->match($url);
 
-            // Pass the Authorization header via server params so PSR-7 conversion
-            // (used by the OAuth bearer validator on the subrequest) sees it.
             $server = [];
             if ($parent->headers->has('Authorization')) {
                 $server['HTTP_AUTHORIZATION'] = $parent->headers->get('Authorization');
@@ -136,6 +135,12 @@ class AppMcpCapabilityExecutor
             $body = json_encode(['arguments' => $arguments], \JSON_THROW_ON_ERROR);
             $subRequest = Request::create($url, 'POST', [], [], [], $server, $body);
             $subRequest->attributes->add($route);
+
+            if ($parent->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_PRE_AUTHENTICATED, false)) {
+                $subRequest->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID, $parent->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID));
+                $subRequest->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, $parent->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID));
+                $subRequest->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_PRE_AUTHENTICATED, true);
+            }
 
             $response = $this->kernel->handle($subRequest, HttpKernelInterface::SUB_REQUEST);
 

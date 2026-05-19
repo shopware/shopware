@@ -14,6 +14,7 @@ use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpCapabilityExecutor;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
@@ -252,6 +253,31 @@ class AppMcpCapabilityExecutorTest extends TestCase
             // not the HeaderBag — verify both are populated.
             static::callback(static fn (Request $r): bool => $r->server->get('HTTP_AUTHORIZATION') === 'Bearer my-token-123'
                 && $r->headers->get('Authorization') === 'Bearer my-token-123'),
+            HttpKernelInterface::SUB_REQUEST,
+        )->willReturn(new SymfonyResponse('{"success":true}'));
+
+        $executor = $this->makeExecutorWithSubrequest($kernel, $requestStack, $router);
+        $executor->execute('my-tool', null, '/api/script/my-tool', []);
+    }
+
+    public function testSubrequestPropagatesPreAuthenticatedAttributesForAccessKeyAuth(): void
+    {
+        $parent = new Request();
+        $parent->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID, 'mcp-SWIAKEY123');
+        $parent->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, 'SWIAKEY123');
+        $parent->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_PRE_AUTHENTICATED, true);
+
+        $requestStack = $this->createMock(RequestStack::class);
+        $requestStack->method('getCurrentRequest')->willReturn($parent);
+
+        $router = $this->createMock(RouterInterface::class);
+        $router->method('match')->willReturn(['_route' => 'api.script.run']);
+
+        $kernel = $this->createMock(KernelInterface::class);
+        $kernel->method('handle')->with(
+            static::callback(static fn (Request $r): bool => $r->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_PRE_AUTHENTICATED) === true
+                && $r->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID) === 'mcp-SWIAKEY123'
+                && $r->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID) === 'SWIAKEY123'),
             HttpKernelInterface::SUB_REQUEST,
         )->willReturn(new SymfonyResponse('{"success":true}'));
 

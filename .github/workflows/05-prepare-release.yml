@@ -26,6 +26,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
         with:
+          ref: "v6.7.10.1"
           fetch-depth: "0"
           fetch-tags: "true"
 
@@ -50,7 +51,7 @@ jobs:
           include-hidden-files: true
           path: |
             .
-            !.git/config
+            !.git
             .github/
             !var/cache
             !tests/
@@ -79,7 +80,7 @@ jobs:
   split:
     needs: build
     runs-on: ubuntu-24.04
-    environment: ${{ format('manyrepos_{0}', github.ref_type) }}
+    environment: 'manyrepos_tag'
     # we use this image to get an older git version, which does not suffer from a performance regression
     container: node:alpine3.19
     if: github.repository == 'shopware/shopware'
@@ -100,6 +101,15 @@ jobs:
       GIT_COMMITTER_NAME: "shopwareBot"
       DEBUG: ${{ github.event.act && '1' || '' }}
     steps:
+      - name: install deps
+        run: apk add git git-subtree bash composer
+
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
+        with:
+          ref: "v6.7.10.1"
+          fetch-depth: "0"
+          fetch-tags: "true"
       - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # 4
         with:
           name: context
@@ -113,9 +123,6 @@ jobs:
       - name: Is protected
         if: github.ref_protected
         run: echo 'is protected'
-
-      - name: install deps
-        run: apk add git git-subtree bash composer
 
       - name: Mark dir as safe
         run: git config --global --add safe.directory $PWD
@@ -132,17 +139,16 @@ jobs:
 
       - name: Require core version
         run: |
-          bash .github/bin/split.bash require_core_version "${{ matrix.package }}" "${{ github.ref_name }}" ${{ github.ref_type }}
+          bash .github/bin/split.bash require_core_version "${{ matrix.package }}" "v6.7.10.1" tag
 
       - name: Commit assets
         if: matrix.package != 'core'
         run: |
-          bash .github/bin/split.bash commit "${{ matrix.package }}" "${{ github.ref_name }} (+ assets)"
+          bash .github/bin/split.bash commit "${{ matrix.package }}" "v6.7.10.1 (+ assets)"
 
       - name: Tag commit
-        if: github.ref_type == 'tag'
         run: |
-          bash .github/bin/split.bash tag "${{ matrix.package }}" "${{ github.ref_name }}"
+          bash .github/bin/split.bash tag "${{ matrix.package }}" "v6.7.10.1"
 
       - name: Diff
         if: matrix.package != 'core'
@@ -151,25 +157,9 @@ jobs:
           git -C repos/${{ matrix.package }} log -n 2
           git -C repos/${{ matrix.package }} diff @^.. | head -n 100
 
-      - name: Create temporary branch
-        if: github.ref_type != 'tag' && !github.ref_protected
-        run: |
-          bash .github/bin/split.bash branch "${{ matrix.package }}" "tmp-${{ github.sha }}"
-
-      - name: Create named branch
-        if: github.ref_type != 'tag' && github.ref_protected
-        run: |
-          bash .github/bin/split.bash branch "${{ matrix.package }}" "${{ github.ref_name }}"
-
       - name: Push
-        if: github.ref_type == 'tag' || github.ref_protected
         run: |
-          bash .github/bin/split.bash push "${{ matrix.package }}" https://x-access-token:${{ steps.sts-shopware-split.outputs.token }}@github.com/shopware "${{ github.ref_name }}"
-
-      - name: Push temporary branch
-        if: github.ref_type != 'tag' && !github.ref_protected && !env.ACT
-        run: |
-          bash .github/bin/split.bash push "${{ matrix.package }}" https://x-access-token:${{ steps.sts-shopware-split.outputs.token }}@github.com/shopware "tmp-${{ github.sha }}"
+          bash .github/bin/split.bash push "${{ matrix.package }}" https://x-access-token:${{ steps.sts-shopware-split.outputs.token }}@github.com/shopware "v6.7.10.1"
 
   draft-release-notes:
     needs: split
@@ -186,10 +176,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # set dry run if it's not a tag
-          DRY_RUN: ${{ github.ref_type != 'tag' && '1' || '' }}
+          DRY_RUN: ''
         run: |
           echo DRY_RUN: "${DRY_RUN}"
-          bash .github/bin/create_github_release.bash draft "${{ github.ref_name }}"
+          bash .github/bin/create_github_release.bash draft "v6.7.10.1"
 
   create-sbp-release:
     needs: split
@@ -202,7 +192,7 @@ jobs:
       SBP_API_URL: ${{ secrets[format('SBP_API_URL_{0}', matrix.sbp-environment)] }}
       SBP_TOKEN: ${{ secrets[format('SBP_API_TOKEN_{0}', matrix.sbp-environment)] }}
       # set dry run if it's not a tag
-      DRY_RUN: ${{ github.ref_type != 'tag' && '1' || '' }}
+      DRY_RUN: ''
     continue-on-error: true
     steps:
       - name: Checkout
@@ -210,7 +200,7 @@ jobs:
       - name: Create sbp release
         run: |
           echo DRY_RUN: "${DRY_RUN}"
-          bash .github/bin/sbp_release.bash create "${{ github.ref_type == 'tag' && github.ref_name || 'v6.7.9999999.9999999-dev' }}"
+          bash .github/bin/sbp_release.bash create "v6.7.10.1"
 
   update-milestones:
     needs: split

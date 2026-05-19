@@ -58,16 +58,14 @@ class Migration1740321707SetAutoplayTimeoutAndSpeedSettingsForProductSliderTest 
     }
 
     /**
-     * @return array<string, list<int|null>>
+     * @return iterable<string, list<int|null>>
      */
-    public static function productSliderConfigDataProvider(): array
+    public static function productSliderConfigDataProvider(): iterable
     {
-        return [
-            'config with autoplay timeout and speed' => [10000, 500],
-            'config with autoplay timeout' => [10000, null],
-            'config with speed' => [null, 500],
-            'config without autoplay timeout and speed' => [null, null],
-        ];
+        yield 'config with autoplay timeout and speed' => [10000, 500];
+        yield 'config with autoplay timeout' => [10000, null];
+        yield 'config with speed' => [null, 500];
+        yield 'config without autoplay timeout and speed' => [null, null];
     }
 
     /**

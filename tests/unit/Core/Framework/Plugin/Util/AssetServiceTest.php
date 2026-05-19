@@ -209,58 +209,56 @@ class AssetServiceTest extends TestCase
     }
 
     /**
-     * @return array<string, array{manifest: array<string, string>, expectedWrites: array<string, string>, expectedDeletes: array<string>}>
+     * @return iterable<string, array{manifest: array<string, string>, expectedWrites: array<string, string>, expectedDeletes: array<string>}>
      */
-    public static function adminFilesProvider(): array
+    public static function adminFilesProvider(): iterable
     {
-        return [
-            'destination-empty' => [
-                'manifest' => [],
-                'expectedWrites' => [
-                    'bundles/administration/static/js/app.js' => 'AdminBundle/Resources/public/static/js/app.js',
-                    'bundles/administration/one.js' => 'AdminBundle/Resources/public/one.js',
-                    'bundles/administration/two.js' => 'AdminBundle/Resources/public/two.js',
-                    'bundles/administration/three.js' => 'AdminBundle/Resources/public/three.js',
-                ],
-                'expectedDeletes' => [],
+        yield 'destination-empty' => [
+            'manifest' => [],
+            'expectedWrites' => [
+                'bundles/administration/static/js/app.js' => 'AdminBundle/Resources/public/static/js/app.js',
+                'bundles/administration/one.js' => 'AdminBundle/Resources/public/one.js',
+                'bundles/administration/two.js' => 'AdminBundle/Resources/public/two.js',
+                'bundles/administration/three.js' => 'AdminBundle/Resources/public/three.js',
             ],
-            'destination-nothing-changed' => [
-                'manifest' => [
-                    'static/js/app.js' => '9b88085012a490e232336863bf269917',
-                    'one.js' => '9b88085012a490e232336863bf269917',
-                    'two.js' => '9b88085012a490e232336863bf269917',
-                    'three.js' => '9b88085012a490e232336863bf269917',
-                ],
-                'expectedWrites' => [],
-                'expectedDeletes' => [],
+            'expectedDeletes' => [],
+        ];
+        yield 'destination-nothing-changed' => [
+            'manifest' => [
+                'static/js/app.js' => '9b88085012a490e232336863bf269917',
+                'one.js' => '9b88085012a490e232336863bf269917',
+                'two.js' => '9b88085012a490e232336863bf269917',
+                'three.js' => '9b88085012a490e232336863bf269917',
             ],
-            'destination-new-and-removed' => [
-                'manifest' => [
-                    'static/js/app.js' => '9b88085012a490e232336863bf269917',
-                    'one.js' => '9b88085012a490e232336863bf269917',
-                    'two.js' => '9b88085012a490e232336863bf269917',
-                    'four.js' => '9b88085012a490e232336863bf269917',
-                ],
-                'expectedWrites' => [
-                    'bundles/administration/three.js' => 'AdminBundle/Resources/public/three.js',
-                ],
-                'expectedDeletes' => [
-                    'bundles/administration/four.js',
-                ],
+            'expectedWrites' => [],
+            'expectedDeletes' => [],
+        ];
+        yield 'destination-new-and-removed' => [
+            'manifest' => [
+                'static/js/app.js' => '9b88085012a490e232336863bf269917',
+                'one.js' => '9b88085012a490e232336863bf269917',
+                'two.js' => '9b88085012a490e232336863bf269917',
+                'four.js' => '9b88085012a490e232336863bf269917',
             ],
-            'destination-content-changed' => [
-                'manifest' => [
-                    'static/js/app.js' => '9b88085012a490e232336863bf269917',
-                    'one.js' => 'xxx9b88085012a490e232336863bf269917', // incorrect hash to simulate content change
-                    'two.js' => 'xxx9b88085012a490e232336863bf269917', // incorrect hash to simulate content change
-                    'three.js' => '9b88085012a490e232336863bf269917',
-                ],
-                'expectedWrites' => [
-                    'bundles/administration/one.js' => 'AdminBundle/Resources/public/one.js',
-                    'bundles/administration/two.js' => 'AdminBundle/Resources/public/two.js',
-                ],
-                'expectedDeletes' => [],
+            'expectedWrites' => [
+                'bundles/administration/three.js' => 'AdminBundle/Resources/public/three.js',
             ],
+            'expectedDeletes' => [
+                'bundles/administration/four.js',
+            ],
+        ];
+        yield 'destination-content-changed' => [
+            'manifest' => [
+                'static/js/app.js' => '9b88085012a490e232336863bf269917',
+                'one.js' => 'xxx9b88085012a490e232336863bf269917', // incorrect hash to simulate content change
+                'two.js' => 'xxx9b88085012a490e232336863bf269917', // incorrect hash to simulate content change
+                'three.js' => '9b88085012a490e232336863bf269917',
+            ],
+            'expectedWrites' => [
+                'bundles/administration/one.js' => 'AdminBundle/Resources/public/one.js',
+                'bundles/administration/two.js' => 'AdminBundle/Resources/public/two.js',
+            ],
+            'expectedDeletes' => [],
         ];
     }
 

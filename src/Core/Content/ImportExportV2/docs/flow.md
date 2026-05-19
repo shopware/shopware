@@ -58,7 +58,7 @@ Adds associations:
 
 G --> H["8. Apply export filters
 
-CriteriaFilterBuilder applies run.exportFilters
+ExportFilterApplier applies run.exportFilters
 
 Example:
 active = true"]

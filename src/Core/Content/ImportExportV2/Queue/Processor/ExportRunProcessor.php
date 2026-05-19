@@ -9,8 +9,8 @@ use Shopware\Core\Content\ImportExportV2\Format\FormatRegistry;
 use Shopware\Core\Content\ImportExportV2\Profile\ImportExportV2ProfileEntity;
 use Shopware\Core\Content\ImportExportV2\Record\ImportExportRecordBuilder;
 use Shopware\Core\Content\ImportExportV2\Run\ImportExportV2RunEntity;
-use Shopware\Core\Content\ImportExportV2\Service\CriteriaFilterBuilder;
 use Shopware\Core\Content\ImportExportV2\Service\ExportCriteriaEnricher;
+use Shopware\Core\Content\ImportExportV2\Service\ExportFilterApplier;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -29,7 +29,7 @@ class ExportRunProcessor
         private readonly ExportCriteriaEnricher     $exportCriteriaEnricher,
         private readonly ImportExportRecordBuilder  $exportRecordBuilder,
         private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
-        private readonly CriteriaFilterBuilder      $criteriaFilterBuilder,
+        private readonly ExportFilterApplier        $exportFilterApplier,
         private readonly EventDispatcherInterface   $eventDispatcher
     ) {
     }
@@ -58,7 +58,7 @@ class ExportRunProcessor
         $this->exportCriteriaEnricher->enrich($profile, $criteria);
 
         // Apply filters from the run
-        $this->criteriaFilterBuilder->apply($criteria, $run->getExportFilters());
+        $this->exportFilterApplier->apply($criteria, $profile->getEntity(), $run->getExportFilters());
 
         // Allow extensions to modify the fully prepared export criteria
         $this->eventDispatcher->dispatch(new ExportCriteriaBuiltEvent($profile, $run, $criteria));

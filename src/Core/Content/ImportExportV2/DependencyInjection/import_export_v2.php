@@ -21,8 +21,8 @@ use Shopware\Core\Content\ImportExportV2\Queue\Processor\ImportRunProcessor;
 use Shopware\Core\Content\ImportExportV2\Record\ImportExportRecordBuilder;
 use Shopware\Core\Content\ImportExportV2\Record\ImportPayloadBuilder;
 use Shopware\Core\Content\ImportExportV2\Run\ImportExportV2RunDefinition;
-use Shopware\Core\Content\ImportExportV2\Service\CriteriaFilterBuilder;
 use Shopware\Core\Content\ImportExportV2\Service\ExportCriteriaEnricher;
+use Shopware\Core\Content\ImportExportV2\Service\ExportFilterApplier;
 use Shopware\Core\Content\ImportExportV2\Service\FailedImportRecordExporter;
 use Shopware\Core\Content\ImportExportV2\Service\ImportEntityMatchResolver;
 use Shopware\Core\Content\ImportExportV2\Service\ImportRecordValidator;
@@ -112,7 +112,10 @@ return static function (ContainerConfigurator $container): void {
             new Reference(DefinitionInstanceRegistry::class),
         ]);
 
-    $services->set(CriteriaFilterBuilder::class);
+    $services->set(ExportFilterApplier::class)
+        ->args([
+            new Reference(DefinitionInstanceRegistry::class),
+        ]);
 
     $services->set(ImportRunProcessor::class)
         ->args([
@@ -131,7 +134,7 @@ return static function (ContainerConfigurator $container): void {
             new Reference(ExportCriteriaEnricher::class),
             new Reference(ImportExportRecordBuilder::class),
             new Reference(DefinitionInstanceRegistry::class),
-            new Reference(CriteriaFilterBuilder::class),
+            new Reference(ExportFilterApplier::class),
             new Reference(EventDispatcherInterface::class),
         ]);
 

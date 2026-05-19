@@ -21,8 +21,4 @@ class Migration1779176196AddFeedLabelToProductExport extends MigrationStep
     {
         $this->addColumn($connection, 'product_export', 'feed_label', 'VARCHAR(20)');
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-    }
 }

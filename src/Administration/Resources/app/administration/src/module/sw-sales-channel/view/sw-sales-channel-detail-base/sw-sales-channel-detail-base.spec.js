@@ -106,6 +106,101 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         global.activeAclRoles = [];
     });
 
+    describe('feed label input', () => {
+        const productComparisonSalesChannel = { typeId: PRODUCT_COMPARISON_TYPE_ID };
+
+        it('renders only when product comparison and google template is selected', async () => {
+            global.activeAclRoles = ['sales_channel.editor'];
+
+            const wrapper = await createWrapper({
+                props: {
+                    salesChannel: productComparisonSalesChannel,
+                    productExport: { feedLabel: null },
+                    templateName: 'google-product-search-de',
+                },
+            });
+
+            expect(wrapper.find('.sw-sales-channel-detail-base__feed-label').exists()).toBe(true);
+        });
+
+        it('is hidden when the selected template is not google', async () => {
+            global.activeAclRoles = ['sales_channel.editor'];
+
+            const wrapper = await createWrapper({
+                props: {
+                    salesChannel: productComparisonSalesChannel,
+                    productExport: { feedLabel: null },
+                    templateName: 'idealo-de',
+                },
+            });
+
+            expect(wrapper.find('.sw-sales-channel-detail-base__feed-label').exists()).toBe(false);
+        });
+
+        it('is hidden on non-product-comparison sales channels even when templateName equals google', async () => {
+            global.activeAclRoles = ['sales_channel.editor'];
+
+            const wrapper = await createWrapper({
+                props: {
+                    salesChannel: { typeId: STOREFRONT_SALES_CHANNEL_TYPE_ID },
+                    productExport: { feedLabel: null },
+                    templateName: 'google-product-search-de',
+                },
+            });
+
+            expect(wrapper.find('.sw-sales-channel-detail-base__feed-label').exists()).toBe(false);
+        });
+
+        it('coerces null to empty string for mt-text-field so the counter does not show 4/20', async () => {
+            global.activeAclRoles = ['sales_channel.editor'];
+
+            const wrapper = await createWrapper({
+                props: {
+                    salesChannel: productComparisonSalesChannel,
+                    productExport: { feedLabel: null },
+                    templateName: 'google-product-search-de',
+                },
+            });
+
+            const field = wrapper.findComponent('.sw-sales-channel-detail-base__feed-label');
+            expect(field.props('modelValue')).toBe('');
+        });
+
+        it('writes the typed value back to productExport.feedLabel', async () => {
+            global.activeAclRoles = ['sales_channel.editor'];
+
+            const wrapper = await createWrapper({
+                props: {
+                    salesChannel: productComparisonSalesChannel,
+                    productExport: { feedLabel: null },
+                    templateName: 'google-product-search-de',
+                },
+            });
+
+            const input = wrapper.find('.sw-sales-channel-detail-base__feed-label input');
+            await input.setValue('SUMMER-2026');
+
+            expect(wrapper.vm.productExport.feedLabel).toBe('SUMMER-2026');
+        });
+
+        it('writes null back when the input is cleared', async () => {
+            global.activeAclRoles = ['sales_channel.editor'];
+
+            const wrapper = await createWrapper({
+                props: {
+                    salesChannel: productComparisonSalesChannel,
+                    productExport: { feedLabel: 'SUMMER-2026' },
+                    templateName: 'google-product-search-de',
+                },
+            });
+
+            const input = wrapper.find('.sw-sales-channel-detail-base__feed-label input');
+            await input.setValue('');
+
+            expect(wrapper.vm.productExport.feedLabel).toBeNull();
+        });
+    });
+
     it('should have the select template field disabled', async () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({

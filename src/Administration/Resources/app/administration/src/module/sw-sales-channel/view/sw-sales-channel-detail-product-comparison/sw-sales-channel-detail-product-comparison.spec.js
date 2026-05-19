@@ -72,47 +72,4 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-product-compa
         });
     });
 
-    it('binds the feed label input to productExport.feedLabel', async () => {
-        global.activeAclRoles = [
-            'sales_channel.editor',
-        ];
-
-        const wrapper = await createWrapper({
-            productExport: { feedLabel: '' },
-        });
-
-        const input = wrapper.find('.sw-sales-channel-detail-product-comparison__feed-label input');
-        expect(input.exists()).toBe(true);
-
-        await input.setValue('SUMMER-2026');
-        expect(wrapper.vm.productExport.feedLabel).toBe('SUMMER-2026');
-    });
-
-    it('passes empty string to mt-text-field when feedLabel is null so the counter does not read String(null).length', async () => {
-        global.activeAclRoles = [
-            'sales_channel.editor',
-        ];
-
-        const wrapper = await createWrapper({
-            productExport: { feedLabel: null },
-        });
-
-        const field = wrapper.findComponent('.sw-sales-channel-detail-product-comparison__feed-label');
-        expect(field.props('modelValue')).toBe('');
-    });
-
-    it('writes null back to feedLabel when the input is cleared', async () => {
-        global.activeAclRoles = [
-            'sales_channel.editor',
-        ];
-
-        const wrapper = await createWrapper({
-            productExport: { feedLabel: 'SUMMER-2026' },
-        });
-
-        const input = wrapper.find('.sw-sales-channel-detail-product-comparison__feed-label input');
-        await input.setValue('');
-
-        expect(wrapper.vm.productExport.feedLabel).toBeNull();
-    });
 });

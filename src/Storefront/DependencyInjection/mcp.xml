@@ -11,6 +11,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
 
             <tag name="mcp.tool"/>
+            <tag name="shopware.feature" flag="MCP_SERVER"/>
         </service>
     </services>
 </container>

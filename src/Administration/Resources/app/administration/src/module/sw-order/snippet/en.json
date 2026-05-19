@@ -547,6 +547,7 @@
         "options": {
           "lastYear": "Last year",
           "lastQuarter": "Last quarter",
+          "lastCalendarMonth": "Last calendar month",
           "lastMonth": "Last month",
           "lastWeek": "Last week",
           "lastDay": "Last day",

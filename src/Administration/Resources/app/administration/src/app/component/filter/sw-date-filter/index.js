@@ -50,6 +50,10 @@ export default {
                     value: 'lastQuarter',
                 },
                 {
+                    label: this.$t('sw-order.filters.orderDateFilter.options.lastCalendarMonth'),
+                    value: 'lastCalendarMonth',
+                },
+                {
                     label: this.$t('sw-order.filters.orderDateFilter.options.lastMonth'),
                     value: -30,
                 },
@@ -171,6 +175,8 @@ export default {
 
             if (timeframe === 'lastQuarter') {
                 ({ startDate: from, endDate: to } = this.getPreviousQuarterDates());
+            } else if (timeframe === 'lastCalendarMonth') {
+                ({ startDate: from, endDate: to } = this.getPreviousCalendarMonthDates());
             }
 
             const normalizedDateValue = this.getNormalizedDateValue({
@@ -200,6 +206,17 @@ export default {
 
         resetTimeframe() {
             this.dateValue.timeframe = 'custom';
+        },
+
+        getPreviousCalendarMonthDates() {
+            const date = new Date();
+            const startDate = new Date(date.getFullYear(), date.getMonth() - 1, 1);
+            const endDate = new Date(date.getFullYear(), date.getMonth(), 0);
+
+            return {
+                startDate: startDate,
+                endDate: endDate,
+            };
         },
 
         getPreviousQuarterDates() {

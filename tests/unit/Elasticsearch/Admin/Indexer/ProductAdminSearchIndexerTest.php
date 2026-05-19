@@ -117,8 +117,8 @@ class ProductAdminSearchIndexerTest extends TestCase
         $document = $documents[$id];
 
         static::assertSame($id, $document['id']);
-        static::assertSame('tag 809c1844f4734243b6aa04aba860cd45', $document['text']);
-        static::assertSame('product sw1000299 keywords', $document['textBoosted']);
+        static::assertSame('tag sw1000299 4572324423421 m-100 809c1844f4734243b6aa04aba860cd45', $document['text']);
+        static::assertSame('sw1000299 keywords', $document['textBoosted']);
         static::assertSame(['product'], $document['completion']);
         static::assertSame('SW1000299', $document['productNumber']);
         static::assertTrue($document['active']);
@@ -178,23 +178,55 @@ class ProductAdminSearchIndexerTest extends TestCase
         $boolQueryArray = $boolQuery->toArray();
         $shouldQueries = $boolQueryArray['bool']['should'];
 
-        // The product indexer only adds the `textBoosted` prefix clause; the
-        // shared `completion` / `completion.ngram` clauses live in
-        // `AdminSearcher::buildSearch` so every indexer benefits from them.
-        static::assertCount(1, $shouldQueries);
+        static::assertCount(4, $shouldQueries);
 
+        $exactIdentifierQueries = [];
+        $prefixIdentifierQueries = [];
+        $exactIdentifierBoosts = [];
         $simpleQueryStringQuery = null;
         foreach ($shouldQueries as $query) {
-            if (isset($query['simple_query_string'])) {
+            if (isset($query['term'])) {
+                $field = array_key_first($query['term']);
+                $exactIdentifierQueries[] = $field;
+                $exactIdentifierBoosts[] = $query['term'][$field]['boost'];
+            } elseif (isset($query['prefix'])) {
+                $prefixIdentifierQueries[] = array_key_first($query['prefix']);
+            } elseif (isset($query['simple_query_string'])) {
                 $simpleQueryStringQuery = $query['simple_query_string'];
             }
         }
 
+        static::assertSame(['ean', 'productNumber', 'manufacturerNumber'], $exactIdentifierQueries);
+        static::assertSame([
+            SearchRanking::HIGH_SEARCH_RANKING,
+            SearchRanking::HIGH_SEARCH_RANKING,
+            SearchRanking::HIGH_SEARCH_RANKING,
+        ], $exactIdentifierBoosts);
+        static::assertSame([], $prefixIdentifierQueries);
         static::assertNotNull($simpleQueryStringQuery, 'SimpleQueryStringQuery for textBoosted should be present');
         static::assertSame(['textBoosted'], $simpleQueryStringQuery['fields']);
         static::assertSame('test*', $simpleQueryStringQuery['query']);
         static::assertSame(SearchRanking::HIGH_SEARCH_RANKING, $simpleQueryStringQuery['boost']);
         static::assertTrue($simpleQueryStringQuery['lenient']);
+    }
+
+    public function testGlobalCriteriaDoesNotAddIdentifierPrefixes(): void
+    {
+        $indexer = new ProductAdminSearchIndexer(
+            $this->createMock(Connection::class),
+            $this->createMock(IteratorFactory::class),
+            $this->createMock(EntityRepository::class),
+            $this->createMock(ElasticsearchFieldBuilder::class),
+            100
+        );
+
+        foreach (['457', '457232'] as $term) {
+            $result = $indexer->globalCriteria($term, new Search());
+
+            foreach ($result->getQueries()->toArray()['bool']['should'] as $query) {
+                static::assertArrayNotHasKey('prefix', $query);
+            }
+        }
     }
 
     private function getConnection(): Connection
@@ -217,6 +249,8 @@ class ProductAdminSearchIndexerTest extends TestCase
                     'tags' => 'Tag',
                     'tagIds' => 'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6',
                     'productNumber' => 'SW1000299',
+                    'ean' => '4572324423421',
+                    'manufacturerNumber' => 'M-100',
                     'active' => 1,
                     'available' => 1,
                     'parentId' => null,

@@ -6,6 +6,7 @@ use OpenSearch\Client;
 use OpenSearchDSL\Query\Compound\BoolQuery;
 use OpenSearchDSL\Query\FullText\MatchQuery;
 use OpenSearchDSL\Query\FullText\SimpleQueryStringQuery;
+use OpenSearchDSL\Query\TermLevel\PrefixQuery;
 use OpenSearchDSL\Search;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Context;
@@ -177,23 +178,33 @@ class AdminSearcher
     {
         $search = new Search();
         $splitTerms = explode(' ', $term);
-        $lastPart = end($splitTerms);
+        $lastPart = (string) end($splitTerms);
+        $prefixTerm = mb_strtolower($lastPart);
 
         $search->addQuery(
             new MatchQuery('completion', $term, ['boost' => SearchRanking::HIGH_SEARCH_RANKING]),
             BoolQuery::SHOULD
         );
         $search->addQuery(
-            new MatchQuery('completion.ngram', $term, ['boost' => SearchRanking::MIDDLE_SEARCH_RANKING]),
+            new MatchQuery('completion.ngram', $term, ['boost' => SearchRanking::LOW_SEARCH_RANKING]),
             BoolQuery::SHOULD
         );
 
         if (preg_match('/^[\p{L}0-9]+$/u', $lastPart)) {
+            $search->addQuery(
+                new PrefixQuery('completion', $prefixTerm, ['boost' => SearchRanking::MIDDLE_SEARCH_RANKING]),
+                BoolQuery::SHOULD
+            );
+
             $term .= '*';
         }
 
         $search->addQuery(
-            new SimpleQueryStringQuery($term, ['fields' => ['text'], 'lenient' => true]),
+            new SimpleQueryStringQuery($term, [
+                'fields' => ['text'],
+                'lenient' => true,
+                'boost' => SearchRanking::LOW_SEARCH_RANKING,
+            ]),
             BoolQuery::SHOULD
         );
 

@@ -4,16 +4,12 @@ namespace Shopware\Tests\Integration\Elasticsearch\Admin;
 
 use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
-use OpenSearchDSL\Query\Compound\BoolQuery;
-use OpenSearchDSL\Query\FullText\MatchQuery;
-use OpenSearchDSL\Query\FullText\SimpleQueryStringQuery;
 use OpenSearchDSL\Search;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
@@ -81,6 +77,13 @@ class AdminSearcherTest extends TestCase
         static::assertInstanceOf(ProductCollection::class, $results['product']['data']);
         $foundProductIds = $results['product']['data']->getIds();
         static::assertContains($productLaptopId, $foundProductIds, 'Laptop should be found when searching for "laptop"');
+
+        $prefixResults = $this->searcher->search('LAPTO', ['product'], Context::createDefaultContext());
+
+        static::assertNotEmpty($prefixResults, 'Case-insensitive product-name prefix search should find "Laptop Computer".');
+        static::assertArrayHasKey('product', $prefixResults);
+        static::assertInstanceOf(ProductCollection::class, $prefixResults['product']['data']);
+        static::assertContains($productLaptopId, $prefixResults['product']['data']->getIds(), 'Laptop should be found when searching for the uppercase prefix "LAPTO"');
     }
 
     public function testNumericSearchFindsSubstringMatches(): void
@@ -166,6 +169,66 @@ class AdminSearcherTest extends TestCase
         static::assertNotContains($product3801Id, $foundProductIds, 'Product 3801 should NOT be found (different number)');
     }
 
+    public function testShortNumericPrefixFindsProductName(): void
+    {
+        $ids = new IdsCollection();
+        $productId = $ids->get('RUNNING-CLUB');
+        $eanOwnerId = $ids->get('EAN-OWNER');
+
+        $eanOwner = (new ProductBuilder($ids, 'EAN-OWNER', 10))
+            ->name('Genuine Item')
+            ->price(100)
+            ->build();
+        $eanOwner['ean'] = '4572324423421';
+
+        $products = [
+            (new ProductBuilder($ids, 'RUNNING-CLUB', 10))
+                ->name('running club 4572324423420')
+                ->price(100)
+                ->build(),
+            $eanOwner,
+            (new ProductBuilder($ids, 'OTHER', 10))
+                ->name('Wireless Headphones')
+                ->price(100)
+                ->build(),
+        ];
+
+        $this->productRepository->create($products, Context::createDefaultContext());
+
+        $this->indexElasticSearch(['--only' => ['product']]);
+        $this->refreshIndex();
+
+        $hits = $this->runRawAdminProductSearch('457');
+
+        static::assertNotEmpty($hits, 'Raw OpenSearch search must return hits for a short numeric prefix in the product name.');
+        static::assertSame(
+            $productId,
+            $hits[0]['id'],
+            \sprintf(
+                'Expected the product with "457" in its name to rank before the product with only an EAN prefix match. Raw hit order: %s',
+                json_encode(array_column($hits, 'id'), \JSON_THROW_ON_ERROR)
+            )
+        );
+
+        $results = $this->searcher->search('457', ['product'], Context::createDefaultContext());
+
+        static::assertNotEmpty($results, 'Search must return hits for a short numeric prefix in the product name.');
+        static::assertArrayHasKey('product', $results);
+        static::assertInstanceOf(ProductCollection::class, $results['product']['data']);
+
+        $foundProductIds = array_values($results['product']['data']->getIds());
+        static::assertSame(
+            $productId,
+            $foundProductIds[0] ?? null,
+            \sprintf('Product name prefix match should rank before EAN prefix match. Hit order: %s', json_encode($foundProductIds, \JSON_THROW_ON_ERROR))
+        );
+        static::assertContains(
+            $eanOwnerId,
+            $foundProductIds,
+            'Product with EAN prefix "457" should still be found, but not ranked before the name match.'
+        );
+    }
+
     /**
      * Regression guard for #15828: a full GTIN-13 EAN search must rank the
      * owning product first, even with an adversarial decoy whose name shares
@@ -212,16 +275,34 @@ class AdminSearcherTest extends TestCase
         $this->indexElasticSearch(['--only' => ['product']]);
         $this->refreshIndex();
 
-        $hits = $this->runRawAdminSearch($ean);
+        $hits = $this->runRawAdminProductSearch($ean);
 
-        static::assertNotEmpty($hits, 'Search must return hits for the exact EAN.');
+        static::assertNotEmpty($hits, 'Raw OpenSearch search must return hits for the exact EAN.');
+        $topHit = $hits[0];
         static::assertSame(
             $ownerId,
-            $hits[0]['_source']['id'] ?? null,
+            $topHit['id'],
+            \sprintf(
+                'Expected the EAN-owning product to have the highest raw OpenSearch score, got "%s". Raw hit order: %s',
+                $topHit['id'],
+                json_encode(array_column($hits, 'id'), \JSON_THROW_ON_ERROR)
+            )
+        );
+
+        $results = $this->searcher->search($ean, ['product'], Context::createDefaultContext());
+
+        static::assertNotEmpty($results, 'Search must return hits for the exact EAN.');
+        static::assertArrayHasKey('product', $results);
+        static::assertInstanceOf(ProductCollection::class, $results['product']['data']);
+
+        $foundProductIds = array_values($results['product']['data']->getIds());
+        static::assertSame(
+            $ownerId,
+            $foundProductIds[0] ?? null,
             \sprintf(
                 'Expected the EAN-owning product to rank first, got "%s". Hit order: %s',
-                $hits[0]['_source']['id'] ?? 'null',
-                json_encode(array_column(array_column($hits, '_source'), 'id'), \JSON_THROW_ON_ERROR)
+                $foundProductIds[0] ?? 'null',
+                json_encode($foundProductIds, \JSON_THROW_ON_ERROR)
             )
         );
     }
@@ -252,10 +333,13 @@ class AdminSearcherTest extends TestCase
         $this->indexElasticSearch(['--only' => ['product']]);
         $this->refreshIndex();
 
-        $hits = $this->runRawAdminSearch('shirt');
+        $results = $this->searcher->search('shirt', ['product'], Context::createDefaultContext());
 
-        static::assertNotEmpty($hits, '"shirt" should find products whose names contain the word — including hyphenated forms like "T-Shirt".');
-        $foundIds = array_column(array_column($hits, '_source'), 'id');
+        static::assertNotEmpty($results, '"shirt" should find products whose names contain the word — including hyphenated forms like "T-Shirt".');
+        static::assertArrayHasKey('product', $results);
+        static::assertInstanceOf(ProductCollection::class, $results['product']['data']);
+
+        $foundIds = array_values($results['product']['data']->getIds());
         static::assertContains(
             $shirtId,
             $foundIds,
@@ -269,43 +353,35 @@ class AdminSearcherTest extends TestCase
     }
 
     /**
-     * Replay `AdminSearcher::buildSearchPayload`'s query against the raw
-     * OpenSearch client to read `hits.hits` in score order — the public
-     * `AdminSearcher::search` loses ranking at DAL hydration time.
-     *
-     * @return list<array<string, mixed>>
+     * @return list<array{id: string, score: float}>
      */
-    private function runRawAdminSearch(string $term): array
+    private function runRawAdminProductSearch(string $term): array
     {
         $registry = static::getContainer()->get(AdminSearchRegistry::class);
         $indexer = $registry->getIndexer('product');
 
-        $search = new Search();
-        $splitTerms = explode(' ', $term);
-        $lastPart = end($splitTerms);
+        $reflection = new \ReflectionClass(AdminSearcher::class);
+        $method = $reflection->getMethod('buildSearch');
+        $method->setAccessible(true);
 
-        $search->addQuery(
-            new MatchQuery('completion', $term, ['boost' => SearchRanking::HIGH_SEARCH_RANKING]),
-            BoolQuery::SHOULD
-        );
-        $search->addQuery(
-            new MatchQuery('completion.ngram', $term, ['boost' => SearchRanking::MIDDLE_SEARCH_RANKING]),
-            BoolQuery::SHOULD
-        );
-
-        $prefixTerm = preg_match('/^[\p{L}0-9]+$/u', $lastPart) ? $term . '*' : $term;
-        $search->addQuery(
-            new SimpleQueryStringQuery($prefixTerm, ['fields' => ['text'], 'lenient' => true]),
-            BoolQuery::SHOULD
-        );
-
-        $query = $indexer->globalCriteria($term, $search);
+        $search = $method->invoke($this->searcher, $term);
+        static::assertInstanceOf(Search::class, $search);
 
         $response = static::getContainer()->get(Client::class)->search([
             'index' => static::getContainer()->get(AdminElasticsearchHelper::class)->getIndex($indexer->getName()),
-            'body' => $query->toArray(),
+            'body' => $indexer->globalCriteria($term, $search)->toArray(),
         ]);
 
-        return $response['hits']['hits'] ?? [];
+        $hits = $response['hits']['hits'] ?? [];
+        static::assertIsArray($hits);
+
+        return array_values(array_map(static function (array $hit): array {
+            static::assertIsString($hit['_source']['id'] ?? null);
+
+            return [
+                'id' => $hit['_source']['id'],
+                'score' => (float) $hit['_score'],
+            ];
+        }, $hits));
     }
 }

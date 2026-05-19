@@ -161,12 +161,13 @@ SQL,
             $id = (string) $row['id'];
             $text = \implode(' ', array_filter([$row['name'] ?? '', $row['tags'] ?? '', $id]));
             $translatedNames = $this->decodeTranslatedValues((string) ($row['translatedNames'] ?? ''));
+            $completion = $this->buildCompletion(array_values($translatedNames) ?: [(string) ($row['name'] ?? '')]);
 
             if (!Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
                 $mapped[$id] = [
                     'id' => $id,
                     'text' => \strtolower($text),
-                    'completion' => $this->buildCompletion(array_values($translatedNames) ?: [(string) ($row['name'] ?? '')]),
+                    'completion' => $completion,
                 ];
 
                 continue;
@@ -176,7 +177,7 @@ SQL,
                 'id' => $id,
                 'parentId' => $row['parentId'] ?? null,
                 'text' => \strtolower($text),
-                'completion' => $this->buildCompletion(array_values($translatedNames)),
+                'completion' => $completion,
                 'name' => $translatedNames,
                 'active' => (bool) $row['active'],
                 'visible' => (bool) $row['visible'],

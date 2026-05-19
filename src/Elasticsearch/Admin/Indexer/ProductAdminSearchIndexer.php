@@ -6,6 +6,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use OpenSearchDSL\Query\Compound\BoolQuery;
 use OpenSearchDSL\Query\FullText\SimpleQueryStringQuery;
+use OpenSearchDSL\Query\TermLevel\TermQuery;
 use OpenSearchDSL\Search;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
@@ -125,14 +126,21 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
     public function globalCriteria(string $term, Search $criteria): Search
     {
         $splitTerms = explode(' ', $term);
-        $lastPart = end($splitTerms);
+        $lastPart = (string) end($splitTerms);
+        $identifierTerm = mb_strtolower($term);
+        $identifierFields = ['ean', 'productNumber', 'manufacturerNumber'];
+        $isPrefixTerm = preg_match('/^[\p{L}0-9]+$/u', $lastPart) === 1;
+        $textBoostedTerm = $isPrefixTerm ? $term . '*' : $term;
 
-        if (preg_match('/^[\p{L}0-9]+$/u', $lastPart)) {
-            $term .= '*';
+        foreach ($identifierFields as $field) {
+            $criteria->addQuery(
+                new TermQuery($field, $identifierTerm, ['boost' => SearchRanking::HIGH_SEARCH_RANKING]),
+                BoolQuery::SHOULD
+            );
         }
 
         $criteria->addQuery(
-            new SimpleQueryStringQuery($term, [
+            new SimpleQueryStringQuery($textBoostedTerm, [
                 'fields' => ['textBoosted'],
                 'boost' => SearchRanking::HIGH_SEARCH_RANKING,
                 'lenient' => true,
@@ -234,15 +242,15 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
         $mapped = [];
         foreach ($data as $row) {
             $names = $this->splitTranslatedNames(\is_string($row['name'] ?? null) ? $row['name'] : '');
-            $textBoosted = implode(' ', $names) . ' ' . $row['product_number'];
+            $textBoosted = (string) ($row['product_number'] ?? '');
 
             if ($row['custom_search_keywords']) {
                 $row['custom_search_keywords'] = json_decode((string) $row['custom_search_keywords'], true, 512, \JSON_THROW_ON_ERROR);
-                $textBoosted = $textBoosted . ' ' . implode(' ', array_unique(array_merge(...$row['custom_search_keywords'])));
+                $textBoosted = trim($textBoosted . ' ' . implode(' ', array_unique(array_merge(...$row['custom_search_keywords']))));
             }
 
             $id = (string) $row['id'];
-            unset($row['name'],  $row['product_number'], $row['custom_search_keywords']);
+            unset($row['name'], $row['custom_search_keywords']);
             $text = \implode(' ', array_filter(array_unique(array_values($row))));
             $mapped[$id] = [
                 'id' => $id,
@@ -541,11 +549,12 @@ SQL,
                 ? $visibilitiesByProductId[$visibilitiesId]['visibilities']
                 : '';
 
-            $textBoosted = $name . ' ' . ($row['productNumber'] ?? '');
+            $productNumber = \is_string($row['productNumber'] ?? null) ? $row['productNumber'] : '';
+            $textBoosted = $productNumber;
             if ($customSearchKeywordsEncoded !== '') {
                 $customSearchKeywords = json_decode($customSearchKeywordsEncoded, true, 512, \JSON_THROW_ON_ERROR);
                 if (\is_array($customSearchKeywords) && $customSearchKeywords !== []) {
-                    $textBoosted .= ' ' . implode(' ', array_unique(array_merge(...$customSearchKeywords)));
+                    $textBoosted = trim($textBoosted . ' ' . implode(' ', array_unique(array_merge(...$customSearchKeywords))));
                 }
             }
 
@@ -555,12 +564,19 @@ SQL,
             $visibilities = ElasticsearchIndexingUtils::parseJson(['visibilities' => $visibilitiesEncoded ?: null], 'visibilities');
             $parsedTagIds = $this->parseTagIds(['tagIds' => $tagIds]);
             $price = $this->parsePrice($row);
+            $textParts = array_filter([
+                $tags,
+                $productNumber,
+                \is_string($row['ean'] ?? null) ? $row['ean'] : null,
+                \is_string($row['manufacturerNumber'] ?? null) ? $row['manufacturerNumber'] : null,
+                $id,
+            ]);
 
             $mapped[$id] = [
                 'id' => $id,
                 'textBoosted' => \strtolower($textBoosted),
-                'text' => \strtolower(trim($tags . ' ' . $id)),
-                'completion' => $this->buildCompletion(array_values($translatedNames)),
+                'text' => \strtolower(implode(' ', $textParts)),
+                'completion' => $this->buildCompletion(array_values($translatedNames) ?: [$name]),
                 'name' => $translatedNames,
                 'parentId' => $parentId,
                 'productNumber' => \is_string($row['productNumber'] ?? null) ? $row['productNumber'] : null,

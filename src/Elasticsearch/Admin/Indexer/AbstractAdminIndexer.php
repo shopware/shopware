@@ -82,7 +82,7 @@ abstract class AbstractAdminIndexer
     /**
      * @param array<string> $ids
      *
-     * @return array<string, array{id:string, text:string}>
+     * @return array<string, array{id: string, text: string, textBoosted?: string, completion?: list<string>}>
      */
     abstract public function fetch(array $ids): array;
 
@@ -148,9 +148,14 @@ abstract class AbstractAdminIndexer
     {
         $result = [];
         foreach ($values as $value) {
-            if (!\is_string($value) || $value === '') {
+            if (!\is_string($value)) {
                 continue;
             }
+            $value = trim($value);
+            if ($value === '') {
+                continue;
+            }
+
             $result[] = mb_strtolower($value);
         }
 

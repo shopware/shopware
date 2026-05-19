@@ -257,7 +257,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
             $documents[] = ['index' => ['_id' => $id]];
 
             $documents[] = \array_replace(
-                ['entityName' => $indexer->getEntity(), 'parameters' => [], 'textBoosted' => '', 'text' => ''],
+                ['entityName' => $indexer->getEntity(), 'parameters' => [], 'textBoosted' => '', 'text' => '', 'completion' => []],
                 $document
             );
         }

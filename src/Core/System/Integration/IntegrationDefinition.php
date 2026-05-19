@@ -4,6 +4,7 @@ namespace Shopware\Core\System\Integration;
 
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\App\AppDefinition;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
@@ -60,7 +62,7 @@ class IntegrationDefinition extends EntityDefinition
             (new StringField('access_key', 'accessKey'))->addFlags(new Required()),
             (new PasswordField('secret_access_key', 'secretAccessKey'))->addFlags(new Required()),
             new DateTimeField('last_usage_at', 'lastUsageAt'),
-            new BoolField('admin', 'admin'),
+            (new BoolField('admin', 'admin'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
             new CustomFields(),
             new DateTimeField('deleted_at', 'deletedAt'),
 

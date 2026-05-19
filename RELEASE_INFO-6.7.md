@@ -157,6 +157,12 @@ Set the parameter to a narrower list (for example `['productNumber']`) to restor
 
 ## Hosting & Configuration
 
+### Google Storage supports application default credentials
+
+Google Storage filesystem configurations can now omit `keyFile` and `keyFilePath`.
+When neither option is configured, Shopware lets the Google Cloud PHP SDK resolve credentials through [Application Default Credentials](https://docs.cloud.google.com/docs/authentication/application-default-credentials), such as `GOOGLE_APPLICATION_CREDENTIALS`, local ADC files, or attached service accounts in Google Cloud environments.
+See Google's [PHP client authentication guide](https://docs.cloud.google.com/php/docs/reference/help/authentication) for the PHP library lookup behavior.
+
 ## Critical Fixes
 
 # 6.7.10.0

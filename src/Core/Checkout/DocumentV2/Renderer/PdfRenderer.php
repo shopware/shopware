@@ -2,9 +2,7 @@
 
 namespace Shopware\Core\Checkout\DocumentV2\Renderer;
 
-use Dompdf\Adapter\CPDF;
-use Dompdf\Dompdf;
-use Dompdf\Options;
+use Com\Tecnick\Pdf\Tcpdf;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
@@ -26,11 +24,12 @@ final readonly class PdfRenderer extends AbstractDocumentRenderer
 {
     final public const FORMAT = DocumentFormat::PDF;
 
-    /**
-     * @param array<string, mixed> $dompdfOptions
-     */
+    private const TCPDF_FONT_PATH_KEY = 'K_PATH_FONTS';
+
+    private const TCPDF_FONT_VENDOR_PATH = '/vendor/tecnickcom/tc-lib-pdf-font/target/fonts/';
+
     public function __construct(
-        private array $dompdfOptions,
+        private string $projectDir,
     ) {
     }
 
@@ -57,6 +56,11 @@ final readonly class PdfRenderer extends AbstractDocumentRenderer
     {
         $html = $state->require(DocumentFormat::HTML->value)->content;
 
+        // POC: the embedded <style> blocks (style_base_portrait.css.twig etc.) use CSS features
+        // tc-lib-pdf does not understand (rgba with whitespace, width: auto, margin: auto, ...).
+        // Strip them; tag-level inline styles in the body still come through.
+        $html = (string) \preg_replace('#<style\b[^>]*>.*?</style>#is', '', $html);
+
         $renderData = $input->requireData(
             InvoiceDataProvider::KEY,
             InvoiceRenderData::class,
@@ -64,51 +68,50 @@ final readonly class PdfRenderer extends AbstractDocumentRenderer
 
         $config = $renderData->config;
 
-        $dompdf = new Dompdf(new Options($this->dompdfOptions));
-        $dompdf->setPaper($config->pageSize, $config->pageOrientation);
-        $dompdf->loadHtml($html);
-        $dompdf->render();
+        // tc-lib-pdf-font reads glyph data from this directory; defining as global constant is the
+        // library's documented bootstrap step.
+        if (!\defined(self::TCPDF_FONT_PATH_KEY)) {
+            \define(self::TCPDF_FONT_PATH_KEY, $this->projectDir . self::TCPDF_FONT_VENDOR_PATH);
+        }
 
-        $this->injectPageCount($dompdf);
+        $pdf = new Tcpdf(
+            'mm',
+            true,
+            false,
+            true,
+            'pdfua',
+            null
+        );
+
+        $pdf->setCreator('Shopware');
+        $pdf->setTitle($renderData->documentNumber);
+        $pdf->setPDFFilename($renderData->documentNumber . '.pdf');
+        $pdf->setLanguage('en-US');
+        $pdf->enableDefaultPageContent();
+
+        $font = $pdf->font->insert(
+            $pdf->pon,
+            'dejavusans',
+            '',
+            10
+        );
+
+        $pdf->addPage();
+        $pdf->page->addContent($font['out']);
+
+        $pdf->addHTMLCell(
+            $html,
+            15.0,
+            15.0,
+            180.0
+        );
 
         return new RenderResult(
             format: self::FORMAT->value,
-            content: $dompdf->output(),
+            content: $pdf->getOutPDFString(),
             fileName: $config->buildFileStem($renderData->documentNumber),
             fileExtension: self::FORMAT->fileExtension(),
             mimeType: self::FORMAT->mimeType(),
         );
-    }
-
-    /**
-     * Replaces the literal `DOMPDF_PAGE_COUNT_PLACEHOLDER` emitted by the footer Twig with the
-     * real page count after rendering. Strings are written into the CPDF object stream null-byte
-     * padded, so the search + replace value must match that encoding.
-     *
-     * Verbatim port of the v1 implementation at
-     * {@see \Shopware\Core\Checkout\Document\Service\PdfRenderer::injectPageCount}.
-     */
-    private function injectPageCount(Dompdf $dompdf): void
-    {
-        /** @var CPDF $canvas */
-        $canvas = $dompdf->getCanvas();
-
-        $search = $this->insertNullByteBeforeEachCharacter('DOMPDF_PAGE_COUNT_PLACEHOLDER');
-        $replace = $this->insertNullByteBeforeEachCharacter((string) $canvas->get_page_count());
-
-        $pdf = $canvas->get_cpdf();
-
-        foreach ($pdf->objects as &$o) {
-            if ($o['t'] === 'contents') {
-                $o['c'] = str_replace($search, $replace, (string) $o['c']);
-            }
-        }
-
-        unset($o);
-    }
-
-    private function insertNullByteBeforeEachCharacter(string $string): string
-    {
-        return "\u{0000}" . substr(chunk_split($string, 1, "\u{0000}"), 0, -1);
     }
 }

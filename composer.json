@@ -122,6 +122,7 @@
         "shopware/conflicts": "0.6.1",
         "shyim/opensearch-php-dsl": "^1.1.4",
         "squirrelphp/twig-php-syntax": "^1.13.0",
+        "tecnickcom/tc-lib-pdf": "~8.23.0",
         "symfony/asset": "~7.4.0",
         "symfony/cache": "~7.4.0",
         "symfony/cache-contracts": "~3.6.0",

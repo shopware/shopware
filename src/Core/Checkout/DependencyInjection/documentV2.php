@@ -100,7 +100,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(PdfRenderer::class)
         ->public()
         ->args([
-            param('shopware.dompdf.options'),
+            param('kernel.project_dir'),
         ])
         ->tag('shopware.document_v2.renderer');
 

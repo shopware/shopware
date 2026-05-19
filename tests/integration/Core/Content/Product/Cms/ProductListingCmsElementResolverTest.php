@@ -322,189 +322,187 @@ class ProductListingCmsElementResolverTest extends TestCase
     }
 
     /**
-     * @return array<list<array<string, mixed>>>
+     * @return iterable<list<array<string, mixed>>>
      */
-    public static function filtersProvider(): array
+    public static function filtersProvider(): iterable
     {
         $sizeId = Uuid::randomHex();
         $textileId = Uuid::randomHex();
 
-        return [
+        yield 'default config keeps all filters enabled without a property whitelist' => [
             [
-                [
-                    'manufacturer-filter' => true,
-                    'price-filter' => true,
-                    'rating-filter' => true,
-                    'shipping-free-filter' => true,
-                    'property-filter' => true,
-                    'property-whitelist' => [],
-                ],
-                [
-                    'filters' => [
-                        'value' => null,
-                    ],
-                    'propertyWhitelist' => null,
-                ],
+                'manufacturer-filter' => true,
+                'price-filter' => true,
+                'rating-filter' => true,
+                'shipping-free-filter' => true,
+                'property-filter' => true,
+                'property-whitelist' => [],
             ],
             [
-                [
-                    'manufacturer-filter' => false,
-                    'price-filter' => false,
-                    'rating-filter' => false,
-                    'shipping-free-filter' => false,
-                    'property-filter' => false,
-                    'property-whitelist' => [],
+                'filters' => [
+                    'value' => null,
                 ],
-                [
-                    'filters' => [
-                        'value' => 'invalid-filter',
-                    ],
-                    'propertyWhitelist' => null,
-                ],
+                'propertyWhitelist' => null,
+            ],
+        ];
+        yield 'invalid filter value is preserved when no known filters are active' => [
+            [
+                'manufacturer-filter' => false,
+                'price-filter' => false,
+                'rating-filter' => false,
+                'shipping-free-filter' => false,
+                'property-filter' => false,
+                'property-whitelist' => [],
             ],
             [
-                [
-                    'manufacturer-filter' => true,
-                    'price-filter' => false,
-                    'rating-filter' => true,
-                    'shipping-free-filter' => false,
-                    'property-filter' => false,
-                    'property-whitelist' => [],
+                'filters' => [
+                    'value' => 'invalid-filter',
                 ],
-                [
-                    'filters' => [
-                        'value' => 'invalid-filter,manufacturer-filter,rating-filter',
-                    ],
-                    'propertyWhitelist' => null,
-                ],
+                'propertyWhitelist' => null,
+            ],
+        ];
+        yield 'invalid filter value is preserved before active manufacturer and rating filters' => [
+            [
+                'manufacturer-filter' => true,
+                'price-filter' => false,
+                'rating-filter' => true,
+                'shipping-free-filter' => false,
+                'property-filter' => false,
+                'property-whitelist' => [],
             ],
             [
-                [
-                    'manufacturer-filter' => true,
-                    'price-filter' => true,
-                    'rating-filter' => true,
-                    'shipping-free-filter' => true,
-                    'property-filter' => true,
-                    'property-whitelist' => [],
+                'filters' => [
+                    'value' => 'invalid-filter,manufacturer-filter,rating-filter',
                 ],
-                [
-                    'filters' => [
-                        'value' => 'manufacturer-filter,price-filter,rating-filter,property-filter,shipping-free-filter',
-                    ],
-                    'propertyWhitelist' => ['value' => []],
-                ],
+                'propertyWhitelist' => null,
+            ],
+        ];
+        yield 'all active filters are returned when every filter is enabled' => [
+            [
+                'manufacturer-filter' => true,
+                'price-filter' => true,
+                'rating-filter' => true,
+                'shipping-free-filter' => true,
+                'property-filter' => true,
+                'property-whitelist' => [],
             ],
             [
-                [
-                    'manufacturer-filter' => false,
-                    'price-filter' => true,
-                    'rating-filter' => true,
-                    'shipping-free-filter' => true,
-                    'property-filter' => true,
-                    'property-whitelist' => [],
+                'filters' => [
+                    'value' => 'manufacturer-filter,price-filter,rating-filter,property-filter,shipping-free-filter',
                 ],
-                [
-                    'filters' => [
-                        'value' => 'price-filter,rating-filter,property-filter,shipping-free-filter',
-                    ],
-                    'propertyWhitelist' => ['value' => []],
-                ],
+                'propertyWhitelist' => ['value' => []],
+            ],
+        ];
+        yield 'disabled manufacturer filter is omitted from active filters' => [
+            [
+                'manufacturer-filter' => false,
+                'price-filter' => true,
+                'rating-filter' => true,
+                'shipping-free-filter' => true,
+                'property-filter' => true,
+                'property-whitelist' => [],
             ],
             [
-                [
-                    'manufacturer-filter' => false,
-                    'price-filter' => false,
-                    'rating-filter' => true,
-                    'shipping-free-filter' => true,
-                    'property-filter' => true,
-                    'property-whitelist' => [],
+                'filters' => [
+                    'value' => 'price-filter,rating-filter,property-filter,shipping-free-filter',
                 ],
-                [
-                    'filters' => [
-                        'value' => 'rating-filter,property-filter,shipping-free-filter',
-                    ],
-                    'propertyWhitelist' => ['value' => []],
-                ],
+                'propertyWhitelist' => ['value' => []],
+            ],
+        ];
+        yield 'disabled manufacturer and price filters are omitted from active filters' => [
+            [
+                'manufacturer-filter' => false,
+                'price-filter' => false,
+                'rating-filter' => true,
+                'shipping-free-filter' => true,
+                'property-filter' => true,
+                'property-whitelist' => [],
             ],
             [
-                [
-                    'manufacturer-filter' => false,
-                    'price-filter' => false,
-                    'rating-filter' => false,
-                    'shipping-free-filter' => true,
-                    'property-filter' => true,
-                    'property-whitelist' => [],
+                'filters' => [
+                    'value' => 'rating-filter,property-filter,shipping-free-filter',
                 ],
-                [
-                    'filters' => [
-                        'value' => 'property-filter,shipping-free-filter',
-                    ],
-                    'propertyWhitelist' => ['value' => []],
-                ],
+                'propertyWhitelist' => ['value' => []],
+            ],
+        ];
+        yield 'property and shipping filters are enabled when both are active' => [
+            [
+                'manufacturer-filter' => false,
+                'price-filter' => false,
+                'rating-filter' => false,
+                'shipping-free-filter' => true,
+                'property-filter' => true,
+                'property-whitelist' => [],
             ],
             [
-                [
-                    'manufacturer-filter' => false,
-                    'price-filter' => false,
-                    'rating-filter' => false,
-                    'shipping-free-filter' => false,
-                    'property-filter' => true,
-                    'property-whitelist' => [],
+                'filters' => [
+                    'value' => 'property-filter,shipping-free-filter',
                 ],
-                [
-                    'filters' => [
-                        'value' => 'property-filter',
-                    ],
-                    'propertyWhitelist' => ['value' => []],
-                ],
+                'propertyWhitelist' => ['value' => []],
+            ],
+        ];
+        yield 'only property filter is enabled when shipping filter is inactive' => [
+            [
+                'manufacturer-filter' => false,
+                'price-filter' => false,
+                'rating-filter' => false,
+                'shipping-free-filter' => false,
+                'property-filter' => true,
+                'property-whitelist' => [],
             ],
             [
-                [
-                    'manufacturer-filter' => false,
-                    'price-filter' => false,
-                    'rating-filter' => false,
-                    'shipping-free-filter' => false,
-                    'property-filter' => false,
-                    'property-whitelist' => [],
+                'filters' => [
+                    'value' => 'property-filter',
                 ],
-                [
-                    'filters' => [
-                        'value' => '',
-                    ],
-                    'propertyWhitelist' => ['value' => []],
-                ],
+                'propertyWhitelist' => ['value' => []],
+            ],
+        ];
+        yield 'all filters are disabled and property whitelist is empty' => [
+            [
+                'manufacturer-filter' => false,
+                'price-filter' => false,
+                'rating-filter' => false,
+                'shipping-free-filter' => false,
+                'property-filter' => false,
+                'property-whitelist' => [],
             ],
             [
-                [
-                    'manufacturer-filter' => false,
-                    'price-filter' => false,
-                    'rating-filter' => false,
-                    'shipping-free-filter' => false,
-                    'property-filter' => false,
-                    'property-whitelist' => [$sizeId, $textileId],
+                'filters' => [
+                    'value' => '',
                 ],
-                [
-                    'filters' => [
-                        'value' => '',
-                    ],
-                    'propertyWhitelist' => ['value' => [$sizeId, $textileId]],
-                ],
+                'propertyWhitelist' => ['value' => []],
+            ],
+        ];
+        yield 'disabled filters keep the configured property whitelist' => [
+            [
+                'manufacturer-filter' => false,
+                'price-filter' => false,
+                'rating-filter' => false,
+                'shipping-free-filter' => false,
+                'property-filter' => false,
+                'property-whitelist' => [$sizeId, $textileId],
             ],
             [
-                [
-                    'manufacturer-filter' => false,
-                    'price-filter' => false,
-                    'rating-filter' => false,
-                    'shipping-free-filter' => false,
-                    'property-filter' => true,
-                    'property-whitelist' => [],
+                'filters' => [
+                    'value' => '',
                 ],
-                [
-                    'filters' => [
-                        'value' => 'property-filter',
-                    ],
-                    'propertyWhitelist' => ['value' => [$sizeId, $textileId]],
+                'propertyWhitelist' => ['value' => [$sizeId, $textileId]],
+            ],
+        ];
+        yield 'property filter keeps the configured property whitelist' => [
+            [
+                'manufacturer-filter' => false,
+                'price-filter' => false,
+                'rating-filter' => false,
+                'shipping-free-filter' => false,
+                'property-filter' => true,
+                'property-whitelist' => [],
+            ],
+            [
+                'filters' => [
+                    'value' => 'property-filter',
                 ],
+                'propertyWhitelist' => ['value' => [$sizeId, $textileId]],
             ],
         ];
     }

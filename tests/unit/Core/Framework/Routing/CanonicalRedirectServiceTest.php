@@ -103,27 +103,25 @@ class CanonicalRedirectServiceTest extends TestCase
     }
 
     /**
-     * @return array<int, array<string, Request|Response>>
+     * @return iterable<string, array<string, Request|Response>>
      */
-    public static function requestDataProvider(): array
+    public static function requestDataProvider(): iterable
     {
-        return [
-            [
-                'request' => self::getRequest([]),
-                'response' => new Response(),
-            ],
-            [
-                'request' => self::getRequest([SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK => '']),
-                'response' => new Response(),
-            ],
-            [
-                'request' => self::getRequest([SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK => true]),
-                'response' => new Response(),
-            ],
-            [
-                'request' => self::getRequest([SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK => '/lorem/ipsum/dolor-sit/amet']),
-                'response' => (new Response())->setStatusCode(Response::HTTP_MOVED_PERMANENTLY),
-            ],
+        yield 'HTTP request without canonical URL returns no redirect' => [
+            'request' => self::getRequest([]),
+            'response' => new Response(),
+        ];
+        yield 'HTTP request with canonical URL redirects permanently' => [
+            'request' => self::getRequest([SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK => '']),
+            'response' => new Response(),
+        ];
+        yield 'HTTPS request without canonical URL returns no redirect' => [
+            'request' => self::getRequest([SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK => true]),
+            'response' => new Response(),
+        ];
+        yield 'HTTPS request with canonical URL redirects permanently' => [
+            'request' => self::getRequest([SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK => '/lorem/ipsum/dolor-sit/amet']),
+            'response' => (new Response())->setStatusCode(Response::HTTP_MOVED_PERMANENTLY),
         ];
     }
 

@@ -130,17 +130,15 @@ class StringFieldSerializerTest extends TestCase
     }
 
     /**
-     * @return array<string, array{?string, list<Flag>}>
+     * @return iterable<string, array{?string, list<Flag>}>
      */
-    public static function requiredValueProvider(): array
+    public static function requiredValueProvider(): iterable
     {
-        return [
-            'null required' => [null, [new Required()]],
-            'null allow empty required' => [null, [new Required(), new AllowEmptyString()]],
-            'empty required' => ['', [new Required()]],
-            'space required' => [' ', [new Required()]],
-            'HTML-only content is blank after stripping tags' => ['<test>', [new Required()]],
-        ];
+        yield 'required field rejects null' => [null, [new Required()]];
+        yield 'required field rejects null even when empty string is allowed' => [null, [new Required(), new AllowEmptyString()]];
+        yield 'required field rejects empty string' => ['', [new Required()]];
+        yield 'required field rejects whitespace-only value' => [' ', [new Required()]];
+        yield 'required field rejects HTML-only content after stripping tags' => ['<test>', [new Required()]];
     }
 
     #[DataProvider('optionalBlankValueProvider')]
@@ -156,15 +154,13 @@ class StringFieldSerializerTest extends TestCase
     }
 
     /**
-     * @return array<string, array{?string}>
+     * @return iterable<string, array{?string}>
      */
-    public static function optionalBlankValueProvider(): array
+    public static function optionalBlankValueProvider(): iterable
     {
-        return [
-            'null optional' => [null],
-            'empty optional' => [''],
-            'space optional' => [' '],
-        ];
+        yield 'optional field normalizes null to null' => [null];
+        yield 'optional field normalizes empty string to null' => [''];
+        yield 'optional field normalizes whitespace-only value to null' => [' '];
     }
 
     /**
@@ -183,14 +179,12 @@ class StringFieldSerializerTest extends TestCase
     }
 
     /**
-     * @return array<string, array{string, string, list<Flag>}>
+     * @return iterable<string, array{string, string, list<Flag>}>
      */
-    public static function allowedEmptyValueProvider(): array
+    public static function allowedEmptyValueProvider(): iterable
     {
-        return [
-            'space allow empty' => [' ', ' ', [new AllowEmptyString()]],
-            'empty allow empty required' => ['', '', [new Required(), new AllowEmptyString()]],
-        ];
+        yield 'allow empty preserves whitespace-only value' => [' ', ' ', [new AllowEmptyString()]];
+        yield 'required field with allow empty preserves empty string' => ['', '', [new Required(), new AllowEmptyString()]];
     }
 
     public function testMaxLengthViolationThrowsConstraintViolation(): void
@@ -251,15 +245,13 @@ class StringFieldSerializerTest extends TestCase
     }
 
     /**
-     * @return array<string, array{string, string, list<Flag>}>
+     * @return iterable<string, array{string, string, list<Flag>}>
      */
-    public static function stringValueProvider(): array
+    public static function stringValueProvider(): iterable
     {
-        return [
-            'string is passed through' => ['test12-B', 'test12-B', [new Required()]],
-            'HTML is kept when sanitizing is disabled' => ['<test>', '<test>', [new Required(), new AllowHtml(false)]],
-            'sanitized HTML strips script tag' => ['<script></script>test12-B', 'test12-B', [new Required(), new AllowHtml()]],
-        ];
+        yield 'string is passed through' => ['test12-B', 'test12-B', [new Required()]];
+        yield 'HTML is kept when sanitizing is disabled' => ['<test>', '<test>', [new Required(), new AllowHtml(false)]];
+        yield 'sanitized HTML strips script tag' => ['<script></script>test12-B', 'test12-B', [new Required(), new AllowHtml()]];
     }
 
     /**

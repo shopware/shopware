@@ -19,6 +19,5 @@ import { runNpmAudit } from '../../../../../../.github/bin/js/run-npm-audit.ts';
 runNpmAudit({
     ignoredGHSAs: [
         'https://github.com/advisories/GHSA-848j-6mx2-7j84', // elliptic ECDSA flaw, low severity, devDep only (vite-plugin-node-polyfills/crypto-browserify), fix requires semver major
-        'https://github.com/advisories/GHSA-w5hq-g745-h8pq', // uuid buffer bounds check, moderate severity, devDep only (@lhci/cli uses v4 without buf), no safe upstream fix yet
     ],
 });

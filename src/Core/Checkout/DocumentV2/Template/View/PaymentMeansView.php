@@ -19,7 +19,7 @@ final readonly class PaymentMeansView
 
     final public const INVOICE_TECHNICAL_NAME = 'payment_invoicepayment';
 
-    final public const PREPAYMENT_TECHNICAL_NAME = 'payment_prepaymentpayment';
+    final public const PREPAYMENT_TECHNICAL_NAME = 'payment_prepayment';
 
     public function __construct(
         public PaymentMeansCode $typeCode,

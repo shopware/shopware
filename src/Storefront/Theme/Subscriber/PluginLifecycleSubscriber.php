@@ -160,6 +160,9 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
 
         $pluginName = $event->getPlugin()->getName();
         $storefrontPluginConfigurations = $this->storefrontPluginRegistry->getConfigurations();
+        $filteredConfigurations = $storefrontPluginConfigurations->filter(
+            static fn (StorefrontPluginConfiguration $registeredConfig): bool => $registeredConfig->getTechnicalName() !== $pluginName
+        );
 
         $config = $storefrontPluginConfigurations->getByTechnicalName($pluginName);
 
@@ -171,7 +174,7 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
             }
         }
 
-        $this->refreshActiveThemeImportMaps($context, $storefrontPluginConfigurations);
+        $this->refreshActiveThemeImportMaps($context, $filteredConfigurations);
     }
 
     public function pluginPostUninstall(PluginPostUninstallEvent $event): void

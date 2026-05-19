@@ -13,9 +13,11 @@ use Symfony\Component\Filesystem\Path;
  * Automatically registers Twig component namespaces for all bundles that ship a
  * `Resources/views/components/` directory, so Symfony UX TwigComponent can resolve
  * `<twig:Bundle:Component />` tags to the correct PHP class namespace.
+ *
+ * @internal
  */
 #[Package('framework')]
-class TwigComponentBundlePass implements CompilerPassInterface
+final class TwigComponentBundlePass implements CompilerPassInterface
 {
     private const COMPONENT_DIRECTORY = 'Resources/views/components';
 

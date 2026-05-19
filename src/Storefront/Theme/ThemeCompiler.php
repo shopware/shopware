@@ -161,8 +161,6 @@ class ThemeCompiler implements ThemeCompilerInterface
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @return array{imports: array<string, string>, scopes?: array<string, array<string, string>>, styles?: list<string>}|null
      */
     public function buildComponentImportMap(

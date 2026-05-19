@@ -37,15 +37,6 @@ class StorybookControllerTest extends TestCase
         $this->storybookService = $this->createMock(StorybookService::class);
     }
 
-    public function testStorybookThrowsNotFoundInNonDevEnvironment(): void
-    {
-        $controller = $this->createController('prod');
-
-        $this->expectException(NotFoundHttpException::class);
-
-        $controller->storybook('my-component', new Request());
-    }
-
     public function testStorybookRendersComponentSuccessfully(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
@@ -61,7 +52,7 @@ class StorybookControllerTest extends TestCase
 
         $this->twig->renderOutput = '<div>rendered component</div>';
 
-        $response = $this->createController('dev')->storybook('my-button', $this->createStorybookRequest());
+        $response = $this->createController()->storybook('my-button', $this->createStorybookRequest());
 
         static::assertSame(200, $response->getStatusCode());
         static::assertSame('<div>rendered component</div>', $response->getContent());
@@ -82,7 +73,7 @@ class StorybookControllerTest extends TestCase
 
         $request = $this->createStorybookRequest();
 
-        $this->createController('dev')->storybook('my-button', $request);
+        $this->createController()->storybook('my-button', $request);
 
         static::assertSame('theme-id-123', $request->attributes->get('theme-id'));
         static::assertSame($salesChannelId, $request->attributes->get('sw-sales-channel-id'));
@@ -98,7 +89,7 @@ class StorybookControllerTest extends TestCase
         $this->storybookService->method('getThemeId')
             ->willReturn('theme-id-123');
 
-        $this->createController('dev')->storybook('my-button', $this->createStorybookRequest());
+        $this->createController()->storybook('my-button', $this->createStorybookRequest());
 
         static::assertSame($salesChannelContext, $this->twig->renderContext['context']);
         static::assertSame('theme-id-123', $this->twig->renderContext['themeId']);
@@ -121,7 +112,7 @@ class StorybookControllerTest extends TestCase
             ->method('resolveComponentProps')
             ->willReturn([]);
 
-        $controller = $this->createController('dev');
+        $controller = $this->createController();
         $controller->storybook('my-button', $this->createStorybookRequest());
         $controller->storybook('my-button', $this->createStorybookRequest());
 
@@ -143,7 +134,7 @@ class StorybookControllerTest extends TestCase
 
         $this->twig->renderException = new RuntimeError('Template rendering failed');
 
-        $response = $this->createController('dev')->storybook('my-button', $this->createStorybookRequest());
+        $response = $this->createController()->storybook('my-button', $this->createStorybookRequest());
 
         $content = $response->getContent();
         static::assertSame(500, $response->getStatusCode());
@@ -165,7 +156,7 @@ class StorybookControllerTest extends TestCase
 
         $this->twig->createTemplateException = new SyntaxError('Unexpected token');
 
-        $response = $this->createController('dev')->storybook('my-button', $this->createStorybookRequest());
+        $response = $this->createController()->storybook('my-button', $this->createStorybookRequest());
 
         $content = $response->getContent();
         static::assertSame(500, $response->getStatusCode());
@@ -194,7 +185,7 @@ class StorybookControllerTest extends TestCase
             return '';
         };
 
-        $this->createController('dev')->storybook('my-button', $this->createStorybookRequest());
+        $this->createController()->storybook('my-button', $this->createStorybookRequest());
 
         static::assertSame($expectedProps, $capturedProps);
     }
@@ -215,7 +206,7 @@ class StorybookControllerTest extends TestCase
         $request = new Request();
         $request->headers->set('Origin', $customDomain);
 
-        $response = $this->createController('dev')->storybook('my-button', $request);
+        $response = $this->createController()->storybook('my-button', $request);
 
         static::assertSame(200, $response->getStatusCode());
         static::assertSame($customDomain, $response->headers->get('Access-Control-Allow-Origin'));
@@ -225,7 +216,7 @@ class StorybookControllerTest extends TestCase
     {
         $this->setEnvVars(['STORYBOOK_DOMAIN' => 'http://my-dev-store.example.com:6006']);
 
-        $controller = $this->createController('dev');
+        $controller = $this->createController();
 
         $this->expectException(NotFoundHttpException::class);
 
@@ -240,10 +231,9 @@ class StorybookControllerTest extends TestCase
         return $request;
     }
 
-    private function createController(string $environment): StorybookController
+    private function createController(): StorybookController
     {
         return new StorybookController(
-            $environment,
             $this->twig,
             $this->storybookService,
         );

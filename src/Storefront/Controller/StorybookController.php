@@ -32,7 +32,6 @@ class StorybookController extends AbstractController
     TWIG;
 
     public function __construct(
-        private readonly string $environment,
         private readonly Environment $twig,
         private readonly StorybookService $storybookService,
     ) {
@@ -44,16 +43,12 @@ class StorybookController extends AbstractController
     #[Route(
         path: '/storybook/{component}',
         name: 'storybook.component',
+        env: 'dev',
         defaults: ['auth_required' => false],
         methods: [Request::METHOD_GET],
     )]
     public function storybook(string $component, Request $request): Response
     {
-        // Only allow in development environment
-        if ($this->environment !== 'dev') {
-            throw new NotFoundHttpException();
-        }
-
         $storybookDomain = (string) EnvironmentHelper::getVariable('STORYBOOK_DOMAIN', 'http://localhost:6006');
 
         if ($request->headers->get('Origin') !== $storybookDomain) {

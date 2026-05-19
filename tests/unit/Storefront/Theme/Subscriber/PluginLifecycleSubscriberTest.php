@@ -379,7 +379,14 @@ class PluginLifecycleSubscriberTest extends TestCase
             ->method('deactivateTheme')
             ->with($config, static::isInstanceOf(Context::class));
         $themeLifecycleHandler->expects($this->never())->method('handleThemeUninstall');
-        $themeLifecycleHandler->expects($this->once())->method('refreshAllActiveThemeImportMaps');
+        $themeLifecycleHandler->expects($this->once())
+            ->method('refreshAllActiveThemeImportMaps')
+            ->with(
+                static::isInstanceOf(Context::class),
+                static::callback(static function (StorefrontPluginConfigurationCollection $collection): bool {
+                    return $collection->getByTechnicalName('ComponentTestTheme') === null;
+                })
+            );
 
         $subscriber = $this->createSubscriber($registry, $themeLifecycleHandler);
 
@@ -410,7 +417,14 @@ class PluginLifecycleSubscriberTest extends TestCase
             ->method('handleThemeUninstall')
             ->with($config, static::isInstanceOf(Context::class));
         $themeLifecycleHandler->expects($this->never())->method('deactivateTheme');
-        $themeLifecycleHandler->expects($this->once())->method('refreshAllActiveThemeImportMaps');
+        $themeLifecycleHandler->expects($this->once())
+            ->method('refreshAllActiveThemeImportMaps')
+            ->with(
+                static::isInstanceOf(Context::class),
+                static::callback(static function (StorefrontPluginConfigurationCollection $collection): bool {
+                    return $collection->getByTechnicalName('SimpleThemePlugin') === null;
+                })
+            );
 
         $subscriber = $this->createSubscriber($registry, $themeLifecycleHandler);
 

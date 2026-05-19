@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Mcp;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -33,102 +34,84 @@ class McpCapabilityDiscoveryTest extends TestCase
     use AdminApiTestBehaviour;
     use KernelTestBehaviour;
 
-    public function testAllExpectedToolsAreDiscovered(): void
+    #[DataProvider('expectedTools')]
+    public function testExpectedToolIsDiscovered(string $name): void
     {
         Feature::skipTestIfInActive('MCP_SERVER', $this);
-        $registered = $this->listCapabilities('tools/list', 'tools');
 
-        foreach (self::expectedTools() as $name) {
-            static::assertContains(
+        static::assertContains(
+            $name,
+            $this->listCapabilities('tools/list', 'tools'),
+            \sprintf(
+                'Tool "%s" is missing from tools/list. Check mcp.yaml scan_dirs (core tools) or mcp.tool DI tag (plugin tools).',
                 $name,
-                $registered,
-                \sprintf(
-                    'Tool "%s" is missing from tools/list. Check mcp.yaml scan_dirs (core tools) or mcp.tool DI tag (plugin tools).',
-                    $name,
-                ),
-            );
-        }
+            ),
+        );
     }
 
-    public function testAllExpectedPromptsAreDiscovered(): void
+    #[DataProvider('expectedPrompts')]
+    public function testExpectedPromptIsDiscovered(string $name): void
     {
         Feature::skipTestIfInActive('MCP_SERVER', $this);
-        $registered = $this->listCapabilities('prompts/list', 'prompts');
 
-        foreach (self::expectedPrompts() as $name) {
-            static::assertContains(
-                $name,
-                $registered,
-                \sprintf('Prompt "%s" is missing from prompts/list.', $name),
-            );
-        }
+        static::assertContains(
+            $name,
+            $this->listCapabilities('prompts/list', 'prompts'),
+            \sprintf('Prompt "%s" is missing from prompts/list.', $name),
+        );
     }
 
-    public function testAllExpectedResourcesAreDiscovered(): void
+    #[DataProvider('expectedResources')]
+    public function testExpectedResourceIsDiscovered(string $name): void
     {
         Feature::skipTestIfInActive('MCP_SERVER', $this);
-        $registered = $this->listCapabilities('resources/list', 'resources');
 
-        foreach (self::expectedResources() as $name) {
-            static::assertContains(
-                $name,
-                $registered,
-                \sprintf('Resource "%s" is missing from resources/list.', $name),
-            );
-        }
+        static::assertContains(
+            $name,
+            $this->listCapabilities('resources/list', 'resources'),
+            \sprintf('Resource "%s" is missing from resources/list.', $name),
+        );
     }
 
     /**
-     * All tool names that must be present in tools/list.
-     *
-     * @return list<string>
+     * @return iterable<string, array{string}>
      */
-    private static function expectedTools(): array
+    public static function expectedTools(): iterable
     {
-        return [
-            'shopware-entity-schema',
-            'shopware-entity-search',
-            'shopware-entity-aggregate',
-            'shopware-entity-read',
-            'shopware-entity-upsert',
-            'shopware-entity-delete',
-            'shopware-system-config-read',
-            'shopware-system-config-write',
-            'shopware-order-state',
-            'shopware-media-upload',
-            'shopware-theme-config',
-        ];
+        yield 'shopware-entity-schema' => ['shopware-entity-schema'];
+        yield 'shopware-entity-search' => ['shopware-entity-search'];
+        yield 'shopware-entity-aggregate' => ['shopware-entity-aggregate'];
+        yield 'shopware-entity-read' => ['shopware-entity-read'];
+        yield 'shopware-entity-upsert' => ['shopware-entity-upsert'];
+        yield 'shopware-entity-delete' => ['shopware-entity-delete'];
+        yield 'shopware-system-config-read' => ['shopware-system-config-read'];
+        yield 'shopware-system-config-write' => ['shopware-system-config-write'];
+        yield 'shopware-order-state' => ['shopware-order-state'];
+        yield 'shopware-media-upload' => ['shopware-media-upload'];
+        yield 'shopware-theme-config' => ['shopware-theme-config'];
     }
 
     /**
-     * All prompt names that must be present in prompts/list.
-     *
-     * @return list<string>
+     * @return iterable<string, array{string}>
      */
-    private static function expectedPrompts(): array
+    public static function expectedPrompts(): iterable
     {
-        return [
-            'shopware-context',
-        ];
+        yield 'shopware-context' => ['shopware-context'];
     }
 
     /**
-     * All resource names that must be present in resources/list.
-     *
-     * @return list<string>
+     * @return iterable<string, array{string}>
      */
-    private static function expectedResources(): array
+    public static function expectedResources(): iterable
     {
-        return [
-            'shopware-entity-list',
-            'shopware-sales-channels',
-            'shopware-currencies',
-            'shopware-languages',
-            'shopware-state-machines',
-            'shopware-business-events',
-            'shopware-flow-actions',
-            'shopware-extensions',
-        ];
+        yield 'shopware-entity-list' => ['shopware-entity-list'];
+        yield 'shopware-sales-channels' => ['shopware-sales-channels'];
+        yield 'shopware-currencies' => ['shopware-currencies'];
+        yield 'shopware-languages' => ['shopware-languages'];
+        yield 'shopware-state-machines' => ['shopware-state-machines'];
+        yield 'shopware-business-events' => ['shopware-business-events'];
+        yield 'shopware-flow-actions' => ['shopware-flow-actions'];
+        yield 'shopware-extensions' => ['shopware-extensions'];
     }
 
     /**

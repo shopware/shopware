@@ -34,6 +34,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
@@ -263,7 +264,9 @@ class AppLifecycle extends AbstractAppLifecycle
 
         $this->assetService->copyAssetsFromApp($app->getName(), $app->getPath());
 
-        $this->mcpAppSyncer->sync($manifest, $app, $defaultLocale, $context);
+        if (Feature::isActive('MCP_SERVER')) {
+            $this->mcpAppSyncer->sync($manifest, $app, $defaultLocale, $context);
+        }
 
         $updatePayload = [
             'id' => $app->getId(),

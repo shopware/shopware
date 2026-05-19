@@ -36,6 +36,5 @@ class Migration1777535833McpToolResultCache extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        $connection->executeStatement('DROP TABLE IF EXISTS `mcp_tool_result_cache`');
     }
 }

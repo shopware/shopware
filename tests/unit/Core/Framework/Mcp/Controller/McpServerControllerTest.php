@@ -11,6 +11,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistFilter;
@@ -616,6 +617,155 @@ class McpServerControllerTest extends TestCase
         $data = json_decode((string) $response->getContent(), true);
         $names = array_column($data['result']['prompts'] ?? [], 'name');
         static::assertSame(['prompt-a'], array_values($names));
+    }
+
+    public function testHandleLogsRequestWhenLoggerIsProvided(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('debug')
+            ->with('MCP request', static::callback(static fn (array $ctx): bool => ($ctx['method'] ?? null) === 'GET' && \array_key_exists('clientIp', $ctx)));
+
+        $psrRequest = new ServerRequest('GET', '/api/_mcp');
+        $httpMessageFactory = static::createStub(HttpMessageFactoryInterface::class);
+        $httpMessageFactory->method('createRequest')->willReturn($psrRequest);
+
+        $httpFoundationFactory = static::createStub(HttpFoundationFactoryInterface::class);
+        $httpFoundationFactory->method('createResponse')->willReturn(new Response('', 405));
+
+        $psr17 = new Psr17Factory();
+        $controller = new McpServerController(
+            Server::builder()->build(),
+            $httpMessageFactory,
+            $httpFoundationFactory,
+            $psr17,
+            $psr17,
+            static::createStub(RateLimiter::class),
+            null,
+            $logger,
+            new McpAllowlistFilter(),
+        );
+
+        $controller->handle(new Request());
+    }
+
+    public function testInitializeEnrichmentSetsUserMetaWhenUserIdPresent(): void
+    {
+        $body = json_encode([
+            'jsonrpc' => '2.0',
+            'method' => 'initialize',
+            'params' => [
+                'protocolVersion' => '2025-03-26',
+                'capabilities' => new \stdClass(),
+                'clientInfo' => ['name' => 'test', 'version' => '1.0'],
+            ],
+            'id' => 1,
+        ], \JSON_THROW_ON_ERROR);
+
+        $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);
+        $controller = $this->buildController($psrRequest, new HttpFoundationFactory());
+        $sfRequest = Request::create('/api/_mcp', 'POST', content: $body);
+        $sfRequest->attributes->set(
+            PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT,
+            Context::createDefaultContext(new AdminApiSource('user-id-123')),
+        );
+
+        $response = $controller->handle($sfRequest);
+
+        $data = json_decode((string) $response->getContent(), false, 512, \JSON_THROW_ON_ERROR);
+        static::assertInstanceOf(\stdClass::class, $data);
+        static::assertInstanceOf(\stdClass::class, $data->result);
+        static::assertInstanceOf(\stdClass::class, $data->result->_meta);
+        static::assertInstanceOf(\stdClass::class, $data->result->_meta->shopware);
+        $userMeta = $data->result->_meta->shopware->user;
+        static::assertInstanceOf(\stdClass::class, $userMeta);
+        static::assertSame('user-id-123', $userMeta->id ?? null);
+    }
+
+    public function testInitializeEnrichmentSkippedWhenContextMissing(): void
+    {
+        $body = json_encode([
+            'jsonrpc' => '2.0',
+            'method' => 'initialize',
+            'params' => [
+                'protocolVersion' => '2025-03-26',
+                'capabilities' => new \stdClass(),
+                'clientInfo' => ['name' => 'test', 'version' => '1.0'],
+            ],
+            'id' => 1,
+        ], \JSON_THROW_ON_ERROR);
+
+        $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);
+        $controller = $this->buildController($psrRequest, new HttpFoundationFactory());
+        $sfRequest = Request::create('/api/_mcp', 'POST', content: $body);
+
+        $response = $controller->handle($sfRequest);
+
+        $data = json_decode((string) $response->getContent(), false, 512, \JSON_THROW_ON_ERROR);
+        static::assertInstanceOf(\stdClass::class, $data);
+        $result = $data->result ?? new \stdClass();
+        static::assertInstanceOf(\stdClass::class, $result);
+        static::assertObjectNotHasProperty('_meta', $result);
+    }
+
+    public function testInitializeEnrichmentSkippedWhenSourceIsNotAdminApiSource(): void
+    {
+        $body = json_encode([
+            'jsonrpc' => '2.0',
+            'method' => 'initialize',
+            'params' => [
+                'protocolVersion' => '2025-03-26',
+                'capabilities' => new \stdClass(),
+                'clientInfo' => ['name' => 'test', 'version' => '1.0'],
+            ],
+            'id' => 1,
+        ], \JSON_THROW_ON_ERROR);
+
+        $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);
+        $controller = $this->buildController($psrRequest, new HttpFoundationFactory());
+        $sfRequest = Request::create('/api/_mcp', 'POST', content: $body);
+        $sfRequest->attributes->set(
+            PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT,
+            Context::createDefaultContext(),
+        );
+
+        $response = $controller->handle($sfRequest);
+
+        $data = json_decode((string) $response->getContent(), false, 512, \JSON_THROW_ON_ERROR);
+        static::assertInstanceOf(\stdClass::class, $data);
+        $result = $data->result ?? new \stdClass();
+        static::assertInstanceOf(\stdClass::class, $result);
+        static::assertObjectNotHasProperty('_meta', $result);
+    }
+
+    public function testInitializeEnrichmentSkippedWhenSourceHasNoUserOrIntegration(): void
+    {
+        $body = json_encode([
+            'jsonrpc' => '2.0',
+            'method' => 'initialize',
+            'params' => [
+                'protocolVersion' => '2025-03-26',
+                'capabilities' => new \stdClass(),
+                'clientInfo' => ['name' => 'test', 'version' => '1.0'],
+            ],
+            'id' => 1,
+        ], \JSON_THROW_ON_ERROR);
+
+        $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);
+        $controller = $this->buildController($psrRequest, new HttpFoundationFactory());
+        $sfRequest = Request::create('/api/_mcp', 'POST', content: $body);
+        $sfRequest->attributes->set(
+            PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT,
+            Context::createDefaultContext(new AdminApiSource(null, null)),
+        );
+
+        $response = $controller->handle($sfRequest);
+
+        $data = json_decode((string) $response->getContent(), false, 512, \JSON_THROW_ON_ERROR);
+        static::assertInstanceOf(\stdClass::class, $data);
+        $result = $data->result ?? new \stdClass();
+        static::assertInstanceOf(\stdClass::class, $result);
+        static::assertObjectNotHasProperty('_meta', $result);
     }
 
     public function testHandleReturnsNotFoundWhenFeatureFlagIsOff(): void

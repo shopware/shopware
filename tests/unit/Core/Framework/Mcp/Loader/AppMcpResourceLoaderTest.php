@@ -207,4 +207,25 @@ class AppMcpResourceLoaderTest extends TestCase
 
         $this->loader->load($registry);
     }
+
+    public function testResourceWithReservedShopwarePrefixIsSkipped(): void
+    {
+        $resourceRow = [
+            'name' => 'entities',
+            'uri' => 'shopware://entities',
+            'url' => 'https://app.example.com/mcp/resource/entities',
+            'app_name' => 'shopware',
+            'app_secret' => 'secret',
+            'label' => null,
+            'description' => null,
+            'mime_type' => null,
+        ];
+
+        $this->connection->method('fetchAllAssociative')->willReturn([$resourceRow]);
+
+        $registry = $this->createMock(RegistryInterface::class);
+        $registry->expects($this->never())->method('registerResource');
+
+        $this->loader->load($registry);
+    }
 }

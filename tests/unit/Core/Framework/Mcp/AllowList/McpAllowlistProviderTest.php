@@ -351,6 +351,36 @@ class McpAllowlistProviderTest extends TestCase
         static::assertNull($result['tools']);
     }
 
+    public function testForUserIdReturnsUnrestrictedForInvalidJson(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchAssociative')->willReturn([
+            'mcp_allowlist' => '{not-valid-json}',
+            'admin' => false,
+        ]);
+
+        $result = (new McpAllowlistProvider($connection, new RequestStack()))->forUserId(Uuid::randomHex());
+
+        static::assertNull($result['tools']);
+        static::assertNull($result['resources']);
+        static::assertNull($result['prompts']);
+    }
+
+    public function testForUserIdReturnsUnrestrictedWhenJsonIsNotArray(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchAssociative')->willReturn([
+            'mcp_allowlist' => '"just-a-string"',
+            'admin' => false,
+        ]);
+
+        $result = (new McpAllowlistProvider($connection, new RequestStack()))->forUserId(Uuid::randomHex());
+
+        static::assertNull($result['tools']);
+        static::assertNull($result['resources']);
+        static::assertNull($result['prompts']);
+    }
+
     public function testUserAccessKeyPathLooksUpUserAndAppliesAllowlist(): void
     {
         $userId = Uuid::randomHex();

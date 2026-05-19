@@ -287,6 +287,53 @@ class AppLifecycleTest extends TestCase
         static::assertSame('test', $appRepository->upserts[0][0]['name']);
     }
 
+    #[TestDox('skips MCP syncing when MCP_SERVER feature flag is off')]
+    public function testInstallSkipsMcpAppSyncerWhenFeatureFlagIsOff(): void
+    {
+        $_SERVER['MCP_SERVER'] = false;
+
+        try {
+            /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
+            $languageRepository = new StaticEntityRepository([$this->getLanguageCollection()]);
+
+            $appEntities = [
+                [],
+                [[
+                    'id' => Uuid::randomHex(),
+                    'path' => '',
+                    'configurable' => false,
+                    'allowDisable' => true,
+                ]],
+                [[
+                    'id' => Uuid::randomHex(),
+                    'name' => 'test',
+                    'path' => '',
+                    'configurable' => false,
+                    'allowDisable' => true,
+                ]],
+            ];
+
+            $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
+            $sourceResolver = $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml');
+            $appRepository = $this->getAppRepositoryMock($appEntities);
+
+            $mcpAppSyncer = $this->createMock(McpAppSyncer::class);
+            $mcpAppSyncer->expects($this->never())->method('sync');
+
+            $this->registerSubscriber($sourceResolver, $appEntities[2]);
+
+            $appLifecycle = $this->getAppLifecycle(
+                $appRepository,
+                $languageRepository,
+                $sourceResolver,
+                mcpAppSyncer: $mcpAppSyncer,
+            );
+            $appLifecycle->install($manifest, new AppInstallParameters(activate: false), Context::createDefaultContext());
+        } finally {
+            $_SERVER['MCP_SERVER'] = '1';
+        }
+    }
+
     #[TestDox('delegates MCP syncing to McpAppSyncer on install')]
     public function testInstallDelegatesToMcpAppSyncer(): void
     {

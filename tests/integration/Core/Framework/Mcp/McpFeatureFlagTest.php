@@ -44,38 +44,36 @@ class McpFeatureFlagTest extends TestCase
     use KernelTestBehaviour;
 
     /**
-     * @return list<array{string}>
+     * @return iterable<string, array{string}>
      */
-    public static function mcpServiceProvider(): array
+    public static function mcpServiceProvider(): iterable
     {
-        return [
-            [McpContextProvider::class],
-            [McpServerController::class],
-            [DebugMcpCommand::class],
-            [EntitySchemaTool::class],
-            [EntitySearchTool::class],
-            [EntityReadTool::class],
-            [EntityUpsertTool::class],
-            [EntityDeleteTool::class],
-            [SystemConfigReadTool::class],
-            [SystemConfigWriteTool::class],
-            [OrderStateTool::class],
-            [MediaUploadTool::class],
-            [ShopwareContextPrompt::class],
-            [EntityListResource::class],
-            [BusinessEventsResource::class],
-            [FlowActionsResource::class],
-            [SalesChannelListResource::class],
-            [CurrencyListResource::class],
-            [LanguageListResource::class],
-            [StateMachineResource::class],
-            [ExtensionsResource::class],
-            [EntityAggregateTool::class],
-            [AppMcpCapabilityExecutor::class],
-            [AppMcpToolLoader::class],
-            [AppMcpPromptLoader::class],
-            [AppMcpResourceLoader::class],
-        ];
+        yield McpContextProvider::class => [McpContextProvider::class];
+        yield McpServerController::class => [McpServerController::class];
+        yield DebugMcpCommand::class => [DebugMcpCommand::class];
+        yield EntitySchemaTool::class => [EntitySchemaTool::class];
+        yield EntitySearchTool::class => [EntitySearchTool::class];
+        yield EntityReadTool::class => [EntityReadTool::class];
+        yield EntityUpsertTool::class => [EntityUpsertTool::class];
+        yield EntityDeleteTool::class => [EntityDeleteTool::class];
+        yield SystemConfigReadTool::class => [SystemConfigReadTool::class];
+        yield SystemConfigWriteTool::class => [SystemConfigWriteTool::class];
+        yield OrderStateTool::class => [OrderStateTool::class];
+        yield MediaUploadTool::class => [MediaUploadTool::class];
+        yield ShopwareContextPrompt::class => [ShopwareContextPrompt::class];
+        yield EntityListResource::class => [EntityListResource::class];
+        yield BusinessEventsResource::class => [BusinessEventsResource::class];
+        yield FlowActionsResource::class => [FlowActionsResource::class];
+        yield SalesChannelListResource::class => [SalesChannelListResource::class];
+        yield CurrencyListResource::class => [CurrencyListResource::class];
+        yield LanguageListResource::class => [LanguageListResource::class];
+        yield StateMachineResource::class => [StateMachineResource::class];
+        yield ExtensionsResource::class => [ExtensionsResource::class];
+        yield EntityAggregateTool::class => [EntityAggregateTool::class];
+        yield AppMcpCapabilityExecutor::class => [AppMcpCapabilityExecutor::class];
+        yield AppMcpToolLoader::class => [AppMcpToolLoader::class];
+        yield AppMcpPromptLoader::class => [AppMcpPromptLoader::class];
+        yield AppMcpResourceLoader::class => [AppMcpResourceLoader::class];
     }
 
     #[DataProvider('mcpServiceProvider')]

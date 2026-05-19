@@ -321,6 +321,39 @@ class McpAllowlistFilterTest extends TestCase
         static::assertSame('shopware-developer', $firstPrompt->name);
     }
 
+    public function testFilterToolsListResponsePassesThroughWhenResultIsNotStdClass(): void
+    {
+        $responseData = new \stdClass();
+        $responseData->result = 'not-an-object';
+
+        $filtered = $this->filter->filterToolsListResponse($responseData, ['tool-a']);
+
+        static::assertSame($responseData, $filtered);
+        static::assertSame('not-an-object', $filtered->result);
+    }
+
+    public function testFilterResourcesListResponsePassesThroughWhenResultIsNotStdClass(): void
+    {
+        $responseData = new \stdClass();
+        $responseData->result = 'not-an-object';
+
+        $filtered = $this->filter->filterResourcesListResponse($responseData, ['shopware://entities']);
+
+        static::assertSame($responseData, $filtered);
+        static::assertSame('not-an-object', $filtered->result);
+    }
+
+    public function testFilterPromptsListResponsePassesThroughWhenResultIsNotStdClass(): void
+    {
+        $responseData = new \stdClass();
+        $responseData->result = 'not-an-object';
+
+        $filtered = $this->filter->filterPromptsListResponse($responseData, ['shopware-context']);
+
+        static::assertSame($responseData, $filtered);
+        static::assertSame('not-an-object', $filtered->result);
+    }
+
     /**
      * @param array<mixed> $data
      */

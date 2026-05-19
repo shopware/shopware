@@ -198,4 +198,23 @@ class AppMcpPromptLoaderTest extends TestCase
 
         $this->loader->load($registry);
     }
+
+    public function testPromptWithReservedShopwarePrefixIsSkipped(): void
+    {
+        $promptRow = [
+            'name' => 'context',
+            'url' => 'https://app.example.com/mcp/prompt/context',
+            'app_name' => 'shopware',
+            'app_secret' => 'secret',
+            'label' => null,
+            'description' => null,
+        ];
+
+        $this->connection->method('fetchAllAssociative')->willReturn([$promptRow]);
+
+        $registry = $this->createMock(RegistryInterface::class);
+        $registry->expects($this->never())->method('registerPrompt');
+
+        $this->loader->load($registry);
+    }
 }

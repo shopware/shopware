@@ -36,7 +36,7 @@ class McpToolListController
         name: 'api.action.mcp.tools',
         defaults: [
             'auth_required' => true,
-            PlatformRequest::ATTRIBUTE_ACL => ['integration.editor'],
+            PlatformRequest::ATTRIBUTE_ACL => ['integration_mcp.editor'],
         ],
         methods: ['GET'],
     )]
@@ -56,7 +56,7 @@ class McpToolListController
         name: 'api.action.mcp.capabilities',
         defaults: [
             'auth_required' => true,
-            PlatformRequest::ATTRIBUTE_ACL => ['integration.editor'],
+            PlatformRequest::ATTRIBUTE_ACL => ['integration_mcp.editor'],
         ],
         methods: ['GET'],
     )]

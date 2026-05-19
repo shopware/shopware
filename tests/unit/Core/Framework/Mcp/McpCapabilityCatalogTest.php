@@ -336,6 +336,17 @@ class McpCapabilityCatalogTest extends TestCase
         static::assertSame(2, $catalog->totalToolCount());
     }
 
+    public function testAllMethodsReturnEmptyOrNullWhenRegistryIsNull(): void
+    {
+        $catalog = new McpCapabilityCatalog(null, $this->stubPrivilegeProvider());
+
+        static::assertSame([], $catalog->enrichedTools());
+        static::assertSame([], $catalog->enrichedResources());
+        static::assertSame([], $catalog->enrichedPrompts());
+        static::assertNull($catalog->findTool('any-tool'));
+        static::assertSame(0, $catalog->totalToolCount());
+    }
+
     /**
      * @param array<string, list<string>> $appPrivileges
      */

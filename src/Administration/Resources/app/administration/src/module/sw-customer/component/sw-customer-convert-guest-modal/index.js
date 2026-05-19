@@ -47,7 +47,7 @@ export default {
     methods: {
         async sendRecoveryEmail() {
             try {
-                await this.guestCustomerConvertService.sendMail(this.customer.id);
+                await this.guestCustomerConvertService.convert(this.customer.id);
                 await this.loadCustomer();
 
                 this.createNotificationSuccess({

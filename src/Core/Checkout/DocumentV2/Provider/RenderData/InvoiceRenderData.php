@@ -6,16 +6,27 @@ use Shopware\Core\Checkout\DocumentV2\Config\DocumentCompanyInfo;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfig;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentDisplayOptions;
 use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
-use Shopware\Core\Checkout\DocumentV2\Zugferd\TypeCode;
-use Shopware\Core\Checkout\DocumentV2\Zugferd\View\AllowanceChargeView;
-use Shopware\Core\Checkout\DocumentV2\Zugferd\View\LineItemView;
-use Shopware\Core\Checkout\DocumentV2\Zugferd\View\MonetarySummationView;
-use Shopware\Core\Checkout\DocumentV2\Zugferd\View\PaymentMeansView;
-use Shopware\Core\Checkout\DocumentV2\Zugferd\View\TaxBreakdownView;
-use Shopware\Core\Checkout\DocumentV2\Zugferd\View\TradePartyView;
+use Shopware\Core\Checkout\DocumentV2\Twig\Enum\TypeCode;
+use Shopware\Core\Checkout\DocumentV2\Twig\View\AllowanceChargeView;
+use Shopware\Core\Checkout\DocumentV2\Twig\View\LineItemView;
+use Shopware\Core\Checkout\DocumentV2\Twig\View\MonetarySummationView;
+use Shopware\Core\Checkout\DocumentV2\Twig\View\PaymentMeansView;
+use Shopware\Core\Checkout\DocumentV2\Twig\View\TaxBreakdownView;
+use Shopware\Core\Checkout\DocumentV2\Twig\View\TradePartyView;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * Aggregated invoice render payload consumed by both the HTML and XML (ZUGFeRD/XRechnung)
+ * invoice renderers.
+ *
+ * HTML rendering reads only the generic invoice fields here ({@see $intraCommunityDelivery},
+ * {@see $documentDate}, etc.) and otherwise walks the raw `OrderEntity` in Twig. The XML
+ * renderer additionally consumes the precomputed `Twig\View\*` structs, which are shaped
+ * to the XRechnung schema and exposed under the shared Twig namespace so HTML templates
+ * can opt in over time. One provider + one render-data DTO per document type is the
+ * deliberate pattern: every DocumentV2 document type will ship both HTML and XML output, so
+ * channel-specific DTOs would only double boilerplate.
+ *
  * @internal
  *
  * @codeCoverageIgnore

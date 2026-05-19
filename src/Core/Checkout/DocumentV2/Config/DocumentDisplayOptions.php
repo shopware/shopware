@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\DocumentV2\Config;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Migration\V6_4\Migration1610439375AddEUStatesAsDefaultForIntraCommunityDeliveryLabel;
 
 /**
  * Document rendering toggles consumed by Twig templates.
@@ -18,7 +19,9 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class DocumentDisplayOptions
 {
     /**
-     * @param list<string> $deliveryCountries
+     * @param list<string> $deliveryCountries Country IDs that trigger the intra-community delivery VAT note
+     *                                        on the invoice header. Defaulted to EU member states by migration
+     *                                        {@see Migration1610439375AddEUStatesAsDefaultForIntraCommunityDeliveryLabel}.
      */
     public function __construct(
         public bool $displayHeader = false,

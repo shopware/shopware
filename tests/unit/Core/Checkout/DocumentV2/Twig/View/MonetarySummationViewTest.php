@@ -1,16 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Zugferd\View;
+namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Twig\View;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
-use Shopware\Core\Checkout\DocumentV2\Zugferd\AllowanceChargeReason;
-use Shopware\Core\Checkout\DocumentV2\Zugferd\TaxCategory;
-use Shopware\Core\Checkout\DocumentV2\Zugferd\UnitCode;
-use Shopware\Core\Checkout\DocumentV2\Zugferd\View\AllowanceChargeView;
-use Shopware\Core\Checkout\DocumentV2\Zugferd\View\LineItemView;
-use Shopware\Core\Checkout\DocumentV2\Zugferd\View\MonetarySummationView;
+use Shopware\Core\Checkout\DocumentV2\Twig\Enum\AllowanceChargeReason;
+use Shopware\Core\Checkout\DocumentV2\Twig\Enum\TaxCategory;
+use Shopware\Core\Checkout\DocumentV2\Twig\Enum\UnitCode;
+use Shopware\Core\Checkout\DocumentV2\Twig\View\AllowanceChargeView;
+use Shopware\Core\Checkout\DocumentV2\Twig\View\LineItemView;
+use Shopware\Core\Checkout\DocumentV2\Twig\View\MonetarySummationView;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;

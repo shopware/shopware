@@ -17,7 +17,7 @@ use Shopware\Core\Checkout\DocumentV2\Renderer\XmlRenderer;
 use Shopware\Core\Checkout\DocumentV2\Subscriber\DocumentBaseConfigSyncSubscriber;
 use Shopware\Core\Checkout\DocumentV2\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\DocumentV2\Twig\ZugferdTwigExtension;
-use Shopware\Core\Checkout\DocumentV2\Zugferd\XmlFormatter;
+use Shopware\Core\Checkout\DocumentV2\Xml\XmlFormatter;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;

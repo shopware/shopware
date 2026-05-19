@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Zugferd\View;
+namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Twig\View;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -8,8 +8,8 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\DocumentV2\Zugferd\TaxCategory;
-use Shopware\Core\Checkout\DocumentV2\Zugferd\View\TaxBreakdownView;
+use Shopware\Core\Checkout\DocumentV2\Twig\Enum\TaxCategory;
+use Shopware\Core\Checkout\DocumentV2\Twig\View\TaxBreakdownView;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;

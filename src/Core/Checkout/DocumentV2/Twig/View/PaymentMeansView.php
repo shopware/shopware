@@ -1,17 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\DocumentV2\Zugferd\View;
+namespace Shopware\Core\Checkout\DocumentV2\Twig\View;
 
-use Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder;
-use Shopware\Core\Checkout\DocumentV2\Zugferd\PaymentMeansCode;
+use Shopware\Core\Checkout\DocumentV2\Twig\Enum\PaymentMeansCode;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Precomputed XRechnung view of `<ram:SpecifiedTradeSettlementPaymentMeans>`.
- *
- * Mapping rules ported from {@see ZugferdBuilder::addPaymentInfo}.
+ * Precomputed view of an order's payment-means.
  *
  * @internal
  */

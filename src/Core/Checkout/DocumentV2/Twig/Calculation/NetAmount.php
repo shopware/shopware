@@ -1,17 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\DocumentV2\Zugferd\Calculation;
+namespace Shopware\Core\Checkout\DocumentV2\Twig\Calculation;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
-use Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Derives the net base amount that XRechnung expects from a Shopware calculated tax row.
- *
- * Ported verbatim from {@see ZugferdDocument::getPriceWithFallback}
+ * Derives the net base amount of a Shopware calculated tax row.
  *
  * @internal
  */

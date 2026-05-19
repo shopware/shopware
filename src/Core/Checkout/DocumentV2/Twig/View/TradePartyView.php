@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\DocumentV2\Zugferd\View;
+namespace Shopware\Core\Checkout\DocumentV2\Twig\View;
 
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentCompanyInfo;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Precomputed XRechnung view of a buyer trade party derived from an order.
+ * Precomputed view of a buyer trade party derived from an order.
  *
  * Sellers are sourced from {@see DocumentCompanyInfo}, not this view.
  *

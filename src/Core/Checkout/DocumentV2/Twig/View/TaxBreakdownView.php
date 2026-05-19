@@ -1,16 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\DocumentV2\Zugferd\View;
+namespace Shopware\Core\Checkout\DocumentV2\Twig\View;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
-use Shopware\Core\Checkout\DocumentV2\Zugferd\Calculation\NetAmount;
-use Shopware\Core\Checkout\DocumentV2\Zugferd\TaxCategory;
+use Shopware\Core\Checkout\DocumentV2\Twig\Calculation\NetAmount;
+use Shopware\Core\Checkout\DocumentV2\Twig\Enum\TaxCategory;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Precomputed XRechnung view of a single `<ram:ApplicableTradeTax>` header-tax row.
+ * Precomputed view of a single header-tax row.
  *
  * One entry is emitted per distinct tax rate on the order. The precondition
  * (no duplicate rates in {@see CalculatedTaxCollection}) is enforced by the collection itself,

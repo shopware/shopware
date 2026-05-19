@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Zugferd\View;
+namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Twig\View;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\DocumentV2\Zugferd\PaymentMeansCode;
-use Shopware\Core\Checkout\DocumentV2\Zugferd\View\PaymentMeansView;
+use Shopware\Core\Checkout\DocumentV2\Twig\Enum\PaymentMeansCode;
+use Shopware\Core\Checkout\DocumentV2\Twig\View\PaymentMeansView;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;

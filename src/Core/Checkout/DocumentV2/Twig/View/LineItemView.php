@@ -1,22 +1,22 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\DocumentV2\Zugferd\View;
+namespace Shopware\Core\Checkout\DocumentV2\Twig\View;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
-use Shopware\Core\Checkout\DocumentV2\Zugferd\Calculation\NetAmount;
-use Shopware\Core\Checkout\DocumentV2\Zugferd\TaxCategory;
-use Shopware\Core\Checkout\DocumentV2\Zugferd\UnitCode;
+use Shopware\Core\Checkout\DocumentV2\Twig\Calculation\NetAmount;
+use Shopware\Core\Checkout\DocumentV2\Twig\Enum\TaxCategory;
+use Shopware\Core\Checkout\DocumentV2\Twig\Enum\UnitCode;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Precomputed XRechnung view of a single billable line item.
+ * Precomputed view of a single billable line item.
  *
  * Shared across document types (invoice, delivery note, credit note, …) that render order
- * positions as `<ram:IncludedSupplyChainTradeLineItem>`.
+ * positions in structured form.
  *
  * @internal
  */
@@ -24,7 +24,8 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class LineItemView
 {
     /**
-     * Used when the product carries no `purchaseUnit` — ZUGFeRD requires a basis quantity.
+     * Used when the product carries no `purchaseUnit` — a basis quantity is required to compute
+     * the per-unit price.
      */
     final public const DEFAULT_BASIS_QUANTITY = 1.0;
 

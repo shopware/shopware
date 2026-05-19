@@ -1,15 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\DocumentV2\Zugferd;
+namespace Shopware\Core\Checkout\DocumentV2\Twig\Enum;
 
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Allowance and charge reason codes used in `<ram:SpecifiedTradeAllowanceCharge>`.
+ * Allowance and charge reason codes.
  *
- * Codes are drawn from two UN/EDIFACT lists depending on the side of the indicator:
- *  - Allowances (`<udt:Indicator>false</udt:Indicator>`): UNCL 5189
- *  - Charges (`<udt:Indicator>true</udt:Indicator>`): UNCL 7161
+ * Codes are drawn from two UN/EDIFACT lists depending on whether the entry is an allowance or a charge:
+ *  - Allowances: UNCL 5189
+ *  - Charges: UNCL 7161
  *
  * @see https://docs.peppol.eu/poacc/billing/3.0/codelist/UNCL5189/
  * @see https://docs.peppol.eu/poacc/billing/3.0/codelist/UNCL7161/

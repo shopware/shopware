@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\DocumentV2\Zugferd\View;
+namespace Shopware\Core\Checkout\DocumentV2\Twig\View;
 
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Precomputed XRechnung view of `<ram:SpecifiedTradeSettlementHeaderMonetarySummation>`.
+ * Precomputed view of the monetary summation block of an order.
  *
  * `lineTotal` / `chargeTotal` / `allowanceTotal` are summed from the precomputed
  * {@see LineItemView} and {@see AllowanceChargeView} buckets. `grandTotal` / `taxTotal` /
@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Log\Package;
  * payment transaction's state.
  *
  * `CalculatedTax` values are already rounded to 2 decimal places, so summing them
- * here does not introduce extra rounding into `<ram:RoundingAmount>`.
+ * here does not introduce extra rounding into the rounding amount.
  *
  * @internal
  */

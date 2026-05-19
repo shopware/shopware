@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\DocumentV2\Zugferd\View;
+namespace Shopware\Core\Checkout\DocumentV2\Twig\View;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Core\Checkout\DocumentV2\Zugferd\AllowanceChargeReason;
-use Shopware\Core\Checkout\DocumentV2\Zugferd\Calculation\NetAmount;
-use Shopware\Core\Checkout\DocumentV2\Zugferd\TaxCategory;
+use Shopware\Core\Checkout\DocumentV2\Twig\Calculation\NetAmount;
+use Shopware\Core\Checkout\DocumentV2\Twig\Enum\AllowanceChargeReason;
+use Shopware\Core\Checkout\DocumentV2\Twig\Enum\TaxCategory;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -15,11 +15,11 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\FloatComparator;
 
 /**
- * Precomputed XRechnung view of a single `<ram:SpecifiedTradeAllowanceCharge>` entry.
+ * Precomputed view of a single allowance-or-charge entry.
  *
  * One entry is emitted per (source × tax breakdown row); the source can be a promotion/credit
- * line item or an order delivery's shipping cost. Positive `isCharge` flips the wire
- * `<udt:Indicator>` to `true`; everything else (allowance) to `false`.
+ * line item or an order delivery's shipping cost. Positive `isCharge` marks the entry as a
+ * charge; everything else is treated as an allowance.
  *
  * Zero-amount rows are emitted to match v1 wire output.
  *

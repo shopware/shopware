@@ -4,7 +4,7 @@
 
 import { mount } from '@vue/test-utils';
 
-async function createWrapper() {
+async function createWrapper(props = {}) {
     return mount(
         await wrapTestComponent('sw-sales-channel-detail-product-comparison', {
             sync: true,
@@ -35,6 +35,7 @@ async function createWrapper() {
             props: {
                 productExport: {},
                 salesChannel: {},
+                ...props,
             },
         },
     );
@@ -69,5 +70,21 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-product-compa
         codeEditors.forEach((codeEditor) => {
             expect(codeEditor.attributes().disabled).toBeUndefined();
         });
+    });
+
+    it('binds the feed label input to productExport.feedLabel', async () => {
+        global.activeAclRoles = [
+            'sales_channel.editor',
+        ];
+
+        const wrapper = await createWrapper({
+            productExport: { feedLabel: '' },
+        });
+
+        const input = wrapper.find('.sw-sales-channel-detail-product-comparison__feed-label input');
+        expect(input.exists()).toBe(true);
+
+        await input.setValue('SUMMER-2026');
+        expect(wrapper.vm.productExport.feedLabel).toBe('SUMMER-2026');
     });
 });

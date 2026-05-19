@@ -9,6 +9,17 @@
         :title="$t('sw-sales-channel.detail.titleProductComparisonTemplate')"
     >
 
+        {% block sw_sales_channel_detail_product_comparison_feed_label %}
+        <mt-text-field
+            v-model="productExport.feedLabel"
+            class="sw-sales-channel-detail-product-comparison__feed-label"
+            :label="$t('sw-sales-channel.detail.productComparison.feedLabelLabel')"
+            :help-text="$t('sw-sales-channel.detail.productComparison.feedLabelHelpText')"
+            :disabled="!acl.can('sales_channel.editor')"
+            :maxlength="20"
+        />
+        {% endblock %}
+
         {% block sw_sales_channel_detail_product_comparison_header %}
         <sw-container>
             {% block sw_sales_channel_detail_product_comparison_input_header %}

@@ -4,14 +4,14 @@
     <sw-modal
         v-if="showShortcutOverviewModal"
         class="sw-shortcut-overview--modal"
-        :title="$t(`sw-shortcut-overview.modalTitle`)"
+        :title="$t('sw-shortcut-overview.modalTitle')"
         variant="large"
         @modal-close="onCloseShortcutOverviewModal"
     >
 
         {% block sw_shortcut_overview_modal_section_general_shortcuts %}
-        <section class="sw-shortcut-overview__section sw-shortcut-overview__section--general-shortcuts">
-            <h3>{{ $t(`sw-shortcut-overview.sectionGeneralShortcuts`) }}</h3>
+        <section class="sw-shortcut-overview__section sw-shortcut-overview__section-general-shortcuts">
+            <h3>{{ $t('sw-shortcut-overview.sectionGeneralShortcuts') }}</h3>
             <sw-shortcut-overview-item
                 v-for="section in sections.generalShortcuts"
                 :key="section.id"
@@ -23,8 +23,8 @@
         {% endblock %}
 
         {% block sw_shortcut_overview_modal_section_adding_items %}
-        <section class="sw-shortcut-overview__section sw-shortcut-overview__section--adding-items">
-            <h3>{{ $t(`sw-shortcut-overview.sectionAddingItems`) }}</h3>
+        <section class="sw-shortcut-overview__section sw-shortcut-overview__section-adding-items">
+            <h3>{{ $t('sw-shortcut-overview.sectionAddingItems') }}</h3>
             <sw-shortcut-overview-item
                 v-for="section in sections.addingItems"
                 :key="section.id"
@@ -36,8 +36,8 @@
         {% endblock %}
 
         {% block sw_shortcut_overview_modal_section_navigation %}
-        <section class="sw-shortcut-overview__section sw-shortcut-overview__section--navigation">
-            <h3>{{ $t(`sw-shortcut-overview.sectionNavigation`) }}</h3>
+        <section class="sw-shortcut-overview__section sw-shortcut-overview__section-navigation">
+            <h3>{{ $t('sw-shortcut-overview.sectionNavigation') }}</h3>
             <sw-shortcut-overview-item
                 v-for="section in sections.navigation"
                 :key="section.id"
@@ -49,8 +49,8 @@
         {% endblock %}
 
         {% block sw_shortcut_overview_modal_section_accessibility %}
-        <section class="sw-shortcut-overview__section sw-shortcut-overview__section--accessibility">
-            <h3>{{ $t(`sw-shortcut-overview.sectionAccessibility`) }}</h3>
+        <section class="sw-shortcut-overview__section sw-shortcut-overview__section-accessibility">
+            <h3>{{ $t('sw-shortcut-overview.sectionAccessibility') }}</h3>
             <sw-shortcut-overview-item
                 v-for="section in sections.accessibility"
                 :key="section.id"
@@ -67,7 +67,7 @@
             <mt-switch
                 class="sw-shortcut-overview__disable-shortcuts-toggle"
                 :model-value="shortcutsDisabled"
-                :label="$t(`sw-shortcut-overview.disableShortcuts`)"
+                :label="$t('sw-shortcut-overview.disableShortcuts')"
                 @update:model-value="onToggleShortcutsDisabled"
             />
             {% endblock %}
@@ -78,7 +78,7 @@
                 variant="secondary"
                 @click="onCloseShortcutOverviewModal"
             >
-                {{ $t(`global.default.close`) }}
+                {{ $t('global.default.close') }}
             </mt-button>
             {% endblock %}
         </template>

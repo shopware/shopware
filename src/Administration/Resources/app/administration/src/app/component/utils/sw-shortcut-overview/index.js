@@ -20,19 +20,33 @@ export default {
         'shortcut-close',
     ],
 
+    props: {
+        showModal: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+    },
+
     shortcuts: {
         '?': 'onOpenShortcutOverviewModal',
     },
 
     data() {
         return {
-            showShortcutOverviewModal: false,
+            showShortcutOverviewModal: this.showModal,
             shortcutsDisabled: false,
         };
     },
 
     created() {
-        this.shortcutsDisabled = this.shortcutService.isShortcutsDisabled();
+        this.createdComponent();
+    },
+
+    watch: {
+        showModal(value) {
+            this.showShortcutOverviewModal = value;
+        },
     },
 
     computed: {
@@ -77,14 +91,16 @@ export default {
                         id: utils.createId(),
                         title: this.$t('sw-shortcut-overview.functionSpecialShortcutSaveDetailView'),
                         content: this.$t(
-                            `sw-shortcut-overview.keyboardShortcutSpecialShortcutSaveDetailView${this.platformShortcutSuffix}`,
+                            'sw-shortcut-overview.keyboardShortcutSpecialShortcutSaveDetailView' +
+                                this.platformShortcutSuffix,
                         ),
                     },
                     {
                         id: utils.createId(),
                         title: this.$t('sw-shortcut-overview.functionSpecialShortcutClearCache'),
                         content: this.$t(
-                            `sw-shortcut-overview.keyboardShortcutSpecialShortcutClearCache${this.platformShortcutSuffix}`,
+                            'sw-shortcut-overview.keyboardShortcutSpecialShortcutClearCache' +
+                                this.platformShortcutSuffix,
                         ),
                         privilege: 'system.clear_cache',
                     },
@@ -216,7 +232,6 @@ export default {
                         privilege: 'system.plugin_maintain',
                     },
                 ],
-
                 accessibility: [
                     {
                         id: utils.createId(),
@@ -239,6 +254,10 @@ export default {
     },
 
     methods: {
+        createdComponent() {
+            this.shortcutsDisabled = this.shortcutService.isShortcutsDisabled();
+        },
+
         onOpenShortcutOverviewModal() {
             this.showShortcutOverviewModal = true;
             this.$emit('shortcut-open');

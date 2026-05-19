@@ -8,7 +8,7 @@
     <span class="sw-shortcut-overview-item__keys">
         <kbd
             v-for="(key, index) in keys"
-            :key="`${key.label}-${index}`"
+            :key="key.label + '-' + index"
             class="sw-shortcut-overview-item__key"
             :aria-label="key.ariaLabel"
         >

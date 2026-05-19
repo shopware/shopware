@@ -3,6 +3,7 @@
  */
 
 const keystrokeDelay = 1000;
+const debounce = Shopware.Utils.debounce;
 
 /**
  * @private
@@ -12,7 +13,6 @@ export default {
         let activeShortcuts = [];
         let shortcutState = {
             buffer: [],
-            lastKeyTime: 0,
         };
 
         function areShortcutsDisabled() {
@@ -22,9 +22,10 @@ export default {
         function resetShortcutState() {
             shortcutState = {
                 buffer: [],
-                lastKeyTime: 0,
             };
         }
+
+        const resetShortcutStateDebounced = debounce(resetShortcutState, keystrokeDelay);
 
         function isSystemShortcut(shortcutKey) {
             return /SYSTEMKEY/.test(shortcutKey);
@@ -40,28 +41,26 @@ export default {
 
         function getMatchedShortcut(shortcutKey) {
             if (isSystemShortcut(shortcutKey)) {
+                resetShortcutStateDebounced.cancel?.();
                 resetShortcutState();
 
                 return activeShortcuts.find((shortcut) => shortcut.key.toUpperCase() === shortcutKey);
             }
 
-            const currentTime = Date.now();
-            const buffer =
-                currentTime - shortcutState.lastKeyTime > keystrokeDelay
-                    ? [shortcutKey]
-                    : [
-                          ...shortcutState.buffer,
-                          shortcutKey,
-                      ];
+            const buffer = [
+                ...shortcutState.buffer,
+                shortcutKey,
+            ];
             const sequence = buffer.join('');
             const matchedShortcut = activeShortcuts.find((shortcut) => shortcut.key.toUpperCase() === sequence);
 
             shortcutState = {
                 buffer,
-                lastKeyTime: currentTime,
             };
+            resetShortcutStateDebounced();
 
             if (matchedShortcut) {
+                resetShortcutStateDebounced.cancel?.();
                 resetShortcutState();
 
                 return matchedShortcut;
@@ -70,13 +69,18 @@ export default {
             const hasLongerSequence = activeShortcuts.some((shortcut) => {
                 const registeredKey = shortcut.key.toUpperCase();
 
-                return !isSystemShortcut(registeredKey) && registeredKey.startsWith(sequence) && registeredKey !== sequence;
+                return (
+                    !isSystemShortcut(registeredKey) &&
+                    registeredKey.startsWith(sequence) &&
+                    registeredKey !== sequence
+                );
             });
 
             if (hasLongerSequence) {
                 return null;
             }
 
+            resetShortcutStateDebounced.cancel?.();
             resetShortcutState();
 
             return activeShortcuts.find((shortcut) => shortcut.key.toUpperCase() === shortcutKey);
@@ -109,7 +113,7 @@ export default {
             const systemKeyPressed = systemKey === 'CTRL' ? ctrlKey : altKey;
 
             // create combined key name and look for matching shortcut
-            const combinedKey = `${systemKeyPressed ? 'SYSTEMKEY+' : ''}${key.toUpperCase()}`;
+            const combinedKey = (systemKeyPressed ? 'SYSTEMKEY+' : '') + key.toUpperCase();
 
             if (!isSystemShortcut(combinedKey) && isRestrictedSource(event)) {
                 resetShortcutState();

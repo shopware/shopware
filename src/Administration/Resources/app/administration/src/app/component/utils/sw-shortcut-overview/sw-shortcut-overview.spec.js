@@ -113,8 +113,8 @@ describe('app/component/utils/sw-shortcut-overview', () => {
         const sections = wrapper.findAll('.sw-shortcut-overview__section');
 
         expect(sections).toHaveLength(4);
-        expect(sections.at(0).classes()).toContain('sw-shortcut-overview__section--general-shortcuts');
-        expect(wrapper.find('.sw-shortcut-overview__section--advanced').exists()).toBeFalsy();
+        expect(sections.at(0).classes()).toContain('sw-shortcut-overview__section-general-shortcuts');
+        expect(wrapper.find('.sw-shortcut-overview__section-advanced').exists()).toBeFalsy();
         expect(generalShortcuts).toEqual(
             expect.arrayContaining([
                 expect.objectContaining({

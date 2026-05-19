@@ -20,11 +20,11 @@
 
     <sw-help-sidebar
         v-if="showHelpSidebar"
-        ref="helpSidebar"
+        :focus-trigger="helpSidebarFocusTrigger"
     />
 
     <sw-shortcut-overview
-        ref="shortcutModal"
+        :show-modal="showShortcutModal"
         @shortcut-open="openShortcutModal"
         @shortcut-close="closeShortcutModal"
     />

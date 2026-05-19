@@ -7,8 +7,16 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-help-center-v2', { sync: true }), {
         global: {
             stubs: {
-                'sw-help-sidebar': true,
-                'sw-shortcut-overview': true,
+                'sw-help-sidebar': {
+                    name: 'sw-help-sidebar',
+                    props: ['focusTrigger'],
+                    template: '<div class="sw-help-sidebar-stub"></div>',
+                },
+                'sw-shortcut-overview': {
+                    name: 'sw-shortcut-overview',
+                    props: ['showModal'],
+                    template: '<div class="sw-shortcut-overview-stub"></div>',
+                },
                 'sw-extension-component-section': true,
             },
         },
@@ -40,20 +48,17 @@ describe('src/app/asyncComponent/utils/sw-help-center', () => {
     });
 
     it('should be able to toggle the shortcut overview', async () => {
-        wrapper.vm.$refs.shortcutModal.onOpenShortcutOverviewModal = jest.fn();
-
         await wrapper.find('.sw-help-center__button').trigger('click');
         expect(wrapper.find('sw-help-sidebar-stub').exists()).toBeTruthy();
-        wrapper.vm.$refs.helpSidebar.setFocusToSidebar = jest.fn();
 
         Shopware.Store.get('adminHelpCenter').showShortcutModal = true;
         await wrapper.vm.$nextTick();
         expect(wrapper.find('sw-shortcut-overview-stub').exists()).toBeTruthy();
-        expect(wrapper.vm.$refs.shortcutModal.onOpenShortcutOverviewModal).toHaveBeenCalled();
+        expect(wrapper.findComponent({ name: 'sw-shortcut-overview' }).props('showModal')).toBe(true);
 
         Shopware.Store.get('adminHelpCenter').showShortcutModal = false;
         await wrapper.vm.$nextTick();
         expect(wrapper.find('sw-shortcut-overview-stub').exists()).toBeTruthy();
-        expect(wrapper.vm.$refs.helpSidebar.setFocusToSidebar).toHaveBeenCalled();
+        expect(wrapper.findComponent({ name: 'sw-help-sidebar' }).props('focusTrigger')).toBe(1);
     });
 });

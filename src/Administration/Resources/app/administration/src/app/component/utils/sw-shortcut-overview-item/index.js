@@ -13,44 +13,44 @@ function createKeyLabel(label, ariaLabel = label) {
 }
 
 const keyLabels = {
-    Mac: {
-        ALT: createKeyLabel('⌥', 'Option'),
-        OPTION: createKeyLabel('⌥', 'Option'),
-        CONTROL: createKeyLabel('⌃', 'Control'),
-        CTRL: createKeyLabel('⌃', 'Control'),
-        CMD: createKeyLabel('⌘', 'Command'),
-        COMMAND: createKeyLabel('⌘', 'Command'),
-        META: createKeyLabel('⌘', 'Command'),
-        SHIFT: createKeyLabel('⇧', 'Shift'),
-        TAB: createKeyLabel('⇥ Tab', 'Tab'),
-        ESC: createKeyLabel('Esc', 'Escape'),
-        ESCAPE: createKeyLabel('Esc', 'Escape'),
+    mac: {
+        alt: createKeyLabel('⌥', 'Option'),
+        option: createKeyLabel('⌥', 'Option'),
+        control: createKeyLabel('⌃', 'Control'),
+        ctrl: createKeyLabel('⌃', 'Control'),
+        cmd: createKeyLabel('⌘', 'Command'),
+        command: createKeyLabel('⌘', 'Command'),
+        meta: createKeyLabel('⌘', 'Command'),
+        shift: createKeyLabel('⇧', 'Shift'),
+        tab: createKeyLabel('⇥ Tab', 'Tab'),
+        esc: createKeyLabel('Esc', 'Escape'),
+        escape: createKeyLabel('Esc', 'Escape'),
     },
-    Windows: {
-        ALT: createKeyLabel('Alt'),
-        CONTROL: createKeyLabel('Ctrl', 'Control'),
-        CTRL: createKeyLabel('Ctrl', 'Control'),
-        CMD: createKeyLabel('⊞', 'Windows'),
-        COMMAND: createKeyLabel('⊞', 'Windows'),
-        META: createKeyLabel('⊞', 'Windows'),
-        WIN: createKeyLabel('⊞', 'Windows'),
-        WINDOWS: createKeyLabel('⊞', 'Windows'),
-        SHIFT: createKeyLabel('Shift'),
-        TAB: createKeyLabel('⇥ Tab', 'Tab'),
-        ESC: createKeyLabel('Esc', 'Escape'),
-        ESCAPE: createKeyLabel('Esc', 'Escape'),
+    windows: {
+        alt: createKeyLabel('Alt'),
+        control: createKeyLabel('Ctrl', 'Control'),
+        ctrl: createKeyLabel('Ctrl', 'Control'),
+        cmd: createKeyLabel('⊞', 'Windows'),
+        command: createKeyLabel('⊞', 'Windows'),
+        meta: createKeyLabel('⊞', 'Windows'),
+        win: createKeyLabel('⊞', 'Windows'),
+        windows: createKeyLabel('⊞', 'Windows'),
+        shift: createKeyLabel('Shift'),
+        tab: createKeyLabel('⇥ Tab', 'Tab'),
+        esc: createKeyLabel('Esc', 'Escape'),
+        escape: createKeyLabel('Esc', 'Escape'),
     },
-    Linux: {
-        ALT: createKeyLabel('Alt'),
-        CONTROL: createKeyLabel('Ctrl', 'Control'),
-        CTRL: createKeyLabel('Ctrl', 'Control'),
-        CMD: createKeyLabel('Super'),
-        COMMAND: createKeyLabel('Super'),
-        META: createKeyLabel('Super'),
-        SHIFT: createKeyLabel('Shift'),
-        TAB: createKeyLabel('⇥ Tab', 'Tab'),
-        ESC: createKeyLabel('Esc', 'Escape'),
-        ESCAPE: createKeyLabel('Esc', 'Escape'),
+    linux: {
+        alt: createKeyLabel('Alt'),
+        control: createKeyLabel('Ctrl', 'Control'),
+        ctrl: createKeyLabel('Ctrl', 'Control'),
+        cmd: createKeyLabel('Super'),
+        command: createKeyLabel('Super'),
+        meta: createKeyLabel('Super'),
+        shift: createKeyLabel('Shift'),
+        tab: createKeyLabel('⇥ Tab', 'Tab'),
+        esc: createKeyLabel('Esc', 'Escape'),
+        escape: createKeyLabel('Esc', 'Escape'),
     },
 };
 
@@ -87,14 +87,14 @@ export default {
             const platform = this.$device?.getPlatform?.() ?? window.navigator.platform;
 
             if (platform.includes('Mac')) {
-                return 'Mac';
+                return 'mac';
             }
 
             if (platform.includes('Win')) {
-                return 'Windows';
+                return 'windows';
             }
 
-            return 'Linux';
+            return 'linux';
         },
 
         keys() {
@@ -109,14 +109,14 @@ export default {
     methods: {
         formatKey(key) {
             const normalizedKey = key.trim();
-            const upperCaseKey = normalizedKey.toUpperCase();
-            const label = keyLabels[this.platform]?.[upperCaseKey];
+            const lowerCaseKey = normalizedKey.toLowerCase();
+            const label = keyLabels[this.platform]?.[lowerCaseKey];
 
             if (label) {
                 return label;
             }
 
-            return createKeyLabel(normalizedKey.length === 1 ? upperCaseKey : normalizedKey);
+            return createKeyLabel(normalizedKey.length === 1 ? normalizedKey.toUpperCase() : normalizedKey);
         },
     },
 };

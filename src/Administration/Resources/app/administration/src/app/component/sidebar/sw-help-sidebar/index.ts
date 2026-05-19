@@ -47,6 +47,11 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: 'body',
         },
+        focusTrigger: {
+            type: Number,
+            required: false,
+            default: 0,
+        },
     },
 
     computed: {
@@ -68,11 +73,19 @@ export default Shopware.Component.wrapComponentConfig({
 
         shortcutTooltipContent(): string {
             const shortcutKeys = this.shortcutTooltipKeys.map((key: TooltipKey) => {
-                return `<b class="sw-help-sidebar__tooltip-shortcut-key" aria-label="${key.ariaLabel}">${key.label}</b>`;
+                return (
+                    '<b class="sw-help-sidebar__tooltip-shortcut-key" aria-label="' +
+                    key.ariaLabel +
+                    '">' +
+                    key.label +
+                    '</b>'
+                );
             });
 
             return [
-                `<b class="sw-help-sidebar__tooltip-title">${this.$t('sw-shortcut-overview.title')}</b>`,
+                '<b class="sw-help-sidebar__tooltip-title">' +
+                    this.$t('sw-shortcut-overview.title') +
+                    '</b>',
                 shortcutKeys.join(' '),
             ].join(' ');
         },
@@ -81,6 +94,10 @@ export default Shopware.Component.wrapComponentConfig({
     watch: {
         $route(): void {
             this.closeHelpSidebar();
+        },
+
+        focusTrigger(): void {
+            this.setFocusToSidebar();
         },
     },
 
@@ -140,8 +157,12 @@ export default Shopware.Component.wrapComponentConfig({
             this.shortcutService.stopEventListener();
         },
 
+        getHelpSidebarContainer(): HTMLElement | null {
+            return (this.$el as HTMLElement).querySelector('.sw-help-sidebar__container');
+        },
+
         setFocusToSidebar(): void {
-            const helpSidebarContainer = this.$refs.helpSidebarContainer as HTMLElement;
+            const helpSidebarContainer = this.getHelpSidebarContainer();
 
             if (!helpSidebarContainer) {
                 return;
@@ -157,7 +178,7 @@ export default Shopware.Component.wrapComponentConfig({
          * @private
          */
         mouseDown(event: MouseEvent): void {
-            const helpSidebarContainer = this.$refs.helpSidebarContainer as HTMLElement;
+            const helpSidebarContainer = this.getHelpSidebarContainer();
 
             if (!helpSidebarContainer) {
                 return;

@@ -11,6 +11,14 @@ import './sw-help-center.scss';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
+    data(): {
+        helpSidebarFocusTrigger: number;
+    } {
+        return {
+            helpSidebarFocusTrigger: 0,
+        };
+    },
+
     computed: {
         showHelpSidebar(): boolean {
             return Shopware.Store.get('adminHelpCenter').showHelpSidebar;
@@ -23,21 +31,15 @@ export default Shopware.Component.wrapComponentConfig({
 
     watch: {
         showShortcutModal(value) {
-            const shortcutModal = this.$refs.shortcutModal as {
-                onOpenShortcutOverviewModal: () => void;
-            };
-
-            if (!shortcutModal) {
+            if (value === true) {
                 return;
             }
 
-            if (value === false) {
-                this.setFocusToSidebar();
-
+            if (!this.showHelpSidebar) {
                 return;
             }
 
-            shortcutModal.onOpenShortcutOverviewModal();
+            this.helpSidebarFocusTrigger += 1;
         },
     },
 
@@ -52,18 +54,6 @@ export default Shopware.Component.wrapComponentConfig({
 
         closeShortcutModal(): void {
             Shopware.Store.get('adminHelpCenter').showShortcutModal = false;
-        },
-
-        setFocusToSidebar(): void {
-            const helpSidebar = this.$refs.helpSidebar as {
-                setFocusToSidebar: () => void;
-            };
-
-            if (!helpSidebar) {
-                return;
-            }
-
-            helpSidebar.setFocusToSidebar();
         },
     },
 });

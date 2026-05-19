@@ -114,6 +114,20 @@ class MigrationRuntime
             ->fetchOne();
     }
 
+    /**
+     * Runs a single migration step's `update()` through the same FK-guard
+     * retry safety used inside {@see migrate()}. Does not touch the
+     * `migration` record table — meant for tests and one-off invocations
+     * (admin tools, repair scripts) that want the runtime's bug #118151
+     * workaround without the iterator + persistence machinery.
+     *
+     * @internal
+     */
+    public function runMigrationStep(MigrationStep $migration): void
+    {
+        $this->runMigrationWithFkGuardRetry($migration);
+    }
+
     protected function setDefaultStorageEngine(): void
     {
         $this->connection->executeStatement('SET default_storage_engine=InnoDB');
@@ -176,20 +190,6 @@ class MigrationRuntime
              WHERE `class` = :class',
             ['class' => $migrationStep::class]
         );
-    }
-
-    /**
-     * Runs a single migration step's `update()` through the same FK-guard
-     * retry safety used inside {@see migrate()}. Does not touch the
-     * `migration` record table — meant for tests and one-off invocations
-     * (admin tools, repair scripts) that want the runtime's bug #118151
-     * workaround without the iterator + persistence machinery.
-     *
-     * @internal
-     */
-    public function runMigrationStep(MigrationStep $migration): void
-    {
-        $this->runMigrationWithFkGuardRetry($migration);
     }
 
     /**

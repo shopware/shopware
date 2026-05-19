@@ -27,6 +27,22 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
+ * @phpstan-type ServiceListItem array{
+ *     id: string,
+ *     name: string,
+ *     label: string,
+ *     active: bool,
+ *     icon: string|null,
+ *     description: string|null,
+ *     updated_at: string|null,
+ *     version: string,
+ *     requested_privileges: list<string>,
+ *     privileges: list<string>|null,
+ *     state: string,
+ *     domains: list<string>|null,
+ *     requirements: list<string>,
+ * }
+ *
  * @internal only for use by the service-system
  */
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
@@ -225,7 +241,7 @@ class ServiceController
     }
 
     /**
-     * @return array<array{id: string, name: string, active: bool}>
+     * @return list<ServiceListItem>
      */
     private function loadAllServices(Context $context): array
     {
@@ -244,9 +260,21 @@ class ServiceController
             'version' => $app->getVersion(),
             'requested_privileges' => $app->getRequestedPrivileges(),
             'privileges' => $app->getAclRole()?->getPrivileges(),
-            'state' => State::state($app),
+            'state' => State::state($app)->value,
             'domains' => $app->getAllowedHosts(),
+            'requirements' => self::getRequirements($app),
         ]));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private static function getRequirements(AppEntity $app): array
+    {
+        /** @var list<string> $requirements */
+        $requirements = $app->getSourceConfig()['requirements'] ?? [];
+
+        return $requirements;
     }
 
     private function loadService(Context $context): ?AppEntity

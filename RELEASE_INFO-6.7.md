@@ -9,7 +9,7 @@
 The Sync API now ships seven additional foreign key resolvers, allowing payloads to reference entities by stable human-readable keys instead of UUIDs:
 
 * `currency.iso_code` — resolves a `currency` by its `isoCode` (e.g. `EUR`).
-* `locale.code` — resolves a `locale` by its `code` (e.g. `en-GB`).
+* `locale.code` — resolves a `locale` by its `code` (e.g. `en-GB`). The `en_GB` underscore variant is also accepted.
 * `payment_method.technical_name` — resolves a `payment_method` by its `technicalName`.
 * `shipping_method.technical_name` — resolves a `shipping_method` by its `technicalName`.
 * `document_type.technical_name` — resolves a `document_type` by its `technicalName`.

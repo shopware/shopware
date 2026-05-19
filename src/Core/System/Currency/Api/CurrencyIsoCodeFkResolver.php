@@ -30,7 +30,7 @@ class CurrencyIsoCodeFkResolver extends AbstractFkResolver
      */
     public function resolve(array $map): array
     {
-        $codes = \array_map(static fn ($id) => $id->value, $map);
+        $codes = \array_map(static fn ($id) => \is_string($id->value) ? \strtoupper($id->value) : $id->value, $map);
 
         $codes = \array_filter(\array_unique($codes));
 
@@ -45,8 +45,13 @@ class CurrencyIsoCodeFkResolver extends AbstractFkResolver
         );
 
         foreach ($map as $reference) {
-            if (isset($hash[$reference->value])) {
-                $reference->resolved = $hash[$reference->value];
+            if (!\is_string($reference->value)) {
+                continue;
+            }
+
+            $key = \strtoupper($reference->value);
+            if (isset($hash[$key])) {
+                $reference->resolved = $hash[$key];
             }
         }
 

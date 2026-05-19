@@ -44,6 +44,34 @@ class CurrencyIsoCodeFkResolverTest extends TestCase
         static::assertNull($result[2]->resolved);
     }
 
+    public function testResolveIsCaseInsensitive(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('fetchAllKeyValue')
+            ->with(
+                $this->stringContains('UPPER(iso_code)'),
+                ['codes' => ['EUR', 'USD']],
+                $this->anything()
+            )
+            ->willReturn([
+                'EUR' => 'eur00000000000000000000000000001',
+                'USD' => 'usd00000000000000000000000000002',
+            ]);
+
+        $resolver = new CurrencyIsoCodeFkResolver($connection);
+
+        $references = [
+            new FkReference('ops/0/currencyId', 'currency', 'isoCode', 'eur', false),
+            new FkReference('ops/1/currencyId', 'currency', 'isoCode', 'Usd', false),
+        ];
+
+        $result = $resolver->resolve($references);
+
+        static::assertSame('eur00000000000000000000000000001', $result[0]->resolved);
+        static::assertSame('usd00000000000000000000000000002', $result[1]->resolved);
+    }
+
     public function testResolveWithEmptyInputDoesNotQuery(): void
     {
         $connection = $this->createMock(Connection::class);
